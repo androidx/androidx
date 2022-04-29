@@ -8,14 +8,3 @@ package androidx.sqlite.db.framework {
 
 }
 
-package androidx.sqlite.util {
-
-  public final class ProcessLock {
-    ctor public ProcessLock(String, java.io.File, boolean);
-    method public void lock();
-    method public void lock(boolean);
-    method public void unlock();
-  }
-
-}
-

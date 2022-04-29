@@ -60,7 +60,8 @@
   <application
       android:label="@string/app_name"
       android:icon="@drawable/ic_launcher"
-      android:extractNativeLibs="false">
+      android:extractNativeLibs="false"
+      android:supportsRtl="true">
 
     <meta-data
         android:name="com.android.automotive"

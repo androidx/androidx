@@ -18,7 +18,6 @@ package androidx.wear.compose.foundation
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -92,7 +91,7 @@ internal class SizeWrapper(
     private var minThicknessPx = 0f
     private var maxThicknessPx = 0f
 
-    override fun MeasureScope.initializeMeasure(
+    override fun CurvedMeasureScope.initializeMeasure(
         measurables: List<Measurable>,
         index: Int
     ): Int {

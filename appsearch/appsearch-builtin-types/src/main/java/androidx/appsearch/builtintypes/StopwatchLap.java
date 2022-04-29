@@ -49,22 +49,22 @@ public class StopwatchLap {
     private final int mLapNumber;
 
     @Document.LongProperty
-    private final long mLapDurationMillis;
+    private final long mLapTimeMillis;
 
     @Document.LongProperty
-    private final long mCumulativeLapDurationMillis;
+    private final long mAccumulatedLapTimeMillis;
 
     StopwatchLap(@NonNull String namespace, @NonNull String id, int documentScore,
             long creationTimestampMillis, long documentTtlMillis, int lapNumber,
-            long lapDurationMillis, long cumulativeLapDurationMillis) {
+            long lapTimeMillis, long accumulatedLapTimeMillis) {
         mNamespace = Preconditions.checkNotNull(namespace);
         mId = Preconditions.checkNotNull(id);
         mDocumentScore = documentScore;
         mCreationTimestampMillis = creationTimestampMillis;
         mDocumentTtlMillis = documentTtlMillis;
         mLapNumber = lapNumber;
-        mLapDurationMillis = lapDurationMillis;
-        mCumulativeLapDurationMillis = cumulativeLapDurationMillis;
+        mLapTimeMillis = lapTimeMillis;
+        mAccumulatedLapTimeMillis = accumulatedLapTimeMillis;
     }
 
     /** Returns the namespace. */
@@ -124,29 +124,25 @@ public class StopwatchLap {
     }
 
     /**
-     * Returns the duration in milliseconds for the current {@link StopwatchLap}.
-     *
-     * <p>The duration for the current {@link StopwatchLap} is counted from the previous
-     * {@link StopwatchLap} instance, or from the beginning of the {@link Stopwatch} if no previous
-     * instance exists, to when the current {@link StopwatchLap} instance is created.
+     * Returns the total duration in milliseconds accumulated by the current {@link StopwatchLap}.
      */
-    public long getLapDurationMillis() {
-        return mLapDurationMillis;
+    public long getLapTimeMillis() {
+        return mLapTimeMillis;
     }
 
     /**
-     * Returns the cumulative duration in milliseconds for all previous {@link StopwatchLap}
+     * Returns the total duration in milliseconds accumulated by all the {@link StopwatchLap}
      * instances up to and including this one.
      */
-    public long getCumulativeLapDurationMillis() {
-        return mCumulativeLapDurationMillis;
+    public long getAccumulatedLapTimeMillis() {
+        return mAccumulatedLapTimeMillis;
     }
 
     /** Builder for {@link StopwatchLap}. */
     public static final class Builder extends BaseBuiltinTypeBuilder<Builder> {
         private int mLapNumber;
-        private long mLapDurationMillis;
-        private long mCumulativeLapDurationMillis;
+        private long mLapTimeMillis;
+        private long mAccumulatedLapTimeMillis;
 
         /**
          * Constructor for {@link StopwatchLap.Builder}.
@@ -168,9 +164,9 @@ public class StopwatchLap {
             this.mCreationTimestampMillis = stopwatchLap.getCreationTimestampMillis();
             this.mDocumentTtlMillis = stopwatchLap.getDocumentTtlMillis();
             this.mLapNumber = stopwatchLap.getLapNumber();
-            this.mLapDurationMillis = stopwatchLap.getLapDurationMillis();
-            this.mCumulativeLapDurationMillis =
-                    stopwatchLap.getCumulativeLapDurationMillis();
+            this.mLapTimeMillis = stopwatchLap.getLapTimeMillis();
+            this.mAccumulatedLapTimeMillis =
+                    stopwatchLap.getAccumulatedLapTimeMillis();
         }
 
         /** Sets the position of the current {@link StopwatchLap}, starting at 1. */
@@ -182,25 +178,21 @@ public class StopwatchLap {
         }
 
         /**
-         * Sets the duration in milliseconds for the current {@link StopwatchLap}.
-         *
-         * <p>The duration for the current {@link StopwatchLap} is counted from the previous
-         * {@link StopwatchLap} instance, or from the beginning of the {@link Stopwatch} if no
-         * previous instance exists, to when the current {@link StopwatchLap} instance is created.
+         * Sets the total duration in milliseconds accumulated by the current {@link StopwatchLap}.
          */
         @NonNull
-        public Builder setLapDurationMillis(long lapDurationMillis) {
-            mLapDurationMillis = lapDurationMillis;
+        public Builder setLapTimeMillis(long lapTimeMillis) {
+            mLapTimeMillis = lapTimeMillis;
             return this;
         }
 
         /**
-         * Sets the cumulative duration in milliseconds for all previous {@link StopwatchLap}
+         * Sets the total duration in milliseconds accumulated by all the {@link StopwatchLap}
          * instances up to and including this one.
          */
         @NonNull
-        public Builder setCumulativeLapDurationMillis(long cumulativeLapDurationMillis) {
-            mCumulativeLapDurationMillis = cumulativeLapDurationMillis;
+        public Builder setAccumulatedLapTimeMillis(long accumulatedLapTimeMillis) {
+            mAccumulatedLapTimeMillis = accumulatedLapTimeMillis;
             return this;
         }
 
@@ -209,7 +201,7 @@ public class StopwatchLap {
         public StopwatchLap build() {
             return new StopwatchLap(mNamespace, mId, mDocumentScore,
                     mCreationTimestampMillis, mDocumentTtlMillis, mLapNumber,
-                    mLapDurationMillis, mCumulativeLapDurationMillis);
+                    mLapTimeMillis, mAccumulatedLapTimeMillis);
         }
     }
 }

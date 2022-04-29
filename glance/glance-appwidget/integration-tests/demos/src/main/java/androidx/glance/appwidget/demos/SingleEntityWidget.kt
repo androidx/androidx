@@ -30,12 +30,12 @@ import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.currentState
-import androidx.template.appwidget.SingleEntityTemplate
-import androidx.template.template.SingleEntityTemplateData
-import androidx.template.template.TemplateImageWithDescription
-import androidx.template.template.TemplateText
-import androidx.template.template.TemplateTextButton
-import androidx.template.template.TemplateText.Type
+import androidx.glance.appwidget.template.SingleEntityTemplate
+import androidx.glance.template.SingleEntityTemplateData
+import androidx.glance.template.TemplateImageWithDescription
+import androidx.glance.template.TemplateText
+import androidx.glance.template.TemplateTextButton
+import androidx.glance.template.TemplateText.Type
 
 private val PressedKey = booleanPreferencesKey("pressedKey")
 

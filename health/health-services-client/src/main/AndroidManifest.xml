@@ -12,5 +12,20 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <queries>
+        <package android:name="com.google.android.wearable.healthservices" />
+    </queries>
+
+    <application>
+        <service
+            android:name="androidx.health.services.client.impl.VersionApiService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="hs.versionclient.BIND" />
+            </intent-filter>
+        </service>
+    </application>
+
 </manifest>
 

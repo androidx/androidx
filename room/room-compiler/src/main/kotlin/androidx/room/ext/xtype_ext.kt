@@ -95,7 +95,7 @@ fun XType.implementsEqualsAndHashcode(): Boolean {
 
     if (hasEquals && hasHashCode) return true
 
-    return typeElement.superType?.let { it.implementsEqualsAndHashcode() } ?: false
+    return typeElement.superClass?.implementsEqualsAndHashcode() ?: false
 }
 
 /**

@@ -172,9 +172,7 @@ class DaoProcessor(
         // Kotlin.
         val unannotatedMethods = methods[Any::class] ?: emptyList<XMethodElement>()
         val delegatingMethods =
-            if (element.superType != null ||
-                element.getSuperInterfaceElements().isNotEmpty()
-            ) {
+            if (element.superClass != null || element.getSuperInterfaceElements().isNotEmpty()) {
                 matchKotlinBoxedPrimitiveMethods(
                     unannotatedMethods,
                     methods.values.flatten() - unannotatedMethods

@@ -201,7 +201,33 @@ public value class ScalingLazyListAnchorType internal constructor(internal val t
 }
 
 /**
- * Parameters to determine which list item and offset to calculate auto-centering spacing for.
+ * Parameters to determine which list item and offset to calculate auto-centering spacing for. The
+ * default values are [itemIndex] = 1 and [itemOffset] = 0. This will provide sufficient padding for
+ * the second item (index = 1) in the list being centerable. This is to match the Wear UX
+ * guidelines that a typical list will have a ListHeader item as the first item in the list
+ * (index = 0) and that this should not be scrollable into the middle of the viewport, instead the
+ * first list item that a user can interact with (index = 1) would be the first that would be in the
+ * center.
+ *
+ * If your use case is different and you want all list items to be able to be scrolled to the
+ * viewport middle, including the first item in the list then set [itemIndex] = 0.
+ *
+ * The higher the value for [itemIndex] you provide the less auto centering padding will be
+ * provided as the amount of padding needed to allow that item to be centered will reduce.
+ * Even for a list of short items (such as [CompactChip]) setting [itemIndex] above 3 or 4 is likely
+ * to result in no auto-centering padding being provided as items with index 3 or 4 will probably
+ * already be naturally scrollable to the center of the viewport.
+ *
+ * [itemOffset] allows adjustment of the items position relative the [ScalingLazyColumn]s
+ * [ScalingLazyListAnchorType]. This can be useful if you need fine grained control over item
+ * positioning and spacing, e.g. If you are lining up the gaps between two items on the viewport
+ * center line where you would want to set the offset to half the distance between listItems in
+ * pixels.
+ *
+ * See also [rememberScalingLazyListState] where similar fields are provided to allow control over
+ * the initially selected centered item index and offset. By default these match the auto centering
+ * defaults meaning that the second item (index = 1) will be the item scrolled to the viewport
+ * center.
  *
  * @param itemIndex Which list item index to enable auto-centering from. Space (padding) will be
  * added such that items with index [itemIndex] or greater will be able to be scrolled to the center

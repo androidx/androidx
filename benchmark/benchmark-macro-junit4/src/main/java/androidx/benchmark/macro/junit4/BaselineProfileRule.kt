@@ -18,10 +18,12 @@ package androidx.benchmark.macro.junit4
 
 import android.Manifest
 import androidx.annotation.RequiresApi
+import androidx.benchmark.Arguments
 import androidx.benchmark.macro.ExperimentalBaselineProfilesApi
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.collectBaselineProfile
 import androidx.test.rule.GrantPermissionRule
+import org.junit.Assume.assumeTrue
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -69,6 +71,7 @@ class BaselineProfileRule : TestRule {
 
     private fun applyInternal(base: Statement, description: Description) = object : Statement() {
         override fun evaluate() {
+            assumeTrue(Arguments.RuleType.BaselineProfile in Arguments.enabledRules)
             currentDescription = description
             base.evaluate()
         }

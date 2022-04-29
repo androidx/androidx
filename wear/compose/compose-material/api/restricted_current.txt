@@ -14,17 +14,23 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ButtonColors buttonColors(optional long backgroundColor, optional long contentColor, optional long disabledBackgroundColor, optional long disabledContentColor);
     method public float getCompactButtonBackgroundPadding();
     method public float getDefaultButtonSize();
+    method public float getDefaultIconSize();
     method public float getExtraSmallButtonSize();
     method public float getLargeButtonSize();
+    method public float getLargeIconSize();
     method public float getSmallButtonSize();
+    method public float getSmallIconSize();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ButtonColors iconButtonColors(optional long contentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ButtonColors primaryButtonColors(optional long backgroundColor, optional long contentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ButtonColors secondaryButtonColors(optional long backgroundColor, optional long contentColor);
     property public final float CompactButtonBackgroundPadding;
     property public final float DefaultButtonSize;
+    property public final float DefaultIconSize;
     property public final float ExtraSmallButtonSize;
     property public final float LargeButtonSize;
+    property public final float LargeIconSize;
     property public final float SmallButtonSize;
+    property public final float SmallIconSize;
     field public static final androidx.wear.compose.material.ButtonDefaults INSTANCE;
   }
 
@@ -44,9 +50,9 @@ package androidx.wear.compose.material {
   }
 
   public final class CardKt {
-    method @androidx.compose.runtime.Composable public static void AppCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> appName, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> time, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? appImage, optional androidx.compose.ui.graphics.painter.Painter backgroundPainter, optional long contentColor, optional long appColor, optional long timeColor, optional long titleColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void AppCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> appName, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> time, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? appImage, optional androidx.compose.ui.graphics.painter.Painter backgroundPainter, optional long contentColor, optional long appColor, optional long timeColor, optional long titleColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void Card(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.painter.Painter backgroundPainter, optional long contentColor, optional boolean enabled, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource, optional androidx.compose.ui.semantics.Role? role, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static void TitleCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? time, optional androidx.compose.ui.graphics.painter.Painter backgroundPainter, optional long contentColor, optional long titleColor, optional long timeColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void TitleCard(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? time, optional androidx.compose.ui.graphics.painter.Painter backgroundPainter, optional long contentColor, optional long titleColor, optional long timeColor, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
   }
 
   @androidx.compose.runtime.Stable public interface ChipColors {
@@ -118,9 +124,6 @@ package androidx.wear.compose.material {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static long contentColorFor(long backgroundColor);
   }
 
-  public final class CompositionLocalKt {
-  }
-
   public final class ContentAlpha {
     method @androidx.compose.runtime.Composable public float getDisabled();
     method @androidx.compose.runtime.Composable public float getHigh();
@@ -142,7 +145,7 @@ package androidx.wear.compose.material {
   }
 
   public final class CurvedTextKt {
-    method public static void curvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional long background, optional long color, optional long fontSize, optional androidx.wear.compose.foundation.CurvedTextStyle? style, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow);
+    method public static void curvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional long background, optional long color, optional long fontSize, optional androidx.wear.compose.foundation.CurvedTextStyle? style, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional int overflow);
   }
 
   public final class DefaultTimeSourceKt {
@@ -570,10 +573,14 @@ package androidx.wear.compose.material {
   }
 
   public final class ToggleButtonDefaults {
+    method public float getDefaultIconSize();
     method public float getDefaultToggleButtonSize();
+    method public float getSmallIconSize();
     method public float getSmallToggleButtonSize();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material.ToggleButtonColors toggleButtonColors(optional long checkedBackgroundColor, optional long checkedContentColor, optional long disabledCheckedBackgroundColor, optional long disabledCheckedContentColor, optional long uncheckedBackgroundColor, optional long uncheckedContentColor, optional long disabledUncheckedBackgroundColor, optional long disabledUncheckedContentColor);
+    property public final float DefaultIconSize;
     property public final float DefaultToggleButtonSize;
+    property public final float SmallIconSize;
     property public final float SmallToggleButtonSize;
     field public static final androidx.wear.compose.material.ToggleButtonDefaults INSTANCE;
   }

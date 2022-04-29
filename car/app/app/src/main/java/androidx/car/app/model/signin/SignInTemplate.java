@@ -394,16 +394,14 @@ public final class SignInTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * Either a header {@link Action} or the title must be set.
+         * <p>If none of the header {@link Action}, the header title or the action strip have been
+         * set on the template, the header is hidden.
          *
          * @throws IllegalStateException if the template does not have either a title or header
          *                               {@link Action} set
          */
         @NonNull
         public SignInTemplate build() {
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
-            }
             return new SignInTemplate(this);
         }
 

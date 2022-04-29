@@ -781,6 +781,8 @@ final class Camera2CameraImpl implements CameraInternal {
         synchronized (mLock) {
             mSessionProcessor = sessionProcessor;
         }
+
+        getCameraControlInternal().setZslDisabled(cameraConfig.isZslDisabled());
     }
 
     @NonNull
@@ -1277,6 +1279,11 @@ final class Camera2CameraImpl implements CameraInternal {
         for (CaptureConfig captureConfig : captureConfigs) {
             // Recreates the Builder to add extra config needed
             CaptureConfig.Builder builder = CaptureConfig.Builder.from(captureConfig);
+
+            if (captureConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+                    && captureConfig.getCameraCaptureResult() != null) {
+                builder.setCameraCaptureResult(captureConfig.getCameraCaptureResult());
+            }
 
             if (captureConfig.getSurfaces().isEmpty() && captureConfig.isUseRepeatingSurface()) {
                 // Checks and attaches repeating surface to the request if there's no surface

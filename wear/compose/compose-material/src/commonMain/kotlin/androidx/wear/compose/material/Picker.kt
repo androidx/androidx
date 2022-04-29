@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -111,9 +112,9 @@ public fun Picker(
     } else {
         forceScrollWhenReadOnly = true
         ScalingLazyColumn(
-            modifier = modifier.drawWithContent {
-                drawContent()
-                if (gradientRatio > 0.0f) {
+            modifier = if (gradientRatio > 0.0f) {
+                modifier.drawWithContent {
+                    drawContent()
                     // Apply a fade-out gradient on the top and bottom.
                     drawRect(Brush.linearGradient(
                         colors = listOf(gradientColor, Color.Transparent),
@@ -126,6 +127,10 @@ public fun Picker(
                         end = Offset(size.width / 2, size.height)
                     ))
                 }
+                // b/223386180 - prevent artefacts left on screen when scaling gradient by padding.
+                .padding(vertical = 1.dp)
+            } else {
+                modifier
             },
             state = state.scalingLazyListState,
             content = {
@@ -197,16 +202,26 @@ public class PickerState constructor(
         get() = _numberOfOptions
         set(newNumberOfOptions) {
             verifyNumberOfOptions(newNumberOfOptions)
-            optionsOffset = ((selectedOption.coerceAtMost(newNumberOfOptions - 1) -
-                scalingLazyListState.centerItemIndex % newNumberOfOptions) + newNumberOfOptions) %
-                    newNumberOfOptions
+            // We need to maintain the mapping between the currently selected item and the
+            // currently selected option.
+            optionsOffset = positiveModule(
+                selectedOption.coerceAtMost(newNumberOfOptions - 1) -
+                    scalingLazyListState.centerItemIndex,
+                newNumberOfOptions
+            )
             _numberOfOptions = newNumberOfOptions
         }
 
     internal fun numberOfItems() = if (!repeatItems) numberOfOptions else LARGE_NUMBER_OF_ITEMS
 
     // The difference between the option we want to select for the current numberOfOptions
-    // and the selection with the previous numberOfOptions.
+    // and the selection with the initial numberOfOptions.
+    // Note that if repeatItems is tru (the default), we have a large number of items, and a smaller
+    // number of options, so many items map to the same options. This variable is part of that
+    // mapping since we need to adjust it when the number of options change.
+    // The mapping is that given an item index, subtracting optionsOffset and doing modulo the
+    // current number of options gives the option index:
+    // itemIndex - optionsOffset =(mod numberOfOptions) optionIndex
     internal var optionsOffset = 0
 
     internal val scalingLazyListState = run {
@@ -219,9 +234,9 @@ public class PickerState constructor(
     }
 
     /**
-     * Index of the item selected (i.e., at the center)
+     * Index of the option selected (i.e., at the center)
      */
-    val selectedOption: Int
+    public val selectedOption: Int
         get() = (scalingLazyListState.centerItemIndex + optionsOffset) % numberOfOptions
 
     /**
@@ -233,18 +248,22 @@ public class PickerState constructor(
      *
      * @param index The index of the option to scroll to.
      */
-    suspend fun scrollToOption(index: Int) {
+    public suspend fun scrollToOption(index: Int) {
         val itemIndex =
             if (!repeatItems) {
                 index
             } else {
-                val centerOffset = numberOfOptions * (LARGE_NUMBER_OF_ITEMS / (numberOfOptions * 2))
-                centerOffset + index - optionsOffset
+                // Pick the itemIndex closest to the current one, that it's congruent modulo
+                // numberOfOptions with index - optionOffset.
+                // This is to try to work around http://b/230582961
+                val minTargetIndex = scalingLazyListState.centerItemIndex - numberOfOptions / 2
+                minTargetIndex + positiveModule(index - minTargetIndex, numberOfOptions) -
+                    optionsOffset
             }
         scalingLazyListState.scrollToItem(itemIndex, 0)
     }
 
-    companion object {
+    public companion object {
         /**
          * The default [Saver] implementation for [PickerState].
          */
@@ -267,25 +286,25 @@ public class PickerState constructor(
         )
     }
 
-    override suspend fun scroll(
+    public override suspend fun scroll(
         scrollPriority: MutatePriority,
         block: suspend ScrollScope.() -> Unit
     ) {
         scalingLazyListState.scroll(scrollPriority, block)
     }
 
-    override fun dispatchRawDelta(delta: Float): Float {
+    public override fun dispatchRawDelta(delta: Float): Float {
         return scalingLazyListState.dispatchRawDelta(delta)
     }
 
-    override val isScrollInProgress: Boolean
+    public override val isScrollInProgress: Boolean
         get() = scalingLazyListState.isScrollInProgress
 
     private fun verifyNumberOfOptions(numberOfOptions: Int) {
         require(numberOfOptions > 0) { "The picker should have at least one item." }
         require(numberOfOptions < LARGE_NUMBER_OF_ITEMS / 3) {
             // Set an upper limit to ensure there are at least 3 repeats of all the options
-            "The picker should have at most ${LARGE_NUMBER_OF_ITEMS / 3} items"
+            "The picker should have less than ${LARGE_NUMBER_OF_ITEMS / 3} items"
         }
     }
 }
@@ -298,7 +317,7 @@ public object PickerDefaults {
      * Scaling params are used to determine when items start to be scaled down and alpha applied,
      * and how much. For details, see [ScalingParams]
      */
-    fun scalingParams(
+    public fun scalingParams(
         edgeScale: Float = 0.45f,
         edgeAlpha: Float = 1.0f,
         minElementHeight: Float = 0.0f,
@@ -339,7 +358,11 @@ public object PickerDefaults {
         }
     }
 
-    val DefaultGradientRatio = 0.33f
+    /**
+     * Default Picker gradient ratio - the proportion of the Picker height allocated to each of the
+     * of the top and bottom gradients.
+     */
+    public val DefaultGradientRatio = 0.33f
 }
 
 /**
@@ -349,8 +372,10 @@ public interface PickerScope {
     /**
      * Index of the item selected (i.e., at the center)
      */
-    val selectedOption: Int
+    public val selectedOption: Int
 }
+
+private fun positiveModule(n: Int, mod: Int) = ((n % mod) + mod) % mod
 
 @Stable
 private class PickerScopeImpl(

@@ -16,8 +16,11 @@
 
 package androidx.wear.watchface.complications.data
 
+import android.content.ComponentName
 import android.content.Context
 import android.graphics.drawable.Icon
+import android.support.wearable.complications.ComplicationData
+import android.support.wearable.complications.ComplicationData.IMAGE_STYLE_ICON
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -275,6 +278,55 @@ class PlaceholderTest {
 
         assertThat(placeholderPhotoImage.photoImage).isEqualTo(icon)
         assertThat(placeholderPhotoImage.hasPlaceholderFields()).isFalse()
+    }
+
+    @Test
+    fun wireLongTextWithPlaceholder_toApi() {
+        val timelineEntry =
+            ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
+                .setPlaceholder(
+                    ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(ComplicationText.PLACEHOLDER.toWireComplicationText())
+                        .build()
+                )
+                .build()
+        timelineEntry.timelineStartEpochSecond = 100
+        timelineEntry.timelineEndEpochSecond = 1000
+
+        val wireLongTextComplication = WireComplicationDataBuilder(
+            ComplicationType.LONG_TEXT.toWireComplicationType()
+        )
+            .setEndDateTimeMillis(1650988800000)
+            .setDataSource(ComponentName("a", "b"))
+            .setLongText(
+                android.support.wearable.complications.ComplicationText.plainText("longText")
+            )
+            .setIcon(icon)
+            .setSmallImageStyle(IMAGE_STYLE_ICON)
+            .setContentDescription(
+                android.support.wearable.complications.ComplicationText.plainText("test")
+            )
+            .build()
+        wireLongTextComplication.setTimelineEntryCollection(listOf(timelineEntry))
+
+        val apiLongTextComplicationData = wireLongTextComplication.toApiComplicationData()
+
+        assertThat(apiLongTextComplicationData.type).isEqualTo(ComplicationType.LONG_TEXT)
+        apiLongTextComplicationData as LongTextComplicationData
+        assertThat(apiLongTextComplicationData.text.isPlaceholder()).isFalse()
+
+        val noDataComplicationData =
+            apiLongTextComplicationData.asWireComplicationData().timelineEntries!!.first()
+                .toApiComplicationData()
+
+        assertThat(noDataComplicationData.type).isEqualTo(ComplicationType.NO_DATA)
+        noDataComplicationData as NoDataComplicationData
+
+        val placeholder = noDataComplicationData.placeholder!!
+        assertThat(placeholder.type).isEqualTo(ComplicationType.LONG_TEXT)
+
+        placeholder as LongTextComplicationData
+        assertThat(placeholder.text.isPlaceholder()).isTrue()
     }
 }
 

@@ -71,8 +71,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-@ExperimentalPagingApi
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
 @RunWith(JUnit4::class)
 class PageFetcherSnapshotTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
@@ -1137,7 +1136,10 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
             localLoadStateUpdate<Int>(refreshLocal = Loading),
-            createRefresh(50..51)
+            createRefresh(
+                range = 0..1,
+                startState = NotLoading.Complete,
+            )
         )
 
         fetcherState.job.cancel()
@@ -1616,7 +1618,6 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun retry_remotePrepend() = runTest {
-        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
@@ -1665,7 +1666,6 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun retry_remoteAppend() = runTest {
-        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
@@ -1729,7 +1729,7 @@ class PageFetcherSnapshotTest {
 
         assertThat(fetcherState.pageEventLists[0]).containsExactly(
             localLoadStateUpdate<Int>(refreshLocal = Loading),
-            createRefresh(range = 50..51).let { localRefresh(it.pages) }
+            localRefresh(createRefresh(range = 50..51).pages)
         )
 
         fetcherState.job.cancel()
@@ -1750,7 +1750,7 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
             localLoadStateUpdate<Int>(refreshLocal = Loading),
-            createRefresh(range = 50..51).let { localRefresh(it.pages) }
+            localRefresh(createRefresh(range = 50..51).pages)
         )
         fetcherState.pagingDataList[0].receiver.accessHint(
             ViewportHint.Access(
@@ -1765,7 +1765,7 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
             localLoadStateUpdate<Int>(prependLocal = Loading),
-            createPrepend(-1, 49..49).let { localPrepend(it.pages) }
+            localPrepend(createPrepend(-1, 49..49).pages)
         )
 
         fetcherState.job.cancel()
@@ -1786,7 +1786,7 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
             localLoadStateUpdate<Int>(refreshLocal = Loading),
-            createRefresh(range = 50..51).let { localRefresh(it.pages) }
+            localRefresh(createRefresh(range = 50..51).pages)
         )
 
         fetcherState.pagingDataList[0].receiver.accessHint(
@@ -1802,7 +1802,7 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
         assertThat(fetcherState.newEvents()).containsExactly(
             localLoadStateUpdate<Int>(appendLocal = Loading),
-            createAppend(1, 52..52).let { localAppend(it.pages) }
+            localAppend(createAppend(1, 52..52).pages)
         )
 
         fetcherState.job.cancel()
@@ -2142,7 +2142,6 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun remoteMediator_initialLoadErrorTriggersLocal() = testScope.runTest {
-        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun initialize(): InitializeAction {
                 return InitializeAction.LAUNCH_INITIAL_REFRESH
@@ -2192,7 +2191,6 @@ class PageFetcherSnapshotTest {
         pager.assertEventByGeneration(expected)
     }
 
-    @OptIn(ExperimentalPagingApi::class)
     @Test
     fun remoteMediator_initialLoadTriggersPrepend() = testScope.runTest {
         val remoteMediator = object : RemoteMediatorMock() {
@@ -2225,7 +2223,6 @@ class PageFetcherSnapshotTest {
         assertNotNull(remoteMediator.loadEvents[0].state)
     }
 
-    @OptIn(ExperimentalPagingApi::class)
     @Test
     fun remoteMediator_initialLoadTriggersAppend() = testScope.runTest {
         val remoteMediator = object : RemoteMediatorMock() {
@@ -2290,7 +2287,7 @@ class PageFetcherSnapshotTest {
         assertThat(remoteMediator.newLoadEvents).containsExactly(
             LoadEvent<Int, Int>(
                 loadType = REFRESH,
-                state = PagingState<Int, Int>(
+                state = PagingState(
                     pages = listOf(),
                     anchorPosition = null,
                     config = config,
@@ -2304,9 +2301,9 @@ class PageFetcherSnapshotTest {
         advanceUntilIdle()
 
         assertThat(remoteMediator.newLoadEvents).containsExactly(
-            LoadEvent<Int, Int>(
+            LoadEvent(
                 loadType = REFRESH,
-                state = PagingState<Int, Int>(
+                state = PagingState(
                     pages = listOf(
                         Page(
                             data = listOf(0),
@@ -2328,7 +2325,6 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun sourceOnlyInitialLoadState() = testScope.runTest {
-        @OptIn(ExperimentalPagingApi::class)
         val config = PagingConfig(
             pageSize = 1,
             prefetchDistance = 2,
@@ -2380,7 +2376,6 @@ class PageFetcherSnapshotTest {
             }
         }
 
-        @OptIn(ExperimentalPagingApi::class)
         val config = PagingConfig(
             pageSize = 1,
             prefetchDistance = 2,
@@ -2505,7 +2500,6 @@ class PageFetcherSnapshotTest {
     @Suppress("DEPRECATION") // b/220884819
     @Test
     fun remoteMediator_endOfPaginationNotReachedLoadStatePrepend() = runBlockingTest {
-        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
@@ -2576,7 +2570,6 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun remoteMediator_endOfPaginationReachedLoadStatePrepend() = testScope.runTest {
-        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
@@ -2603,7 +2596,7 @@ class PageFetcherSnapshotTest {
         fetcher.assertEventByGeneration(
             listOf(
                 listOf(
-                    remoteLoadStateUpdate<Int>(refreshLocal = Loading),
+                    remoteLoadStateUpdate(refreshLocal = Loading),
                     remoteRefresh(
                         pages = listOf(
                             TransformablePage(
@@ -2615,11 +2608,11 @@ class PageFetcherSnapshotTest {
                         placeholdersAfter = 99,
                         source = loadStates(prepend = NotLoading.Complete)
                     ),
-                    remoteLoadStateUpdate<Int>(
+                    remoteLoadStateUpdate(
                         prependLocal = NotLoading.Complete,
                         prependRemote = Loading
                     ),
-                    remoteLoadStateUpdate<Int>(
+                    remoteLoadStateUpdate(
                         prependLocal = NotLoading.Complete,
                         prependRemote = NotLoading.Complete
                     ),
@@ -2630,7 +2623,6 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun remoteMediator_prependEndOfPaginationReachedLocalThenRemote() = testScope.runTest {
-        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
@@ -2658,7 +2650,7 @@ class PageFetcherSnapshotTest {
         fetcher.collectEvents {
             awaitEventCount(2)
             val refreshEvents = listOf(
-                remoteLoadStateUpdate<Int>(refreshLocal = Loading),
+                remoteLoadStateUpdate(refreshLocal = Loading),
                 remoteRefresh(
                     pages = listOf(
                         TransformablePage(
@@ -2682,7 +2674,7 @@ class PageFetcherSnapshotTest {
                 )
             )
             val postHintEvents = listOf(
-                remoteLoadStateUpdate<Int>(prependLocal = Loading),
+                remoteLoadStateUpdate(prependLocal = Loading),
                 remotePrepend(
                     pages = listOf(
                         TransformablePage(
@@ -2693,11 +2685,11 @@ class PageFetcherSnapshotTest {
                     placeholdersBefore = 0,
                     source = loadStates(prepend = NotLoading.Complete)
                 ),
-                remoteLoadStateUpdate<Int>(
+                remoteLoadStateUpdate(
                     prependLocal = NotLoading.Complete,
                     prependRemote = Loading
                 ),
-                remoteLoadStateUpdate<Int>(
+                remoteLoadStateUpdate(
                     prependLocal = NotLoading.Complete,
                     prependRemote = NotLoading.Complete,
                 ),
@@ -2713,7 +2705,6 @@ class PageFetcherSnapshotTest {
     @Suppress("DEPRECATION") // b/220884819
     @Test
     fun remoteMediator_endOfPaginationNotReachedLoadStateAppend() = runBlockingTest {
-        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
@@ -2734,7 +2725,11 @@ class PageFetcherSnapshotTest {
         )
         val fetcher = PageFetcher(
             initialKey = 99,
-            pagingSourceFactory = pagingSourceFactory,
+            pagingSourceFactory = {
+                pagingSourceFactory().also {
+                    it.getRefreshKeyResult = 99
+                }
+            },
             config = config,
             remoteMediator = remoteMediator
         )
@@ -2783,7 +2778,6 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun remoteMediator_endOfPaginationReachedLoadStateAppend() = testScope.runTest {
-        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
@@ -2810,7 +2804,7 @@ class PageFetcherSnapshotTest {
 
         val expected: List<List<PageEvent<Int>>> = listOf(
             listOf(
-                remoteLoadStateUpdate<Int>(refreshLocal = Loading),
+                remoteLoadStateUpdate(refreshLocal = Loading),
                 remoteRefresh(
                     pages = listOf(
                         TransformablePage(
@@ -2822,11 +2816,11 @@ class PageFetcherSnapshotTest {
                     placeholdersAfter = 0,
                     source = loadStates(append = NotLoading.Complete)
                 ),
-                remoteLoadStateUpdate<Int>(
+                remoteLoadStateUpdate(
                     appendLocal = NotLoading.Complete,
                     appendRemote = Loading,
                 ),
-                remoteLoadStateUpdate<Int>(
+                remoteLoadStateUpdate(
                     appendLocal = NotLoading.Complete,
                     appendRemote = NotLoading.Complete
                 ),
@@ -2837,7 +2831,6 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun remoteMediator_appendEndOfPaginationReachedLocalThenRemote() = testScope.runTest {
-        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun load(
                 loadType: LoadType,
@@ -2862,8 +2855,8 @@ class PageFetcherSnapshotTest {
             remoteMediator = remoteMediator
         )
         pager.collectEvents {
-            val initialEvents = listOf<PageEvent<Int>>(
-                remoteLoadStateUpdate<Int>(refreshLocal = Loading),
+            val initialEvents = listOf(
+                remoteLoadStateUpdate(refreshLocal = Loading),
                 remoteRefresh(
                     pages = listOf(
                         TransformablePage(
@@ -2887,8 +2880,8 @@ class PageFetcherSnapshotTest {
                     originalPageOffsetLast = 0
                 )
             )
-            val postHintEvents = listOf<PageEvent<Int>>(
-                remoteLoadStateUpdate<Int>(appendLocal = Loading),
+            val postHintEvents = listOf(
+                remoteLoadStateUpdate(appendLocal = Loading),
                 remoteAppend(
                     pages = listOf(
                         TransformablePage(
@@ -2898,11 +2891,11 @@ class PageFetcherSnapshotTest {
                     ),
                     source = loadStates(append = NotLoading.Complete)
                 ),
-                remoteLoadStateUpdate<Int>(
+                remoteLoadStateUpdate(
                     appendLocal = NotLoading.Complete,
                     appendRemote = Loading
                 ),
-                remoteLoadStateUpdate<Int>(
+                remoteLoadStateUpdate(
                     appendLocal = NotLoading.Complete,
                     appendRemote = NotLoading.Complete
                 ),
@@ -2914,7 +2907,6 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun remoteMediator_immediateInvalidation() = runTest {
-        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun initialize(): InitializeAction {
                 super.initialize()
@@ -2946,7 +2938,11 @@ class PageFetcherSnapshotTest {
         )
         val pager = PageFetcher(
             initialKey = 50,
-            pagingSourceFactory = pagingSourceFactory,
+            pagingSourceFactory = {
+                pagingSourceFactory().also {
+                    it.getRefreshKeyResult = 30
+                }
+            },
             config = config,
             remoteMediator = remoteMediator
         )
@@ -2971,15 +2967,16 @@ class PageFetcherSnapshotTest {
                 refreshLocal = Loading,
                 refreshRemote = NotLoading.Incomplete,
             ),
+            // getRefreshKey() = null is used over initialKey due to invalidation.
             remoteRefresh(
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
-                        data = listOf(50)
+                        data = listOf(30)
                     )
                 ),
-                placeholdersBefore = 50,
-                placeholdersAfter = 49,
+                placeholdersBefore = 30,
+                placeholdersAfter = 69,
             ),
         )
 
@@ -2988,7 +2985,6 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun remoteMediator_initialRefreshSuccess() = testScope.runTest {
-        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock() {
             override suspend fun initialize(): InitializeAction {
                 super.initialize()
@@ -3018,7 +3014,11 @@ class PageFetcherSnapshotTest {
         )
         val pager = PageFetcher(
             initialKey = 50,
-            pagingSourceFactory = pagingSourceFactory,
+            pagingSourceFactory = {
+                pagingSourceFactory().also {
+                    it.getRefreshKeyResult = 30
+                }
+            },
             config = config,
             remoteMediator = remoteMediator
         )
@@ -3050,11 +3050,11 @@ class PageFetcherSnapshotTest {
                 pages = listOf(
                     TransformablePage(
                         originalPageOffset = 0,
-                        data = listOf(50)
+                        data = listOf(30)
                     )
                 ),
-                placeholdersBefore = 50,
-                placeholdersAfter = 49,
+                placeholdersBefore = 30,
+                placeholdersAfter = 69,
             ),
         )
 
@@ -3063,7 +3063,6 @@ class PageFetcherSnapshotTest {
 
     @Test
     fun remoteMediator_initialRefreshSuccessEndOfPagination() = testScope.runTest {
-        @OptIn(ExperimentalPagingApi::class)
         val remoteMediator = object : RemoteMediatorMock(loadDelay = 2000) {
             override suspend fun initialize(): InitializeAction {
                 super.initialize()
@@ -3160,7 +3159,7 @@ class PageFetcherSnapshotTest {
                 jumpThreshold = 10
             )
             var didJump = false
-            val pager = PageFetcherSnapshot<Int, Int>(
+            val pager = PageFetcherSnapshot(
                 initialKey = 50,
                 pagingSource = pagingSourceFactory(),
                 config = config,

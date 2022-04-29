@@ -28,27 +28,37 @@ package androidx.room {
   }
 
   public class InvalidationTracker {
-    method @WorkerThread public void addObserver(androidx.room.InvalidationTracker.Observer);
+    method @WorkerThread public void addObserver(androidx.room.InvalidationTracker.Observer observer);
     method public void refreshVersionsAsync();
-    method @WorkerThread public void removeObserver(androidx.room.InvalidationTracker.Observer);
+    method @WorkerThread public void removeObserver(androidx.room.InvalidationTracker.Observer observer);
+    field public static final androidx.room.InvalidationTracker.Companion Companion;
+  }
+
+  public static final class InvalidationTracker.Companion {
   }
 
   public abstract static class InvalidationTracker.Observer {
-    ctor protected InvalidationTracker.Observer(String, java.lang.String!...);
-    ctor public InvalidationTracker.Observer(String![]);
-    method public abstract void onInvalidated(java.util.Set<java.lang.String!>);
+    ctor public InvalidationTracker.Observer(String![] tables);
+    ctor protected InvalidationTracker.Observer(String firstTable, java.lang.String... rest);
+    method public abstract void onInvalidated(java.util.Set<java.lang.String> tables);
   }
 
-  @androidx.room.ExperimentalRoomApi public class MultiInstanceInvalidationService extends android.app.Service {
+  @androidx.room.ExperimentalRoomApi public final class MultiInstanceInvalidationService extends android.app.Service {
     ctor public MultiInstanceInvalidationService();
-    method public android.os.IBinder? onBind(android.content.Intent);
+    method public android.os.IBinder onBind(android.content.Intent intent);
   }
 
   public class Room {
     ctor @Deprecated public Room();
-    method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T!> databaseBuilder(android.content.Context, Class<T!>, String);
-    method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T!> inMemoryDatabaseBuilder(android.content.Context, Class<T!>);
+    method public static final <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
+    method public static final <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, Class<T> klass);
+    field public static final androidx.room.Room.Companion Companion;
     field public static final String MASTER_TABLE_NAME = "room_master_table";
+  }
+
+  public static final class Room.Companion {
+    method public <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
+    method public <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, Class<T> klass);
   }
 
   public abstract class RoomDatabase {

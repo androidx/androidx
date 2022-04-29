@@ -16,18 +16,8 @@
 <XmlWatchFace xmlns:app="http://schemas.android.com/apk/res-auto">
     <UserStyleSchema>
         <ListUserStyleSetting
-            app:affectedWatchFaceLayers="BASE|COMPLICATIONS|COMPLICATIONS_OVERLAY"
-            app:defaultOptionIndex="1"
-            app:description="description"
-            app:displayName="displayName"
-            app:id="TimeStyle">
-            <ListOption
-                app:displayName="Minimal"
-                app:id="minimal" />
-            <ListOption
-                app:displayName="Seconds"
-                app:id="seconds" />
-        </ListUserStyleSetting>
+            app:parent="@xml/xml_time_style"
+            app:defaultOptionIndex="1"/>
         <BooleanUserStyleSetting
             app:affectedWatchFaceLayers="BASE"
             app:defaultBoolean="false"

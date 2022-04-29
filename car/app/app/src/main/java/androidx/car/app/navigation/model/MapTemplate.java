@@ -17,8 +17,9 @@
 package androidx.car.app.navigation.model;
 
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION;
-import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_PANE;
+import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_SIMPLE;
 
 import static java.util.Objects.requireNonNull;
 
@@ -32,17 +33,22 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.ForegroundCarColorSpan;
 import androidx.car.app.model.Header;
+import androidx.car.app.model.Item;
 import androidx.car.app.model.ItemList;
+import androidx.car.app.model.ModelUtils;
 import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.Pane;
+import androidx.car.app.model.Place;
+import androidx.car.app.model.PlaceMarker;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.model.Toggle;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
- * A template that displays a map with data such as {@link Pane} on top of it.
+ * A template that displays a map with data such as {@link Pane} or {@link ItemList} on top of it.
  *
  * <h4>Template Restrictions</h4>
  *
@@ -52,7 +58,8 @@ import java.util.Objects;
  *
  * <ul>
  *   <li>The template title has not changed, and the number of rows and the title (not counting
- *       spans) of each row between the previous and new {@link Pane}s have not changed.
+ *       spans) of each row between the previous and new {@link Pane}s or {@link ItemList}s have
+ *       not changed.
  * </ul>
  */
 @RequiresCarApi(5)
@@ -66,6 +73,9 @@ public final class MapTemplate implements Template {
     private final Pane mPane;
     @Keep
     @Nullable
+    private final ItemList mItemList;
+    @Keep
+    @Nullable
     private final Header mHeader;
     @Keep
     @Nullable
@@ -74,6 +84,7 @@ public final class MapTemplate implements Template {
     MapTemplate(Builder builder) {
         mMapController = builder.mMapController;
         mPane = builder.mPane;
+        mItemList = builder.mItemList;
         mHeader = builder.mHeader;
         mActionStrip = builder.mActionStrip;
     }
@@ -82,6 +93,7 @@ public final class MapTemplate implements Template {
     private MapTemplate() {
         mMapController = null;
         mPane = null;
+        mItemList = null;
         mHeader = null;
         mActionStrip = null;
     }
@@ -107,6 +119,17 @@ public final class MapTemplate implements Template {
     }
 
     /**
+     * Returns the {@link ItemList} instance with the list of items to display in the template,
+     * or {@code null} if not set.
+     *
+     * @see Builder#setItemList(ItemList)
+     */
+    @Nullable
+    public ItemList getItemList() {
+        return mItemList;
+    }
+
+    /**
      * Returns the {@link Header} to display in this template.
      *
      * @see Builder#setHeader(Header)
@@ -128,7 +151,7 @@ public final class MapTemplate implements Template {
 
     @Override
     public int hashCode() {
-        return Objects.hash(mMapController, mPane, mHeader, mActionStrip);
+        return Objects.hash(mMapController, mPane, mItemList, mHeader, mActionStrip);
     }
 
     @Override
@@ -142,6 +165,7 @@ public final class MapTemplate implements Template {
         MapTemplate otherTemplate = (MapTemplate) other;
 
         return Objects.equals(mPane, otherTemplate.mPane)
+                && Objects.equals(mItemList, otherTemplate.mItemList)
                 && Objects.equals(mHeader, otherTemplate.mHeader)
                 && Objects.equals(mMapController, otherTemplate.mMapController)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip);
@@ -154,28 +178,37 @@ public final class MapTemplate implements Template {
         @Nullable
         Pane mPane;
         @Nullable
+        ItemList mItemList;
+        @Nullable
         Header mHeader;
         @Nullable
         ActionStrip mActionStrip;
 
         /**
-         * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
-         * ActionStrip}.
+         * Sets the {@link ActionStrip} for this template.
          *
          * <p>Unless set with this method, the template will not have an action strip.
          *
+         * <p>The {@link Action} buttons in Map Based Template are automatically adjusted based
+         * on the screen size. On narrow width screen, icon {@link Action}s show by
+         * default. If no icon specify, showing title {@link Action}s instead. On wider width
+         * screen, title {@link Action}s show by default. If no title specify, showing icon
+         * {@link Action}s instead.
+         *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
-         * {@link Action}s, one of them can contain a title as set via
-         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
+         * This template allows up to 4 {@link Action}s in its {@link ActionStrip}. Of the 4
+         * allowed {@link Action}s, it can either be a title {@link Action} as set via
+         * {@link Action.Builder#setTitle}, or a icon {@link Action} as set via
+         * {@link Action.Builder#setIcon}.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
+            ACTIONS_CONSTRAINTS_NAVIGATION
+                    .validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
             return this;
         }
@@ -187,7 +220,47 @@ public final class MapTemplate implements Template {
          */
         @NonNull
         public Builder setPane(@NonNull Pane pane) {
-            mPane = requireNonNull(pane);
+            List<Action> actions = requireNonNull(pane).getActions();
+            ROW_LIST_CONSTRAINTS_PANE.validateOrThrow(pane);
+            ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION.validateOrThrow(actions);
+            mPane = pane;
+            return this;
+        }
+
+        /**
+         * Sets an {@link ItemList} to show in a list view along with the map.
+         *
+         * <p>Unless set with this method, the template will not show an item list.
+         *
+         * <p>To show a marker corresponding to a point of interest represented by a row, set the
+         * {@link Place} instance via {@link Row.Builder#setMetadata}. The host will display the
+         * {@link PlaceMarker} in both the map and the list view as the row becomes visible.
+         *
+         * <h4>Requirements</h4>
+         *
+         * The number of items in the {@link ItemList} should be smaller or equal than the limit
+         * provided by
+         * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_PLACE_LIST}. The
+         * host will ignore any items over that limit. The list itself cannot be selectable as
+         * set via {@link ItemList.Builder#setOnSelectedListener}. Each {@link Row} can add up to
+         * 2 lines of texts via {@link Row.Builder#addText} and cannot contain a {@link Toggle}.
+         *
+         * <p>Images of type {@link Row#IMAGE_TYPE_LARGE} are not allowed in this template.
+         *
+         * <p>Rows are not allowed to have both an image and a place marker.
+         *
+         * @throws IllegalArgumentException if {@code itemList} does not meet the template's
+         *                                  requirements
+         * @throws NullPointerException     if {@code itemList} is {@code null}
+         * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
+         */
+        @NonNull
+        public Builder setItemList(@NonNull ItemList itemList) {
+            List<Item> items = requireNonNull(itemList).getItems();
+            ROW_LIST_CONSTRAINTS_SIMPLE.validateOrThrow(itemList);
+            ModelUtils.validateAllRowsHaveOnlySmallImages(items);
+            ModelUtils.validateNoRowsHaveBothMarkersAndImages(items);
+            mItemList = itemList;
             return this;
         }
 
@@ -229,20 +302,19 @@ public final class MapTemplate implements Template {
          * can be customized with {@link ForegroundCarColorSpan} instances. Any other span is not
          * supported.
          *
+         * <p>If neither header {@link Action} nor title have been set on the template, the
+         * header is hidden.
+         *
          * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
-         * @throws NullPointerException     if {@link Header} or {@link Pane} is null
+         * @throws IllegalStateException    if both {@link Pane} and {@link ItemList} are set or
+         *                                  are null.
          */
         @NonNull
         public MapTemplate build() {
-            if (mPane == null) {
-                throw new IllegalStateException("Pane must be set");
+            if ((mPane == null) == (mItemList == null)) {
+                throw new IllegalStateException("Either Pane or Item List must be set but not "
+                        + "both");
             }
-            if (mHeader == null) {
-                throw new IllegalStateException("Header must be set");
-            }
-
-            ROW_LIST_CONSTRAINTS_PANE.validateOrThrow(mPane);
-            ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION.validateOrThrow(mPane.getActions());
 
             return new MapTemplate(this);
         }

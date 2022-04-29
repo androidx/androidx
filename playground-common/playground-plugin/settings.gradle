@@ -16,13 +16,20 @@
 
 pluginManagement {
     repositories {
-        maven {
-            url 'https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev/'
+        mavenCentral()
+        gradlePluginPortal().content {
+            it.includeModule("org.jetbrains.kotlin.jvm", "org.jetbrains.kotlin.jvm.gradle.plugin")
         }
-        maven {
-            url 'https://repo1.maven.org/maven2/'
+    }
+}
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal().content {
+            it.includeModule("com.gradle", "gradle-enterprise-gradle-plugin")
+            it.includeModule("com.gradle", "common-custom-user-data-gradle-plugin")
         }
-        gradlePluginPortal()
     }
 }
 

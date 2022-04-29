@@ -17,9 +17,10 @@
 package androidx.health.services.client.data
 
 import androidx.annotation.Keep
+import java.time.Duration
 import java.time.Instant
 
-/** Helper class to facilitate working with [DataPoint] s. */
+/** Helper class to facilitate working with [DataPoint]s. */
 // TODO(b/177504986): Remove all @Keep annotations once we figure out why this class gets stripped
 // away by proguard.
 @Keep
@@ -27,13 +28,13 @@ public object AggregateDataPoints {
 
     /**
      * Creates a new [StatisticalDataPoint] of type [DataType.ABSOLUTE_ELEVATION] with the given
-     * elevations in meters.
+     * elevations (in meters).
      */
     @JvmStatic
     public fun aggregateAbsoluteElevation(
-        minAbsElevation: Double,
-        maxAbsElevation: Double,
-        avgAbsElevation: Double,
+        minAbsElevationMeters: Double,
+        maxAbsElevationMeters: Double,
+        avgAbsElevationMeters: Double,
         startTime: Instant,
         endTime: Instant
     ): StatisticalDataPoint =
@@ -41,9 +42,9 @@ public object AggregateDataPoints {
             startTime,
             endTime,
             DataType.ABSOLUTE_ELEVATION,
-            Value.ofDouble(minAbsElevation),
-            Value.ofDouble(maxAbsElevation),
-            Value.ofDouble(avgAbsElevation)
+            Value.ofDouble(minAbsElevationMeters),
+            Value.ofDouble(maxAbsElevationMeters),
+            Value.ofDouble(avgAbsElevationMeters)
         )
 
     /**
@@ -58,14 +59,14 @@ public object AggregateDataPoints {
     ): AggregateDataPoint =
         CumulativeDataPoint(startTime, endTime, DataType.TOTAL_CALORIES, Value.ofDouble(kcalories))
 
-    /** Creates a new [AggregateDataPoint] for the [DataType.DISTANCE] with the given `distance`. */
+    /** Creates a new [AggregateDataPoint] for the [DataType.DISTANCE] with the given `meters`. */
     @JvmStatic
     public fun aggregateDistance(
-        distance: Double,
+        meters: Double,
         startTime: Instant,
         endTime: Instant
     ): AggregateDataPoint =
-        CumulativeDataPoint(startTime, endTime, DataType.DISTANCE, Value.ofDouble(distance))
+        CumulativeDataPoint(startTime, endTime, DataType.DISTANCE, Value.ofDouble(meters))
 
     /**
      * Creates a new [AggregateDataPoint] for the [DataType.ELEVATION_GAIN] with the given
@@ -102,9 +103,9 @@ public object AggregateDataPoints {
     /** Creates a new [AggregateDataPoint] of type [DataType.PACE] with the given `millisPerKm`. */
     @JvmStatic
     public fun aggregatePace(
-        minMillisPerKm: Double,
-        maxMillisPerKm: Double,
-        avgMillisPerKm: Double,
+        minMillisPerKm: Duration,
+        maxMillisPerKm: Duration,
+        avgMillisPerKm: Duration,
         startTime: Instant,
         endTime: Instant
     ): AggregateDataPoint =
@@ -112,9 +113,9 @@ public object AggregateDataPoints {
             startTime,
             endTime,
             DataType.PACE,
-            Value.ofDouble(minMillisPerKm),
-            Value.ofDouble(maxMillisPerKm),
-            Value.ofDouble(avgMillisPerKm)
+            Value.ofDouble((minMillisPerKm.toMillis()).toDouble()),
+            Value.ofDouble((maxMillisPerKm.toMillis()).toDouble()),
+            Value.ofDouble((avgMillisPerKm.toMillis()).toDouble())
         )
 
     /**
@@ -146,6 +147,28 @@ public object AggregateDataPoints {
         endTime: Instant
     ): AggregateDataPoint =
         CumulativeDataPoint(startTime, endTime, DataType.STEPS, Value.ofLong(steps))
+
+    /**
+     * Creates a new [AggregateDataPoint] of type [DataType.STEPS_PER_MINUTE] with the given
+     * `steps`.
+     */
+    @JvmStatic
+    // TODO(b/227475943): open up visibility
+    internal fun aggregateStepsPerMinute(
+        minstepsPerMinute: Long,
+        maxstepsPerMinute: Long,
+        avgstepsPerMinute: Long,
+        startTime: Instant,
+        endTime: Instant
+    ): AggregateDataPoint =
+        StatisticalDataPoint(
+            startTime,
+            endTime,
+            DataType.STEPS_PER_MINUTE,
+            Value.ofLong(minstepsPerMinute),
+            Value.ofLong(maxstepsPerMinute),
+            Value.ofLong(avgstepsPerMinute)
+        )
 
     /**
      * Creates a new [DataPoint] of type [DataType.SWIMMING_STROKES] with the given

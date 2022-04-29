@@ -142,7 +142,7 @@ class SyncTriggersConcurrencyTest {
 
         val latch = CountDownLatch(expectedInvalidationCount)
 
-        override fun onInvalidated(tables: MutableSet<String>) {
+        override fun onInvalidated(tables: Set<String>) {
             latch.countDown()
         }
     }

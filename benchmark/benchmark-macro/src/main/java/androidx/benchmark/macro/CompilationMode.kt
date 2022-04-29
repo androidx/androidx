@@ -21,11 +21,13 @@ import android.util.Log
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.CompilationMode.Full
 import androidx.benchmark.macro.CompilationMode.None
 import androidx.benchmark.macro.CompilationMode.Partial
+import androidx.benchmark.userspaceTrace
 import androidx.profileinstaller.ProfileInstallReceiver
 import androidx.profileinstaller.ProfileInstaller
 import org.junit.AssumptionViolatedException
@@ -66,11 +68,53 @@ import org.junit.AssumptionViolatedException
 sealed class CompilationMode {
     internal fun resetAndCompile(packageName: String, warmupBlock: () -> Unit) {
         if (Build.VERSION.SDK_INT >= 24) {
-            // Write skip file before we clear profiles
+            // Write skip file to stop profile installer from interfering with the benchmark
             writeProfileInstallerSkipFile(packageName)
-            Log.d(TAG, "Clearing profiles for $packageName")
-            Shell.executeCommand("cmd package compile --reset $packageName")
-            compileImpl(packageName, warmupBlock)
+            if (Arguments.enableCompilation) {
+                Log.d(TAG, "Resetting $packageName")
+                reinstallPackage(packageName)
+                compileImpl(packageName, warmupBlock)
+            } else {
+                Log.d(TAG, "Compilation is disabled, skipping compilation of $packageName")
+            }
+        }
+    }
+
+    // This is a more expensive when compared to `compile --reset`.
+    private fun reinstallPackage(packageName: String) {
+        userspaceTrace("reinstallPackage") {
+            val packagePath = Shell.executeScript("pm path $packageName")
+            // The result looks like: `package: <result>`
+            val apkPath = packagePath.substringAfter("package:").trim()
+            // Copy the APK to /data/local/temp
+            val tempApkPath = "/data/local/tmp/$packageName-${System.currentTimeMillis()}.apk"
+            Log.d(TAG, "Copying APK to $tempApkPath")
+            val result = Shell.executeScriptWithStderr(
+                "cp $apkPath $tempApkPath"
+            )
+            if (result.stderr.isNotBlank()) {
+                Log.w(TAG, "Unable to copy apk ($result)")
+            } else {
+                try {
+                    // Uninstall package
+                    // This is what effectively clears the ART profiles
+                    Log.d(TAG, "Uninstalling $packageName")
+                    var output = Shell.executeScriptWithStderr("pm uninstall $packageName")
+                    check(output.stderr.isBlank()) {
+                        "Unable to uninstall $packageName ($result)"
+                    }
+                    // Install the APK from /data/local/tmp
+                    Log.d(TAG, "Installing $packageName")
+                    output = Shell.executeScriptWithStderr("pm install $tempApkPath")
+                    check(output.stderr.isBlank()) {
+                        "Unable to install $packageName ($result)"
+                    }
+                } finally {
+                    // Cleanup the temporary APK
+                    Log.d(TAG, "Deleting $tempApkPath")
+                    Shell.executeCommand("rm $tempApkPath")
+                }
+            }
         }
     }
 

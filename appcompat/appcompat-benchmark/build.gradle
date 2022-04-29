@@ -23,7 +23,7 @@ plugins {
 
 dependencies {
     androidTestImplementation(project(":appcompat:appcompat"))
-    androidTestImplementation(project(":benchmark:benchmark-junit4"))
+    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)

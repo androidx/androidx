@@ -97,10 +97,6 @@ public interface ComplicationText {
         @JvmField
         public val EMPTY: ComplicationText = PlainComplicationText.Builder("").build()
 
-        /** @hide */
-        @JvmField
-        public val PLACEHOLDER_STRING = "__placeholder__"
-
         /**
          * For use when the real data isn't available yet, this [ComplicationText] should be
          * rendered as a placeholder. It is suggested that it should be rendered with a light grey
@@ -111,7 +107,7 @@ public interface ComplicationText {
          */
         @JvmField
         public val PLACEHOLDER: ComplicationText =
-            PlainComplicationText.Builder(PLACEHOLDER_STRING).build()
+            PlainComplicationText.Builder(WireComplicationData.PLACEHOLDER_STRING).build()
     }
 }
 
@@ -550,13 +546,21 @@ private class DelegatingComplicationText(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as DelegatingComplicationText
-
-        if (delegate != other.delegate) return false
-
-        return true
+        when (other) {
+            is DelegatingComplicationText -> {
+                return delegate == other.delegate
+            }
+            is PlainComplicationText -> {
+                return other.toWireComplicationText() == delegate
+            }
+            is TimeDifferenceComplicationText -> {
+                return other.toWireComplicationText() == delegate
+            }
+            is TimeFormatComplicationText -> {
+                return other.toWireComplicationText() == delegate
+            }
+        }
+        return false
     }
 
     override fun hashCode(): Int {

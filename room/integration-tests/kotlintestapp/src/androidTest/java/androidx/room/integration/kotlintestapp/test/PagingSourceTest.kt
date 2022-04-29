@@ -17,6 +17,7 @@
 package androidx.room.integration.kotlintestapp.test
 
 import androidx.paging.AsyncPagingDataDiffer
+import androidx.paging.ItemSnapshotList
 import androidx.paging.LoadState
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
@@ -35,14 +36,11 @@ import androidx.room.RawQuery
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.awaitPendingRefresh
-import androidx.room.pendingRefresh
-import androidx.room.refreshRunnable
 import androidx.sqlite.db.SimpleSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.base.MainThread
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.testutils.FilteringExecutor
 import androidx.testutils.withTestTimeout
@@ -53,7 +51,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.drop
@@ -143,9 +140,9 @@ class PagingSourceTest {
         val items = createItems(startId = 15, count = 50)
         db.dao.insert(items)
         runTest {
-            itemStore.awaitInitialLoad()
+            val initialLoad = itemStore.awaitInitialLoad()
             assertThat(
-                itemStore.peekItems()
+                initialLoad
             ).containsExactlyElementsIn(
                 items.createExpected(
                     fromIndex = 0,
@@ -180,9 +177,9 @@ class PagingSourceTest {
             pagingSourceFactory = { db.dao.loadItemsRaw(query) }
         )
         runTest(pager = pager) {
-            itemStore.awaitInitialLoad()
+            val initialLoad = itemStore.awaitInitialLoad()
             assertThat(
-                itemStore.peekItems()
+                initialLoad
             ).containsExactlyElementsIn(
                 items.createExpected(
                     fromIndex = 0,
@@ -205,7 +202,6 @@ class PagingSourceTest {
     }
 
     @Test
-    @FlakyTest(bugId = 213635127)
     fun loadEverything_inReverse() {
         // open db
         val items = createItems(startId = 0, count = 100)
@@ -217,9 +213,9 @@ class PagingSourceTest {
             db.dao.loadItems()
         }
         runTest(pager) {
-            itemStore.awaitInitialLoad()
+            val initialLoad = itemStore.awaitInitialLoad()
             assertThat(
-                itemStore.peekItems()
+                initialLoad
             ).containsExactlyElementsIn(
                 items.createExpected(
                     // Paging 3 implementation loads starting from initial key
@@ -257,9 +253,9 @@ class PagingSourceTest {
             pagingSourceFactory = { db.dao.loadItemsRaw(query) }
         )
         runTest(pager) {
-            itemStore.awaitInitialLoad()
+            val initialLoad = itemStore.awaitInitialLoad()
             assertThat(
-                itemStore.peekItems()
+                initialLoad
             ).containsExactlyElementsIn(
                 items.createExpected(
                     // Paging 3 implementation loads starting from initial key
@@ -297,9 +293,9 @@ class PagingSourceTest {
         )
 
         runTest(pager = pager) {
-            itemStore.awaitInitialLoad()
+            val initialLoad = itemStore.awaitInitialLoad()
             assertThat(
-                itemStore.peekItems()
+                initialLoad
             ).containsExactlyElementsIn(
                 // returns items 20 to 28 with 21 null place holders after
                 items.createBoundedExpected(
@@ -343,9 +339,9 @@ class PagingSourceTest {
         )
 
         runTest(pager = pager) {
-            itemStore.awaitInitialLoad()
+            val initialLoad = itemStore.awaitInitialLoad()
             assertThat(
-                itemStore.peekItems()
+                initialLoad
             ).containsExactlyElementsIn(
                 // returns items 50 to 58 with 11 null place holders after
                 items.createBoundedExpected(
@@ -383,9 +379,9 @@ class PagingSourceTest {
             db.dao.loadItems()
         }
         runTest(pager = pager) {
-            itemStore.awaitInitialLoad()
+            val initialLoad = itemStore.awaitInitialLoad()
             assertThat(
-                itemStore.peekItems()
+                initialLoad
             ).containsExactlyElementsIn(
                 // should return last page when key is too large
                 items.createExpected(
@@ -418,9 +414,9 @@ class PagingSourceTest {
             db.dao.loadItems()
         }
         runTest(pager = pager) {
-            itemStore.awaitInitialLoad()
+            val initialLoad = itemStore.awaitInitialLoad()
             assertThat(
-                itemStore.peekItems()
+                initialLoad
             ).containsExactlyElementsIn(
                 items.createExpected(
                     fromIndex = 0,
@@ -459,9 +455,9 @@ class PagingSourceTest {
         )
 
         runTest(pager) {
-            itemStore.awaitInitialLoad()
+            val initialLoad = itemStore.awaitInitialLoad()
             assertThat(
-                itemStore.peekItems()
+                initialLoad
             ).containsExactlyElementsIn(
                 // should load starting from initial Key = 30
                 items.createExpected(
@@ -469,7 +465,7 @@ class PagingSourceTest {
                     toIndex = 20 + CONFIG.initialLoadSize
                 )
             )
-            assertThat(db.invalidationTracker.pendingRefresh).isFalse()
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
             // now do some changes in the database but don't let change notifications go through
             // to the data source. it should not crash :)
             queryExecutor.filterFunction = { runnable ->
@@ -523,7 +519,7 @@ class PagingSourceTest {
             // Runs the original invalidationTracker.refreshRunnable.
             // Note that the second initial load's call to mRefreshRunnable resets the flag to
             // false, so this mRefreshRunnable will not detect changes in the table anymore.
-            assertThat(db.invalidationTracker.pendingRefresh).isFalse()
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
             queryExecutor.executeAll()
 
             itemStore.awaitInitialLoad()
@@ -558,7 +554,7 @@ class PagingSourceTest {
         val blockingObserver = object : InvalidationTracker.Observer("PagingEntity") {
             // make sure observer blocks the time longer than the timeout of waiting for
             // paging source invalidation, so that we can assert new generation failure later
-            override fun onInvalidated(tables: MutableSet<String>) {
+            override fun onInvalidated(tables: Set<String>) {
                 Thread.sleep(3_500)
             }
         }
@@ -567,18 +563,18 @@ class PagingSourceTest {
         )
 
         runTest(pager) {
-            itemStore.awaitInitialLoad()
+            val initialLoad = itemStore.awaitInitialLoad()
             val initialItems = items.createExpected(
                 fromIndex = 20,
                 toIndex = 20 + CONFIG.initialLoadSize
             )
             assertThat(
-                itemStore.peekItems()
+                initialLoad
             ).containsExactlyElementsIn(
                 // should load starting from initial Key = 20
                 initialItems
             )
-            assertThat(db.invalidationTracker.pendingRefresh).isFalse()
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
 
             db.dao.deleteItems(
                 items.subList(0, 60).map { it.id }
@@ -636,16 +632,16 @@ class PagingSourceTest {
         val items = createItems(startId = 0, count = 90)
         db.dao.insert(items)
         runTest {
-            itemStore.awaitInitialLoad()
+            val initialLoad = itemStore.awaitInitialLoad()
             assertThat(
-                itemStore.peekItems()
+                initialLoad
             ).containsExactlyElementsIn(
                 items.createExpected(
                     fromIndex = 0,
                     toIndex = CONFIG.initialLoadSize
                 )
             )
-            assertThat(db.invalidationTracker.pendingRefresh).isFalse()
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
             // now do some changes in the database but don't let change notifications go through
             // to the data source. it should not crash :)
             queryExecutor.filterFunction = { runnable ->
@@ -698,7 +694,7 @@ class PagingSourceTest {
             // Runs the original invalidationTracker.refreshRunnable.
             // Note that the second initial load's call to mRefreshRunnable resets the flag to
             // false, so this mRefreshRunnable will not detect changes in the table anymore.
-            assertThat(db.invalidationTracker.pendingRefresh).isFalse()
+            assertThat(db.invalidationTracker.pendingRefresh.get()).isFalse()
             queryExecutor.executeAll()
 
             itemStore.awaitInitialLoad()
@@ -919,11 +915,13 @@ class PagingSourceTest {
             }
         }
 
-        suspend fun awaitInitialLoad() = withTestTimeout {
-            withContext(Dispatchers.Main) {
-                generation.filter { it.initialLoadCompleted }.first()
+        suspend fun awaitInitialLoad(): ItemSnapshotList<PagingEntity> =
+            withTestTimeout {
+                 withContext(Dispatchers.Main) {
+                    generation.filter { it.initialLoadCompleted }.first()
+                    asyncDiffer.snapshot()
+                }
             }
-        }
 
         suspend fun awaitGeneration(id: Int) = withTestTimeout {
             withContext(Dispatchers.Main) {

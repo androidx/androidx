@@ -18,22 +18,43 @@ import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
+    id("kotlin-android")
     id("com.android.library")
+    id("com.google.protobuf")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
-    api(project(":wear:tiles:tiles"))
-
+    implementation(project(":wear:tiles:tiles"))
     implementation(project(":wear:tiles:tiles-proto"))
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation("androidx.core:core:1.7.0")
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(project(":wear:tiles:tiles-renderer"))
+    androidTestRuntimeOnly(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
+    androidTestImplementation("com.google.protobuf:protobuf-java:3.10.0")
 
     annotationProcessor(libs.nullaway)
 }
 
 android {
     defaultConfig {
-        minSdkVersion 25
+        minSdkVersion 26
     }
+
+    sourceSets {
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-tiles-material"
+    }
+
+    defaultConfig {
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
     namespace "androidx.wear.tiles.material"
 }
 

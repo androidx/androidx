@@ -18,6 +18,10 @@ package androidx.camera.video
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AppOpsManager
+import android.app.AppOpsManager.OnOpNotedCallback
+import android.app.AsyncNotedAppOp
+import android.app.SyncNotedAppOp
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
@@ -66,6 +70,10 @@ import java.io.File
 import java.util.concurrent.Executor
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -91,6 +99,7 @@ import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 
 private const val FINALIZE_TIMEOUT = 5000L
+private const val TEST_ATTRIBUTION_TAG = "testAttribution"
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -1068,6 +1077,53 @@ class RecorderTest {
             }
 
         file.delete()
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 31)
+    fun audioRecordIsAttributed() = runBlocking {
+        val notedTag = CompletableDeferred<String>()
+        val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
+        appOps.setOnOpNotedCallback(Dispatchers.Main.asExecutor(), object : OnOpNotedCallback() {
+            override fun onNoted(p0: SyncNotedAppOp) {
+                // no-op. record_audio should be async.
+            }
+
+            override fun onSelfNoted(p0: SyncNotedAppOp) {
+                // no-op. record_audio should be async.
+            }
+
+            override fun onAsyncNoted(noted: AsyncNotedAppOp) {
+                if (AppOpsManager.OPSTR_RECORD_AUDIO == noted.op &&
+                    TEST_ATTRIBUTION_TAG == noted.attributionTag
+                ) {
+                    notedTag.complete(noted.attributionTag!!)
+                }
+            }
+        })
+
+        var recording: Recording? = null
+        try {
+            val attributionContext = context.createAttributionContext(TEST_ATTRIBUTION_TAG)
+            clearInvocations(videoRecordEventListener)
+            invokeSurfaceRequest()
+            val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+            recording =
+                recorder.prepareRecording(
+                    attributionContext, FileOutputOptions.Builder(file).build()
+                )
+                    .withAudioEnabled()
+                    .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+
+            val timeoutDuration = 5.seconds
+            withTimeoutOrNull(timeoutDuration) {
+                assertThat(notedTag.await()).isEqualTo(TEST_ATTRIBUTION_TAG)
+            } ?: fail("Timed out waiting for attribution tag. Waited $timeoutDuration.")
+        } finally {
+            appOps.setOnOpNotedCallback(null, null)
+            recording?.stopSafely()
+        }
     }
 
     private fun invokeSurfaceRequest() {

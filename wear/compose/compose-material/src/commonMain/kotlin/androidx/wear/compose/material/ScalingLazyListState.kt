@@ -71,6 +71,13 @@ public fun rememberScalingLazyListState(
  *
  * @param initialCenterItemScrollOffset the initial value for
  * [ScalingLazyListState.centerItemScrollOffset]
+ *
+ * Note that it is not always possible for the values provided by [initialCenterItemIndex] and
+ * [initialCenterItemScrollOffset] to be honored, e.g. If [initialCenterItemIndex] is set to a value
+ * larger than the number of items initially in the list, or to an index that can not be placed in
+ * the middle of the screen due to the contentPadding or autoCentering properties provided to the
+ * [ScalingLazyColumn]. After the [ScalingLazyColumn] is initially drawn the actual values for the
+ * [centerItemIndex] and [centerItemScrollOffset] can be read from the state.
  */
 @Stable
 class ScalingLazyListState constructor(

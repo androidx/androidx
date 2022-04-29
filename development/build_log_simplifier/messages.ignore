@@ -127,12 +127,6 @@ CHECKOUT=\$CHECKOUT
 GRADLE_USER_HOME=\$GRADLE_USER_HOME
 Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
 [.]+10%[.]+20%[.]+30%[.]+40%[.]+50%[.]+60%[.]+70%[.]+80%[.]+90%[.]+100%
-Welcome to Gradle .*
-Here are the highlights of this release:
-\- Aggregated test and JaCoCo reports
-\- Marking additional test source directories as tests in IntelliJ
-\- Support for Adoptium JDKs in Java toolchains
-For more details see .*
 Daemon will be stopped at the end of the build
 # > Configure project :appsearch:appsearch\-local\-backend
 Configuration on demand is an incubating feature\.
@@ -290,6 +284,12 @@ w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-s
 w\: \$CHECKOUT\/prebuilts\/androidx\/external\/org\/jetbrains\/kotlin\/kotlin\-stdlib\-common\/[0-9]+\.[0-9]+\.[0-9]+\/kotlin\-stdlib\-common\-[0-9]+\.[0-9]+\.[0-9]+\.jar\: Runtime JAR file has version [0-9]+\.[0-9]+ which is older than required for API version [0-9]+\.[0-9]+
 # > Task :compose:material:material:icons:generator:zipHtmlResultsOfTest
 Html results of .* zipped into.*\.zip
+# https://github.com/gradle/common-custom-user-data-gradle-plugin/issues/44
+See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:external_processes
+\- Class `com\.gradle\.Utils`: external process started .*
+# b/230127926
+\- Plugin 'com\.android\.internal\.application': external process started .*
+\- Plugin 'com\.android\.internal\.library': external process started .*
 [0-9]+ problems were found storing the configuration cache, [0-9]+ of which seem unique\.
 \- Task `:[:A-Za-z0-9#\-]+` of type `org\.jetbrains\.kotlin\.gradle\.plugin\.mpp\.[A-Za-z0-9]+`: invocation of 'Task\.project' at execution time is unsupported\.
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:disallowed_types
@@ -364,6 +364,12 @@ w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/android
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/OnApplyWindowInsetsListenerTest\.kt\: \([0-9]+\, [0-9]+\)\: \'consumeDisplayCutout\(\)\: WindowInsetsCompat\' is deprecated\. Deprecated in Java
 # > Task :docs-public:dokkaKotlinDocs
 No documentation for .*
+Found an unresolved type in androidx\.compose\.ui\.test\.junit[0-9]+\.AndroidComposeTestRule\$waitForIdle\(\) \(AndroidComposeTestRule\.android\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.test\.junit[0-9]+\.AndroidComposeTestRule\$awaitIdle\(\) \(AndroidComposeTestRule\.android\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.test\.junit[0-9]+\.AndroidComposeTestRule\$waitUntil\(kotlin\.Long, kotlin\.Function[0-9]+\(\(kotlin\.Boolean\)\)\) \(AndroidComposeTestRule\.android\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.test\.junit[0-9]+\.AndroidComposeTestRule\$registerIdlingResource\(androidx\.compose\.ui\.test\.IdlingResource\) \(AndroidComposeTestRule\.android\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.test\.junit[0-9]+\.AndroidComposeTestRule\$unregisterIdlingResource\(androidx\.compose\.ui\.test\.IdlingResource\) \(AndroidComposeTestRule\.android\.kt:[0-9]+\)
+Found an unresolved type in androidx\.compose\.ui\.test\.junit[0-9]+\.AndroidComposeTestRule\$setContent\(kotlin\.Function[0-9]+\(\(kotlin\.Unit\)\)\) \(AndroidComposeTestRule\.android\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$add\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\) \(SnapshotStateList\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$addAll\(kotlin\.collections\.Collection\(\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\)\)\) \(SnapshotStateList\.kt:[0-9]+\)
 Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$remove\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\) \(SnapshotStateList\.kt:[0-9]+\)

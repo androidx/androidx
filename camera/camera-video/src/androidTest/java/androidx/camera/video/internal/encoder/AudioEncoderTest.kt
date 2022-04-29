@@ -285,28 +285,28 @@ class AudioEncoderTest {
     fun pauseResumeEncoder_getChronologicalData() {
         // Arrange.
         fakeAudioLoop.start()
-        val dataList = ArrayList<EncodedData>()
+        val inOrder = inOrder(encoderCallback)
 
         // Act.
         encoder.start()
-        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
+        inOrder.verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
         encoder.pause()
-        verify(encoderCallback, timeout(5000L)).onEncodePaused()
-
-        // Save all values before clear invocations
-        val startCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
-        verify(encoderCallback, atLeastOnce()).onEncodedData(startCaptor.capture())
-        dataList.addAll(startCaptor.allValues)
-        clearInvocations(encoderCallback)
+        inOrder.verify(encoderCallback, timeout(5000L)).onEncodePaused()
 
         encoder.start()
-        val resumeCaptor = ArgumentCaptor.forClass(EncodedData::class.java)
-        verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(resumeCaptor.capture())
-        dataList.addAll(resumeCaptor.allValues)
+        inOrder.verify(encoderCallback, timeout(15000L).atLeast(5)).onEncodedData(any())
 
         // Assert.
-        verifyDataInChronologicalOrder(dataList)
+        val captor = ArgumentCaptor.forClass(EncodedData::class.java)
+        verify(
+            encoderCallback,
+            Mockito.atLeast(/*start*/5 + /*resume*/5)
+        ).onEncodedData(captor.capture())
+        verifyDataInChronologicalOrder(captor.allValues)
+
+        // Cleanup.
+        encoder.stop()
     }
 
     @Test

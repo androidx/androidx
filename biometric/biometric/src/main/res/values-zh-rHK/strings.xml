@@ -27,8 +27,8 @@
     <string name="default_error_msg" msgid="4776854077120974966">"不明錯誤"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"使用者已取消驗證。"</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"使用密碼"</string>
-    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"未設定 PIN、圖案或密碼。"</string>
-    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"這部裝置不支援 PIN、圖案或密碼。"</string>
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"未設定 PIN、圖形或密碼。"</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"這部裝置不支援 PIN、圖形或密碼。"</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"指紋圖示"</string>
     <string name="use_fingerprint_label" msgid="6961788485681412417">"使用指紋"</string>
     <string name="use_face_label" msgid="6533512708069459542">"使用面孔"</string>

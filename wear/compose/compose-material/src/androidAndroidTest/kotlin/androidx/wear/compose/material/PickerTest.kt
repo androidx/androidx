@@ -19,8 +19,11 @@ package androidx.wear.compose.material
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -40,6 +43,8 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -196,9 +201,11 @@ class PickerTest {
         val itemsToScroll = 4
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            // Start at bottom - 2 to allow for 1.dp padding around the Picker
+            // (which was added to prevent jitter around the start of the gradient).
             swipeWithVelocity(
-                start = Offset(centerX, bottom),
-                end = Offset(centerX, bottom -
+                start = Offset(centerX, bottom - 2),
+                end = Offset(centerX, bottom - 2 -
                     (itemSizePx + separationPx * separationSign) * itemsToScroll),
                 endVelocity = NOT_A_FLING_SPEED
             )
@@ -218,43 +225,20 @@ class PickerTest {
     fun scrolls_with_no_separation() = scrolls_to_index_correctly(0, 13)
 
     private fun scrolls_to_index_correctly(separationSign: Int, targetIndex: Int) {
-        lateinit var state: PickerState
-        lateinit var pickerLayoutCoordinates: LayoutCoordinates
-        lateinit var centerOptionLayoutCoordinates: LayoutCoordinates
-        var pickerHeightPx = 0f
+        val pickerDriver = PickerDriver(separationSign = separationSign)
         rule.setContent {
-            val pickerHeightDp = itemSizeDp * 11 + separationDp * 10 * separationSign
-            pickerHeightPx = with(LocalDensity.current) { pickerHeightDp.toPx() }
-            WithTouchSlop(0f) {
-                Picker(
-                    state = rememberPickerState(20).also { state = it },
-                    modifier = Modifier.testTag(TEST_TAG).requiredSize(pickerHeightDp)
-                        .onGloballyPositioned { pickerLayoutCoordinates = it },
-                    separation = separationDp * separationSign
-                ) { optionIndex ->
-                    Box(Modifier.requiredSize(itemSizeDp).onGloballyPositioned {
-                        // Save the layout coordinates of the selected option
-                        if (optionIndex == targetIndex) {
-                            centerOptionLayoutCoordinates = it
-                        }
-                    })
-                }
-            }
+            pickerDriver.DrivedPicker()
         }
 
         rule.runOnIdle {
             runBlocking {
-                state.scrollToOption(targetIndex)
+                pickerDriver.state.scrollToOption(targetIndex)
             }
         }
-
         rule.waitForIdle()
 
-        assertThat(state.selectedOption).isEqualTo(targetIndex)
-        assertThat(centerOptionLayoutCoordinates.positionInWindow().y -
-            pickerLayoutCoordinates.positionInWindow().y)
-            .isWithin(0.1f)
-            .of(pickerHeightPx / 2f - itemSizePx / 2f)
+        assertThat(pickerDriver.state.selectedOption).isEqualTo(targetIndex)
+        pickerDriver.verifyCenterItemIsCentered()
     }
 
     @Test
@@ -466,14 +450,67 @@ class PickerTest {
         assertThat(state.selectedOption).isEqualTo(selectedOption)
     }
 
-    private fun scroll_snaps(separationSign: Int = 0, touch: (TouchInjectionScope).() -> Unit) {
-        lateinit var state: PickerState
-        lateinit var pickerLayoutCoordinates: LayoutCoordinates
-        val numberOfItems = 20
-        val optionLayoutCoordinates = Array<LayoutCoordinates?>(numberOfItems) { null }
-        var pickerHeightPx = 0f
-        val itemsToShow = 11
+    // Regression test for http://b/230485107
+    @Test
+    fun scrolls_from_non_canonical_option_works() {
+        lateinit var scope: CoroutineScope
+        val pickerDriver = PickerDriver(separationSign = 1)
         rule.setContent {
+            scope = rememberCoroutineScope()
+            pickerDriver.DrivedPicker()
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            // Move before the first item, so we are not in the "canonical" items
+            // (the ones that will be used on a recently created Picker)
+            swipeWithVelocity(
+                start = Offset(centerX, top),
+                end = Offset(centerX, top + 300),
+                endVelocity = DO_FLING_SPEED
+            )
+        }
+        rule.waitForIdle()
+        pickerDriver.readOnly.value = true
+        rule.waitForIdle()
+        scope.launch {
+            pickerDriver.state.scrollToOption(
+                (pickerDriver.state.selectedOption + 1) % pickerDriver.state.numberOfOptions
+            )
+            pickerDriver.readOnly.value = false
+        }
+        rule.waitForIdle()
+
+        pickerDriver.verifyCenterItemIsCentered()
+    }
+
+    private fun scroll_snaps(
+        separationSign: Int = 0,
+        touchInput: (TouchInjectionScope).() -> Unit,
+    ) {
+        val pickerDriver = PickerDriver(separationSign)
+        rule.setContent {
+            pickerDriver.DrivedPicker()
+        }
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG).performTouchInput { touchInput() }
+        rule.waitForIdle()
+
+        pickerDriver.verifyCenterItemIsCentered()
+    }
+
+    private inner class PickerDriver(val separationSign: Int) {
+        lateinit var state: PickerState
+        val readOnly: MutableState<Boolean> = mutableStateOf(false)
+        private lateinit var pickerLayoutCoordinates: LayoutCoordinates
+        private val numberOfItems = 20
+        private lateinit var centerItemLayoutCoordinates: LayoutCoordinates
+        private var pickerHeightPx = 0f
+        private val itemsToShow = 11
+
+        @Composable
+        fun DrivedPicker() {
             val pickerHeightDp = itemSizeDp * itemsToShow +
                 separationDp * (itemsToShow - 1) * separationSign
             pickerHeightPx = with(LocalDensity.current) { pickerHeightDp.toPx() }
@@ -482,27 +519,28 @@ class PickerTest {
                     state = rememberPickerState(numberOfItems).also { state = it },
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(pickerHeightDp)
                         .onGloballyPositioned { pickerLayoutCoordinates = it },
-                    separation = separationDp * separationSign
+                    separation = separationDp * separationSign,
+                    readOnly = readOnly.value
                 ) { optionIndex ->
-                    Box(Modifier.requiredSize(itemSizeDp).onGloballyPositioned {
-                        // Save the layout coordinates
-                        optionLayoutCoordinates[optionIndex] = it
-                    })
+                    Box(Modifier.requiredSize(itemSizeDp)
+                        .onGloballyPositioned {
+                            // Save the layout coordinates if we are at the center
+                            if (optionIndex == selectedOption) {
+                                centerItemLayoutCoordinates = it
+                            }
+                        }
+                    )
                 }
             }
         }
 
-        rule.waitForIdle()
-
-        rule.onNodeWithTag(TEST_TAG).performTouchInput { touch() }
-
-        rule.waitForIdle()
-
-        // Ensure that the option that ended up in the middle after the fling/scroll is centered
-        assertThat(optionLayoutCoordinates[state.selectedOption]!!.positionInWindow().y -
-            pickerLayoutCoordinates.positionInWindow().y)
-            .isWithin(0.1f)
-            .of(pickerHeightPx / 2f - itemSizePx / 2f)
+        fun verifyCenterItemIsCentered() {
+            // Ensure that the option that ended up in the middle after the fling/scroll is centered
+            assertThat(centerItemLayoutCoordinates.positionInWindow().y -
+                pickerLayoutCoordinates.positionInWindow().y)
+                .isWithin(0.1f)
+                .of(pickerHeightPx / 2f - itemSizePx / 2f)
+        }
     }
 
     // The threshold is 1f, and the specified velocity is not exactly achieved by swipeWithVelocity

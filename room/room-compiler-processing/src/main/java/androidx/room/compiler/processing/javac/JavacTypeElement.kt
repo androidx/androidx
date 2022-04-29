@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMemberContainer
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.collectAllMethods
 import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
@@ -31,6 +32,7 @@ import androidx.room.compiler.processing.util.MemoizedSequence
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind
@@ -175,7 +177,18 @@ internal sealed class JavacTypeElement(
         )
     }
 
-    override val superType: JavacType? by lazy {
+    override val superTypes: List<XType> by lazy {
+        buildList {
+            if (isInterface() && superInterfaces.isEmpty()) {
+                add(env.requireType(TypeName.OBJECT))
+            } else {
+                superClass?.let { add(it) }
+                addAll(superInterfaces)
+            }
+        }
+    }
+
+    override val superClass: JavacType? by lazy {
         // javac models non-existing types as TypeKind.NONE but we prefer to make it nullable.
         // just makes more sense and safer as we don't need to check for none.
 

@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
+import androidx.wear.tiles.DimensionBuilders.SpacerDimension;
 import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
@@ -69,8 +70,8 @@ public class MultiSlotLayout implements LayoutElement {
         /** Add one new slot to the layout with the given content inside. */
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
-        // There is no direct matching getter for this setter as the serialized format of the
-        // ProtoLayouts do not allow for a direct reconstruction of the arguments. b/221427609
+        // There is no direct matching getter for this setter, but there is a getter that gets all
+        // added slots.
         public Builder addSlotContent(@NonNull LayoutElement slotContent) {
             mSlotsContent.add(slotContent);
             return this;
@@ -82,15 +83,12 @@ public class MultiSlotLayout implements LayoutElement {
          * LayoutDefaults#MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH} will be used.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // There is no direct matching getter for this setter as the serialized format of the
-        // ProtoLayouts do not allow for a direct reconstruction of the arguments. Instead there are
-        // methods to get the contents a whole for rendering.
         public Builder setHorizontalSpacerWidth(@Dimension(unit = DP) float width) {
             this.mHorizontalSpacerWidth = dp(width);
             return this;
         }
 
+        /** Constructs and returns {@link MultiSlotLayout} with the provided content and look. */
         @NonNull
         @Override
         // The @Dimension(unit = DP) on mVerticalSpacerHeight.getValue() is seemingly being ignored,
@@ -136,6 +134,24 @@ public class MultiSlotLayout implements LayoutElement {
             }
         }
         return slots;
+    }
+
+    /** Gets the width of horizontal spacer that is between slots. */
+    // The @Dimension(unit = DP) on getLinearDimension.getValue() is seemingly being ignored,
+    // so lint complains that we're passing PX to something expecting DP. Just suppress the
+    // warning for now.
+    @SuppressLint("ResourceType")
+    @Dimension(unit = DP)
+    public float getHorizontalSpacerWidth() {
+        for (LayoutElement slot : mElement.getContents()) {
+            if (slot instanceof Spacer) {
+                SpacerDimension width = ((Spacer) slot).getWidth();
+                if (width instanceof DpProp) {
+                    return ((DpProp) width).getValue();
+                }
+            }
+        }
+        return LayoutDefaults.MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH.getValue();
     }
 
     /** @hide */

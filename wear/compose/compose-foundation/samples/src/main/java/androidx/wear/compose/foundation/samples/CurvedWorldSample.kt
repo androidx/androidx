@@ -30,7 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.wear.compose.foundation.ArcPaddingValues
 import androidx.wear.compose.foundation.CurvedAlignment
 import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
@@ -43,6 +42,7 @@ import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.foundation.curvedColumn
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
+import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.foundation.radialGradientBackground
 import androidx.wear.compose.foundation.size
 import androidx.wear.compose.foundation.weight
@@ -125,14 +125,14 @@ fun CurvedAndNormalText() {
     CurvedLayout(modifier = Modifier.fillMaxSize()) {
         basicCurvedText(
             "Curved Text",
+            CurvedModifier.padding(10.dp),
             style = {
                 CurvedTextStyle(
                     fontSize = 16.sp,
                     color = Color.Black,
                     background = Color.White
                 )
-            },
-            contentArcPadding = ArcPaddingValues(10.dp)
+            }
         )
         curvedComposable {
             Box(modifier = Modifier.size(20.dp).background(Color.Gray))
@@ -185,9 +185,9 @@ fun CurvedBackground() {
                     color = Color.Black
                 )
             },
-            contentArcPadding = ArcPaddingValues(5.dp),
             modifier = CurvedModifier
                 .radialGradientBackground(0f to Color.White, 1f to Color.Black)
+                .padding(5.dp)
         )
         basicCurvedText(
             "Angular",
@@ -197,9 +197,9 @@ fun CurvedBackground() {
                     color = Color.Black
                 )
             },
-            contentArcPadding = ArcPaddingValues(5.dp),
             modifier = CurvedModifier
                 .angularGradientBackground(0f to Color.White, 1f to Color.Black)
+                .padding(5.dp)
         )
     }
 }

@@ -1,0 +1,69 @@
+// Signature format: 4.0
+package androidx.navigation.dynamicfeatures.fragment {
+
+  @androidx.navigation.Navigator.Name("fragment") public final class DynamicFragmentNavigator extends androidx.navigation.fragment.FragmentNavigator {
+    ctor public DynamicFragmentNavigator(android.content.Context context, androidx.fragment.app.FragmentManager manager, int containerId, androidx.navigation.dynamicfeatures.DynamicInstallManager installManager);
+    method public androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination createDestination();
+  }
+
+  public static final class DynamicFragmentNavigator.Destination extends androidx.navigation.fragment.FragmentNavigator.Destination {
+    ctor public DynamicFragmentNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
+    ctor public DynamicFragmentNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.fragment.FragmentNavigator.Destination> fragmentNavigator);
+    method public String? getModuleName();
+    method public void setModuleName(String?);
+    property public final String? moduleName;
+  }
+
+  @androidx.navigation.NavDestinationDsl public final class DynamicFragmentNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.fragment.FragmentNavigator.Destination> {
+    ctor @Deprecated public DynamicFragmentNavigatorDestinationBuilder(androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator navigator, @IdRes int id, String fragmentClassName);
+    ctor public DynamicFragmentNavigatorDestinationBuilder(androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator navigator, String route, String fragmentClassName);
+    method public androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigator.Destination build();
+    method public String? getModuleName();
+    method public void setModuleName(String?);
+    property public final String? moduleName;
+  }
+
+  public final class DynamicFragmentNavigatorDestinationBuilderKt {
+    method @Deprecated public static inline void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, String fragmentClassName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method public static inline void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, String fragmentClassName, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method @Deprecated public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id);
+    method @Deprecated public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,? extends kotlin.Unit> builder);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route);
+    method public static inline <reified F extends androidx.fragment.app.Fragment> void fragment(androidx.navigation.dynamicfeatures.DynamicNavGraphBuilder, String route, kotlin.jvm.functions.Function1<? super androidx.navigation.dynamicfeatures.fragment.DynamicFragmentNavigatorDestinationBuilder,? extends kotlin.Unit> builder);
+  }
+
+  public class DynamicNavHostFragment extends androidx.navigation.fragment.NavHostFragment {
+    ctor public DynamicNavHostFragment();
+    method public static final androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+    method public static final androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId);
+    method protected com.google.android.play.core.splitinstall.SplitInstallManager createSplitInstallManager();
+    field public static final androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment.Companion Companion;
+  }
+
+  public static final class DynamicNavHostFragment.Companion {
+    method public androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+    method public androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment create(@NavigationRes int graphResId);
+  }
+
+}
+
+package androidx.navigation.dynamicfeatures.fragment.ui {
+
+  public abstract class AbstractProgressFragment extends androidx.fragment.app.Fragment {
+    ctor public AbstractProgressFragment();
+    ctor public AbstractProgressFragment(int contentLayoutId);
+    method protected abstract void onCancelled();
+    method protected abstract void onFailed(@com.google.android.play.core.splitinstall.model.SplitInstallErrorCode int errorCode);
+    method protected void onInstalled();
+    method protected abstract void onProgress(@com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus int status, long bytesDownloaded, long bytesTotal);
+  }
+
+  public final class DefaultProgressFragment extends androidx.navigation.dynamicfeatures.fragment.ui.AbstractProgressFragment {
+    ctor public DefaultProgressFragment();
+    method protected void onCancelled();
+    method protected void onFailed(@com.google.android.play.core.splitinstall.model.SplitInstallErrorCode int errorCode);
+    method protected void onProgress(int status, long bytesDownloaded, long bytesTotal);
+  }
+
+}
+

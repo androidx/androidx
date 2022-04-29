@@ -18,7 +18,7 @@ dependencies {
     compileOnly(libs.kotlinStdlib)
 
     // We don't ship this as a public artifact, so it must remain a project-type dependency.
-    annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
+    annotationProcessor(projectOrArtifact(":versionedparcelable:versionedparcelable-compiler"))
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinStdlib)

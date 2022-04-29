@@ -87,6 +87,17 @@ open class PlaygroundExtension @Inject constructor(
      * @param relativePathToRoot The relative path of the project to the root AndroidX project
      */
     fun setupPlayground(relativePathToRoot: String) {
+        // gradlePluginPortal has a variety of unsigned binaries that have proper signatures
+        // in mavenCentral, so don't use gradlePluginPortal() if you can avoid it
+        settings.pluginManagement.repositories {
+            it.mavenCentral()
+            it.gradlePluginPortal().content {
+                it.includeModule(
+                    "org.jetbrains.kotlin.plugin.serialization",
+                    "org.jetbrains.kotlin.plugin.serialization.gradle.plugin"
+                )
+            }
+        }
         val projectDir = settings.rootProject.projectDir
         val supportRoot = File(projectDir, relativePathToRoot).canonicalFile
         this.supportRootDir = supportRoot

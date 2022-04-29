@@ -32,6 +32,7 @@ import android.content.Context;
 import android.database.Cursor;
 
 import androidx.annotation.NonNull;
+import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.room.InvalidationTracker;
@@ -49,6 +50,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -61,6 +63,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -69,6 +72,9 @@ public class WriteAheadLoggingTest {
 
     private static final String DATABASE_NAME = "wal.db";
     private TestDatabase mDatabase;
+
+    @Rule
+    public CountingTaskExecutorRule countingTaskExecutorRule = new CountingTaskExecutorRule();
 
     @Before
     public void openDatabase() {
@@ -80,7 +86,10 @@ public class WriteAheadLoggingTest {
     }
 
     @After
-    public void closeDatabase() {
+    public void closeDatabase() throws InterruptedException, TimeoutException {
+        countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS);
+        assertThat(countingTaskExecutorRule.isIdle(), is(true));
+
         mDatabase.close();
         Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase(DATABASE_NAME);

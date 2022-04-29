@@ -21,7 +21,6 @@ import static androidx.biometric.BiometricManager.Authenticators;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStoreOwner;
@@ -35,7 +34,6 @@ import androidx.test.uiautomator.UiDevice;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -54,7 +52,6 @@ public class BiometricPromptTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 18)
-    @Ignore("TODO(b/225187683): fails in postsubmit")
     public void testViewModel_inActivity() {
         try (ActivityScenario<TestActivity> scenario =
                      ActivityScenario.launch(TestActivity.class)) {
@@ -79,7 +76,6 @@ public class BiometricPromptTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 18)
-    @Ignore("TODO(b/225187683): fails in postsubmit")
     public void testViewModel_inFragment() {
         try (FragmentScenario<TestFragment> scenario =
                      FragmentScenario.launchInContainer(TestFragment.class)) {
@@ -124,8 +120,6 @@ public class BiometricPromptTest {
     private BiometricViewModel findViewModel(ViewModelStoreOwner owner) {
         return new ViewModelProvider(owner).get(BiometricViewModel.class);
     }
-
-    public static class TestActivity extends FragmentActivity {}
 
     public static class TestFragment extends Fragment {}
 }

@@ -1236,7 +1236,8 @@ public final class Recorder implements VideoOutput {
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @ExecutedBy("mSequentialExecutor")
-    private void setupAudio() throws ResourceCreationException {
+    private void setupAudio(@NonNull RecordingRecord recordingToStart)
+            throws ResourceCreationException {
         MediaSpec mediaSpec = getObservableData(mMediaSpec);
         // Resolve the audio mime info
         MimeInfo audioMimeInfo = resolveAudioMimeInfo(mediaSpec);
@@ -1245,7 +1246,7 @@ public final class Recorder implements VideoOutput {
         AudioSource.Settings audioSourceSettings =
                 resolveAudioSourceSettings(audioMimeInfo, mediaSpec.getAudioSpec());
         try {
-            mAudioSource = setupAudioSource(audioSourceSettings);
+            mAudioSource = setupAudioSource(recordingToStart, audioSourceSettings);
         } catch (AudioSourceAccessException e) {
             throw new ResourceCreationException(e);
         }
@@ -1269,10 +1270,13 @@ public final class Recorder implements VideoOutput {
 
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
     @NonNull
-    private AudioSource setupAudioSource(@NonNull AudioSource.Settings audioSourceSettings)
+    private AudioSource setupAudioSource(@NonNull RecordingRecord recordingToStart,
+            @NonNull AudioSource.Settings audioSourceSettings)
             throws AudioSourceAccessException {
-        AudioSource audioSource = new AudioSource(audioSourceSettings,
-                CameraXExecutors.ioExecutor());
+
+        AudioSource audioSource = recordingToStart.performOneTimeAudioSourceCreation(
+                audioSourceSettings, CameraXExecutors.ioExecutor());
+
         audioSource.setAudioSourceCallback(mSequentialExecutor,
                 new AudioSource.AudioSourceCallback() {
                     @Override
@@ -1296,6 +1300,7 @@ public final class Recorder implements VideoOutput {
                         }
                     }
                 });
+
         return audioSource;
     }
 
@@ -1561,7 +1566,7 @@ public final class Recorder implements VideoOutput {
                                 "The Recorder doesn't support recording with audio");
                     }
                     try {
-                        setupAudio();
+                        setupAudio(recordingToStart);
                         setAudioState(AudioState.ACTIVE);
                     } catch (ResourceCreationException e) {
                         Logger.e(TAG, "Unable to create audio resource with error: ", e);
@@ -2491,6 +2496,9 @@ public final class Recorder implements VideoOutput {
         private final AtomicReference<MediaMuxerSupplier> mMediaMuxerSupplier =
                 new AtomicReference<>(null);
 
+        private final AtomicReference<AudioSourceSupplier> mAudioSourceSupplier =
+                new AtomicReference<>(null);
+
         private final AtomicReference<Consumer<Uri>> mRecordingFinalizer =
                 new AtomicReference<>(ignored -> {
                     /* no-op by default */
@@ -2619,6 +2627,43 @@ public final class Recorder implements VideoOutput {
             mMediaMuxerSupplier.set(mediaMuxerSupplier);
 
             Consumer<Uri> recordingFinalizer = null;
+            if (hasAudioEnabled()) {
+                if (Build.VERSION.SDK_INT >= 31) {
+                    // Use anonymous inner class instead of lambda since we need to propagate
+                    // permission requirements
+                    @SuppressWarnings("Convert2Lambda")
+                    AudioSourceSupplier audioSourceSupplier = new AudioSourceSupplier() {
+                        @NonNull
+                        @Override
+                        @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+                        public AudioSource get(@NonNull AudioSource.Settings settings,
+                                @NonNull Executor executor)
+                                throws AudioSourceAccessException {
+                            // Context will only be held in local scope of the supplier so it will
+                            // not be retained after performOneTimeAudioSourceCreation() is called.
+                            return new AudioSource(settings, executor, context);
+                        }
+                    };
+                    mAudioSourceSupplier.set(audioSourceSupplier);
+                } else {
+                    // Use anonymous inner class instead of lambda since we need to propagate
+                    // permission requirements
+                    @SuppressWarnings("Convert2Lambda")
+                    AudioSourceSupplier audioSourceSupplier = new AudioSourceSupplier() {
+                        @NonNull
+                        @Override
+                        @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+                        public AudioSource get(@NonNull AudioSource.Settings settings,
+                                @NonNull Executor executor)
+                                throws AudioSourceAccessException {
+                            // Do not set (or retain) context on other API levels
+                            return new AudioSource(settings, executor, null);
+                        }
+                    };
+                    mAudioSourceSupplier.set(audioSourceSupplier);
+                }
+            }
+
             if (outputOptions instanceof MediaStoreOutputOptions) {
                 MediaStoreOutputOptions mediaStoreOutputOptions =
                         (MediaStoreOutputOptions) outputOptions;
@@ -2687,10 +2732,11 @@ public final class Recorder implements VideoOutput {
          * Updates the recording status and callback to users.
          */
         void updateVideoRecordEvent(@NonNull VideoRecordEvent event) {
-            Preconditions.checkState(Objects.equals(event.getOutputOptions(), getOutputOptions()),
-                    "Attempted to update event listener with event from incorrect recording "
-                            + "[Recording: " + event.getOutputOptions() + ", Expected: "
-                            + getOutputOptions() + "]");
+            if (!Objects.equals(event.getOutputOptions(), getOutputOptions())) {
+                throw new AssertionError("Attempted to update event listener with event from "
+                    + "incorrect recording [Recording: " + event.getOutputOptions()
+                        + ", Expected: " + getOutputOptions() + "]");
+            }
             String message = "Sending VideoRecordEvent " + event.getClass().getSimpleName();
             if (event instanceof VideoRecordEvent.Finalize) {
                 VideoRecordEvent.Finalize finalizeEvent = (VideoRecordEvent.Finalize) event;
@@ -2708,6 +2754,34 @@ public final class Recorder implements VideoOutput {
                     Logger.e(TAG, "The callback executor is invalid.", e);
                 }
             }
+        }
+
+        /**
+         * Creates an {@link AudioSource} for this recording.
+         *
+         * <p>An audio source can only be created once per recording, so subsequent calls to this
+         * method will throw an {@link AssertionError}.
+         *
+         * <p>Calling this method when audio is not enabled for this recording will also throw an
+         * {@link AssertionError}.
+         */
+        @NonNull
+        @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+        AudioSource performOneTimeAudioSourceCreation(
+                @NonNull AudioSource.Settings settings, @NonNull Executor audioSourceExecutor)
+                throws AudioSourceAccessException {
+            if (!hasAudioEnabled()) {
+                throw new AssertionError("Recording does not have audio enabled. Unable to create"
+                        + " audio source for recording " + this);
+            }
+
+            AudioSourceSupplier audioSourceSupplier = mAudioSourceSupplier.getAndSet(null);
+            if (audioSourceSupplier == null) {
+                throw new AssertionError("One-time audio source creation has already occurred for"
+                        + " recording " + this);
+            }
+
+            return audioSourceSupplier.get(settings, audioSourceExecutor);
         }
 
         /**
@@ -2803,6 +2877,13 @@ public final class Recorder implements VideoOutput {
             @NonNull
             MediaMuxer get(int muxerOutputFormat, @NonNull Consumer<Uri> outputUriCreatedCallback)
                     throws IOException;
+        }
+
+        private interface AudioSourceSupplier {
+            @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+            @NonNull
+            AudioSource get(@NonNull AudioSource.Settings settings,
+                    @NonNull Executor audioSourceExecutor) throws AudioSourceAccessException;
         }
     }
 

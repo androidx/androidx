@@ -44,7 +44,24 @@ interface XTypeElement : XHasModifiers, XElement, XMemberContainer {
     /**
      * The super type of this element if it represents a class.
      */
+    @Deprecated(
+        message = "Function name was misleading.",
+        replaceWith = ReplaceWith("superClass")
+    )
     val superType: XType?
+        get() = superClass
+
+    /**
+     * The direct super types of this element.
+     *
+     * See [JLS 4.10.2](https://docs.oracle.com/javase/specs/jls/se18/html/jls-4.html#jls-4.10.2)
+     */
+    val superTypes: List<XType>
+
+    /**
+     * The super class of this element if it represents a class.
+     */
+    val superClass: XType?
 
     /**
      * The super interfaces implemented by this class.

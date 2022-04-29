@@ -3,7 +3,7 @@ HiddenSuperclass: androidx.appcompat.graphics.drawable.AnimatedStateListDrawable
     Public class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat stripped of unavailable superclass androidx.appcompat.graphics.drawable.StateListDrawable
 
 
-InvalidNullability: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
+InvalidNullabilityOverride: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
     Invalid nullability on parameter `tintMode` in method `setTintMode`. Parameters of overrides cannot be NonNull if super parameter is Nullable.
 
 

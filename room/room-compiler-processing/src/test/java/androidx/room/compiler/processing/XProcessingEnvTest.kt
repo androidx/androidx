@@ -123,7 +123,7 @@ class XProcessingEnvTest {
             assertThat(element.getDeclaredMethods()).hasSize(2)
             assertThat(element.kindName()).isEqualTo("class")
             assertThat(element.isInterface()).isFalse()
-            assertThat(element.superType?.typeName).isEqualTo(TypeName.OBJECT)
+            assertThat(element.superClass?.typeName).isEqualTo(TypeName.OBJECT)
         }
     }
 

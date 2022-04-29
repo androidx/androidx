@@ -25,8 +25,8 @@ import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.TypeAdapterExtras
+import androidx.room.solver.query.result.MultiTypedPagingSourceQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
-import androidx.room.solver.query.result.PagingSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 import com.squareup.javapoet.TypeName
 
@@ -63,10 +63,10 @@ private class PagingSourceQueryResultBinderProviderImpl(
             (listAdapter?.accessedTableNames() ?: emptyList()) +
                 query.tables.map { it.name }
             ).toSet()
-
-        return PagingSourceQueryResultBinder(
+        return MultiTypedPagingSourceQueryResultBinder(
             listAdapter = listAdapter,
             tableNames = tableNames,
+            className = RoomPagingTypeNames.LIMIT_OFFSET_PAGING_SOURCE
         )
     }
 

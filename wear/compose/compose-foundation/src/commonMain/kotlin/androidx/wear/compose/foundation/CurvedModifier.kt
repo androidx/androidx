@@ -21,7 +21,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 
 /**
@@ -84,7 +83,7 @@ internal open class BaseCurvedChildWrapper(val wrapped: CurvedChild) : CurvedChi
     @Composable
     override fun SubComposition() { wrapped.SubComposition() }
 
-    override fun MeasureScope.initializeMeasure(
+    override fun CurvedMeasureScope.initializeMeasure(
         measurables: List<Measurable>,
         index: Int
     ): Int = with(wrapped) {

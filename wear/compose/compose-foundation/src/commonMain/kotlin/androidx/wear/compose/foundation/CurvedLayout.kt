@@ -28,9 +28,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.PI
 import kotlin.math.cos
@@ -115,8 +115,8 @@ public fun CurvedLayout(
 
     Layout(
         modifier = modifier.drawWithContent {
-            drawContent()
             with(curvedRowChild) { draw() }
+            drawContent()
         },
 
         content = {
@@ -133,9 +133,11 @@ public fun CurvedLayout(
 
         // Give the curved row scope the information needed to measure and map measurables
         // to children.
-        with(curvedRowChild) {
-            val mapped = initializeMeasure(measurables, 0)
-            require(mapped == measurables.size)
+        with(CurvedMeasureScope(subDensity = this, curvedLayoutDirection)) {
+            with(curvedRowChild) {
+                val mapped = initializeMeasure(measurables, 0)
+                require(mapped == measurables.size)
+            }
         }
 
         curvedRowChild.estimateThickness(radius)
@@ -164,23 +166,19 @@ public fun CurvedLayout(
 // TODO() For performance, to avoid class extra creation/destruction, we could implement this class
 //  as a bit field.
 internal class CurvedLayoutDirection(
-    private val radial: CurvedDirection.Radial,
-    private val angular: CurvedDirection.Angular,
-    private val layoutDirection: LayoutDirection
+    internal val radial: CurvedDirection.Radial,
+    internal val angular: CurvedDirection.Angular,
+    internal val layoutDirection: LayoutDirection
 ) {
-    fun clockwise(): Boolean {
-        return when (angular) {
-            CurvedDirection.Angular.Reversed -> !isLtr()
-            CurvedDirection.Angular.Clockwise -> true
-            CurvedDirection.Angular.CounterClockwise -> false
-            // CurvedDirection.Angular.Clockwise
-            else -> isLtr()
-        }
-    }
+    // Check if the angular direction is clockwise, taking layoutDirection into account
+    fun clockwise(): Boolean = angular.resolveClockwise(layoutDirection)
+
+    // Check if the angular direction is clockwise, ignoring layoutDirection
+    fun absoluteClockwise(): Boolean =
+        angular == CurvedDirection.Angular.Normal ||
+        angular == CurvedDirection.Angular.Clockwise
 
     fun outsideIn(): Boolean = radial == CurvedDirection.Radial.OutsideIn
-
-    fun isLtr(): Boolean = layoutDirection == LayoutDirection.Ltr
 
     fun copy(
         overrideRadial: CurvedDirection.Radial? = null,
@@ -264,6 +262,12 @@ internal class PartialLayoutInfo(
     val measureRadius: Float, // TODO: remove this from here or generalize
 )
 
+// Similar to IntrinsicMeasureScope
+internal class CurvedMeasureScope(
+    val subDensity: Density,
+    val curvedLayoutDirection: CurvedLayoutDirection
+) : Density by subDensity
+
 /**
  * Base class for children of a [CurvedLayout].
  *
@@ -297,6 +301,10 @@ internal abstract class CurvedChild() {
     internal val sweepRadians: Float
         get() = partialLayoutInfo.sweepRadians
 
+    // Exposed as is needed in padding modifiers to translate distances to angles.
+    internal val measureRadius: Float
+        get() = partialLayoutInfo.measureRadius
+
     /**
      * Compose the content. This may generate some compose-ui nodes, but has to match
      * initializeMeasure's matching behavior (initializeMeasure should return the index parameter +
@@ -314,7 +322,7 @@ internal abstract class CurvedChild() {
      * @return The new index in the measurables array, taking into account how many items we
      * mapped.
      */
-    open fun MeasureScope.initializeMeasure(
+    open fun CurvedMeasureScope.initializeMeasure(
         measurables: List<Measurable>,
         index: Int
     ): Int = index

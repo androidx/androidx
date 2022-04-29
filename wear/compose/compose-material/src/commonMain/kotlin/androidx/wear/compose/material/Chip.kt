@@ -158,6 +158,9 @@ public fun Chip(
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
+ * Example of a [Chip] with icon and a label only with longer text:
+ * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabel
+ *
  * Example of a [Chip] with icon, label and secondary label:
  * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabels
  *
@@ -233,8 +236,9 @@ public fun Chip(
                         LocalTextStyle provides MaterialTheme.typography.button,
                         LocalContentAlpha provides
                             colors.contentColor(enabled = enabled).value.alpha,
-                        content = label
-                    )
+                    ) {
+                        label()
+                    }
                 }
                 if (secondaryLabel != null) {
                     Row {
@@ -243,8 +247,9 @@ public fun Chip(
                             LocalTextStyle provides MaterialTheme.typography.caption2,
                             LocalContentAlpha provides
                                 colors.secondaryContentColor(enabled = enabled).value.alpha,
-                            content = secondaryLabel
-                        )
+                        ) {
+                            secondaryLabel()
+                        }
                     }
                 }
             }
@@ -335,8 +340,9 @@ public fun CompactChip(
             label = {
                 CompositionLocalProvider(
                     LocalTextStyle provides MaterialTheme.typography.caption1,
-                    content = label
-                )
+                ) {
+                    label()
+                }
             },
             onClick = onClick,
             modifier = modifier.height(ChipDefaults.CompactChipHeight),

@@ -27,6 +27,7 @@ import android.text.style.StyleSpan
 import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
 import android.view.View
+import android.widget.CompoundButton
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -768,6 +770,111 @@ class GlanceAppWidgetReceiverTest {
         assertThat(CallbackTest.received.get()).containsExactly(2)
     }
 
+    @Test
+    fun unsetActionCallback() {
+        TestGlanceAppWidget.uiDefinition = {
+            val enabled = currentState<Preferences>()[testBoolKey] ?: true
+            Text(
+                "text1",
+                modifier = if (enabled) {
+                    GlanceModifier.clickable(
+                        actionRunCallback<CallbackTest>(actionParametersOf(CallbackTest.key to 1))
+                    )
+                } else GlanceModifier
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onHostView { root ->
+            val text = checkNotNull(root.findChild<TextView> { it.text == "text1" })
+            assertThat(text.hasOnClickListeners()).isTrue()
+        }
+
+        runBlocking {
+            updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
+                it[testBoolKey] = false
+            }
+            mHostRule.updateAppWidget()
+        }
+
+        mHostRule.onHostView { root ->
+            val view = checkNotNull(root.findChild<TextView> { it.text == "text1" })
+            assertThat(view.hasOnClickListeners()).isFalse()
+        }
+    }
+
+    @Test
+    fun unsetCompoundButtonActionCallback() {
+        TestGlanceAppWidget.uiDefinition = {
+            val enabled = currentState<Preferences>()[testBoolKey] ?: true
+            CheckBox(
+                checked = false,
+                onCheckedChange = if (enabled) {
+                    actionRunCallback<CompoundButtonActionTest>(
+                        actionParametersOf(CompoundButtonActionTest.key to "checkbox")
+                    )
+                } else null,
+                text = "checkbox"
+            )
+        }
+
+        mHostRule.startHost()
+
+        CompoundButtonActionTest.received.set(emptyList())
+        CompoundButtonActionTest.latch = CountDownLatch(1)
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text == "checkbox" })
+                .performCompoundButtonClick()
+        }
+        CompoundButtonActionTest.latch.await(5, TimeUnit.SECONDS)
+        assertThat(CompoundButtonActionTest.received.get()).containsExactly(
+            "checkbox" to true
+        )
+
+        runBlocking {
+            updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
+                it[testBoolKey] = false
+            }
+            mHostRule.updateAppWidget()
+        }
+
+        CompoundButtonActionTest.received.set(emptyList())
+        CompoundButtonActionTest.latch = CountDownLatch(1)
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text == "checkbox" })
+                .performCompoundButtonClick()
+        }
+        assertThat(CompoundButtonActionTest.latch.await(5, TimeUnit.SECONDS)).isFalse()
+        assertThat(CompoundButtonActionTest.received.get()).isEmpty()
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    fun compoundButtonsOnlyHaveOneAction() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column {
+                CheckBox(
+                    checked = false,
+                    onCheckedChange = actionRunCallback<CompoundButtonActionTest>(
+                        actionParametersOf()
+                    ),
+                    text = "checkbox",
+                    modifier = GlanceModifier.clickable(
+                        actionRunCallback<CompoundButtonActionTest>(actionParametersOf())
+                    ),
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onHostView { root ->
+            val checkbox = checkNotNull(root.findChild<CompoundButton> { it.text == "checkbox" })
+            assertThat(checkbox.hasOnClickListeners()).isFalse()
+        }
+    }
+
     // Check there is a single span of the given type and that it passes the [check].
     private inline
     fun <reified T> SpannedString.checkHasSingleTypedSpan(check: (T) -> Unit) {
@@ -791,6 +898,7 @@ class GlanceAppWidgetReceiverTest {
 }
 
 private val testKey = intPreferencesKey("testKey")
+private val testBoolKey = booleanPreferencesKey("testKey")
 
 internal class CallbackTest : ActionCallback {
     override suspend fun onAction(

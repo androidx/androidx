@@ -29,25 +29,25 @@ public class StopwatchTest {
     public void testBuilder() {
         StopwatchLap lap1 = new StopwatchLap.Builder("namespace", "lap1")
                 .setLapNumber(1)
-                .setLapDurationMillis(1000)
-                .setCumulativeLapDurationMillis(1000)
+                .setLapTimeMillis(1000)
+                .setAccumulatedLapTimeMillis(1000)
                 .build();
         StopwatchLap lap2 = new StopwatchLap.Builder("namespace", "lap2")
                 .setLapNumber(2)
-                .setLapDurationMillis(100)
-                .setCumulativeLapDurationMillis(1100)
+                .setLapTimeMillis(100)
+                .setAccumulatedLapTimeMillis(1100)
                 .build();
         Stopwatch stopwatch = new Stopwatch.Builder("namespace", "id")
                 .setDocumentScore(1)
                 .setCreationTimestampMillis(100)
                 .setDocumentTtlMillis(6000)
                 .setName("my stopwatch")
-                .setStartTimeMillis(
-                        /*startTimeMillis=*/10000,
-                        /*startTimeMillisInElapsedRealtime=*/1000,
+                .setBaseTimeMillis(
+                        /*baseTimeMillis=*/10000,
+                        /*baseTimeMillisInElapsedRealtime=*/1000,
                         /*bootCount=*/1)
                 .setStatus(Stopwatch.STATUS_RUNNING)
-                .setElapsedDurationMillisSinceUpdate(1100)
+                .setAccumulatedTimeMillis(1100)
                 .setLaps(ImmutableList.of(lap1, lap2))
                 .build();
 
@@ -57,11 +57,11 @@ public class StopwatchTest {
         assertThat(stopwatch.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(stopwatch.getDocumentTtlMillis()).isEqualTo(6000);
         assertThat(stopwatch.getName()).isEqualTo("my stopwatch");
-        assertThat(stopwatch.getStartTimeMillis()).isEqualTo(10000);
-        assertThat(stopwatch.getStartTimeMillisInElapsedRealtime()).isEqualTo(1000);
+        assertThat(stopwatch.getBaseTimeMillis()).isEqualTo(10000);
+        assertThat(stopwatch.getBaseTimeMillisInElapsedRealtime()).isEqualTo(1000);
         assertThat(stopwatch.getBootCount()).isEqualTo(1);
         assertThat(stopwatch.getStatus()).isEqualTo(Stopwatch.STATUS_RUNNING);
-        assertThat(stopwatch.getElapsedDurationMillisSinceUpdate()).isEqualTo(1100);
+        assertThat(stopwatch.getAccumulatedTimeMillis()).isEqualTo(1100);
         assertThat(stopwatch.getLaps()).containsExactly(lap1, lap2).inOrder();
     }
 
@@ -69,25 +69,25 @@ public class StopwatchTest {
     public void testBuilderCopy_allFieldsCopied() {
         StopwatchLap lap1 = new StopwatchLap.Builder("namespace", "lap1")
                 .setLapNumber(1)
-                .setLapDurationMillis(1000)
-                .setCumulativeLapDurationMillis(1000)
+                .setLapTimeMillis(1000)
+                .setAccumulatedLapTimeMillis(1000)
                 .build();
         StopwatchLap lap2 = new StopwatchLap.Builder("namespace", "lap2")
                 .setLapNumber(2)
-                .setLapDurationMillis(100)
-                .setCumulativeLapDurationMillis(1100)
+                .setLapTimeMillis(100)
+                .setAccumulatedLapTimeMillis(1100)
                 .build();
         Stopwatch stopwatch1 = new Stopwatch.Builder("namespace", "id")
                 .setDocumentScore(1)
                 .setCreationTimestampMillis(100)
                 .setDocumentTtlMillis(6000)
                 .setName("my stopwatch")
-                .setStartTimeMillis(
-                        /*startTimeMillis=*/10000,
-                        /*startTimeMillisInElapsedRealtime=*/1000,
+                .setBaseTimeMillis(
+                        /*baseTimeMillis=*/10000,
+                        /*baseTimeMillisInElapsedRealtime=*/1000,
                         /*bootCount=*/1)
                 .setStatus(Stopwatch.STATUS_RUNNING)
-                .setElapsedDurationMillisSinceUpdate(1100)
+                .setAccumulatedTimeMillis(1100)
                 .setLaps(ImmutableList.of(lap1, lap2))
                 .build();
         Stopwatch stopwatch2 = new Stopwatch.Builder(stopwatch1).build();
@@ -99,14 +99,14 @@ public class StopwatchTest {
                 .isEqualTo(stopwatch2.getCreationTimestampMillis());
         assertThat(stopwatch1.getDocumentTtlMillis()).isEqualTo(stopwatch2.getDocumentTtlMillis());
         assertThat(stopwatch1.getName()).isEqualTo(stopwatch2.getName());
-        assertThat(stopwatch1.getStartTimeMillis())
-                .isEqualTo(stopwatch2.getStartTimeMillis());
-        assertThat(stopwatch1.getStartTimeMillisInElapsedRealtime())
-                .isEqualTo(stopwatch2.getStartTimeMillisInElapsedRealtime());
+        assertThat(stopwatch1.getBaseTimeMillis())
+                .isEqualTo(stopwatch2.getBaseTimeMillis());
+        assertThat(stopwatch1.getBaseTimeMillisInElapsedRealtime())
+                .isEqualTo(stopwatch2.getBaseTimeMillisInElapsedRealtime());
         assertThat(stopwatch1.getBootCount()).isEqualTo(stopwatch2.getBootCount());
         assertThat(stopwatch1.getStatus()).isEqualTo(stopwatch2.getStatus());
-        assertThat(stopwatch1.getElapsedDurationMillisSinceUpdate())
-                .isEqualTo(stopwatch2.getElapsedDurationMillisSinceUpdate());
+        assertThat(stopwatch1.getAccumulatedTimeMillis())
+                .isEqualTo(stopwatch2.getAccumulatedTimeMillis());
         assertThat(stopwatch1.getLaps()).containsExactly(stopwatch2.getLaps().toArray()).inOrder();
     }
 
@@ -115,26 +115,26 @@ public class StopwatchTest {
         StopwatchLap lap1 = new StopwatchLap.Builder("namespace", "lap1")
                 .setCreationTimestampMillis(100)
                 .setLapNumber(1)
-                .setLapDurationMillis(1000)
-                .setCumulativeLapDurationMillis(1000)
+                .setLapTimeMillis(1000)
+                .setAccumulatedLapTimeMillis(1000)
                 .build();
         StopwatchLap lap2 = new StopwatchLap.Builder("namespace", "lap2")
                 .setCreationTimestampMillis(100)
                 .setLapNumber(2)
-                .setLapDurationMillis(100)
-                .setCumulativeLapDurationMillis(1100)
+                .setLapTimeMillis(100)
+                .setAccumulatedLapTimeMillis(1100)
                 .build();
         Stopwatch stopwatch = new Stopwatch.Builder("namespace", "id")
                 .setDocumentScore(1)
                 .setCreationTimestampMillis(100)
                 .setDocumentTtlMillis(6000)
                 .setName("my stopwatch")
-                .setStartTimeMillis(
-                        /*startTimeMillis=*/10000,
-                        /*startTimeMillisInElapsedRealtime=*/1000,
+                .setBaseTimeMillis(
+                        /*baseTimeMillis=*/10000,
+                        /*baseTimeMillisInElapsedRealtime=*/1000,
                         /*bootCount=*/1)
                 .setStatus(Stopwatch.STATUS_RUNNING)
-                .setElapsedDurationMillisSinceUpdate(1100)
+                .setAccumulatedTimeMillis(1100)
                 .setLaps(ImmutableList.of(lap1, lap2))
                 .build();
 
@@ -146,12 +146,12 @@ public class StopwatchTest {
         assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(genericDocument.getTtlMillis()).isEqualTo(6000);
         assertThat(genericDocument.getPropertyString("name")).isEqualTo("my stopwatch");
-        assertThat(genericDocument.getPropertyLong("startTimeMillis")).isEqualTo(10000);
-        assertThat(genericDocument.getPropertyLong("startTimeMillisInElapsedRealtime"))
+        assertThat(genericDocument.getPropertyLong("baseTimeMillis")).isEqualTo(10000);
+        assertThat(genericDocument.getPropertyLong("baseTimeMillisInElapsedRealtime"))
                 .isEqualTo(1000);
         assertThat(genericDocument.getPropertyLong("bootCount")).isEqualTo(1);
         assertThat(genericDocument.getPropertyLong("status")).isEqualTo(Stopwatch.STATUS_RUNNING);
-        assertThat(genericDocument.getPropertyLong("elapsedDurationMillisSinceUpdate"))
+        assertThat(genericDocument.getPropertyLong("accumulatedTimeMillis"))
                 .isEqualTo(1100);
         assertThat(genericDocument.getPropertyDocumentArray("laps")).asList().containsExactly(
                 GenericDocument.fromDocumentClass(lap1), GenericDocument.fromDocumentClass(lap2));

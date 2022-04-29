@@ -36,7 +36,7 @@ internal fun collectFieldsIncludingPrivateSupers(
                 }
             }
             // visit all declared fields on super types
-            type.superType?.typeElement?.let { parent ->
+            type.superClass?.typeElement?.let { parent ->
                 yieldAllFields(parent)
             }
         }
@@ -66,7 +66,7 @@ internal fun collectAllMethods(
                 }
             }
             // Next, visit all super class methods.
-            type.superType?.typeElement?.let {
+            type.superClass?.typeElement?.let {
                 collectAllMethodsByName(it)
             }
             // Finally, visit all methods declared in this type.
@@ -76,7 +76,7 @@ internal fun collectAllMethods(
                 }
             } else {
                 type.getDeclaredMethods()
-                    .filter { it.isAccessibleFrom(type.packageName) }
+                    .filter { it.isAccessibleFrom(xTypeElement.packageName) }
                     .filterNot { it.isStaticInterfaceMethod() }
                     .map { it.copyTo(xTypeElement) }
                     .forEach {

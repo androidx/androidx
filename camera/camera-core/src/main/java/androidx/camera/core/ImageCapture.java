@@ -31,6 +31,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_JPEG_COMPRESSI
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_CAPTURE_STAGES;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SESSION_CONFIG_UNPACKER;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SESSION_PROCESSOR_ENABLED;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ASPECT_RATIO;
@@ -90,6 +91,7 @@ import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.MutableTagBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -310,6 +312,11 @@ public final class ImageCapture extends UseCase {
      */
     private boolean mUseSoftwareJpeg = false;
 
+    /**
+     * Whether SessionProcessor is enabled.
+     */
+    private boolean mIsSessionProcessorEnabled = true;
+
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -324,8 +331,7 @@ public final class ImageCapture extends UseCase {
     @SuppressWarnings("WeakerAccess")
     ProcessingImageReader mProcessingImageReader;
 
-    private YuvToJpegProcessor mYuvToJpegProcessor;
-    private CaptureProcessorPipeline mCaptureProcessorPipeline;
+    private ListenableFuture<Void> mImageReaderCloseFuture = Futures.immediateFuture(null);
 
     /** Callback used to match the {@link ImageProxy} with the {@link ImageInfo}. */
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
@@ -365,11 +371,12 @@ public final class ImageCapture extends UseCase {
     }
 
     @UiThread
-    @SuppressWarnings({"WeakerAccess", "FutureReturnValueIgnored"}) /* synthetic accessor */
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SessionConfig.Builder createPipeline(@NonNull String cameraId,
             @NonNull ImageCaptureConfig config, @NonNull Size resolution) {
         Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
+        YuvToJpegProcessor softwareJpegProcessor = null;
 
         if (Build.VERSION.SDK_INT >= 23 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {
             getCameraControl().addZslConfig(resolution, sessionConfigBuilder);
@@ -383,6 +390,49 @@ public final class ImageCapture extends UseCase {
                                     resolution.getHeight(), getImageFormat(), MAX_IMAGES, 0));
             mMetadataMatchingCaptureCallback = new CameraCaptureCallback() {
             };
+        } else if (mIsSessionProcessorEnabled) {
+            ImageReaderProxy imageReader;
+            if (getImageFormat() == ImageFormat.JPEG) {
+                imageReader =
+                        new AndroidImageReaderProxy(ImageReader.newInstance(resolution.getWidth(),
+                                resolution.getHeight(), getImageFormat(), MAX_IMAGES));
+            } else if (getImageFormat() == ImageFormat.YUV_420_888) { // convert it into Jpeg
+                if (Build.VERSION.SDK_INT >= 26) {
+                    // Jpeg rotation / quality will be set to softwareJpegProcessor later in
+                    // ImageCaptureRequestProcessor.
+                    softwareJpegProcessor =
+                            new YuvToJpegProcessor(getJpegQualityInternal(), MAX_IMAGES);
+
+                    ModifiableImageReaderProxy inputReader =
+                            new ModifiableImageReaderProxy(
+                                    ImageReader.newInstance(resolution.getWidth(),
+                                            resolution.getHeight(),
+                                            ImageFormat.YUV_420_888,
+                                            MAX_IMAGES));
+
+                    CaptureBundle captureBundle = CaptureBundles.singleDefaultCaptureBundle();
+                    ProcessingImageReader processingImageReader = new ProcessingImageReader.Builder(
+                            inputReader,
+                            captureBundle,
+                            softwareJpegProcessor
+                    ).setPostProcessExecutor(mExecutor).setOutputFormat(ImageFormat.JPEG).build();
+
+                    // Ensure the ImageProxy contains the same capture stage id expected from the
+                    // ProcessingImageReader.
+                    MutableTagBundle tagBundle = MutableTagBundle.create();
+                    tagBundle.putTag(processingImageReader.getTagBundleKey(),
+                            captureBundle.getCaptureStages().get(0).getId());
+                    inputReader.setImageTagBundle(tagBundle);
+
+                    imageReader = processingImageReader;
+                } else {
+                    throw new UnsupportedOperationException("Does not support API level < 26");
+                }
+            } else {
+                throw new IllegalArgumentException("Unsupported image format:" + getImageFormat());
+            }
+            mMetadataMatchingCaptureCallback = new CameraCaptureCallback() {};
+            mImageReader = new SafeCloseImageReaderProxy(imageReader);
         } else if (mCaptureProcessor != null || mUseSoftwareJpeg) {
             // Capture processor set from configuration takes precedence over software JPEG.
             CaptureProcessor captureProcessor = mCaptureProcessor;
@@ -394,13 +444,13 @@ public final class ImageCapture extends UseCase {
                     Logger.i(TAG, "Using software JPEG encoder.");
 
                     if (mCaptureProcessor != null) {
-                        mYuvToJpegProcessor = new YuvToJpegProcessor(getJpegQualityInternal(),
+                        softwareJpegProcessor = new YuvToJpegProcessor(getJpegQualityInternal(),
                                 mMaxCaptureStages);
-                        captureProcessor = mCaptureProcessorPipeline = new CaptureProcessorPipeline(
-                                mCaptureProcessor, mMaxCaptureStages, mYuvToJpegProcessor,
+                        captureProcessor = new CaptureProcessorPipeline(
+                                mCaptureProcessor, mMaxCaptureStages, softwareJpegProcessor,
                                 mExecutor);
                     } else {
-                        captureProcessor = mYuvToJpegProcessor =
+                        captureProcessor = softwareJpegProcessor =
                                 new YuvToJpegProcessor(getJpegQualityInternal(), mMaxCaptureStages);
                     }
 
@@ -413,11 +463,14 @@ public final class ImageCapture extends UseCase {
             }
 
             // TODO: To allow user to use an Executor for the image processing.
-            mProcessingImageReader = new ProcessingImageReader.Builder(resolution.getWidth(),
-                    resolution.getHeight(), inputFormat, mMaxCaptureStages,
+            mProcessingImageReader = new ProcessingImageReader.Builder(
+                    resolution.getWidth(),
+                    resolution.getHeight(),
+                    inputFormat,
+                    mMaxCaptureStages,
                     getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
-                    captureProcessor).setPostProcessExecutor(mExecutor).setOutputFormat(
-                    outputFormat).build();
+                    captureProcessor
+            ).setPostProcessExecutor(mExecutor).setOutputFormat(outputFormat).build();
 
             mMetadataMatchingCaptureCallback = mProcessingImageReader.getCameraCaptureCallback();
             mImageReader = new SafeCloseImageReaderProxy(mProcessingImageReader);
@@ -427,12 +480,14 @@ public final class ImageCapture extends UseCase {
             mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
             mImageReader = new SafeCloseImageReaderProxy(metadataImageReader);
         }
+
         if (mImageCaptureRequestProcessor != null) {
             mImageCaptureRequestProcessor.cancelRequests(
                     new CancellationException("Request is canceled."));
         }
 
-        final YuvToJpegProcessor finalSoftwareJpegProcessor = mYuvToJpegProcessor;
+        final YuvToJpegProcessor finalSoftwareJpegProcessor = softwareJpegProcessor;
+
         mImageCaptureRequestProcessor = new ImageCaptureRequestProcessor(MAX_IMAGES,
                 request -> takePictureInternal(request), finalSoftwareJpegProcessor == null ? null :
                 new ImageCaptureRequestProcessor.RequestProcessCallback() {
@@ -460,19 +515,23 @@ public final class ImageCapture extends UseCase {
         mImageReader.setOnImageAvailableListener(mClosingListener,
                 CameraXExecutors.mainThreadExecutor());
 
-        SafeCloseImageReaderProxy imageReaderProxy = mImageReader;
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
         }
+
         mDeferrableSurface = new ImmediateSurface(
                 mImageReader.getSurface(), new Size(mImageReader.getWidth(),
                 mImageReader.getHeight()), mImageReader.getImageFormat());
-        mDeferrableSurface.getTerminationFuture().addListener(
-                imageReaderProxy::safeClose, CameraXExecutors.mainThreadExecutor());
+
+        mImageReaderCloseFuture =
+                mProcessingImageReader != null ? mProcessingImageReader.getCloseFuture()
+                        : Futures.immediateFuture(null);
+        mDeferrableSurface.getTerminationFuture().addListener(mImageReader::safeClose,
+                CameraXExecutors.mainThreadExecutor());
+
         sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
-            closeProcessingImageReaderSafely();
             clearPipeline();
             // Ensure the attached camera has not changed before resetting.
             // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
@@ -504,70 +563,11 @@ public final class ImageCapture extends UseCase {
         mDeferrableSurface = null;
         mImageReader = null;
         mProcessingImageReader = null;
+        mImageReaderCloseFuture = Futures.immediateFuture(null);
 
         if (deferrableSurface != null) {
             deferrableSurface.close();
         }
-    }
-
-    private ListenableFuture<Void> closeProcessingImageReaderSafely() {
-        AtomicReference<CallbackToFutureAdapter.Completer<Void>> closeCompleterAtomicReference =
-                new AtomicReference<>();
-
-        if (mYuvToJpegProcessor == null && mCaptureProcessorPipeline == null
-                && mProcessingImageReader == null) {
-            return Futures.immediateFuture(null);
-        }
-
-        ListenableFuture<Void>  closeFuture = Futures.nonCancellationPropagating(
-                CallbackToFutureAdapter.getFuture(completer -> {
-                    closeCompleterAtomicReference.set(completer);
-                    return "ImageCapture-closeProcessingImageReaderSafely";
-                }));
-
-        ListenableFuture<Void> captureProcessorPipelineCloseFuture =
-                mCaptureProcessorPipeline != null ? mCaptureProcessorPipeline.getCloseFuture()
-                        : Futures.immediateFuture(null);
-
-        ListenableFuture<Void> yuvToJpegProcessorCloseFuture = Futures.immediateFuture(null);
-
-        if (Build.VERSION.SDK_INT >= 26 && mYuvToJpegProcessor != null) {
-            yuvToJpegProcessorCloseFuture = mYuvToJpegProcessor.getCloseFuture();
-        }
-
-        ListenableFuture<Void> processingImageReaderCloseFuture =
-                mProcessingImageReader != null ? mProcessingImageReader.getCloseFuture()
-                        : Futures.immediateFuture(null);
-
-        // Closes mCaptureProcessorPipeline first.
-        if (mCaptureProcessorPipeline != null) {
-            mCaptureProcessorPipeline.close();
-        }
-
-        // Closes YuvToJpegProcessor after mCaptureProcessorPipeline is closed.
-        captureProcessorPipelineCloseFuture.addListener(() -> {
-            if (Build.VERSION.SDK_INT >= 26 && mYuvToJpegProcessor != null) {
-                mYuvToJpegProcessor.close();
-            }
-        }, CameraXExecutors.directExecutor());
-
-        // Closes ProcessingImageReader after YuvToJpegProcessor is closed.
-        yuvToJpegProcessorCloseFuture.addListener(() -> {
-            if (mProcessingImageReader != null && mImageReader != null) {
-                mImageReader.safeClose();
-            }
-        }, CameraXExecutors.directExecutor());
-
-        // Completes the future completer after ProcessingImageReader is closed.
-        processingImageReaderCloseFuture.addListener(() -> {
-            closeCompleterAtomicReference.get().set(null);
-        }, CameraXExecutors.directExecutor());
-
-        mYuvToJpegProcessor = null;
-        mCaptureProcessorPipeline = null;
-        mProcessingImageReader = null;
-
-        return closeFuture;
     }
 
     /**
@@ -654,7 +654,21 @@ public final class ImageCapture extends UseCase {
                 builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                         ImageFormat.YUV_420_888);
             } else {
-                builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
+                List<Pair<Integer, Size[]>> supportedSizes =
+                        builder.getMutableConfig().retrieveOption(OPTION_SUPPORTED_RESOLUTIONS,
+                                null);
+                if (supportedSizes == null) {
+                    builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
+                } else {
+                    // Use Jpeg first if supported.
+                    if (isImageFormatSupported(supportedSizes, ImageFormat.JPEG)) {
+                        builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
+                                ImageFormat.JPEG);
+                    } else if (isImageFormatSupported(supportedSizes, ImageFormat.YUV_420_888)) {
+                        builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
+                                ImageFormat.YUV_420_888);
+                    }
+                }
             }
         }
 
@@ -665,6 +679,18 @@ public final class ImageCapture extends UseCase {
         return builder.getUseCaseConfig();
     }
 
+    private static boolean isImageFormatSupported(List<Pair<Integer, Size[]>> supportedSizes,
+            int imageFormat) {
+        if (supportedSizes == null) {
+            return false;
+        }
+        for (Pair<Integer, Size[]> supportedSize : supportedSizes) {
+            if (supportedSize.first.equals(imageFormat)) {
+                return true;
+            }
+        }
+        return false;
+    }
     /**
      * Configures flash mode to CameraControlInternal once it is ready.
      *
@@ -1519,16 +1545,17 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onDetached() {
-        ListenableFuture<Void> closeFuture = closeProcessingImageReaderSafely();
+        ListenableFuture<Void> imageReaderCloseFuture = mImageReaderCloseFuture;
 
         abortImageCaptureRequests();
         clearPipeline();
         mUseSoftwareJpeg = false;
 
-        // Shutdowns the executor after mProcessingImageReader is closed if
-        // mProcessingImageReader is used to processing the captured images.
+        // Shutdowns the executor after mImageReader is closed. This can avoid
+        // RejectedExecutionException if a ProcessingImageReader is used to processing the
+        // captured images.
         ExecutorService executorService = mExecutor;
-        closeFuture.addListener(() -> executorService.shutdown(),
+        imageReaderCloseFuture.addListener(() -> executorService.shutdown(),
                 CameraXExecutors.directExecutor());
     }
 
@@ -1554,6 +1581,7 @@ public final class ImageCapture extends UseCase {
         // This will only be set to true if software JPEG was requested and
         // enforceSoftwareJpegConstraints() hasn't removed the request.
         mUseSoftwareJpeg = useCaseConfig.isSoftwareJpegEncoderRequested();
+        mIsSessionProcessorEnabled = useCaseConfig.isSessionProcessorEnabled();
 
         CameraInternal camera = getCamera();
         Preconditions.checkNotNull(camera, "Attached camera cannot be null");
@@ -1632,6 +1660,13 @@ public final class ImageCapture extends UseCase {
             }
 
             mProcessingImageReader.setCaptureBundle(captureBundle);
+            mProcessingImageReader.setOnProcessingErrorCallback(
+                    CameraXExecutors.directExecutor(),
+                    (message, cause) -> {
+                        Logger.e(TAG, "Processing image failed! " + message);
+                        imageCaptureRequest.notifyCallbackError(ERROR_CAPTURE_FAILED, message,
+                                cause);
+                    });
             tagBundleKey = mProcessingImageReader.getTagBundleKey();
         } else {
             captureBundle = getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
@@ -2502,6 +2537,17 @@ public final class ImageCapture extends UseCase {
         @NonNull
         public Builder setBufferFormat(int bufferImageFormat) {
             getMutableConfig().insertOption(OPTION_BUFFER_FORMAT, bufferImageFormat);
+            return this;
+        }
+
+        /**
+         * Set the flag to indicate whether SessionProcessor is enabled.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setSessionProcessorEnabled(boolean enabled) {
+            getMutableConfig().insertOption(OPTION_SESSION_PROCESSOR_ENABLED, enabled);
             return this;
         }
 

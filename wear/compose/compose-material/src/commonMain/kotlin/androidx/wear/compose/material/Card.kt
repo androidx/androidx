@@ -16,23 +16,24 @@
 
 package androidx.wear.compose.material
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -84,8 +85,9 @@ import kotlin.math.min
  * normally have a gradient background. Use [CardDefaults.cardBackgroundPainter()] to obtain an
  * appropriate painter
  * @param contentColor The default color to use for content() unless explicitly set.
- * @param enabled Controls the enabled state of the card. When `false`, this card will not
- * be clickable
+ * @param enabled Controls the enabled state of the card. When false, this card will not
+ * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ * elevation or alpha differences when not enabled - they are simply not clickable.
  * @param contentPadding The spacing values to apply internally between the container and the
  * content
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
@@ -131,8 +133,9 @@ public fun Card(
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
             LocalTextStyle provides MaterialTheme.typography.button,
-            content = content
-        )
+        ) {
+            content()
+        }
     }
 }
 
@@ -174,6 +177,9 @@ public fun Card(
  * @param title A slot for displaying the title of the card, expected to be one or two lines of
  * start aligned text of [Typography.button]
  * @param modifier Modifier to be applied to the card
+ * @param enabled Controls the enabled state of the card. When false, this card will not
+ * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ * elevation or alpha differences when not enabled - they are simply not clickable.
  * @param appImage A slot for a small ([CardDefaults.AppImageSize]x[CardDefaults.AppImageSize] )
  * [Image] associated with the application.
  * @param backgroundPainter A painter used to paint the background of the card. A card will
@@ -192,6 +198,7 @@ public fun AppCard(
     time: @Composable RowScope.() -> Unit,
     title: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     appImage: @Composable (RowScope.() -> Unit)? = null,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
     contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
@@ -204,7 +211,7 @@ public fun AppCard(
         onClick = onClick,
         modifier = modifier,
         backgroundPainter = backgroundPainter,
-        enabled = true,
+        enabled = enabled,
     ) {
         Column {
             Row(
@@ -220,29 +227,33 @@ public fun AppCard(
                     }
                     CompositionLocalProvider(
                         LocalContentColor provides appColor,
-                        content = appName
-                    )
+                    ) {
+                        appName()
+                    }
                 }
                 Spacer(modifier = Modifier.weight(1.0f))
                 CompositionLocalProvider(
                     LocalContentColor provides timeColor,
                     LocalTextStyle provides MaterialTheme.typography.caption1,
-                    content = time
-                )
+                ) {
+                    time()
+                }
             }
             Spacer(modifier = Modifier.height(4.dp))
             Row {
                 CompositionLocalProvider(
                     LocalContentColor provides titleColor,
                     LocalTextStyle provides MaterialTheme.typography.title3,
-                    content = title
-                )
+                ) {
+                    title()
+                }
             }
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,
                 LocalTextStyle provides MaterialTheme.typography.body1,
-                content = content
-            )
+            ) {
+                content()
+            }
         }
     }
 }
@@ -283,6 +294,9 @@ public fun AppCard(
  * @param title A slot for displaying the title of the card, expected to be one or two lines of text
  * of [Typography.button]
  * @param modifier Modifier to be applied to the card
+ * @param enabled Controls the enabled state of the card. When false, this card will not
+ * be clickable and there will be no ripple effect on click. Wear cards do not have any specific
+ * elevation or alpha differences when not enabled - they are simply not clickable.
  * @param time An optional slot for displaying the time relevant to the contents of the card,
  * expected to be a short piece of end aligned text.
  * @param backgroundPainter A painter used to paint the background of the card. A title card can
@@ -298,6 +312,7 @@ public fun TitleCard(
     onClick: () -> Unit,
     title: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     time: @Composable (RowScope.() -> Unit)? = null,
     backgroundPainter: Painter = CardDefaults.cardBackgroundPainter(),
     contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
@@ -309,7 +324,7 @@ public fun TitleCard(
         onClick = onClick,
         modifier = modifier,
         backgroundPainter = backgroundPainter,
-        enabled = true,
+        enabled = enabled,
     ) {
         Column {
             Row(
@@ -319,23 +334,26 @@ public fun TitleCard(
                 CompositionLocalProvider(
                     LocalContentColor provides titleColor,
                     LocalTextStyle provides MaterialTheme.typography.title3,
-                    content = title
-                )
+                ) {
+                    title()
+                }
                 if (time != null) {
                     Spacer(modifier = Modifier.weight(1.0f))
                     CompositionLocalProvider(
                         LocalContentColor provides timeColor,
                         LocalTextStyle provides MaterialTheme.typography.caption1,
-                        content = time
-                    )
+                    ) {
+                        time()
+                    }
                 }
             }
             Spacer(modifier = Modifier.height(2.dp))
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,
                 LocalTextStyle provides MaterialTheme.typography.body1,
-                content = content
-            )
+            ) {
+                content()
+            }
         }
     }
 }

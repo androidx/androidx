@@ -25,6 +25,8 @@ else
   PRESUBMIT=false
 fi
 
+export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
+
 # hash the files in the out dir in case we want to confirm which files changed during the build
 function hashOutDir() {
   hashFile=out.hashes
@@ -46,20 +48,27 @@ if [ "$PRESUBMIT" == "false" ]; then
   DIAGNOSE_ARG="--diagnose"
 fi
 
-# Run Gradle
 EXIT_VALUE=0
-if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs validateProperties \
-    --profile "$@"; then
-  echo build succeeded
-  EXIT_VALUE=0
-else
-  echo build failed
+
+# Validate translation exports, if present
+if ! impl/check_translations.sh; then
+  echo check_translations failed
   EXIT_VALUE=1
+else
+    # Run Gradle
+    if impl/build.sh $DIAGNOSE_ARG buildOnServer checkExternalLicenses listTaskOutputs validateProperties \
+        --profile "$@"; then
+    echo build succeeded
+    EXIT_VALUE=0
+    else
+    echo build failed
+    EXIT_VALUE=1
+    fi
+
+    # Parse performance profile reports (generated with the --profile option above) and re-export the metrics in an easily machine-readable format for tracking
+    impl/parse_profile_htmls.sh
 fi
 
-# Parse performance profile reports (generated with the --profile option above) and re-export the metrics in an easily machine-readable format for tracking
-impl/parse_profile_htmls.sh
-
-echo "Completing $0 at $(date)"
+echo "Completing $0 at $(date) with exit value $EXIT_VALUE"
 
 exit "$EXIT_VALUE"

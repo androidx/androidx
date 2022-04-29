@@ -186,6 +186,9 @@ package androidx.collection {
     method public V! valueAt(int index);
   }
 
+  public final class SimpleArrayMapKt {
+  }
+
   public class SparseArrayCompat<E> implements java.lang.Cloneable {
     ctor public SparseArrayCompat(optional int initialCapacity);
     ctor public SparseArrayCompat();
@@ -229,6 +232,16 @@ package androidx.collection {
     method @Deprecated public static <T> boolean remove(androidx.collection.SparseArrayCompat<T>, int key, T? value);
     method public static inline operator <T> void set(androidx.collection.SparseArrayCompat<T>, int key, T? value);
     method public static <T> java.util.Iterator<T> valueIterator(androidx.collection.SparseArrayCompat<T>);
+  }
+
+}
+
+package androidx.collection.internal {
+
+  public final class ContainerHelpersKt {
+  }
+
+  public final class LockExtKt {
   }
 
 }

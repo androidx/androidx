@@ -23,30 +23,32 @@ import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCaptureSession;
-import android.hardware.camera2.CaptureResult;
-import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.InputConfiguration;
+import android.media.Image;
 import android.media.ImageWriter;
+import android.os.Build;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.ImageReaderProxys;
+import androidx.camera.core.Logger;
+import androidx.camera.core.MetadataImageReader;
 import androidx.camera.core.SafeCloseImageReaderProxy;
 import androidx.camera.core.impl.CameraCaptureCallback;
-import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.compat.ImageWriterCompat;
+import androidx.camera.core.internal.utils.ZslRingBuffer;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.NoSuchElementException;
 
 /**
  * Implementation for {@link ZslControl}.
@@ -54,22 +56,22 @@ import java.util.Queue;
 @RequiresApi(23)
 final class ZslControlImpl implements ZslControl {
 
+    private static final String TAG = "ZslControlImpl";
+
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    private static final int MAX_IMAGES = 2;
+    private static final int RING_BUFFER_CAPACITY = 10;
 
     @SuppressWarnings("WeakerAccess")
     @NonNull
-    final Queue<ImageProxy> mImageRingBuffer = new LinkedList<>();
+    final ZslRingBuffer mImageRingBuffer;
 
-    @SuppressWarnings("WeakerAccess")
-    @NonNull
-    final Queue<TotalCaptureResult> mTotalCaptureResultRingBuffer = new LinkedList<>();
-
+    private boolean mIsZslDisabled = false;
     private boolean mIsYuvReprocessingSupported = false;
     private boolean mIsPrivateReprocessingSupported = false;
 
     @SuppressWarnings("WeakerAccess")
     SafeCloseImageReaderProxy mReprocessingImageReader;
+    private CameraCaptureCallback mMetadataMatchingCaptureCallback;
     private DeferrableSurface mReprocessingImageDeferrableSurface;
 
     @Nullable
@@ -82,13 +84,25 @@ final class ZslControlImpl implements ZslControl {
         mIsPrivateReprocessingSupported =
                 isCapabilitySupported(cameraCharacteristicsCompat,
                         REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING);
+
+        mImageRingBuffer = new ZslRingBuffer(
+                RING_BUFFER_CAPACITY,
+                imageProxy -> imageProxy.close());
     }
 
+    @Override
+    public void setZslDisabled(boolean disabled) {
+        mIsZslDisabled = disabled;
+    }
 
     @Override
     public void addZslConfig(
             @NonNull Size resolution,
             @NonNull SessionConfig.Builder sessionConfigBuilder) {
+        if (mIsZslDisabled) {
+            return;
+        }
+
         if (!mIsYuvReprocessingSupported && !mIsPrivateReprocessingSupported) {
             return;
         }
@@ -100,22 +114,18 @@ final class ZslControlImpl implements ZslControl {
         int reprocessingImageFormat = mIsYuvReprocessingSupported
                 ? ImageFormat.YUV_420_888 : ImageFormat.PRIVATE;
 
-        mReprocessingImageReader =
-                new SafeCloseImageReaderProxy(
-                        ImageReaderProxys.createIsolatedReader(
-                                resolution.getWidth(),
-                                resolution.getHeight(),
-                                reprocessingImageFormat,
-                                // TODO(226675509): Replace with RingBuffer interfaces and set the
-                                //  appropriate value based on RingBuffer capacity.
-                                MAX_IMAGES));
-        mReprocessingImageReader.setOnImageAvailableListener(
+        MetadataImageReader metadataImageReader = new MetadataImageReader(
+                resolution.getWidth(),
+                resolution.getHeight(),
+                reprocessingImageFormat,
+                RING_BUFFER_CAPACITY * 2);
+        mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
+        mReprocessingImageReader = new SafeCloseImageReaderProxy(metadataImageReader);
+        metadataImageReader.setOnImageAvailableListener(
                 imageReader -> {
                     ImageProxy imageProxy = imageReader.acquireLatestImage();
                     if (imageProxy != null) {
-                        // TODO(226675509): Replace with RingBuffer interfaces and close the
-                        //  image if over capacity.
-                        mImageRingBuffer.add(imageProxy);
+                        mImageRingBuffer.enqueue(imageProxy);
                     }
                 }, CameraXExecutors.ioExecutor());
 
@@ -133,18 +143,7 @@ final class ZslControlImpl implements ZslControl {
         sessionConfigBuilder.addSurface(mReprocessingImageDeferrableSurface);
 
         // Init capture and session state callback and enqueue the total capture result
-        sessionConfigBuilder.addCameraCaptureCallback(new CameraCaptureCallback() {
-            @Override
-            public void onCaptureCompleted(
-                    @NonNull CameraCaptureResult cameraCaptureResult) {
-                super.onCaptureCompleted(cameraCaptureResult);
-                CaptureResult captureResult = cameraCaptureResult.getCaptureResult();
-                if (captureResult != null && captureResult instanceof TotalCaptureResult) {
-                    mTotalCaptureResultRingBuffer.add((TotalCaptureResult) captureResult);
-                }
-            }
-        });
-
+        sessionConfigBuilder.addCameraCaptureCallback(mMetadataMatchingCaptureCallback);
         sessionConfigBuilder.addSessionStateCallback(
                 new CameraCaptureSession.StateCallback() {
                     @Override
@@ -169,16 +168,39 @@ final class ZslControlImpl implements ZslControl {
                 mReprocessingImageReader.getImageFormat()));
     }
 
+    @Nullable
+    @Override
+    public ImageProxy dequeueImageFromBuffer() {
+        ImageProxy imageProxy = null;
+        try {
+            imageProxy = mImageRingBuffer.dequeue();
+        } catch (NoSuchElementException e) {
+            Logger.e(TAG, "dequeueImageFromBuffer no such element");
+        }
+
+        return imageProxy;
+    }
+
+    @Override
+    public boolean enqueueImageToImageWriter(@NonNull ImageProxy imageProxy) {
+        @OptIn(markerClass = ExperimentalGetImage.class)
+        Image image = imageProxy.getImage();
+
+        if (Build.VERSION.SDK_INT >= 23 && mReprocessingImageWriter != null && image != null) {
+            ImageWriterCompat.queueInputImage(mReprocessingImageWriter, image);
+            return true;
+        }
+        return false;
+    }
+
     private void cleanup() {
         // We might need synchronization here when clearing ring buffer while image is enqueued
         // at the same time. Will test this case.
-        Queue<ImageProxy> imageRingBuffer = mImageRingBuffer;
+        ZslRingBuffer imageRingBuffer = mImageRingBuffer;
         while (!imageRingBuffer.isEmpty()) {
-            ImageProxy imageProxy = imageRingBuffer.remove();
+            ImageProxy imageProxy = imageRingBuffer.dequeue();
             imageProxy.close();
         }
-        Queue<TotalCaptureResult> totalCaptureResultRingBuffer = mTotalCaptureResultRingBuffer;
-        totalCaptureResultRingBuffer.clear();
 
         DeferrableSurface reprocessingImageDeferrableSurface = mReprocessingImageDeferrableSurface;
         if (reprocessingImageDeferrableSurface != null) {

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha02)" variant="all" version="7.3.0-alpha02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -107,7 +107,7 @@
         errorLine2="                          ~~~~~">
         <location
             file="src/androidTest/java/androidx/core/content/FileProviderTest.java"
-            line="466"
+            line="491"
             column="27"/>
     </issue>
 
@@ -503,7 +503,7 @@
         errorLine2="                                                                   ~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
-            line="1462"
+            line="1467"
             column="68"/>
     </issue>
 
@@ -514,7 +514,7 @@
         errorLine2="                                                                ~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
-            line="1477"
+            line="1482"
             column="65"/>
     </issue>
 
@@ -525,7 +525,7 @@
         errorLine2="                                                        ~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
-            line="1493"
+            line="1499"
             column="57"/>
     </issue>
 
@@ -536,7 +536,7 @@
         errorLine2="                                                     ~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
-            line="1503"
+            line="1509"
             column="54"/>
     </issue>
 
@@ -547,7 +547,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
-            line="2105"
+            line="2113"
             column="17"/>
     </issue>
 
@@ -558,7 +558,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/app/NotificationCompatTest.java"
-            line="2317"
+            line="2326"
             column="36"/>
     </issue>
 
@@ -582,138 +582,6 @@
             file="src/androidTest/java/androidx/core/app/NotificationTester.kt"
             line="32"
             column="62"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 29 (current min is 14): `COLOR_DODGE`"
-        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR_DODGE, null);"
-        errorLine2="                                                      ~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
-            line="100"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 29 (current min is 14): `COLOR_BURN`"
-        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR_BURN, null);"
-        errorLine2="                                                      ~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
-            line="101"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 29 (current min is 14): `HARD_LIGHT`"
-        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.HARD_LIGHT, null);"
-        errorLine2="                                                      ~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
-            line="102"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 29 (current min is 14): `SOFT_LIGHT`"
-        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.SOFT_LIGHT, null);"
-        errorLine2="                                                      ~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
-            line="103"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 29 (current min is 14): `DIFFERENCE`"
-        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.DIFFERENCE, null);"
-        errorLine2="                                                      ~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
-            line="104"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 29 (current min is 14): `EXCLUSION`"
-        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.EXCLUSION, null);"
-        errorLine2="                                                      ~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
-            line="105"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 29 (current min is 14): `MULTIPLY`"
-        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.MULTIPLY, null);"
-        errorLine2="                                                      ~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
-            line="108"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 29 (current min is 14): `HUE`"
-        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.HUE, null);"
-        errorLine2="                                                      ~~~">
-        <location
-            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
-            line="109"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 29 (current min is 14): `SATURATION`"
-        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.SATURATION, null);"
-        errorLine2="                                                      ~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
-            line="110"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 29 (current min is 14): `COLOR`"
-        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.COLOR, null);"
-        errorLine2="                                                      ~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
-            line="111"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 29 (current min is 14): `LUMINOSITY`"
-        errorLine1="        verifyPorterDuffMatchesCompat(BlendModeCompat.LUMINOSITY, null);"
-        errorLine2="                                                      ~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
-            line="112"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.graphics.Paint#getBlendMode`"
-        errorLine1="            assertEquals(blendMode, p.getBlendMode());"
-        errorLine2="                                      ~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/graphics/PaintTest.java"
-            line="146"
-            column="39"/>
     </issue>
 
     <issue
@@ -976,151 +844,8 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/view/WindowInsetsCompatActivityTest.kt"
-            line="420"
+            line="424"
             column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 23 (current min is 21): `scenario`"
-        errorLine1="        scenario.onActivity {"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="373"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 23 (current min is 21): `scenario`"
-        errorLine1="        scenario.onActivity {"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="373"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 23 (current min is 21): `windowInsetsController`"
-        errorLine1="            windowInsetsController.systemBarsBehavior ="
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="374"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 23 (current min is 21): `windowInsetsController`"
-        errorLine1="            windowInsetsController.systemBarsBehavior ="
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="374"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 23 (current min is 21): `scenario`"
-        errorLine1="        val decorView = scenario.withActivity { window.decorView }"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="377"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 23 (current min is 21): `scenario`"
-        errorLine1="        val decorView = scenario.withActivity { window.decorView }"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="377"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 23 (current min is 21): `scenario`"
-        errorLine1="        scenario.onActivity {"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="390"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 23 (current min is 21): `scenario`"
-        errorLine1="        scenario.onActivity {"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="390"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 23 (current min is 21): `windowInsetsController`"
-        errorLine1="            windowInsetsController.systemBarsBehavior ="
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="391"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 23 (current min is 21): `windowInsetsController`"
-        errorLine1="            windowInsetsController.systemBarsBehavior ="
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="391"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 23 (current min is 21): `scenario`"
-        errorLine1="        val decorView = scenario.withActivity { window.decorView }"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="394"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 23 (current min is 21): `scenario`"
-        errorLine1="        val decorView = scenario.withActivity { window.decorView }"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/core/view/WindowInsetsControllerCompatActivityTest.kt"
-            line="394"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one or more of: AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_SUBTREE, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_TEXT, AccessibilityEventCompat.CONTENT_CHANGE_TYPE_UNDEFINED"
-        errorLine1="            return event.getContentChangeTypes();"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/view/accessibility/AccessibilityEventCompat.java"
-            line="344"
-            column="20"/>
     </issue>
 
     <issue
@@ -1130,7 +855,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4801"
+            line="4805"
             column="47"/>
     </issue>
 
@@ -1141,7 +866,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6443"
+            line="6449"
             column="31"/>
     </issue>
 
@@ -1152,7 +877,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7476"
+            line="7483"
             column="35"/>
     </issue>
 
@@ -1164,39 +889,6 @@
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
             line="389"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: RemoteInput.SOURCE_FREE_FORM_INPUT, RemoteInput.SOURCE_CHOICE"
-        errorLine1="            return android.app.RemoteInput.getResultsSource(intent);"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/RemoteInput.java"
-            line="531"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO, RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED, RemoteInput.EDIT_CHOICES_BEFORE_SENDING_ENABLED"
-        errorLine1="            builder.setEditChoicesBeforeSending(src.getEditChoicesBeforeSending());"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/RemoteInput.java"
-            line="576"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="WrongConstant"
-        message="Must be one of: RemoteInput.EDIT_CHOICES_BEFORE_SENDING_AUTO, RemoteInput.EDIT_CHOICES_BEFORE_SENDING_DISABLED, RemoteInput.EDIT_CHOICES_BEFORE_SENDING_ENABLED"
-        errorLine1="            builder.setEditChoicesBeforeSending(src.getEditChoicesBeforeSending());"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/RemoteInput.java"
-            line="598"
             column="49"/>
     </issue>
 
@@ -1242,28 +934,6 @@
             file="src/main/java/androidx/core/app/ActivityRecreator.java"
             line="277"
             column="29"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                    return (IBinder) sGetIBinderMethod.invoke(bundle, key);"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/BundleCompat.java"
-            line="60"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="BanUncheckedReflection"
-        message="Calling `Method.invoke` without an SDK check"
-        errorLine1="                    sPutIBinderMethod.invoke(bundle, key, binder);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/BundleCompat.java"
-            line="84"
-            column="21"/>
     </issue>
 
     <issue
@@ -2066,6 +1736,50 @@
         <location
             file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
             line="2852"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return mInfo.getUniqueId();"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2915"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return mInfo.getExtras().getString(UNIQUE_ID_KEY);"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2917"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mInfo.setUniqueId(uniqueId);"
+        errorLine2="                  ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2935"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 19; however, the containing class androidx.core.view.accessibility.AccessibilityNodeInfoCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            mInfo.getExtras().putString(UNIQUE_ID_KEY, uniqueId);"
+        errorLine2="                  ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/accessibility/AccessibilityNodeInfoCompat.java"
+            line="2937"
             column="19"/>
     </issue>
 
@@ -2929,171 +2643,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            activity.startActivityForResult(intent, requestCode, options);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="238"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            activity.startIntentSenderForResult(intent, requestCode, fillInIntent, flagsMask,"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="275"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            activity.finishAffinity();"
-        errorLine2="                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="292"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            activity.finishAfterTransition();"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="309"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 22; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return activity.getReferrer();"
-        errorLine2="                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="334"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return activity.requireViewById(id);"
-        errorLine2="                            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="367"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            activity.setEnterSharedElementCallback(frameworkCallback);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="391"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            activity.setExitSharedElementCallback(frameworkCallback);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="410"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            activity.postponeEnterTransition();"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="416"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            activity.startPostponedEnterTransition();"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="422"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            activity.requestPermissions(permissions, requestCode);"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="517"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return activity.shouldShowRequestPermissionRationale(permission);"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="554"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return activity.getDisplay() != null"
-        errorLine2="                            ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="585"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 30; however, the containing class androidx.core.app.ActivityCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    &amp;&amp; activity.getDisplay().getDisplayId() != Display.DEFAULT_DISPLAY;"
-        errorLine2="                                ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="586"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            listener.onSharedElementsReady();"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="734"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 19; however, the containing class androidx.core.app.ActivityManagerCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return activityManager.isLowRamDevice();"
         errorLine2="                                   ~~~~~~~~~~~~~~">
@@ -3622,6 +3171,17 @@
 
     <issue
         id="ClassVerificationFailure"
+        message="This call references a method added in API level 33; however, the containing class androidx.core.os.LocaleListCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return LocaleList.matchesLanguageAndScript(supported, desired);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/LocaleListCompat.java"
+            line="251"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
         message="This call references a method added in API level 16; however, the containing class androidx.core.app.NavUtils is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            return sourceActivity.shouldUpRecreateTask(targetIntent);"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~">
@@ -4056,7 +3616,7 @@
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="1029"
+            line="1030"
             column="48"/>
     </issue>
 
@@ -4067,7 +3627,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="1536"
+            line="1537"
             column="49"/>
     </issue>
 
@@ -4078,7 +3638,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="1537"
+            line="1538"
             column="26"/>
     </issue>
 
@@ -4089,7 +3649,7 @@
         errorLine2="                         ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="1538"
+            line="1539"
             column="26"/>
     </issue>
 
@@ -4100,7 +3660,7 @@
         errorLine2="                         ~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="1539"
+            line="1540"
             column="26"/>
     </issue>
 
@@ -4111,7 +3671,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="1565"
+            line="1566"
             column="49"/>
     </issue>
 
@@ -4122,7 +3682,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="1566"
+            line="1567"
             column="26"/>
     </issue>
 
@@ -4133,7 +3693,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="1567"
+            line="1568"
             column="26"/>
     </issue>
 
@@ -4144,7 +3704,7 @@
         errorLine2="                         ~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="1568"
+            line="1569"
             column="26"/>
     </issue>
 
@@ -4155,7 +3715,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2116"
+            line="2117"
             column="45"/>
     </issue>
 
@@ -4166,7 +3726,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2117"
+            line="2118"
             column="26"/>
     </issue>
 
@@ -4177,7 +3737,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2150"
+            line="2151"
             column="45"/>
     </issue>
 
@@ -4188,7 +3748,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2151"
+            line="2152"
             column="26"/>
     </issue>
 
@@ -4199,7 +3759,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2185"
+            line="2186"
             column="46"/>
     </issue>
 
@@ -4210,7 +3770,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2186"
+            line="2187"
             column="40"/>
     </issue>
 
@@ -4221,7 +3781,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2891"
+            line="2892"
             column="33"/>
     </issue>
 
@@ -4232,7 +3792,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2895"
+            line="2896"
             column="29"/>
     </issue>
 
@@ -4243,7 +3803,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2906"
+            line="2907"
             column="37"/>
     </issue>
 
@@ -4254,7 +3814,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2987"
+            line="2988"
             column="27"/>
     </issue>
 
@@ -4265,7 +3825,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3130"
+            line="3131"
             column="25"/>
     </issue>
 
@@ -4276,7 +3836,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3131"
+            line="3132"
             column="34"/>
     </issue>
 
@@ -4287,7 +3847,7 @@
         errorLine2="                                 ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3132"
+            line="3133"
             column="34"/>
     </issue>
 
@@ -4298,7 +3858,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3360"
+            line="3362"
             column="25"/>
     </issue>
 
@@ -4309,7 +3869,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3361"
+            line="3363"
             column="34"/>
     </issue>
 
@@ -4320,7 +3880,7 @@
         errorLine2="                                 ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3362"
+            line="3364"
             column="34"/>
     </issue>
 
@@ -4331,7 +3891,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3364"
+            line="3366"
             column="27"/>
     </issue>
 
@@ -4342,7 +3902,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3711"
+            line="3713"
             column="38"/>
     </issue>
 
@@ -4353,7 +3913,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3713"
+            line="3715"
             column="38"/>
     </issue>
 
@@ -4364,7 +3924,7 @@
         errorLine2="                                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3717"
+            line="3719"
             column="36"/>
     </issue>
 
@@ -4375,7 +3935,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3722"
+            line="3724"
             column="40"/>
     </issue>
 
@@ -4386,7 +3946,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3734"
+            line="3736"
             column="36"/>
     </issue>
 
@@ -4397,7 +3957,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3740"
+            line="3742"
             column="36"/>
     </issue>
 
@@ -4408,7 +3968,7 @@
         errorLine2="                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3742"
+            line="3744"
             column="32"/>
     </issue>
 
@@ -4419,7 +3979,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3775"
+            line="3777"
             column="21"/>
     </issue>
 
@@ -4430,7 +3990,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3776"
+            line="3778"
             column="30"/>
     </issue>
 
@@ -4441,24 +4001,13 @@
         errorLine2="                             ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3777"
+            line="3779"
             column="30"/>
     </issue>
 
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 28; however, the containing class androidx.core.app.NotificationCompat.MessagingStyle.Message is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    frameworkMessage = new Notification.MessagingStyle.Message("
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4163"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.core.app.NotificationCompat.MessagingStyle.Message is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    frameworkMessage = new Notification.MessagingStyle.Message("
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -4470,11 +4019,22 @@
     <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 24; however, the containing class androidx.core.app.NotificationCompat.MessagingStyle.Message is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    frameworkMessage = new Notification.MessagingStyle.Message("
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="4171"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.core.app.NotificationCompat.MessagingStyle.Message is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    frameworkMessage.setData(getDataMimeType(), getDataUri());"
         errorLine2="                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4173"
+            line="4177"
             column="38"/>
     </issue>
 
@@ -4485,7 +4045,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4264"
+            line="4268"
             column="25"/>
     </issue>
 
@@ -4496,7 +4056,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4265"
+            line="4269"
             column="34"/>
     </issue>
 
@@ -4507,7 +4067,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4267"
+            line="4271"
             column="27"/>
     </issue>
 
@@ -4518,7 +4078,7 @@
         errorLine2="                          ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4270"
+            line="4274"
             column="27"/>
     </issue>
 
@@ -4529,7 +4089,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4364"
+            line="4368"
             column="38"/>
     </issue>
 
@@ -4540,7 +4100,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4364"
+            line="4368"
             column="47"/>
     </issue>
 
@@ -4551,7 +4111,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4482"
+            line="4486"
             column="24"/>
     </issue>
 
@@ -4562,7 +4122,7 @@
         errorLine2="                                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4781"
+            line="4785"
             column="59"/>
     </issue>
 
@@ -4573,7 +4133,7 @@
         errorLine2="                                                                             ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4782"
+            line="4786"
             column="78"/>
     </issue>
 
@@ -4584,7 +4144,7 @@
         errorLine2="                                                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4790"
+            line="4794"
             column="69"/>
     </issue>
 
@@ -4595,7 +4155,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4798"
+            line="4802"
             column="61"/>
     </issue>
 
@@ -4606,7 +4166,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4801"
+            line="4805"
             column="54"/>
     </issue>
 
@@ -4617,8 +4177,19 @@
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4804"
+            line="4808"
             column="50"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.core.app.NotificationCompat.Action.Builder is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                    builder.setAuthenticationRequired(action.isAuthenticationRequired());"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="4811"
+            column="62"/>
     </issue>
 
     <issue
@@ -4628,7 +4199,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="5658"
+            line="5662"
             column="33"/>
     </issue>
 
@@ -4639,7 +4210,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="5667"
+            line="5671"
             column="33"/>
     </issue>
 
@@ -4650,7 +4221,29 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="5679"
+            line="5683"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.core.app.NotificationCompat.WearableExtender is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                actionBuilder.setAuthenticationRequired(actionCompat.isAuthenticationRequired());"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="5686"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.core.app.NotificationCompat.WearableExtender is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                actionBuilder.setAuthenticationRequired(actionCompat.isAuthenticationRequired());"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="5686"
             column="31"/>
     </issue>
 
@@ -4661,7 +4254,7 @@
         errorLine2="                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="5684"
+            line="5688"
             column="27"/>
     </issue>
 
@@ -4672,7 +4265,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="5689"
+            line="5693"
             column="35"/>
     </issue>
 
@@ -4683,7 +4276,7 @@
         errorLine2="                                 ~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="5692"
+            line="5696"
             column="34"/>
     </issue>
 
@@ -4694,7 +4287,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6438"
+            line="6444"
             column="51"/>
     </issue>
 
@@ -4705,7 +4298,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6439"
+            line="6445"
             column="33"/>
     </issue>
 
@@ -4716,7 +4309,7 @@
         errorLine2="                                ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6440"
+            line="6446"
             column="33"/>
     </issue>
 
@@ -4727,7 +4320,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6441"
+            line="6447"
             column="33"/>
     </issue>
 
@@ -4738,7 +4331,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6443"
+            line="6449"
             column="43"/>
     </issue>
 
@@ -4749,7 +4342,7 @@
         errorLine2="                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6445"
+            line="6451"
             column="33"/>
     </issue>
 
@@ -4760,7 +4353,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6471"
+            line="6477"
             column="25"/>
     </issue>
 
@@ -4771,7 +4364,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6472"
+            line="6478"
             column="34"/>
     </issue>
 
@@ -4782,7 +4375,7 @@
         errorLine2="                                 ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6473"
+            line="6479"
             column="34"/>
     </issue>
 
@@ -4793,7 +4386,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6474"
+            line="6480"
             column="34"/>
     </issue>
 
@@ -4804,7 +4397,7 @@
         errorLine2="                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6475"
+            line="6481"
             column="34"/>
     </issue>
 
@@ -4815,7 +4408,7 @@
         errorLine2="                                 ~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="6476"
+            line="6482"
             column="34"/>
     </issue>
 
@@ -4826,7 +4419,7 @@
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7453"
+            line="7460"
             column="61"/>
     </issue>
 
@@ -4837,7 +4430,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7463"
+            line="7470"
             column="59"/>
     </issue>
 
@@ -4848,7 +4441,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7471"
+            line="7478"
             column="29"/>
     </issue>
 
@@ -4859,7 +4452,7 @@
         errorLine2="                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7472"
+            line="7479"
             column="29"/>
     </issue>
 
@@ -4870,7 +4463,7 @@
         errorLine2="                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7473"
+            line="7480"
             column="29"/>
     </issue>
 
@@ -4881,7 +4474,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7474"
+            line="7481"
             column="29"/>
     </issue>
 
@@ -4892,7 +4485,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7476"
+            line="7483"
             column="39"/>
     </issue>
 
@@ -4903,7 +4496,7 @@
         errorLine2="                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7478"
+            line="7485"
             column="29"/>
     </issue>
 
@@ -4914,7 +4507,7 @@
         errorLine2="                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7485"
+            line="7492"
             column="44"/>
     </issue>
 
@@ -4925,7 +4518,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7487"
+            line="7494"
             column="31"/>
     </issue>
 
@@ -4936,7 +4529,7 @@
         errorLine2="                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7489"
+            line="7496"
             column="44"/>
     </issue>
 
@@ -4947,7 +4540,7 @@
         errorLine2="                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7494"
+            line="7501"
             column="24"/>
     </issue>
 
@@ -4958,7 +4551,7 @@
         errorLine2="                                    ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7498"
+            line="7505"
             column="37"/>
     </issue>
 
@@ -4969,7 +4562,7 @@
         errorLine2="                                    ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7500"
+            line="7507"
             column="37"/>
     </issue>
 
@@ -4980,8 +4573,19 @@
         errorLine2="                                                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7504"
+            line="7511"
             column="75"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.core.app.NotificationCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                Build.VERSION.SDK_INT >= 31 ? action.isAuthenticationRequired() : false;"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompat.java"
+            line="7514"
+            column="54"/>
     </issue>
 
     <issue
@@ -4991,7 +4595,7 @@
         errorLine2="                       ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7510"
+            line="7517"
             column="24"/>
     </issue>
 
@@ -5002,7 +4606,7 @@
         errorLine2="                               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7512"
+            line="7519"
             column="32"/>
     </issue>
 
@@ -5013,7 +4617,7 @@
         errorLine2="                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7515"
+            line="7522"
             column="38"/>
     </issue>
 
@@ -5024,7 +4628,7 @@
         errorLine2="                                                                               ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7516"
+            line="7523"
             column="80"/>
     </issue>
 
@@ -5035,7 +4639,7 @@
         errorLine2="                                                                              ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7517"
+            line="7524"
             column="79"/>
     </issue>
 
@@ -5046,7 +4650,7 @@
         errorLine2="                                                                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7521"
+            line="7528"
             column="86"/>
     </issue>
 
@@ -5057,7 +4661,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7637"
+            line="7645"
             column="33"/>
     </issue>
 
@@ -5068,7 +4672,7 @@
         errorLine2="                                ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7745"
+            line="7753"
             column="33"/>
     </issue>
 
@@ -5079,7 +4683,7 @@
         errorLine2="                                ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7761"
+            line="7769"
             column="33"/>
     </issue>
 
@@ -5090,7 +4694,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7773"
+            line="7781"
             column="33"/>
     </issue>
 
@@ -5101,7 +4705,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7786"
+            line="7794"
             column="33"/>
     </issue>
 
@@ -5112,7 +4716,7 @@
         errorLine2="                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7798"
+            line="7806"
             column="33"/>
     </issue>
 
@@ -5123,7 +4727,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7809"
+            line="7817"
             column="33"/>
     </issue>
 
@@ -5134,7 +4738,7 @@
         errorLine2="                                           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7825"
+            line="7833"
             column="44"/>
     </issue>
 
@@ -5145,7 +4749,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7840"
+            line="7848"
             column="33"/>
     </issue>
 
@@ -5156,7 +4760,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="7853"
+            line="7861"
             column="33"/>
     </issue>
 
@@ -5503,6 +5107,17 @@
 
     <issue
         id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.core.app.NotificationCompatBuilder is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                mBuilder.setForegroundServiceBehavior(b.mFgsDeferBehavior);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
+            line="252"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
         message="This call references a method added in API level 20; however, the containing class androidx.core.app.NotificationCompatBuilder is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    mBuilder.setGroup(NotificationCompat.GROUP_KEY_SILENT);"
         errorLine2="                             ~~~~~~~~">
@@ -5586,6 +5201,17 @@
         <location
             file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
             line="393"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 31; however, the containing class androidx.core.app.NotificationCompatBuilder is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="                actionBuilder.setAuthenticationRequired(action.isAuthenticationRequired());"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/app/NotificationCompatBuilder.java"
+            line="397"
             column="31"/>
     </issue>
 
@@ -6449,28 +6075,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.core.database.sqlite.SQLiteCursorCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            cursor.setFillWindowForwardOnly(fillWindowForwardOnly);"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/database/sqlite/SQLiteCursorCompat.java"
-            line="46"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.core.app.ShareCompat.IntentReader is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        result = Html.escapeHtml(text);"
-        errorLine2="                                      ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ShareCompat.java"
-            line="835"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 25; however, the containing class androidx.core.content.pm.ShortcutInfoCompat is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        ShortcutInfo.Builder builder = new ShortcutInfo.Builder(mContext, mId)"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -6784,7 +6388,7 @@
         errorLine2="                                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="525"
+            line="535"
             column="39"/>
     </issue>
 
@@ -6795,7 +6399,7 @@
         errorLine2="                                     ~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="595"
+            line="605"
             column="38"/>
     </issue>
 
@@ -6806,7 +6410,7 @@
         errorLine2="                                              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="596"
+            line="606"
             column="47"/>
     </issue>
 
@@ -6817,7 +6421,7 @@
         errorLine2="                                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="597"
+            line="607"
             column="45"/>
     </issue>
 
@@ -6828,7 +6432,7 @@
         errorLine2="                                           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="599"
+            line="609"
             column="44"/>
     </issue>
 
@@ -6839,7 +6443,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="600"
+            line="610"
             column="41"/>
     </issue>
 
@@ -6850,7 +6454,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="601"
+            line="611"
             column="45"/>
     </issue>
 
@@ -6861,7 +6465,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="602"
+            line="612"
             column="51"/>
     </issue>
 
@@ -6872,7 +6476,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="604"
+            line="614"
             column="54"/>
     </issue>
 
@@ -6883,7 +6487,7 @@
         errorLine2="                                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="606"
+            line="616"
             column="54"/>
     </issue>
 
@@ -6894,7 +6498,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="610"
+            line="620"
             column="46"/>
     </issue>
 
@@ -6905,7 +6509,7 @@
         errorLine2="                                                                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="611"
+            line="621"
             column="82"/>
     </issue>
 
@@ -6916,7 +6520,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="612"
+            line="622"
             column="40"/>
     </issue>
 
@@ -6927,7 +6531,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="613"
+            line="623"
             column="56"/>
     </issue>
 
@@ -6938,7 +6542,7 @@
         errorLine2="                                               ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="615"
+            line="625"
             column="48"/>
     </issue>
 
@@ -6949,7 +6553,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="617"
+            line="627"
             column="45"/>
     </issue>
 
@@ -6960,7 +6564,7 @@
         errorLine2="                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="618"
+            line="628"
             column="44"/>
     </issue>
 
@@ -6971,7 +6575,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="619"
+            line="629"
             column="56"/>
     </issue>
 
@@ -6982,7 +6586,7 @@
         errorLine2="                                              ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="620"
+            line="630"
             column="47"/>
     </issue>
 
@@ -6993,7 +6597,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="621"
+            line="631"
             column="45"/>
     </issue>
 
@@ -7004,7 +6608,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="622"
+            line="632"
             column="52"/>
     </issue>
 
@@ -7015,7 +6619,7 @@
         errorLine2="                                       ~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="624"
+            line="634"
             column="40"/>
     </issue>
 
@@ -7026,7 +6630,7 @@
         errorLine2="                                         ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="625"
+            line="635"
             column="42"/>
     </issue>
 
@@ -7037,7 +6641,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="975"
+            line="984"
             column="41"/>
     </issue>
 
@@ -7048,7 +6652,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="982"
+            line="991"
             column="39"/>
     </issue>
 
@@ -7059,7 +6663,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="988"
+            line="997"
             column="43"/>
     </issue>
 
@@ -7070,7 +6674,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="995"
+            line="1004"
             column="41"/>
     </issue>
 
@@ -7081,7 +6685,7 @@
         errorLine2="                                  ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="997"
+            line="1006"
             column="35"/>
     </issue>
 
@@ -8696,50 +8300,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static PermissionCompatDelegate getPermissionCompatDelegate() {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="172"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static DragAndDropPermissionsCompat requestDragAndDropPermissions(Activity activity,"
-        errorLine2="                                                                             ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="604"
-            column="78"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            DragEvent dragEvent) {"
-        errorLine2="            ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityCompat.java"
-            line="605"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            Pair&lt;View, String>... sharedElements) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/app/ActivityOptionsCompat.java"
-            line="206"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public AutoScrollHelper setEnabled(boolean enabled) {"
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
@@ -9162,7 +8722,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/androidx/core/content/FileProvider.java"
-            line="445"
+            line="447"
             column="19"/>
     </issue>
 
@@ -9173,7 +8733,7 @@
         errorLine2="           ~~~">
         <location
             file="src/main/java/androidx/core/content/FileProvider.java"
-            line="575"
+            line="577"
             column="12"/>
     </issue>
 
@@ -9202,33 +8762,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Locale get(int index) {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/LocaleListCompat.java"
-            line="85"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public int indexOf(Locale locale) {"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/LocaleListCompat.java"
-            line="116"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected int computeScrollDeltaToGetChildRectOnScreen(Rect rect) {"
         errorLine2="                                                           ~~~~">
         <location
             file="src/main/java/androidx/core/widget/NestedScrollView.java"
-            line="1816"
+            line="1853"
             column="60"/>
     </issue>
 
@@ -9272,7 +8810,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2454"
+            line="2455"
             column="16"/>
     </issue>
 
@@ -9283,7 +8821,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2462"
+            line="2463"
             column="16"/>
     </issue>
 
@@ -9294,7 +8832,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2470"
+            line="2471"
             column="16"/>
     </issue>
 
@@ -9305,7 +8843,7 @@
         errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2538"
+            line="2539"
             column="19"/>
     </issue>
 
@@ -9316,7 +8854,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2584"
+            line="2585"
             column="27"/>
     </issue>
 
@@ -9327,7 +8865,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2600"
+            line="2601"
             column="16"/>
     </issue>
 
@@ -9338,7 +8876,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2600"
+            line="2601"
             column="44"/>
     </issue>
 
@@ -9349,7 +8887,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2608"
+            line="2609"
             column="16"/>
     </issue>
 
@@ -9360,7 +8898,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2608"
+            line="2609"
             column="47"/>
     </issue>
 
@@ -9371,7 +8909,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2616"
+            line="2617"
             column="16"/>
     </issue>
 
@@ -9382,7 +8920,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2616"
+            line="2617"
             column="51"/>
     </issue>
 
@@ -9393,7 +8931,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2927"
+            line="2928"
             column="16"/>
     </issue>
 
@@ -9404,7 +8942,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2977"
+            line="2978"
             column="42"/>
     </issue>
 
@@ -9415,7 +8953,7 @@
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="2978"
+            line="2979"
             column="17"/>
     </issue>
 
@@ -9426,7 +8964,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3127"
+            line="3128"
             column="27"/>
     </issue>
 
@@ -9437,7 +8975,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3357"
+            line="3359"
             column="27"/>
     </issue>
 
@@ -9448,7 +8986,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="3701"
+            line="3703"
             column="27"/>
     </issue>
 
@@ -9459,7 +8997,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4261"
+            line="4265"
             column="27"/>
     </issue>
 
@@ -9470,7 +9008,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4362"
+            line="4366"
             column="27"/>
     </issue>
 
@@ -9481,7 +9019,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4373"
+            line="4377"
             column="16"/>
     </issue>
 
@@ -9492,7 +9030,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4373"
+            line="4377"
             column="44"/>
     </issue>
 
@@ -9503,7 +9041,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4390"
+            line="4394"
             column="16"/>
     </issue>
 
@@ -9514,7 +9052,7 @@
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4390"
+            line="4394"
             column="47"/>
     </issue>
 
@@ -9525,7 +9063,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4411"
+            line="4415"
             column="16"/>
     </issue>
 
@@ -9536,7 +9074,7 @@
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4411"
+            line="4415"
             column="51"/>
     </issue>
 
@@ -9547,7 +9085,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4595"
+            line="4599"
             column="16"/>
     </issue>
 
@@ -9558,7 +9096,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/NotificationCompat.java"
-            line="4600"
+            line="4604"
             column="16"/>
     </issue>
 
@@ -9888,7 +9426,7 @@
         errorLine2="                          ~~~~~~~">
         <location
             file="src/main/java/android/support/v4/os/ResultReceiver.java"
-            line="83"
+            line="84"
             column="27"/>
     </issue>
 
@@ -9899,7 +9437,7 @@
         errorLine2="                                     ~~~~~~">
         <location
             file="src/main/java/android/support/v4/os/ResultReceiver.java"
-            line="95"
+            line="96"
             column="38"/>
     </issue>
 
@@ -9910,7 +9448,7 @@
         errorLine2="                                                   ~~~~~~">
         <location
             file="src/main/java/android/support/v4/os/ResultReceiver.java"
-            line="120"
+            line="121"
             column="52"/>
     </issue>
 
@@ -10086,7 +9624,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/core/app/SharedElementCallback.java"
-            line="256"
+            line="257"
             column="12"/>
     </issue>
 
@@ -10097,7 +9635,7 @@
         errorLine2="                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/SharedElementCallback.java"
-            line="256"
+            line="257"
             column="38"/>
     </issue>
 
@@ -10108,7 +9646,7 @@
         errorLine2="                                                      ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/SharedElementCallback.java"
-            line="256"
+            line="257"
             column="55"/>
     </issue>
 
@@ -10119,7 +9657,7 @@
         errorLine2="                                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/SharedElementCallback.java"
-            line="299"
+            line="300"
             column="41"/>
     </issue>
 
@@ -10130,7 +9668,7 @@
         errorLine2="            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/SharedElementCallback.java"
-            line="300"
+            line="301"
             column="13"/>
     </issue>
 
@@ -10141,7 +9679,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/app/SharedElementCallback.java"
-            line="300"
+            line="301"
             column="40"/>
     </issue>
 
@@ -10174,7 +9712,7 @@
         errorLine2="                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompat.java"
-            line="699"
+            line="709"
             column="32"/>
     </issue>
 
@@ -10264,94 +9802,6 @@
             file="src/main/java/androidx/core/content/pm/ShortcutInfoCompatSaver.java"
             line="69"
             column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    SupportMenuItem setSupportActionProvider(ActionProvider actionProvider);"
-        errorLine2="    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/internal/view/SupportMenuItem.java"
-            line="162"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    SupportMenuItem setSupportActionProvider(ActionProvider actionProvider);"
-        errorLine2="                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/internal/view/SupportMenuItem.java"
-            line="162"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    ActionProvider getSupportActionProvider();"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/internal/view/SupportMenuItem.java"
-            line="171"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    MenuItem setIconTintList(ColorStateList tint);"
-        errorLine2="                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/internal/view/SupportMenuItem.java"
-            line="350"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    ColorStateList getIconTintList();"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/internal/view/SupportMenuItem.java"
-            line="357"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    MenuItem setIconTintMode(PorterDuff.Mode tintMode);"
-        errorLine2="    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/internal/view/SupportMenuItem.java"
-            line="369"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    MenuItem setIconTintMode(PorterDuff.Mode tintMode);"
-        errorLine2="                             ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/internal/view/SupportMenuItem.java"
-            line="369"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    PorterDuff.Mode getIconTintMode();"
-        errorLine2="    ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/internal/view/SupportMenuItem.java"
-            line="378"
-            column="5"/>
     </issue>
 
     <issue
@@ -10456,11 +9906,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            @NonNull Context context, @NonNull Resources resources, int id, String path,"
+        errorLine1="            @NonNull Context context, @NonNull Resources resources, int id, String path, int cookie,"
         errorLine2="                                                                            ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompat.java"
-            line="172"
+            line="219"
             column="77"/>
     </issue>
 
@@ -10746,7 +10196,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"
-            line="46"
+            line="73"
             column="15"/>
     </issue>
 
@@ -10757,7 +10207,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"
-            line="46"
+            line="73"
             column="57"/>
     </issue>
 
@@ -10768,7 +10218,7 @@
         errorLine2="              ~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"
-            line="53"
+            line="80"
             column="15"/>
     </issue>
 
@@ -10779,7 +10229,7 @@
         errorLine2="                                             ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"
-            line="53"
+            line="80"
             column="46"/>
     </issue>
 
@@ -10790,7 +10240,7 @@
         errorLine2="                                                              ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"
-            line="53"
+            line="80"
             column="63"/>
     </issue>
 
@@ -10801,7 +10251,7 @@
         errorLine2="                                       ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"
-            line="59"
+            line="86"
             column="40"/>
     </issue>
 
@@ -10812,7 +10262,7 @@
         errorLine2="                                                           ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"
-            line="105"
+            line="127"
             column="60"/>
     </issue>
 
@@ -10823,7 +10273,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"
-            line="106"
+            line="128"
             column="13"/>
     </issue>
 
@@ -10834,7 +10284,7 @@
         errorLine2="                                                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"
-            line="106"
+            line="128"
             column="81"/>
     </issue>
 
@@ -10845,7 +10295,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"
-            line="151"
+            line="168"
             column="13"/>
     </issue>
 
@@ -10856,7 +10306,7 @@
         errorLine2="                             ~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"
-            line="151"
+            line="168"
             column="30"/>
     </issue>
 
@@ -10867,7 +10317,7 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/androidx/core/graphics/TypefaceCompatApi29Impl.java"
-            line="151"
+            line="168"
             column="59"/>
     </issue>
 

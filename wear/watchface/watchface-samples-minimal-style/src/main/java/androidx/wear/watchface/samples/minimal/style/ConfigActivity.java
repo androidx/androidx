@@ -35,6 +35,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 
+import kotlin.OptIn;
+
 /** Configuration activity for the watch face. */
 public class ConfigActivity extends ComponentActivity {
 
@@ -99,6 +101,7 @@ public class ConfigActivity extends ComponentActivity {
 
         MutableUserStyle userStyle = mEditorSession.getUserStyle().getValue().toMutableUserStyle();
         ListOption currentOption = (ListOption) userStyle.get(mTimeStyleId);
+        @OptIn(markerClass = androidx.wear.watchface.style.ExperimentalHierarchicalStyle.class)
         ListUserStyleSetting listUserStyleSetting =
                 (ListUserStyleSetting) mEditorSession.getUserStyleSchema()
                         .getRootUserStyleSettings()

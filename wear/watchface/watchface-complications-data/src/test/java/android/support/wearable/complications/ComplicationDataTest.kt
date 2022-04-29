@@ -1097,14 +1097,17 @@ public class ComplicationDataTest {
     public fun timelineEntryCollectionWithPlaceholder() {
         val data =
             ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
-                .setLongText(ComplicationText.plainText(
-                    androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER_STRING))
+                .setLongText(ComplicationText.plainText(ComplicationData.PLACEHOLDER_STRING))
                 .build()
         val timelineEntry =
             ComplicationData.Builder(ComplicationData.TYPE_NO_DATA)
-                .setPlaceholderType(ComplicationData.TYPE_LONG_TEXT)
-                .setLongText(ComplicationText.plainText(
-                    androidx.wear.watchface.complications.data.ComplicationText.PLACEHOLDER_STRING))
+                .setPlaceholder(
+                    ComplicationData.Builder(ComplicationData.TYPE_LONG_TEXT)
+                        .setLongText(
+                            ComplicationText.plainText(ComplicationData.PLACEHOLDER_STRING)
+                        )
+                            .build()
+                )
                 .build()
         timelineEntry.timelineStartEpochSecond = 100
         timelineEntry.timelineEndEpochSecond = 1000
@@ -1112,7 +1115,7 @@ public class ComplicationDataTest {
 
         val entry = data.timelineEntries!!.first()
         Truth.assertThat(entry.type).isEqualTo(ComplicationData.TYPE_NO_DATA)
-        Truth.assertThat(entry.placeholderType).isEqualTo(ComplicationData.TYPE_LONG_TEXT)
+        Truth.assertThat(entry.placeholder!!.type).isEqualTo(ComplicationData.TYPE_LONG_TEXT)
     }
 
     private companion object {

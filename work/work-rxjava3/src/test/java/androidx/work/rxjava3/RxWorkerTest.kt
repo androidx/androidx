@@ -23,7 +23,7 @@ import androidx.work.ListenableWorker
 import androidx.work.ProgressUpdater
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import io.reactivex.rxjava3.core.Single
@@ -149,13 +149,13 @@ class RxWorkerTest {
     class InstantWorkTaskExecutor : TaskExecutor {
 
         private val mSynchronousExecutor = SynchronousExecutor()
-        private val mSerialExecutor = SerialExecutor(mSynchronousExecutor)
+        private val mSerialExecutor = SerialExecutorImpl(mSynchronousExecutor)
 
         override fun getMainThreadExecutor(): Executor {
             return mSynchronousExecutor
         }
 
-        override fun getSerialTaskExecutor(): SerialExecutor {
+        override fun getSerialTaskExecutor(): SerialExecutorImpl {
             return mSerialExecutor
         }
     }

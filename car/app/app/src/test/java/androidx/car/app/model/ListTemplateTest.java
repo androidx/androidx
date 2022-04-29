@@ -111,17 +111,6 @@ public class ListTemplateTest {
     }
 
     @Test
-    public void createInstance_noHeaderTitleOrAction_throws() {
-        assertThrows(
-                IllegalStateException.class,
-                () -> new ListTemplate.Builder().setSingleList(getList()).build());
-
-        // Positive cases/.
-        new ListTemplate.Builder().setTitle("Title").setSingleList(getList()).build();
-        new ListTemplate.Builder().setHeaderAction(Action.BACK).setSingleList(getList()).build();
-    }
-
-    @Test
     public void createInstance_header_unsupportedSpans_throws() {
         CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
         assertThrows(
@@ -140,6 +129,16 @@ public class ListTemplateTest {
                 list).build();
         assertThat(template.getSingleList()).isEqualTo(list);
         assertThat(template.getSectionedLists()).isEmpty();
+    }
+
+    @Test
+    public void createInstance_emptyHeader() {
+        ItemList list = getList();
+        ListTemplate template = new ListTemplate.Builder().setSingleList(list).build();
+
+        assertThat(template.getHeaderAction()).isNull();
+        assertThat(template.getTitle()).isNull();
+        assertThat(template.getActionStrip()).isNull();
     }
 
     @Test

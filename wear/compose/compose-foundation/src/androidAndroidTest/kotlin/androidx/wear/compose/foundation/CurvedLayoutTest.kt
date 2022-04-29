@@ -104,7 +104,8 @@ class CurvedLayoutTest {
 
         rule.runOnIdle {
             val dims = RadialDimensions(
-                clockwise = clockwise,
+                absoluteClockwise = angularDirection == CurvedDirection.Angular.Normal ||
+                    angularDirection == CurvedDirection.Angular.Clockwise,
                 rowCoords!!,
                 coords!!
             )
@@ -249,7 +250,7 @@ class CurvedLayoutTest {
         rule.runOnIdle {
             val dims = coords.map {
                 RadialDimensions(
-                    clockwise = true,
+                    absoluteClockwise = true,
                     rowCoords!!,
                     it!!
                 )
@@ -307,14 +308,14 @@ class CurvedLayoutTest {
 
         rule.runOnIdle {
             val bigBoxDimensions = RadialDimensions(
-                clockwise = true,
+                absoluteClockwise = true,
                 rowCoords!!,
                 bigBoxCoords!!
             )
             checkSpy(bigBoxDimensions, bigSpy)
 
             val smallBoxDimensions = RadialDimensions(
-                clockwise = true,
+                absoluteClockwise = true,
                 rowCoords!!,
                 smallBoxCoords!!
             )
@@ -443,7 +444,7 @@ private data class RadialPoint(val distance: Float, val angle: Float)
 // given that component's and the parent CurvedRow's LayoutCoordinates, and a boolean to indicate
 // if the layout is clockwise or counterclockwise
 private class RadialDimensions(
-    clockwise: Boolean,
+    absoluteClockwise: Boolean,
     rowCoords: LayoutCoordinates,
     coords: LayoutCoordinates
 ) {
@@ -486,7 +487,7 @@ private class RadialDimensions(
 
         // Compute the four dimensions of the annulus sector
         // Note that startAngle is always before endAngle (even when going counterclockwise)
-        if (clockwise) {
+        if (absoluteClockwise) {
             innerRadius = bottomLeft.distance
             outerRadius = topLeft.distance
             startAngle = bottomLeft.angle.toDegrees()
@@ -507,7 +508,7 @@ private class RadialDimensions(
         }
 
         // All sweep angles are well between 0 and 90
-        assert((FLOAT_TOLERANCE..90f - FLOAT_TOLERANCE).contains(sweep)) { "sweep = $sweep" }
+        assert((FLOAT_TOLERANCE..90f - FLOAT_TOLERANCE).contains(sweep)) { "sweep = $sweep." }
 
         // The outerRadius is greater than the innerRadius
         assert(outerRadius > innerRadius + FLOAT_TOLERANCE) {

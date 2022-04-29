@@ -30,7 +30,6 @@ private val DELETED = Any()
  * both because it avoids auto-boxing keys and its data structure doesn't rely on an extra entry
  * object for each mapping.
  *
- *
  * Note that this container keeps its mappings in an array data structure, using a binary search to
  * find keys. The implementation is not intended to be appropriate for data structures that may
  * contain large numbers of items. It is generally slower than a traditional HashMap, since lookups
@@ -38,26 +37,22 @@ private val DELETED = Any()
  * For containers holding up to hundreds of items, the performance difference is not significant,
  * less than 50%.
  *
- *
  * To help with performance, the container includes an optimization when removing keys: instead of
  * compacting its array immediately, it leaves the removed entry marked as deleted. The entry can
  * then be re-used for the same key, or compacted later in a single garbage collection step of all
  * removed entries. This garbage collection will need to be performed at any time the array needs to
  * be grown or the map size or entry values are retrieved.
  *
- *
  * It is possible to iterate over the items in this container using [keyAt] and [valueAt]. Iterating
  * over the keys using [keyAt] with ascending values of the index will return the keys in ascending
  * order, or the values corresponding to the keys in ascending order in the case of [valueAt].
+ *
+ * @constructor Creates a new [LongSparseArray] containing no mappings that will not require any
+ * additional memory allocation to store the specified number of mappings. If you supply an initial
+ * capacity of 0, the sparse array will be initialized with a light-weight representation not
+ * requiring any additional array allocations.
  */
 public open class LongSparseArray<E>
-
-/**
- * Creates a new [LongSparseArray] containing no mappings that will not require any additional
- * memory allocation to store the specified number of mappings. If you supply an initial capacity
- * of 0, the sparse array will be initialized with a light-weight representation not requiring any
- * additional array allocations.
- */
 @JvmOverloads public constructor(initialCapacity: Int = 10) : Cloneable {
     private var garbage = false
     private var keys: LongArray

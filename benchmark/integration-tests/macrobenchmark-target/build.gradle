@@ -41,4 +41,8 @@ dependencies {
     implementation(project(":tracing:tracing-ktx"))
     implementation(project(":tracing:tracing-perfetto"))
     implementation(libs.material)
+
+    implementation(project(":work:work-runtime"))
+    implementation(project(":work:work-runtime-ktx"))
+    implementation(project(":room:room-runtime"))
 }
