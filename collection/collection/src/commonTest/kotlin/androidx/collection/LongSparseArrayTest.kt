@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,13 @@
  */
 package androidx.collection
 
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotSame
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotSame
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
-@RunWith(JUnit4::class)
 internal class LongSparseArrayTest {
     @Test
     fun getOrDefaultPrefersStoredValue() {
@@ -278,6 +275,7 @@ internal class LongSparseArrayTest {
         source.put(20L, "world")
         val dest = source.clone()
         assertNotSame(source, dest)
+        assertEquals(2, dest.size())
         repeat(source.size()) { i ->
             assertEquals(source.keyAt(i), dest.keyAt(i))
             assertEquals(source.valueAt(i), dest.valueAt(i))
