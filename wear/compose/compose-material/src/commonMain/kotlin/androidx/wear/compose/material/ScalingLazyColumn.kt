@@ -443,7 +443,7 @@ public fun ScalingLazyColumn(
                 LaunchedEffect(state) {
                     snapshotFlow {
                         (state.layoutInfo as DefaultScalingLazyListLayoutInfo)
-                            .readyForInitialization
+                            .readyForInitialScroll
                     }.first {
                         it
                     }
