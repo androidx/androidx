@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import com.android.tools.lint.client.api.JavaEvaluator
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -27,6 +28,9 @@ import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
+import com.android.tools.lint.model.LintModelMavenName
+import com.intellij.psi.PsiCompiledElement
+import java.io.File
 import java.io.FileNotFoundException
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
@@ -186,7 +190,7 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
 
         // The location where the annotation is declared
         // TODO (b/222554358): annotationGroup is (unexpectedly) null sometimes; fix this
-        val annotationCoordinates = evaluator.getLibrary(annotation) ?: return
+        val annotationCoordinates = evaluator.getLibraryLocalMode(annotation) ?: return
         val annotationGroupId = annotationCoordinates.groupId
 
         val isUsedInSameGroup = usageCoordinates.groupId == annotationCoordinates.groupId
@@ -216,6 +220,20 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                     "same-version group where they were defined."
             )
             .report()
+    }
+
+    /**
+     * An implementation of [JavaEvaluator.getLibrary] that attempts to use the JAR path when we
+     * can't find the project from the sourcePsi, even if the element isn't a compiled element.
+     */
+    private fun JavaEvaluator.getLibraryLocalMode(element: UElement): LintModelMavenName? {
+        if (element !is PsiCompiledElement) {
+            val coord = element.sourcePsi?.let { psi -> getProject(psi)?.mavenCoordinate }
+            if (coord != null) {
+                return coord
+            }
+        }
+        return getLibrary(File(findJarPath(element)))
     }
 
     private fun UElement.getQualifiedName() = (this as UClass).qualifiedName
