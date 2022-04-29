@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -32,6 +31,9 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.dp
+import androidx.paging.CombinedLoadStates
+import androidx.paging.LoadState
+import androidx.paging.LoadStates
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
@@ -39,7 +41,6 @@ import androidx.paging.TestPagingSource
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
-
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -66,6 +67,32 @@ class LazyPagingItemsTest {
         }
     ): Pager<Int, Int> {
         return Pager(config = config, pagingSourceFactory = pagingSourceFactory)
+    }
+
+    @Test
+    fun lazyPagingInitialLoadState() {
+        val pager = createPager()
+        val loadStates: MutableList<CombinedLoadStates> = mutableListOf()
+        rule.setContent {
+            val lazyPagingItems = pager.flow.collectAsLazyPagingItems()
+            loadStates.add(lazyPagingItems.loadState)
+        }
+
+        rule.waitForIdle()
+
+        val expected = CombinedLoadStates(
+            refresh = LoadState.Loading,
+            prepend = LoadState.NotLoading(false),
+            append = LoadState.NotLoading(false),
+            source = LoadStates(
+                LoadState.Loading,
+                LoadState.NotLoading(false),
+                LoadState.NotLoading(false)
+            ),
+            mediator = null
+        )
+        assertThat(loadStates).isNotEmpty()
+        assertThat(loadStates.first()).isEqualTo(expected)
     }
 
     @Test
