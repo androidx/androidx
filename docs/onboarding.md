@@ -35,30 +35,8 @@ following should work with `bash` as well.
 export PATH=~/bin:$PATH
 ```
 
-You will need to either start a new terminal session or run `source ~/.zshrc`
-(or `source ~/.bash_profile` if using `bash`) to pick up the new path.
-
-If you encounter an SSL `CERTIFICATE_VERIFY_FAILED` error or warning about
-Python 2 being no longer supported, you will need to install Python 3 and alias
-your `repo` command to run with `python3`.
-
-```shell {.bad}
-repo: warning: Python 2 is no longer supported; Please upgrade to Python 3.6+.
-```
-
-```shell {.bad}
-Downloading Repo source from https://gerrit.googlesource.com/git-repo
-fatal: Cannot get https://gerrit.googlesource.com/git-repo/clone.bundle
-fatal: error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed (_ssl.c:777)
-```
-
-First, install Python 3 from the [official website](https://www.python.org).
-Please read the "Important Information" displayed during installation for
-information about SSL/TLS certificate validation and the running the "Install
-Certificates.command".
-
-Next, open your `~/.zshrc` (or `~/.bash_profile` if using bash) and add the
-following lines to wrap the `repo` command:
+Next, add the following lines to `~/.zshrc` (or `~/.bash_profile` if using
+`bash`) aliasing the `repo` command to run with `python3`:
 
 ```shell
 # Force repo to run with Python3
@@ -67,8 +45,28 @@ function repo() {
 }
 ```
 
-Make sure to reload the updated profile by starting a new terminal session or
-running `source ~/.zshrc` or `source ~/.bash_profile` as appropriate.
+Finally, you will need to either start a new terminal session or run `source
+~/.zshrc` (or `source ~/.bash_profile` if using `bash`) to enable the changes.
+
+> NOTE: If you encounter the following warning about Python 2 being no longer
+> supported, you will need to install Python 3 from the
+> [official website](https://www.python.org).
+>
+> ```shell {.bad}
+> repo: warning: Python 2 is no longer supported; Please upgrade to Python 3.6+.
+> ```
+
+> NOTE: If you encounter an SSL `CERTIFICATE_VERIFY_FAILED` error:
+>
+> ```shell {.bad}
+> Downloading Repo source from https://gerrit.googlesource.com/git-repo
+> fatal: Cannot get https://gerrit.googlesource.com/git-repo/clone.bundle
+> fatal: error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (\_ssl.c:997)
+> ```
+>
+> Run the `Install Certificates.command` in the Python folder of Application.
+> For more information about SSL/TLS certificate validation, you can read the
+> "Important Information" displayed during Python installation.
 
 ### Windows {#setup-win}
 
