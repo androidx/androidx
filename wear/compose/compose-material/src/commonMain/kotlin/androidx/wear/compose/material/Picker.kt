@@ -216,9 +216,9 @@ public class PickerState constructor(
 
     // The difference between the option we want to select for the current numberOfOptions
     // and the selection with the initial numberOfOptions.
-    // Note that if repeatItems is tru (the default), we have a large number of items, and a smaller
-    // number of options, so many items map to the same options. This variable is part of that
-    // mapping since we need to adjust it when the number of options change.
+    // Note that if repeatItems is true (the default), we have a large number of items, and a
+    // smaller number of options, so many items map to the same options. This variable is part of
+    // that mapping since we need to adjust it when the number of options change.
     // The mapping is that given an item index, subtracting optionsOffset and doing modulo the
     // current number of options gives the option index:
     // itemIndex - optionsOffset =(mod numberOfOptions) optionIndex
