@@ -409,9 +409,10 @@ internal class DefaultScalingLazyListLayoutInfo(
     override val afterContentPadding: Int,
     override val beforeAutoCenteringPadding: Int,
     override val afterAutoCenteringPadding: Int,
-    // Flag to indicate that we are ready for the second stage of initialization. Note that this
-    // flag will be false once initialization is complete and initialized == true.
-    internal val readyForInitialization: Boolean,
+    // Flag to indicate that we are ready to handle scrolling as the list becomes visible. This is
+    // used to either move to the initialCenterItemIndex/Offset or complete any
+    // scrollTo/animatedScrollTo calls that were incomplete due to the component not being visible.
+    internal val readyForInitialScroll: Boolean,
     // Flag to indicate that initialization is complete and initial scroll index and offset have
     // been set.
     internal val initialized: Boolean
