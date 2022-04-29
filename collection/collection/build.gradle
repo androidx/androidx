@@ -71,7 +71,7 @@ kotlin {
                 dependsOn commonTest
             }
 
-            macMain {
+            darwinMain {
                 dependsOn(nativeMain)
             }
             linuxMain {
@@ -82,7 +82,7 @@ kotlin {
                 if (target.platformType == KotlinPlatformType.native) {
                     target.compilations["main"].defaultSourceSet {
                         if (target.konanTarget.family == Family.OSX) {
-                            dependsOn(macMain)
+                            dependsOn(darwinMain)
                         } else if (target.konanTarget.family == Family.LINUX) {
                             dependsOn(linuxMain)
                         } else {
