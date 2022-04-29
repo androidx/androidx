@@ -20,16 +20,13 @@ import android.content.Context
 import android.graphics.Point
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback
 import android.hardware.camera2.CameraDevice
+import android.hardware.display.DisplayManager
 import android.util.Size
 import android.view.Display
-import android.view.WindowManager
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
-import androidx.camera.camera2.pipe.integration.impl.asLandscape
-import androidx.camera.camera2.pipe.integration.impl.minByArea
-import androidx.camera.camera2.pipe.integration.impl.toSize
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CaptureConfig
@@ -50,10 +47,16 @@ import androidx.camera.core.impl.UseCaseConfigFactory
 @Suppress("DEPRECATION")
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
+    private val MAX_PREVIEW_SIZE = Size(1920, 1080)
 
-    private val display: Display by lazy {
-        @Suppress("deprecation")
-        (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay!!
+    private val displayManager: DisplayManager by lazy {
+        context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+    }
+    private val defaultDisplay: Display by lazy {
+        getMaxSizeDisplay()
+    }
+    private val previewSize: Size by lazy {
+        calculatePreviewSize()
     }
 
     init {
@@ -128,24 +131,54 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         if (captureType == UseCaseConfigFactory.CaptureType.PREVIEW) {
             mutableConfig.insertOption(
                 ImageOutputConfig.OPTION_MAX_RESOLUTION,
-                getPreviewSize()
+                previewSize
             )
         }
 
         mutableConfig.insertOption(
             ImageOutputConfig.OPTION_TARGET_ROTATION,
-            display.rotation
+            defaultDisplay.rotation
         )
         return OptionsBundle.from(mutableConfig)
     }
 
+    private fun getMaxSizeDisplay(): Display {
+        val displays = displayManager.displays
+        var maxDisplay: Display? = null
+        var maxDisplaySize = -1
+        for (display: Display in displays) {
+            val displaySize = Point()
+            // TODO(b/230400472): Use WindowManager#getCurrentWindowMetrics(). Display#getRealSize()
+            //  is deprecated since API level 31.
+            display.getRealSize(displaySize)
+            if (displaySize.x * displaySize.y > maxDisplaySize) {
+                maxDisplaySize = displaySize.x * displaySize.y
+                maxDisplay = display
+            }
+        }
+        return checkNotNull(maxDisplay) { "No displays found from ${displayManager.displays}!" }
+    }
+
     /**
-     * Returns the device's screen resolution, or 1080p, whichever is smaller.
+     * Calculates the device's screen resolution, or MAX_PREVIEW_SIZE, whichever is smaller.
      */
-    private fun getPreviewSize(): Size? {
+    private fun calculatePreviewSize(): Size {
         val displaySize = Point()
+        val display: Display = defaultDisplay
         display.getRealSize(displaySize)
-        return minByArea(MAXIMUM_PREVIEW_SIZE, displaySize.toSize().asLandscape())
+        var displayViewSize: Size
+        displayViewSize = if (displaySize.x > displaySize.y) {
+            Size(displaySize.x, displaySize.y)
+        } else {
+            Size(displaySize.y, displaySize.x)
+        }
+        if (displayViewSize.width * displayViewSize.height
+            > MAX_PREVIEW_SIZE.width * MAX_PREVIEW_SIZE.height
+        ) {
+            displayViewSize = MAX_PREVIEW_SIZE
+        }
+        // TODO(b/230402463): Migrate extra cropping quirk from CameraX.
+        return displayViewSize
     }
 
     object DefaultCaptureOptionsUnpacker : CaptureConfig.OptionUnpacker {
