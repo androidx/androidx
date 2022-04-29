@@ -21,13 +21,3 @@ public expect abstract class JvmCloneableAny {
     protected constructor()
     public open fun clone(): Any?
 }
-
-public class MyCloneable : JvmCloneableAny(), CloneableKmp {
-    internal var data: Int = 0
-    @Suppress("NoClone")
-    public override fun clone(): MyCloneable {
-        val myClone = super<JvmCloneableAny>.clone() as? MyCloneable ?: MyCloneable()
-        myClone.data = data
-        return myClone
-    }
-}
