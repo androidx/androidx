@@ -995,6 +995,35 @@ public class AppSearchCompilerTest {
         checkEqualsGolden("Gift$$__InnerGift.java");
     }
 
+    @Test
+    public void testOneBadConstructor() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Id private String mId;\n"
+                        + "  @Document.Namespace private String mNamespace;\n"
+                        + "  public Gift(String id, String namespace, boolean nonAppSearchParam){\n"
+                        + "    mId = id;\n"
+                        + "    mNamespace = namespace;\n"
+                        + "  }\n"
+                        + "  public Gift(String id){\n"
+                        + "    mId = id;\n"
+                        + "  }\n"
+                        + "  public String getId(){"
+                        + "    return mId;"
+                        + "  }\n"
+                        + "  public String getNamespace(){"
+                        + "    return mNamespace;"
+                        + "  }\n"
+                        + "  public void setNamespace(String namespace){\n"
+                        + "    mNamespace = namespace;"
+                        + "  }\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
     private Compilation compile(String classBody) {
         return compile("Gift", classBody);
     }

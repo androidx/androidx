@@ -20,26 +20,22 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
   @Override
   public AppSearchSchema getSchema() throws AppSearchException {
     return new AppSearchSchema.Builder(SCHEMA_NAME)
-          .addProperty(new AppSearchSchema.LongPropertyConfig.Builder("price")
-            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
-            .build())
           .build();
   }
 
   @Override
   public GenericDocument toGenericDocument(Gift document) throws AppSearchException {
     GenericDocument.Builder<?> builder =
-        new GenericDocument.Builder<>(document.namespace, document.id, SCHEMA_NAME);
-    builder.setPropertyLong("price", document.price);
+        new GenericDocument.Builder<>(document.getNamespace(), document.getId(), SCHEMA_NAME);
     return builder.build();
   }
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String idConv = genericDoc.getId();
-    String namespaceConv = genericDoc.getNamespace();
-    int priceConv = (int) genericDoc.getPropertyLong("price");
-    Gift document = Gift.create(idConv, namespaceConv, priceConv);
+    String mIdConv = genericDoc.getId();
+    String mNamespaceConv = genericDoc.getNamespace();
+    Gift document = new Gift(mIdConv);
+    document.setNamespace(mNamespaceConv);
     return document;
   }
 }
