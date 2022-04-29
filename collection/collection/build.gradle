@@ -16,7 +16,10 @@
 
 
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -64,16 +67,37 @@ kotlin {
                 dependsOn commonMain
             }
 
-            configure([linuxX64Main, macosX64Main, macosArm64Main]) {
-                dependsOn nativeMain
-            }
-
             nativeTest {
                 dependsOn commonTest
             }
 
-            configure([linuxX64Test, macosX64Test, macosArm64Test]) {
-                dependsOn nativeTest
+            darwinMain {
+                dependsOn(nativeMain)
+            }
+            linuxMain {
+                dependsOn(nativeMain)
+            }
+
+            targets.all { target ->
+                if (target.platformType == KotlinPlatformType.native) {
+                    target.compilations["main"].defaultSourceSet {
+                        if (target.konanTarget.family == Family.OSX) {
+                            dependsOn(darwinMain)
+                        } else if (target.konanTarget.family == Family.LINUX) {
+                            dependsOn(linuxMain)
+                        } else {
+                            throw new GradleException("unknown native target ${target}")
+                        }
+                    }
+                    target.compilations["test"].defaultSourceSet {
+                        dependsOn(nativeTest)
+                    }
+                }
+            }
+            // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
+            // Make sure commonization runs before any compilation task.
+            tasks.withType(KotlinNativeCompile).configureEach {
+                it.dependsOn(tasks.named("commonize"))
             }
         }
 
