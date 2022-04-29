@@ -80,7 +80,6 @@ kotlin {
             targets.all { target ->
                 if (target.platformType == KotlinPlatformType.native) {
                     target.compilations["main"].defaultSourceSet {
-                        dependsOn(nativeMain)
                         if (target.konanTarget.family == Family.OSX) {
                             dependsOn(macMain)
                         } else if (target.konanTarget.family == Family.LINUX) {
