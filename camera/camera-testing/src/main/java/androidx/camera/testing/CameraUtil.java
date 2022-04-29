@@ -38,6 +38,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -72,8 +73,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -144,6 +147,32 @@ public final class CameraUtil {
             throws CameraAccessException, InterruptedException, TimeoutException,
             ExecutionException {
         return new CameraDeviceHolder(getCameraManager(), cameraId, stateCallback);
+    }
+
+    /**
+     * Returns physical camera ids of the specified camera id.
+     */
+    @NonNull
+    public static List<String> getPhysicalCameraIds(@NonNull String cameraId) {
+        try {
+            if (Build.VERSION.SDK_INT >= 28) {
+                return Collections.unmodifiableList(new ArrayList<>(Api28Impl.getPhysicalCameraId(
+                        getCameraManager().getCameraCharacteristics(cameraId))));
+            } else {
+                return Collections.emptyList();
+            }
+
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    @RequiresApi(28)
+    private static class Api28Impl {
+        @DoNotInline
+        static Set<String> getPhysicalCameraId(CameraCharacteristics cameraCharacteristics) {
+            return cameraCharacteristics.getPhysicalCameraIds();
+        }
     }
 
     /**
