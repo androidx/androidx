@@ -26,6 +26,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import androidx.annotation.ChecksSdkIntAtLeast;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.webkit.ProxyConfig;
@@ -507,8 +508,14 @@ public enum WebViewFeatureInternal implements ConditionallySupportedFeature {
 
     /**
      * Return whether this {@link WebViewFeatureInternal} is supported by the framework of the
-     * current device.
+     * current device. By design, this library does not include any APIs added to the framework in
+     * Android L or earlier, so if this returns true it implies L or above.
+     *
+     * <p>By design, this library does not provide compat versions of any APIs added to the platform
+     * in Android L or earlier, so all APIs have mOsVersion strictly greater than LOLLIPOP. If this
+     * returns true, then that implies we're on Android L or above.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.LOLLIPOP)
     public boolean isSupportedByFramework() {
         if (mOsVersion == NOT_SUPPORTED_BY_FRAMEWORK) {
             return false;
@@ -518,7 +525,12 @@ public enum WebViewFeatureInternal implements ConditionallySupportedFeature {
 
     /**
      * Return whether this {@link WebViewFeatureInternal} is supported by the current WebView APK.
+     *
+     * <p>WebView updates were only supported starting in Android L and the preinstalled WebView in
+     * earlier OS versions is not compatible with this library. If this returns true, then that
+     * implies we're on Android L or above.
      */
+    @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.LOLLIPOP)
     public boolean isSupportedByWebView() {
         return BoundaryInterfaceReflectionUtil.containsFeature(
                 LAZY_HOLDER.WEBVIEW_APK_FEATURES, mInternalFeatureValue);
