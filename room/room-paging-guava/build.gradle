@@ -39,7 +39,7 @@ dependencies {
     api(libs.kotlinStdlib)
     implementation(project(":room:room-paging"))
     implementation(project(":room:room-guava"))
-    implementation(projectOrArtifact(":paging:paging-guava"))
+    api("androidx.paging:paging-guava:3.1.1")
 
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunitKtx)

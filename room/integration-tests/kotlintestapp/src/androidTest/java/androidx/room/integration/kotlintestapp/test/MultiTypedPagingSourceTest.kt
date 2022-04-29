@@ -527,7 +527,10 @@ class MultiTypedPagingSourceTest(
          */
         @Parameterized.Parameters(name = "pagingSourceFactory={0}")
         @JvmStatic
-        fun parameters() = listOf(PagingEntityDao::loadItems)
+        fun parameters() = listOf(
+            PagingEntityDao::loadItems,
+            PagingEntityDao::loadItemsListenableFuture
+        )
     }
 }
 
@@ -730,7 +733,10 @@ class MultiTypedPagingSourceTestWithRawQuery(
          */
         @Parameterized.Parameters(name = "pagingSourceFactory={0}")
         @JvmStatic
-        fun parameters() = listOf(PagingEntityDao::loadItemsRaw)
+        fun parameters() = listOf(
+            PagingEntityDao::loadItemsRaw,
+            PagingEntityDao::loadItemsRawListenableFuture
+        )
     }
 }
 
