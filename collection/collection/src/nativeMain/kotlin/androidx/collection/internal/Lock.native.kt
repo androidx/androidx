@@ -18,9 +18,7 @@ package androidx.collection.internal
 
 import kotlinx.cinterop.Arena
 import kotlinx.cinterop.alloc
-import kotlinx.cinterop.convert
 import kotlinx.cinterop.ptr
-import platform.posix.PTHREAD_MUTEX_RECURSIVE
 import platform.posix.pthread_mutex_destroy
 import platform.posix.pthread_mutex_init
 import platform.posix.pthread_mutex_lock
@@ -31,6 +29,13 @@ import platform.posix.pthread_mutexattr_init
 import platform.posix.pthread_mutexattr_settype
 import platform.posix.pthread_mutexattr_t
 import kotlin.native.internal.createCleaner
+
+/**
+ * Wrapper for platform.posix.PTHREAD_MUTEX_RECURSIVE which
+ * is represented as kotlin.Int on darwin platforms and kotlin.UInt on linuxX64
+ * See: // https://youtrack.jetbrains.com/issue/KT-41509
+ */
+internal expect val PTHREAD_MUTEX_RECURSIVE: Int
 
 @Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
 internal actual class Lock actual constructor() {
@@ -56,7 +61,7 @@ internal actual class Lock actual constructor() {
 
         init {
             pthread_mutexattr_init(attr.ptr)
-            pthread_mutexattr_settype(attr.ptr, PTHREAD_MUTEX_RECURSIVE.convert())
+            pthread_mutexattr_settype(attr.ptr, PTHREAD_MUTEX_RECURSIVE)
             pthread_mutex_init(mutex.ptr, attr.ptr)
         }
 
