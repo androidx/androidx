@@ -13,93 +13,105 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.collection
 
-package androidx.collection;
+import androidx.collection.internal.Lock
+import androidx.collection.internal.synchronized
+import kotlin.random.Random
+import kotlin.test.Test
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.newFixedThreadPoolContext
+import kotlinx.coroutines.runBlocking
 
-import static org.junit.Assert.fail;
+internal class ArraySetTest {
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-import java.util.ConcurrentModificationException;
-
-@RunWith(JUnit4.class)
-public class ArraySetTest {
-    ArraySet<String> mSet = new ArraySet<>();
-
-    @After
-    public void tearDown() {
-        mSet = null;
-    }
+    private val set = ArraySet<String>()
 
     /**
      * Attempt to generate a ConcurrentModificationException in ArraySet.
-     * <p>
+     *
+     *
      * ArraySet is explicitly documented to be non-thread-safe, yet it's easy to accidentally screw
      * this up; ArraySet should (in the spirit of the core Java collection types) make an effort to
      * catch this and throw ConcurrentModificationException instead of crashing somewhere in its
      * internals.
      */
+    @OptIn(DelicateCoroutinesApi::class)
     @Test
-    public void testConcurrentModificationException() throws Exception {
-        final int testDurMs = 10_000;
-        System.out.println("Starting ArraySet concurrency test");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                int i = 0;
-                while (mSet != null) {
+    fun testConcurrentModificationException() {
+        var error: Throwable? = null
+        val nThreads = 20
+        var nActiveThreads = 0
+        val lock = Lock()
+        val dispatcher = newFixedThreadPoolContext(nThreads = nThreads, name = "ArraySetTest")
+        val scope = CoroutineScope(dispatcher)
+
+        repeat(nThreads) {
+            scope.launch {
+                lock.synchronized { nActiveThreads++ }
+
+                while (isActive) {
+                    val add = Random.nextBoolean()
                     try {
-                        mSet.add(String.format("key %d", i++));
-                    } catch (ArrayIndexOutOfBoundsException e) {
-                        fail(e.getMessage());
-                    } catch (ClassCastException e) {
-                        fail(e.getMessage());
-                    } catch (ConcurrentModificationException e) {
-                        System.out.println("[successfully caught CME at put #" + i
-                                + " size=" + (mSet == null ? "??" : String.valueOf(mSet.size()))
-                                + "]");
+                        if (add) {
+                            set.add(Random.nextLong().toString())
+                        } else {
+                            set.clear()
+                        }
+                    } catch (e: ArrayIndexOutOfBoundsException) {
+                        if (!add) {
+                            error = e
+                            throw e
+                        } // Expected exception otherwise
+                    } catch (e: ClassCastException) {
+                        error = e
+                        throw e
+                    } catch (ignored: ConcurrentModificationException) {
+                        // Expected exception
                     }
                 }
             }
-        }).start();
-        for (int i = 0; i < (testDurMs / 100); i++) {
-            try {
-                if (mSet.size() % 4 == 0) {
-                    mSet.clear();
-                }
-                System.out.print("X");
-            } catch (ArrayIndexOutOfBoundsException e) {
-                fail(e.getMessage());
-            } catch (ClassCastException e) {
-                fail(e.getMessage());
-            } catch (ConcurrentModificationException e) {
-                System.out.println(
-                        "[successfully caught CME at clear #" + i + " size=" + mSet.size() + "]");
-            }
         }
+
+        runBlocking(Dispatchers.Default) {
+            // Wait until all worker threads are started
+            for (i in 0 until 100) {
+                if (lock.synchronized { nActiveThreads == nThreads }) {
+                    break
+                } else {
+                    delay(timeMillis = 10L)
+                }
+            }
+
+            // Allow the worker threads to run concurrently for some time
+            delay(timeMillis = 100L)
+        }
+
+        scope.cancel()
+        dispatcher.close()
+
+        error?.also { throw it }
     }
 
     /**
      * Check to make sure the same operations behave as expected in a single thread.
      */
     @Test
-    public void testNonConcurrentAccesses() throws Exception {
-        for (int i = 0; i < 100000; i++) {
-            try {
-                mSet.add(String.format("key %d", i++));
-                if (i % 200 == 0) {
-                    System.out.print(".");
-                }
-                if (i % 500 == 0) {
-                    mSet.clear();
-                }
-            } catch (ConcurrentModificationException e) {
-                fail(e.getMessage());
+    fun testNonConcurrentAccesses() {
+        repeat(100_000) { i ->
+            set.add("key $i")
+            if (i % 200 == 0) {
+                print(".")
+            }
+            if (i % 500 == 0) {
+                set.clear()
             }
         }
     }
-
 }

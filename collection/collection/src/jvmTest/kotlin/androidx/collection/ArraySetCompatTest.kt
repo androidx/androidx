@@ -13,36 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.collection;
+package androidx.collection
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
+internal class ArraySetCompatTest {
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
-@RunWith(JUnit4.class)
-public class ArraySetCompatTest {
     @Test
-    public void testCanNotIteratePastEnd() {
-        ArraySet<String> set = new ArraySet<>();
-        set.add("value");
-        Iterator<String> iterator = set.iterator();
+    fun testCanNotIteratePastEnd() {
+        val set = ArraySet<String>()
+        set.add("value")
+        val iterator: Iterator<String> = set.iterator()
+        assertTrue(iterator.hasNext())
+        assertEquals("value", iterator.next())
+        assertFalse(iterator.hasNext())
 
-        assertTrue(iterator.hasNext());
-        assertEquals("value", iterator.next());
-        assertFalse(iterator.hasNext());
-
-        try {
-            iterator.next();
-            fail();
-        } catch (NoSuchElementException expected) {
+        assertFailsWith<NoSuchElementException> {
+            iterator.next()
         }
     }
 }
