@@ -20,6 +20,9 @@ import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
+import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.S
+import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
@@ -50,6 +53,8 @@ class MultiTypedPagingSourceQueryResultBinder(
 
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
+        sectionsVar: String?,
+        tempTableVar: String,
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
@@ -63,9 +68,28 @@ class MultiTypedPagingSourceQueryResultBinder(
                 dbField,
                 tableNamesList
             ).apply {
+                if (sectionsVar != null) {
+                    addStatement("$T $L = null", RoomTypeNames.ROOM_SQL_QUERY, roomSQLiteQueryVar)
+                }
                 addSuperinterface(pagingSourceTypeName)
                 addMethod(createConvertRowsMethod(scope))
             }.build()
+
+            if (sectionsVar != null) {
+                val pairVar = scope.getTmpVar("_resultPair")
+                addStatement(
+                    "final $T $L = $T.prepareQuery($N, $L, $S, $L, true)",
+                    ParameterizedTypeName.get(
+                        ClassName.get(Pair::class.java),
+                        RoomTypeNames.ROOM_SQL_QUERY,
+                        TypeName.BOOLEAN.box()
+                    ),
+                    pairVar,
+                    RoomTypeNames.QUERY_UTIL, dbField, inTransaction, tempTableVar, sectionsVar
+                )
+                addStatement("$L = $L.getFirst()", roomSQLiteQueryVar, pairVar)
+            }
+
             addStatement("return $L", pagingSourceSpec)
         }
     }

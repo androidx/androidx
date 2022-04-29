@@ -27,6 +27,7 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.writer.ClassWriter
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Modifier
 
 /**
@@ -66,6 +67,25 @@ class EnumColumnTypeAdapter(
                 )
             endControlFlow()
         }
+    }
+
+    override fun convert(inputVarName: String, scope: CodeGenScope): String? {
+        val enumToStringMethod = enumToStringMethod(scope)
+        val outVarName = scope.getTmpVar()
+        scope.builder().apply {
+            addStatement(
+                "final $T $L = $N($L)",
+                TypeName.get(String::class.java),
+                outVarName,
+                enumToStringMethod,
+                inputVarName
+            )
+        }
+        return outVarName
+    }
+
+    override fun convertedType(): TypeName? {
+        return TypeName.get(String::class.java)
     }
 
     private fun enumToStringMethod(scope: CodeGenScope): MethodSpec {

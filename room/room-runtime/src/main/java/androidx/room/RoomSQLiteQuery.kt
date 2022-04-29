@@ -220,6 +220,43 @@ open class RoomSQLiteQuery private constructor(
             return sqLiteQuery
         }
 
+        /**
+         * Binds the given argument into the given Room SQLite query.
+         *
+         * @param query The Room SQLite query
+         * @param index The 1-based index to the parameter to bind
+         * @param arg   The argument to bind
+         */
+        fun bind(query: RoomSQLiteQuery, index: Int, arg: Any?) {
+            // extracted from android.database.sqlite.SQLiteConnection
+            if (arg == null) {
+                query.bindNull(index)
+            } else if (arg is ByteArray) {
+                query.bindBlob(index, arg)
+            } else if (arg is Float) {
+                query.bindDouble(index, arg.toDouble())
+            } else if (arg is Double) {
+                query.bindDouble(index, arg)
+            } else if (arg is Long) {
+                query.bindLong(index, arg)
+            } else if (arg is Int) {
+                query.bindLong(index, arg.toLong())
+            } else if (arg is Short) {
+                query.bindLong(index, arg.toLong())
+            } else if (arg is Byte) {
+                query.bindLong(index, arg.toLong())
+            } else if (arg is String) {
+                query.bindString(index, arg)
+            } else if (arg is Boolean) {
+                query.bindLong(index, (if (arg) 1 else 0).toLong())
+            } else {
+                throw IllegalArgumentException(
+                    "Cannot bind $arg at index $index Supported types: null, byte[], float, " +
+                        "double, long, int, short, byte, string"
+                )
+            }
+        }
+
         internal fun prunePoolLocked() {
             if (queryPool.size > POOL_LIMIT) {
                 var toBeRemoved = queryPool.size - DESIRED_POOL_SIZE

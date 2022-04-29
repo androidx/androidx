@@ -16,15 +16,18 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.RoomTypeNames
+import androidx.room.ext.RunnableTypeSpecBuilder
+import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
-import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.FieldSpec
 
 /**
@@ -39,6 +42,8 @@ class GuavaListenableFutureQueryResultBinder(
 
     override fun convertAndReturn(
         roomSQLiteQueryVar: String,
+        sectionsVar: String?,
+        tempTableVar: String,
         canReleaseQuery: Boolean,
         dbField: FieldSpec,
         inTransaction: Boolean,
@@ -52,16 +57,47 @@ class GuavaListenableFutureQueryResultBinder(
             RoomTypeNames.DB_UTIL
         )
 
+        val queryVar = scope.getTmpVar("_query")
+        if (sectionsVar != null) {
+            scope.builder().addStatement(
+                "final $T $L = new $T{null}",
+                ArrayTypeName.of(SupportDbTypeNames.QUERY),
+                queryVar,
+                ArrayTypeName.of(SupportDbTypeNames.QUERY)
+            )
+        } else {
+            scope.builder().addStatement(
+                "final $T $L = new $T{$L}",
+                ArrayTypeName.of(SupportDbTypeNames.QUERY),
+                queryVar,
+                ArrayTypeName.of(SupportDbTypeNames.QUERY),
+                roomSQLiteQueryVar
+            )
+        }
+
         // Callable<T> // Note that this callable does not release the query object.
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
             createRunQueryAndReturnStatements(
                 builder = this,
-                roomSQLiteQueryVar = roomSQLiteQueryVar,
+                roomSQLiteQueryVar = "$queryVar[0]",
+                sectionsVar = sectionsVar,
+                tempTableVar = tempTableVar,
                 dbField = dbField,
                 inTransaction = inTransaction,
                 scope = scope,
                 cancellationSignalVar = cancellationSignalVar
             )
+        }.build()
+
+        val runnableImpl = RunnableTypeSpecBuilder {
+            beginControlFlow(
+                "if (($L != null) && ($L instanceof $T))",
+                "$queryVar[0]",
+                "$queryVar[0]",
+                RoomTypeNames.ROOM_SQL_QUERY
+            ).apply {
+                addStatement("(($T)$L).release()", RoomTypeNames.ROOM_SQL_QUERY, "$queryVar[0]")
+            }.endControlFlow()
         }.build()
 
         scope.builder().apply {
@@ -71,7 +107,7 @@ class GuavaListenableFutureQueryResultBinder(
                 dbField,
                 if (inTransaction) "true" else "false",
                 callableImpl,
-                roomSQLiteQueryVar,
+                runnableImpl,
                 canReleaseQuery,
                 cancellationSignalVar
             )

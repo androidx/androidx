@@ -5,6 +5,7 @@ package androidx.sqlite.db {
     ctor public SimpleSQLiteQuery(String, Object![]?);
     ctor public SimpleSQLiteQuery(String);
     method public static void bind(androidx.sqlite.db.SupportSQLiteProgram, Object![]?);
+    method public static void bind(androidx.sqlite.db.SupportSQLiteProgram, int, Object?);
     method public void bindTo(androidx.sqlite.db.SupportSQLiteProgram);
     method public int getArgCount();
     method public String getSql();

@@ -64,6 +64,14 @@ class ByteBufferColumnTypeAdapter private constructor(out: XType) : ColumnTypeAd
         }
     }
 
+    override fun convert(inputVarName: String, scope: CodeGenScope): String? {
+        return null
+    }
+
+    override fun convertedType(): TypeName? {
+        return null
+    }
+
     companion object {
         fun create(env: XProcessingEnv): List<ByteBufferColumnTypeAdapter> {
             val byteBufferType = env.requireType("java.nio.ByteBuffer")

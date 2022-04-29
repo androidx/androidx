@@ -30,6 +30,7 @@ import com.google.common.truth.Truth
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.TestSubscriber
+import java.util.Collections
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
@@ -43,6 +44,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.fail
 import org.junit.Test
 import java.util.Date
+import org.junit.Assert.assertThrows
 
 @MediumTest
 class BooksDaoTest : TestDatabaseTest() {
@@ -193,6 +195,125 @@ class BooksDaoTest : TestDatabaseTest() {
         assertThat(
             database.booksDao().getBooksWithPublisherListenableFuture().get(),
             `is`<List<BookWithPublisher>>(expectedList)
+        )
+    }
+
+    @Test
+    fun largeQueryInstant() {
+        val dates = List(50000) { i -> Date(i.toLong()) }
+        val authors = dates.mapIndexed { idx, date ->
+            Author("$idx", "author $idx", date)
+        }.sortedBy { it.authorId }
+        booksDao.addAuthors(*authors.toTypedArray())
+
+        assertThat(
+            database.booksDao().getAuthorsWithBirthDatesList(dates),
+            `is`<List<Author>>(authors)
+        )
+    }
+
+    @Test
+    fun largeQueryInstantMultipleArguments() {
+        val ids = List(50000) { i -> "$i" }
+        val dates = List(50000) { i -> Date(i.toLong()) }
+        val authors = ids.map { idx ->
+            Author("$idx", "author $idx", dates[idx.toInt()])
+        }.sortedBy { it.authorId }
+        booksDao.addAuthors(*authors.toTypedArray())
+
+        assertThat(
+            database.booksDao().getAuthorsWithIDsOrBirthDatesList(
+                ids.subList(0, 25000),
+                dates.subList(25000, dates.size)
+            ),
+            `is`<List<Author>>(authors)
+        )
+    }
+
+    @Test
+    fun largeQueryListenableFuture() {
+        val ids = Array(50000) { i -> "$i" }
+        val authors = ids.map { i -> Author(i, "author $i") }.sortedBy { it.authorId }
+
+        booksDao.addAuthors(*authors.toTypedArray())
+
+        assertThat(
+            database.booksDao().getAuthorsByIdsFuture(*ids).get(),
+            `is`<List<Author>>(authors)
+        )
+    }
+
+    @Test
+    fun largeQueryCursor() {
+        val ids = Array(50000) { i -> "$i" }
+        val authors = ids.map { i -> Author(i, "author $i") }.sortedBy { it.authorId }
+
+        booksDao.addAuthors(*authors.toTypedArray())
+
+        assertThrows(IllegalStateException::class.java) {
+            database.booksDao().getAuthorsByIdsCursor(*ids)
+        }
+    }
+
+    @Test
+    fun largeQueryDelete() {
+        val ids = Array(50000) { i -> "$i" }
+        val authors = ids.map { i -> Author(i, "author $i") }.sortedBy { it.authorId }
+
+        booksDao.addAuthors(*authors.toTypedArray())
+
+        assertThat(
+            database.booksDao().deleteAuthorsWithIds(*ids),
+            `is`(50000)
+        )
+
+        assertThat(
+            database.booksDao().getAuthorsByIdsFuture(*ids).get(),
+            `is`<List<Author>>(Collections.emptyList())
+        )
+    }
+
+    @Test
+    fun largeQueryDeleteMultipleArguments() {
+        val ids = List(50000) { i -> "$i" }
+        val dates = List(50000) { i -> Date(i.toLong()) }
+        val authors = ids.map { idx ->
+            Author("$idx", "author $idx", dates[idx.toInt()])
+        }.sortedBy { it.authorId }
+
+        booksDao.addAuthors(*authors.toTypedArray())
+
+        assertThat(
+            database.booksDao().deleteAuthorsWithIdsOrBirthDates(
+                ids.subList(0, 25000),
+                dates.subList(25000, dates.size)
+            ),
+            `is`(50000)
+        )
+
+        assertThat(
+            database.booksDao().getAuthorsByIdsFuture(*ids.toTypedArray()).get(),
+            `is`<List<Author>>(Collections.emptyList())
+        )
+    }
+
+    @Test
+    fun largeQueryUpdate() {
+        val newName = "new name"
+        val ids = Array(50000) { i -> "$i" }
+        val authors = ids.map { i -> Author(i, "author $i") }.sortedBy { it.authorId }
+        val updatedAuthors = authors.map { it.copy(name = newName) }
+
+        booksDao.addAuthors(*authors.toTypedArray())
+
+        assertThat(
+            database.booksDao().updateAuthorName(newName, *ids),
+            `is`(50000)
+        )
+
+        assertThat(
+            database.booksDao().getAuthorsByIdsFuture(*ids).get(),
+            `is`<List<Author>>(updatedAuthors)
         )
     }
 

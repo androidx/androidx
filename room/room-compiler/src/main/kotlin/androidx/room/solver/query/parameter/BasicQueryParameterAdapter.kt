@@ -41,4 +41,8 @@ class BasicQueryParameterAdapter(val bindAdapter: StatementValueBinder) :
                 "It is always one."
         )
     }
+
+    override fun convert(inputVarName: String, scope: CodeGenScope): String? {
+        return bindAdapter.convert(inputVarName, scope)
+    }
 }

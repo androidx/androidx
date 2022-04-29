@@ -81,7 +81,15 @@ public final class SimpleSQLiteQuery implements SupportSQLiteQuery {
         }
     }
 
-    private static void bind(SupportSQLiteProgram statement, int index, Object arg) {
+    /**
+     * Binds the given arguments into the given sqlite statement.
+     *
+     * @param statement The sqlite statement
+     * @param index     The 1-based index to the parameter to bind
+     * @param arg       The argument to bind
+     */
+    public static void bind(@NonNull SupportSQLiteProgram statement, int index,
+            @Nullable Object arg) {
         // extracted from android.database.sqlite.SQLiteConnection
         if (arg == null) {
             statement.bindNull(index);

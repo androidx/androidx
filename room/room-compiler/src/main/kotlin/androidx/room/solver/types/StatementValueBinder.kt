@@ -18,6 +18,7 @@ package androidx.room.solver.types
 
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.TypeName
 
 /**
  * Binds a value into a statement
@@ -31,4 +32,6 @@ interface StatementValueBinder {
         valueVarName: String,
         scope: CodeGenScope
     )
+    fun convert(inputVarName: String, scope: CodeGenScope): String?
+    fun convertedType(): TypeName?
 }

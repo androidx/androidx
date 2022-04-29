@@ -22,6 +22,7 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.T
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.TypeName
 
 class UuidColumnTypeAdapter(
     out: XType,
@@ -73,5 +74,25 @@ class UuidColumnTypeAdapter(
                 )
             endControlFlow()
         }
+    }
+
+    override fun convert(inputVarName: String, scope: CodeGenScope): String? {
+        val conversionMethodName = "convertUUIDToByte"
+        val outVarName = scope.getTmpVar()
+        scope.builder().apply {
+            addStatement(
+                "final $T $L = $T.$L($L)",
+                TypeName.get(ByteArray::class.java),
+                outVarName,
+                RoomTypeNames.UUID_UTIL,
+                conversionMethodName,
+                inputVarName
+            )
+        }
+        return outVarName
+    }
+
+    override fun convertedType(): TypeName? {
+        return TypeName.get(ByteArray::class.java)
     }
 }

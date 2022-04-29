@@ -36,4 +36,6 @@ abstract class QueryParameterAdapter(val isMultiple: Boolean) {
      * Should declare and set the given value with the count
      */
     abstract fun getArgCount(inputVarName: String, outputVarName: String, scope: CodeGenScope)
+
+    abstract fun convert(inputVarName: String, scope: CodeGenScope): String?
 }

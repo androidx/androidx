@@ -68,7 +68,6 @@ import io.reactivex.rxjava3.schedulers.TestScheduler;
 import io.reactivex.rxjava3.subscribers.TestSubscriber;
 
 
-
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class RxJava3Test extends TestDatabaseTest {
@@ -242,6 +241,51 @@ public class RxJava3Test extends TestDatabaseTest {
         // since this is a clean db, it is ok to rely on the order for the test.
         testObserver.assertValue(Arrays.asList(users));
         disposable.dispose();
+    }
+
+    @Test
+    public void largeQueryRx3() throws InterruptedException {
+        int[] ids = new int[50000];
+        for (int i = 0; i < ids.length; i++) {
+            ids[i] = i;
+        }
+        User[] users = TestUtil.createUsersArray(ids);
+        mUserDao.insertAll(users);
+        TestObserver<List<User>> testObserver = new TestObserver<>();
+        Disposable disposable = mUserDao.rx3_singleUsersByIds(ids).observeOn(mTestScheduler)
+                .subscribeWith(testObserver);
+        drain();
+        testObserver.assertComplete();
+        // since this is a clean db, it is ok to rely on the order for the test.
+        testObserver.assertValue(Arrays.asList(users));
+        disposable.dispose();
+    }
+
+    @Test
+    public void largeQueryObserveChangeAndDispose_Observable() throws InterruptedException {
+        int[] ids = new int[50000];
+        for (int i = 0; i < ids.length; i++) {
+            ids[i] = i;
+        }
+        User[] users = TestUtil.createUsersArray(ids);
+        mUserDao.insertAll(users);
+        drain();
+        TestObserver<List<User>> consumer = new TestObserver<>();
+        Disposable disposable = mUserDao.rx3_observableUsersByIds(ids).observeOn(mTestScheduler)
+                .subscribeWith(consumer);
+        drain();
+        assertThat(consumer.values().get(0), is(Arrays.asList(users)));
+        User newUser = TestUtil.createUser(0);
+        users[0] = newUser;
+        mUserDao.insertOrReplace(newUser);
+        drain();
+        List<User> next = consumer.values().get(1);
+        assertThat(next, is(Arrays.asList(users)));
+        disposable.dispose();
+        newUser = TestUtil.createUser(1);
+        mUserDao.insertOrReplace(newUser);
+        drain();
+        consumer.assertValueCount(2);
     }
 
     @Test

@@ -22,6 +22,7 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.parser.SQLTypeAffinity.TEXT
 import androidx.room.solver.CodeGenScope
+import com.squareup.javapoet.TypeName
 
 class StringColumnTypeAdapter private constructor(
     out: XType
@@ -58,6 +59,14 @@ class StringColumnTypeAdapter private constructor(
                 .addStatement("$L.bindString($L, $L)", stmtName, indexVarName, valueVarName)
             endControlFlow()
         }
+    }
+
+    override fun convert(inputVarName: String, scope: CodeGenScope): String? {
+        return null
+    }
+
+    override fun convertedType(): TypeName? {
+        return null
     }
 
     companion object {

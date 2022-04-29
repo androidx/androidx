@@ -16,7 +16,7 @@ public class GuavaRoom {
             final @NonNull RoomDatabase roomDatabase,
             final boolean inTransaction,
             final @NonNull Callable<T> callable,
-            final @NonNull RoomSQLiteQuery query,
+            final @NonNull Runnable releaseRunnable,
             final boolean releaseQuery,
             final @Nullable CancellationSignal cancellationSignal) {
         return null;

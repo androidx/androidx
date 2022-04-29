@@ -248,6 +248,7 @@ package androidx.room {
 
   public static final class RoomSQLiteQuery.Companion {
     method public androidx.room.RoomSQLiteQuery acquire(String query, int argumentCount);
+    method public void bind(androidx.room.RoomSQLiteQuery query, int index, Object? arg);
     method public androidx.room.RoomSQLiteQuery copyFrom(androidx.sqlite.db.SupportSQLiteQuery supportSQLiteQuery);
   }
 
@@ -329,7 +330,13 @@ package androidx.room.util {
     method public androidx.room.util.FtsTableInfo read(androidx.sqlite.db.SupportSQLiteDatabase database, String tableName);
   }
 
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class QueryUtil {
+    method public static kotlin.Pair<androidx.room.RoomSQLiteQuery,java.lang.Boolean> prepareQuery(androidx.room.RoomDatabase db, boolean inTransaction, String tempTable, java.util.List<? extends androidx.room.ParsedQuerySection> sections, boolean throwForLargeQueries);
+    method public static kotlin.Pair<androidx.sqlite.db.SupportSQLiteStatement,java.lang.Boolean> prepareStatement(androidx.room.RoomDatabase db, String tempTable, java.util.List<? extends androidx.room.ParsedQuerySection> sections, boolean throwForLargeQueries);
+  }
+
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class StringUtil {
+    method public static void appendParenthesizedPlaceholders(StringBuilder builder, int count);
     method public static void appendPlaceholders(StringBuilder builder, int count);
     method public static String? joinIntoString(java.util.List<java.lang.Integer>? input);
     method public static StringBuilder newStringBuilder();

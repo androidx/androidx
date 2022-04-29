@@ -22,6 +22,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.integration.kotlintestapp.NewThreadDispatcher
 import androidx.room.integration.kotlintestapp.TestDatabase
+import androidx.room.integration.kotlintestapp.vo.Author
 import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.withTransaction
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -653,6 +654,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
     @Suppress("DeferredResultUnused")
     fun withTransaction_multipleTransactions_verifyThreadUsage() {
         val busyThreadsCount = AtomicInteger()
+
         // Executor wrapper that counts threads that are busy executing commands.
         class WrappedService(val delegate: ExecutorService) : ExecutorService by delegate {
             override fun execute(command: Runnable) {
@@ -666,6 +668,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 }
             }
         }
+
         val wrappedExecutor = WrappedService(Executors.newCachedThreadPool())
         val localDatabase = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(), TestDatabase::class.java
@@ -802,6 +805,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                                         override fun beginTransaction() {
                                             throw RuntimeException("Error beginning transaction.")
                                         }
+
                                         override fun beginTransactionNonExclusive() {
                                             throw RuntimeException("Error beginning transaction.")
                                         }
@@ -970,5 +974,20 @@ class SuspendingQueryTest : TestDatabaseTest() {
             .isEqualTo(true)
         assertThat(booksDao.getBooksSuspend())
             .contains(addedBook)
+    }
+
+    @Test
+    fun largeQuerySuspend() {
+        runBlocking {
+            val ids = Array(50000) { i -> "$i" }
+            val authors = ids.map { i -> Author(i, "author $i") }.sortedBy { it.authorId }
+
+            booksDao.addAuthors(*authors.toTypedArray())
+
+            val authorsFromDb = booksDao.getAuthorsByIdsSuspend(*ids)
+
+            assertThat(authorsFromDb.size).isEqualTo((50000))
+            assertThat(authorsFromDb).isEqualTo(authors)
+        }
     }
 }

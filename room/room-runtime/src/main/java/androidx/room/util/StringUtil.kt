@@ -20,8 +20,6 @@ package androidx.room.util
 
 import android.util.Log
 import androidx.annotation.RestrictTo
-import java.lang.NumberFormatException
-import java.lang.StringBuilder
 
 @Suppress("unused")
 @JvmField
@@ -47,6 +45,22 @@ fun newStringBuilder(): StringBuilder {
 fun appendPlaceholders(builder: StringBuilder, count: Int) {
     for (i in 0 until count) {
         builder.append("?")
+        if (i < count - 1) {
+            builder.append(",")
+        }
+    }
+}
+
+/**
+ * Adds bind variable placeholders (?) to the given string. Each placeholder is separated
+ * by a comma and parenthesized.
+ *
+ * @param builder The StringBuilder for the query
+ * @param count Number of placeholders
+ */
+fun appendParenthesizedPlaceholders(builder: StringBuilder, count: Int) {
+    for (i in 0 until count) {
+        builder.append("(?)")
         if (i < count - 1) {
             builder.append(",")
         }
