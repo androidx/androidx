@@ -137,9 +137,9 @@ public abstract class Client<S extends IInterface> {
                     @Override
                     public void onSuccess(Integer remoteVersion) {
                         if (remoteVersion < minApiVersion) {
-                            // This empty operation is executed just to connect to the service.
-                            // If we didn't connect it could happen that we won't detect
-                            // change in the API version.
+                            // This empty operation is executed just to connect to the service. If
+                            // we didn't connect it could happen that we won't detect change in the
+                            // API version.
                             mConnectionManager.scheduleForExecution(
                                     new BaseQueueOperation(mConnectionConfiguration));
 
@@ -258,8 +258,8 @@ public abstract class Client<S extends IInterface> {
         return settableFuture;
     }
 
-    protected @NonNull Exception getApiVersionCheckFailureException(
-            int currentVersion, int minApiVersion) {
+    @NonNull
+    protected Exception getApiVersionCheckFailureException(int currentVersion, int minApiVersion) {
         return new ApiVersionException(currentVersion, minApiVersion);
     }
 

@@ -18,6 +18,8 @@ package androidx.camera.extensions.impl.advanced;
 
 import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraCharacteristics;
+import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.util.Range;
 import android.util.Size;
 
@@ -125,7 +127,7 @@ public interface AdvancedExtenderImpl {
      * Returns supported output sizes for Image Analysis (YUV_420_888 format).
      *
      * <p>OEM can optionally support a YUV surface for ImageAnalysis along with Preview/ImageCapture
-     * output surfaces. If imageAnalysis YUV surface is not supported, OEM should return null or a
+     * output surfaces. If imageAnalysis YUV surface is not supported, OEM should return null or
      * empty list.
      */
     List<Size> getSupportedYuvAnalysisResolutions(String cameraId);
@@ -135,4 +137,52 @@ public interface AdvancedExtenderImpl {
      * required for starting a extension and cleanup.
      */
     SessionProcessorImpl createSessionProcessor();
+
+    /**
+     * Returns a list of orthogonal capture request keys.
+     *
+     * <p>Any keys included in the list will be configurable by clients of the extension and will
+     * affect the extension functionality.</p>
+     *
+     * <p>Please note that the keys {@link CaptureRequest#JPEG_QUALITY} and
+     * {@link CaptureRequest#JPEG_ORIENTATION} are always supported regardless being added in the
+     * list or not. To support common camera operations like zoom, tap-to-focus, flash and
+     * exposure compensation, we recommend supporting the following keys if possible.
+     * <pre>
+     *  zoom:  {@link CaptureRequest#CONTROL_ZOOM_RATIO}
+     *         {@link CaptureRequest#SCALER_CROP_REGION}
+     *  tap-to-focus:
+     *         {@link CaptureRequest#CONTROL_AF_MODE}
+     *         {@link CaptureRequest#CONTROL_AF_TRIGGER}
+     *         {@link CaptureRequest#CONTROL_AF_REGIONS}
+     *         {@link CaptureRequest#CONTROL_AE_REGIONS}
+     *         {@link CaptureRequest#CONTROL_AWB_REGIONS}
+     *  flash:
+     *         {@link CaptureRequest#CONTROL_AE_MODE}
+     *         {@link CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER}
+     *         {@link CaptureRequest#FLASH_MODE}
+     *  exposure compensation:
+     *         {@link CaptureRequest#CONTROL_AE_EXPOSURE_COMPENSATION}
+     * </pre>
+     *
+     * @return List of supported orthogonal capture keys, or an empty list if no capture settings
+     * are not supported.
+     * @since 1.3
+     */
+    List<CaptureRequest.Key> getAvailableCaptureRequestKeys();
+
+    /**
+     * Returns a list of supported capture result keys.
+     *
+     * <p>Any keys included in this list must be available as part of the registered
+     * {@link SessionProcessorImpl.CaptureCallback#onCaptureCompleted} callback.</p>
+     *
+     * <p>At the very minimum, it is expected that the result key list is a superset of the
+     * capture request keys.</p>
+     *
+     * @return List of supported capture result keys, or
+     * an empty list if capture results are not supported.
+     * @since 1.3
+     */
+    List<CaptureResult.Key> getAvailableCaptureResultKeys();
 }

@@ -17,9 +17,6 @@
 package androidx.camera.extensions;
 
 
-import android.content.Context;
-import android.hardware.camera2.CameraCharacteristics;
-import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
 
@@ -45,9 +42,7 @@ import androidx.camera.extensions.internal.ExtensionsUseCaseConfigFactory;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * A class for querying extensions related information.
@@ -215,6 +210,7 @@ final class ExtensionsInfo {
                         .setExtensionMode(mode)
                         .setUseCaseConfigFactory(factory)
                         .setCompatibilityId(id)
+                        .setZslDisabled(true)
                         .setUseCaseCombinationRequiredRule(
                                 CameraConfig.REQUIRED_RULE_COEXISTING_PREVIEW_AND_IMAGE_CAPTURE);
 
@@ -231,11 +227,6 @@ final class ExtensionsInfo {
     @NonNull
     private static VendorExtender getVendorExtender(int mode) {
         boolean isAdvancedExtenderSupported = isAdvancedExtenderSupported();
-
-        // Disable Advanced Extender until it is well tested.
-        if (isAdvancedExtenderSupported) {
-            return new DisabledVendorExtender();
-        }
 
         VendorExtender vendorExtender;
         if (isAdvancedExtenderSupported) {
@@ -279,48 +270,5 @@ final class ExtensionsInfo {
                 throw new IllegalArgumentException("Invalid extension mode!");
         }
         return id;
-    }
-
-    static class DisabledVendorExtender implements VendorExtender {
-        @Override
-        public boolean isExtensionAvailable(@NonNull String cameraId,
-                @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
-            return false;
-        }
-
-        @Override
-        public void init(@NonNull CameraInfo cameraInfo) {
-
-        }
-
-        @Nullable
-        @Override
-        public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size size) {
-            return null;
-        }
-
-        @NonNull
-        @Override
-        public List<Pair<Integer, Size[]>> getSupportedPreviewOutputResolutions() {
-            return Collections.emptyList();
-        }
-
-        @NonNull
-        @Override
-        public List<Pair<Integer, Size[]>> getSupportedCaptureOutputResolutions() {
-            return Collections.emptyList();
-        }
-
-        @NonNull
-        @Override
-        public Size[] getSupportedYuvAnalysisResolutions() {
-            return new Size[0];
-        }
-
-        @Nullable
-        @Override
-        public SessionProcessor createSessionProcessor(@NonNull Context context) {
-            return null;
-        }
     }
 }

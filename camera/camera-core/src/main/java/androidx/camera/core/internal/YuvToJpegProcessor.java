@@ -208,9 +208,12 @@ public class YuvToJpegProcessor implements CaptureProcessor {
             }
         } finally {
             boolean shouldCloseImageWriter;
+            CallbackToFutureAdapter.Completer<Void> closeCompleter;
+
             synchronized (mLock) {
                 // Note: order of condition is important here due to short circuit of &&
                 shouldCloseImageWriter = processing && (mProcessingImages-- == 0) && mClosed;
+                closeCompleter = mCloseCompleter;
             }
 
             // Fallback in case something went wrong during processing.
@@ -225,11 +228,9 @@ public class YuvToJpegProcessor implements CaptureProcessor {
                 imageWriter.close();
                 Logger.d(TAG, "Closed after completion of last image processed.");
 
-                synchronized (mLock) {
-                    if (mCloseCompleter != null) {
-                        // Notify listeners of close
-                        mCloseCompleter.set(null);
-                    }
+                if (closeCompleter != null) {
+                    // Notify listeners of close
+                    closeCompleter.set(null);
                 }
             }
         }
@@ -241,23 +242,29 @@ public class YuvToJpegProcessor implements CaptureProcessor {
      * This should only be called once no more images will be produced for processing. Otherwise
      * the images may not be propagated to the output surface and the pipeline could stall.
      */
+    @Override
     public void close() {
-        synchronized (mLock) {
-            if (!mClosed) {
-                mClosed = true;
-                // Close the ImageWriter if no images are currently processing. Otherwise the
-                // ImageWriter will be closed once the last image is closed.
-                if (mProcessingImages == 0 && mImageWriter != null) {
-                    Logger.d(TAG, "No processing in progress. Closing immediately.");
-                    mImageWriter.close();
+        CallbackToFutureAdapter.Completer<Void> closeCompleter = null;
 
-                    if (mCloseCompleter != null) {
-                        mCloseCompleter.set(null);
-                    }
-                } else {
-                    Logger.d(TAG, "close() called while processing. Will close after completion.");
-                }
+        synchronized (mLock) {
+            if (mClosed) {
+                return;
             }
+
+            mClosed = true;
+            // Close the ImageWriter if no images are currently processing. Otherwise the
+            // ImageWriter will be closed once the last image is closed.
+            if (mProcessingImages == 0 && mImageWriter != null) {
+                Logger.d(TAG, "No processing in progress. Closing immediately.");
+                mImageWriter.close();
+                closeCompleter = mCloseCompleter;
+            } else {
+                Logger.d(TAG, "close() called while processing. Will close after completion.");
+            }
+        }
+
+        if (closeCompleter != null) {
+            closeCompleter.set(null);
         }
     }
 
@@ -268,6 +275,7 @@ public class YuvToJpegProcessor implements CaptureProcessor {
      * (after all processing). Cancelling this future has no effect.
      */
     @NonNull
+    @Override
     public ListenableFuture<Void> getCloseFuture() {
         ListenableFuture<Void> closeFuture;
         synchronized (mLock) {

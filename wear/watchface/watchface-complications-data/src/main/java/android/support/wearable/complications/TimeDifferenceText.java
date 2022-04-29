@@ -91,6 +91,9 @@ public final class TimeDifferenceText implements TimeDependentText {
     @NonNull
     @Override
     public String toString() {
+        if (ComplicationData.shouldRedact()) {
+            return "TimeDifferenceText{Redacted}";
+        }
         return "TimeDifferenceText{mReferencePeriodStart=" + mReferencePeriodStart
                 + ", mReferencePeriodEnd=" + mReferencePeriodEnd
                 + ", mStyle=" + mStyle  + ", mShowNowText=" + mShowNowText

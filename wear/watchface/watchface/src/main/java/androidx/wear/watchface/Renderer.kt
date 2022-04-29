@@ -103,6 +103,50 @@ private val HIGHLIGHT_LAYER_COMPOSITE_PAINT = Paint().apply {
 }
 
 /**
+ * Flips a bitmap.
+ *
+ * @param buffer The rgba [ByteBuffer] containing the bitmap to flip
+ * @param width The width of the bitmap in pixels
+ * @param height The height of the bitmap in pixels
+ */
+internal fun verticalFlip(
+    buffer: ByteBuffer,
+    width: Int,
+    height: Int
+) {
+    val stride = width * 4
+    val heightMinusOne = height - 1
+    val halfHeight = height / 2
+    val tmp = ByteArray(stride)
+    for (i in 0 until halfHeight) {
+        System.arraycopy(
+            buffer.array(),
+            i * stride,
+            tmp,
+            0,
+            stride
+        )
+
+        System.arraycopy(
+            buffer.array(),
+            (heightMinusOne - i) * stride,
+            buffer.array(),
+            i * stride,
+            stride
+        )
+
+        System.arraycopy(
+            tmp,
+            0,
+            buffer.array(),
+            (heightMinusOne - i) * stride,
+            stride
+        )
+    }
+    buffer.rewind()
+}
+
+/**
  * The base class for [CanvasRenderer], [CanvasRenderer2], [GlesRenderer],
  * [GlesRenderer2].  Where possible it is recommended to use
  * [CanvasRenderer2] or [GlesRenderer2] which allow memory to be
@@ -1092,12 +1136,12 @@ public sealed class Renderer @WorkerThread constructor(
                     if (sharedAssetsHolder.eglBackgroundThreadContext == EGL14.EGL_NO_CONTEXT) {
                         throw RuntimeException("eglCreateContext failed")
                     }
+                }
 
-                    TraceEvent("GlesRenderer.onGlContextCreated").use {
-                        runBackgroundThreadGlCommands {
-                            maybeCreateSharedAssets()
-                            this@GlesRenderer.onBackgroundThreadGlContextCreated()
-                        }
+                TraceEvent("GlesRenderer.onGlContextCreated").use {
+                    runBackgroundThreadGlCommands {
+                        maybeCreateSharedAssets()
+                        this@GlesRenderer.onBackgroundThreadGlContextCreated()
                     }
                 }
             }
@@ -1331,33 +1375,6 @@ public sealed class Renderer @WorkerThread constructor(
                     }
                 }
             }
-        }
-
-        private fun verticalFlip(
-            buffer: ByteBuffer,
-            width: Int,
-            height: Int
-        ) {
-            var i = 0
-            val tmp = ByteArray(width * 4)
-            while (i++ < height / 2) {
-                buffer[tmp]
-                System.arraycopy(
-                    buffer.array(),
-                    buffer.limit() - buffer.position(),
-                    buffer.array(),
-                    buffer.position() - width * 4,
-                    width * 4
-                )
-                System.arraycopy(
-                    tmp,
-                    0,
-                    buffer.array(),
-                    buffer.limit() - buffer.position(),
-                    width * 4
-                )
-            }
-            buffer.rewind()
         }
 
         /**

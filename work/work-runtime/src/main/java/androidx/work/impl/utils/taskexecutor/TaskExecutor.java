@@ -18,7 +18,6 @@ package androidx.work.impl.utils.taskexecutor;
 
 import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
-import androidx.work.impl.utils.SerialExecutor;
 
 import java.util.concurrent.Executor;
 
@@ -46,7 +45,9 @@ public interface TaskExecutor {
     /**
      * It wraps an executor passed in {@link Configuration#getTaskExecutor()}
      *
-     * @return The {@link SerialExecutor} for internal book-keeping
+     * Executor must guarantee a serial execution.
+     *
+     * @return The {@link Executor} for internal book-keeping
      */
     SerialExecutor getSerialTaskExecutor();
 }

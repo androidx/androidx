@@ -29,6 +29,23 @@ public interface CurvedDirection {
     @Immutable
     @kotlin.jvm.JvmInline
     public value class Angular internal constructor(internal val value: Int) {
+        /**
+         * Determine if the layout is going clockwise or counter-clockwise given the layout
+         * direction and this angular layout direction.
+         *
+         * @param layoutDirection The [LayoutDirection] to resolve this with.
+         */
+        internal fun resolveClockwise(layoutDirection: LayoutDirection): Boolean {
+            val isLtr = layoutDirection == LayoutDirection.Ltr
+            return when (this) {
+                Reversed -> !isLtr
+                Clockwise -> true
+                CounterClockwise -> false
+                // Normal
+                else -> isLtr
+            }
+        }
+
         companion object {
             /**
              * Go in Clockwise direction for Ltr layout and Counter Clockwise for Rtl.

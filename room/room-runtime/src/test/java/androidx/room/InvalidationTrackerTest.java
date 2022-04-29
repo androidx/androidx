@@ -126,22 +126,22 @@ public class InvalidationTrackerTest {
 
     @Test
     public void tableIds() {
-        assertThat(mTracker.mTableIdLookup.size(), is(5));
-        assertThat(mTracker.mTableIdLookup.get("a"), is(0));
-        assertThat(mTracker.mTableIdLookup.get("b"), is(1));
-        assertThat(mTracker.mTableIdLookup.get("i"), is(2));
-        assertThat(mTracker.mTableIdLookup.get("c"), is(3)); // fts
-        assertThat(mTracker.mTableIdLookup.get("d"), is(0)); // external content fts
+        assertThat(mTracker.tableIdLookup.size(), is(5));
+        assertThat(mTracker.tableIdLookup.get("a"), is(0));
+        assertThat(mTracker.tableIdLookup.get("b"), is(1));
+        assertThat(mTracker.tableIdLookup.get("i"), is(2));
+        assertThat(mTracker.tableIdLookup.get("c"), is(3)); // fts
+        assertThat(mTracker.tableIdLookup.get("d"), is(0)); // external content fts
     }
 
     @Test
     public void tableNames() {
-        assertThat(mTracker.mTableNames.length, is(5));
-        assertThat(mTracker.mTableNames[0], is("a"));
-        assertThat(mTracker.mTableNames[1], is("b"));
-        assertThat(mTracker.mTableNames[2], is("i"));
-        assertThat(mTracker.mTableNames[3], is("c_content")); // fts
-        assertThat(mTracker.mTableNames[4], is("a")); // external content fts
+        assertThat(mTracker.tablesNames.length, is(5));
+        assertThat(mTracker.tablesNames[0], is("a"));
+        assertThat(mTracker.tablesNames[1], is("b"));
+        assertThat(mTracker.tablesNames[2], is("i"));
+        assertThat(mTracker.tablesNames[3], is("c_content")); // fts
+        assertThat(mTracker.tablesNames[4], is("a")); // external content fts
     }
 
     @Test
@@ -170,11 +170,11 @@ public class InvalidationTrackerTest {
     public void addRemoveObserver() throws Exception {
         InvalidationTracker.Observer observer = new LatchObserver(1, "a");
         mTracker.addObserver(observer);
-        assertThat(mTracker.mObserverMap.size(), is(1));
+        assertThat(mTracker.observerMap.size(), is(1));
         mTracker.removeObserver(new LatchObserver(1, "a"));
-        assertThat(mTracker.mObserverMap.size(), is(1));
+        assertThat(mTracker.observerMap.size(), is(1));
         mTracker.removeObserver(observer);
-        assertThat(mTracker.mObserverMap.size(), is(0));
+        assertThat(mTracker.observerMap.size(), is(0));
     }
 
     private void drainTasks() throws InterruptedException {
@@ -198,12 +198,12 @@ public class InvalidationTrackerTest {
                 .thenReturn(mock(Cursor.class));
         mTracker.refreshVersionsAsync();
         mTracker.refreshVersionsAsync();
-        verify(mTaskExecutorRule.getTaskExecutor()).executeOnDiskIO(mTracker.mRefreshRunnable);
+        verify(mTaskExecutorRule.getTaskExecutor()).executeOnDiskIO(mTracker.refreshRunnable);
         drainTasks();
 
         reset(mTaskExecutorRule.getTaskExecutor());
         mTracker.refreshVersionsAsync();
-        verify(mTaskExecutorRule.getTaskExecutor()).executeOnDiskIO(mTracker.mRefreshRunnable);
+        verify(mTaskExecutorRule.getTaskExecutor()).executeOnDiskIO(mTracker.refreshRunnable);
     }
 
     @Test
@@ -268,7 +268,7 @@ public class InvalidationTrackerTest {
         doReturn(false).when(mRoomDatabase).isOpen();
         doThrow(new IllegalStateException("foo")).when(mOpenHelper).getWritableDatabase();
         mTracker.addObserver(new LatchObserver(1, "a", "b"));
-        mTracker.mRefreshRunnable.run();
+        mTracker.refreshRunnable.run();
     }
 
     @Test
@@ -449,12 +449,12 @@ public class InvalidationTrackerTest {
         setInvalidatedTables(3, 1);
         mTracker.addObserver(new LatchObserver(1, "a", "b"));
         mTracker.syncTriggers();
-        mTracker.mRefreshRunnable.run();
+        mTracker.refreshRunnable.run();
         doThrow(new SQLiteException("foo")).when(mRoomDatabase).query(
                 Mockito.eq(InvalidationTracker.SELECT_UPDATED_TABLES_SQL),
                 any(Object[].class));
-        mTracker.mPendingRefresh.set(true);
-        mTracker.mRefreshRunnable.run();
+        mTracker.pendingRefresh.set(true);
+        mTracker.refreshRunnable.run();
     }
 
     /**
@@ -527,20 +527,32 @@ public class InvalidationTrackerTest {
     }
 
     /**
-     * Tries to trigger garbage collection until an element is available in the given queue.
+     * Tries to trigger garbage collection by allocating in the heap until an element is
+     * available in the given reference queue.
      */
     private static void forceGc(ReferenceQueue<Object> queue) throws InterruptedException {
         AtomicBoolean continueTriggeringGc = new AtomicBoolean(true);
-        new Thread(() -> {
-            @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-            ArrayList<byte[]> leak = new ArrayList<>();
-            do {
-                int arraySize = (int) (Math.random() * 1000);
-                leak.add(new byte[arraySize]);
-            } while (continueTriggeringGc.get());
-        }).start();
+        Thread t = new Thread(() -> {
+            int byteCount = 0;
+            try {
+                @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
+                ArrayList<byte[]> leak = new ArrayList<>();
+                do {
+                    int arraySize = (int) (Math.random() * 1000);
+                    byteCount += arraySize;
+                    leak.add(new byte[arraySize]);
+                    System.gc(); // Not guaranteed to trigger GC, hence the leak and the timeout
+                    Thread.sleep(10);
+                } while (continueTriggeringGc.get());
+            } catch (InterruptedException e) {
+                // Ignored
+            }
+            System.out.println("Allocated " + byteCount + " bytes trying to force a GC.");
+        });
+        t.start();
         Reference<?> result = queue.remove(TimeUnit.SECONDS.toMillis(10));
         continueTriggeringGc.set(false);
+        t.interrupt();
         Truth.assertWithMessage("Couldn't trigger garbage collection, test flake")
                 .that(result)
                 .isNotNull();

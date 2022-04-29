@@ -18,20 +18,30 @@ package androidx.wear.watchface.complications.datasource;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.util.Log;
+
 import androidx.wear.watchface.complications.data.ComplicationData;
 import androidx.wear.watchface.complications.data.ComplicationText;
 import androidx.wear.watchface.complications.data.ComplicationType;
 import androidx.wear.watchface.complications.data.DataKt;
+import androidx.wear.watchface.complications.data.LongTextComplicationData;
 import androidx.wear.watchface.complications.data.NoDataComplicationData;
 import androidx.wear.watchface.complications.data.PlainComplicationText;
 import androidx.wear.watchface.complications.data.ShortTextComplicationData;
 
 import com.google.common.collect.ImmutableList;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.shadows.ShadowLog;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.time.Instant;
 
 /** Tests for {@link ComplicationDataTimeline}. */
@@ -96,6 +106,11 @@ public class ComplicationDataTimelineTest {
                             )
                     ));
 
+    @Before
+    public void setup() {
+        ShadowLog.setLoggable("ComplicationData", Log.DEBUG);
+    }
+
     @Test
     public void timeEntryEquality() {
         assertThat(TIMELINE_A).isEqualTo(TIMELINE_A2);
@@ -157,5 +172,64 @@ public class ComplicationDataTimelineTest {
 
         assertThat(complicationData.asWireComplicationData().getTimelineEntries().get(0).getType())
                 .isEqualTo(ComplicationType.NO_DATA.toWireComplicationType());
+    }
+
+    @Test
+    public void cachedLongTextPlaceholder() throws IOException, ClassNotFoundException {
+        ComplicationDataTimeline timeline =
+                new ComplicationDataTimeline(
+                        new LongTextComplicationData.Builder(new PlainComplicationText.Builder(
+                                "Hello").build(), ComplicationText.EMPTY).build(),
+                        ImmutableList.of(
+                                new TimelineEntry(
+                                        new TimeInterval(Instant.ofEpochMilli(100000000),
+                                                Instant.ofEpochMilli(200000000)),
+                                        new NoDataComplicationData(
+                                                new LongTextComplicationData.Builder(
+                                                        ComplicationText.PLACEHOLDER,
+                                                        ComplicationText.EMPTY).build()
+                                        )
+                                )
+                        ));
+
+        @SuppressWarnings("KotlinInternal")
+        ComplicationData complicationData = DataKt.toApiComplicationData(
+                timeline.asWireComplicationData$watchface_complications_data_source_debug()
+        );
+
+        // Simulate caching by a round trip conversion to byteArray.
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(stream);
+        objectOutputStream.writeObject(complicationData.asWireComplicationData());
+        objectOutputStream.close();
+        byte[] byteArray = stream.toByteArray();
+
+        ObjectInputStream objectInputStream =
+                new ObjectInputStream(new ByteArrayInputStream(byteArray));
+        android.support.wearable.complications.ComplicationData wireData =
+                (android.support.wearable.complications.ComplicationData)
+                        objectInputStream.readObject();
+        objectInputStream.close();
+
+        // Check the deserialized complication matches the input.
+        ComplicationData deserializedComplicationData = DataKt.toApiComplicationData(wireData);
+        assertThat(deserializedComplicationData.getType()).isEqualTo(ComplicationType.LONG_TEXT);
+
+        LongTextComplicationData longText = (LongTextComplicationData) deserializedComplicationData;
+        assertThat(longText.getText().isPlaceholder()).isFalse();
+
+        ComplicationData timeLineEntry =
+                DataKt.toApiComplicationData(
+                        longText.asWireComplicationData().getTimelineEntries().stream().findFirst()
+                                .get());
+
+        assertThat(timeLineEntry.getType()).isEqualTo(ComplicationType.NO_DATA);
+        NoDataComplicationData noDataComplicationData = (NoDataComplicationData) timeLineEntry;
+
+        ComplicationData placeholder = noDataComplicationData.getPlaceholder();
+        assertThat(placeholder).isNotNull();
+
+        LongTextComplicationData longTextPlaceholder = (LongTextComplicationData) placeholder;
+        assertThat(longTextPlaceholder.getText().isPlaceholder()).isTrue();
     }
 }

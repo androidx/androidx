@@ -1,12 +1,17 @@
 #!/bin/bash
 set -e
 
+function runGradle() {
+  kmpArgs="-Pandroidx.compose.multiplatformEnabled=true -Pandroidx.kmp.native.enabled=true"
+  ./gradlew $kmpArgs "$@"
+}
+
 # This script regenerates signature-related information (dependency-verification-metadata and keyring)
 function regenerateTrustedKeys() {
   echo "regenerating list of trusted keys"
   # regenerate metadata
   # Need to run a clean build, https://github.com/gradle/gradle/issues/19228
-  ./gradlew --write-verification-metadata pgp,sha256 --dry-run --clean bOS
+  runGradle --write-verification-metadata pgp,sha256 --dry-run --clean bOS
   # extract and keep only the <trusted-keys> section
   WORK_DIR=gradle/update-keys-temp
   rm -rf "$WORK_DIR"
@@ -40,7 +45,7 @@ regenerateTrustedKeys
 function regenerateKeyring() {
   # a separate step from regenerating the verification metadata, https://github.com/gradle/gradle/issues/20138
   echo "regenerating keyring"
-  ./gradlew --write-verification-metadata sha256 --export-keys --dry-run bOS
+  runGradle --write-verification-metadata sha256 --export-keys --dry-run bOS
 
   echo "sorting keyring and removing duplicates"
   # sort and unique the keyring

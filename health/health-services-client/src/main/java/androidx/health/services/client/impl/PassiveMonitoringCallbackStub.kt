@@ -18,6 +18,7 @@ package androidx.health.services.client.impl
 
 import android.util.Log
 import androidx.annotation.GuardedBy
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.PassiveMonitoringCallback
 import androidx.health.services.client.impl.event.PassiveCallbackEvent
 import androidx.health.services.client.impl.ipc.internal.ListenerKey
@@ -30,6 +31,7 @@ import androidx.health.services.client.proto.EventsProto.PassiveCallbackEvent.Ev
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PassiveMonitoringCallbackStub
 private constructor(
     private val packageName: String,

@@ -26,6 +26,7 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_PREVIEW_CAPTURE_PROCESSOR;
+import static androidx.camera.core.impl.PreviewConfig.OPTION_RGBA8888_SURFACE_REQUIRED;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SESSION_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
@@ -204,8 +205,9 @@ public final class Preview extends UseCase {
             mSessionDeferrableSurface.close();
         }
 
+        boolean isRGBA8888SurfaceRequired = config.isRgba8888SurfaceRequired(false);
         final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution, getCamera(),
-                captureProcessor != null);
+                isRGBA8888SurfaceRequired);
         mCurrentSurfaceRequest = surfaceRequest;
 
         if (sendSurfaceRequestIfReady()) {
@@ -1028,6 +1030,18 @@ public final class Preview extends UseCase {
         public Builder setUseCaseEventCallback(
                 @NonNull UseCase.EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
+            return this;
+        }
+
+        /**
+         * Sets if the surface requires RGBA8888 format.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setIsRgba8888SurfaceRequired(boolean isRgba8888SurfaceRequired) {
+            getMutableConfig().insertOption(
+                    OPTION_RGBA8888_SURFACE_REQUIRED, isRgba8888SurfaceRequired);
             return this;
         }
 

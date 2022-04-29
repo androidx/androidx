@@ -43,7 +43,6 @@ kotlin {
         macosX64()
         macosArm64()
         linuxX64()
-        mingwX64()
     }
 
     sourceSets {
@@ -56,18 +55,24 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinTestCommon)
                 implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesCore)
             }
         }
 
         if (enableNative) {
-            nativeMain
+            nativeMain {
+                dependsOn commonMain
+            }
 
-            configure([linuxX64Main, macosX64Main, macosArm64Main, mingwX64Main]) {
+            configure([linuxX64Main, macosX64Main, macosArm64Main]) {
                 dependsOn nativeMain
             }
 
-            nativeTest
-            configure([linuxX64Test, macosX64Test, macosArm64Test, mingwX64Test]) {
+            nativeTest {
+                dependsOn commonTest
+            }
+
+            configure([linuxX64Test, macosX64Test, macosArm64Test]) {
                 dependsOn nativeTest
             }
         }
@@ -85,6 +90,11 @@ kotlin {
                 implementation(project(":internal-testutils-truth"))
             }
         }
+
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+            languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
+        }
     }
 }
 
@@ -95,4 +105,10 @@ androidx {
     inceptionYear = "2018"
     description = "Standalone efficient collections."
     publishPlatforms = ["jvm"]
+}
+
+kotlin.targets.withType(KotlinNativeTarget.class) {
+    binaries.all {
+        binaryOptions["memoryModel"] = "experimental"
+    }
 }

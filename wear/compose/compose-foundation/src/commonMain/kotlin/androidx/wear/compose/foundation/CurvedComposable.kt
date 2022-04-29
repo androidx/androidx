@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import kotlin.math.PI
@@ -44,7 +43,7 @@ public fun CurvedScope.curvedComposable(
     radialAlignment: CurvedAlignment.Radial = CurvedAlignment.Radial.Center,
     content: @Composable BoxScope.() -> Unit
 ) = add(CurvedComposableChild(
-    curvedLayoutDirection.clockwise(),
+    curvedLayoutDirection.absoluteClockwise(),
     radialAlignment,
     content
 ), modifier)
@@ -62,7 +61,7 @@ internal class CurvedComposableChild(
         Box(content = content)
     }
 
-    override fun MeasureScope.initializeMeasure(
+    override fun CurvedMeasureScope.initializeMeasure(
         measurables: List<Measurable>,
         index: Int
     ): Int {

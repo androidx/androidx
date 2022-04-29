@@ -23,10 +23,11 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.video.Quality;
 
 /**
- * Bug Id: 202792648
- * Description: The captured video is stretched while selecting the quality is greater or
- * equality to FHD resolution.
- * Device(s): Samsung J4 (sm-j400g)
+ * <p>QuirkSummary
+ *     Bug Id: 202792648
+ *     Description: The captured video is stretched while selecting the quality is greater or
+ *                  equality to FHD resolution
+ *     Device(s): Samsung J4 (sm-j400g)
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExcludeStretchedVideoQualityQuirk implements VideoQualityQuirk {

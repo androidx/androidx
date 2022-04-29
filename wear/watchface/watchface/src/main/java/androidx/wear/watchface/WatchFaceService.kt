@@ -54,6 +54,7 @@ import androidx.annotation.WorkerThread
 import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.complications.data.toWireTypes
@@ -84,7 +85,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Runnable
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.ByteArrayInputStream
@@ -96,7 +96,6 @@ import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.io.PrintWriter
 import java.time.Instant
-import java.util.concurrent.CountDownLatch
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
 
@@ -1647,6 +1646,7 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         /** This will be called from a binder thread. */
+        @OptIn(ComplicationExperimental::class)
         @WorkerThread
         internal fun getComplicationSlotMetadataWireFormats() =
             createComplicationSlotsManager(
@@ -1673,7 +1673,8 @@ public abstract class WatchFaceService : WallpaperService() {
                         ?.toWireComplicationType() ?: systemDataSourceFallbackDefaultType,
                     it.value.initiallyEnabled,
                     it.value.fixedComplicationDataSource,
-                    it.value.configExtras
+                    it.value.configExtras,
+                    it.value.boundingArc?.toWireFormat()
                 )
             }.toTypedArray()
 
@@ -2399,50 +2400,6 @@ public abstract class WatchFaceService : WallpaperService() {
 }
 
 /**
- * Runs the supplied task on the handler thread. If we're not on the handler thread a task is posted
- * and we block until it's been processed.
- *
- * AIDL calls are dispatched from a thread pool, but for simplicity WatchFaceImpl code is largely
- * single threaded so we need to post tasks to the UI thread and wait for them to execute.
- *
- * @param traceEventName The name of the trace event to emit.
- * @param task The task to post on the handler.
- * @return [R] the return value of [task].
- */
-internal fun <R> Handler.runBlockingOnHandlerWithTracing(
-    traceEventName: String,
-    task: () -> R
-): R = TraceEvent(traceEventName).use {
-    if (looper == Looper.myLooper()) {
-        task.invoke()
-    } else {
-        val latch = CountDownLatch(1)
-        var returnVal: R? = null
-        var exception: Exception? = null
-        if (post {
-            try {
-                returnVal = TraceEvent("$traceEventName invokeTask").use {
-                    task.invoke()
-                }
-            } catch (e: Exception) {
-                // Will rethrow on the calling thread.
-                exception = e
-            }
-            latch.countDown()
-        }
-        ) {
-            latch.await()
-            if (exception != null) {
-                throw exception as Exception
-            }
-        }
-        // R might be nullable so we can't assert nullability here.
-        @Suppress("UNCHECKED_CAST")
-        returnVal as R
-    }
-}
-
-/**
  * Runs the supplied task on the handler thread. If we're not on the handler thread a task is
  * posted.
  *
@@ -2472,19 +2429,16 @@ internal fun <R> CoroutineScope.runBlockingWithTracing(
     traceEventName: String,
     task: suspend () -> R
 ): R = TraceEvent(traceEventName).use {
-    val latch = CountDownLatch(1)
-    var r: R? = null
-    launch {
-        try {
-            r = task()
-        } catch (e: Exception) {
-            Log.e("CoroutineScope", "Exception in traceEventName", e)
-            throw e
+    try {
+        return runBlocking {
+            withContext(coroutineContext) {
+                task()
+            }
         }
-        latch.countDown()
+    } catch (e: Exception) {
+        Log.e("CoroutineScope", "Exception in traceEventName", e)
+        throw e
     }
-    latch.await()
-    return r!!
 }
 
 /**

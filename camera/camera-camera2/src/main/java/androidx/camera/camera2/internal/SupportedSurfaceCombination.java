@@ -38,7 +38,7 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
 import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
-import androidx.camera.camera2.internal.compat.workaround.ResolutionSelector;
+import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
@@ -101,7 +101,7 @@ final class SupportedSurfaceCombination {
     private Map<Integer, Size[]> mOutputSizesCache = new HashMap<>();
     @NonNull
     private final DisplayInfoManager mDisplayInfoManager;
-    private final ResolutionSelector mResolutionSelector = new ResolutionSelector();
+    private final ResolutionCorrector mResolutionCorrector = new ResolutionCorrector();
 
     SupportedSurfaceCombination(@NonNull Context context, @NonNull String cameraId,
             @NonNull CameraManagerCompat cameraManagerCompat,
@@ -478,7 +478,7 @@ final class SupportedSurfaceCombination {
             }
         }
 
-        supportedResolutions = mResolutionSelector.insertOrPrioritize(
+        supportedResolutions = mResolutionCorrector.insertOrPrioritize(
                 getConfigType(config.getInputFormat()),
                 supportedResolutions);
 

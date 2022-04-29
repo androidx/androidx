@@ -32,13 +32,14 @@ public class TimerTest {
                 .setName("my timer")
                 .setDurationMillis(1000)
                 .setOriginalDurationMillis(800)
-                .setRemainingTimeMillisSinceUpdate(500)
+                .setRemainingTimeMillis(500)
                 .setRingtone("clock://ringtone/1")
                 .setStatus(Timer.STATUS_STARTED)
                 .setShouldVibrate(true)
-                .setStartTimeMillis(
-                        /*startTimeMillis=*/750,
-                        /*startTimeMillisInElapsedRealtime=*/700,
+                .setStartTimeMillis(100)
+                .setBaseTimeMillis(
+                        /*baseTimeMillis=*/750,
+                        /*baseTimeMillisInElapsedRealtime=*/700,
                         /*bootCount=*/1)
                 .build();
 
@@ -50,12 +51,13 @@ public class TimerTest {
         assertThat(timer.getName()).isEqualTo("my timer");
         assertThat(timer.getDurationMillis()).isEqualTo(1000);
         assertThat(timer.getOriginalDurationMillis()).isEqualTo(800);
-        assertThat(timer.getRemainingTimeMillisSinceUpdate()).isEqualTo(500);
+        assertThat(timer.getRemainingTimeMillis()).isEqualTo(500);
         assertThat(timer.getRingtone()).isEqualTo("clock://ringtone/1");
         assertThat(timer.getStatus()).isEqualTo(Timer.STATUS_STARTED);
         assertThat(timer.shouldVibrate()).isEqualTo(true);
-        assertThat(timer.getStartTimeMillis()).isEqualTo(750);
-        assertThat(timer.getStartTimeMillisInElapsedRealtime()).isEqualTo(700);
+        assertThat(timer.getStartTimeMillis()).isEqualTo(100);
+        assertThat(timer.getBaseTimeMillis()).isEqualTo(750);
+        assertThat(timer.getBaseTimeMillisInElapsedRealtime()).isEqualTo(700);
         assertThat(timer.getBootCount()).isEqualTo(1);
     }
 
@@ -68,13 +70,14 @@ public class TimerTest {
                 .setName("my timer")
                 .setDurationMillis(1000)
                 .setOriginalDurationMillis(800)
-                .setRemainingTimeMillisSinceUpdate(500)
+                .setRemainingTimeMillis(500)
                 .setRingtone("clock://ringtone/1")
                 .setStatus(Timer.STATUS_STARTED)
                 .setShouldVibrate(true)
-                .setStartTimeMillis(
-                        /*startTimeMillis=*/750,
-                        /*startTimeMillisInElapsedRealtime=*/700,
+                .setStartTimeMillis(100)
+                .setBaseTimeMillis(
+                        /*baseTimeMillis=*/750,
+                        /*baseTimeMillisInElapsedRealtime=*/700,
                         /*bootCount=*/1)
                 .build();
         Timer timer2 = new Timer.Builder(timer1).build();
@@ -89,14 +92,14 @@ public class TimerTest {
         assertThat(timer1.getDurationMillis()).isEqualTo(timer2.getDurationMillis());
         assertThat(timer1.getOriginalDurationMillis())
                 .isEqualTo(timer2.getOriginalDurationMillis());
-        assertThat(timer1.getRemainingTimeMillisSinceUpdate())
-                .isEqualTo(timer2.getRemainingTimeMillisSinceUpdate());
+        assertThat(timer1.getRemainingTimeMillis()).isEqualTo(timer2.getRemainingTimeMillis());
         assertThat(timer1.getRingtone()).isEqualTo(timer2.getRingtone());
         assertThat(timer1.getStatus()).isEqualTo(timer2.getStatus());
         assertThat(timer1.shouldVibrate()).isEqualTo(timer2.shouldVibrate());
         assertThat(timer1.getStartTimeMillis()).isEqualTo(timer2.getStartTimeMillis());
-        assertThat(timer1.getStartTimeMillisInElapsedRealtime())
-                .isEqualTo(timer2.getStartTimeMillisInElapsedRealtime());
+        assertThat(timer1.getBaseTimeMillis()).isEqualTo(timer2.getBaseTimeMillis());
+        assertThat(timer1.getBaseTimeMillisInElapsedRealtime())
+                .isEqualTo(timer2.getBaseTimeMillisInElapsedRealtime());
         assertThat(timer1.getBootCount()).isEqualTo(timer2.getBootCount());
     }
 
@@ -109,13 +112,14 @@ public class TimerTest {
                 .setName("my timer")
                 .setDurationMillis(1000)
                 .setOriginalDurationMillis(800)
-                .setRemainingTimeMillisSinceUpdate(500)
+                .setRemainingTimeMillis(500)
                 .setRingtone("clock://ringtone/1")
                 .setStatus(Timer.STATUS_STARTED)
                 .setShouldVibrate(true)
-                .setStartTimeMillis(
-                        /*startTimeMillis=*/750,
-                        /*startTimeMillisInElapsedRealtime=*/700,
+                .setStartTimeMillis(100)
+                .setBaseTimeMillis(
+                        /*baseTimeMillis=*/750,
+                        /*baseTimeMillisInElapsedRealtime=*/700,
                         /*bootCount=*/1)
                 .build();
 
@@ -130,13 +134,14 @@ public class TimerTest {
         assertThat(genericDocument.getPropertyLong("durationMillis")).isEqualTo(1000);
         assertThat(genericDocument.getPropertyLong("originalDurationMillis"))
                 .isEqualTo(800);
-        assertThat(genericDocument.getPropertyLong("remainingTimeMillisSinceUpdate"))
+        assertThat(genericDocument.getPropertyLong("remainingTimeMillis"))
                 .isEqualTo(500);
         assertThat(genericDocument.getPropertyString("ringtone")).isEqualTo("clock://ringtone/1");
         assertThat(genericDocument.getPropertyLong("status")).isEqualTo(1);
         assertThat(genericDocument.getPropertyBoolean("shouldVibrate")).isTrue();
-        assertThat(genericDocument.getPropertyLong("startTimeMillis")).isEqualTo(750);
-        assertThat(genericDocument.getPropertyLong("startTimeMillisInElapsedRealtime"))
+        assertThat(genericDocument.getPropertyLong("startTimeMillis")).isEqualTo(100);
+        assertThat(genericDocument.getPropertyLong("baseTimeMillis")).isEqualTo(750);
+        assertThat(genericDocument.getPropertyLong("baseTimeMillisInElapsedRealtime"))
                 .isEqualTo(700);
         assertThat(genericDocument.getPropertyLong("bootCount")).isEqualTo(1);
     }

@@ -18,7 +18,7 @@ package androidx.car.app.navigation.model;
 
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_MAP;
-import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW;
 
 import static java.util.Objects.requireNonNull;
@@ -398,23 +398,30 @@ public final class RoutePreviewNavigationTemplate implements Template {
         }
 
         /**
-         * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
-         * ActionStrip}.
+         * Sets the {@link ActionStrip} for this template.
          *
          * <p>Unless set with this method, the template will not have an action strip.
          *
+         * <p>The {@link Action} buttons in Map Based Template are automatically adjusted based
+         * on the screen size. On narrow width screen, icon {@link Action}s show by
+         * default. If no icon specify, showing title {@link Action}s instead. On wider width
+         * screen, title {@link Action}s show by default. If no title specify, showing icon
+         * {@link Action}s instead.
+         *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
-         * {@link Action}s, one of them can contain a title as set via
-         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
+         * This template allows up to 4 {@link Action}s in its {@link ActionStrip}. Of the 4
+         * allowed {@link Action}s, it can either be a title {@link Action} as set via
+         * {@link Action.Builder#setTitle}, or a icon {@link Action} as set via
+         * {@link Action.Builder#setIcon}.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
+            ACTIONS_CONSTRAINTS_NAVIGATION
+                    .validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
             return this;
         }
@@ -473,12 +480,12 @@ public final class RoutePreviewNavigationTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * Either a header {@link Action} or title must be set on the template.
+         * <p>If neither header {@link Action} nor title have been set on the template, the
+         * header is hidden.
          *
          * @throws IllegalStateException if the template is in a loading state but the list is
-         *                               set or vice versa, if the template is not loading and
-         *                               the navigation action is not set, or if the template
-         *                               does not have either a title or header {@link Action} set
+         *                               set or vice versa, or if the template is not loading and
+         *                               the navigation action is not set.
          */
         @NonNull
         public RoutePreviewNavigationTemplate build() {
@@ -494,10 +501,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
                             "The navigation action cannot be null when the list is not in a "
                                     + "loading state");
                 }
-            }
-
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
             }
 
             return new RoutePreviewNavigationTemplate(this);

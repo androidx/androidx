@@ -17,97 +17,11 @@
 package androidx.wear.compose.foundation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-
-/**
- * Apply additional space along each edge of the content in [Dp].
- * See the [ArcPaddingValues] factories for convenient ways to
- * build [ArcPaddingValues].
- */
-@Stable
-public interface ArcPaddingValues {
-    /**
-     * Padding in the outward direction from the center of the [CurvedLayout]
-     */
-    fun calculateOuterPadding(): Dp
-
-    /**
-     * Padding in the inwards direction towards the center of the [CurvedLayout]
-     */
-    fun calculateInnerPadding(): Dp
-
-    /**
-     * Padding added at the start of the component.
-     */
-    fun calculateStartPadding(): Dp
-
-    /**
-     * Padding added at the end of the component.
-     */
-    fun calculateEndPadding(): Dp
-}
-
-/**
- * Apply additional space along each edge of the content in [Dp]. Note that the start and end
- * edges will be determined by the direction (clockwise or counterclockwise)
- *
- * @param outer Padding in the outward direction from the center of the
- * [CurvedLayout]
- * @param inner Padding in the inwards direction towards the center of the [CurvedLayout]
- * @param start Padding added at the start of the component.
- * @param end Padding added at the end of the component.
- */
-public fun ArcPaddingValues(
-    outer: Dp = 0.dp,
-    inner: Dp = 0.dp,
-    start: Dp = 0.dp,
-    end: Dp = 0.dp
-): ArcPaddingValues =
-    ArcPaddingValuesImpl(outer, inner, start, end)
-
-/**
- * Apply [all] dp of additional space along each edge of the content.
- */
-public fun ArcPaddingValues(all: Dp): ArcPaddingValues = ArcPaddingValuesImpl(all, all, all, all)
-
-/**
- * Apply [radial] dp of additional space on the edges towards and away from the center, and
- * [angular] dp before and after the component.
- */
-public fun ArcPaddingValues(radial: Dp = 0.dp, angular: Dp = 0.dp): ArcPaddingValues =
-    ArcPaddingValuesImpl(radial, radial, angular, angular)
-
-@Stable
-internal class ArcPaddingValuesImpl(val outer: Dp, val inner: Dp, val start: Dp, val end: Dp) :
-    ArcPaddingValues {
-    override fun equals(other: Any?): Boolean {
-        return other is ArcPaddingValuesImpl &&
-            outer == other.outer &&
-            inner == other.inner &&
-            start == other.start &&
-            end == other.end
-    }
-
-    override fun hashCode() = ((outer.hashCode() * 31 + inner.hashCode()) * 31 + start.hashCode()) *
-        31 + end.hashCode()
-
-    override fun toString(): String {
-        return "ArcPaddingValuesImpl(outer=$outer, inner=$inner, start=$start, end=$end)"
-    }
-
-    override fun calculateOuterPadding() = outer
-    override fun calculateInnerPadding() = inner
-    override fun calculateStartPadding() = start
-    override fun calculateEndPadding() = end
-}
 
 /**
  * [basicCurvedText] is a component allowing developers to easily write curved text following
@@ -123,8 +37,6 @@ internal class ArcPaddingValuesImpl(val outer: Dp, val inner: Dp, val start: Dp,
  * those needs to be reversed in a Rtl layout.
  * If not specified, it will be inherited from the enclosing [curvedRow] or [CurvedLayout]
  * See [CurvedDirection.Angular].
- * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
- * [Dp] see [ArcPaddingValues]
  * @param overflow How visual overflow should be handled.
  * @param style A @Composable factory to provide the style to use. This composable SHOULDN'T
  * generate any compose nodes.
@@ -133,13 +45,11 @@ public fun CurvedScope.basicCurvedText(
     text: String,
     modifier: CurvedModifier = CurvedModifier,
     angularDirection: CurvedDirection.Angular? = null,
-    contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
     overflow: TextOverflow = TextOverflow.Clip,
     style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() }
 ) = add(CurvedTextChild(
     text,
-    curvedLayoutDirection.copy(overrideAngular = angularDirection).clockwise(),
-    contentArcPadding,
+    curvedLayoutDirection.copy(overrideAngular = angularDirection).absoluteClockwise(),
     style,
     overflow
 ), modifier)
@@ -159,8 +69,6 @@ public fun CurvedScope.basicCurvedText(
  * those needs to be reversed in a Rtl layout.
  * If not specified, it will be inherited from the enclosing [curvedRow] or [CurvedLayout]
  * See [CurvedDirection.Angular].
- * @param contentArcPadding Allows to specify additional space along each "edge" of the content in
- * [Dp] see [ArcPaddingValues]
  * @param overflow How visual overflow should be handled.
  */
 public fun CurvedScope.basicCurvedText(
@@ -168,33 +76,23 @@ public fun CurvedScope.basicCurvedText(
     style: CurvedTextStyle,
     modifier: CurvedModifier = CurvedModifier,
     angularDirection: CurvedDirection.Angular? = null,
-    // TODO: reimplement as modifiers
-    contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
     overflow: TextOverflow = TextOverflow.Clip,
-) = basicCurvedText(text, modifier, angularDirection, contentArcPadding, overflow) { style }
+) = basicCurvedText(text, modifier, angularDirection, overflow) { style }
 
 internal class CurvedTextChild(
     val text: String,
     val clockwise: Boolean = true,
-    val contentArcPadding: ArcPaddingValues = ArcPaddingValues(0.dp),
     val style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() },
     val overflow: TextOverflow
 ) : CurvedChild() {
     private val delegate: CurvedTextDelegate = CurvedTextDelegate()
     private lateinit var actualStyle: CurvedTextStyle
 
-    override fun MeasureScope.initializeMeasure(
+    override fun CurvedMeasureScope.initializeMeasure(
         measurables: List<Measurable>,
         index: Int
     ): Int {
-        // TODO: move padding into a CurvedModifier
-        val arcPaddingPx = ArcPaddingPx(
-            contentArcPadding.calculateOuterPadding().toPx(),
-            contentArcPadding.calculateInnerPadding().toPx(),
-            contentArcPadding.calculateStartPadding().toPx(),
-            contentArcPadding.calculateEndPadding().toPx()
-        )
-        delegate.updateIfNeeded(text, clockwise, actualStyle.fontSize.toPx(), arcPaddingPx)
+        delegate.updateIfNeeded(text, clockwise, actualStyle.fontSize.toPx())
         return index // No measurables where mapped.
     }
 
@@ -242,13 +140,6 @@ internal class CurvedTextChild(
     }
 }
 
-internal data class ArcPaddingPx(
-    val outer: Float,
-    val inner: Float,
-    val before: Float,
-    val after: Float
-)
-
 internal expect class CurvedTextDelegate() {
     var textWidth: Float
     var textHeight: Float
@@ -257,8 +148,7 @@ internal expect class CurvedTextDelegate() {
     fun updateIfNeeded(
         text: String,
         clockwise: Boolean,
-        fontSizePx: Float,
-        arcPaddingPx: ArcPaddingPx
+        fontSizePx: Float
     )
 
     fun DrawScope.doDraw(

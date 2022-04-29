@@ -30,6 +30,11 @@ android {
     defaultConfig {
         multiDexEnabled true
     }
+
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
+
     namespace "androidx.camera.extensions.impl"
 }
 

@@ -109,11 +109,13 @@ public fun Stepper(
             ),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        // Increase button.
         FullScreenButton(
             onClick = { updateValue(1) },
             contentAlignment = Alignment.TopCenter,
             paddingValues = PaddingValues(top = StepperDefaults.BorderPadding),
             iconColor = iconColor,
+            enabled = currentStep < steps + 1,
             content = increaseIcon
         )
         Box(
@@ -124,15 +126,18 @@ public fun Stepper(
         ) {
             CompositionLocalProvider(
                 LocalContentColor provides contentColor,
-                content = content
-            )
+            ) {
+                content()
+            }
         }
+        // Decrease button.
         FullScreenButton(
             onClick = { updateValue(-1) },
             contentAlignment = Alignment.BottomCenter,
             paddingValues = PaddingValues(bottom = StepperDefaults.BorderPadding),
-            content = decreaseIcon,
-            iconColor = iconColor
+            iconColor = iconColor,
+            enabled = currentStep > 0,
+            content = decreaseIcon
         )
     }
 }
@@ -223,19 +228,24 @@ private fun ColumnScope.FullScreenButton(
     contentAlignment: Alignment,
     paddingValues: PaddingValues,
     iconColor: Color,
+    enabled: Boolean,
     content: @Composable () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val contentColor = if (enabled) iconColor else iconColor.copy(alpha = ContentAlpha.disabled)
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .weight(StepperDefaults.ButtonWeight)
-            .clickable(interactionSource, null, onClick = onClick)
+            .clickable(interactionSource, null, onClick = onClick, enabled = enabled)
             .wrapContentWidth()
             .indication(interactionSource, rememberRipple(bounded = false))
             .padding(paddingValues),
         contentAlignment = contentAlignment,
     ) {
-        CompositionLocalProvider(LocalContentColor provides iconColor, content = content)
+        CompositionLocalProvider(
+            LocalContentColor provides contentColor,
+            LocalContentAlpha provides contentColor.alpha,
+            content = content)
     }
 }

@@ -90,7 +90,7 @@ public class PrimaryLayout implements LayoutElement {
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
         // There is no direct matching getter for this setter as the serialized format of the
-        // ProtoLayouts do not allow for a direct reconstruction of the arguments. Instead there are
+        // Tiles do not allow for a direct reconstruction of the arguments. Instead there are
         // methods to get the contents a whole for rendering.
         public Builder setPrimaryChipContent(@NonNull LayoutElement compactChip) {
             this.mPrimaryChip = compactChip;
@@ -101,7 +101,7 @@ public class PrimaryLayout implements LayoutElement {
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
         // There is no direct matching getter for this setter as the serialized format of the
-        // ProtoLayouts do not allow for a direct reconstruction of the arguments. Instead there are
+        // Tiles do not allow for a direct reconstruction of the arguments. Instead there are
         // methods to get the contents a whole for rendering.
         public Builder setPrimaryLabelTextContent(@NonNull LayoutElement primaryLabelText) {
             this.mPrimaryLabelText = primaryLabelText;
@@ -115,7 +115,7 @@ public class PrimaryLayout implements LayoutElement {
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
         // There is no direct matching getter for this setter as the serialized format of the
-        // ProtoLayouts do not allow for a direct reconstruction of the arguments. Instead there are
+        // Tiles do not allow for a direct reconstruction of the arguments. Instead there are
         // methods to get the contents a whole for rendering.
         public Builder setSecondaryLabelTextContent(@NonNull LayoutElement secondaryLabelText) {
             this.mSecondaryLabelText = secondaryLabelText;
@@ -125,9 +125,8 @@ public class PrimaryLayout implements LayoutElement {
         /** Sets the additional content to this layout, above the primary chip. */
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
-        // TODO(b/221427609): Add getter - there is a problem when serializing this to the
-        // ProtoLayouts as we can't easily reconstruct the position of the actual content vs
-        // additional labels.
+        // TODO(b/221427609): Add getter - there is a problem when serialising this to the Tiles
+        // as we can't easily reconstruct the position of the actual content vs additional labels.
         public Builder setContent(@NonNull LayoutElement content) {
             this.mContent = content;
             return this;
@@ -144,7 +143,7 @@ public class PrimaryLayout implements LayoutElement {
         @SuppressLint("ResourceType")
         @SuppressWarnings("MissingGetterMatchingBuilder")
         // There is no direct matching getter for this setter as the serialized format of the
-        // ProtoLayouts do not allow for a direct reconstruction of the arguments. Instead there are
+        // Tiles do not allow for a direct reconstruction of the arguments. Instead there are
         // methods to get the contents a whole for rendering.
         public Builder setVerticalSpacerHeight(@Dimension(unit = DP) float height) {
             this.mVerticalSpacerHeight = dp(height);

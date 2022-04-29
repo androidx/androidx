@@ -119,6 +119,7 @@ public class WatchState(
         writer.println("digitalPreviewReferenceTimeMillis=$digitalPreviewReferenceTimeMillis")
         writer.println("chinHeight=$chinHeight")
         writer.println("isHeadless=$isHeadless")
+        writer.println("watchFaceInstanceId=${watchFaceInstanceId.value}")
         writer.decreaseIndent()
     }
 }

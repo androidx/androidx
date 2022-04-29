@@ -67,7 +67,7 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
             .build()
 
         val observer = object : InvalidationTracker.Observer("user") {
-            override fun onInvalidated(tables: MutableSet<String>) {}
+            override fun onInvalidated(tables: Set<String>) {}
         }
         db.invalidationTracker.addObserver(observer)
 

@@ -24,8 +24,8 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    implementation project(path: ':core:core-performance')
-    implementation project(path: ':annotation:annotation-sampled')
+    implementation(project(":core:core-performance"))
+    compileOnly(project(":annotation:annotation-sampled"))
 }
 
 androidx {

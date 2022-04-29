@@ -42,6 +42,11 @@ name `:core:core-role` and directory `/core/core-role`.
 New modules in androidx can be created using the
 [project creator script](#module-creator).
 
+NOTE Modules for OEM-implemented shared libraries (also known as extensions or
+sidecars) that ship on-device and are referenced via the `<uses-library>` tag
+should follow the naming convention `com.android.extensions.<feature-name>` to
+avoid placing `androidx`-packaged code in the platform's boot classpath.
+
 #### Project directory structure {#module-structure}
 
 Libraries developed in AndroidX follow a consistent project naming and directory

@@ -41,8 +41,7 @@ public class ExtensionDisabledValidator {
      * Checks whether extension should be disabled.
      */
     public boolean shouldDisableExtension(@NonNull String cameraId,
-            @ExtensionMode.Mode int extensionMode, boolean isAdvancedInterface) {
-        return mQuirk != null && mQuirk.shouldDisableExtension(cameraId, extensionMode,
-                isAdvancedInterface);
+            @ExtensionMode.Mode int extensionMode) {
+        return mQuirk != null && mQuirk.shouldDisableExtension(cameraId, extensionMode);
     }
 }

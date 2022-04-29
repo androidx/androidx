@@ -47,6 +47,7 @@ dependencies {
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
+                "-Xjvm-default=all",
                 "-opt-in=kotlin.RequiresOptIn",
                 "-opt-in=kotlin.contracts.ExperimentalContracts",
                 "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi"

@@ -57,7 +57,6 @@ Please read the "Important Information" displayed during installation for
 information about SSL/TLS certificate validation and the running the "Install
 Certificates.command".
 
-Next, double-check where your `repo 
 Next, open your `~/.zshrc` (or `~/.bash_profile` if using bash) and add the
 following lines to wrap the `repo` command:
 
@@ -123,6 +122,12 @@ NOTE On MacOS, if you receive an SSL error like `SSL: CERTIFICATE_VERIFY_FAILED`
 you may need to install Python3 and boot strap the SSL certificates in the
 included version of pip. You can execute `Install Certificates.command` under
 `/Applications/Python 3.6/` to do so.
+
+NOTE On MacOS, if you receive a Repo or GPG error like `repo: error: "gpg"
+failed with exit status -6` with cause `md_enable: algorithm 10 not available`
+you may need to install a build of `gpg` that supports SHA512, such as the
+latest version available from [Homebrew](https://brew.sh/) using `brew install
+gpg`.
 
 ### Increase Git rename limit {#source-config}
 
@@ -977,3 +982,13 @@ Note: this only counts the weight of your library's jar/aar, including
 resources. It does not count library dependencies. It does not account for a
 minification step (e.g. with R8), as that is dynamic, and done at app build time
 (and depend on which entrypoints the app uses).
+
+### How do I add content to a library's Overview reference doc page?
+
+Put content in a markdown file that ends with `-documentation.md` in the
+directory that corresponds to the Overview page that you'd like to document.
+
+For example, the `androidx.compose.runtime`
+[Overview page](https://developer.android.com/reference/kotlin/androidx/compose/runtime/package-summary)
+includes content from
+[compose-runtime-documentation.md](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/compose-runtime-documentation.md).

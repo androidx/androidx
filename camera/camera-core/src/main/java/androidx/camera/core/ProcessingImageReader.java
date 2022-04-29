@@ -30,6 +30,7 @@ import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -106,29 +107,37 @@ class ProcessingImageReader implements ImageReaderProxy {
                 @Override
                 public void onSuccess(@Nullable List<ImageProxy> imageProxyList) {
                     SettableImageProxyBundle settableImageProxyBundle;
+                    OnProcessingErrorCallback errorCallback;
+                    Executor errorCallbackExecutor;
                     synchronized (mLock) {
                         if (mClosed) {
                             return;
                         }
                         mProcessing = true;
                         settableImageProxyBundle = mSettableImageProxyBundle;
+                        errorCallback = mOnProcessingErrorCallback;
+                        errorCallbackExecutor = mErrorCallbackExecutor;
                     }
-                    mCaptureProcessor.process(settableImageProxyBundle);
-                    synchronized (mLock) {
-                        mProcessing = false;
-                        // If the ProcessingImageReader has been closed then the input
-                        // ImageReaderProxy and bundle needs to be now closed since it was deferred.
-                        if (mClosed) {
-                            mInputImageReader.close();
-                            mSettableImageProxyBundle.close();
-                            mOutputImageReader.close();
+                    try {
+                        mCaptureProcessor.process(settableImageProxyBundle);
+                    } catch (Exception e) {
+                        synchronized (mLock) {
+                            // Resets mSettableImageProxyBundle to close the held images.
+                            mSettableImageProxyBundle.reset();
 
-                            if (mCloseCompleter != null) {
-                                // Notify listeners of close
-                                mCloseCompleter.set(null);
+                            if (errorCallback != null && errorCallbackExecutor != null) {
+                                errorCallbackExecutor.execute(
+                                        () -> errorCallback.notifyProcessingError(
+                                                e.getMessage(), e.getCause()));
                             }
                         }
                     }
+
+                    synchronized (mLock) {
+                        mProcessing = false;
+                    }
+
+                    closeAndCompleteFutureIfNecessary();
                 }
 
                 @Override
@@ -144,7 +153,7 @@ class ProcessingImageReader implements ImageReaderProxy {
     boolean mProcessing = false;
 
     @GuardedBy("mLock")
-    final MetadataImageReader mInputImageReader;
+    final ImageReaderProxy mInputImageReader;
 
     @GuardedBy("mLock")
     final ImageReaderProxy mOutputImageReader;
@@ -169,6 +178,9 @@ class ProcessingImageReader implements ImageReaderProxy {
     @NonNull
     final CaptureProcessor mCaptureProcessor;
 
+    @NonNull
+    private final ListenableFuture<Void> mUnderlyingCaptureProcessorCloseFuture;
+
     private String mTagBundleKey = new String();
 
     @GuardedBy("mLock")
@@ -180,6 +192,12 @@ class ProcessingImageReader implements ImageReaderProxy {
 
     private ListenableFuture<List<ImageProxy>> mSettableImageProxyFutureList =
             Futures.immediateFuture(new ArrayList<>());
+
+    @GuardedBy("mLock")
+    OnProcessingErrorCallback mOnProcessingErrorCallback;
+
+    @GuardedBy("mLock")
+    Executor mErrorCallbackExecutor;
 
     ProcessingImageReader(@NonNull Builder builder) {
         if (builder.mInputImageReader.getMaxImages()
@@ -215,6 +233,8 @@ class ProcessingImageReader implements ImageReaderProxy {
         mCaptureProcessor.onResolutionUpdate(
                 new Size(mInputImageReader.getWidth(), mInputImageReader.getHeight()));
 
+        mUnderlyingCaptureProcessorCloseFuture = mCaptureProcessor.getCloseFuture();
+
         setCaptureBundle(builder.mCaptureBundle);
     }
 
@@ -241,24 +261,47 @@ class ProcessingImageReader implements ImageReaderProxy {
                 return;
             }
 
-            // Prevent the output ImageAvailableListener from being triggered
+            // Prevent the ImageAvailableListener from being triggered after the close function
+            // is called.
+            mInputImageReader.clearOnImageAvailableListener();
             mOutputImageReader.clearOnImageAvailableListener();
+
+            mClosed = true;
+        }
+
+        mCaptureProcessor.close();
+        closeAndCompleteFutureIfNecessary();
+    }
+
+    void closeAndCompleteFutureIfNecessary() {
+        boolean closed;
+        boolean processing;
+        CallbackToFutureAdapter.Completer<Void> closeCompleter;
+
+        synchronized (mLock) {
+            closed = mClosed;
+            processing = mProcessing;
+            closeCompleter = mCloseCompleter;
 
             // If the CaptureProcessor is in the middle of processing then don't close the
             // ImageReaderProxys and associated ImageProxy. Let the processing complete before
             // closing them.
-            if (!mProcessing) {
-                cancelSettableImageProxyBundleFutureList();
+            if (closed && !processing) {
                 mInputImageReader.close();
                 mSettableImageProxyBundle.close();
                 mOutputImageReader.close();
-
-                if (mCloseCompleter != null) {
-                    mCloseCompleter.set(null);
-                }
             }
+        }
 
-            mClosed = true;
+        if (closed && !processing) {
+            // Complete the capture process pipeline's close future after the underlying capture
+            // processor is closed.
+            mUnderlyingCaptureProcessorCloseFuture.addListener(() -> {
+                cancelSettableImageProxyBundleFutureList();
+                if (closeCompleter != null) {
+                    closeCompleter.set(null);
+                }
+            }, CameraXExecutors.directExecutor());
         }
     }
 
@@ -273,8 +316,10 @@ class ProcessingImageReader implements ImageReaderProxy {
         ListenableFuture<Void> closeFuture;
         synchronized (mLock) {
             if (mClosed && !mProcessing) {
-                // Everything should be closed. Return immediate future.
-                closeFuture = Futures.immediateFuture(null);
+                // Everything should be closed but still need to wait for underlying capture
+                // processors being closed.
+                closeFuture = Futures.transform(mUnderlyingCaptureProcessorCloseFuture,
+                        nullVoid -> null, CameraXExecutors.directExecutor());
             } else {
                 if (mCloseFuture == null) {
                     mCloseFuture = CallbackToFutureAdapter.getFuture(completer -> {
@@ -403,7 +448,25 @@ class ProcessingImageReader implements ImageReaderProxy {
     @Nullable
     CameraCaptureCallback getCameraCaptureCallback() {
         synchronized (mLock) {
-            return mInputImageReader.getCameraCaptureCallback();
+            if (mInputImageReader instanceof MetadataImageReader) {
+                return ((MetadataImageReader) mInputImageReader).getCameraCaptureCallback();
+            } else {
+                return new CameraCaptureCallback() {};
+            }
+        }
+    }
+
+    /**
+     * Sets {@link OnProcessingErrorCallback} to receive error notifications.
+     *
+     * @param executor The executor in which the callback methods will be run.
+     * @param callback Callback to be invoked if an error occurs when processing the images.
+     */
+    public void setOnProcessingErrorCallback(@NonNull Executor executor,
+            @NonNull OnProcessingErrorCallback callback) {
+        synchronized (mLock) {
+            mErrorCallbackExecutor = executor;
+            mOnProcessingErrorCallback = callback;
         }
     }
 
@@ -454,7 +517,7 @@ class ProcessingImageReader implements ImageReaderProxy {
      */
     static final class Builder {
         @NonNull
-        protected final MetadataImageReader mInputImageReader;
+        protected final ImageReaderProxy mInputImageReader;
         @NonNull
         protected final CaptureBundle mCaptureBundle;
         @NonNull
@@ -473,7 +536,7 @@ class ProcessingImageReader implements ImageReaderProxy {
          * @param captureProcessor The {@link CaptureProcessor} to be invoked when the Images are
          *                         ready
          */
-        Builder(@NonNull MetadataImageReader imageReader, @NonNull CaptureBundle captureBundle,
+        Builder(@NonNull ImageReaderProxy imageReader, @NonNull CaptureBundle captureBundle,
                 @NonNull CaptureProcessor captureProcessor) {
             mInputImageReader = imageReader;
             mCaptureBundle = captureBundle;
@@ -524,5 +587,12 @@ class ProcessingImageReader implements ImageReaderProxy {
         ProcessingImageReader build() {
             return new ProcessingImageReader(this);
         }
+    }
+
+    /**
+     * Callback for notifying processing errors.
+     */
+    interface OnProcessingErrorCallback {
+        void notifyProcessingError(@Nullable String message, @Nullable Throwable cause);
     }
 }

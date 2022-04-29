@@ -46,6 +46,9 @@ public class TimeRange internal constructor(
     }
 
     override fun toString(): String {
+        if (WireComplicationData.shouldRedact()) {
+            return "TimeRange(REDACTED)"
+        }
         return "TimeRange(startDateTimeMillis=$startDateTimeMillis, " +
             "endDateTimeMillis=$endDateTimeMillis)"
     }

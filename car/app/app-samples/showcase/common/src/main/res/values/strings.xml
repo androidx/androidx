@@ -44,6 +44,8 @@
   <string name="commute_action_title">Commute</string>
   <string name="sign_out_action_title">Sign out</string>
   <string name="try_anyway_action_title">Try Anyway</string>
+  <string name="yes_action_title">Yes</string>
+  <string name="no_action_title">No</string>
 
   <!-- Toast Messages -->
   <string name="bug_reported_toast_msg">Bug reported!</string>
@@ -69,6 +71,9 @@
   <string name="grant_location_permission_toast_msg">Grant location Permission to see current location</string>
   <string name="sign_in_with_google_toast_msg">Sign-in with Google starts here</string>
   <string name="changes_selection_to_index_toast_msg_prefix">Changed selection to index</string>
+  <string name="yes_action_toast_msg">Yes button pressed!</string>
+  <string name="no_action_toast_msg">No button pressed!</string>
+  <string name="alert_timeout_toast_msg">Alert is timed out!</string>
 
   <!-- Row text -->
   <string name="first_row_title">Row with a large image and long text long text long text long text long text</string>
@@ -122,7 +127,7 @@
   <!-- FinishAppScreen -->
   <string name="finish_app_msg">This will finish the app, and when you return it will pre-seed a permission screen</string>
   <string name="finish_app_title">Finish App Demo</string>
-  <string name="finish_app_demo_title">Pre-seed the Screen backstack on next run Demo</string>
+  <string name="finish_app_demo_title">Pre-seed the Permission Screen on next run Demo</string>
 
   <!-- LoadingDemoScreen -->
   <string name="loading_demo_title">Loading Demo</string>
@@ -156,11 +161,11 @@
 
   <!-- ArrivedDemoScreen -->
   <string name="arrived_exclamation_msg">Arrived!</string>
-  <string name="arrived_address_msg">Google Bellevue Office\n1120 112th Ave NE</string>
+  <string name="arrived_address_msg" translatable="false">Google Bellevue Office\n1120 112th Ave NE</string>
 
   <!-- RoutingDemoModels -->
-  <string name="current_step_cue">Roy st 520</string>
-  <string name="next_step_cue">I5 Aurora Ave N</string>
+  <string name="current_step_cue" translatable="false">Roy st 520</string>
+  <string name="next_step_cue" translatable="false">I5 Aurora Ave N</string>
   <string name="travel_est_trip_text">Pick Up Alice</string>
 
   <!-- NotificationDemoScreen -->
@@ -184,6 +189,7 @@
 
   <!-- MapTemplateDemoScreen -->
   <string name="map_template_pane_demo_title">Map Template with Pane Demo</string>
+  <string name="map_template_list_demo_title">Map Template with List Demo</string>
 
   <!-- NavigationNotificationsDemoScreen -->
   <string name="start_notification_title">Start Notification</string>
@@ -211,6 +217,8 @@
   <string name="notification_template_demo_title">Notification Template Demo</string>
   <string name="nav_map_template_demo_title">Navigation Template with map only Demo</string>
   <string name="nav_demos_title">Navigation Demos</string>
+  <string name="navigation_alert_title">Still a speed trap?</string>
+  <string name="navigation_alert_subtitle">Reported 10m ago</string>
 
   <!-- CarHardwareRenderer -->
   <string name="no_toll_card_permission">No TollCard Permission.</string>
@@ -267,7 +275,7 @@
 
   <!-- LongMessageTemplateDemoScreen -->
   <string name="long_msg_template_demo_title">Long Message Template Demo</string>
-  <string name="long_msg_template_text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nAliquam laoreet ac metus eu commodo. Sed a congue diam, sed dictum lectus. Nam nec\ntristique dolor, quis sodales arcu. Etiam at metus eu nulla auctor varius. \nInteger dolor lorem, placerat sit amet lacus in, imperdiet semper dui. Vestibulum \nante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; \nQuisque gravida fermentum egestas.\n\n\n\nUt ut sodales mi. Aenean porta vel ipsum sed lacinia. Morbi odio ipsum, hendrerit \neu est et, sollicitudin finibus diam. Nunc sit amet felis elit. Orci varius \nnatoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed \nvestibulum, tellus a rutrum auctor, diam arcu vestibulum purus, nec mollis ligula \nnisi in nisi. Donec sem tortor, pharetra sed fermentum sit amet, ullamcorper nec \nsapien. Aliquam risus arcu, porttitor eu dui nec, vulputate tempus libero. \nCurabitur sit amet tristique orci. Suspendisse et odio tempus, tempus turpis quis,\n euismod est.\n\n\n\nVestibulum mauris ante, luctus viverra nisi eget, blandit facilisis nulla. \nPhasellus ex lorem, semper in vestibulum nec, aliquet vel elit. Aliquam vitae \nligula nec enim dictum lobortis. Sed varius turpis quis nisi tempus varius. Sed \nnon sollicitudin magna, at mattis tortor. Curabitur quis ligula eget lorem mattis \ntincidunt et in sapien. Curabitur a elit nisi. Aliquam ex arcu, hendrerit eget \nturpis vitae, bibendum vulputate nibh. Fusce vitae ex aliquet, tristique magna eu,\n vulputate dui. Aenean tempor viverra tortor non pharetra. Pellentesque convallis \nnec risus a auctor. Praesent non sem non eros tincidunt ullamcorper efficitur non \nlacus.\n\n\n\nSuspendisse accumsan ultricies egestas. Aenean leo ligula, congue ac erat eu, \nlobortis ultricies lorem. Nulla finibus, arcu sed tincidunt lobortis, magna justo \nrutrum ligula, et mattis felis turpis vel ex. Morbi ac auctor ex, at bibendum sem.\n Vestibulum a tortor iaculis, viverra felis vitae, lobortis est. Duis sit amet \ncondimentum sem. Ut molestie, dolor pretium imperdiet maximus, enim orci porta \nquam, id gravida enim nunc vitae lacus. Pellentesque habitant morbi tristique \nsenectus et netus et malesuada fames ac turpis egestas. Nullam vel justo eu risus \nlobortis dignissim sit amet ullamcorper nulla. Donec finibus cursus purus \nporttitor pellentesque.\n\n\n\nDonec at vehicula ante. Suspendisse rutrum nisl quis metus faucibus lacinia. \nVestibulum eros sapien, eleifend nec accumsan a, interdum sed nisi. Aenean posuere\n ultrices lorem non pharetra. Nulla non porta ligula. Maecenas at elit diam. \nNullam gravida augue et semper eleifend. Fusce venenatis ac arcu et luctus. Mauris\n ultricies urna non dui interdum, vel hendrerit est aliquam. Fusce id dictum leo, \nfringilla egestas ipsum.</string>
+  <string name="long_msg_template_text" translatable="false">Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nAliquam laoreet ac metus eu commodo. Sed a congue diam, sed dictum lectus. Nam nec\ntristique dolor, quis sodales arcu. Etiam at metus eu nulla auctor varius. \nInteger dolor lorem, placerat sit amet lacus in, imperdiet semper dui. Vestibulum \nante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; \nQuisque gravida fermentum egestas.\n\n\n\nUt ut sodales mi. Aenean porta vel ipsum sed lacinia. Morbi odio ipsum, hendrerit \neu est et, sollicitudin finibus diam. Nunc sit amet felis elit. Orci varius \nnatoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed \nvestibulum, tellus a rutrum auctor, diam arcu vestibulum purus, nec mollis ligula \nnisi in nisi. Donec sem tortor, pharetra sed fermentum sit amet, ullamcorper nec \nsapien. Aliquam risus arcu, porttitor eu dui nec, vulputate tempus libero. \nCurabitur sit amet tristique orci. Suspendisse et odio tempus, tempus turpis quis,\n euismod est.\n\n\n\nVestibulum mauris ante, luctus viverra nisi eget, blandit facilisis nulla. \nPhasellus ex lorem, semper in vestibulum nec, aliquet vel elit. Aliquam vitae \nligula nec enim dictum lobortis. Sed varius turpis quis nisi tempus varius. Sed \nnon sollicitudin magna, at mattis tortor. Curabitur quis ligula eget lorem mattis \ntincidunt et in sapien. Curabitur a elit nisi. Aliquam ex arcu, hendrerit eget \nturpis vitae, bibendum vulputate nibh. Fusce vitae ex aliquet, tristique magna eu,\n vulputate dui. Aenean tempor viverra tortor non pharetra. Pellentesque convallis \nnec risus a auctor. Praesent non sem non eros tincidunt ullamcorper efficitur non \nlacus.\n\n\n\nSuspendisse accumsan ultricies egestas. Aenean leo ligula, congue ac erat eu, \nlobortis ultricies lorem. Nulla finibus, arcu sed tincidunt lobortis, magna justo \nrutrum ligula, et mattis felis turpis vel ex. Morbi ac auctor ex, at bibendum sem.\n Vestibulum a tortor iaculis, viverra felis vitae, lobortis est. Duis sit amet \ncondimentum sem. Ut molestie, dolor pretium imperdiet maximus, enim orci porta \nquam, id gravida enim nunc vitae lacus. Pellentesque habitant morbi tristique \nsenectus et netus et malesuada fames ac turpis egestas. Nullam vel justo eu risus \nlobortis dignissim sit amet ullamcorper nulla. Donec finibus cursus purus \nporttitor pellentesque.\n\n\n\nDonec at vehicula ante. Suspendisse rutrum nisl quis metus faucibus lacinia. \nVestibulum eros sapien, eleifend nec accumsan a, interdum sed nisi. Aenean posuere\n ultrices lorem non pharetra. Nulla non porta ligula. Maecenas at elit diam. \nNullam gravida augue et semper eleifend. Fusce venenatis ac arcu et luctus. Mauris\n ultricies urna non dui interdum, vel hendrerit est aliquam. Fusce id dictum leo, \nfringilla egestas ipsum.</string>
   <string name="long_msg_template_not_supported_text">Your host doesn\'t support Long Message template</string>
   <string name="long_msg_template_not_supported_title">Incompatible host</string>
 
@@ -283,6 +291,7 @@
   <string name="browse_places_title">Browse Places</string>
 
   <!-- SearchTemplateDemoScreen -->
+  <string name="search_template_demo_title">Search Template Demo</string>
   <string name="search_hint">Search here</string>
 
   <!-- SignInTemplateDemoScreen -->
@@ -306,6 +315,7 @@
   <string name="provider_sign_in_instruction">Use this button to complete your Google sign-in</string>
   <string name="sign_in_complete_text">You are signed in!</string>
   <string name="sign_in_complete_title">Sign in completed</string>
+  <string name="sign_in_template_demo_title">Sign In Template Demo</string>
 
   <!-- ContentProviderIconsDemoScreen -->
   <string name="images_unknown_host_error">Images cannot be displayed for an unknown host</string>
@@ -354,38 +364,38 @@
   <string name="image_test_title">Image test</string>
   <string name="image_test_text">Image changes are allowed</string>
   <string name="additional_data_title">Additional Data</string>
-  <string name="additional_data_text">Updates allows on back operations.</string>
+  <string name="additional_data_text">Updates allowed on back operations.</string>
 
   <!-- StartScreen -->
   <string name="misc_templates_demos_title">Misc Templates Demos</string>
   <string name="showcase_demos_title">Showcase Demos</string>
 
   <!-- Location Strings -->
-  <string name="location_1_title">Google Kirkland</string>
+  <string name="location_1_title"> translatable="false"Google Kirkland</string>
   <string name="location_1_address" translatable="false">747 6th St South, Kirkland, WA 98033</string>
   <string name="location_1_description">Tinted resource vector</string>
   <string name="location_1_phone" translatable="false">+14257395600</string>
-  <string name="location_2_title">Google Bellevue</string>
+  <string name="location_2_title" translatable="false">Google Bellevue</string>
   <string name="location_2_address" translatable="false">1120 112th Ave NE, Bellevue, WA 98004</string>
   <string name="location_2_description">Image resource bitmap</string>
   <string name="location_2_phone" translatable="false">+14252301301</string>
-  <string name="location_3_title">Google South Lake Union</string>
+  <string name="location_3_title" translatable="false">Google South Lake Union</string>
   <string name="location_3_address" translatable="false">1021 Valley St, Seattle, WA 98109</string>
   <string name="location_3_description">Colored text marker</string>
   <string name="location_3_phone" translatable="false">+12065311800</string>
-  <string name="location_4_title">Google Seattle</string>
+  <string name="location_4_title" translatable="false">Google Seattle</string>
   <string name="location_4_address" translatable="false">601 N 34th St, Seattle, WA 98103</string>
   <string name="location_4_description">Image bitmap</string>
   <string name="location_4_phone" translatable="false">+12068761800</string>
   <string name="location_5_address" translatable="false">1600 Amphitheatre Pkwy, Mountain View, CA 94043</string>
   <string name="location_5_phone" translatable="false">+16502530000</string>
-  <string name="location_6_title">Google Bothell</string>
+  <string name="location_6_title" translatable="false">Google Bothell</string>
   <string name="location_6_address" translatable="false">11831 North Creek Pkwy, Bothell, WA 98011</string>
-  <string name="location_7_title">Seward Park</string>
+  <string name="location_7_title" translatable="false">Seward Park</string>
   <string name="location_7_address" translatable="false">5900 Lake Washington Blvd S, Seattle, WA 98118</string>
-  <string name="location_8_title">Luther Burbank Park</string>
+  <string name="location_8_title" translatable="false">Luther Burbank Park</string>
   <string name="location_8_address" translatable="false">2040 84th Ave SE, Mercer Island, WA 98040</string>
-  <string name="location_9_title">Heritage Park</string>
+  <string name="location_9_title" translatable="false">Heritage Park</string>
   <string name="location_9_address" translatable="false">111 Waverly Way, Kirkland, WA 98033</string>
   <string name="location_description_text_label">Text label</string>
   <string name="location_phone_not_available" translatable="false">n/a</string>

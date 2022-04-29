@@ -107,6 +107,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
     static final String SAVED_STATE_TAG = "android:support:fragments";
     static final String FRAGMENT_MANAGER_STATE_TAG = "state";
     static final String RESULT_NAME_PREFIX = "result_";
+    static final String FRAGMENT_STATE_TAG = "state";
+    static final String FRAGMENT_NAME_PREFIX = "fragment_";
     private static boolean DEBUG = false;
 
     /** @hide */
@@ -2395,7 +2397,6 @@ public abstract class FragmentManager implements FragmentResultOwner {
             }
 
             FragmentManagerState fms = new FragmentManagerState();
-            fms.mSavedState = savedState;
             fms.mActive = active;
             fms.mAdded = added;
             fms.mBackStack = backStack;
@@ -2410,6 +2411,12 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
             for (String resultName : mResults.keySet()) {
                 bundle.putBundle(RESULT_NAME_PREFIX + resultName, mResults.get(resultName));
+            }
+
+            for (FragmentState state : savedState) {
+                Bundle fragmentBundle = new Bundle();
+                fragmentBundle.putParcelable(FRAGMENT_STATE_TAG, state);
+                bundle.putBundle(FRAGMENT_NAME_PREFIX + state.mWho, fragmentBundle);
             }
         }
 
@@ -2451,11 +2458,21 @@ public abstract class FragmentManager implements FragmentResultOwner {
             }
         }
 
-        FragmentManagerState fms = bundle.getParcelable(FRAGMENT_MANAGER_STATE_TAG);
-        if (fms == null || fms.mSavedState == null) return;
-
         // Restore the saved state of all fragments
-        mFragmentStore.restoreSaveState(fms.mSavedState);
+        ArrayList<FragmentState> allFragmentStates = new ArrayList<>();
+        for (String bundleKey : bundle.keySet()) {
+            if (bundleKey.startsWith(FRAGMENT_NAME_PREFIX)) {
+                Bundle savedFragmentBundle = bundle.getBundle(bundleKey);
+                if (savedFragmentBundle != null) {
+                    savedFragmentBundle.setClassLoader(mHost.getContext().getClassLoader());
+                    allFragmentStates.add(savedFragmentBundle.getParcelable(FRAGMENT_STATE_TAG));
+                }
+            }
+        }
+        mFragmentStore.restoreSaveState(allFragmentStates);
+
+        FragmentManagerState fms = bundle.getParcelable(FRAGMENT_MANAGER_STATE_TAG);
+        if (fms == null) return;
 
         // Build the full list of active fragments, instantiating them from
         // their saved state.

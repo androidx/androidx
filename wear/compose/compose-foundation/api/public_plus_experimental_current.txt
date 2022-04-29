@@ -15,18 +15,15 @@ package androidx.wear.compose.foundation {
   }
 
   @androidx.compose.runtime.Stable public interface ArcPaddingValues {
-    method public float calculateEndPadding();
-    method public float calculateInnerPadding();
-    method public float calculateOuterPadding();
-    method public float calculateStartPadding();
+    method public float calculateAfterPadding(androidx.compose.ui.unit.LayoutDirection layoutDirection, int angularDirection);
+    method public float calculateBeforePadding(androidx.compose.ui.unit.LayoutDirection layoutDirection, int angularDirection);
+    method public float calculateInnerPadding(int radialDirection);
+    method public float calculateOuterPadding(int radialDirection);
   }
 
   public final class BasicCurvedTextKt {
-    method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float outer, optional float inner, optional float start, optional float end);
-    method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(float all);
-    method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float radial, optional float angular);
-    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow, optional kotlin.jvm.functions.Function0<androidx.wear.compose.foundation.CurvedTextStyle> style);
-    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional androidx.wear.compose.foundation.ArcPaddingValues contentArcPadding, optional int overflow);
+    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional int overflow, optional kotlin.jvm.functions.Function0<androidx.wear.compose.foundation.CurvedTextStyle> style);
+    method public static void basicCurvedText(androidx.wear.compose.foundation.CurvedScope, String text, androidx.wear.compose.foundation.CurvedTextStyle style, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional int overflow);
   }
 
   public interface CurvedAlignment {
@@ -118,6 +115,16 @@ package androidx.wear.compose.foundation {
   }
 
   public final class CurvedModifierKt {
+  }
+
+  public final class CurvedPaddingKt {
+    method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float outer, optional float inner, optional float before, optional float after);
+    method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(float all);
+    method public static androidx.wear.compose.foundation.ArcPaddingValues ArcPaddingValues(optional float radial, optional float angular);
+    method public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, androidx.wear.compose.foundation.ArcPaddingValues paddingValues);
+    method public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, float outer, float inner, float before, float after);
+    method public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, optional float radial, optional float angular);
+    method public static androidx.wear.compose.foundation.CurvedModifier padding(androidx.wear.compose.foundation.CurvedModifier, optional float all);
   }
 
   public final class CurvedParentDataKt {

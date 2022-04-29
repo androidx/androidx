@@ -26,12 +26,14 @@ import android.support.wearable.watchface.Constants
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.wear.watchface.BoundingArc
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.client.WatchFaceMetadataClient
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.ComplicationSlotBoundsType
 import androidx.wear.watchface.WatchFaceFlavorsExperimental
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE
 import androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE_PKG
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
@@ -218,6 +220,7 @@ public class WatchFaceMetadataServiceTest {
     }
 
     @Test
+    @OptIn(ComplicationExperimental::class)
     public fun getComplicationSlotMetadataMap_static_metadata() {
         runBlocking {
             val client = WatchFaceMetadataClient.createImpl(
@@ -235,7 +238,7 @@ public class WatchFaceMetadataServiceTest {
             )
             val complications = client.getComplicationSlotMetadataMap()
 
-            Truth.assertThat(complications.keys).containsExactly(10, 20)
+            Truth.assertThat(complications.keys).containsExactly(10, 20, 30)
 
             Truth.assertThat(complications[10]!!.boundsType)
                 .isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
@@ -300,6 +303,42 @@ public class WatchFaceMetadataServiceTest {
                 complications[20]!!.defaultDataSourcePolicy
                     .systemDataSourceFallbackDefaultType
             ).isEqualTo(ComplicationType.PHOTO_IMAGE)
+
+            Truth.assertThat(complications[30]!!.boundsType)
+                .isEqualTo(ComplicationSlotBoundsType.EDGE)
+
+            Truth.assertThat(complications[30]!!.supportedTypes)
+                .containsExactly(ComplicationType.SHORT_TEXT, ComplicationType.RANGED_VALUE)
+
+            Truth.assertThat(complications[30]!!.defaultDataSourcePolicy.primaryDataSource)
+                .isEqualTo(ComponentName("com.app.example1", "com.app.example1.Class"))
+
+            Truth.assertThat(
+                complications[30]!!.defaultDataSourcePolicy.primaryDataSourceDefaultType
+            ).isEqualTo(ComplicationType.SHORT_TEXT)
+
+            Truth.assertThat(complications[30]!!.defaultDataSourcePolicy.secondaryDataSource)
+                .isEqualTo(ComponentName("com.app.example2", "com.app.example2.Class"))
+
+            Truth.assertThat(
+                complications[30]!!.defaultDataSourcePolicy.secondaryDataSourceDefaultType
+            ).isEqualTo(ComplicationType.SMALL_IMAGE)
+
+            Truth.assertThat(complications[30]!!.defaultDataSourcePolicy.systemDataSourceFallback)
+                .isEqualTo(SystemDataSources.DATA_SOURCE_WATCH_BATTERY)
+
+            Truth.assertThat(
+                complications[30]!!.defaultDataSourcePolicy
+                    .systemDataSourceFallbackDefaultType
+            ).isEqualTo(ComplicationType.RANGED_VALUE)
+
+            Truth.assertThat(
+                complications[30]!!.bounds!!.perComplicationTypeBounds[ComplicationType.SHORT_TEXT]
+            ).isEqualTo(RectF(0.0f, 0.0f, 1.0f, 1.0f))
+
+            Truth.assertThat(
+                complications[30]!!.getBoundingArc()
+            ).isEqualTo(BoundingArc(-45.0f, 90.0f, 0.1f))
         }
     }
 
@@ -357,5 +396,28 @@ public class WatchFaceMetadataServiceTest {
             SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET)
         Truth.assertThat(right.systemDataSourceFallbackDefaultType).isEqualTo(
             ComplicationType.SHORT_TEXT)
+    }
+
+    @Test
+    public fun xmlVersionCompatibility() {
+        Truth.assertThat(
+            WatchFaceMetadataClient.isXmlVersionCompatible(
+                context,
+                context.resources,
+                context.packageName)).isTrue()
+        Truth.assertThat(
+            WatchFaceMetadataClient.isXmlVersionCompatible(
+                context,
+                context.resources,
+                context.packageName,
+                OutdatedWatchFaceControlTestService::class.java.name
+            )).isFalse()
+        Truth.assertThat(
+            WatchFaceMetadataClient.isXmlVersionCompatible(
+                context,
+                context.resources,
+                "non.existing.package",
+                "non.existing.package.Service"
+            )).isFalse()
     }
 }

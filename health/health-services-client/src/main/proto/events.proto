@@ -47,3 +47,14 @@ message PassiveCallbackEvent {
 
   reserved 2 to max;  // Next ID
 }
+
+message PassiveListenerEvent {
+  oneof event {
+    PassiveMonitoringUpdateResponse passive_update_response = 1;
+    PassiveMonitoringGoalResponse passive_goal_response = 2;
+    HealthEventResponse health_event_response = 3;
+    PermissionLostResponse permission_lost_response = 4;
+  }
+
+  reserved 5 to max;  // Next ID
+}

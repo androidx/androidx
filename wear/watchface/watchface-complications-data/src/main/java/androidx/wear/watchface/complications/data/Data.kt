@@ -21,6 +21,10 @@ import android.content.ComponentName
 import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.RestrictTo
+import androidx.wear.tiles.proto.LayoutElementProto
+import androidx.wear.tiles.proto.ResourceProto
+import androidx.wear.tiles.LayoutElementBuilders
+import androidx.wear.tiles.ResourceBuilders
 import java.time.Instant
 
 /** The wire format for [ComplicationData]. */
@@ -86,11 +90,6 @@ public sealed class ComplicationData constructor(
     internal open fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
     }
 
-    internal fun asPlaceholderWireComplicationData(): WireComplicationData =
-        WireComplicationDataBuilder(NoDataComplicationData.TYPE.toWireComplicationType()).apply {
-            fillWireComplicationDataBuilder(this)
-        }.build()
-
     /**
      * Returns `true` if any of the fields of this ComplicationData are placeholders. I.e. if any
      * fields are equal to: [ComplicationText.PLACEHOLDER], [SmallImage.PLACEHOLDER],
@@ -135,7 +134,7 @@ public class NoDataComplicationData internal constructor(
     TYPE,
     placeholder?.tapAction,
     cachedWireComplicationData,
-    dataSource = placeholder?.dataSource
+    dataSource = null
 ) {
 
     /** Constructs a NoDataComplicationData without a [placeholder]. */
@@ -170,12 +169,12 @@ public class NoDataComplicationData internal constructor(
         }
         return createWireComplicationDataBuilder().apply {
             if (placeholder == null) {
-                setPlaceholderType(TYPE.toWireComplicationType())
+                setPlaceholder(null)
             } else {
-                setPlaceholderType(placeholder.type.toWireComplicationType())
-                placeholder.fillWireComplicationDataBuilder(this)
+                val builder = placeholder.createWireComplicationDataBuilder()
+                placeholder.fillWireComplicationDataBuilder(builder)
+                setPlaceholder(builder.build())
             }
-            setDataSource(dataSource)
         }.build().also { cachedWireComplicationData = it }
     }
 
@@ -928,7 +927,12 @@ public class RangedValueComplicationData internal constructor(
     }
 
     override fun toString(): String {
-        return "RangedValueComplicationData(value=$value, min=$min, max=$max, " +
+        val valueString = if (WireComplicationData.shouldRedact()) {
+            "REDACTED"
+        } else {
+            value.toString()
+        }
+        return "RangedValueComplicationData(value=$valueString, min=$min, max=$max, " +
             "monochromaticImage=$monochromaticImage, title=$title, text=$text, " +
             "contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
@@ -1456,6 +1460,434 @@ public class PhotoImageComplicationData internal constructor(
 }
 
 /**
+ * A complication that contains a serialized protoLayout.
+ *
+ * @property contentDescription The content description field for accessibility and is used to
+ * describe what data the image represents. If the image is purely stylistic, and does not convey
+ * any information to the user, then provide an empty content description. If no content description
+ * is provided, a generic content description will be used instead.
+ */
+@ComplicationExperimental
+public class ProtoLayoutComplicationData
+internal
+/**
+ * @param ambientLayoutWireFormat The [LayoutElementBuilders.Layout] serialized into a
+ * [ByteArray] to be displayed when the device is ambient.
+ * @param interactiveLayoutWireFormat The [LayoutElementBuilders.Layout] serialized into a
+ * [ByteArray] to be displayed when the device is interactive.
+ * @param layoutResourcesWireFormat The [ResourceBuilders.Resources] serialized into a [ByteArray]
+ * for [interactiveLayoutWireFormat] and [ambientLayoutWireFormat].
+ */
+constructor(
+    private val ambientLayoutWireFormat: ByteArray,
+    private val interactiveLayoutWireFormat: ByteArray,
+    private val layoutResourcesWireFormat: ByteArray,
+    val contentDescription: ComplicationText?,
+    tapAction: PendingIntent?,
+    validTimeRange: TimeRange?,
+    cachedWireComplicationData: WireComplicationData?,
+    dataSource: ComponentName?
+) :
+    ComplicationData(
+        TYPE,
+        tapAction,
+        cachedWireComplicationData,
+        validTimeRange ?: TimeRange.ALWAYS,
+        dataSource = dataSource
+    ) {
+
+    /** The [LayoutElementBuilders.Layout] to be displayed when the device is ambient. */
+    public val ambientLayout: LayoutElementBuilders.Layout by lazy {
+        LayoutElementBuilders.Layout.fromProto(
+            LayoutElementProto.Layout.parseFrom(ambientLayoutWireFormat)
+        )
+    }
+
+    /** The [LayoutElementBuilders.Layout] to be displayed when the device is interactive. */
+    public val interactiveLayout: LayoutElementBuilders.Layout by lazy {
+        LayoutElementBuilders.Layout.fromProto(
+             LayoutElementProto.Layout.parseFrom(interactiveLayoutWireFormat)
+        )
+    }
+
+    /** The [ResourceBuilders.Resources] for [ambientLayout] and [interactiveLayout]. */
+    public val layoutResources: ResourceBuilders.Resources by lazy {
+        ResourceBuilders.Resources.fromProto(
+            ResourceProto.Resources.parseFrom(layoutResourcesWireFormat)
+        )
+    }
+
+    /**
+     * Builder for [ProtoLayoutComplicationData].
+     *
+     * You must at a minimum set the [ambientLayout], [interactiveLayout], [layoutResources] and
+     * [contentDescription] fields.
+     *
+     * @param ambientLayout The [LayoutElementBuilders.Layout] serialized into a [ByteArray] to be
+     * displayed when the device is ambient
+     * @param interactiveLayout The [LayoutElementBuilders.Layout] serialized into a [ByteArray] to
+     * be displayed when the device is interactive
+     * @param layoutResources The [ResourceBuilders.Resources] serialized into a [ByteArray] for
+     * [interactiveLayout] and [ambientLayout]
+     * @param contentDescription Localized description for use by screen readers
+     */
+    public class Builder(
+        private val ambientLayout: ByteArray,
+        private val interactiveLayout: ByteArray,
+        private val layoutResources: ByteArray,
+        private val contentDescription: ComplicationText
+    ) {
+        /**
+         * @param ambientLayout The [LayoutElementBuilders.Layout] to be displayed when the device
+         * is ambient
+         * @param interactiveLayout The [LayoutElementBuilders.Layout] to be displayed when the
+         * device is interactive
+         * @param resources The [ResourceBuilders.Resources] for [interactiveLayout] and
+         * [ambientLayout]
+         * @param contentDescription Localized description for use by screen readers
+         */
+        constructor(
+            ambientLayout: LayoutElementBuilders.Layout,
+            interactiveLayout: LayoutElementBuilders.Layout,
+            resources: ResourceBuilders.Resources,
+            contentDescription: ComplicationText
+        ) : this(
+            ambientLayout.toProto().toByteArray(),
+            interactiveLayout.toProto().toByteArray(),
+            resources.toProto().toByteArray(),
+            contentDescription
+        )
+
+        private var tapAction: PendingIntent? = null
+        private var validTimeRange: TimeRange? = null
+        private var cachedWireComplicationData: WireComplicationData? = null
+        private var dataSource: ComponentName? = null
+
+        /** Sets optional pending intent to be invoked when the complication is tapped. */
+        public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
+            this.tapAction = tapAction
+        }
+
+        /** Sets optional time range during which the complication has to be shown. */
+        @Suppress("MissingGetterMatchingBuilder") // b/174052810
+        public fun setValidTimeRange(validTimeRange: TimeRange?): Builder = apply {
+            this.validTimeRange = validTimeRange
+        }
+
+        /**
+         * Sets the [ComponentName] of the ComplicationDataSourceService that provided this
+         * ComplicationData, if any.
+         *
+         * Note a ComplicationDataSourceService does not need to call this because the system will
+         * set this value on its behalf.
+         */
+        public fun setDataSource(dataSource: ComponentName?): Builder = apply {
+            this.dataSource = dataSource
+        }
+
+        internal fun setCachedWireComplicationData(
+            cachedWireComplicationData: WireComplicationData?
+        ): Builder = apply { this.cachedWireComplicationData = cachedWireComplicationData }
+
+        /** Builds the [ProtoLayoutComplicationData]. */
+        public fun build(): ProtoLayoutComplicationData =
+            ProtoLayoutComplicationData(
+                ambientLayout,
+                interactiveLayout,
+                layoutResources,
+                contentDescription,
+                tapAction,
+                validTimeRange,
+                cachedWireComplicationData,
+                dataSource
+            )
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder()
+            .apply { fillWireComplicationDataBuilder(this) }
+            .build()
+            .also { cachedWireComplicationData = it }
+    }
+
+    override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        builder.setInteractiveLayout(interactiveLayoutWireFormat)
+        builder.setAmbientLayout(ambientLayoutWireFormat)
+        builder.setLayoutResources(layoutResourcesWireFormat)
+        builder.setContentDescription(
+            when (contentDescription) {
+                ComplicationText.EMPTY -> null
+                else -> contentDescription?.toWireComplicationText()
+            }
+        )
+        builder.setTapAction(tapAction)
+        setValidTimeRange(validTimeRange, builder)
+        builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ProtoLayoutComplicationData
+
+        if (!interactiveLayoutWireFormat.contentEquals(other.interactiveLayoutWireFormat))
+            return false
+        if (!ambientLayoutWireFormat.contentEquals(other.ambientLayoutWireFormat)) return false
+        if (!layoutResourcesWireFormat.contentEquals(other.layoutResourcesWireFormat)) return false
+        if (contentDescription != other.contentDescription) return false
+        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
+        if (tapAction != other.tapAction) return false
+        if (validTimeRange != other.validTimeRange) return false
+        if (dataSource != other.dataSource) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = interactiveLayoutWireFormat.hashCode()
+        result = 31 * result + ambientLayoutWireFormat.hashCode()
+        result = 31 * result + layoutResourcesWireFormat.hashCode()
+        result = 31 * result + (contentDescription?.hashCode() ?: 0)
+        result = 31 * result + tapActionLostDueToSerialization.hashCode()
+        result = 31 * result + (tapAction?.hashCode() ?: 0)
+        result = 31 * result + validTimeRange.hashCode()
+        result = 31 * result + dataSource.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "ProtoLayoutComplicationData(protoLayoutWireFormat=$interactiveLayoutWireFormat, " +
+            "ambientProtoLayoutWireFormat=$ambientLayoutWireFormat, " +
+            "resourcesWireFormat=$layoutResourcesWireFormat, " +
+            "contentDescription=$contentDescription, " +
+            "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
+            "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource)"
+    }
+
+    /** @hide */
+    public companion object {
+        /** The [ComplicationType] corresponding to objects of this type. */
+        @JvmField
+        public val TYPE: ComplicationType = ComplicationType.PROTO_LAYOUT
+    }
+}
+
+/**
+ * A complication that's a list of other complications, typically rendered as a table. E.g. the
+ * weather forecast for the next three days could consist of three [ShortTextComplicationData]s
+ * displayed in a row of columns.
+ *
+ * @property complicationList The list of sub [ComplicationData]s to display. This has a maximum
+ * size of [ListComplicationData.MAX_ITEMS]. Note complicationList may not include a
+ * ListComplicationData.
+ * @property contentDescription The content description field for accessibility and is used to
+ * describe what data the image represents. If the image is purely stylistic, and does not convey
+ * any information to the user, then provide an empty content description. If no content description
+ * is provided, a generic content description will be used instead.
+ * @property styleHint The [StyleHint] which influences layout.
+ */
+@ComplicationExperimental
+public class ListComplicationData
+internal constructor(
+    public val complicationList: List<ComplicationData>,
+    public val contentDescription: ComplicationText?,
+    tapAction: PendingIntent?,
+    validTimeRange: TimeRange?,
+    cachedWireComplicationData: WireComplicationData?,
+    dataSource: ComponentName?,
+    public val styleHint: StyleHint
+) : ComplicationData(
+        TYPE,
+        tapAction = tapAction,
+        cachedWireComplicationData = cachedWireComplicationData,
+        validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
+        dataSource = dataSource
+    ) {
+
+    init {
+        require(complicationList.size <= MAX_ITEMS) {
+            "complicationList has a maximum of $MAX_ITEMS entries, but found " +
+                complicationList.size
+        }
+
+        for (entry in complicationList) {
+            require(entry !is ListComplicationData) {
+                "You may not include a ListComplicationData inside a ListComplicationData"
+            }
+        }
+    }
+
+    /** A hint for generating a layout for [ListComplicationData]. */
+    @ComplicationExperimental
+    enum class StyleHint(private val wireType: Int) {
+        /** Hints the list should be displayed as a single column where the entries are rows. */
+        ColumnOfRows(0),
+
+        /** Hints the list should be displayed as a single row where the entries are columns. */
+        RowOfColumns(1);
+
+        override fun toString(): String {
+            return "ListComplicationLayoutStyleHint(wireType=$wireType)"
+        }
+
+        internal companion object {
+            fun fromWireFormat(wireType: Int): StyleHint =
+                when (wireType) {
+                    ColumnOfRows.ordinal -> ColumnOfRows
+                    RowOfColumns.ordinal -> RowOfColumns
+                    else ->
+                        throw java.lang.IllegalArgumentException(
+                            "Unrecognized ListComplicationLayoutStyleHint wireType $wireType"
+                        )
+                }
+        }
+    }
+
+    /**
+     * Builder for [ListComplicationData].
+     *
+     * You must at a minimum set the [complicationList], [styleHint] and [contentDescription]
+     * fields.
+     *
+     * @param complicationList The list [ComplicationData] to be displayed, typically as a table.
+     * Note complicationList may not include a ListComplicationData.
+     * @param styleHint The [StyleHint] which influences layout.
+     * @param contentDescription Localized description for use by screen readers
+     */
+    public class Builder(
+        private val complicationList: List<ComplicationData>,
+        private val styleHint: StyleHint,
+        private val contentDescription: ComplicationText
+    ) {
+        private var tapAction: PendingIntent? = null
+        private var validTimeRange: TimeRange? = null
+        private var cachedWireComplicationData: WireComplicationData? = null
+        private var dataSource: ComponentName? = null
+
+        /** Sets optional pending intent to be invoked when the complication is tapped. */
+        @SuppressWarnings("MissingGetterMatchingBuilder") // See http://b/174052810
+        public fun setTapAction(tapAction: PendingIntent?): Builder = apply {
+            this.tapAction = tapAction
+        }
+
+        /** Sets optional time range during which the complication has to be shown. */
+        @SuppressWarnings("MissingGetterMatchingBuilder") // See http://b/174052810
+        public fun setValidTimeRange(validTimeRange: TimeRange?): Builder = apply {
+            this.validTimeRange = validTimeRange
+        }
+
+        /**
+         * Sets the [ComponentName] of the ComplicationDataSourceService that provided this
+         * ComplicationData, if any.
+         *
+         * Note a ComplicationDataSourceService does not need to call this because the system will
+         * set this value on its behalf.
+         */
+        public fun setDataSource(dataSource: ComponentName?): Builder = apply {
+            this.dataSource = dataSource
+        }
+
+        internal fun setCachedWireComplicationData(
+            cachedWireComplicationData: WireComplicationData?
+        ): Builder = apply { this.cachedWireComplicationData = cachedWireComplicationData }
+
+        /** Builds the [ListComplicationData]. */
+        public fun build(): ListComplicationData =
+            ListComplicationData(
+                complicationList,
+                contentDescription,
+                tapAction,
+                validTimeRange,
+                cachedWireComplicationData,
+                dataSource,
+                styleHint
+            )
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun asWireComplicationData(): WireComplicationData {
+        cachedWireComplicationData?.let {
+            return it
+        }
+        return createWireComplicationDataBuilder()
+            .apply { fillWireComplicationDataBuilder(this) }
+            .build()
+            .also { cachedWireComplicationData = it }
+    }
+
+    override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
+        builder.setListEntryCollection(complicationList.map {
+            it.asWireComplicationData()
+        })
+        builder.setListStyleHint(styleHint.ordinal)
+        builder.setContentDescription(
+            when (contentDescription) {
+                ComplicationText.EMPTY -> null
+                else -> contentDescription?.toWireComplicationText()
+            }
+        )
+        builder.setTapAction(tapAction)
+        setValidTimeRange(validTimeRange, builder)
+        builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
+    }
+
+    override fun hasPlaceholderFields() = false
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ListComplicationData
+
+        if (complicationList != other.complicationList) return false
+        if (contentDescription != other.contentDescription) return false
+        if (tapActionLostDueToSerialization != other.tapActionLostDueToSerialization) return false
+        if (tapAction != other.tapAction) return false
+        if (validTimeRange != other.validTimeRange) return false
+        if (dataSource != other.dataSource) return false
+        if (styleHint != other.styleHint) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = complicationList.hashCode()
+        result = 31 * result + (contentDescription?.hashCode() ?: 0)
+        result = 31 * result + tapActionLostDueToSerialization.hashCode()
+        result = 31 * result + (tapAction?.hashCode() ?: 0)
+        result = 31 * result + validTimeRange.hashCode()
+        result = 31 * result + dataSource.hashCode()
+        result = 31 * result + styleHint.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "ListComplicationData(complicationList=$complicationList, " +
+            "contentDescription=$contentDescription, " +
+            "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
+            "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
+            "styleHint=$styleHint)"
+    }
+
+    /** @hide */
+    public companion object {
+        /** The [ComplicationType] corresponding to objects of this type. */
+        @JvmField
+        public val TYPE: ComplicationType = ComplicationType.LIST
+
+        /** The maximum number of items in [ListComplicationData.complicationList]. */
+        public const val MAX_ITEMS = 5
+    }
+}
+
+/**
  * Type sent by the system when the watch face does not have permission to receive complication
  * data.
  *
@@ -1611,103 +2043,124 @@ public class NoPermissionComplicationData internal constructor(
     }
 }
 
+@OptIn(ComplicationExperimental::class)
+internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationData? = when (type) {
+    NoDataComplicationData.TYPE.toWireComplicationType() -> null
+
+    ShortTextComplicationData.TYPE.toWireComplicationType() -> {
+        ShortTextComplicationData.Builder(
+            shortText!!.toApiComplicationTextPlaceholderAware(),
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+        ).apply {
+            setTapAction(tapAction)
+            setValidTimeRange(parseTimeRange())
+            setMonochromaticImage(parseIconPlaceholderAware())
+            setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
+            setDataSource(dataSource)
+        }.build()
+    }
+
+    LongTextComplicationData.TYPE.toWireComplicationType() -> {
+        LongTextComplicationData.Builder(
+            longText!!.toApiComplicationTextPlaceholderAware(),
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+        ).apply {
+            setTapAction(tapAction)
+            setValidTimeRange(parseTimeRange())
+            setMonochromaticImage(parseIconPlaceholderAware())
+            setSmallImage(parseSmallImagePlaceholderAware())
+            setTitle(longTitle?.toApiComplicationTextPlaceholderAware())
+            setDataSource(dataSource)
+        }.build()
+    }
+
+    RangedValueComplicationData.TYPE.toWireComplicationType() ->
+        RangedValueComplicationData.Builder(
+            value = rangedValue,
+            min = rangedMinValue,
+            max = rangedMaxValue,
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+        ).apply {
+            setTapAction(tapAction)
+            setValidTimeRange(parseTimeRange())
+            setMonochromaticImage(parseIconPlaceholderAware())
+            setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
+            setText(shortText?.toApiComplicationTextPlaceholderAware())
+            setDataSource(dataSource)
+        }.build()
+
+    MonochromaticImageComplicationData.TYPE.toWireComplicationType() ->
+        MonochromaticImageComplicationData(
+            parseIconPlaceholderAware()!!,
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY,
+            tapAction,
+            parseTimeRange(),
+            this,
+            dataSource
+        )
+
+    SmallImageComplicationData.TYPE.toWireComplicationType() ->
+        SmallImageComplicationData(
+            parseSmallImagePlaceholderAware()!!,
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY,
+            tapAction,
+            parseTimeRange(),
+            this,
+            dataSource
+        )
+
+    PhotoImageComplicationData.TYPE.toWireComplicationType() ->
+        PhotoImageComplicationData(
+            parseLargeImagePlaceholderAware()!!,
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY,
+            tapAction,
+            parseTimeRange(),
+            this,
+            dataSource
+        )
+
+    // TODO(b/230102159): We need to build support for placeholder ProtoLayoutComplicationData.
+    ProtoLayoutComplicationData.TYPE.toWireComplicationType() ->
+        ProtoLayoutComplicationData.Builder(
+            ambientLayout!!,
+            interactiveLayout!!,
+            layoutResources!!,
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+        )
+            .apply {
+                setTapAction(tapAction)
+                setValidTimeRange(parseTimeRange())
+                setDataSource(dataSource)
+            }
+            .build()
+
+    ListComplicationData.TYPE.toWireComplicationType() ->
+        ListComplicationData.Builder(
+            listEntries!!.map { it.toApiComplicationData() },
+            ListComplicationData.StyleHint.fromWireFormat(listStyleHint),
+            contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+        )
+            .apply {
+                setTapAction(tapAction)
+                setValidTimeRange(parseTimeRange())
+                setDataSource(dataSource)
+            }
+            .build()
+    else -> null
+}
+
 /**
  * @hide
  */
+@OptIn(ComplicationExperimental::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun WireComplicationData.toApiComplicationData(): ComplicationData {
     val wireComplicationData = this
     return when (type) {
         NoDataComplicationData.TYPE.toWireComplicationType() -> {
-            if (hasPlaceholderType()) {
-                val placeholder = when (placeholderType) {
-                    NoDataComplicationData.TYPE.toWireComplicationType() -> null
-
-                    ShortTextComplicationData.TYPE.toWireComplicationType() -> {
-                        ShortTextComplicationData.Builder(
-                            shortText!!.toApiComplicationTextPlaceholderAware(),
-                            contentDescription?.toApiComplicationText()
-                                ?: ComplicationText.EMPTY
-                        ).apply {
-                            setMonochromaticImage(parseIconPlaceholderAware())
-                            setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
-                            setDataSource(dataSource)
-                        }.build()
-                    }
-
-                    LongTextComplicationData.TYPE.toWireComplicationType() -> {
-                        LongTextComplicationData.Builder(
-                            longText!!.toApiComplicationTextPlaceholderAware(),
-                            contentDescription?.toApiComplicationText()
-                                ?: ComplicationText.EMPTY
-                        ).apply {
-                            setMonochromaticImage(parseIconPlaceholderAware())
-                            setSmallImage(parseSmallImagePlaceholderAware())
-                            setTitle(longTitle?.toApiComplicationTextPlaceholderAware())
-                            setDataSource(dataSource)
-                        }.build()
-                    }
-
-                    RangedValueComplicationData.TYPE.toWireComplicationType() ->
-                        RangedValueComplicationData.Builder(
-                            value = rangedValue,
-                            min = rangedMinValue,
-                            max = rangedMaxValue,
-                            contentDescription?.toApiComplicationText()
-                                ?: ComplicationText.EMPTY
-                        ).apply {
-                            setMonochromaticImage(parseIconPlaceholderAware())
-                            setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
-                            setText(shortText?.toApiComplicationTextPlaceholderAware())
-                            setDataSource(dataSource)
-                        }.build()
-
-                    MonochromaticImageComplicationData.TYPE.toWireComplicationType() ->
-                        MonochromaticImageComplicationData(
-                            parseIconPlaceholderAware()!!,
-                            contentDescription?.toApiComplicationText()
-                                ?: ComplicationText.EMPTY,
-                            tapAction,
-                            parseTimeRange(),
-                            wireComplicationData,
-                            dataSource
-                        )
-
-                    SmallImageComplicationData.TYPE.toWireComplicationType() ->
-                        SmallImageComplicationData(
-                            parseSmallImagePlaceholderAware()!!,
-                            contentDescription?.toApiComplicationText()
-                                ?: ComplicationText.EMPTY,
-                            tapAction,
-                            parseTimeRange(),
-                            wireComplicationData,
-                            dataSource
-                        )
-
-                    PhotoImageComplicationData.TYPE.toWireComplicationType() ->
-                        PhotoImageComplicationData(
-                            parseLargeImagePlaceholderAware()!!,
-                            contentDescription?.toApiComplicationText()
-                                ?: ComplicationText.EMPTY,
-                            tapAction,
-                            parseTimeRange(),
-                            wireComplicationData,
-                            dataSource
-                        )
-
-                    else -> throw IllegalStateException(
-                        "Unrecognized placeholderType $placeholderType"
-                    )
-                }
-
-                if (placeholder != null) {
-                    NoDataComplicationData(placeholder)
-                } else {
-                    NoDataComplicationData()
-                }
-            } else {
-                NoDataComplicationData()
-            }
+            placeholder?.toPlaceholderComplicationData() ?.let {
+                NoDataComplicationData(it)
+            } ?: NoDataComplicationData()
         }
 
         EmptyComplicationData.TYPE.toWireComplicationType() -> EmptyComplicationData()
@@ -1790,6 +2243,35 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                 setCachedWireComplicationData(wireComplicationData)
                 setDataSource(dataSource)
             }.build()
+
+        ProtoLayoutComplicationData.TYPE.toWireComplicationType() ->
+            ProtoLayoutComplicationData.Builder(
+                ambientLayout!!,
+                interactiveLayout!!,
+                layoutResources!!,
+                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+            )
+                .apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setCachedWireComplicationData(wireComplicationData)
+                    setDataSource(dataSource)
+                }
+                .build()
+
+        ListComplicationData.TYPE.toWireComplicationType() ->
+            ListComplicationData.Builder(
+                listEntries!!.map { it.toApiComplicationData() },
+                ListComplicationData.StyleHint.fromWireFormat(listStyleHint),
+                contentDescription?.toApiComplicationText() ?: ComplicationText.EMPTY
+            )
+                .apply {
+                    setTapAction(tapAction)
+                    setValidTimeRange(parseTimeRange())
+                    setCachedWireComplicationData(wireComplicationData)
+                    setDataSource(dataSource)
+                }
+                .build()
 
         NoPermissionComplicationData.TYPE.toWireComplicationType() ->
             NoPermissionComplicationData.Builder().apply {

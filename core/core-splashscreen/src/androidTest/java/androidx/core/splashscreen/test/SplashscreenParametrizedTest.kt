@@ -22,7 +22,6 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.core.splashscreen.SplashScreenViewProvider
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -36,6 +35,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -168,7 +168,7 @@ public class SplashscreenParametrizedTest(
      * before and after the removal of the SplashScreenView.
      */
     @Test
-    @FlakyTest(bugId = 213634077)
+    @Ignore // b/213634077
     fun endStateStableWithAndWithoutListener() {
         // Take a screenshot of the activity when no OnExitAnimationListener is set.
         // This is our reference.

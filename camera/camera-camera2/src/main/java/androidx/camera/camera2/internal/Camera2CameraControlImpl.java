@@ -126,7 +126,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
     private final ExposureControl mExposureControl;
-    private final ZslControl mZslControl;
+    @VisibleForTesting
+    ZslControl mZslControl;
     private final Camera2CameraControl mCamera2CameraControl;
     private final Camera2CapturePipeline mCamera2CapturePipeline;
     @GuardedBy("mLock")
@@ -387,6 +388,11 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     public void addZslConfig(@NonNull Size resolution,
             @NonNull SessionConfig.Builder sessionConfigBuilder) {
         mZslControl.addZslConfig(resolution, sessionConfigBuilder);
+    }
+
+    @Override
+    public void setZslDisabled(boolean disabled) {
+        mZslControl.setZslDisabled(disabled);
     }
 
     /** {@inheritDoc} */

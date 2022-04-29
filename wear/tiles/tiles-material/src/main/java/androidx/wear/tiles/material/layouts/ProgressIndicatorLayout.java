@@ -68,7 +68,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
         /** Sets the progress indicator which will be around the edges. */
         @NonNull
         // There is no direct matching getter for this setter as the serialized format of the
-        // ProtoLayouts do not allow for a direct reconstruction of the arguments. Instead there are
+        // Tiles do not allow for a direct reconstruction of the arguments. Instead there are
         // methods to get the contents a whole for rendering.
         @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setProgressIndicatorContent(@NonNull LayoutElement progressIndicator) {

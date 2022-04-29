@@ -51,6 +51,8 @@ import androidx.compose.ui.text.android.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.compose.ui.text.android.LayoutCompat.TextDirection
 import androidx.compose.ui.text.android.LayoutCompat.TextLayoutAlignment
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
+import androidx.compose.ui.text.android.style.LineHeightStyleSpan
+import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.min
@@ -240,8 +242,9 @@ class TextLayout constructor(
             }
 
         val verticalPaddings = getVerticalPaddings()
-        topPadding = verticalPaddings.first
-        bottomPadding = verticalPaddings.second
+        val lineHeightPaddings = getLineHeightPaddings()
+        topPadding = max(verticalPaddings.first, lineHeightPaddings.first)
+        bottomPadding = max(verticalPaddings.second, lineHeightPaddings.second)
     }
 
     private val layoutHelper by lazy(LazyThreadSafetyMode.NONE) { LayoutHelper(layout) }
@@ -271,7 +274,23 @@ class TextLayout constructor(
             if (line == lineCount - 1) bottomPadding else 0
     }
 
+    /**
+     * Returns the ascent of the line in the line coordinates. Baseline is considered to be 0,
+     * therefore ascent is generally a negative value. The unit for values are pixels.
+     *
+     * @param line the line index starting from 0
+     */
+    fun getLineAscent(line: Int): Float = layout.getLineAscent(line).toFloat()
+
     fun getLineBaseline(line: Int): Float = topPadding + layout.getLineBaseline(line).toFloat()
+
+    /**
+     * Returns the descent of the line in the line coordinates. Baseline is considered to be 0,
+     * therefore descent is generally a positive value. The unit for values are pixels.
+     *
+     * @param line the line index starting from 0
+     */
+    fun getLineDescent(line: Int): Float = layout.getLineDescent(line).toFloat()
 
     fun getLineHeight(lineIndex: Int): Float = getLineBottom(lineIndex) - getLineTop(lineIndex)
 
@@ -623,5 +642,43 @@ private fun TextLayout.getVerticalPaddings(): Pair<Int, Int> {
         layout.bottomPadding
     }
 
-    return Pair(topPadding, bottomPadding)
+    return if (topPadding == 0 && bottomPadding == 0) {
+        EmptyPair
+    } else {
+        Pair(topPadding, bottomPadding)
+    }
+}
+
+private val EmptyPair = Pair(0, 0)
+
+@OptIn(InternalPlatformTextApi::class)
+private fun TextLayout.getLineHeightPaddings(): Pair<Int, Int> {
+    var firstAscentDiff = 0
+    var lastDescentDiff = 0
+    val lineHeightSpans = getLineHeightSpans()
+
+    for (span in lineHeightSpans) {
+        if (span.firstAscentDiff < 0) {
+            firstAscentDiff = max(firstAscentDiff, abs(span.firstAscentDiff))
+        }
+        if (span.lastDescentDiff < 0) {
+            lastDescentDiff = max(firstAscentDiff, abs(span.lastDescentDiff))
+        }
+    }
+
+    return if (firstAscentDiff == 0 && lastDescentDiff == 0) {
+        EmptyPair
+    } else {
+        Pair(firstAscentDiff, lastDescentDiff)
+    }
+}
+
+@OptIn(InternalPlatformTextApi::class)
+private fun TextLayout.getLineHeightSpans(): Array<LineHeightStyleSpan> {
+    if (text !is Spanned) return emptyArray()
+    val lineHeightStyleSpans = (text as Spanned).getSpans(
+        0, text.length, LineHeightStyleSpan::class.java
+    )
+    if (lineHeightStyleSpans.isEmpty()) return emptyArray()
+    return lineHeightStyleSpans
 }

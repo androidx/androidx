@@ -43,6 +43,7 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
+import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.data.ComplicationRenderParams
@@ -61,7 +62,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.security.InvalidParameterException
 import java.time.Instant
@@ -1124,6 +1124,7 @@ public class WatchFaceImpl @UiThread constructor(
         }
     }
 
+    @OptIn(ComplicationExperimental::class)
     @UiThread
     internal fun getComplicationState() = complicationSlotsManager.complicationSlots.map {
         val systemDataSourceFallbackDefaultType =
@@ -1148,7 +1149,8 @@ public class WatchFaceImpl @UiThread constructor(
                 it.value.fixedComplicationDataSource,
                 it.value.configExtras,
                 it.value.nameResourceId,
-                it.value.screenReaderNameResourceId
+                it.value.screenReaderNameResourceId,
+                it.value.boundingArc?.toWireFormat()
             )
         )
     }

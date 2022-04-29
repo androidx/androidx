@@ -19,7 +19,6 @@ package androidx.wear.compose.foundation
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import org.junit.Assert
 
@@ -113,13 +112,30 @@ internal fun CapturedInfo.checkPositionOnParent(
     )
 }
 
+internal fun CapturedInfo.checkPositionRelativeTo(
+    target: CapturedInfo,
+    expectedAngularPositionDegrees: Float,
+    expectedRadialPositionPx: Float
+) {
+    Assert.assertEquals(
+        expectedAngularPositionDegrees,
+        lastLayoutInfo!!.startAngleRadians - target.lastLayoutInfo!!.startAngleRadians,
+        FINE_FLOAT_TOLERANCE
+    )
+    Assert.assertEquals(
+        expectedRadialPositionPx,
+        target.lastLayoutInfo!!.outerRadius - lastLayoutInfo!!.outerRadius,
+        FINE_FLOAT_TOLERANCE
+    )
+}
+
 internal fun CurvedModifier.spy(capturedInfo: CapturedInfo) =
     this.then { wrapped -> SpyCurvedChildWrapper(capturedInfo, wrapped) }
 
 internal class SpyCurvedChildWrapper(private val capturedInfo: CapturedInfo, wrapped: CurvedChild) :
     BaseCurvedChildWrapper(wrapped) {
 
-    override fun MeasureScope.initializeMeasure(
+    override fun CurvedMeasureScope.initializeMeasure(
         measurables: List<Measurable>,
         index: Int
     ): Int = with(wrapped) {

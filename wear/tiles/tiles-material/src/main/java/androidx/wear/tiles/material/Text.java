@@ -88,7 +88,7 @@ public class Text implements LayoutElement {
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
         // There is getFontStyle matching getter for this setter as the serialized format of the
-        // ProtoLayouts do not allow for a direct reconstruction of the all arguments, but it has
+        // Tiles do not allow for a direct reconstruction of the all arguments, but it has
         // FontStyle object of that text.
         public Builder setTypography(@TypographyName int typography) {
             this.mTypographyName = typography;

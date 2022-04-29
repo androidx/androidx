@@ -43,8 +43,6 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
-import androidx.camera.extensions.internal.ExtensionVersion;
-import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
 import androidx.camera.testing.CameraUtil;
 
@@ -212,14 +210,7 @@ public class ExtensionsTestUtil {
     public static boolean extensionsDisabledByQuirk(@CameraSelector.LensFacing int lensFacing,
             @ExtensionMode.Mode int extensionMode) {
 
-        boolean isAdvancedExtenderSupported = false;
-
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_2) >= 0) {
-            isAdvancedExtenderSupported = ExtensionVersion.isAdvancedExtenderSupported();
-        }
-
         return new ExtensionDisabledValidator().shouldDisableExtension(
-                CameraUtil.getCameraIdWithLensFacing(lensFacing), extensionMode,
-                isAdvancedExtenderSupported);
+                CameraUtil.getCameraIdWithLensFacing(lensFacing), extensionMode);
     }
 }

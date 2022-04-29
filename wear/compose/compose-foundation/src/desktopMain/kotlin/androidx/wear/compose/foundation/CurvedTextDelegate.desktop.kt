@@ -28,8 +28,7 @@ internal actual class CurvedTextDelegate {
     actual fun updateIfNeeded(
         text: String,
         clockwise: Boolean,
-        fontSizePx: Float,
-        arcPaddingPx: ArcPaddingPx
+        fontSizePx: Float
     ) {
         // TODO(b/194653251): Implement
         throw java.lang.RuntimeException("Not implemented")

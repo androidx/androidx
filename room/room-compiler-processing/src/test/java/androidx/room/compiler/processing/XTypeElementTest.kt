@@ -118,12 +118,17 @@ class XTypeElementTest {
             }
             abstract class AbstractClass {}
             interface MyInterface {}
+            interface AnotherInterface : MyInterface {}
             """.trimIndent()
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
             invocation.processingEnv.requireTypeElement("foo.bar.Baz").let {
-                assertThat(it.superType).isEqualTo(
+                assertThat(it.superClass).isEqualTo(
                     invocation.processingEnv.requireType("foo.bar.AbstractClass")
+                )
+                assertThat(it.superTypes).containsExactly(
+                    invocation.processingEnv.requireType("foo.bar.AbstractClass"),
+                    invocation.processingEnv.requireType("foo.bar.MyInterface")
                 )
                 assertThat(it.type).isEqualTo(
                     invocation.processingEnv.requireType("foo.bar.Baz")
@@ -133,16 +138,12 @@ class XTypeElementTest {
                 assertThat(it.isAbstract()).isFalse()
             }
             invocation.processingEnv.requireTypeElement("foo.bar.AbstractClass").let {
-                assertThat(it.superType).let {
-                    // KSP does not return Object / Any as super class
-                    if (invocation.isKsp) {
-                        it.isNull()
-                    } else {
-                        it.isEqualTo(
-                            invocation.processingEnv.requireType(TypeName.OBJECT)
-                        )
-                    }
-                }
+                assertThat(it.superClass).isEqualTo(
+                    invocation.processingEnv.requireType(TypeName.OBJECT)
+                )
+                assertThat(it.superTypes).containsExactly(
+                    invocation.processingEnv.requireType(TypeName.OBJECT)
+                )
                 assertThat(it.isAbstract()).isTrue()
                 assertThat(it.isInterface()).isFalse()
                 assertThat(it.type).isEqualTo(
@@ -150,10 +151,23 @@ class XTypeElementTest {
                 )
             }
             invocation.processingEnv.requireTypeElement("foo.bar.MyInterface").let {
-                assertThat(it.superType).isNull()
+                assertThat(it.superClass).isNull()
+                assertThat(it.superTypes).containsExactly(
+                    invocation.processingEnv.requireType(TypeName.OBJECT)
+                )
                 assertThat(it.isInterface()).isTrue()
                 assertThat(it.type).isEqualTo(
                     invocation.processingEnv.requireType("foo.bar.MyInterface")
+                )
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.AnotherInterface").let {
+                assertThat(it.superClass).isNull()
+                assertThat(it.superTypes).containsExactly(
+                    invocation.processingEnv.requireType("foo.bar.MyInterface")
+                )
+                assertThat(it.isInterface()).isTrue()
+                assertThat(it.type).isEqualTo(
+                    invocation.processingEnv.requireType("foo.bar.AnotherInterface")
                 )
             }
         }
@@ -758,25 +772,9 @@ class XTypeElementTest {
             classpath = compileFiles(listOf(buildSrc("lib")))
         ) { invocation ->
             listOf("lib", "app").forEach { pkg ->
-                val objectMethodNames = invocation.processingEnv.requireTypeElement(Any::class)
-                    .getAllMethods().jvmNames()
-
-                fun XMethodElement.signature(
-                    owner: XType
-                ): String {
-                    val methodType = this.asMemberOf(owner)
-                    val params = methodType.parameterTypes.joinToString(",") {
-                        it.typeName.toString()
-                    }
-                    return "$jvmName($params):${returnType.typeName}"
-                }
-
-                fun XTypeElement.allMethodSignatures(): List<String> = getAllMethods().filterNot {
-                    it.jvmName in objectMethodNames
-                }.map { it.signature(this.type) }.toList()
                 invocation.processingEnv.requireTypeElement("$pkg.Subject1").let { subject ->
                     assertWithMessage(subject.qualifiedName).that(
-                        subject.allMethodSignatures()
+                        invocation.nonObjectMethodSignatures(subject)
                     ).containsExactly(
                         "child1(java.lang.String):void",
                         "child2(java.lang.String):void",
@@ -785,7 +783,7 @@ class XTypeElementTest {
                 }
                 invocation.processingEnv.requireTypeElement("$pkg.Subject2").let { subject ->
                     assertWithMessage(subject.qualifiedName).that(
-                        subject.allMethodSignatures()
+                        invocation.nonObjectMethodSignatures(subject)
                     ).containsExactly(
                         "child1(java.lang.String):void",
                         "parent(java.lang.String):void",
@@ -793,7 +791,7 @@ class XTypeElementTest {
                 }
                 invocation.processingEnv.requireTypeElement("$pkg.Subject3").let { subject ->
                     assertWithMessage(subject.qualifiedName).that(
-                        subject.allMethodSignatures()
+                        invocation.nonObjectMethodSignatures(subject)
                     ).containsExactly(
                         "child1(java.lang.String):void",
                         "parent(java.lang.String):void",
@@ -828,7 +826,9 @@ class XTypeElementTest {
         runProcessorTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("DerivedInterface")
             val methodNames = base.getAllMethods().toList().jvmNames()
-            assertThat(methodNames).containsExactly("get", "getAll", "putAll", "getAllWithDefault")
+            assertThat(methodNames).containsExactly(
+                "get", "getAll", "putAll", "getAllWithDefault"
+            )
         }
     }
 
@@ -883,27 +883,11 @@ class XTypeElementTest {
         )
 
         runProcessorTest(sources = listOf(src)) { invocation ->
-            val objectMethodNames = invocation.processingEnv.requireTypeElement(Any::class)
-                .getAllMethods().jvmNames()
-            fun XMethodElement.signature(
-                owner: XType
-            ): String {
-                val methodType = this.asMemberOf(owner)
-                val params = methodType.parameterTypes.joinToString(",") {
-                    it.typeName.toString()
-                }
-                return "$jvmName($params):${returnType.typeName}"
-            }
-
-            fun XTypeElement.allMethodSignatures(): List<String> = getAllMethods().filterNot {
-                it.jvmName in objectMethodNames
-            }.map { it.signature(this.type) }.toList()
-
             invocation.processingEnv.requireTypeElement(
                 "ParentWithExplicitOverride"
             ).let { parent ->
                 assertWithMessage(parent.qualifiedName).that(
-                    parent.allMethodSignatures()
+                    invocation.nonObjectMethodSignatures(parent)
                 ).containsExactly(
                     "child():Child"
                 )
@@ -913,11 +897,66 @@ class XTypeElementTest {
                 "ParentWithoutExplicitOverride"
             ).let { parent ->
                 assertWithMessage(parent.qualifiedName).that(
-                    parent.allMethodSignatures()
+                    invocation.nonObjectMethodSignatures(parent)
                 ).containsExactly(
                     "child():Child"
                 )
             }
+        }
+    }
+
+    @Test
+    fun allMethodsFiltersInAccessibleMethods() {
+        val srcs = listOf(
+            Source.java(
+        "foo.Foo",
+                """
+                package foo;
+                public interface Foo {
+                    void foo_Public();
+                }
+                """.trimIndent()
+            ),
+            Source.java(
+                "foo.parent.FooParent",
+                """
+                package foo.parent;
+                public abstract class FooParent implements foo.Foo {
+                    public void fooParent_Public() {}
+                    protected void fooParent_Protected() {}
+                    private void fooParent_Private() {}
+                    void fooParent_PackagePrivate() {}
+                }
+                """.trimIndent()
+            ),
+            Source.java(
+                "foo.child.FooChild",
+                """
+                package foo.child;
+                public abstract class FooChild extends foo.parent.FooParent {
+                    public void fooChild_Public() {}
+                    protected void fooChild_Protected() {}
+                    private void fooChild_Private() {}
+                    void fooChild_PackagePrivate() {}
+                }
+                """.trimIndent()
+            ),
+        )
+        runProcessorTest(sources = srcs) { invocation ->
+            invocation.processingEnv.requireTypeElement("foo.child.FooChild")
+                .let { fooChild ->
+                    assertWithMessage(fooChild.qualifiedName).that(
+                        invocation.nonObjectMethodSignatures(fooChild)
+                    ).containsExactly(
+                        "foo_Public():void",
+                        "fooParent_Public():void",
+                        "fooParent_Protected():void",
+                        "fooChild_Public():void",
+                        "fooChild_Protected():void",
+                        "fooChild_Private():void",
+                        "fooChild_PackagePrivate():void"
+                    )
+                }
         }
     }
 
@@ -1538,4 +1577,17 @@ class XTypeElementTest {
     private fun List<XMethodElement>.jvmNames() = map {
         it.jvmName
     }.toList()
+
+    private fun XMethodElement.signature(owner: XType): String {
+        val methodType = this.asMemberOf(owner)
+        val params = methodType.parameterTypes.joinToString(",") {
+            it.typeName.toString()
+        }
+        return "$jvmName($params):${returnType.typeName}"
+    }
+
+    private fun XTestInvocation.nonObjectMethodSignatures(typeElement: XTypeElement): List<String> =
+        typeElement.getAllMethods()
+            .filterNot { it.jvmName in objectMethodNames() }
+            .map { it.signature(typeElement.type) }.toList()
 }

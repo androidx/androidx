@@ -42,7 +42,6 @@ import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Assume
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -108,7 +107,6 @@ class EncoderFinderTest(
         CameraXUtil.shutdown()[10, TimeUnit.SECONDS]
     }
 
-    @Ignore("b/228838778")
     @LabTestRule.LabTestOnly
     @Test
     fun findEncoderForFormat_CamcorderProfile() {

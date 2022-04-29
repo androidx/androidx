@@ -93,7 +93,7 @@ class RoomInvalidationHookTest {
         )
         val invalidatedTables = CompletableDeferred<List<String>>()
         db.invalidationTracker.addObserver(object : InvalidationTracker.Observer("TestEntity") {
-            override fun onInvalidated(tables: MutableSet<String>) {
+            override fun onInvalidated(tables: Set<String>) {
                 invalidatedTables.complete(tables.toList())
             }
         })

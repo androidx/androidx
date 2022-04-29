@@ -111,7 +111,7 @@ public class ShortcutAdapterTest {
                 .setCreationTimestampMillis(100)
                 .setName(name)
                 .setDurationMillis(1000)
-                .setRemainingTimeMillisSinceUpdate(500)
+                .setRemainingTimeMillis(500)
                 .setRingtone("clock://ringtone/1")
                 .setStatus(Timer.STATUS_STARTED)
                 .setShouldVibrate(true)

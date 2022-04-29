@@ -462,5 +462,11 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         public void onCaptureSequenceAborted(int captureSequenceId) {
             mCaptureCallback.onCaptureSequenceAborted(captureSequenceId);
         }
+
+        @Override
+        public void onCaptureCompleted(long timestamp, int captureSequenceId,
+                Map<CaptureResult.Key, Object> result) {
+            mCaptureCallback.onCaptureCompleted(timestamp, captureSequenceId, result);
+        }
     }
 }

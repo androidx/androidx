@@ -415,8 +415,8 @@ public final class CameraX {
                                             executor.deinit();
                                         }
                                         mSchedulerThread.quit();
-                                        completer.set(null);
                                     }
+                                    completer.set(null);
                                 }, mCameraExecutor);
                                 return "CameraX shutdownInternal";
                             }
