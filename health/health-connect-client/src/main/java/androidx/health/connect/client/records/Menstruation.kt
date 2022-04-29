@@ -16,6 +16,7 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -24,12 +25,9 @@ import java.time.ZoneOffset
  * Captures a description of how heavy a user's menstrual flow was (spotting, light, medium, or
  * heavy). Each record represents a description of how heavy the user's menstrual bleeding was.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class Menstruation(
-    /**
-     * How heavy the user's menstrual flow was. Optional field. Allowed values: [MenstruationFlow].
-     */
-    @property:MenstruationFlow public val flow: String? = null,
+    /** How heavy the user's menstrual flow was. Optional field. Allowed values: [Flows]. */
+    @property:Flows public val flow: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
@@ -54,4 +52,29 @@ public class Menstruation(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    /** How heavy the user's menstruation flow was. */
+    public object Flow {
+        const val SPOTTING = "spotting"
+        const val LIGHT = "light"
+        const val MEDIUM = "medium"
+        const val HEAVY = "heavy"
+    }
+
+    /**
+     * How heavy the user's menstruation flow was.
+     * @suppress
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(
+        value =
+            [
+                Menstruation.Flow.SPOTTING,
+                Menstruation.Flow.LIGHT,
+                Menstruation.Flow.MEDIUM,
+                Menstruation.Flow.HEAVY,
+            ]
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    annotation class Flows
 }

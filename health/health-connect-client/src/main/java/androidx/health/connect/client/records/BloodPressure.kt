@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
@@ -25,7 +25,6 @@ import java.time.ZoneOffset
  * Captures the blood pressure of a user. Each record represents a single instantaneous blood
  * pressure reading.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BloodPressure(
     /**
      * Systolic blood pressure measurement, in millimetres of mercury (mmHg). Required field. Valid
@@ -39,18 +38,30 @@ public class BloodPressure(
     public val diastolicMillimetersOfMercury: Double,
     /**
      * The user's body position when the measurement was taken. Optional field. Allowed values:
-     * [BodyPosition].
+     * [BodyPositions].
      */
-    @property:BodyPosition public val bodyPosition: String? = null,
+    @property:BodyPositions public val bodyPosition: String? = null,
     /**
      * The arm and part of the arm where the measurement was taken. Optional field. Allowed values:
-     * [BloodPressureMeasurementLocation].
+     * [MeasurementLocation].
      */
-    @property:BloodPressureMeasurementLocation public val measurementLocation: String? = null,
+    @property:MeasurementLocations public val measurementLocation: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+
+    init {
+        requireNonNegative(
+            value = systolicMillimetersOfMercury,
+            name = "systolicMillimetersOfMercury"
+        )
+        requireNonNegative(
+            value = diastolicMillimetersOfMercury,
+            name = "diastolicMillimetersOfMercury"
+        )
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is BloodPressure) return false
@@ -77,6 +88,30 @@ public class BloodPressure(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    /** The arm and part of the arm where a blood pressure measurement was taken. */
+    public object MeasurementLocation {
+        const val LEFT_WRIST = "left_wrist"
+        const val RIGHT_WRIST = "right_wrist"
+        const val LEFT_UPPER_ARM = "left_upper_arm"
+        const val RIGHT_UPPER_ARM = "right_upper_arm"
+    }
+
+    /**
+     * The arm and part of the arm where a blood pressure measurement was taken.
+     * @suppress
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(
+        value =
+            [
+                MeasurementLocation.LEFT_WRIST,
+                MeasurementLocation.RIGHT_WRIST,
+                MeasurementLocation.LEFT_UPPER_ARM,
+                MeasurementLocation.RIGHT_UPPER_ARM,
+            ]
+    )
+    annotation class MeasurementLocations
 
     companion object {
         private const val BLOOD_PRESSURE_NAME = "BloodPressure"

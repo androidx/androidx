@@ -16,6 +16,7 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -24,6 +25,8 @@ import java.time.ZoneOffset
  * Each record represents a report of the user's cervix. All fields are optional, and can be used to
  * add descriptions of the position, dilation and firmness of the cervix.
  */
+// TODO(b/230490611): Cervical Position has dilation and firmness, find better names from product
+// space.
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class CervicalPosition(
     /**
@@ -64,4 +67,73 @@ public class CervicalPosition(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    /** How open or dilated the user's cervix is. */
+    public object Dilations {
+        const val CLOSED = "closed"
+        const val PARTIALLY_OPEN = "partially_open"
+        const val FULLY_DILATED = "fully_dilated"
+    }
+
+    /** How firm the user's cervix is. */
+    public object Firmness {
+        const val SOFT = "soft"
+        const val A_LITTLE_FIRM = "a_little_firm"
+        const val FIRM = "firm"
+    }
+
+    /** The position of the user's cervix. */
+    public object Positions {
+        const val LOW = "low"
+        const val MEDIUM = "medium"
+        const val HIGH = "high"
+    }
 }
+
+/**
+ * How open or dilated the user's cervix is.
+ * @suppress
+ */
+@Retention(AnnotationRetention.SOURCE)
+@StringDef(
+    value =
+        [
+            CervicalPosition.Dilations.CLOSED,
+            CervicalPosition.Dilations.PARTIALLY_OPEN,
+            CervicalPosition.Dilations.FULLY_DILATED,
+        ]
+)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+annotation class CervicalDilation
+
+/**
+ * How firm the user's cervix is.
+ * @suppress
+ */
+@Retention(AnnotationRetention.SOURCE)
+@StringDef(
+    value =
+        [
+            CervicalPosition.Firmness.SOFT,
+            CervicalPosition.Firmness.A_LITTLE_FIRM,
+            CervicalPosition.Firmness.FIRM,
+        ]
+)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+annotation class CervicalFirmness
+
+/**
+ * The position of the user's cervix.
+ * @suppress
+ */
+@Retention(AnnotationRetention.SOURCE)
+@StringDef(
+    value =
+        [
+            CervicalPosition.Positions.LOW,
+            CervicalPosition.Positions.MEDIUM,
+            CervicalPosition.Positions.HIGH,
+        ]
+)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+annotation class CervicalPositionValue

@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -25,19 +24,23 @@ import java.time.ZoneOffset
  * Can be used for checking the fertility window. Each data point represents a single instantaneous
  * body temperature measurement.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BasalBodyTemperature(
     /** Temperature in degrees Celsius. Required field. Valid range: 0-100. */
     public val temperatureDegreesCelsius: Double,
     /**
      * Where on the user's basal body the temperature measurement was taken from. Optional field.
-     * Allowed values: [BodyTemperatureMeasurementLocation].
+     * Allowed values: [BodyTemperatureMeasurementLocations].
      */
-    @property:BodyTemperatureMeasurementLocation public val measurementLocation: String? = null,
+    @property:BodyTemperatureMeasurementLocations public val measurementLocation: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+
+    init {
+        requireNonNegative(value = temperatureDegreesCelsius, name = "temperatureDegreesCelsius")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is BasalBodyTemperature) return false

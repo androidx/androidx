@@ -38,6 +38,9 @@ public class Steps(
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
+    init {
+        requireNonNegative(value = count, name = "count")
+    }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Steps) return false

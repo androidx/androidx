@@ -16,6 +16,7 @@
 package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.StringDef
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
@@ -24,7 +25,6 @@ import java.time.ZoneOffset
  * Captures the concentration of glucose in the blood. Each record represents a single instantaneous
  * blood glucose reading.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BloodGlucose(
     /**
      * Blood glucose level or concentration, in millimoles per liter (mmol/L), where 1 mmol/L = 18
@@ -35,21 +35,26 @@ public class BloodGlucose(
      * Type of body fluid used to measure the blood glucose. Optional, enum field. Allowed values:
      * [SpecimenSource].
      */
-    @property:SpecimenSource public val specimenSource: String? = null,
+    @property:SpecimenSources public val specimenSource: String? = null,
     /**
      * Type of meal related to the blood glucose measurement. Optional, enum field. Allowed values:
-     * [MealType].
+     * [MealTypes].
      */
-    @property:MealType public val mealType: String? = null,
+    @property:MealTypes public val mealType: String? = null,
     /**
      * Relationship of the meal to the blood glucose measurement. Optional, enum field. Allowed
-     * values: [RelationToMeal].
+     * values: [RelationToMeals].
      */
-    @property:RelationToMeal public val relationToMeal: String? = null,
+    @property:RelationToMeals public val relationToMeal: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+
+    init {
+        requireNonNegative(value = levelMillimolesPerLiter, name = "levelMillimolesPerLiter")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is BloodGlucose) return false
@@ -76,4 +81,38 @@ public class BloodGlucose(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    /**
+     * List of supported blood glucose specimen sources (type of body fluid used to measure the
+     * blood glucose).
+     */
+    object SpecimenSource {
+        const val INTERSTITIAL_FLUID = "interstitial_fluid"
+        const val CAPILLARY_BLOOD = "capillary_blood"
+        const val PLASMA = "plasma"
+        const val SERUM = "serum"
+        const val TEARS = "tears"
+        const val WHOLE_BLOOD = "whole_blood"
+    }
+
+    /**
+     * List of supported blood glucose specimen sources (type of body fluid used to measure the
+     * blood glucose).
+     *
+     * @suppress
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @StringDef(
+        value =
+            [
+                SpecimenSource.INTERSTITIAL_FLUID,
+                SpecimenSource.CAPILLARY_BLOOD,
+                SpecimenSource.PLASMA,
+                SpecimenSource.SERUM,
+                SpecimenSource.TEARS,
+                SpecimenSource.WHOLE_BLOOD,
+            ]
+    )
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    annotation class SpecimenSources
 }

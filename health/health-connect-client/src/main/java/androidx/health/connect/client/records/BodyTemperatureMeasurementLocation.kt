@@ -19,7 +19,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
 
 /** Where on the user's body a temperature measurement was taken from. */
-public object BodyTemperatureMeasurementLocations {
+public object BodyTemperatureMeasurementLocation {
     const val ARMPIT = "armpit"
     const val FINGER = "finger"
     const val FOREHEAD = "forehead"
@@ -40,17 +40,17 @@ public object BodyTemperatureMeasurementLocations {
 @StringDef(
     value =
         [
-            BodyTemperatureMeasurementLocations.ARMPIT,
-            BodyTemperatureMeasurementLocations.FINGER,
-            BodyTemperatureMeasurementLocations.FOREHEAD,
-            BodyTemperatureMeasurementLocations.MOUTH,
-            BodyTemperatureMeasurementLocations.RECTUM,
-            BodyTemperatureMeasurementLocations.TEMPORAL_ARTERY,
-            BodyTemperatureMeasurementLocations.TOE,
-            BodyTemperatureMeasurementLocations.EAR,
-            BodyTemperatureMeasurementLocations.WRIST,
-            BodyTemperatureMeasurementLocations.VAGINA,
+            BodyTemperatureMeasurementLocation.ARMPIT,
+            BodyTemperatureMeasurementLocation.FINGER,
+            BodyTemperatureMeasurementLocation.FOREHEAD,
+            BodyTemperatureMeasurementLocation.MOUTH,
+            BodyTemperatureMeasurementLocation.RECTUM,
+            BodyTemperatureMeasurementLocation.TEMPORAL_ARTERY,
+            BodyTemperatureMeasurementLocation.TOE,
+            BodyTemperatureMeasurementLocation.EAR,
+            BodyTemperatureMeasurementLocation.WRIST,
+            BodyTemperatureMeasurementLocation.VAGINA,
         ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-annotation class BodyTemperatureMeasurementLocation
+annotation class BodyTemperatureMeasurementLocations

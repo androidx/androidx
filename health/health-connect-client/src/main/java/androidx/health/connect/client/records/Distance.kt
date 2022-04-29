@@ -39,6 +39,11 @@ public class Distance(
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
+
+    init {
+        requireNonNegative(value = distanceMeters, name = "massKg")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Distance) return false

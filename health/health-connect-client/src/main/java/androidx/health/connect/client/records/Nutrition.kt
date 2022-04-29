@@ -110,9 +110,9 @@ public class Nutrition(
     public val name: String? = null,
     /**
      * Type of meal related to the nutrients consumed. Optional, enum field. Allowed values:
-     * [MealType].
+     * [MealTypes].
      */
-    @property:MealType public val mealType: String? = null,
+    @property:MealTypes public val mealType: String? = null,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,

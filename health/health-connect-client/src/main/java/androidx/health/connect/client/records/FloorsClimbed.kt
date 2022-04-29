@@ -15,14 +15,12 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the number of floors climbed by the user since the last reading. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FloorsClimbed(
     /** Number of floors. Required field. Valid range: 0-1000000. */
     public val floors: Double,
@@ -32,6 +30,10 @@ public class FloorsClimbed(
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
+    init {
+        requireNonNegative(value = floors, name = "floors")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is FloorsClimbed) return false
