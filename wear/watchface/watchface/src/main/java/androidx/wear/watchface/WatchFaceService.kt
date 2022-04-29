@@ -272,6 +272,9 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  *         </UserStyleFlavors>
  *    </XmlWatchFace>
  *
+ * If you use resources references to specify identifiers, they should be locale independent
+ * (i.e. translatable="false").
+ *
  * If you use XmlSchemaAndComplicationSlotsDefinition then you shouldn't override
  * [createUserStyleSchema] or [createComplicationSlotsManager]. However if <ComplicationSlot> tags
  * are defined then you must override [getComplicationSlotInflationFactory] in order to provide the

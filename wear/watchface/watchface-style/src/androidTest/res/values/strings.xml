@@ -23,4 +23,8 @@
 
     <string name="hour_pips_setting">Hour Pips</string>
     <string name="hour_pips_setting_description">Whether pips for hours should be drawn</string>
+
+    <string name="list_setting_common_id" translatable="false">ColorStyle</string>
+    <string name="list_setting_common_option_red_id" translatable="false">red</string>
+    <string name="list_setting_common_option_green_id" translatable="false">green</string>
 </resources>

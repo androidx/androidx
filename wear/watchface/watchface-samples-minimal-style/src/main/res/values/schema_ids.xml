@@ -13,16 +13,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<ListUserStyleSetting
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    app:affectedWatchFaceLayers="BASE|COMPLICATIONS|COMPLICATIONS_OVERLAY"
-    app:description="description"
-    app:displayName="displayName"
-    app:id="TimeStyle">
-    <ListOption
-        app:displayName="Minimal"
-        app:id="minimal" />
-    <ListOption
-        app:displayName="Seconds"
-        app:id="seconds" />
-</ListUserStyleSetting>
+
+<resources>
+    <string name="setting_id_time_style" translatable="false">TimeStyle</string>
+    <string name="option_id_time_style_minimal" translatable="false">minimal</string>
+    <string name="option_id_time_style_seconds" translatable="false">seconds</string>
+</resources>
