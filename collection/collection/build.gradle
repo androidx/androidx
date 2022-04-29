@@ -16,7 +16,9 @@
 
 
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -64,22 +66,33 @@ kotlin {
                 dependsOn commonMain
             }
 
-            configure([linuxX64Main, macosX64Main, macosArm64Main]) {
-                dependsOn nativeMain
-            }
-
             nativeTest {
                 dependsOn commonTest
             }
 
-            configure([linuxX64Test, macosX64Test, macosArm64Test]) {
-                dependsOn nativeTest
-            }
             macMain {
                 dependsOn(nativeMain)
             }
-            configure([macosArm64Main, macosX64Main]) {
-                dependsOn macMain
+            linuxMain {
+                dependsOn(nativeMain)
+            }
+
+            targets.all { target ->
+                if (target.platformType == KotlinPlatformType.native) {
+                    target.compilations["main"].defaultSourceSet {
+                        dependsOn(nativeMain)
+                        if (target.konanTarget.family == Family.OSX) {
+                            dependsOn(macMain)
+                        } else if (target.konanTarget.family == Family.LINUX) {
+                            dependsOn(linuxMain)
+                        } else {
+                            throw new GradleException("unknown native target ${target}")
+                        }
+                    }
+                    target.compilations["test"].defaultSourceSet {
+                        dependsOn(nativeTest)
+                    }
+                }
             }
         }
 
