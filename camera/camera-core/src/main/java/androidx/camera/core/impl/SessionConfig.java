@@ -448,9 +448,13 @@ public final class SessionConfig {
      * the parameters for the {@link SessionConfig} are compatible with each other
      */
     public static final class ValidatingBuilder extends BaseBuilder {
-        // Current supported session template values and prioritize from small to large.
+        // Current supported session template values and the bigger index in the list, the
+        // priority is higher.
         private static final List<Integer> SUPPORTED_TEMPLATE_PRIORITY = Arrays.asList(
                 CameraDevice.TEMPLATE_PREVIEW,
+                // TODO(230673983): Based on the framework assumptions, we prioritize video capture
+                //  and disable ZSL (fallback to regular) if both use cases are bound.
+                CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG,
                 CameraDevice.TEMPLATE_RECORD
         );
 

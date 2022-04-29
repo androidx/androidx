@@ -164,14 +164,14 @@ public class SessionConfigTest {
         SessionConfig.Builder builderPreview = new SessionConfig.Builder();
         builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         SessionConfig sessionConfigPreview = builderPreview.build();
-        SessionConfig.Builder builderZsl = new SessionConfig.Builder();
-        builderZsl.setTemplateType(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
-        SessionConfig sessionConfigZsl = builderZsl.build();
+        SessionConfig.Builder builderManual = new SessionConfig.Builder();
+        builderManual.setTemplateType(CameraDevice.TEMPLATE_MANUAL);
+        SessionConfig sessionConfigManual = builderManual.build();
 
         SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
 
         validatingBuilder.add(sessionConfigPreview);
-        validatingBuilder.add(sessionConfigZsl);
+        validatingBuilder.add(sessionConfigManual);
 
         assertThat(validatingBuilder.isValid()).isTrue();
 
@@ -197,6 +197,48 @@ public class SessionConfigTest {
 
         assertThat(validatingBuilder.build().getTemplateType()).isEqualTo(
                 CameraDevice.TEMPLATE_RECORD);
+    }
+
+    @Test
+    public void prioritizeTemplateType_addZslFirst_zslHigherThanPreview() {
+        SessionConfig.Builder builderZsl = new SessionConfig.Builder();
+        builderZsl.setTemplateType(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
+        SessionConfig sessionConfigZsl = builderZsl.build();
+
+        SessionConfig.Builder builderPreview = new SessionConfig.Builder();
+        builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        SessionConfig sessionConfigPreview = builderPreview.build();
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+
+        validatingBuilder.add(sessionConfigZsl);
+        validatingBuilder.add(sessionConfigPreview);
+
+        assertThat(validatingBuilder.isValid()).isTrue();
+
+        assertThat(validatingBuilder.build().getTemplateType()).isEqualTo(
+                CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
+    }
+
+    @Test
+    public void prioritizeTemplateType_addPreviewFirst_zslHigherThanPreview() {
+        SessionConfig.Builder builderZsl = new SessionConfig.Builder();
+        builderZsl.setTemplateType(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
+        SessionConfig sessionConfigZsl = builderZsl.build();
+
+        SessionConfig.Builder builderPreview = new SessionConfig.Builder();
+        builderPreview.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+        SessionConfig sessionConfigPreview = builderPreview.build();
+
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+
+        validatingBuilder.add(sessionConfigPreview);
+        validatingBuilder.add(sessionConfigZsl);
+
+        assertThat(validatingBuilder.isValid()).isTrue();
+
+        assertThat(validatingBuilder.build().getTemplateType()).isEqualTo(
+                CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
     }
 
     @Test
