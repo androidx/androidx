@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
@@ -58,8 +59,11 @@ final class ZslControlImpl implements ZslControl {
 
     private static final String TAG = "ZslControlImpl";
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    private static final int RING_BUFFER_CAPACITY = 10;
+    @VisibleForTesting
+    static final int RING_BUFFER_CAPACITY = 3;
+
+    @VisibleForTesting
+    static final int MAX_IMAGES = RING_BUFFER_CAPACITY * 3;
 
     @SuppressWarnings("WeakerAccess")
     @NonNull
@@ -118,7 +122,7 @@ final class ZslControlImpl implements ZslControl {
                 resolution.getWidth(),
                 resolution.getHeight(),
                 reprocessingImageFormat,
-                RING_BUFFER_CAPACITY * 2);
+                MAX_IMAGES);
         mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
         mReprocessingImageReader = new SafeCloseImageReaderProxy(metadataImageReader);
         metadataImageReader.setOnImageAvailableListener(
