@@ -167,12 +167,6 @@ public final class AppSearchImpl implements Closeable {
                     TypePropertyMask.newBuilder().setSchemaType(
                             GetByDocumentIdRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)).build();
 
-    /** A ResultSpec that uses projection to skip all properties. */
-    private static final ResultSpecProto RESULT_SPEC_NO_PROPERTIES =
-            ResultSpecProto.newBuilder().addTypePropertyMasks(
-                    TypePropertyMask.newBuilder().setSchemaType(
-                            GetByDocumentIdRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)).build();
-
     private final ReadWriteLock mReadWriteLock = new ReentrantReadWriteLock();
     private final LogUtil mLogUtil = new LogUtil(TAG);
     private final OptimizeStrategy mOptimizeStrategy;
@@ -1720,13 +1714,8 @@ public final class AppSearchImpl implements Closeable {
                 }
             }
 
-            if (prefixedObservedSchemas != null && !prefixedObservedSchemas.isEmpty()) {
-                doRemoveByQueryWithChangeNotificationLocked(
-                        packageName, finalSearchSpec, prefixedObservedSchemas, removeStatsBuilder);
-            } else {
-                doRemoveByQueryNoChangeNotificationLocked(
-                        packageName, finalSearchSpec, removeStatsBuilder);
-            }
+            doRemoveByQueryLocked(
+                    packageName, finalSearchSpec, prefixedObservedSchemas, removeStatsBuilder);
 
         } finally {
             mReadWriteLock.writeLock().unlock();
@@ -1738,7 +1727,9 @@ public final class AppSearchImpl implements Closeable {
     }
 
     /**
-     * Executes removeByQuery, creating change notifications for removal.
+     * Executes removeByQuery.
+     *
+     * <p>Change notifications will be created if prefixedObservedSchemas is not null.
      *
      * @param packageName             The package name that owns the documents.
      * @param finalSearchSpec         The final search spec that has been written through
@@ -1746,114 +1737,18 @@ public final class AppSearchImpl implements Closeable {
      * @param prefixedObservedSchemas The set of prefixed schemas that have valid registered
      *                                observers. Only changes to schemas in this set will be queued.
      */
-    // TODO(b/193494000): Have Icing Lib return the URIs and types that were actually
-    //  deleted instead of querying in two passes like this.
     @GuardedBy("mReadWriteLock")
-    private void doRemoveByQueryWithChangeNotificationLocked(
+    private void doRemoveByQueryLocked(
             @NonNull String packageName,
             @NonNull SearchSpecProto finalSearchSpec,
-            @NonNull Set<String> prefixedObservedSchemas,
+            @Nullable Set<String> prefixedObservedSchemas,
             @Nullable RemoveStats.Builder removeStatsBuilder) throws AppSearchException {
-        mLogUtil.piiTrace(
-                "removeByQuery.withChangeNotification, query request", finalSearchSpec);
-        SearchResultProto searchResultProto = mIcingSearchEngineLocked.search(
-                finalSearchSpec,
-                ScoringSpecProto.getDefaultInstance(),
-                RESULT_SPEC_NO_PROPERTIES);
-        mLogUtil.piiTrace(
-                "removeByQuery.withChangeNotification, query response",
-                searchResultProto.getStatus(),
-                searchResultProto);
-
-        // TODO(b/187206766) also log query stats here once it's added to RemoveStats.Builder
-        checkSuccess(searchResultProto.getStatus());
-
-        long nextPageToken = searchResultProto.getNextPageToken();
-        int numDocumentsDeleted = 0;
-        while (true) {
-            for (int i = 0; i < searchResultProto.getResultsCount(); i++) {
-                DocumentProto document = searchResultProto.getResults(i).getDocument();
-
-                if (mLogUtil.isPiiTraceEnabled()) {
-                    mLogUtil.piiTrace(
-                            "removeByQuery.withChangeNotification, removeById request",
-                            document.getNamespace() + ", " + document.getUri());
-                }
-                DeleteResultProto deleteResultProto =
-                        mIcingSearchEngineLocked.delete(document.getNamespace(), document.getUri());
-                mLogUtil.piiTrace(
-                        "removeByQuery.withChangeNotification, removeById response",
-                        deleteResultProto.getStatus(),
-                        deleteResultProto);
-
-                if (removeStatsBuilder != null) {
-                    removeStatsBuilder.setStatusCode(statusProtoToResultCode(
-                            deleteResultProto.getStatus()));
-                    // TODO(b/187206766): This will keep overwriting the remove stats. This whole
-                    //  method should be replaced with native handling within icinglib for returning
-                    //  namespaces, types and URIs. That should populate the same proto as the
-                    //  non-observed case and remove the need for this hacky implementation and log.
-                    AppSearchLoggerHelper.copyNativeStats(
-                            deleteResultProto.getDeleteStats(), removeStatsBuilder);
-                }
-
-                // It shouldn't be possible for this to fail; we have the write lock!
-                checkSuccess(deleteResultProto.getStatus());
-                numDocumentsDeleted++;
-
-                // Prepare change notifications
-                if (prefixedObservedSchemas.contains(document.getSchema())) {
-                    mObserverManager.onDocumentChange(
-                            packageName,
-                            /*databaseName=*/ PrefixUtil.getDatabaseName(document.getNamespace()),
-                            /*namespace=*/ PrefixUtil.removePrefix(document.getNamespace()),
-                            /*schemaType=*/ PrefixUtil.removePrefix(document.getSchema()),
-                            document.getUri(),
-                            mVisibilityStoreLocked,
-                            mVisibilityCheckerLocked);
-                }
-            }
-
-            // Fetch next page
-            if (nextPageToken == EMPTY_PAGE_TOKEN) {
-                break;
-            }
-            mLogUtil.piiTrace(
-                    "removeByQuery.withChangeNotification, getNextPage request",
-                    nextPageToken);
-            searchResultProto = mIcingSearchEngineLocked.getNextPage(nextPageToken);
-            mLogUtil.piiTrace(
-                    "removeByQuery.withChangeNotification, getNextPage response",
-                    searchResultProto.getResultsCount(),
-                    searchResultProto);
-
-            // TODO(b/187206766) also log query stats here once it's added to RemoveStats.Builder
-            checkSuccess(searchResultProto.getStatus());
-
-            nextPageToken = searchResultProto.getNextPageToken();
-        }
-
-        // Update derived maps
-        updateDocumentCountAfterRemovalLocked(packageName, numDocumentsDeleted);
-    }
-
-    /**
-     * Executes removeByQuery without dispatching any change notifications.
-     *
-     * This is faster than {@link #doRemoveByQueryWithChangeNotificationLocked}.
-     *
-     * @param packageName         The package name that owns the documents.
-     * @param rewrittenSearchSpec A search spec that has been run through
-     *                            {@link #rewriteSearchSpecForPrefixesLocked}.
-     */
-    @GuardedBy("mReadWriteLock")
-    private void doRemoveByQueryNoChangeNotificationLocked(
-            @NonNull String packageName,
-            @NonNull SearchSpecProto rewrittenSearchSpec,
-            @Nullable RemoveStats.Builder removeStatsBuilder) throws AppSearchException {
-        mLogUtil.piiTrace("removeByQuery, request", rewrittenSearchSpec);
+        mLogUtil.piiTrace("removeByQuery, request", finalSearchSpec);
+        boolean returnDeletedDocumentInfo =
+                prefixedObservedSchemas != null && !prefixedObservedSchemas.isEmpty();
         DeleteByQueryResultProto deleteResultProto =
-                mIcingSearchEngineLocked.deleteByQuery(rewrittenSearchSpec);
+                mIcingSearchEngineLocked.deleteByQuery(finalSearchSpec,
+                        returnDeletedDocumentInfo);
         mLogUtil.piiTrace(
                 "removeByQuery, response", deleteResultProto.getStatus(), deleteResultProto);
 
@@ -1874,6 +1769,11 @@ public final class AppSearchImpl implements Closeable {
         int numDocumentsDeleted =
                 deleteResultProto.getDeleteByQueryStats().getNumDocumentsDeleted();
         updateDocumentCountAfterRemovalLocked(packageName, numDocumentsDeleted);
+
+        if (prefixedObservedSchemas != null && !prefixedObservedSchemas.isEmpty()) {
+            dispatchChangeNotificationsAfterRemoveByQueryLocked(packageName,
+                    deleteResultProto, prefixedObservedSchemas);
+        }
     }
 
     @GuardedBy("mReadWriteLock")
@@ -1888,6 +1788,35 @@ public final class AppSearchImpl implements Closeable {
                 // This is just a safeguard.
                 int newDocumentCount = Math.max(oldDocumentCount - numDocumentsDeleted, 0);
                 mDocumentCountMapLocked.put(packageName, newDocumentCount);
+            }
+        }
+    }
+
+    @GuardedBy("mReadWriteLock")
+    private void dispatchChangeNotificationsAfterRemoveByQueryLocked(
+            @NonNull String packageName,
+            @NonNull DeleteByQueryResultProto deleteResultProto,
+            @NonNull Set<String> prefixedObservedSchemas
+    ) throws AppSearchException {
+        for (int i = 0; i < deleteResultProto.getDeletedDocumentsCount(); ++i) {
+            DeleteByQueryResultProto.DocumentGroupInfo group =
+                    deleteResultProto.getDeletedDocuments(i);
+            if (!prefixedObservedSchemas.contains(group.getSchema())) {
+                continue;
+            }
+            String databaseName = PrefixUtil.getDatabaseName(group.getNamespace());
+            String namespace = PrefixUtil.removePrefix(group.getNamespace());
+            String schemaType = PrefixUtil.removePrefix(group.getSchema());
+            for (int j = 0; j < group.getUrisCount(); ++j) {
+                String uri = group.getUris(j);
+                mObserverManager.onDocumentChange(
+                        packageName,
+                        databaseName,
+                        namespace,
+                        schemaType,
+                        uri,
+                        mVisibilityStoreLocked,
+                        mVisibilityCheckerLocked);
             }
         }
     }
