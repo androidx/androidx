@@ -176,6 +176,10 @@
   <string name="importance_title">Importance</string>
   <string name="category_title">Category</string>
   <string name="ongoing_title">Ongoing</string>
+  <string name="default_importance">Default</string>
+  <string name="high_importance">High</string>
+  <string name="low_importance">Low</string>
+  <string name="unknown_importance">Unknown</string>
   <string name="notification_demo">Notification Demo</string>
 
   <!-- MiscDemoScreen -->
