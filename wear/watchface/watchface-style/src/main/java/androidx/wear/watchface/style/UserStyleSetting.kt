@@ -355,9 +355,8 @@ public sealed class UserStyleSetting private constructor(
                 Pair<String, ((resources: Resources, parser: XmlResourceParser) -> Option)>? = null
         ): Params {
             val settingType = "UserStyleSetting"
-            val id = getAttributeChecked(
-                parser, "id", String::toString, parent?.id?.value, settingType
-            )
+            val id = getStringRefAttribute(resources, parser, "id") ?: parent?.id?.value
+                ?: throw IllegalArgumentException("$settingType must have id")
             val displayName = createDisplayText(
                 resources,
                 parser,
@@ -1016,16 +1015,15 @@ public sealed class UserStyleSetting private constructor(
             internal companion object {
                 @SuppressLint("ResourceType")
                 fun inflate(
+                    resources: Resources,
                     parser: XmlResourceParser
                 ): ComplicationSlotOverlay {
-                    require(parser.hasValue("complicationSlotId")) {
+                    val complicationSlotId = getIntRefAttribute(
+                        resources, parser, "complicationSlotId"
+                    )
+                    require(complicationSlotId != null) {
                         "ComplicationSlotOverlay missing complicationSlotId"
                     }
-                    val complicationSlotId = parser.getAttributeIntValue(
-                        NAMESPACE_APP,
-                        "complicationSlotId",
-                        0
-                    )
                     val enabled =
                         if (parser.hasValue("enabled")) {
                             parser.getAttributeBooleanValue(
@@ -1415,7 +1413,7 @@ public sealed class UserStyleSetting private constructor(
                     resources: Resources,
                     parser: XmlResourceParser
                 ): ComplicationSlotsOption {
-                    val id = parser.getAttributeValue(NAMESPACE_APP, "id")
+                    val id = getStringRefAttribute(resources, parser, "id")
                     require(id != null) { "ComplicationSlotsOption must have an id" }
                     val displayName = createDisplayText(
                         resources,
@@ -1435,7 +1433,7 @@ public sealed class UserStyleSetting private constructor(
                         if (type == XmlPullParser.START_TAG) {
                             when (parser.name) {
                                 "ComplicationSlotOverlay" -> complicationSlotOverlays.add(
-                                    ComplicationSlotOverlay.inflate(parser)
+                                    ComplicationSlotOverlay.inflate(resources, parser)
                                 )
 
                                 "OnWatchEditorData" -> {
@@ -2110,7 +2108,7 @@ public sealed class UserStyleSetting private constructor(
                     parser: XmlResourceParser,
                     idToSetting: Map<String, UserStyleSetting>
                 ): ListOption {
-                    val id = parser.getAttributeValue(NAMESPACE_APP, "id")
+                    val id = getStringRefAttribute(resources, parser, "id")
                     require(id != null) { "ListOption must have an id" }
                     val displayName = createDisplayText(
                         resources,
@@ -2130,7 +2128,7 @@ public sealed class UserStyleSetting private constructor(
                         if (type == XmlPullParser.START_TAG) {
                             when (parser.name) {
                                 "ChildSetting" -> {
-                                    val childId = parser.getAttributeValue(NAMESPACE_APP, "id")
+                                    val childId = getStringRefAttribute(resources, parser, "id")
                                     require(childId != null) {
                                         "ChildSetting must have an id"
                                     }
@@ -2669,6 +2667,40 @@ private fun <T> getAttributeChecked(
         defaultValue ?: throw IllegalArgumentException(
             "$name is required for $settingType")
     }
+}
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun getStringRefAttribute(
+    resources: Resources,
+    parser: XmlResourceParser,
+    name: String
+): String? {
+    return if (parser.hasValue(name)) {
+        val resId = parser.getAttributeResourceValue(NAMESPACE_APP, name, 0)
+        if (resId == 0) {
+            parser.getAttributeValue(NAMESPACE_APP, name)
+        } else {
+            resources.getString(resId)
+        }
+    } else null
+}
+
+/** @hide */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun getIntRefAttribute(
+    resources: Resources,
+    parser: XmlResourceParser,
+    name: String
+): Int? {
+    return if (parser.hasValue(name)) {
+        val resId = parser.getAttributeResourceValue(NAMESPACE_APP, name, 0)
+        if (resId == 0) {
+            parser.getAttributeValue(NAMESPACE_APP, name).toInt()
+        } else {
+            resources.getInteger(resId)
+        }
+    } else null
 }
 
 /** @hide */

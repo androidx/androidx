@@ -30,6 +30,7 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.hasValue
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyleSchema
+import androidx.wear.watchface.style.getIntRefAttribute
 import androidx.wear.watchface.style.moveToStart
 import org.xmlpull.v1.XmlPullParser
 import kotlin.jvm.Throws
@@ -66,14 +67,14 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                         }
                         "ComplicationSlot" -> {
                             complicationSlots.add(
-                                ComplicationSlotStaticData.inflate(parser)
+                                ComplicationSlotStaticData.inflate(resources, parser)
                             )
                         }
                         "UserStyleFlavors" -> {
                             require(schema != null) {
                                 "A UserStyleFlavors node requires a previous UserStyleSchema node"
                             }
-                            flavors = UserStyleFlavors.inflate(parser, schema)
+                            flavors = UserStyleFlavors.inflate(resources, parser, schema)
                         }
                         else -> throw IllegalArgumentException(
                             "Unexpected node ${parser.name} at line ${parser.lineNumber}"
@@ -198,17 +199,16 @@ public class XmlSchemaAndComplicationSlotsDefinition(
             }
 
             fun inflate(
+                resources: Resources,
                 parser: XmlResourceParser
             ): ComplicationSlotStaticData {
                 require(parser.name == "ComplicationSlot") {
                     "Expected a UserStyleSchema node"
                 }
-
-                require(parser.hasValue("slotId")) {
+                val slotId = getIntRefAttribute(resources, parser, "slotId")
+                require(slotId != null) {
                     "A ComplicationSlot must have a slotId attribute"
                 }
-                val slotId = parser.getAttributeValue(NAMESPACE_APP, "slotId")!!.toInt()
-
                 val accessibilityTraversalIndex = if (
                     parser.hasValue("accessibilityTraversalIndex")
                 ) {

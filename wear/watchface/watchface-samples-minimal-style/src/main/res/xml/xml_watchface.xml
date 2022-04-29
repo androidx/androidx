@@ -22,15 +22,15 @@
             app:defaultOptionIndex="1"
             app:description="@string/time_style_description"
             app:displayName="@string/time_style_name"
-            app:id="TimeStyle">
+            app:id="@string/setting_id_time_style">
             <ListOption
                 android:icon="@drawable/time_style_minimal_icon"
                 app:displayName="@string/time_style_minimal_name"
-                app:id="minimal" />
+                app:id="@string/option_id_time_style_minimal" />
             <ListOption
                 android:icon="@drawable/time_style_seconds_icon"
                 app:displayName="@string/time_style_seconds_name"
-                app:id="seconds" />
+                app:id="@string/option_id_time_style_seconds" />
         </ListUserStyleSetting>
     </UserStyleSchema>
 </XmlWatchFace>
