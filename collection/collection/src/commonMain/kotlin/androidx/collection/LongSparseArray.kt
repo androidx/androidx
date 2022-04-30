@@ -53,6 +53,7 @@ private val DELETED = Any()
  * capacity of 0, the sparse array will be initialized with a light-weight representation not
  * requiring any additional array allocations.
  */
+@Suppress("DEPRECATION")
 public open class LongSparseArray<E>
 @JvmOverloads public constructor(initialCapacity: Int = 10) : JvmCloneableAny(), CloneableKmp {
     private var garbage = false

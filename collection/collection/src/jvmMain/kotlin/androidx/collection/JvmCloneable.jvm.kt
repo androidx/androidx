@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY) // to avoid the entry file in the api file.
 
 package androidx.collection
 
+import androidx.annotation.RestrictTo
+
 @Suppress("ACTUAL_WITHOUT_EXPECT", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 internal actual typealias CloneableKmp = java.lang.Cloneable
-@Suppress("ACTUAL_WITHOUT_EXPECT")
+@Suppress("ACTUAL_WITHOUT_EXPECT", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 public actual typealias JvmCloneableAny = java.lang.Object

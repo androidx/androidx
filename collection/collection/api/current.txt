@@ -93,9 +93,6 @@ package androidx.collection {
     property public final int last;
   }
 
-  public final class CloneSuper_jvmKt {
-  }
-
   public class LongSparseArray<E> implements java.lang.Cloneable {
     ctor public LongSparseArray(optional int initialCapacity);
     ctor public LongSparseArray();

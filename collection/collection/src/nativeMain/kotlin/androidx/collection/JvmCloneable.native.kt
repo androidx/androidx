@@ -16,8 +16,14 @@
 
 package androidx.collection
 
-internal expect interface CloneableKmp
-public expect abstract class JvmCloneableAny {
-    protected constructor()
-    public open fun clone(): Any?
+internal actual interface CloneableKmp {
+    @Suppress("NoClone")
+    fun clone(): Any?
+}
+
+public actual abstract class JvmCloneableAny : CloneableKmp {
+    @Suppress("NoClone")
+    public actual open override fun clone(): Any? {
+        return null
+    }
 }
