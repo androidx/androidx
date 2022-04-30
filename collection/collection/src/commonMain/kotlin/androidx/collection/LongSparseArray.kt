@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,9 +53,12 @@ private val DELETED = Any()
  * capacity of 0, the sparse array will be initialized with a light-weight representation not
  * requiring any additional array allocations.
  */
-@Suppress("DEPRECATION")
+
 public open class LongSparseArray<E>
-@JvmOverloads public constructor(initialCapacity: Int = 10) : JvmCloneableAny(), CloneableKmp {
+    @JvmOverloads public constructor(initialCapacity: Int = 10) :
+    // JvmCloneableAny is deprecated to discourage usages outside the library.
+    @Suppress("DEPRECATION") JvmCloneableAny(),
+    CloneableKmp {
     private var garbage = false
     private var keys: LongArray
     private var values: Array<Any?>

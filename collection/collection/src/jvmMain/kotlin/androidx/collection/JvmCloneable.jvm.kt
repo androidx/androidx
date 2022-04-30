@@ -13,13 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY) // to avoid the entry file in the api file.
+// Restriction is added to prevent the Kt file showing up in the api file.
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
 
 package androidx.collection
 
 import androidx.annotation.RestrictTo
 
 @Suppress("ACTUAL_WITHOUT_EXPECT", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+// this class is intentionally mapped to java.lang.Cloneable to ensure it doesn't come with a
+// clone method.
 internal actual typealias CloneableKmp = java.lang.Cloneable
 @Suppress("ACTUAL_WITHOUT_EXPECT", "PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+// this class is intentionally mapped to java.lang.Object because kotlin.Any does not have a
+// constructor
 public actual typealias JvmCloneableAny = java.lang.Object
