@@ -102,6 +102,7 @@ class ProjectSetupRule : ExternalResource() {
     override fun before() {
         buildFile.createNewFile()
         copyLocalProperties()
+        copyLibsVersionsToml()
         writeGradleProperties()
     }
 
@@ -152,6 +153,11 @@ class ProjectSetupRule : ExternalResource() {
                     "neither ANDROID_HOME or ANDROID_SDK_ROOT was set."
             )
         }
+    }
+
+    private fun copyLibsVersionsToml() {
+        val toml = File(props.rootProjectPath, "gradle/libs.versions.toml")
+        toml.copyTo(File(rootDir, "gradle/libs.versions.toml"), overwrite = true)
     }
 
     private fun writeGradleProperties() {

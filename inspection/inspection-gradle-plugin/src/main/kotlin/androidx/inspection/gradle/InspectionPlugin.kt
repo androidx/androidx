@@ -35,6 +35,8 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getPlugin
 import java.io.File
 import org.gradle.api.GradleException
+import org.gradle.api.artifacts.MinimalExternalModuleDependency
+import org.gradle.api.artifacts.VersionCatalogsExtension
 
 /**
  * A plugin which, when present, ensures that intermediate inspector
@@ -101,7 +103,7 @@ class InspectionPlugin : Plugin<Project> {
                 val protobufConvention = project.convention.getPlugin<ProtobufConvention>()
                 protobufConvention.protobuf.apply {
                     protoc {
-                        this.artifact = "com.google.protobuf:protoc:3.10.0"
+                        this.artifact = project.getLibraryByName("protobufCompiler").toString()
                     }
                     generateProtoTasks {
                         all().forEach { task: GenerateProtoTask ->
@@ -115,7 +117,7 @@ class InspectionPlugin : Plugin<Project> {
         }
 
         project.dependencies {
-            add("implementation", "com.google.protobuf:protobuf-javalite:3.10.0")
+            add("implementation", project.getLibraryByName("protobufLite"))
         }
 
         project.afterEvaluate {
@@ -135,6 +137,18 @@ class InspectionPlugin : Plugin<Project> {
                 )
             }
         }
+    }
+}
+
+private fun Project.getLibraryByName(name: String): MinimalExternalModuleDependency {
+    val libs = project.extensions.getByType(
+        VersionCatalogsExtension::class.java
+    ).find("libs").get()
+    val library = libs.findLibrary(name)
+    return if (library.isPresent) {
+        library.get().get()
+    } else {
+        throw GradleException("Could not find a library for `$name`")
     }
 }
 
