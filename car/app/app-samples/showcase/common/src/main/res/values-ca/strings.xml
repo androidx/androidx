@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ Copyright (C) 2021 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="back_caps_action_title" msgid="6392829425035919422">"ENRERE"</string>
+    <string name="home_caps_action_title" msgid="4853167242566949502">"INICI"</string>
+    <string name="exit_action_title" msgid="9086586388884500731">"Surt"</string>
+    <string name="refresh_action_title" msgid="3674260822403151377">"Actualitza"</string>
+    <string name="close_action_title" msgid="2661907510124308560">"Tanca"</string>
+    <string name="grant_access_action_title" msgid="4033140828804350723">"Dona accés"</string>
+    <string name="enable_location_action_title" msgid="8181862247222797044">"Activa la ubicació"</string>
+    <string name="cancel_action_title" msgid="1149738685397349236">"Cancel·la"</string>
+    <string name="stop_action_title" msgid="1187619482795416314">"Atura"</string>
+    <string name="more_action_title" msgid="1039516575011403837">"Més"</string>
+    <string name="call_action_title" msgid="6218977436905001611">"Truca"</string>
+    <string name="primary_action_title" msgid="7042003552215710683">"Principal"</string>
+    <string name="options_action_title" msgid="1168121856107932984">"Opcions"</string>
+    <string name="search_action_title" msgid="3483459674263446335">"Cerca"</string>
+    <string name="checked_action_title" msgid="906023941445896399">"Marcat"</string>
+    <string name="unchecked_action_title" msgid="802503415474307811">"Desmarcat"</string>
+    <string name="on_action_title" msgid="4129601573763429611">"Activat"</string>
+    <string name="off_action_title" msgid="8669201170189204848">"Desactivat"</string>
+    <string name="settings_action_title" msgid="8616900063253887861">"Configuració"</string>
+    <string name="accept_action_title" msgid="6172053420803596132">"Configuració"</string>
+    <string name="reject_action_title" msgid="6730366705938402668">"Rebutja"</string>
+    <string name="ok_action_title" msgid="7128494973966098611">"D’acord"</string>
+    <string name="throw_action_title" msgid="7163710562670220163">"Llança"</string>
+    <string name="commute_action_title" msgid="2585755255290185096">"Desplaçament diari"</string>
+    <string name="sign_out_action_title" msgid="1653943000866713010">"Tanca la sessió"</string>
+    <string name="try_anyway_action_title" msgid="7384500054249311718">"Prova-ho igualment"</string>
+    <string name="yes_action_title" msgid="5507096013762092189">"Sí"</string>
+    <string name="no_action_title" msgid="1452124604210014010">"No"</string>
+    <string name="bug_reported_toast_msg" msgid="2487119172744644317">"S\'ha informat de l\'error."</string>
+    <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"S\'ha apropat"</string>
+    <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"S\'ha allunyat"</string>
+    <string name="triggered_toast_msg" msgid="3396166539208366382">"S\'ha activat"</string>
+    <string name="primary_toast_msg" msgid="7153771322662005447">"S\'ha premut el botó principal"</string>
+    <string name="search_toast_msg" msgid="7826530065407699347">"S\'ha premut el botó de cerca"</string>
+    <string name="options_toast_msg" msgid="2146223786877557730">"S\'ha premut el botó d\'opcions"</string>
+    <string name="favorite_toast_msg" msgid="522064494016370117">"Preferit!"</string>
+    <string name="not_favorite_toast_msg" msgid="6831181108681007428">"No és un preferit!"</string>
+    <string name="nav_requested_toast_msg" msgid="6696525973145493908">"S\'ha sol·licitat la navegació"</string>
+    <string name="selected_route_toast_msg" msgid="3149189677200086656">"S\'ha seleccionat la ruta"</string>
+    <string name="visible_routes_toast_msg" msgid="7065558153736024203">"Rutes visibles"</string>
+    <string name="second_item_toast_msg" msgid="7210054709419608215">"S\'ha fet clic al segon element"</string>
+    <string name="third_item_checked_toast_msg" msgid="3022450599567347361">"S\'ha marcat el tercer element"</string>
+    <string name="fifth_item_checked_toast_msg" msgid="1627599668504718594">"Cinquè element marcat"</string>
+    <string name="sixth_item_toast_msg" msgid="6117028866385793707">"S\'ha fet clic al sisè element"</string>
+    <string name="settings_toast_msg" msgid="7697794473002342727">"S\'ha fet clic a Configuració"</string>
+    <string name="parked_toast_msg" msgid="2532422265890824446">"Acció del mode d\'aparcament."</string>
+    <string name="more_toast_msg" msgid="5938288138225509885">"Has fet clic a Més"</string>
+    <string name="commute_toast_msg" msgid="4112684360647638688">"S\'ha premut el botó de desplaçament diari"</string>
+    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Concedeix el permís d\'ubicació per veure la ubicació actual"</string>
+    <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"L\'inici de sessió amb Google comença aquí"</string>
+    <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"S\'ha canviat la selecció que cal indexar"</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"S\'ha premut el botó Sí."</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"S\'ha premut el botó No."</string>
+    <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"S\'ha esgotat el temps d\'espera de l\'alerta."</string>
+    <string name="first_row_title" msgid="219428344573165351">"Fila amb una imatge gran + \"i\" + \"text llarg\" + \"text llarg\" + \"text llarg\"+ \"text llarg\"+ \"text llarg\""</string>
+    <string name="first_row_text" msgid="3887390298628338716">"Text text text"</string>
+    <string name="other_row_title_prefix" msgid="4702355788835253197">"Títol de la fila"</string>
+    <string name="other_row_text" msgid="7510279447493169945">"Text de la fila"</string>
+    <string name="navigate" msgid="2713090390373996139">"Navega"</string>
+    <string name="dial" msgid="3145707439707628311">"Marca"</string>
+    <string name="address" msgid="9010635942573581302">"Adreça"</string>
+    <string name="phone" msgid="2504766809811627577">"Telèfon"</string>
+    <string name="fail_start_nav" msgid="6921321606009212189">"S\'ha produït un error en iniciar la navegació"</string>
+    <string name="fail_start_dialer" msgid="1471602619507306261">"S\'ha produït un error en iniciar el telèfon"</string>
+    <string name="car_hardware_demo_title" msgid="3679106197233262689">"Demostració del maquinari del cotxe"</string>
+    <string name="car_hardware_info" msgid="1244783247616395012">"Informació sobre el maquinari del cotxe"</string>
+    <string name="model_info" msgid="494224423025683030">"Informació del model"</string>
+    <string name="no_model_permission" msgid="5333629877014978947">"Sense permís d\'accés al model."</string>
+    <string name="manufacturer_unavailable" msgid="4978995415869838056">"Fabricant no disponible"</string>
+    <string name="model_unavailable" msgid="4075463010215406573">"Model no disponible"</string>
+    <string name="year_unavailable" msgid="994338773299644607">"Any no disponible"</string>
+    <string name="energy_profile" msgid="81415433590192158">"Perfil d\'energia"</string>
+    <string name="no_energy_profile_permission" msgid="4662285713731308888">"Sense permís d\'accés al perfil d\'energia."</string>
+    <string name="fuel_types" msgid="6811375173343218212">"Tipus de combustible"</string>
+    <string name="unavailable" msgid="3636401138255192934">"No disponible"</string>
+    <string name="ev_connector_types" msgid="735458637011996125">"Tipus de connectors de VE"</string>
+    <string name="example_title" msgid="530257630320010494">"Exemple %d"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"Aquest text és de color vermell"</string>
+    <string name="example_2_text" msgid="718820705318661440">"Aquest text és de color verd"</string>
+    <string name="example_3_text" msgid="977269832109695627">"Aquest text és de color blau"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"Aquest text és de color groc"</string>
+    <string name="example_5_text" msgid="4387859825054561488">"Aquest text utilitza el color primari"</string>
+    <string name="example_6_text" msgid="7991523168517599600">"Aquest text utilitza el color secundari"</string>
+    <string name="color_demo" msgid="1822427636476178993">"Demostració de color"</string>
+    <string name="list_limit" msgid="3023536401535417286">"Límit de la llista"</string>
+    <string name="grid_limit" msgid="1350116012893549206">"Límit de la quadrícula"</string>
+    <string name="pane_limit" msgid="981518409516855230">"Límit de la subfinestra"</string>
+    <string name="place_list_limit" msgid="6785181191763056582">"Límit de la llista de llocs"</string>
+    <string name="route_list_limit" msgid="505793441615134116">"Límit de la llista de rutes"</string>
+    <string name="content_limits" msgid="5726880972110281095">"Límits de contingut"</string>
+    <string name="content_limits_demo_title" msgid="3207211638386727610">"Demostració de límits de contingut"</string>
+    <string name="finish_app_msg" msgid="8354334557053141891">"Aquesta acció tancarà l\'aplicació, i quan la tornis a obrir farà la precàrrega d\'una pantalla de permisos"</string>
+    <string name="finish_app_title" msgid="9013328479438745074">"Finalitza la demostració de l\'aplicació"</string>
+    <!-- no translation found for finish_app_demo_title (8223819062053448384) -->
+    <skip />
+    <string name="loading_demo_title" msgid="1086529475809143517">"S\'està carregant la demostració"</string>
+    <string name="loading_demo_row_title" msgid="8933049915126088142">"Càrrega completada"</string>
+    <string name="pop_to_root" msgid="2078277386355064198">"Ves a l\'arrel"</string>
+    <string name="pop_to_marker" msgid="5007078308762725207">"Ves al marcador de demostracions diverses"</string>
+    <string name="push_stack" msgid="2433062141810168976">"Desplaça més lluny a la pila"</string>
+    <string name="pop_to_prefix" msgid="4288884615669751608">"Ves"</string>
+    <string name="pop_to_title" msgid="3924696281273379455">"Ves a la demostració"</string>
+    <string name="package_not_found_error_msg" msgid="7525619456883627939">"El paquet no s\'ha trobat."</string>
+    <string name="permissions_granted_msg" msgid="2348556088141992714">"S\'han concedit tots els permisos. Revoca tots els permisos des de Configuració."</string>
+    <string name="needs_access_msg_prefix" msgid="2204136858798832382">"L\'aplicació necessita accés als permisos següents:\n"</string>
+    <string name="phone_screen_permission_msg" msgid="3599815596923367256">"Concedeix permís a la pantalla del telèfon"</string>
+    <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"Activa els permisos d\'ubicació al dispositiu"</string>
+    <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"Activa la ubicació a la pantalla del telèfon"</string>
+    <string name="required_permissions_title" msgid="5351791879153568211">"Permisos obligatoris"</string>
+    <string name="request_permissions_title" msgid="7456426341142412300">"Demostració de sol·licitud de permisos"</string>
+    <string name="cancel_reservation_title" msgid="1374986823057959608">"Pantalla de cancel·lació de la reserva"</string>
+    <string name="reservation_cancelled_msg" msgid="6334213670275547875">"Reserva cancel·lada"</string>
+    <string name="result_demo_title" msgid="3900525190662148290">"Demostració de resultats"</string>
+    <string name="not_started_for_result_msg" msgid="7498800528148447270">"Aquesta aplicació no s\'ha iniciat per al resultat"</string>
+    <string name="started_for_result_msg" msgid="4225260243713833974">"Aquesta aplicació s\'ha cridat per al resultat des de %s. Selecciona el resultat per enviar-lo al mètode de crida."</string>
+    <string name="arrived_exclamation_msg" msgid="9132265698563096988">"Has arribat."</string>
+    <string name="travel_est_trip_text" msgid="5134365408383171144">"Recull l\'Alícia"</string>
+    <string name="send_notification_title" msgid="4731688444696028193">"Envia una notificació"</string>
+    <string name="start_notifications_title" msgid="8699668027543530460">"Inicia les notificacions"</string>
+    <string name="stop_notifications_title" msgid="3703892710275206239">"Atura les notificacions"</string>
+    <string name="notification_title" msgid="5507590705935298176">"Notificació"</string>
+    <string name="importance_title" msgid="9034862997821839831">"Importància"</string>
+    <string name="category_title" msgid="4783851267093259949">"Categoria"</string>
+    <string name="ongoing_title" msgid="4957996003270280496">"En curs"</string>
+    <string name="notification_demo" msgid="1819496937832036387">"Demostració d\'una notificació"</string>
+    <string name="misc_demo_title" msgid="7399959062407349380">"Demostracions diverses"</string>
+    <string name="navigating_demo_title" msgid="7454579665387386476">"Demostració de navegació"</string>
+    <string name="arrived_demo_title" msgid="6708013121387053838">"Demostració d\'arribada"</string>
+    <string name="junction_image_demo_title" msgid="3302979708776502314">"Demostració d\'imatge d\'una cruïlla"</string>
+    <string name="nav_template_demos_title" msgid="8215835368932160866">"Demostracions de plantilles de navegació"</string>
+    <string name="map_template_pane_demo_title" msgid="4849450903277412004">"Demostració d\'una plantilla de mapa amb subfinestra"</string>
+    <string name="map_template_list_demo_title" msgid="1473810899303903185">"Demostració d\'una plantilla de mapa amb llista"</string>
+    <string name="start_notification_title" msgid="2208831088632818681">"Inicia la notificació"</string>
+    <string name="stop_notification_title" msgid="3709643750540881176">"Atura la notificació"</string>
+    <string name="nav_notification_demo_title" msgid="4448683262984308442">"Demostració d\'una notificació de navegació"</string>
+    <string name="go_straight" msgid="2301747728609198718">"Segueix recte"</string>
+    <string name="turn_right" msgid="4710562732720109969">"Gira a la dreta"</string>
+    <string name="take_520" msgid="3804796387195842741">"Ves per la 250"</string>
+    <string name="gas_station" msgid="1203313937444666161">"Benzinera"</string>
+    <string name="short_route" msgid="4831864276538141265">"Ruta curta"</string>
+    <string name="less_busy" msgid="310625272281710983">"Menys congestionada"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"Compatible amb VAO"</string>
+    <string name="long_route" msgid="4737969235741057506">"Ruta llarga"</string>
+    <string name="continue_start_nav" msgid="6231797535084469163">"Continua per iniciar la navegació"</string>
+    <string name="continue_route" msgid="5172258139245088080">"Continua cap a la ruta"</string>
+    <string name="routes_title" msgid="7799772149932075357">"Rutes"</string>
+    <string name="place_list_nav_template_demo_title" msgid="8019588508812955290">"Demostració d\'una plantilla de navegació d\'una llista de llocs"</string>
+    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"Demostració d\'una plantilla de previsualització de rutes"</string>
+    <string name="notification_template_demo_title" msgid="5076051497316030274">"Demostració d\'una plantilla de notificació"</string>
+    <string name="nav_map_template_demo_title" msgid="344985380763975398">"Demostració d\'una plantilla de navegació amb només un mapa"</string>
+    <string name="nav_demos_title" msgid="72781206086461004">"Demostracions de navegació"</string>
+    <string name="navigation_alert_title" msgid="8306554249264200848">"Encara hi ha un radar de velocitat?"</string>
+    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"S\'ha informat fa 10 minuts"</string>
+    <string name="no_toll_card_permission" msgid="6789073114449712090">"Sense permís d\'accés a la targeta de peatge."</string>
+    <string name="no_energy_level_permission" msgid="1684773185095107825">"Sense permís d\'accés al nivell d\'energia."</string>
+    <string name="no_speed_permission" msgid="5812532480922675390">"Sense permís d\'accés a la velocitat."</string>
+    <string name="no_mileage_permission" msgid="4074779840599589847">"Sense permís d\'accés al quilometratge."</string>
+    <string name="no_ev_status_permission" msgid="933075402821938973">"Sense permís d\'accés a l\'estatus de VE."</string>
+    <string name="no_accelerometer_permission" msgid="896914448469117234">"Sense permís d\'accés a l\'acceleròmetre."</string>
+    <string name="no_gyroscope_permission" msgid="665293140266771569">"Sense permís d\'accés al giroscopi."</string>
+    <string name="no_compass_permission" msgid="5162304489577567125">"Sense permís d\'accés a la brúixola."</string>
+    <string name="no_car_hardware_location" msgid="3505517472938045093">"Sense permís d\'accés a la ubicació del maquinari del cotxe."</string>
+    <string name="fetch_toll_info" msgid="6864627977128179834">"S\'està recollint informació del peatge."</string>
+    <string name="fetch_energy_level" msgid="1773415471137542832">"S\'està recollint el nivell d\'energia."</string>
+    <string name="fetch_speed" msgid="7333830984597189627">"S\'està recollint la velocitat."</string>
+    <string name="fetch_mileage" msgid="7490131687788025123">"S\'està recollint el quilometratge."</string>
+    <string name="fetch_ev_status" msgid="2798910410830567052">"S\'està recollint l\'estat del VE."</string>
+    <string name="fetch_accelerometer" msgid="697750041126810911">"S\'està recollint l\'acceleròmetre."</string>
+    <string name="fetch_gyroscope" msgid="7153155318827188539">"S\'està recollint el giroscopi."</string>
+    <string name="fetch_compass" msgid="7316188117590056717">"S\'està recollint la brúixola."</string>
+    <string name="fetch_location" msgid="5015066922035852615">"S\'està recollint la ubicació."</string>
+    <string name="toll_card_state" msgid="4430544885695162226">"Estat de la targeta de peatge"</string>
+    <string name="low_energy" msgid="3462774027012877028">"Energia baixa"</string>
+    <string name="range" msgid="8744960568263400641">"Interval"</string>
+    <string name="fuel" msgid="4253578650127250651">"Combustible"</string>
+    <string name="battery" msgid="2183623637331546820">"Bateria"</string>
+    <string name="display_speed" msgid="9161318805331348165">"Mostra la velocitat"</string>
+    <string name="raw_speed" msgid="7295910214088983967">"Velocitat pura"</string>
+    <string name="unit" msgid="7697521583928135171">"Unitat"</string>
+    <string name="odometer" msgid="3925174645651546591">"Comptaquilòmetres"</string>
+    <string name="ev_connected" msgid="2277845607662494696">"Port de càrrega de VE connectat"</string>
+    <string name="ev_open" msgid="4916704450914519643">"Port de càrrega de VE obert"</string>
+    <string name="accelerometer" msgid="2084026313768299185">"Acceleròmetre"</string>
+    <string name="gyroscope" msgid="3428075828014504651">"Giroscopi"</string>
+    <string name="compass" msgid="7037367764762441245">"Brúixola"</string>
+    <string name="car_hardware_location" msgid="5826128477363068617">"Ubicació del maquinari del cotxe"</string>
+    <string name="non_actionable" msgid="8999757911111188784">"Sense acció aplicable"</string>
+    <string name="second_item" msgid="5245792503030812493">"Segon element"</string>
+    <string name="third_item" msgid="334088179008716411">"Tercer element"</string>
+    <string name="fourth_item" msgid="1153409687260543158">"Quart element"</string>
+    <string name="fifth_item" msgid="295284272719956932">"El cinquè element té definit un títol llarg"</string>
+    <string name="sixth_item" msgid="3880321601391343607">"El sisè element té definit un títol llarg"</string>
+    <string name="grid_template_demo_title" msgid="6159115661928982245">"Demostració d\'una plantilla de quadrícula"</string>
+    <string name="parked_only_title" msgid="3190603222397552672">"Títol del mode només d\'aparcament."</string>
+    <string name="parked_only_text" msgid="8720610556452272916">"Més text en el mode només d\'aparcament."</string>
+    <string name="clicked_row_prefix" msgid="9068303427922069941">"Fila on s\'ha fet clic"</string>
+    <string name="first_line_text" msgid="6648055806656590336">"Primera línia de text"</string>
+    <string name="second_line_text" msgid="38664490158836864">"Segona línia de text"</string>
+    <string name="title_prefix" msgid="3991742709199357049">"Títol"</string>
+    <string name="list_template_demo_title" msgid="1740208242737246151">"Demostració d\'una plantilla de llista"</string>
+    <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Demostració d\'una plantilla amb un missatge llarg"</string>
+    <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"El teu amfitrió no és compatible amb la plantilla amb un missatge llarg"</string>
+    <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Amfitrió incompatible"</string>
+    <string name="msg_template_demo_title" msgid="3895210951340409473">"Demostració d\'una plantilla de missatge"</string>
+    <string name="msg_template_demo_text" msgid="2275291617716161409">"El missatge va aquí.\nMés text a la segona línia."</string>
+    <string name="pane_template_demo_title" msgid="7804292600060341608">"Demostració d\'una plantilla de subfinestra"</string>
+    <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demostració d\'una plantilla de llista de llocs"</string>
+    <string name="browse_places_title" msgid="7246005909846715898">"Cerca llocs"</string>
+    <string name="search_template_demo_title" msgid="1770474418958318114">"Demostració d\'una plantilla de cerca"</string>
+    <string name="search_hint" msgid="978495498991026792">"Cerca aquí"</string>
+    <string name="additional_text" msgid="8410289578276941586">"Revisa les condicions del servei"</string>
+    <string name="google_sign_in" msgid="6556259799319701727">"Inici de sessió amb Google"</string>
+    <string name="use_pin" msgid="7850893299484337431">"Utilitza el PIN"</string>
+    <string name="qr_code" msgid="5487041647280777397">"Codi QR"</string>
+    <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"El teu amfitrió no és compatible amb la plantilla d\'inici de sessió"</string>
+    <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Amfitrió incompatible"</string>
+    <string name="email_hint" msgid="7205549445477319606">"Correu electrònic"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"Inicia la sessió"</string>
+    <string name="sign_in_instructions" msgid="9044850228284294762">"Introdueix les teves credencials"</string>
+    <string name="invalid_email_error_msg" msgid="5261362663718987167">"El nom d\'usuari ha de ser una adreça electrònica vàlida"</string>
+    <string name="invalid_length_error_msg" msgid="8238905276326976425">"El nom d\'usuari ha de tenir com a mínim %s caràcters"</string>
+    <string name="invalid_password_error_msg" msgid="1090359893902674610">"La contrasenya no és vàlida"</string>
+    <string name="password_hint" msgid="2869107073860012864">"contrasenya"</string>
+    <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"Nom d\'usuari"</string>
+    <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Escriu aquest PIN al telèfon"</string>
+    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Escaneja el codi QR per iniciar la sessió"</string>
+    <string name="sign_in_with_google_title" msgid="8043752000786977249">"Inicia la sessió amb Google"</string>
+    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Utilitza aquest botó per completar el teu inici de sessió amb Google"</string>
+    <string name="sign_in_complete_text" msgid="8423984266325680606">"Has iniciat la sessió."</string>
+    <string name="sign_in_complete_title" msgid="8919868148773983428">"Inici de la sessió completat"</string>
+    <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Demostració d\'una plantilla d\'inici de sessió"</string>
+    <string name="images_unknown_host_error" msgid="3180661817432720076">"No es poden mostrar les imatges per a un amfitrió desconegut"</string>
+    <string name="icon_title_prefix" msgid="8487026131229541244">"Icona"</string>
+    <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Demostració d\'icones del proveïdor de contingut"</string>
+    <string name="icons_demo_title" msgid="4082976685262307357">"Demostració d\'icones"</string>
+    <string name="app_icon_title" msgid="7534936683349723423">"La icona de l\'aplicació"</string>
+    <string name="vector_no_tint_title" msgid="874591632279039146">"Un dibuixable vectorial sense to"</string>
+    <string name="vector_with_tint_title" msgid="1022346419829696827">"Un dibuixable vectorial amb to"</string>
+    <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"Un dibuixable vectorial amb l\'atribut del tema d\'una aplicació pel seu color"</string>
+    <string name="png_res_title" msgid="7437083018336747544">"Un PNG, enviat com a recurs"</string>
+    <string name="png_bitmap_title" msgid="120790220238335267">"Un PNG, enviat com a recurs"</string>
+    <string name="just_row_title" msgid="965700021568970725">"Només un títol"</string>
+    <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Títol amb icona de l\'aplicació"</string>
+    <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Títol amb imatge d\'un identificador de recurs"</string>
+    <string name="title_with_svg_image_row_title" msgid="6109092343637263755">"Títol amb imatge SVG"</string>
+    <string name="colored_secondary_row_title" msgid="5173288934252528929">"Text secundari acolorit"</string>
+    <string name="title_with_secondary_lines_row_title" msgid="7769408881272549837">"Títol amb diverses línies de text secundàries"</string>
+    <string name="title_with_secondary_lines_row_text_1" msgid="8945114692653524102">"Erra, erra i torna a errar, però cada cop menys."</string>
+    <string name="title_with_secondary_lines_row_text_2" msgid="1017734603405251531">"- Piet Hein"</string>
+    <string name="rows_demo_title" msgid="3198566660454251007">"Demostració de files"</string>
+    <string name="text_icons_demo_title" msgid="8732943920672143201">"Demostracions de text i icones"</string>
+    <string name="row_text_icons_demo_title" msgid="135167694047524905">"Demostració de files amb text i icones"</string>
+    <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Demostració de llistes seleccionables"</string>
+    <string name="option_1_title" msgid="7221252541651471199">"Opció 1"</string>
+    <string name="option_2_title" msgid="1905146448697963818">"Opció 2"</string>
+    <string name="option_3_title" msgid="6319268250436119258">"Opció 3"</string>
+    <string name="some_additional_text" msgid="4009872495806318260">"Text addicional"</string>
+    <string name="sample_additional_list" msgid="5085372891301576306">"Llista seleccionable de mostra"</string>
+    <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demostració de restricció de tasques"</string>
+    <string name="task_limit_reached_msg" msgid="6038763366777119364">"S\'ha arribat al límit de tasques\nEn continuar es forçarà l\'aturada de l\'aplicació"</string>
+    <string name="task_step_of_title" msgid="2791717962535723839">"Pas de la tasca %1$d de %2$d"</string>
+    <string name="task_step_of_text" msgid="4646729781462227219">"Fes clic per anar endavant"</string>
+    <string name="toggle_test_title" msgid="924485265152862631">"Test de commutació"</string>
+    <string name="toggle_test_text" msgid="8107217216013312857">"Es permeten canvis amb estat"</string>
+    <string name="image_test_title" msgid="8273863429801477547">"Prova d\'imatge"</string>
+    <string name="image_test_text" msgid="6264812093895530445">"S\'admeten canvis d\'imatges"</string>
+    <string name="additional_data_title" msgid="3546689652240300617">"Dades addicionals"</string>
+    <!-- no translation found for additional_data_text (2846223398214158872) -->
+    <skip />
+    <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demostracions de plantilles diverses"</string>
+    <string name="showcase_demos_title" msgid="1542092687878113304">"Demostracions de Showcase"</string>
+    <!-- no translation found for location_1_title (3939821089928425181) -->
+    <skip />
+    <string name="location_1_description" msgid="4801052291684791371">"Vector de recursos amb to"</string>
+    <string name="location_2_description" msgid="3331356135359047166">"Mapa de bits del recurs d\'imatge"</string>
+    <string name="location_3_description" msgid="3982142774088944850">"Marcador de text acolorit"</string>
+    <string name="location_4_description" msgid="6560365445044381911">"Mapa de bits de la imatge"</string>
+    <string name="location_description_text_label" msgid="2779911545316756419">"Etiqueta de text"</string>
+</resources>
