@@ -43,6 +43,8 @@
     <string name="commute_action_title" msgid="2585755255290185096">"రోజువారీ ప్రయాణం"</string>
     <string name="sign_out_action_title" msgid="1653943000866713010">"సైన్ అవుట్ చేయండి"</string>
     <string name="try_anyway_action_title" msgid="7384500054249311718">"ఏదేమైనా ట్రై చేయండి"</string>
+    <string name="yes_action_title" msgid="5507096013762092189">"అవును"</string>
+    <string name="no_action_title" msgid="1452124604210014010">"కాదు"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"బగ్ రిపోర్ట్ చేయబడింది!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"జూమ్ - ఇన్ చేయబడింది"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"జూమ్ - అవుట్ చేయబడింది"</string>
@@ -66,6 +68,9 @@
     <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"ప్రస్తుత లొకేషన్‌ను చూడటానికి లొకేషన్ అనుమతిని మంజూరు చేయండి"</string>
     <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Googleతో సైన్-ఇన్ ఇక్కడ ప్రారంభమవుతుంది"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"ఎంపిక ఇండెక్స్‌గా మార్చబడింది"</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"అవును అనే బటన్ నొక్కబడింది!"</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"కాదు అనే బటన్ నొక్కబడింది!"</string>
+    <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"అలర్ట్ సమయం ముగిసింది!"</string>
     <string name="first_row_title" msgid="219428344573165351">"పెద్ద ఇమేజ్, పొడవైన టెక్స్ట్ పొడవైన టెక్స్ట్ పొడవైన టెక్స్ట్ పొడవైన టెక్స్ట్ పొడవైన టెక్స్ట్ గల అడ్డు వరుస"</string>
     <string name="first_row_text" msgid="3887390298628338716">"టెక్స్ట్ టెక్స్ట్ టెక్స్ట్"</string>
     <string name="other_row_title_prefix" msgid="4702355788835253197">"అడ్డు వరుస టైటిల్"</string>
@@ -105,7 +110,7 @@
     <string name="content_limits_demo_title" msgid="3207211638386727610">"కంటెంట్ పరిమితుల డెమో"</string>
     <string name="finish_app_msg" msgid="8354334557053141891">"ఇది యాప్‌ను పూర్తి చేస్తుంది, మీరు రిటర్న్ వచ్చినప్పుడు ఈ అనుమతి స్క్రీన్‌ను ముందే సీడ్ చేస్తుంది"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"యాప్ డెమోను ముగించండి"</string>
-    <string name="finish_app_demo_title" msgid="1190976061270691419">"తర్వాతి డెమోను రన్ చేసేటప్పుడు స్క్రీన్ బ్యాక్‌స్ట్యాక్‌ను ప్రీ-సీడ్ చేయండి"</string>
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"తర్వాతి డెమోను రన్ చేసేటప్పుడు అనుమతి స్క్రీన్‌ను ప్రీ-సీడ్ చేయండి"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"డెమో లోడ్ అవుతోంది"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"లోడ్ చేయడం పూర్తయింది!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"రూట్‌కు పాప్ చేయండి"</string>
@@ -127,9 +132,6 @@
     <string name="not_started_for_result_msg" msgid="7498800528148447270">"ఈ యాప్ ఫలితం కోసం ప్రారంభించబడలేదు"</string>
     <string name="started_for_result_msg" msgid="4225260243713833974">"%s నుండి ఫలితం కోసం ఈ యాప్‌నకు కాల్ చేయడం జరిగింది. కాలర్‌కు తిరిగి పంపడానికి దయచేసి ఫలితాన్ని ఎంచుకోండి"</string>
     <string name="arrived_exclamation_msg" msgid="9132265698563096988">"రిలీజ్ అయింది!"</string>
-    <string name="arrived_address_msg" msgid="858838027855534700">"Google Bellevue Office\n1120 112th Ave NE"</string>
-    <string name="current_step_cue" msgid="2742662984538730379">"Roy st 520"</string>
-    <string name="next_step_cue" msgid="381579039472178611">"I5 Aurora Ave N"</string>
     <string name="travel_est_trip_text" msgid="5134365408383171144">"ఆలిస్ పిక్ అప్ చేయి"</string>
     <string name="send_notification_title" msgid="4731688444696028193">"నోటిఫికేషన్‌ను పంపండి"</string>
     <string name="start_notifications_title" msgid="8699668027543530460">"నోటిఫికేషన్‌లను ప్రారంభించండి"</string>
@@ -165,6 +167,8 @@
     <string name="notification_template_demo_title" msgid="5076051497316030274">"నోటిఫికేషన్ టెంప్లేట్ డెమో"</string>
     <string name="nav_map_template_demo_title" msgid="344985380763975398">"మ్యాప్ మాత్రమే గల నావిగేషన్ టెంప్లేట్ డెమో"</string>
     <string name="nav_demos_title" msgid="72781206086461004">"నావిగేషన్ డెమోలు"</string>
+    <string name="navigation_alert_title" msgid="8306554249264200848">"ఇప్పటికీ వేగం కొలత సాధనం కావాలా?"</string>
+    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"10ని క్రితం రిపోర్ట్ చేయబడింది"</string>
     <string name="no_toll_card_permission" msgid="6789073114449712090">"టోల్‌కార్డ్ అనుమతి లేదు."</string>
     <string name="no_energy_level_permission" msgid="1684773185095107825">"ఎనర్జీ స్థాయి అనుమతి లేదు."</string>
     <string name="no_speed_permission" msgid="5812532480922675390">"వేగం అనుమతి లేదు."</string>
@@ -213,7 +217,6 @@
     <string name="title_prefix" msgid="3991742709199357049">"టైటిల్"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"లిస్ట్ టెంప్లేట్ డెమో"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"పొడవైన మెసేజ్‌కు సంబంధించిన టెంప్లేట్ డెమో"</string>
-    <string name="long_msg_template_text" msgid="418743506180774764">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nAliquam laoreet ac metus eu commodo. Sed a congue diam, sed dictum lectus. Nam nec\ntristique dolor, quis sodales arcu. Etiam at metus eu nulla auctor varius. \nInteger dolor lorem, placerat sit amet lacus in, imperdiet semper dui. Vestibulum \nante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; \nQuisque gravida fermentum egestas.\n\n\n\nUt ut sodales mi. Aenean porta vel ipsum sed lacinia. Morbi odio ipsum, hendrerit \neu est et, sollicitudin finibus diam. Nunc sit amet felis elit. Orci varius \nnatoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed \nvestibulum, tellus a rutrum auctor, diam arcu vestibulum purus, nec mollis ligula \nnisi in nisi. Donec sem tortor, pharetra sed fermentum sit amet, ullamcorper nec \nsapien. Aliquam risus arcu, porttitor eu dui nec, vulputate tempus libero. \nCurabitur sit amet tristique orci. Suspendisse et odio tempus, tempus turpis quis,\n euismod est.\n\n\n\nVestibulum mauris ante, luctus viverra nisi eget, blandit facilisis nulla. \nPhasellus ex lorem, semper in vestibulum nec, aliquet vel elit. Aliquam vitae \nligula nec enim dictum lobortis. Sed varius turpis quis nisi tempus varius. Sed \nnon sollicitudin magna, at mattis tortor. Curabitur quis ligula eget lorem mattis \ntincidunt et in sapien. Curabitur a elit nisi. Aliquam ex arcu, hendrerit eget \nturpis vitae, bibendum vulputate nibh. Fusce vitae ex aliquet, tristique magna eu,\n vulputate dui. Aenean tempor viverra tortor non pharetra. Pellentesque convallis \nnec risus a auctor. Praesent non sem non eros tincidunt ullamcorper efficitur non \nlacus.\n\n\n\nSuspendisse accumsan ultricies egestas. Aenean leo ligula, congue ac erat eu, \nlobortis ultricies lorem. Nulla finibus, arcu sed tincidunt lobortis, magna justo \nrutrum ligula, et mattis felis turpis vel ex. Morbi ac auctor ex, at bibendum sem.\n Vestibulum a tortor iaculis, viverra felis vitae, lobortis est. Duis sit amet \ncondimentum sem. Ut molestie, dolor pretium imperdiet maximus, enim orci porta \nquam, id gravida enim nunc vitae lacus. Pellentesque habitant morbi tristique \nsenectus et netus et malesuada fames ac turpis egestas. Nullam vel justo eu risus \nlobortis dignissim sit amet ullamcorper nulla. Donec finibus cursus purus \nporttitor pellentesque.\n\n\n\nDonec at vehicula ante. Suspendisse rutrum nisl quis metus faucibus lacinia. \nVestibulum eros sapien, eleifend nec accumsan a, interdum sed nisi. Aenean posuere\n ultrices lorem non pharetra. Nulla non porta ligula. Maecenas at elit diam. \nNullam gravida augue et semper eleifend. Fusce venenatis ac arcu et luctus. Mauris\n ultricies urna non dui interdum, vel hendrerit est aliquam. Fusce id dictum leo, \nfringilla egestas ipsum."</string>
     <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"మీ హోస్ట్ పొడవైన మెసేజ్‌కు సంబంధించిన టెంప్లేట్‌ను సపోర్ట్ చేయదు"</string>
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"అనుకూలం కాని హోస్ట్"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"మెసేజ్ టెంప్లేట్ డెమో"</string>
@@ -280,20 +283,14 @@
     <string name="image_test_title" msgid="8273863429801477547">"ఇమేజ్ టెస్ట్"</string>
     <string name="image_test_text" msgid="6264812093895530445">"ఇమేజ్‌లలో మార్పులు చేయవచ్చు"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"అదనపు డేటా"</string>
-    <string name="additional_data_text" msgid="5834065880156294730">"బ్యాక్‌గ్రౌండ్ ఆపరేషన్‌ల కోసం అప్‌డేట్‌లు అనుమతించబడతాయి."</string>
+    <string name="additional_data_text" msgid="2846223398214158872">"బ్యాక్‌గ్రౌండ్ ఆపరేషన్‌ల కోసం అప్‌డేట్‌లు అనుమతించబడ్డాయి."</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ఇతర టెంప్లేట్‌ల డెమోలు"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"డెమోలను ప్రదర్శించండి"</string>
-    <string name="location_1_title" msgid="8811091210405812841">"Google Kirkland"</string>
+    <!-- no translation found for location_1_title (3939821089928425181) -->
+    <skip />
     <string name="location_1_description" msgid="4801052291684791371">"టింట్డ్ రిసోర్స్ వెక్టార్"</string>
-    <string name="location_2_title" msgid="7852752167090941096">"Google Bellevue"</string>
     <string name="location_2_description" msgid="3331356135359047166">"ఇమేజ్ రిసోర్స్ బిట్‌మ్యాప్"</string>
-    <string name="location_3_title" msgid="169499850136279697">"Google South Lake Union"</string>
     <string name="location_3_description" msgid="3982142774088944850">"రంగుల టెక్స్ట్ మార్కర్"</string>
-    <string name="location_4_title" msgid="8258300653873954927">"Google Seattle"</string>
     <string name="location_4_description" msgid="6560365445044381911">"ఇమేజ్ బిట్‌మ్యాప్"</string>
-    <string name="location_6_title" msgid="6221666052536309889">"Google Bothell"</string>
-    <string name="location_7_title" msgid="3384783200675804248">"సేవర్డ్ పార్క్"</string>
-    <string name="location_8_title" msgid="733139775013673611">"లూథర్ బుర్బ్యాంక్ పార్క్"</string>
-    <string name="location_9_title" msgid="2549666598000022389">"హెరిటేజ్ పార్క్"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"టెక్స్ట్ లేబుల్"</string>
 </resources>

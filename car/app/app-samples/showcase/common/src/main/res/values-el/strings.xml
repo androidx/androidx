@@ -43,6 +43,8 @@
     <string name="commute_action_title" msgid="2585755255290185096">"Συχνή διαδρομή"</string>
     <string name="sign_out_action_title" msgid="1653943000866713010">"Αποσύνδεση"</string>
     <string name="try_anyway_action_title" msgid="7384500054249311718">"Δοκιμή οπωσδήποτε"</string>
+    <string name="yes_action_title" msgid="5507096013762092189">"Ναι"</string>
+    <string name="no_action_title" msgid="1452124604210014010">"Όχι"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"Υποβλήθηκε αναφορά σφάλματος!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"Έγινε μεγέθυνση"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"Έγινε σμίκρυνση"</string>
@@ -66,6 +68,9 @@
     <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Εκχώρηση άδειας τοποθεσίας για εμφάνιση τρέχουσας τοποθεσίας"</string>
     <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Η Σύνδεση μέσω Google αρχίζει από εδώ"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"Η επιλογή άλλαξε σε καταλογοποίηση"</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"Ναι, το κουμπί πατήθηκε!"</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"Δεν πατήθηκε κουμπί!"</string>
+    <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"Η ειδοποίηση έχει λήξει!"</string>
     <string name="first_row_title" msgid="219428344573165351">"Σειρά με μια μεγάλη εικόνα και μεγάλο κείμενο μεγάλο κείμενο μεγάλο κείμενο μεγάλο κείμενο μεγάλο κείμενο"</string>
     <string name="first_row_text" msgid="3887390298628338716">"Κείμενο κείμενο κείμενο"</string>
     <string name="other_row_title_prefix" msgid="4702355788835253197">"Τίτλος σειράς"</string>
@@ -105,7 +110,7 @@
     <string name="content_limits_demo_title" msgid="3207211638386727610">"Επίδειξη ορίων περιεχομένου"</string>
     <string name="finish_app_msg" msgid="8354334557053141891">"Αυτή η ενέργεια θα ολοκληρώσει την εφαρμογή και, όταν επιστρέψετε, θα πραγματοποιήσει προκαταρκτικό seed μιας οθόνης άδειας"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Ολοκλήρωση επίδειξης εφαρμογής"</string>
-    <string name="finish_app_demo_title" msgid="1190976061270691419">"Προκαταρκτικό seed της πίσω στοίβας οθόνης κατά την επόμενη εκτέλεσης της επίδειξης"</string>
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"Προκαταρκτικό seed της οθόνης αδειών κατά την επόμενη εκτέλεση της επίδειξης"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"Φόρτωση επίδειξης"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Η φόρτωση ολοκληρώθηκε!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Μετάβαση στο ριζικό στοιχείο"</string>
@@ -127,9 +132,6 @@
     <string name="not_started_for_result_msg" msgid="7498800528148447270">"Αυτή η εφαρμογή δεν εκκινήθηκε για το αποτέλεσμα."</string>
     <string name="started_for_result_msg" msgid="4225260243713833974">"Αυτή η εφαρμογή κλήθηκε για αποτέλεσμα από το %s. Επιλέξτε το αποτέλεσμα για να το επιστρέψετε στον καλούντα"</string>
     <string name="arrived_exclamation_msg" msgid="9132265698563096988">"Άφιξη!"</string>
-    <string name="arrived_address_msg" msgid="858838027855534700">"Google Bellevue Office\n1120 112th Ave NE"</string>
-    <string name="current_step_cue" msgid="2742662984538730379">"Οδός Roy 520"</string>
-    <string name="next_step_cue" msgid="381579039472178611">"I5 Aurora Ave N"</string>
     <string name="travel_est_trip_text" msgid="5134365408383171144">"Παραλαβή της Alice"</string>
     <string name="send_notification_title" msgid="4731688444696028193">"Αποστολή ειδοποίησης"</string>
     <string name="start_notifications_title" msgid="8699668027543530460">"Έναρξη ειδοποιήσεων"</string>
@@ -165,6 +167,8 @@
     <string name="notification_template_demo_title" msgid="5076051497316030274">"Επίδειξη προτύπου ειδοποίησης"</string>
     <string name="nav_map_template_demo_title" msgid="344985380763975398">"Πρότυπο πλοήγησης με μια επίδειξη μόνο με χάρτη"</string>
     <string name="nav_demos_title" msgid="72781206086461004">"Επιδείξεις πλοήγησης"</string>
+    <string name="navigation_alert_title" msgid="8306554249264200848">"Υπάρχει ακόμα ένα ραντάρ ταχύτητας;"</string>
+    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"Αναφέρθηκε πριν από 10 λεπτά"</string>
     <string name="no_toll_card_permission" msgid="6789073114449712090">"Δεν υπάρχει άδεια TollCard."</string>
     <string name="no_energy_level_permission" msgid="1684773185095107825">"Δεν υπάρχει άδεια EnergyLevel."</string>
     <string name="no_speed_permission" msgid="5812532480922675390">"Δεν υπάρχει άδεια ταχύτητας."</string>
@@ -213,7 +217,6 @@
     <string name="title_prefix" msgid="3991742709199357049">"Τίτλος"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"Επίδειξης προτύπου λίστας"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Επίδειξη προτύπου μεγάλου μηνύματος"</string>
-    <string name="long_msg_template_text" msgid="418743506180774764">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nAliquam laoreet ac metus eu commodo. Sed a congue diam, sed dictum lectus. Nam nec\ntristique dolor, quis sodales arcu. Etiam at metus eu nulla auctor varius. \nInteger dolor lorem, placerat sit amet lacus in, imperdiet semper dui. Vestibulum \nante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; \nQuisque gravida fermentum egestas.\n\n\n\nUt ut sodales mi. Aenean porta vel ipsum sed lacinia. Morbi odio ipsum, hendrerit \neu est et, sollicitudin finibus diam. Nunc sit amet felis elit. Orci varius \nnatoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed \nvestibulum, tellus a rutrum auctor, diam arcu vestibulum purus, nec mollis ligula \nnisi in nisi. Donec sem tortor, pharetra sed fermentum sit amet, ullamcorper nec \nsapien. Aliquam risus arcu, porttitor eu dui nec, vulputate tempus libero. \nCurabitur sit amet tristique orci. Suspendisse et odio tempus, tempus turpis quis,\n euismod est.\n\n\n\nVestibulum mauris ante, luctus viverra nisi eget, blandit facilisis nulla. \nPhasellus ex lorem, semper in vestibulum nec, aliquet vel elit. Aliquam vitae \nligula nec enim dictum lobortis. Sed varius turpis quis nisi tempus varius. Sed \nnon sollicitudin magna, at mattis tortor. Curabitur quis ligula eget lorem mattis \ntincidunt et in sapien. Curabitur a elit nisi. Aliquam ex arcu, hendrerit eget \nturpis vitae, bibendum vulputate nibh. Fusce vitae ex aliquet, tristique magna eu,\n vulputate dui. Aenean tempor viverra tortor non pharetra. Pellentesque convallis \nnec risus a auctor. Praesent non sem non eros tincidunt ullamcorper efficitur non \nlacus.\n\n\n\nSuspendisse accumsan ultricies egestas. Aenean leo ligula, congue ac erat eu, \nlobortis ultricies lorem. Nulla finibus, arcu sed tincidunt lobortis, magna justo \nrutrum ligula, et mattis felis turpis vel ex. Morbi ac auctor ex, at bibendum sem.\n Vestibulum a tortor iaculis, viverra felis vitae, lobortis est. Duis sit amet \ncondimentum sem. Ut molestie, dolor pretium imperdiet maximus, enim orci porta \nquam, id gravida enim nunc vitae lacus. Pellentesque habitant morbi tristique \nsenectus et netus et malesuada fames ac turpis egestas. Nullam vel justo eu risus \nlobortis dignissim sit amet ullamcorper nulla. Donec finibus cursus purus \nporttitor pellentesque.\n\n\n\nDonec at vehicula ante. Suspendisse rutrum nisl quis metus faucibus lacinia. \nVestibulum eros sapien, eleifend nec accumsan a, interdum sed nisi. Aenean posuere\n ultrices lorem non pharetra. Nulla non porta ligula. Maecenas at elit diam. \nNullam gravida augue et semper eleifend. Fusce venenatis ac arcu et luctus. Mauris\n ultricies urna non dui interdum, vel hendrerit est aliquam. Fusce id dictum leo, \nfringilla egestas ipsum."</string>
     <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"Ο κεντρικός υπολογιστής δεν υποστηρίζει το πρότυπο μεγάλου μηνύματος."</string>
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Μη συμβατός κεντρικός υπολογιστής"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Επίδειξη προτύπου μηνύματος"</string>
@@ -221,8 +224,7 @@
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Επίδειξη προτύπου πλαισίου"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Επίδειξη προτύπου λίστας μερών"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Περιήγηση σε μέρη"</string>
-    <!-- no translation found for search_template_demo_title (1770474418958318114) -->
-    <skip />
+    <string name="search_template_demo_title" msgid="1770474418958318114">"Επίδειξη προτύπου αναζήτησης"</string>
     <string name="search_hint" msgid="978495498991026792">"Αναζήτηση εδώ"</string>
     <string name="additional_text" msgid="8410289578276941586">"Ελέγξτε τους Όρους Παροχής Υπηρεσιών μας"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Σύνδεση μέσω Google"</string>
@@ -244,8 +246,7 @@
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Χρησιμοποιήστε αυτό το κουμπί για να ολοκληρώσετε τη σύνδεση μέσω Google."</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Έχετε συνδεθεί!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Η σύνδεση ολοκληρώθηκε"</string>
-    <!-- no translation found for sign_in_template_demo_title (6052035424941410249) -->
-    <skip />
+    <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Επίδειξη προτύπου σύνδεσης"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Δεν είναι δυνατή η εμφάνιση εικόνων για έναν άγνωστο κεντρικό υπολογιστή"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Εικονίδιο"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Επίδειξη εικονιδίων παρόχου περιεχομένου"</string>
@@ -282,20 +283,14 @@
     <string name="image_test_title" msgid="8273863429801477547">"Δοκιμή εικόνας"</string>
     <string name="image_test_text" msgid="6264812093895530445">"Επιτρέπονται αλλαγές εικόνας"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Πρόσθετα δεδομένα"</string>
-    <string name="additional_data_text" msgid="5834065880156294730">"Οι ενημερώσεις επιτρέπονται σε λειτουργίες παρασκηνίου."</string>
+    <string name="additional_data_text" msgid="2846223398214158872">"Οι ενημερώσεις επιτρέπονται σε λειτουργίες παρασκηνίου."</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Διάφορες επιδείξεις προτύπων"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Προβολή επιδείξεων"</string>
-    <string name="location_1_title" msgid="8811091210405812841">"Google Kirkland"</string>
+    <!-- no translation found for location_1_title (3939821089928425181) -->
+    <skip />
     <string name="location_1_description" msgid="4801052291684791371">"Διάνυσμα πόρου με απόχρωση"</string>
-    <string name="location_2_title" msgid="7852752167090941096">"Google Bellevue"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Χάρτης bit πόρων εικόνας"</string>
-    <string name="location_3_title" msgid="169499850136279697">"Google South Lake Union"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Έγχρωμος δείκτης κειμένου"</string>
-    <string name="location_4_title" msgid="8258300653873954927">"Google Seattle"</string>
     <string name="location_4_description" msgid="6560365445044381911">"Χάρτης bit εικόνας"</string>
-    <string name="location_6_title" msgid="6221666052536309889">"Google Bothell"</string>
-    <string name="location_7_title" msgid="3384783200675804248">"Πάρκο Seward"</string>
-    <string name="location_8_title" msgid="733139775013673611">"Πάρκο Luther Burbank"</string>
-    <string name="location_9_title" msgid="2549666598000022389">"Πάρκο Heritage"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"Ετικέτα κειμένου"</string>
 </resources>

@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ Copyright (C) 2021 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="back_caps_action_title" msgid="6392829425035919422">"TILLBAKA"</string>
+    <string name="home_caps_action_title" msgid="4853167242566949502">"STARTSKÄRM"</string>
+    <string name="exit_action_title" msgid="9086586388884500731">"Stäng"</string>
+    <string name="refresh_action_title" msgid="3674260822403151377">"Uppdatera"</string>
+    <string name="close_action_title" msgid="2661907510124308560">"Stäng"</string>
+    <string name="grant_access_action_title" msgid="4033140828804350723">"Ge åtkomst"</string>
+    <string name="enable_location_action_title" msgid="8181862247222797044">"Aktivera plats"</string>
+    <string name="cancel_action_title" msgid="1149738685397349236">"Avbryt"</string>
+    <string name="stop_action_title" msgid="1187619482795416314">"Stoppa"</string>
+    <string name="more_action_title" msgid="1039516575011403837">"Mer"</string>
+    <string name="call_action_title" msgid="6218977436905001611">"Ring"</string>
+    <string name="primary_action_title" msgid="7042003552215710683">"Primär"</string>
+    <string name="options_action_title" msgid="1168121856107932984">"Alternativ"</string>
+    <string name="search_action_title" msgid="3483459674263446335">"Sök"</string>
+    <string name="checked_action_title" msgid="906023941445896399">"Kontrollerades"</string>
+    <string name="unchecked_action_title" msgid="802503415474307811">"Inte kontrollerad"</string>
+    <string name="on_action_title" msgid="4129601573763429611">"På"</string>
+    <string name="off_action_title" msgid="8669201170189204848">"Av"</string>
+    <string name="settings_action_title" msgid="8616900063253887861">"Inställningar"</string>
+    <string name="accept_action_title" msgid="6172053420803596132">"Inställningar"</string>
+    <string name="reject_action_title" msgid="6730366705938402668">"Avvisa"</string>
+    <string name="ok_action_title" msgid="7128494973966098611">"OK"</string>
+    <string name="throw_action_title" msgid="7163710562670220163">"Framtvinga"</string>
+    <string name="commute_action_title" msgid="2585755255290185096">"Pendla"</string>
+    <string name="sign_out_action_title" msgid="1653943000866713010">"Logga ut"</string>
+    <string name="try_anyway_action_title" msgid="7384500054249311718">"Försök ändå"</string>
+    <string name="yes_action_title" msgid="5507096013762092189">"Ja"</string>
+    <string name="no_action_title" msgid="1452124604210014010">"Nej"</string>
+    <string name="bug_reported_toast_msg" msgid="2487119172744644317">"Felet har rapporterats."</string>
+    <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"Inzoomad"</string>
+    <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"Utzoomad"</string>
+    <string name="triggered_toast_msg" msgid="3396166539208366382">"Utlöstes"</string>
+    <string name="primary_toast_msg" msgid="7153771322662005447">"Du tryckte på den primära knappen"</string>
+    <string name="search_toast_msg" msgid="7826530065407699347">"Du tryckte på sökknappen"</string>
+    <string name="options_toast_msg" msgid="2146223786877557730">"Du tryckte på knappen Alternativ"</string>
+    <string name="favorite_toast_msg" msgid="522064494016370117">"Favorit!"</string>
+    <string name="not_favorite_toast_msg" msgid="6831181108681007428">"Inte en favorit!"</string>
+    <string name="nav_requested_toast_msg" msgid="6696525973145493908">"Navigering begärd"</string>
+    <string name="selected_route_toast_msg" msgid="3149189677200086656">"Vald rutt"</string>
+    <string name="visible_routes_toast_msg" msgid="7065558153736024203">"Synliga rutter"</string>
+    <string name="second_item_toast_msg" msgid="7210054709419608215">"Du klickade på det andra objektet"</string>
+    <string name="third_item_checked_toast_msg" msgid="3022450599567347361">"Tredje objektet kontrollerades"</string>
+    <string name="fifth_item_checked_toast_msg" msgid="1627599668504718594">"Det femte objektet har kontrollerats"</string>
+    <string name="sixth_item_toast_msg" msgid="6117028866385793707">"Du klickade på det sjätte objektet"</string>
+    <string name="settings_toast_msg" msgid="7697794473002342727">"Inställningar du klickat på"</string>
+    <string name="parked_toast_msg" msgid="2532422265890824446">"Parkerad åtgärd"</string>
+    <string name="more_toast_msg" msgid="5938288138225509885">"Du klickade på Mer"</string>
+    <string name="commute_toast_msg" msgid="4112684360647638688">"Du tryckte på pendlingsknappen"</string>
+    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Ge platsbehörighet för att se nuvarande plats"</string>
+    <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Här börjar Logga in med Google"</string>
+    <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"Valet ändrades till index"</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"Du tryckte på Ja-knappen."</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"Du tryckte på Nej-knappen."</string>
+    <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"Varningens tidsgräns har nåtts."</string>
+    <string name="first_row_title" msgid="219428344573165351">"Rad med en stor bild och lång text lång text lång text lång text lång text"</string>
+    <string name="first_row_text" msgid="3887390298628338716">"Text text text"</string>
+    <string name="other_row_title_prefix" msgid="4702355788835253197">"Radtitel"</string>
+    <string name="other_row_text" msgid="7510279447493169945">"Radtext"</string>
+    <string name="navigate" msgid="2713090390373996139">"Navigera"</string>
+    <string name="dial" msgid="3145707439707628311">"Ring"</string>
+    <string name="address" msgid="9010635942573581302">"Adress"</string>
+    <string name="phone" msgid="2504766809811627577">"Telefon"</string>
+    <string name="fail_start_nav" msgid="6921321606009212189">"Det gick inte att starta navigeringen"</string>
+    <string name="fail_start_dialer" msgid="1471602619507306261">"Det gick inte att starta uppringningsfunktionen"</string>
+    <string name="car_hardware_demo_title" msgid="3679106197233262689">"Maskinvarudemo för bilar"</string>
+    <string name="car_hardware_info" msgid="1244783247616395012">"Maskinvaruinformation om bilar"</string>
+    <string name="model_info" msgid="494224423025683030">"Modellinformation"</string>
+    <string name="no_model_permission" msgid="5333629877014978947">"Ingen behörighet till modell."</string>
+    <string name="manufacturer_unavailable" msgid="4978995415869838056">"Tillverkaren är inte tillgänglig"</string>
+    <string name="model_unavailable" msgid="4075463010215406573">"Modellen är inte tillgänglig"</string>
+    <string name="year_unavailable" msgid="994338773299644607">"Året är inte tillgängligt"</string>
+    <string name="energy_profile" msgid="81415433590192158">"Energiprofil"</string>
+    <string name="no_energy_profile_permission" msgid="4662285713731308888">"Ingen behörighet till energiprofil."</string>
+    <string name="fuel_types" msgid="6811375173343218212">"Bränsletyper"</string>
+    <string name="unavailable" msgid="3636401138255192934">"Inte tillgängligt"</string>
+    <string name="ev_connector_types" msgid="735458637011996125">"Anslutningstyper för elfordon"</string>
+    <string name="example_title" msgid="530257630320010494">"Exempel: %d"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"Den här texten är röd"</string>
+    <string name="example_2_text" msgid="718820705318661440">"Den här texten är grön"</string>
+    <string name="example_3_text" msgid="977269832109695627">"Den här texten är blå"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"Den här texten är gul"</string>
+    <string name="example_5_text" msgid="4387859825054561488">"Den här texten är den primära färgen"</string>
+    <string name="example_6_text" msgid="7991523168517599600">"Den här texten är den sekundära färgen"</string>
+    <string name="color_demo" msgid="1822427636476178993">"Färgdemo"</string>
+    <string name="list_limit" msgid="3023536401535417286">"Listgräns"</string>
+    <string name="grid_limit" msgid="1350116012893549206">"Nät"</string>
+    <string name="pane_limit" msgid="981518409516855230">"Rutgräns"</string>
+    <string name="place_list_limit" msgid="6785181191763056582">"Gräns för platslista"</string>
+    <string name="route_list_limit" msgid="505793441615134116">"Gräns för ruttlista"</string>
+    <string name="content_limits" msgid="5726880972110281095">"Innehållsbegränsningar"</string>
+    <string name="content_limits_demo_title" msgid="3207211638386727610">"Demo för innehållsbegränsningar"</string>
+    <string name="finish_app_msg" msgid="8354334557053141891">"Detta avslutar appen och när du öppnar den igen läser den in en behörighetsskärm i förväg"</string>
+    <string name="finish_app_title" msgid="9013328479438745074">"Avsluta appdemon"</string>
+    <!-- no translation found for finish_app_demo_title (8223819062053448384) -->
+    <skip />
+    <string name="loading_demo_title" msgid="1086529475809143517">"Demo läses in …"</string>
+    <string name="loading_demo_row_title" msgid="8933049915126088142">"Inläsningen har slutförts."</string>
+    <string name="pop_to_root" msgid="2078277386355064198">"Gå till rot"</string>
+    <string name="pop_to_marker" msgid="5007078308762725207">"Gå till övriga demomarkörer"</string>
+    <string name="push_stack" msgid="2433062141810168976">"Tryck ytterligare i stacken"</string>
+    <string name="pop_to_prefix" msgid="4288884615669751608">"Gå till"</string>
+    <string name="pop_to_title" msgid="3924696281273379455">"Gå till demo"</string>
+    <string name="package_not_found_error_msg" msgid="7525619456883627939">"Det gick inte att hitta paketet."</string>
+    <string name="permissions_granted_msg" msgid="2348556088141992714">"Alla behörigheter har beviljats. Återkalla behörigheter från Inställningar."</string>
+    <string name="needs_access_msg_prefix" msgid="2204136858798832382">"Appen behöver åtkomst till följande behörigheter:\n"</string>
+    <string name="phone_screen_permission_msg" msgid="3599815596923367256">"Bevilja behörighet från telefonskärmen"</string>
+    <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"Aktivera platsbehörigheter på enheten"</string>
+    <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"Aktivera plats på telefonskärmen"</string>
+    <string name="required_permissions_title" msgid="5351791879153568211">"Behörigheter som krävs"</string>
+    <string name="request_permissions_title" msgid="7456426341142412300">"Demo för att begära behörighet"</string>
+    <string name="cancel_reservation_title" msgid="1374986823057959608">"Avbokningsskärm"</string>
+    <string name="reservation_cancelled_msg" msgid="6334213670275547875">"Bokningen har avbokats"</string>
+    <string name="result_demo_title" msgid="3900525190662148290">"Resultatsdemo"</string>
+    <string name="not_started_for_result_msg" msgid="7498800528148447270">"Den här appen startades inte för resultat"</string>
+    <string name="started_for_result_msg" msgid="4225260243713833974">"Den här appen anropades för resultat från %s. Välj resultatet för att skicka tillbaka det."</string>
+    <string name="arrived_exclamation_msg" msgid="9132265698563096988">"Framme!"</string>
+    <string name="travel_est_trip_text" msgid="5134365408383171144">"Hämta Alice"</string>
+    <string name="send_notification_title" msgid="4731688444696028193">"Skicka en avisering"</string>
+    <string name="start_notifications_title" msgid="8699668027543530460">"Starta aviseringar"</string>
+    <string name="stop_notifications_title" msgid="3703892710275206239">"Stoppa aviseringar"</string>
+    <string name="notification_title" msgid="5507590705935298176">"Avisering"</string>
+    <string name="importance_title" msgid="9034862997821839831">"Relevans"</string>
+    <string name="category_title" msgid="4783851267093259949">"Kategori"</string>
+    <string name="ongoing_title" msgid="4957996003270280496">"Pågående"</string>
+    <string name="notification_demo" msgid="1819496937832036387">"Aviseringsdemo"</string>
+    <string name="misc_demo_title" msgid="7399959062407349380">"Övriga demor"</string>
+    <string name="navigating_demo_title" msgid="7454579665387386476">"Navigeringsdemo"</string>
+    <string name="arrived_demo_title" msgid="6708013121387053838">"Demo för att vara framme"</string>
+    <string name="junction_image_demo_title" msgid="3302979708776502314">"Demo för vägkorsningsbild"</string>
+    <string name="nav_template_demos_title" msgid="8215835368932160866">"Demor för navigeringsmallar"</string>
+    <string name="map_template_pane_demo_title" msgid="4849450903277412004">"Kartmall med rutdemo"</string>
+    <string name="map_template_list_demo_title" msgid="1473810899303903185">"Kartmall med listdemo"</string>
+    <string name="start_notification_title" msgid="2208831088632818681">"Starta avisering"</string>
+    <string name="stop_notification_title" msgid="3709643750540881176">"Stoppa avisering"</string>
+    <string name="nav_notification_demo_title" msgid="4448683262984308442">"Demo för navigeringsaviseringar"</string>
+    <string name="go_straight" msgid="2301747728609198718">"Åk rakt fram"</string>
+    <string name="turn_right" msgid="4710562732720109969">"Sväng höger"</string>
+    <string name="take_520" msgid="3804796387195842741">"Ta väg 520"</string>
+    <string name="gas_station" msgid="1203313937444666161">"Bensinstation"</string>
+    <string name="short_route" msgid="4831864276538141265">"Kort rutt"</string>
+    <string name="less_busy" msgid="310625272281710983">"Mindre trafik"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"Passar bra för kollektivtrafik"</string>
+    <string name="long_route" msgid="4737969235741057506">"Lång rutt"</string>
+    <string name="continue_start_nav" msgid="6231797535084469163">"För att starta navigeringen"</string>
+    <string name="continue_route" msgid="5172258139245088080">"Fortsätt till rutten"</string>
+    <string name="routes_title" msgid="7799772149932075357">"Rutter"</string>
+    <string name="place_list_nav_template_demo_title" msgid="8019588508812955290">"Demo för navigeringsmall för platslista"</string>
+    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"Demo för förhandsgranskning av rutt"</string>
+    <string name="notification_template_demo_title" msgid="5076051497316030274">"Demo för aviseringsmall"</string>
+    <string name="nav_map_template_demo_title" msgid="344985380763975398">"Navigeringsmall med demo med bara karta"</string>
+    <string name="nav_demos_title" msgid="72781206086461004">"Navigeringsdemor"</string>
+    <string name="navigation_alert_title" msgid="8306554249264200848">"Finns det fortfarande en fartkontroll här?"</string>
+    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"Rapporterades för 10 minuter sedan"</string>
+    <string name="no_toll_card_permission" msgid="6789073114449712090">"Ingen behörighet för biltullspass."</string>
+    <string name="no_energy_level_permission" msgid="1684773185095107825">"Ingen behörighet till energinivå."</string>
+    <string name="no_speed_permission" msgid="5812532480922675390">"Ingen behörighet till hastighet."</string>
+    <string name="no_mileage_permission" msgid="4074779840599589847">"Ingen behörighet till miltal."</string>
+    <string name="no_ev_status_permission" msgid="933075402821938973">"Ingen behörighet till elfordonsstatus."</string>
+    <string name="no_accelerometer_permission" msgid="896914448469117234">"Ingen behörighet till accelerometer."</string>
+    <string name="no_gyroscope_permission" msgid="665293140266771569">"Ingen behörighet till gyroskop."</string>
+    <string name="no_compass_permission" msgid="5162304489577567125">"Ingen behörighet till kompass."</string>
+    <string name="no_car_hardware_location" msgid="3505517472938045093">"Ingen behörighet till hårdvaruplats för bil."</string>
+    <string name="fetch_toll_info" msgid="6864627977128179834">"Hämtar vägtullsinformation."</string>
+    <string name="fetch_energy_level" msgid="1773415471137542832">"Hämtar energinivå."</string>
+    <string name="fetch_speed" msgid="7333830984597189627">"Hämtar hastighet."</string>
+    <string name="fetch_mileage" msgid="7490131687788025123">"Hämtar miltal."</string>
+    <string name="fetch_ev_status" msgid="2798910410830567052">"Hämtar elfordonets status."</string>
+    <string name="fetch_accelerometer" msgid="697750041126810911">"Hämtar accelerometer."</string>
+    <string name="fetch_gyroscope" msgid="7153155318827188539">"Hämtar gyroskop."</string>
+    <string name="fetch_compass" msgid="7316188117590056717">"Hämtar kompass."</string>
+    <string name="fetch_location" msgid="5015066922035852615">"Hämtar plats."</string>
+    <string name="toll_card_state" msgid="4430544885695162226">"TollCard-status"</string>
+    <string name="low_energy" msgid="3462774027012877028">"Låg energi"</string>
+    <string name="range" msgid="8744960568263400641">"Intervall"</string>
+    <string name="fuel" msgid="4253578650127250651">"Bränsle"</string>
+    <string name="battery" msgid="2183623637331546820">"Batteri"</string>
+    <string name="display_speed" msgid="9161318805331348165">"Indikering av hastighet"</string>
+    <string name="raw_speed" msgid="7295910214088983967">"Acceleration"</string>
+    <string name="unit" msgid="7697521583928135171">"Enhet"</string>
+    <string name="odometer" msgid="3925174645651546591">"Distansmätare"</string>
+    <string name="ev_connected" msgid="2277845607662494696">"Laddningsport för elfordon har anslutits"</string>
+    <string name="ev_open" msgid="4916704450914519643">"Laddningsport för elfordon har öppnats"</string>
+    <string name="accelerometer" msgid="2084026313768299185">"Accelerometer"</string>
+    <string name="gyroscope" msgid="3428075828014504651">"Gyroskop"</string>
+    <string name="compass" msgid="7037367764762441245">"Kompass"</string>
+    <string name="car_hardware_location" msgid="5826128477363068617">"Maskinvaruplats för bilar"</string>
+    <string name="non_actionable" msgid="8999757911111188784">"Icke-handlingsbar"</string>
+    <string name="second_item" msgid="5245792503030812493">"Det andra objektet"</string>
+    <string name="third_item" msgid="334088179008716411">"Det tredje objektet"</string>
+    <string name="fourth_item" msgid="1153409687260543158">"Det fjärde objektet"</string>
+    <string name="fifth_item" msgid="295284272719956932">"Det femte objektet har en lång titel"</string>
+    <string name="sixth_item" msgid="3880321601391343607">"Det sjätte objektet har en lång titel"</string>
+    <string name="grid_template_demo_title" msgid="6159115661928982245">"Demo för elnätsmall"</string>
+    <string name="parked_only_title" msgid="3190603222397552672">"Endast parkerad titel"</string>
+    <string name="parked_only_text" msgid="8720610556452272916">"Mer Endast parkerad-text."</string>
+    <string name="clicked_row_prefix" msgid="9068303427922069941">"Du klickade på rad"</string>
+    <string name="first_line_text" msgid="6648055806656590336">"Första raden text"</string>
+    <string name="second_line_text" msgid="38664490158836864">"Andra raden text"</string>
+    <string name="title_prefix" msgid="3991742709199357049">"Namn"</string>
+    <string name="list_template_demo_title" msgid="1740208242737246151">"Demo för listmall"</string>
+    <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Demo för mall för långt meddelande"</string>
+    <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"Värden stöder inte mall för långt meddelande"</string>
+    <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Inkompatibel värd"</string>
+    <string name="msg_template_demo_title" msgid="3895210951340409473">"Demo för meddelandemall"</string>
+    <string name="msg_template_demo_text" msgid="2275291617716161409">"Här skrivs meddelandet.\nMer text på andra raden."</string>
+    <string name="pane_template_demo_title" msgid="7804292600060341608">"Demo för rutmall"</string>
+    <string name="place_list_template_demo_title" msgid="2054022985455460469">"Demo för platslistmall"</string>
+    <string name="browse_places_title" msgid="7246005909846715898">"Bläddra bland platser"</string>
+    <string name="search_template_demo_title" msgid="1770474418958318114">"Demo för sökmall"</string>
+    <string name="search_hint" msgid="978495498991026792">"Sök här"</string>
+    <string name="additional_text" msgid="8410289578276941586">"Läs igenom våra användarvillkor"</string>
+    <string name="google_sign_in" msgid="6556259799319701727">"Inloggning med Google"</string>
+    <string name="use_pin" msgid="7850893299484337431">"Använd pinkod"</string>
+    <string name="qr_code" msgid="5487041647280777397">"QR-kod"</string>
+    <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Värden stöder inte inloggningsmallen"</string>
+    <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Inkompatibel värd"</string>
+    <string name="email_hint" msgid="7205549445477319606">"E-post"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"Logga in"</string>
+    <string name="sign_in_instructions" msgid="9044850228284294762">"Ange användaruppgifter"</string>
+    <string name="invalid_email_error_msg" msgid="5261362663718987167">"Användarnamnet måste vara en giltig e-postadress"</string>
+    <string name="invalid_length_error_msg" msgid="8238905276326976425">"Användarnamnet måste bestå av minst %s tecken"</string>
+    <string name="invalid_password_error_msg" msgid="1090359893902674610">"Ogiltigt lösenord"</string>
+    <string name="password_hint" msgid="2869107073860012864">"lösenord"</string>
+    <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"Användarnamn"</string>
+    <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Ange den här pinkoden i telefonen"</string>
+    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Skanna QR-kod för att logga in"</string>
+    <string name="sign_in_with_google_title" msgid="8043752000786977249">"Logga in med Google"</string>
+    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Använd den här knappen för att slutföra inloggningen med Google"</string>
+    <string name="sign_in_complete_text" msgid="8423984266325680606">"Du är inloggad!"</string>
+    <string name="sign_in_complete_title" msgid="8919868148773983428">"Inloggningen har slutförts"</string>
+    <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Demo för inloggningsmall"</string>
+    <string name="images_unknown_host_error" msgid="3180661817432720076">"Bilder kan inte visas för en okänd värd"</string>
+    <string name="icon_title_prefix" msgid="8487026131229541244">"Ikon"</string>
+    <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Demo för ikoner för innehållsleverantörer"</string>
+    <string name="icons_demo_title" msgid="4082976685262307357">"Ikondemo"</string>
+    <string name="app_icon_title" msgid="7534936683349723423">"Appikonen"</string>
+    <string name="vector_no_tint_title" msgid="874591632279039146">"En vektorutdragbar, utan toning"</string>
+    <string name="vector_with_tint_title" msgid="1022346419829696827">"En vektorutdragbar, med toning"</string>
+    <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"En vektorutdragbar, med en apps tema som färger"</string>
+    <string name="png_res_title" msgid="7437083018336747544">"En PNG-fil, skickad som en resurs"</string>
+    <string name="png_bitmap_title" msgid="120790220238335267">"En PNG-fil, skickad som en resurs"</string>
+    <string name="just_row_title" msgid="965700021568970725">"Bara en titel"</string>
+    <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"Namn med appikon"</string>
+    <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"Namn med resurs-id-bild"</string>
+    <string name="title_with_svg_image_row_title" msgid="6109092343637263755">"Titel med SVG-bild"</string>
+    <string name="colored_secondary_row_title" msgid="5173288934252528929">"Färgad sekundär text"</string>
+    <string name="title_with_secondary_lines_row_title" msgid="7769408881272549837">"Titel med flera sekundära textrader"</string>
+    <string name="title_with_secondary_lines_row_text_1" msgid="8945114692653524102">"Att göra fel gång på gång på gång, men mer och mer och mer sällan."</string>
+    <string name="title_with_secondary_lines_row_text_2" msgid="1017734603405251531">"– Piet Hein"</string>
+    <string name="rows_demo_title" msgid="3198566660454251007">"Demo för rader"</string>
+    <string name="text_icons_demo_title" msgid="8732943920672143201">"Demor för text och ikoner"</string>
+    <string name="row_text_icons_demo_title" msgid="135167694047524905">"Demo för rader med text och ikoner"</string>
+    <string name="selectable_lists_demo_title" msgid="5492658731113129386">"Demo för valbara listor"</string>
+    <string name="option_1_title" msgid="7221252541651471199">"Alternativ 1"</string>
+    <string name="option_2_title" msgid="1905146448697963818">"Alternativ 2"</string>
+    <string name="option_3_title" msgid="6319268250436119258">"Alternativ 3"</string>
+    <string name="some_additional_text" msgid="4009872495806318260">"Lite mer text"</string>
+    <string name="sample_additional_list" msgid="5085372891301576306">"Exempel på valbar lista"</string>
+    <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demo för uppgiftsbegränsning"</string>
+    <string name="task_limit_reached_msg" msgid="6038763366777119364">"Gränsen för antal uppgifter har uppnåtts\nOm du fortsätter tvingas appen att avslutas"</string>
+    <string name="task_step_of_title" msgid="2791717962535723839">"Uppgiftssteg %1$d av %2$d"</string>
+    <string name="task_step_of_text" msgid="4646729781462227219">"Klicka för att gå vidare"</string>
+    <string name="toggle_test_title" msgid="924485265152862631">"Test för att aktivera och inaktivera"</string>
+    <string name="toggle_test_text" msgid="8107217216013312857">"Tillståndsbaserade ändringar är tillåtna"</string>
+    <string name="image_test_title" msgid="8273863429801477547">"Bildtest"</string>
+    <string name="image_test_text" msgid="6264812093895530445">"Bildändringar är tillåtna"</string>
+    <string name="additional_data_title" msgid="3546689652240300617">"Ytterligare data"</string>
+    <!-- no translation found for additional_data_text (2846223398214158872) -->
+    <skip />
+    <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demor för övriga mallar"</string>
+    <string name="showcase_demos_title" msgid="1542092687878113304">"Visa demor"</string>
+    <!-- no translation found for location_1_title (3939821089928425181) -->
+    <skip />
+    <string name="location_1_description" msgid="4801052291684791371">"Tonad resursvektor"</string>
+    <string name="location_2_description" msgid="3331356135359047166">"Bitmap för resursbild"</string>
+    <string name="location_3_description" msgid="3982142774088944850">"Färgad textmarkör"</string>
+    <string name="location_4_description" msgid="6560365445044381911">"Bitmapbild"</string>
+    <string name="location_description_text_label" msgid="2779911545316756419">"Textetikett"</string>
+</resources>
