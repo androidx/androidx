@@ -15,9 +15,11 @@
  */
 package androidx.camera.extensions.impl;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.media.ImageWriter;
@@ -36,6 +38,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * Implementation for night image capture use case.
@@ -46,6 +49,7 @@ import java.util.Map;
  * @since 1.0
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@SuppressLint("UnknownNullness")
 public final class NightImageCaptureExtenderImpl implements ImageCaptureExtenderImpl {
     private static final String TAG = "NightICExtender";
     private static final int DEFAULT_STAGE_ID = 0;
@@ -157,8 +161,8 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
     }
 
     @RequiresApi(23)
-    static final class NightImageCaptureExtenderCaptureProcessorImpl implements
-            CaptureProcessorImpl {
+    static final class NightImageCaptureExtenderCaptureProcessorImpl
+            implements CaptureProcessorImpl {
         private ImageWriter mImageWriter;
 
         @Override
@@ -196,13 +200,26 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
         }
 
         @Override
-        public void onResolutionUpdate(Size size) {
+        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                ProcessResultImpl resultCallback, Executor executor) {
+        }
 
+        @Override
+        public void onResolutionUpdate(Size size) {
         }
 
         @Override
         public void onImageFormatUpdate(int imageFormat) {
-
         }
+    }
+
+    @Override
+    public List<CaptureRequest.Key> getAvailableCaptureRequestKeys() {
+        return null;
+    }
+
+    @Override
+    public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
+        return null;
     }
 }
