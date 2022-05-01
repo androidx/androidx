@@ -82,8 +82,7 @@ private const val MAX_IMAGES = 3
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class ImageCaptureTest {
-
+class ImageCaptureTest {
     private lateinit var callbackHandler: Handler
     private lateinit var callbackThread: HandlerThread
     private lateinit var executor: Executor
@@ -102,7 +101,7 @@ public class ImageCaptureTest {
 
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
-    public fun setUp() {
+    fun setUp() {
         val cameraInfo = FakeCameraInfoInternal().apply {
             isYuvReprocessingSupported = true
             isPrivateReprocessingSupported = true
@@ -134,14 +133,14 @@ public class ImageCaptureTest {
 
     @After
     @Throws(ExecutionException::class, InterruptedException::class)
-    public fun tearDown() {
+    fun tearDown() {
         CameraXUtil.shutdown().get()
         fakeImageReaderProxy = null
         callbackThread.quitSafely()
     }
 
     @Test
-    public fun metadataNotSet_createsNewMetadataInstance() {
+    fun metadataNotSet_createsNewMetadataInstance() {
         val options = ImageCapture.OutputFileOptions.Builder(File("fake_path")).build()
         options.metadata.isReversedHorizontal = true
 
@@ -151,7 +150,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun reverseHorizontalIsSet_flagReturnsTrue() {
+    fun reverseHorizontalIsSet_flagReturnsTrue() {
         val metadata = ImageCapture.Metadata()
         assertThat(metadata.isReversedHorizontalSet).isFalse()
 
@@ -160,7 +159,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun takePictureToImageWithoutBinding_receiveOnError() {
+    fun takePictureToImageWithoutBinding_receiveOnError() {
         // Arrange.
         val imageCapture = createImageCapture()
         val onImageCapturedCallback = mock(ImageCapture.OnImageCapturedCallback::class.java)
@@ -175,7 +174,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun takePictureToFileWithoutBinding_receiveOnError() {
+    fun takePictureToFileWithoutBinding_receiveOnError() {
         // Arrange.
         val imageCapture = createImageCapture()
         val options = ImageCapture.OutputFileOptions.Builder(File("fake_path")).build()
@@ -191,7 +190,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun captureImageWithViewPort_isSet() {
+    fun captureImageWithViewPort_isSet() {
         // Arrange
         val imageCapture = bindImageCapture(
             ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
@@ -218,7 +217,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun capturedImageValidAfterRemoved() {
+    fun capturedImageValidAfterRemoved() {
         // Arrange
         val imageCapture = bindImageCapture(
             ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
@@ -241,7 +240,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun capturedImageSize_isEqualToSurfaceSize() {
+    fun capturedImageSize_isEqualToSurfaceSize() {
         // Act/arrange.
         val imageCapture = bindImageCapture(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
 
@@ -258,7 +257,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun imageCaptureRequestProcessor_canSendRequest() {
+    fun imageCaptureRequestProcessor_canSendRequest() {
         // Arrange.
         val requestProcessor = ImageCaptureRequestProcessor(MAX_IMAGES, createSuccessImageCaptor())
         val request = createImageCaptureRequest()
@@ -271,7 +270,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun imageCaptureRequestProcessor_canSendMultipleRequests() {
+    fun imageCaptureRequestProcessor_canSendMultipleRequests() {
         // Arrange.
         val requestProcessor = ImageCaptureRequestProcessor(MAX_IMAGES, createSuccessImageCaptor())
         for (i in 0 until MAX_IMAGES) {
@@ -286,7 +285,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun imageCaptureRequestProcessor_onlyAllowOneRequestProcessing() {
+    fun imageCaptureRequestProcessor_onlyAllowOneRequestProcessing() {
         // Arrange.
         // Create an ImageCaptor that won't complete the future.
         val captorFutureRef = AtomicReference<ResolvableFuture<ImageProxy>?>()
@@ -324,7 +323,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun imageCaptureRequestProcessor_unableToProcessNextWhenOverMaxImages() {
+    fun imageCaptureRequestProcessor_unableToProcessNextWhenOverMaxImages() {
         // Arrange.
         val requestProcessor = ImageCaptureRequestProcessor(MAX_IMAGES, createSuccessImageCaptor())
 
@@ -359,7 +358,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun imageCaptureRequestProcessor_canCancelRequests() {
+    fun imageCaptureRequestProcessor_canCancelRequests() {
         // Arrange.
         // Create an ImageCaptor that won't complete the future.
         val captorFutureRef = AtomicReference<ResolvableFuture<ImageProxy>?>()
@@ -388,7 +387,7 @@ public class ImageCaptureTest {
     }
 
     @Test
-    public fun imageCaptureRequestProcessor_requestFail() {
+    fun imageCaptureRequestProcessor_requestFail() {
         // Arrange.
         val errorMsg = "Capture failed."
         val throwable = RuntimeException(errorMsg)
@@ -403,9 +402,26 @@ public class ImageCaptureTest {
         verify(request).notifyCallbackError(anyInt(), eq(errorMsg), eq(throwable))
     }
 
+    @Test
+    fun sessionConfigSurfaceFormat_isInputFormat() {
+        // Act/arrange.
+        val imageCapture = bindImageCapture(bufferFormat = ImageFormat.YUV_420_888,
+            imageReaderProxyProvider = { width, height, _, queueDepth, usage ->
+                // Create a JPEG ImageReader that is of different format from buffer/input format.
+                fakeImageReaderProxy = FakeImageReaderProxy.newInstance(
+                    width, height, ImageFormat.JPEG, queueDepth, usage
+                )
+                fakeImageReaderProxy!!
+            })
+
+        // Verify.
+        assertThat(imageCapture.sessionConfig.surfaces[0].prescribedStreamFormat)
+            .isEqualTo(ImageFormat.YUV_420_888)
+    }
+
     @Config(maxSdk = 22)
     @Test
-    public fun bindImageCaptureWithZslUnsupportedSdkVersion_notAddZslConfig() {
+    fun bindImageCaptureWithZslUnsupportedSdkVersion_notAddZslConfig() {
         bindImageCapture(
             ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
             ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
@@ -418,7 +434,7 @@ public class ImageCaptureTest {
 
     @Config(minSdk = 23)
     @Test
-    public fun bindImageCaptureInRegularCaptureModeWithZslSupportedSdkVersion_notAddZslConfig() {
+    fun bindImageCaptureInRegularCaptureModeWithZslSupportedSdkVersion_notAddZslConfig() {
         bindImageCapture(
             ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
@@ -431,7 +447,7 @@ public class ImageCaptureTest {
 
     @Config(minSdk = 23)
     @Test
-    public fun bindImageCaptureInZslCaptureModeWithZslSupportedSdkVersion_addZslConfig() {
+    fun bindImageCaptureInZslCaptureModeWithZslSupportedSdkVersion_addZslConfig() {
         bindImageCapture(
             ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
             ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
@@ -442,13 +458,15 @@ public class ImageCaptureTest {
         assertThat(cameraControl.isZslConfigAdded).isTrue()
     }
 
-    private fun bindImageCapture(captureMode: Int): ImageCapture {
-        return bindImageCapture(captureMode, null)
-    }
-
-    private fun bindImageCapture(captureMode: Int, viewPort: ViewPort?): ImageCapture {
+    private fun bindImageCapture(
+        captureMode: Int = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+        viewPort: ViewPort? = null,
+        // Set non jpg format so it doesn't trigger the exif code path.
+        bufferFormat: Int = ImageFormat.YUV_420_888,
+        imageReaderProxyProvider: ImageReaderProxyProvider? = null
+    ): ImageCapture {
         // Arrange.
-        val imageCapture = createImageCapture(captureMode)
+        val imageCapture = createImageCapture(captureMode, bufferFormat, imageReaderProxyProvider)
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider
@@ -461,17 +479,20 @@ public class ImageCaptureTest {
         return imageCapture
     }
 
-    private fun createImageCapture(captureMode: Int = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY) =
-        ImageCapture.Builder()
-            // Set non jpg format so it doesn't trigger the exif code path.
-            .setBufferFormat(ImageFormat.YUV_420_888)
-            .setTargetRotation(Surface.ROTATION_0)
-            .setCaptureMode(captureMode)
-            .setFlashMode(ImageCapture.FLASH_MODE_OFF)
-            .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
-            .setImageReaderProxyProvider(getImageReaderProxyProvider())
-            .setSessionOptionUnpacker { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
-            .build()
+    private fun createImageCapture(
+        captureMode: Int = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+        // Set non jpg format by default so it doesn't trigger the exif code path.
+        bufferFormat: Int = ImageFormat.YUV_420_888,
+        imageReaderProxyProvider: ImageReaderProxyProvider? = null
+    ) = ImageCapture.Builder()
+        .setBufferFormat(bufferFormat)
+        .setTargetRotation(Surface.ROTATION_0)
+        .setCaptureMode(captureMode)
+        .setFlashMode(ImageCapture.FLASH_MODE_OFF)
+        .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
+        .setImageReaderProxyProvider(imageReaderProxyProvider ?: getImageReaderProxyProvider())
+        .setSessionOptionUnpacker { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+        .build()
 
     private fun getImageReaderProxyProvider(): ImageReaderProxyProvider {
         return ImageReaderProxyProvider { width, height, imageFormat, queueDepth, usage ->

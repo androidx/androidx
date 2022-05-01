@@ -520,8 +520,11 @@ public final class ImageCapture extends UseCase {
         }
 
         mDeferrableSurface = new ImmediateSurface(
-                mImageReader.getSurface(), new Size(mImageReader.getWidth(),
-                mImageReader.getHeight()), mImageReader.getImageFormat());
+                mImageReader.getSurface(),
+                new Size(mImageReader.getWidth(),
+                mImageReader.getHeight()),
+                /* get the surface image format using getImageFormat */
+                getImageFormat());
 
         mImageReaderCloseFuture =
                 mProcessingImageReader != null ? mProcessingImageReader.getCloseFuture()
