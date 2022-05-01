@@ -31,7 +31,6 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_JPEG_COMPRESSI
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_CAPTURE_STAGES;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SESSION_CONFIG_UNPACKER;
-import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SESSION_PROCESSOR_ENABLED;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ASPECT_RATIO;
@@ -75,6 +74,7 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureBundle;
@@ -312,11 +312,6 @@ public final class ImageCapture extends UseCase {
      */
     private boolean mUseSoftwareJpeg = false;
 
-    /**
-     * Whether SessionProcessor is enabled.
-     */
-    private boolean mIsSessionProcessorEnabled = true;
-
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -390,7 +385,7 @@ public final class ImageCapture extends UseCase {
                                     resolution.getHeight(), getImageFormat(), MAX_IMAGES, 0));
             mMetadataMatchingCaptureCallback = new CameraCaptureCallback() {
             };
-        } else if (mIsSessionProcessorEnabled) {
+        } else if (isSessionProcessorEnabledInCurrentCamera()) {
             ImageReaderProxy imageReader;
             if (getImageFormat() == ImageFormat.JPEG) {
                 imageReader =
@@ -550,6 +545,14 @@ public final class ImageCapture extends UseCase {
         return sessionConfigBuilder;
     }
 
+    private boolean isSessionProcessorEnabledInCurrentCamera() {
+        if (getCamera() == null) {
+            return false;
+        }
+
+        CameraConfig cameraConfig = getCamera().getExtendedConfig();
+        return cameraConfig == null ? false : cameraConfig.getSessionProcessor(null) != null;
+    }
     /**
      * Clear the internal pipeline so that the pipeline can be set up again.
      */
@@ -1596,7 +1599,6 @@ public final class ImageCapture extends UseCase {
         // This will only be set to true if software JPEG was requested and
         // enforceSoftwareJpegConstraints() hasn't removed the request.
         mUseSoftwareJpeg = useCaseConfig.isSoftwareJpegEncoderRequested();
-        mIsSessionProcessorEnabled = useCaseConfig.isSessionProcessorEnabled();
 
         CameraInternal camera = getCamera();
         Preconditions.checkNotNull(camera, "Attached camera cannot be null");
@@ -2552,17 +2554,6 @@ public final class ImageCapture extends UseCase {
         @NonNull
         public Builder setBufferFormat(int bufferImageFormat) {
             getMutableConfig().insertOption(OPTION_BUFFER_FORMAT, bufferImageFormat);
-            return this;
-        }
-
-        /**
-         * Set the flag to indicate whether SessionProcessor is enabled.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public Builder setSessionProcessorEnabled(boolean enabled) {
-            getMutableConfig().insertOption(OPTION_SESSION_PROCESSOR_ENABLED, enabled);
             return this;
         }
 
