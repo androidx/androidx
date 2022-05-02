@@ -28,6 +28,7 @@ import androidx.datastore.preferences.StringSet
 import androidx.datastore.preferences.Value
 import com.squareup.wire.ProtoReader
 import okio.ByteString.Companion.toByteString
+import okio.use
 
 object PreferencesWireSerializer : Serializer<Preferences> {
     override val defaultValue: Preferences
@@ -83,7 +84,9 @@ object PreferencesWireSerializer : Serializer<Preferences> {
         for ((key, value) in preferences) {
             map.put(key.name, getValueProto(value))
         }
-        PreferenceMap.ADAPTER.encode(output.asBufferedSink(), PreferenceMap(map))
+        output.asBufferedSink().use {
+            PreferenceMap.ADAPTER.encode(it, PreferenceMap(map))
+        }
     }
 
     private fun getValueProto(value: Any): Value {
