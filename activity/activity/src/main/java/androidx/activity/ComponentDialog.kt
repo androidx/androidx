@@ -66,6 +66,7 @@ open class ComponentDialog @JvmOverloads constructor(
         super.onStop()
     }
 
+    @Suppress("DEPRECATION")
     private val onBackPressedDispatcher = OnBackPressedDispatcher {
         super.onBackPressed()
     }
