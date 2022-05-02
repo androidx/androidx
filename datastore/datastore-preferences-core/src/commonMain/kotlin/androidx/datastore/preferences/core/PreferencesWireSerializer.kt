@@ -27,6 +27,7 @@ import androidx.datastore.preferences.PreferenceMap
 import androidx.datastore.preferences.StringSet
 import androidx.datastore.preferences.Value
 import com.squareup.wire.ProtoReader
+import okio.ByteString
 import okio.ByteString.Companion.toByteString
 import okio.use
 
@@ -56,23 +57,23 @@ object PreferencesWireSerializer : Serializer<Preferences> {
         mutablePreferences: MutablePreferences
     ) {
         if (value.boolean != null) {
-            mutablePreferences[booleanPreferencesKey(name)] = value.boolean
+            mutablePreferences[booleanPreferencesKey(name)] = value.boolean as Boolean
         } else if (value.androidx_testing_float != null) {
-            mutablePreferences[floatPreferencesKey(name)] = value.androidx_testing_float
+            mutablePreferences[floatPreferencesKey(name)] = value.androidx_testing_float as Float
         } else if (value.androidx_testing_double != null) {
-            mutablePreferences[doublePreferencesKey(name)] = value.androidx_testing_double
+            mutablePreferences[doublePreferencesKey(name)] = value.androidx_testing_double as Double
         } else if (value.integer != null) {
-            mutablePreferences[intPreferencesKey(name)] = value.integer
+            mutablePreferences[intPreferencesKey(name)] = value.integer as Int
         } else if (value.long != null) {
-            mutablePreferences[longPreferencesKey(name)] = value.long
+            mutablePreferences[longPreferencesKey(name)] = value.long as Long
         } else if (value.androidx_testing_string != null) {
-            mutablePreferences[stringPreferencesKey(name)] = value.androidx_testing_string
+            mutablePreferences[stringPreferencesKey(name)] = value.androidx_testing_string as String
         } else if (value.string_set != null) {
             mutablePreferences[stringSetPreferencesKey(name)] =
-                value.string_set.strings.toSet()
+                (value.string_set as StringSet).strings.toSet()
         } else if (value.androidx_testing_bytes != null) {
             mutablePreferences[byteArrayPreferencesKey(name)] =
-                value.androidx_testing_bytes.toByteArray()
+                (value.androidx_testing_bytes as ByteString).toByteArray()
         } else {
             throw CorruptionException("Value not set.")
         }

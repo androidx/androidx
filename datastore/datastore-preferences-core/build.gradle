@@ -23,7 +23,6 @@ plugins {
     id("AndroidXPlugin")
     id("org.jetbrains.kotlin.multiplatform")
     alias(libs.plugins.kotlinSerialization)
-    id("com.squareup.wire")
 }
 
 
@@ -107,15 +106,6 @@ kotlin {
         }
     }
 }
-
-wire {
-    kotlin {}
-
-    sourcePath {
-        srcDir 'src/nativeMain/proto'
-    }
-}
-
 
 dependencies {
     bundleInside(project(
