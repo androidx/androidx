@@ -79,9 +79,6 @@ kotlin {
         }
         nativeMain {
             dependsOn(commonMain)
-            dependencies {
-
-            }
         }
         nativeTest {
             dependsOn(commonTest)
