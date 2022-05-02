@@ -43,6 +43,7 @@ dependencies {
     testImplementation("androidx.annotation:annotation-experimental:1.1.0")
     testImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
+    testImplementation(project(":camera:camera-video"))
     testImplementation(project(":camera:camera-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation(libs.junit) // Needed for Assert.assertThrows

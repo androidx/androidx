@@ -47,6 +47,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
@@ -242,6 +243,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 }
             }
         }
+        Size finalSelectedResolution = suggestedResolution;
         if (supportedResolutions != null) {
             int suggestedSize = suggestedResolution.getWidth() * suggestedResolution.getHeight();
             // The supportedResolutions is sorted by preferred order of QualitySelector.
@@ -250,7 +252,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                     break;
                 } else if (resolution.getWidth() * resolution.getHeight() < suggestedSize) {
                     Logger.d(TAG, "Find a higher priority resolution: " + resolution);
-                    suggestedResolution = resolution;
+                    finalSelectedResolution = resolution;
                     break;
                 }
             }
@@ -258,13 +260,13 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
 
         mStreamInfo = fetchObservableValue(getOutput().getStreamInfo(),
                 StreamInfo.STREAM_INFO_ANY_INACTIVE);
-        mSessionConfigBuilder = createPipeline(cameraId, config, suggestedResolution);
+        mSessionConfigBuilder = createPipeline(cameraId, config, finalSelectedResolution);
         applyStreamInfoToSessionConfigBuilder(mSessionConfigBuilder, mStreamInfo);
         updateSessionConfig(mSessionConfigBuilder.build());
         // VideoCapture has to be active to apply SessionConfig's template type.
         notifyActive();
 
-        return suggestedResolution;
+        return finalSelectedResolution;
     }
 
 
@@ -463,7 +465,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<VideoCaptureConfig<?>> {
         /** Surface occupancy priority to this use case */
-        private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 3;
+        private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 5;
         private static final VideoOutput DEFAULT_VIDEO_OUTPUT =
                 SurfaceRequest::willNotProvideSurface;
         private static final VideoCaptureConfig<?> DEFAULT_CONFIG;
@@ -661,10 +663,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         QualitySelector qualitySelector = mediaSpec.getVideoSpec().getQualitySelector();
 
         List<Quality> selectedQualities = qualitySelector.getPrioritizedQualities(cameraInfo);
-
         Logger.d(TAG,
                 "Found selectedQualities " + selectedQualities + " by " + qualitySelector);
-
         if (selectedQualities.isEmpty()) {
             throw new IllegalArgumentException(
                     "Unable to find supported quality by QualitySelector");
@@ -675,9 +675,48 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             supportedResolutions.add(QualitySelector.getResolution(cameraInfo, selectedQuality));
         }
         Logger.d(TAG, "Set supported resolutions = " + supportedResolutions);
+
+        supportedResolutions = filterOutResolutions(supportedResolutions);
+        Logger.d(TAG, "supportedResolutions after filter out " + supportedResolutions);
+        Preconditions.checkState(!selectedQualities.isEmpty(),
+                "No supportedResolutions after filter out");
+
         builder.getMutableConfig().insertOption(OPTION_SUPPORTED_RESOLUTIONS,
                 Collections.singletonList(
                         Pair.create(getImageFormat(), supportedResolutions.toArray(new Size[0]))));
+    }
+
+    /**
+     * Filters out resolutions that will never be selected
+     *
+     * <p>For example, when the resolution list is {1920x1080, 720x480, 3840x2160}, 3840x2160
+     * will never be selected because 720x480 is smaller and has higher priority. Filtering out
+     * these resolutions keeps the auto-resolution mechanism from incorrectly assuming that
+     * VideoCapture might use it, preventing other use cases from not being able to get a larger
+     * resolution.
+     *
+     * @param prioritizedResolutions prioritized resolutions to be filtered out
+     * @return resolutions after filter out
+     */
+    @VisibleForTesting
+    @NonNull
+    static List<Size> filterOutResolutions(@NonNull List<Size> prioritizedResolutions) {
+        ArrayList<Size> ret = new ArrayList<>(prioritizedResolutions.size());
+
+        int minArea = Integer.MAX_VALUE;
+        for (Size resolution : prioritizedResolutions) {
+            int area = getArea(resolution);
+            if (area < minArea) {
+                minArea = area;
+                ret.add(resolution);
+            }
+        }
+
+        return ret;
+    }
+
+    private static int getArea(@NonNull Size size) {
+        return size.getWidth() * size.getHeight();
     }
 
     /**
