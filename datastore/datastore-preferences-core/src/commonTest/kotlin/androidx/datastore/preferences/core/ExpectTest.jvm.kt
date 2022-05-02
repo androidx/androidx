@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core
+package androidx.datastore.preferences.core
 
-abstract class StorageImpl<T> : Storage<T> {
-    abstract fun delete(): Boolean
-}
+import androidx.datastore.core.Serializer
+
+expect fun getSerializer(): Serializer<Preferences>

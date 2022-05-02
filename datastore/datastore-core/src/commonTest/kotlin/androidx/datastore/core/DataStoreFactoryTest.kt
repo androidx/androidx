@@ -42,7 +42,6 @@ class DataStoreFactoryTest {
             storage = testIO.newFileStorage(TestingSerializer()),
             scope = dataStoreScope
         )
-
         val expectedByte = 123.toByte()
 
         assertThat(

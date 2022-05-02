@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core
+package androidx.kruth
 
-abstract class StorageImpl<T> : Storage<T> {
-    abstract fun delete(): Boolean
+import kotlin.test.Test
+
+class TruthForKotlinTestTest {
+
+    @Test
+    public fun test() {
+        assertThat(true).isTrue()
+    }
 }

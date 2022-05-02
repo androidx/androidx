@@ -25,7 +25,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.io.OutputStream
 
-internal class FileStorage<T>(
+class FileStorage<T>(
     val produceFile: () -> File,
     private val serializer: Serializer<T>
 ) : StorageImpl<T>() {

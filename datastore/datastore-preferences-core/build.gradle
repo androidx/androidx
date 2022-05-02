@@ -16,29 +16,98 @@
 
 import androidx.build.BundleInsideHelper
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
+    id("org.jetbrains.kotlin.multiplatform")
+    alias(libs.plugins.kotlinSerialization)
 }
 
-BundleInsideHelper.forInsideJar(
-    project,
-    /* from = */ "com.google.protobuf",
-    /* to =   */ "androidx.datastore.preferences.protobuf"
-)
+
+kotlin {
+    jvm {
+        withJava()
+    }
+    macosX64()
+    linuxArm64()
+    macosArm64()
+    mingwX64()
+
+    BundleInsideHelper.forInsideJarKmp(
+            project,
+            /* from = */ "com.google.protobuf",
+            /* to =   */ "androidx.datastore.preferences.protobuf"
+    )
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+                api(project(":datastore:datastore-core"))
+                api(project(":datastore:datastore-core-okio"))
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(project(":datastore:datastore-core-okio"))
+                implementation(project(":datastore:datastore-internal-test-utils"))
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+                api(libs.kotlinStdlib)
+            }
+        }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinTest)
+                implementation(project(":datastore:datastore-core"))
+            }
+        }
+        nativeMain {
+            dependsOn(commonMain)
+        }
+        nativeTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(project(":datastore:datastore-core"))
+            }
+        }
+    }
+    targets.withType(KotlinNativeTarget).configureEach {
+        binaries.all {
+            binaryOptions["memoryModel"] = "experimental"
+        }
+    }
+    targets.forEach {target ->
+        if (target.platformType == KotlinPlatformType.native) {
+            target.compilations["main"].defaultSourceSet {
+                dependsOn(sourceSets["nativeMain"])
+            }
+            target.compilations["test"].defaultSourceSet {
+                dependsOn(sourceSets["nativeTest"])
+            }
+        }
+    }
+}
 
 dependencies {
     bundleInside(project(
             path: ":datastore:datastore-preferences-proto",
             configuration: "export"
     ))
-    api(libs.kotlinStdlib)
-    api(project(":datastore:datastore-core"))
-
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.kotlinTest)
 }
 
 androidx {
@@ -48,4 +117,9 @@ androidx {
     inceptionYear = "2020"
     description = "Android Preferences DataStore without the Android Dependencies"
     legacyDisableKotlinStrictApiMode = true
+    publishPlatforms = ["jvm"]
+}
+
+dependencies {
+    implementation 'androidx.datastore:datastore-core:1.0.0'
 }
