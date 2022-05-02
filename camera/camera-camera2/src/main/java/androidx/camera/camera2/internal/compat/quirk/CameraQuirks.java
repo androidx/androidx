@@ -85,6 +85,9 @@ public class CameraQuirks {
         if (CaptureSessionStuckQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new CaptureSessionStuckQuirk());
         }
+        if (ImageCaptureFlashNotFireQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new ImageCaptureFlashNotFireQuirk());
+        }
         if (ImageCaptureWithFlashUnderexposureQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new ImageCaptureWithFlashUnderexposureQuirk());
         }
