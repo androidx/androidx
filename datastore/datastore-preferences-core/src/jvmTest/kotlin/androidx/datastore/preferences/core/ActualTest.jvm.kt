@@ -19,5 +19,5 @@ package androidx.datastore.preferences.core
 import androidx.datastore.core.Serializer
 
 actual fun getSerializer(): Serializer<Preferences> {
-    return PreferencesSerializer
+    return PreferencesWireSerializer
 }
