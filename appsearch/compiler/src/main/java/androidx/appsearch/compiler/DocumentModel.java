@@ -573,6 +573,17 @@ class DocumentModel {
                                 + remainingFields);
                 continue creationMethodSearch;
             }
+
+            // If the field is set in the constructor, choose creation method for the write kind
+            for (String param : creationMethodParamFields) {
+                for (VariableElement appSearchField : mAllAppSearchFields.values()) {
+                    if (appSearchField.getSimpleName().toString().equals(param)) {
+                        mWriteKinds.put(appSearchField, WriteKind.CREATION_METHOD);
+                        break;
+                    }
+                }
+            }
+
             // Found one!
             mChosenCreationMethod = method;
             mChosenCreationMethodParams = creationMethodParamFields;

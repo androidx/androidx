@@ -50,7 +50,6 @@ public class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
     boolean catConv = genericDoc.getPropertyBoolean("cat");
     boolean dogConv = genericDoc.getPropertyBoolean("dog");
     Gift document = new Gift(dogConv, idConv, namespaceConv);
-    document.namespace = namespaceConv;
     document.price = priceConv;
     document.cat = catConv;
     return document;
