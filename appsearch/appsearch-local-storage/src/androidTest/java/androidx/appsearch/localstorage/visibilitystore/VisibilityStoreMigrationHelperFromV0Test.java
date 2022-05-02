@@ -28,6 +28,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.localstorage.AppSearchImpl;
@@ -103,7 +104,7 @@ public class VisibilityStoreMigrationHelperFromV0Test {
 
         // Set some client schemas into AppSearchImpl with empty VisibilityDocument since we need to
         // directly put old version of VisibilityDocument.
-        appSearchImplInV0.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = appSearchImplInV0.setSchema(
                 "package",
                 "database",
                 ImmutableList.of(
@@ -113,6 +114,7 @@ public class VisibilityStoreMigrationHelperFromV0Test {
                 /*forceOverride=*/ false,
                 /*schemaVersion=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
 
         // Put deprecated visibility documents in version 0 to AppSearchImpl
         appSearchImplInV0.putDocument(
@@ -192,7 +194,7 @@ public class VisibilityStoreMigrationHelperFromV0Test {
         AppSearchImpl appSearchImpl = AppSearchImpl.create(mFile, new UnlimitedLimitConfig(),
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
-        appSearchImpl.setSchema(
+        InternalSetSchemaResponse internalSetSchemaResponse = appSearchImpl.setSchema(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
                 VisibilityStore.VISIBILITY_DATABASE_NAME,
                 ImmutableList.of(visibilityDocumentSchemaV0, visibilityToPackagesSchemaV0),
@@ -200,6 +202,7 @@ public class VisibilityStoreMigrationHelperFromV0Test {
                 /*forceOverride=*/ true, // force push the old version into disk
                 /*version=*/ 0,
                 /*setSchemaStatsBuilder=*/ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
         return appSearchImpl;
     }
 }
