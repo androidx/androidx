@@ -116,7 +116,7 @@ class SurfaceControlCompatTest {
         transaction.addTransactionCompletedListener(listener)
         transaction.commit()
 
-        listener.mLatch.await(1, TimeUnit.SECONDS)
+        listener.mLatch.await(3, TimeUnit.SECONDS)
 
         assertEquals(0, listener.mLatch.count)
         assertTrue(listener.mCallbackTime > 0)
