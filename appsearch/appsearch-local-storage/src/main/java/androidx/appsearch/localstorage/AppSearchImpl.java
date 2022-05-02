@@ -811,8 +811,6 @@ public final class AppSearchImpl implements Closeable {
                 AppSearchSchema schema = SchemaToProtoConverter.toAppSearchSchema(
                         typeConfigBuilder);
 
-                //TODO(b/183050495) find a place to store the version for the database, rather
-                // than read from a schema.
                 responseBuilder.setVersion(typeConfig.getVersion());
                 responseBuilder.addSchema(schema);
 
