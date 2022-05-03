@@ -18,7 +18,6 @@ package androidx.core.uwb.helper
 
 import android.content.Context
 import androidx.core.uwb.exceptions.UwbHardwareNotAvailableException
-import androidx.core.uwb.exceptions.UwbRangingAlreadyStartedException
 import androidx.core.uwb.exceptions.UwbServiceNotAvailableException
 import androidx.core.uwb.exceptions.UwbSystemCallbackException
 import com.google.android.gms.common.api.ApiException
@@ -43,7 +42,7 @@ internal fun handleApiException(e: ApiException) {
         UwbStatusCodes.INVALID_API_CALL ->
             throw IllegalArgumentException("Illegal api call was received.")
         UwbStatusCodes.RANGING_ALREADY_STARTED ->
-            throw UwbRangingAlreadyStartedException("Ranging has already started for the" +
+            throw IllegalStateException("Ranging has already started for the" +
                 " clientSessionScope.")
         UwbStatusCodes.SERVICE_NOT_AVAILABLE ->
             throw UwbServiceNotAvailableException("UWB Service is not available.")

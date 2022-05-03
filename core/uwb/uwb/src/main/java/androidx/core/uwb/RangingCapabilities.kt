@@ -18,12 +18,12 @@ package androidx.core.uwb
 
 /**
  * Describes UWB ranging capabilities for the current device.
- * @property supportsDistance - Whether distance ranging is supported
- * @property supportsAzimuthalAngle - Whether azimuthal angle of arrival is supported
- * @property supportsElevationAngle - Whether elevation angle of arrival is supported
+ * @property isDistanceSupported - Whether distance ranging is supported
+ * @property isAzimuthalAngleSupported - Whether azimuthal angle of arrival is supported
+ * @property isElevationAngleSupported - Whether elevation angle of arrival is supported
  **/
 class RangingCapabilities(
-    val supportsDistance: Boolean,
-    val supportsAzimuthalAngle: Boolean,
-    val supportsElevationAngle: Boolean
+    val isDistanceSupported: Boolean,
+    val isAzimuthalAngleSupported: Boolean,
+    val isElevationAngleSupported: Boolean
 )
