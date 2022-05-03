@@ -205,8 +205,11 @@ public class MacrobenchmarkScope(
      * each iteration.
      */
     @JvmOverloads
-    public fun pressHome(delayDurationMs: Long = 300) {
+    public fun pressHome(delayDurationMs: Long = 0) {
         device.pressHome()
+
+        // This delay is unnecessary, since UiAutomator's pressHome already waits for device idle.
+        // This sleep remains just for API stability.
         Thread.sleep(delayDurationMs)
     }
 
