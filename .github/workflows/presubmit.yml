@@ -135,9 +135,11 @@ jobs:
         uses: actions/checkout@v2
       - name: "Check if the project should be built"
         id: check-ci-config
+        env:
+          BRANCH_REF: ${{ github.head_ref || github.ref }}
         run: |
           set -x
-          RESULT=`.github/ci-control/should_run_project.py --project ${{ matrix.project }} --branch ${{ github.head_ref || github.ref }}`
+          RESULT=`.github/ci-control/should_run_project.py --project ${{ matrix.project }} --branch "$BRANCH_REF"`
           echo "::set-output name=enabled::$RESULT"
       - name: "Run build"
         uses: ./.github/actions/build-single-project
