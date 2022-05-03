@@ -28,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.wear.compose.foundation.CurvedAlignment
@@ -254,5 +255,23 @@ fun CurvedBottomLayout() {
                 )
             }
         )
+    }
+}
+
+@Composable
+fun CurvedFontWeight() {
+    CurvedLayout(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        (100..900 step 100).forEach {
+            basicCurvedText(
+                "W$it",
+                style = CurvedTextStyle(TextStyle(
+                    color = Color.White,
+                    fontWeight = FontWeight(it)
+                )),
+                modifier = CurvedModifier.padding(5.dp)
+            )
+        }
     }
 }
