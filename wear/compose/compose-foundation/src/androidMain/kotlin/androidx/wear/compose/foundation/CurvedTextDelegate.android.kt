@@ -16,9 +16,13 @@
 
 package androidx.wear.compose.foundation
 
+import android.graphics.Typeface
+import android.os.Build
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.text.TextUtils
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -28,6 +32,7 @@ import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import kotlin.math.roundToInt
 
@@ -38,6 +43,7 @@ internal actual class CurvedTextDelegate {
     private var text: String = ""
     private var clockwise: Boolean = true
     private var fontSizePx: Float = 0f
+    private var fontWeight: FontWeight? = null
 
     actual var textWidth by mutableStateOf(0f)
     actual var textHeight by mutableStateOf(0f)
@@ -52,16 +58,19 @@ internal actual class CurvedTextDelegate {
     actual fun updateIfNeeded(
         text: String,
         clockwise: Boolean,
-        fontSizePx: Float
+        fontSizePx: Float,
+        fontWeight: FontWeight?
     ) {
         if (
             text != this.text ||
             clockwise != this.clockwise ||
-            fontSizePx != this.fontSizePx
+            fontSizePx != this.fontSizePx ||
+            fontWeight != this.fontWeight
         ) {
             this.text = text
             this.clockwise = clockwise
             this.fontSizePx = fontSizePx
+            this.fontWeight = fontWeight
             doUpdate()
             lastLayoutInfo = null // Ensure paths are recomputed
         }
@@ -69,6 +78,9 @@ internal actual class CurvedTextDelegate {
 
     private fun doUpdate() {
         paint.textSize = fontSizePx
+        // Set the typeface for this fontWeight, or null to clear any previously specified
+        // typeface if fontWeight is null.
+        paint.typeface = fontWeight?.let { getNativeTypeface(it) }
 
         val rect = android.graphics.Rect()
         paint.getTextBounds(text, 0, text.length, rect)
@@ -141,7 +153,8 @@ internal actual class CurvedTextDelegate {
 
             paint.color = color.toArgb()
             val actualText = if (
-                layoutInfo.sweepRadians <= parentSweepRadians ||
+                // Float arithmetic can make the parentSweepRadians slightly smaller
+                layoutInfo.sweepRadians <= parentSweepRadians + 0.001f ||
                 overflow == TextOverflow.Visible
             ) {
                 text
@@ -180,4 +193,31 @@ internal actual class CurvedTextDelegate {
         // "\u2026" is unicode's ellipsis "..."
         return text.replaceRange(ellipsisStart, ellipsisStart + ellipsisCount, "\u2026")
     }
+
+    private fun getNativeTypeface(
+        fontWeight: FontWeight
+    ): Typeface {
+        return if (Build.VERSION.SDK_INT < 28) {
+            Typeface.defaultFromStyle(
+                if (fontWeight >= FontWeight.W600 /* AndroidBold */)
+                    Typeface.BOLD
+                else
+                    Typeface.NORMAL
+            )
+        } else {
+            TypefaceHelperMethodsApi28.create(
+                Typeface.DEFAULT,
+                fontWeight.weight,
+                /* italic = */ false
+            )
+        }
+    }
+}
+
+@RequiresApi(28)
+internal object TypefaceHelperMethodsApi28 {
+    @RequiresApi(28)
+    @DoNotInline
+    fun create(typeface: Typeface, finalFontWeight: Int, finalFontStyle: Boolean) =
+        Typeface.create(typeface, finalFontWeight, finalFontStyle)
 }

@@ -18,6 +18,7 @@ package androidx.wear.compose.foundation
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 
 internal actual class CurvedTextDelegate {
@@ -28,7 +29,8 @@ internal actual class CurvedTextDelegate {
     actual fun updateIfNeeded(
         text: String,
         clockwise: Boolean,
-        fontSizePx: Float
+        fontSizePx: Float,
+        fontWeight: FontWeight?
     ) {
         // TODO(b/194653251): Implement
         throw java.lang.RuntimeException("Not implemented")
