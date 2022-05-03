@@ -47,7 +47,7 @@ for IDEA_CONFIG_FILE in "${TRACKED_IDEA_FILES[@]}"
 do
     # path to the actual .idea config file
     ORIGINAL_FILE="$PLAYGROUND_REL_PATH/../$IDEA_CONFIG_FILE"
-    # force add the file to git
     symlink $ORIGINAL_FILE $IDEA_CONFIG_FILE
+    # force add the file to git
     git add -f $IDEA_CONFIG_FILE
 done
