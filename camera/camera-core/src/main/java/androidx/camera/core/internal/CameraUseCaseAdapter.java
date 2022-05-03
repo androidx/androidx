@@ -36,6 +36,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -378,7 +379,7 @@ public final class CameraUseCaseAdapter implements Camera {
             @NonNull List<UseCase> newUseCases,
             @NonNull List<UseCase> currentUseCases,
             @NonNull Map<UseCase, ConfigPair> configPairMap) {
-        List<SurfaceConfig> existingSurfaces = new ArrayList<>();
+        List<AttachedSurfaceInfo> existingSurfaces = new ArrayList<>();
         String cameraId = cameraInfoInternal.getCameraId();
         Map<UseCase, Size> suggestedResolutions = new HashMap<>();
 
@@ -388,7 +389,9 @@ public final class CameraUseCaseAdapter implements Camera {
                     mCameraDeviceSurfaceManager.transformSurfaceConfig(cameraId,
                             useCase.getImageFormat(),
                             useCase.getAttachedSurfaceResolution());
-            existingSurfaces.add(surfaceConfig);
+            existingSurfaces.add(AttachedSurfaceInfo.create(surfaceConfig,
+                    useCase.getImageFormat(), useCase.getAttachedSurfaceResolution(),
+                    useCase.getCurrentConfig().getTargetFramerate(null)));
             suggestedResolutions.put(useCase, useCase.getAttachedSurfaceResolution());
         }
 
