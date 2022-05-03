@@ -20,7 +20,7 @@ package androidx.glance.wear.tiles {
 
   public abstract class GlanceTileService extends androidx.wear.tiles.TileService {
     ctor public GlanceTileService(optional androidx.wear.tiles.LayoutElementBuilders.LayoutElement? errorUiLayout);
-    method @androidx.compose.runtime.Composable public abstract void Content();
+    method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void Content();
     method public androidx.glance.state.GlanceStateDefinition<?>? getStateDefinition();
     method public final suspend <T> Object? getTileState(kotlin.coroutines.Continuation<? super T>);
     method public androidx.glance.wear.tiles.TimelineMode getTimelineMode();

@@ -52,7 +52,7 @@ package androidx.glance.appwidget {
 
   public abstract class GlanceAppWidget {
     ctor public GlanceAppWidget(optional @LayoutRes int errorUiLayout);
-    method @androidx.compose.runtime.Composable public abstract void Content();
+    method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void Content();
     method public androidx.glance.appwidget.SizeMode getSizeMode();
     method public androidx.glance.state.GlanceStateDefinition<?>? getStateDefinition();
     method public suspend Object? onDelete(android.content.Context context, androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -308,7 +308,7 @@ package androidx.glance.appwidget.template {
   public abstract class GlanceTemplateAppWidget extends androidx.glance.appwidget.GlanceAppWidget {
     ctor public GlanceTemplateAppWidget();
     method @androidx.compose.runtime.Composable public final void Content();
-    method @androidx.compose.runtime.Composable public abstract void TemplateContent();
+    method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void TemplateContent();
     method public androidx.glance.appwidget.SizeMode.Exact getSizeMode();
     property public androidx.glance.appwidget.SizeMode.Exact sizeMode;
     property public androidx.glance.state.GlanceStateDefinition<?>? stateDefinition;
