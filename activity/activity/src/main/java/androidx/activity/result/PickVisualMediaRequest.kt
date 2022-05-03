@@ -40,7 +40,7 @@ fun PickVisualMediaRequest(
 class PickVisualMediaRequest internal constructor() {
 
     var mediaType: VisualMediaType = ImageAndVideo
-        private set
+        internal set
 
     /**
      * A builder for constructing [PickVisualMediaRequest] instances.
@@ -68,8 +68,8 @@ class PickVisualMediaRequest internal constructor() {
          *
          * @return the newly constructed PickVisualMediaRequest.
          */
-        fun build(): PickVisualMediaRequest = PickVisualMediaRequest(mediaType).apply {
-            this.mediaType = mediaType
+        fun build(): PickVisualMediaRequest = PickVisualMediaRequest().apply {
+            this.mediaType = this@Builder.mediaType
         }
     }
 }
