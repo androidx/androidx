@@ -18,14 +18,12 @@ package androidx.playground
 
 import org.gradle.api.GradleException
 import org.gradle.api.initialization.Settings
-import org.gradle.api.model.ObjectFactory
 import java.io.File
 import java.util.Properties
 import javax.inject.Inject
 
 open class PlaygroundExtension @Inject constructor(
-    private val settings: Settings,
-    private val objectFactory: ObjectFactory
+    private val settings: Settings
 ) {
     private var supportRootDir: File? = null
 
@@ -116,12 +114,6 @@ open class PlaygroundExtension @Inject constructor(
         }
 
         settings.rootProject.buildFileName = relativePathToBuild
-
-        val catalogFiles =
-            objectFactory.fileCollection().from("$supportRoot/gradle/libs.versions.toml")
-        settings.dependencyResolutionManagement {
-            it.versionCatalogs.create("libs").from(catalogFiles)
-        }
 
         includeProject(":lint-checks", "lint-checks")
         includeProject(":lint-checks:integration-tests", "lint-checks/integration-tests")
