@@ -357,7 +357,7 @@ public class PerfettoHelper(
         private const val PERFETTO_KILL_WAIT_COUNT = 30
 
         // Check if perfetto is stopped every 100 millis.
-        private const val PERFETTO_KILL_WAIT_TIME_MS: Long = 500
+        private const val PERFETTO_KILL_WAIT_TIME_MS: Long = 100
 
         // Path where unbundled tracebox is copied to
         private const val UNBUNDLED_PERFETTO_ROOT_DIR = "/data/local/tmp"
