@@ -375,43 +375,6 @@ public class AutomotiveCarInfoTest {
     }
 
     @Test
-    public void getMileage_readExceptionAfterUnregisteringListener() throws InterruptedException {
-        // VehicleUnit.METER in car service
-        int meterUnit = 0x21;
-
-        // Create "PERF_ODOMETER" and "DISTANCE_DISPLAY_UNITS" property IDs list.
-        mPropertyIds.add(PERF_ODOMETER);
-        mPropertyIds.add(DISTANCE_DISPLAY_UNITS);
-
-        AtomicReference<Mileage> loadedResult = new AtomicReference<>();
-        OnCarDataAvailableListener<Mileage> listener = (data) -> {
-            loadedResult.set(data);
-            mCountDownLatch.countDown();
-        };
-
-        mAutomotiveCarInfo.addMileageListener(mExecutor, listener);
-        mAutomotiveCarInfo.removeMileageListener(listener);
-
-        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
-                OnCarPropertyResponseListener.class);
-        verify(mPropertyManager).submitRegisterListenerRequest(eq(mPropertyIds),
-                eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
-
-        mResponse.add(CarPropertyResponse.create(PERF_ODOMETER, STATUS_SUCCESS, 1, 1f));
-        mResponse.add(CarPropertyResponse.create(DISTANCE_DISPLAY_UNITS, STATUS_SUCCESS, 2,
-                meterUnit));
-
-        captor.getValue().onCarPropertyResponses(mResponse);
-        assertThat(mCountDownLatch.getCount() != 0);
-
-        Mileage mileage = loadedResult.get();
-        assertThrows(NullPointerException.class, () ->
-                mileage.getOdometerMeters().getValue());
-        assertThrows(NullPointerException.class, () ->
-                mileage.getDistanceDisplayUnit().getValue());
-    }
-
-    @Test
     public void getEvStatus_verifyResponse() throws InterruptedException {
         // Create "EV_CHARGE_PORT_OPEN" and "EV_CHARGE_PORT_CONNECTED" property IDs list.
         mPropertyIds.add(EV_CHARGE_PORT_OPEN);
@@ -475,40 +438,6 @@ public class AutomotiveCarInfoTest {
                 CarValue.STATUS_UNIMPLEMENTED);
     }
 
-    @Test
-    public void getEvStatus_readExceptionAfterUnregisteringListener() throws InterruptedException {
-        // Create "EV_CHARGE_PORT_OPEN" and "EV_CHARGE_PORT_CONNECTED" property IDs list.
-        mPropertyIds.add(EV_CHARGE_PORT_OPEN);
-        mPropertyIds.add(EV_CHARGE_PORT_CONNECTED);
-
-        AtomicReference<EvStatus> loadedResult = new AtomicReference<>();
-        OnCarDataAvailableListener<EvStatus> listener = (data) -> {
-            loadedResult.set(data);
-            mCountDownLatch.countDown();
-        };
-
-        mAutomotiveCarInfo.addEvStatusListener(mExecutor, listener);
-        mAutomotiveCarInfo.removeEvStatusListener(listener);
-
-        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
-                OnCarPropertyResponseListener.class);
-        verify(mPropertyManager).submitRegisterListenerRequest(eq(mPropertyIds),
-                eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
-
-        mResponse.add(CarPropertyResponse.create(EV_CHARGE_PORT_OPEN, STATUS_SUCCESS, 1, true));
-        mResponse.add(
-                CarPropertyResponse.create(EV_CHARGE_PORT_CONNECTED, STATUS_SUCCESS, 2, false));
-
-        captor.getValue().onCarPropertyResponses(mResponse);
-        assertThat(mCountDownLatch.getCount() != 0);
-
-        EvStatus evStatus = loadedResult.get();
-        assertThrows(NullPointerException.class, () ->
-                evStatus.getEvChargePortOpen().getValue());
-        assertThrows(NullPointerException.class, () ->
-                evStatus.getEvChargePortConnected().getValue());
-    }
-
     @Config(minSdk = 31)
     @Test
     public void getTollCard_verifyResponseApi31() throws InterruptedException {
@@ -552,38 +481,6 @@ public class AutomotiveCarInfoTest {
         assertThat(tollCard.getCardState().getStatus()).isEqualTo(CarValue.STATUS_UNIMPLEMENTED);
     }
 
-    @Config(minSdk = 31)
-    @Test
-    public void getTollCard_readExceptionAfterUnregisteringListenerApi31() throws
-            InterruptedException {
-        // Create "TOLL_CARD_STATUS_ID" request property IDs list.
-        mPropertyIds.add(TOLL_CARD_STATUS_ID);
-
-        AtomicReference<TollCard> loadedResult = new AtomicReference<>();
-        OnCarDataAvailableListener<TollCard> listener = (data) -> {
-            loadedResult.set(data);
-            mCountDownLatch.countDown();
-        };
-
-        mAutomotiveCarInfo.addTollListener(mExecutor, listener);
-        mAutomotiveCarInfo.removeTollListener(listener);
-
-        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
-                OnCarPropertyResponseListener.class);
-        verify(mPropertyManager).submitRegisterListenerRequest(eq(mPropertyIds),
-                eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
-
-        mResponse.add(CarPropertyResponse.create(TOLL_CARD_STATUS_ID,
-                STATUS_SUCCESS, 1, TollCard.TOLLCARD_STATE_VALID));
-
-        captor.getValue().onCarPropertyResponses(mResponse);
-        assertThat(mCountDownLatch.getCount() != 0);
-
-        TollCard tollCard = loadedResult.get();
-        assertThrows(NullPointerException.class, () ->
-                tollCard.getCardState().getValue());
-    }
-
     @Test
     public void getSpeed_verifyResponse() throws InterruptedException {
         // Create "PERF_VEHICLE_SPEED", "PERF_VEHICLE_SPEED_DISPLAY" and "SPEED_DISPLAY_UNIT_ID"
@@ -625,51 +522,6 @@ public class AutomotiveCarInfoTest {
         assertThat(speed.getRawSpeedMetersPerSecond().getValue()).isEqualTo(defaultRawSpeed);
         assertThat(speed.getDisplaySpeedMetersPerSecond().getValue()).isEqualTo(defaultSpeed);
         assertThat(speed.getSpeedDisplayUnit().getValue()).isEqualTo(CarUnit.METERS_PER_SEC);
-    }
-
-    @Test
-    public void getSpeed_readExceptionAfterUnregisteringListener() throws InterruptedException {
-        // Create "PERF_VEHICLE_SPEED", "PERF_VEHICLE_SPEED_DISPLAY" and "SPEED_DISPLAY_UNIT_ID"
-        // property IDs list.
-        mPropertyIds.add(PERF_VEHICLE_SPEED);
-        mPropertyIds.add(PERF_VEHICLE_SPEED_DISPLAY);
-        mPropertyIds.add(SPEED_DISPLAY_UNIT_ID);
-
-        float defaultSpeed = 20f;
-        float defaultRawSpeed = 20.5f;
-        int metersPerSec = 0x01;
-
-        AtomicReference<Speed> loadedResult = new AtomicReference<>();
-        OnCarDataAvailableListener<Speed> listener = (data) -> {
-            loadedResult.set(data);
-            mCountDownLatch.countDown();
-        };
-
-        mAutomotiveCarInfo.addSpeedListener(mExecutor, listener);
-        mAutomotiveCarInfo.removeSpeedListener(listener);
-
-        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
-                OnCarPropertyResponseListener.class);
-        verify(mPropertyManager).submitRegisterListenerRequest(eq(mPropertyIds),
-                eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
-
-        mResponse.add(CarPropertyResponse.create(SPEED_DISPLAY_UNIT_ID, STATUS_SUCCESS, 1,
-                metersPerSec));
-        mResponse.add(CarPropertyResponse.create(PERF_VEHICLE_SPEED,
-                STATUS_SUCCESS, 2, defaultRawSpeed));
-        mResponse.add(CarPropertyResponse.create(PERF_VEHICLE_SPEED_DISPLAY,
-                STATUS_SUCCESS, 3, defaultSpeed));
-
-        captor.getValue().onCarPropertyResponses(mResponse);
-        assertThat(mCountDownLatch.getCount() != 0);
-
-        Speed speed = loadedResult.get();
-        assertThrows(NullPointerException.class, () ->
-                speed.getRawSpeedMetersPerSecond().getValue());
-        assertThrows(NullPointerException.class, () ->
-                speed.getDisplaySpeedMetersPerSecond().getValue());
-        assertThrows(NullPointerException.class, () ->
-                speed.getSpeedDisplayUnit().getValue());
     }
 
     @Test
@@ -744,86 +596,6 @@ public class AutomotiveCarInfoTest {
                 5f);
         assertThat(energyLevel.getDistanceDisplayUnit().getValue()).isEqualTo(2);
         assertThat(energyLevel.getFuelVolumeDisplayUnit().getValue()).isEqualTo(201);
-    }
-
-    @Test
-    public void getEnergyLevel_readExceptionAfterUnregisteringListener() throws
-            InterruptedException {
-        // Add "INFO_EV_BATTERY_CAPACITY" and "INFO_FUEL_CAPACITY" to the request.
-        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EV_BATTERY_CAPACITY));
-        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_FUEL_CAPACITY));
-
-        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
-                OnCarPropertyResponseListener.class);
-        int meterDistanceUnit = 0x21;
-        int meterVolumeUnit = 0x40;
-        float evBatteryCapacity = 100f;
-        float evBatteryLevelValue = 50f;
-        float fuelCapacity = 120f;
-        float fuelLevelValue = 50f;
-        List<CarPropertyResponse<?>> capacities = new ArrayList<>();
-        capacities.add(CarPropertyResponse.create(INFO_EV_BATTERY_CAPACITY,
-                STATUS_SUCCESS, 1, evBatteryCapacity));
-        capacities.add(CarPropertyResponse.create(INFO_FUEL_CAPACITY,
-                STATUS_SUCCESS, 1, fuelCapacity));
-        ListenableFuture<List<CarPropertyResponse<?>>> future =
-                Futures.immediateFuture(capacities);
-        when(mPropertyManager.submitGetPropertyRequest(
-                eq(mGetPropertyRequests), any())).thenReturn(future);
-
-        AtomicReference<EnergyLevel> loadedResult = new AtomicReference<>();
-        OnCarDataAvailableListener<EnergyLevel> listener = (data) -> {
-            loadedResult.set(data);
-            mCountDownLatch.countDown();
-        };
-
-        mAutomotiveCarInfo.addEnergyLevelListener(mExecutor, listener);
-        mAutomotiveCarInfo.removeEnergyLevelListener(listener);
-
-        // Create "EV_BATTERY_LEVEL", "FUEL_LEVEL", "FUEL_LEVEL_LOW", "RANGE_REMAINING",
-        // "DISTANCE_DISPLAY_UNITS" and "FUEL_VOLUME_DISPLAY_UNITS" property IDs list.
-        mPropertyIds.add(EV_BATTERY_LEVEL);
-        mPropertyIds.add(FUEL_LEVEL);
-        mPropertyIds.add(FUEL_LEVEL_LOW);
-        mPropertyIds.add(RANGE_REMAINING);
-        mPropertyIds.add(DISTANCE_DISPLAY_UNITS);
-        mPropertyIds.add(FUEL_VOLUME_DISPLAY_UNITS);
-
-        verify(mPropertyManager, times(1)).submitGetPropertyRequest(
-                eq(mGetPropertyRequests), eq(mExecutor));
-        verify(mPropertyManager, times(1)).submitRegisterListenerRequest(
-                eq(mPropertyIds), eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
-        verify(mPropertyManager, times(1)).submitUnregisterListenerRequest(
-                captor.capture());
-
-        mResponse.add(CarPropertyResponse.create(EV_BATTERY_LEVEL,
-                STATUS_SUCCESS, 1, evBatteryLevelValue));
-        mResponse.add(CarPropertyResponse.create(FUEL_LEVEL,
-                STATUS_SUCCESS, 1, fuelLevelValue));
-        mResponse.add(CarPropertyResponse.create(FUEL_LEVEL_LOW,
-                STATUS_SUCCESS, 1, true));
-        mResponse.add(CarPropertyResponse.create(RANGE_REMAINING,
-                STATUS_SUCCESS, 1, 5f));
-        mResponse.add(CarPropertyResponse.create(DISTANCE_DISPLAY_UNITS,
-                STATUS_SUCCESS, 1, meterDistanceUnit));
-        mResponse.add(CarPropertyResponse.create(FUEL_VOLUME_DISPLAY_UNITS,
-                STATUS_SUCCESS, 2, meterVolumeUnit));
-        captor.getValue().onCarPropertyResponses(mResponse);
-        assertThat(mCountDownLatch.getCount() != 0);
-
-        EnergyLevel energyLevel = loadedResult.get();
-        assertThrows(NullPointerException.class, () ->
-                energyLevel.getBatteryPercent().getValue());
-        assertThrows(NullPointerException.class, () ->
-                energyLevel.getFuelPercent().getValue());
-        assertThrows(NullPointerException.class, () ->
-                energyLevel.getEnergyIsLow().getValue());
-        assertThrows(NullPointerException.class, () ->
-                energyLevel.getRangeRemainingMeters().getValue());
-        assertThrows(NullPointerException.class, () ->
-                energyLevel.getDistanceDisplayUnit().getValue());
-        assertThrows(NullPointerException.class, () ->
-                energyLevel.getFuelVolumeDisplayUnit().getValue());
     }
 
     @Test
