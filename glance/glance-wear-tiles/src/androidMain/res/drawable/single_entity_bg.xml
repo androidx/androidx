@@ -14,15 +14,8 @@
   limitations under the License.
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:background="@color/black"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/tile_container">
-    </FrameLayout>
-</LinearLayout>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FF292B2F" />
+    <corners android:radius="72dp" />
+</shape>
+
