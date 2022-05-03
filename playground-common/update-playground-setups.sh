@@ -10,6 +10,7 @@ PLAYGROUND_REL_PATH=$(dirname $0)
 SUPPORT_ROOT_ABS_PATH=$(absPath "$PLAYGROUND_REL_PATH/..")
 PLAYGROUND_ABS_PATH=$(absPath $PLAYGROUND_REL_PATH)
 
+# re-runs the playground setup script on the given folder
 function setupPlayground {
     echo "setting up playground in $1"
     cd $1
@@ -17,6 +18,7 @@ function setupPlayground {
     echo "finished setting up playground in $1"
 }
 
+# find all playground settings files
 PLAYGROUND_SETTINGS_FILES=$(egrep -lir --include=settings.gradle "setupPlayground" $SUPPORT_ROOT_ABS_PATH)
 for SETTINGS_FILE in $PLAYGROUND_SETTINGS_FILES
 do
