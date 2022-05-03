@@ -46,7 +46,7 @@ jobs:
       - name: "Compute actions/checkout arguments"
         id: checkout-args
         env:
-          REF: ${{ github.event.pull_request.head.ref || github.event.ref}} 
+          REF: ${{ github.event.pull_request.head.ref || github.event.ref}}
         run: |
           set -x
           echo "::set-output name=ref::$REF"
