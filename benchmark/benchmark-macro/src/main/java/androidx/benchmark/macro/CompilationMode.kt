@@ -100,13 +100,15 @@ sealed class CompilationMode {
                     // This is what effectively clears the ART profiles
                     Log.d(TAG, "Uninstalling $packageName")
                     var output = Shell.executeScriptWithStderr("pm uninstall $packageName")
-                    check(output.stderr.isBlank()) {
+                    check(output.stdout.trim() == "Success") {
                         "Unable to uninstall $packageName ($result)"
                     }
                     // Install the APK from /data/local/tmp
                     Log.d(TAG, "Installing $packageName")
-                    output = Shell.executeScriptWithStderr("pm install $tempApkPath")
-                    check(output.stderr.isBlank()) {
+                    // Provide a `-t` argument to `pm install` to ensure test packages are
+                    // correctly installed. (b/231294733)
+                    output = Shell.executeScriptWithStderr("pm install -t $tempApkPath")
+                    check(output.stdout.trim() == "Success") {
                         "Unable to install $packageName ($result)"
                     }
                 } finally {
