@@ -29,7 +29,7 @@ dependencies {
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":tracing:tracing-perfetto-binary"))
+    androidTestImplementation("androidx.tracing:tracing-perfetto-binary:1.0.0-alpha01")
 }
 
 androidx {
