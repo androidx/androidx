@@ -28,4 +28,16 @@
         app:left="0.6"
         app:right="0.7"
         app:top="0.8" />
+    <ComplicationSlotBounds
+        app:complicationType="RANGED_VALUE"
+        app:center_x="0.4"
+        app:center_y="0.5"
+        app:size_x="0.2"
+        app:size_y="0.4" />
+    <ComplicationSlotBounds
+        app:complicationType="SMALL_IMAGE"
+        app:center_x="@dimen/complication_center"
+        app:center_y="@dimen/complication_center"
+        app:size_x="@dimen/complication_size"
+        app:size_y="@dimen/complication_size" />
 </TestNode>

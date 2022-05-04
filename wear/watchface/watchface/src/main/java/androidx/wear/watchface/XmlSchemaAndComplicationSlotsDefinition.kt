@@ -291,7 +291,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                 } else {
                     null
                 }
-                val bounds = ComplicationSlotBounds.inflate(parser)
+                val bounds = ComplicationSlotBounds.inflate(resources, parser)
                 require(bounds != null) {
                     "ComplicationSlot must have either one ComplicationSlotBounds child node or " +
                         "one per ComplicationType."
