@@ -115,8 +115,8 @@ final class ZslControlImpl implements ZslControl {
 
         // Init the reprocessing image reader and enqueue available images into the ring buffer.
         // TODO(b/226683183): Decide whether YUV or PRIVATE reprocessing should be the default.
-        int reprocessingImageFormat = mIsYuvReprocessingSupported
-                ? ImageFormat.YUV_420_888 : ImageFormat.PRIVATE;
+        int reprocessingImageFormat = mIsPrivateReprocessingSupported
+                ? ImageFormat.PRIVATE : ImageFormat.YUV_420_888;
 
         MetadataImageReader metadataImageReader = new MetadataImageReader(
                 resolution.getWidth(),
@@ -127,10 +127,16 @@ final class ZslControlImpl implements ZslControl {
         mReprocessingImageReader = new SafeCloseImageReaderProxy(metadataImageReader);
         metadataImageReader.setOnImageAvailableListener(
                 imageReader -> {
-                    ImageProxy imageProxy = imageReader.acquireLatestImage();
-                    if (imageProxy != null) {
-                        mImageRingBuffer.enqueue(imageProxy);
+                    try {
+                        ImageProxy imageProxy = imageReader.acquireLatestImage();
+                        if (imageProxy != null) {
+                            mImageRingBuffer.enqueue(imageProxy);
+                        }
+                    } catch (IllegalStateException e) {
+                        Logger.e(TAG, "Failed to acquire latest image IllegalStateException = "
+                                + e.getMessage());
                     }
+
                 }, CameraXExecutors.ioExecutor());
 
         // Init the reprocessing image reader surface and add into the target surfaces of capture
@@ -191,7 +197,13 @@ final class ZslControlImpl implements ZslControl {
         Image image = imageProxy.getImage();
 
         if (Build.VERSION.SDK_INT >= 23 && mReprocessingImageWriter != null && image != null) {
-            ImageWriterCompat.queueInputImage(mReprocessingImageWriter, image);
+            try {
+                ImageWriterCompat.queueInputImage(mReprocessingImageWriter, image);
+            } catch (IllegalStateException e) {
+                Logger.e(TAG, "enqueueImageToImageWriter throws IllegalStateException = "
+                        + e.getMessage());
+                return false;
+            }
             return true;
         }
         return false;
