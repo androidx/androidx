@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
@@ -37,6 +38,7 @@ import org.junit.runner.RunWith
 @RequiresApi(Build.VERSION_CODES.Q)
 @SdkSuppress(minSdkVersion = 29)
 class SurfaceControlCompatTest {
+    var executor = InstrumentationRegistry.getInstrumentation().context.mainExecutor
 
     @Test
     fun testCreateFromWindow() {
@@ -113,7 +115,7 @@ class SurfaceControlCompatTest {
     fun testSurfaceTransactionOnCompleteCallback() {
         val transaction = SurfaceControlCompat.Transaction()
         val listener = TransactionOnCompleteListener()
-        transaction.addTransactionCompletedListener(listener)
+        transaction.addTransactionCompletedListener(executor, listener)
         transaction.commit()
 
         listener.mLatch.await(3, TimeUnit.SECONDS)

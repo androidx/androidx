@@ -239,7 +239,7 @@ package androidx.graphics.surface {
 
   public static class SurfaceControlCompat.Transaction {
     ctor public SurfaceControlCompat.Transaction();
-    method public final void addTransactionCompletedListener(androidx.graphics.surface.SurfaceControlCompat.TransactionCompletedListener listener);
+    method public final void addTransactionCompletedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCompletedListener listener);
     method public final void commit();
     method public final void delete();
     method public final void finalize();

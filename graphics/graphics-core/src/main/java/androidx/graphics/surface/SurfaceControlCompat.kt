@@ -19,6 +19,7 @@ package androidx.graphics.surface
 import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import java.util.concurrent.Executor
 
 @RequiresApi(Build.VERSION_CODES.Q)
 class SurfaceControlCompat internal constructor(
@@ -76,10 +77,26 @@ class SurfaceControlCompat internal constructor(
         /**
          * Sets the callback that is invoked once the updates from this transaction are
          * presented.
+         *
+         * @param executor The executor that the callback should be invoked on.
+         * This value cannot be null. Callback and listener events are dispatched
+         * through this Executor, providing an easy way to control which thread is used.
+         *
+         * @param listener The callback that will be invoked when the transaction has
+         * been completed. This value cannot be null.
          */
         @Suppress("PairedRegistration")
-        fun addTransactionCompletedListener(listener: TransactionCompletedListener) {
-            nTransactionSetOnComplete(mNativeSurfaceTransaction, listener)
+        fun addTransactionCompletedListener(
+            executor: Executor,
+            listener: TransactionCompletedListener
+        ) {
+            val listenerWrapper = object : TransactionCompletedListener {
+                override fun onComplete(latchTime: Long, presentTime: Long) {
+                    executor.execute { (listener::onComplete)(latchTime, presentTime) }
+                }
+            }
+
+            nTransactionSetOnComplete(mNativeSurfaceTransaction, listenerWrapper)
         }
 
         fun delete() {
