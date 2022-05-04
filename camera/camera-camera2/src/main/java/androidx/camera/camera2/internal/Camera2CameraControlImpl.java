@@ -139,7 +139,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     // Workarounds
     private final AeFpsRange mAeFpsRange;
-    private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler();
+    private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler;
 
     static final String TAG_SESSION_UPDATE_ID = "CameraControlSessionUpdateId";
     private final AtomicLong mNextSessionUpdateId = new AtomicLong(0);
@@ -206,6 +206,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
         // Workarounds
         mAeFpsRange = new AeFpsRange(cameraQuirks);
+        mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler(cameraQuirks);
         mCamera2CameraControl = new Camera2CameraControl(this, mExecutor);
         mCamera2CapturePipeline = new Camera2CapturePipeline(this, mCameraCharacteristics,
                 cameraQuirks, mExecutor);

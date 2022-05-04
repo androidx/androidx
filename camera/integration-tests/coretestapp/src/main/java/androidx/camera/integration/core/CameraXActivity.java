@@ -68,6 +68,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.camera2.internal.compat.quirk.CrashWhenTakingPhotoWithAutoFlashAEModeQuirk;
+import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFailWithAutoFlashQuirk;
+import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFlashNotFireQuirk;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -86,6 +89,8 @@ import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.video.FileOutputOptions;
@@ -158,10 +163,11 @@ public class CameraXActivity extends AppCompatActivity {
 
     private final AtomicLong mImageAnalysisFrameCount = new AtomicLong(0);
     private final AtomicLong mPreviewFrameCount = new AtomicLong(0);
-    private final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
+    final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
     private static final String BACKWARD = "BACKWARD";
     private static final String SWITCH_TEST_CASE = "switch_test_case";
     private static final String PREVIEW_TEST_CASE = "preview_test_case";
+    private static final String DESCRIPTION_FLASH_MODE_NOT_SUPPORTED = "FLASH_MODE_NOT_SUPPORTED";
     private static final Quality QUALITY_AUTO = null;
 
     private Recording mActiveRecording;
@@ -174,7 +180,7 @@ public class CameraXActivity extends AppCompatActivity {
     // there is smaller impact on the preview.
     View mViewFinder;
     private List<UseCase> mUseCases;
-    private ExecutorService mImageCaptureExecutorService;
+    ExecutorService mImageCaptureExecutorService;
     Camera mCamera;
 
     private ToggleButton mVideoToggle;
@@ -263,14 +269,14 @@ public class CameraXActivity extends AppCompatActivity {
     };
 
     // Espresso testing variables
-    private final CountingIdlingResource mViewIdlingResource = new CountingIdlingResource("view");
     private static final int FRAMES_UNTIL_VIEW_IS_READY = 5;
-    private final CountingIdlingResource mAnalysisIdlingResource =
-            new CountingIdlingResource("analysis");
-    private final CountingIdlingResource mImageSavedIdlingResource =
-            new CountingIdlingResource("imagesaved");
+    private final CountingIdlingResource mViewIdlingResource = new CountingIdlingResource("view");
     private final CountingIdlingResource mInitializationIdlingResource =
             new CountingIdlingResource("initialization");
+    final CountingIdlingResource mAnalysisIdlingResource =
+            new CountingIdlingResource("analysis");
+    final CountingIdlingResource mImageSavedIdlingResource =
+            new CountingIdlingResource("imagesaved");
 
     /**
      * Retrieve idling resource that waits for image received by analyzer).
@@ -356,6 +362,30 @@ public class CameraXActivity extends AppCompatActivity {
     private boolean isFlashAvailable() {
         CameraInfo cameraInfo = getCameraInfo();
         return mPhotoToggle.isChecked() && cameraInfo != null && cameraInfo.hasFlashUnit();
+    }
+
+    private boolean isFlashTestSupported(@ImageCapture.FlashMode int flashMode) {
+        switch (flashMode) {
+            case FLASH_MODE_OFF:
+                return false;
+            case FLASH_MODE_AUTO:
+                CameraInfo cameraInfo = getCameraInfo();
+                if (cameraInfo instanceof CameraInfoInternal) {
+                    Quirks deviceQuirks = DeviceQuirks.getAll();
+                    Quirks cameraQuirks = ((CameraInfoInternal) cameraInfo).getCameraQuirks();
+                    if (deviceQuirks.contains(CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.class)
+                            || cameraQuirks.contains(ImageCaptureFailWithAutoFlashQuirk.class)
+                            || cameraQuirks.contains(ImageCaptureFlashNotFireQuirk.class)) {
+
+                        Toast.makeText(this, DESCRIPTION_FLASH_MODE_NOT_SUPPORTED,
+                                Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                }
+                break;
+            default: // fall out
+        }
+        return true;
     }
 
     private boolean isExposureCompensationSupported() {
@@ -749,7 +779,15 @@ public class CameraXActivity extends AppCompatActivity {
         // Flash button
         mFlashButton.setEnabled(mPhotoToggle.isChecked() && isFlashAvailable());
         if (mPhotoToggle.isChecked()) {
-            switch (getImageCapture().getFlashMode()) {
+            int flashMode = getImageCapture().getFlashMode();
+            if (isFlashTestSupported(flashMode)) {
+                // Reset content description if flash is ready for test.
+                mFlashButton.setContentDescription("");
+            } else {
+                // Set content description for e2e testing.
+                mFlashButton.setContentDescription(DESCRIPTION_FLASH_MODE_NOT_SUPPORTED);
+            }
+            switch (flashMode) {
                 case FLASH_MODE_ON:
                     mFlashButton.setImageResource(R.drawable.ic_flash_on);
                     break;
@@ -1070,7 +1108,7 @@ public class CameraXActivity extends AppCompatActivity {
         return false;
     }
 
-    private void createDefaultPictureFolderIfNotExist() {
+    void createDefaultPictureFolderIfNotExist() {
         File pictureFolder = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
         if (!pictureFolder.exists()) {
@@ -1172,7 +1210,7 @@ public class CameraXActivity extends AppCompatActivity {
                                 }
 
                                 @Override
-                                public void onFailure(Throwable t) {
+                                public void onFailure(@NonNull Throwable t) {
                                     Log.e(TAG, "Focus and metering failed.", t);
                                 }
                             },
@@ -1208,7 +1246,7 @@ public class CameraXActivity extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(@NonNull Throwable t) {
                         Log.d(TAG, "setZoomPercentage " + percentage + " failed, " + t);
                     }
                 }, ContextCompat.getMainExecutor(CameraXActivity.this));
@@ -1273,7 +1311,7 @@ public class CameraXActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 Log.d(TAG, "setZoomRatio failed, " + t);
             }
         }, ContextCompat.getMainExecutor(CameraXActivity.this));
