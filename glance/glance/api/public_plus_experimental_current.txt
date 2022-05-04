@@ -33,6 +33,9 @@ package androidx.glance {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Object> LocalState;
   }
 
+  @androidx.compose.runtime.ComposableTargetMarker(description="Glance Composable") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FILE, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER}) public @interface GlanceComposable {
+  }
+
   public interface GlanceId {
   }
 
@@ -59,7 +62,7 @@ package androidx.glance {
     method public default <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.glance.GlanceModifier.Element,? super R,? extends R> operation);
   }
 
-  public final class GlanceNodeKt {
+  @androidx.glance.GlanceComposable public final class GlanceNodeKt {
   }
 
   public final class ImageKt {
