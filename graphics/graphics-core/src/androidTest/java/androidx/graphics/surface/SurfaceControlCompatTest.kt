@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Region
 import android.hardware.HardwareBuffer
+import android.graphics.ColorSpace
 import android.os.Build
 import android.os.SystemClock
 import android.view.Surface
@@ -695,6 +696,209 @@ class SurfaceControlCompatTest {
             assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
         }
     }
+
+    @Test
+    fun testTransactionSetBufferTransparency_opaque() {
+        val listener = TransactionOnCompleteListener()
+        val scenario = ActivityScenario.launch(SurfaceControlCompatTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val scCompat = SurfaceControlCompat
+                            .Builder(it.getSurfaceView().holder.surface)
+                            .setDebugName("SurfaceControlCompatTest")
+                            .build()
+
+                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                        val buffer = getSolidBuffer(
+                            it.DEFAULT_WIDTH,
+                            it.DEFAULT_HEIGHT,
+                            Color.BLUE
+                        )
+                        SurfaceControlCompat.Transaction()
+                            .addTransactionCompletedListener(executor!!, listener)
+                            .setBuffer(scCompat, buffer)
+                            .setOpaque(
+                                scCompat,
+                                true
+                            )
+                            .commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
+            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
+            val coord = intArrayOf(0, 0)
+            it.mSurfaceView.getLocationOnScreen(coord)
+            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+        }
+    }
+
+    @Test
+    fun testTransactionSetAlpha_0_0() {
+        val listener = TransactionOnCompleteListener()
+        val scenario = ActivityScenario.launch(SurfaceControlCompatTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val scCompat = SurfaceControlCompat
+                            .Builder(it.getSurfaceView().holder.surface)
+                            .setDebugName("SurfaceControlCompatTest")
+                            .build()
+
+                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                        val buffer = getSolidBuffer(
+                            it.DEFAULT_WIDTH,
+                            it.DEFAULT_HEIGHT,
+                            Color.BLUE
+                        )
+                        SurfaceControlCompat.Transaction()
+                            .addTransactionCompletedListener(executor!!, listener)
+                            .setBuffer(scCompat, buffer)
+                            .setOpaque(
+                                scCompat,
+                                false
+                            )
+                            .setAlpha(scCompat, 0.0f)
+                            .commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
+            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
+            val coord = intArrayOf(0, 0)
+            it.mSurfaceView.getLocationOnScreen(coord)
+            assertEquals(Color.BLACK, bitmap.getPixel(coord[0], coord[1]))
+        }
+    }
+
+    @Test
+    fun testTransactionSetAlpha_0_5() {
+        val listener = TransactionOnCompleteListener()
+        val scenario = ActivityScenario.launch(SurfaceControlCompatTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val scCompat = SurfaceControlCompat
+                            .Builder(it.getSurfaceView().holder.surface)
+                            .setDebugName("SurfaceControlCompatTest")
+                            .build()
+
+                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                        val buffer = getSolidBuffer(
+                            it.DEFAULT_WIDTH,
+                            it.DEFAULT_HEIGHT,
+                            Color.BLUE
+                        )
+                        SurfaceControlCompat.Transaction()
+                            .addTransactionCompletedListener(executor!!, listener)
+                            .setBuffer(scCompat, buffer)
+                            .setAlpha(scCompat, 0.5f)
+                            .commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
+
+            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
+            val fConnector: ColorSpace.Connector = ColorSpace.connect(
+                ColorSpace.get(ColorSpace.Named.SRGB),
+                bitmap.colorSpace!!
+            )
+
+            val red = fConnector.transform(1.0f, 0.0f, 0.0f)
+            val black = fConnector.transform(0.0f, 0.0f, 0.0f)
+            val expectedResult = Color.valueOf(red[0], red[1], red[2], 0.5f)
+                .compositeOver(Color.valueOf(black[0], black[1], black[2], 1.0f))
+
+            val coord = intArrayOf(0, 0)
+            it.mSurfaceView.getLocationOnScreen(coord)
+            assertEquals(expectedResult.red(), bitmap.getColor(coord[0], coord[1]).red(), 2e-3f)
+            assertEquals(expectedResult.green(), bitmap.getColor(coord[0], coord[1]).green(), 2e-3f)
+            assertEquals(expectedResult.blue(), bitmap.getColor(coord[0], coord[1]).blue(), 2e-3f)
+        }
+    }
+
+    @Test
+    fun testTransactionSetAlpha_1_0() {
+        val listener = TransactionOnCompleteListener()
+        val scenario = ActivityScenario.launch(SurfaceControlCompatTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val scCompat = SurfaceControlCompat
+                            .Builder(it.getSurfaceView().holder.surface)
+                            .setDebugName("SurfaceControlCompatTest")
+                            .build()
+
+                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                        val buffer = getSolidBuffer(
+                            it.DEFAULT_WIDTH,
+                            it.DEFAULT_HEIGHT,
+                            Color.BLUE
+                        )
+                        SurfaceControlCompat.Transaction()
+                            .addTransactionCompletedListener(executor!!, listener)
+                            .setBuffer(scCompat, buffer)
+                            .setAlpha(scCompat, 1.0f)
+                            .commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
+            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
+            val coord = intArrayOf(0, 0)
+            it.mSurfaceView.getLocationOnScreen(coord)
+            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+        }
+    }
+
+    fun Color.compositeOver(background: Color): Color {
+        val fg = this.convert(background.colorSpace)
+
+        val bgA = background.alpha()
+        val fgA = fg.alpha()
+        val a = fgA + (bgA * (1f - fgA))
+
+        val r = compositeComponent(fg.red(), background.red(), fgA, bgA, a)
+        val g = compositeComponent(fg.green(), background.green(), fgA, bgA, a)
+        val b = compositeComponent(fg.blue(), background.blue(), fgA, bgA, a)
+
+        return Color.valueOf(r, g, b, a, background.colorSpace)
+    }
+
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun compositeComponent(
+        fgC: Float,
+        bgC: Float,
+        fgA: Float,
+        bgA: Float,
+        a: Float
+    ) = if (a == 0f) 0f else ((fgC * fgA) + ((bgC * bgA) * (1f - fgA))) / a
 
     private fun getSolidBuffer(width: Int, height: Int, color: Int): HardwareBuffer {
         return nGetSolidBuffer(width, height, color)
