@@ -67,20 +67,37 @@ package androidx.graphics.opengl.egl {
   }
 
   public final class EGLUtils {
+    method public static int eglClientWaitSyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int flags, long timeoutNanos);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.graphics.opengl.egl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.opengl.EGLDisplay eglDisplay, android.hardware.HardwareBuffer hardwareBuffer);
     method public static androidx.graphics.opengl.egl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, int[]? attributes);
     method public static boolean eglDestroyImageKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLImageKHR image);
     method public static boolean eglDestroySyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR eglSync);
+    method public static boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int attribute, int[] value, int offset);
     method public static void glEGLImageTargetTexture2DOES(int target, androidx.graphics.opengl.egl.EGLImageKHR image);
     field public static final androidx.graphics.opengl.egl.EGLUtils.Companion Companion;
+    field public static final int EGL_CONDITION_SATISFIED_KHR = 12534; // 0x30f6
+    field public static final int EGL_FALSE = 0; // 0x0
+    field public static final long EGL_FOREVER_KHR = -1L; // 0xffffffffffffffffL
+    field public static final int EGL_SIGNALED_KHR = 12530; // 0x30f2
+    field public static final int EGL_SYNC_CONDITION_KHR = 12536; // 0x30f8
+    field public static final int EGL_SYNC_FENCE_KHR = 12537; // 0x30f9
+    field public static final int EGL_SYNC_FLUSH_COMMANDS_BIT_KHR = 1; // 0x1
     field public static final int EGL_SYNC_NATIVE_FENCE_ANDROID = 12612; // 0x3144
+    field public static final int EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR = 12528; // 0x30f0
+    field public static final int EGL_SYNC_STATUS_KHR = 12529; // 0x30f1
+    field public static final int EGL_SYNC_TYPE_KHR = 12535; // 0x30f7
+    field public static final int EGL_TIMEOUT_EXPIRED_KHR = 12533; // 0x30f5
+    field public static final int EGL_TRUE = 1; // 0x1
+    field public static final int EGL_UNSIGNALED_KHR = 12531; // 0x30f3
   }
 
   public static final class EGLUtils.Companion {
+    method public int eglClientWaitSyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int flags, long timeoutNanos);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.graphics.opengl.egl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.opengl.EGLDisplay eglDisplay, android.hardware.HardwareBuffer hardwareBuffer);
     method public androidx.graphics.opengl.egl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, int[]? attributes);
     method public boolean eglDestroyImageKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLImageKHR image);
     method public boolean eglDestroySyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR eglSync);
+    method public boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int attribute, int[] value, int offset);
     method public void glEGLImageTargetTexture2DOES(int target, androidx.graphics.opengl.egl.EGLImageKHR image);
   }
 
