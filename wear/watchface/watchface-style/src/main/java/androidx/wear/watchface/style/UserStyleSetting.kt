@@ -1044,7 +1044,7 @@ public sealed class UserStyleSetting private constructor(
                         } else {
                             null
                         }
-                    val bounds = ComplicationSlotBounds.inflate(parser)
+                    val bounds = ComplicationSlotBounds.inflate(resources, parser)
 
                     return ComplicationSlotOverlay(
                         complicationSlotId,
