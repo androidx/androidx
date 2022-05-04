@@ -193,6 +193,11 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     }
 
     @Override
+    public boolean isZslSupported() {
+        return false;
+    }
+
+    @Override
     public boolean isYuvReprocessingSupported() {
         return mIsYuvReprocessingSupported;
     }

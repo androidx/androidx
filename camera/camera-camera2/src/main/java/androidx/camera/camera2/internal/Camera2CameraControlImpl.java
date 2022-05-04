@@ -379,6 +379,10 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         // update mFlashMode immediately so that following getFlashMode() returns correct value.
         mFlashMode = flashMode;
 
+        // Disable ZSL when flash mode is ON or AUTO.
+        mZslControl.setZslDisabledByFlashMode(mFlashMode == FLASH_MODE_ON
+                || mFlashMode == FLASH_MODE_AUTO);
+
         // On some devices, AE precapture may not work properly if the repeating request to change
         // the flash mode is not completed. We need to store the future so that AE precapture can
         // wait for it.
@@ -392,8 +396,13 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     }
 
     @Override
-    public void setZslDisabled(boolean disabled) {
-        mZslControl.setZslDisabled(disabled);
+    public void setZslDisabledByUserCaseConfig(boolean disabled) {
+        mZslControl.setZslDisabledByUserCaseConfig(disabled);
+    }
+
+    @Override
+    public boolean isZslDisabledByByUserCaseConfig() {
+        return mZslControl.isZslDisabledByUserCaseConfig();
     }
 
     /** {@inheritDoc} */

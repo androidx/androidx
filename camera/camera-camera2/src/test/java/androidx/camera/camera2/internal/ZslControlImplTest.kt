@@ -108,6 +108,53 @@ public class ZslControlImplTest {
         assertThat(zslControl.mReprocessingImageWriter).isNull()
     }
 
+    @Test
+    public fun isZslDisabledByUserCaseConfig_NotAddZslConfig() {
+        zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = false,
+            isPrivateReprocessingSupported = true
+        ))
+        zslControl.isZslDisabledByUserCaseConfig = true
+
+        zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
+
+        assertThat(zslControl.mReprocessingImageReader).isNull()
+        assertThat(zslControl.mReprocessingImageWriter).isNull()
+    }
+
+    @Test
+    public fun isZslDisabledByFlashMode_NotAddZslConfig() {
+        zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = false,
+            isPrivateReprocessingSupported = false
+        ))
+        zslControl.isZslDisabledByFlashMode = true
+
+        zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
+
+        assertThat(zslControl.mReprocessingImageReader).isNull()
+        assertThat(zslControl.mReprocessingImageWriter).isNull()
+    }
+
+    @Test
+    public fun isZslDisabled_clearZslConfig() {
+        zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = false,
+            isPrivateReprocessingSupported = true
+        ))
+
+        zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
+
+        zslControl.isZslDisabledByFlashMode = true
+        zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
+
+        assertThat(zslControl.mReprocessingImageReader).isNull()
+        assertThat(zslControl.mReprocessingImageWriter).isNull()
+    }
+
     private fun createCameraCharacteristicsCompat(
         hasCapabilities: Boolean,
         isYuvReprocessingSupported: Boolean,

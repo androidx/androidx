@@ -62,7 +62,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     private final ArrayList<CallbackToFutureAdapter.Completer<Void>> mSubmittedCompleterList =
             new ArrayList<>();
 
-    private boolean mIsZslDisabled = true;
+    private boolean mIsZslDisabledByUseCaseConfig = false;
     private boolean mIsZslConfigAdded = false;
 
     public FakeCameraControl(@NonNull ControlUpdateCallback controlUpdateCallback) {
@@ -131,8 +131,13 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     @Override
-    public void setZslDisabled(boolean disabled) {
-        mIsZslDisabled = disabled;
+    public void setZslDisabledByUserCaseConfig(boolean disabled) {
+        mIsZslDisabledByUseCaseConfig = disabled;
+    }
+
+    @Override
+    public boolean isZslDisabledByByUserCaseConfig() {
+        return mIsZslDisabledByUseCaseConfig;
     }
 
     @Override
@@ -140,14 +145,6 @@ public final class FakeCameraControl implements CameraControlInternal {
             @NonNull SessionConfig.Builder sessionConfigBuilder) {
         // Override if Zero-Shutter Lag needs to add config to session config.
         mIsZslConfigAdded = true;
-    }
-
-    /**
-     * Checks if Zsl is disabled. Only for testing purpose.
-     * @return
-     */
-    public boolean isZslDisabled() {
-        return mIsZslDisabled;
     }
 
     /**

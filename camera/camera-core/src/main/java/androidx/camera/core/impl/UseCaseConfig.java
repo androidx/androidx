@@ -76,12 +76,17 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      */
     Option<CameraSelector> OPTION_CAMERA_SELECTOR =
             Config.Option.create("camerax.core.useCase.cameraSelector", CameraSelector.class);
-
     /**
      * Option: camerax.core.useCase.targetFramerate
      */
     Option<Range<Integer>> OPTION_TARGET_FRAME_RATE =
             Config.Option.create("camerax.core.useCase.targetFrameRate", CameraSelector.class);
+
+    /**
+     * Option: camerax.core.useCase.zslDisabled
+     */
+    Option<Boolean> OPTION_ZSL_DISABLED =
+            Option.create("camerax.core.useCase.zslDisabled", boolean.class);
 
 
     // *********************************************************************************************
@@ -281,6 +286,17 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     }
 
     /**
+     * Retrieves the flag whether zero-shutter lag is disabled.
+     *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in
+     * this configuration
+     */
+    default boolean isZslDisabled(boolean valueIfMissing) {
+        return retrieveOption(OPTION_ZSL_DISABLED, valueIfMissing);
+    }
+
+    /**
      * Builder for a {@link UseCase}.
      *
      * @param <T> The type of the object which will be built by {@link #build()}.
@@ -356,6 +372,24 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
          */
         @NonNull
         B setCameraSelector(@NonNull CameraSelector cameraSelector);
+
+        /**
+         * Sets zsl disabled or not.
+         *
+         * <p> Zsl will be disabled when any of the following conditions:
+         * <ul>
+         *     <li> Extension is ON
+         *     <li> Flash mode is ON or AUTO
+         *     <li> VideoCapture is ON
+         * </ul>
+         *
+         * @param disabled True if zero-shutter lag should be disabled. Otherwise, should not be
+         *                 disabled. However, enabling zero-shutter lag needs other conditions e.g.
+         *                 flash mode OFF, so setting to false doesn't guarantee zero-shutter lag to
+         *                 be always ON.
+         */
+        @NonNull
+        B setZslDisabled(boolean disabled);
 
         /**
          * Retrieves the configuration used by this builder.

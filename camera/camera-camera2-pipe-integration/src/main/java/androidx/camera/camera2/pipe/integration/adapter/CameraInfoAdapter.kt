@@ -121,6 +121,11 @@ class CameraInfoAdapter @Inject constructor(
         return false
     }
 
+    override fun isZslSupported(): Boolean {
+        Log.warn { "TODO: isZslSupported are not yet supported." }
+        return false
+    }
+
     override fun isYuvReprocessingSupported(): Boolean {
         Log.warn { "TODO: isYuvReprocessingSupported are not yet supported." }
         return false
