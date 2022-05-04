@@ -30,7 +30,7 @@ kotlin {
         withJava()
     }
     macosX64()
-    linuxArm64()
+//    linuxArm64()
     macosArm64()
     mingwX64()
     sourceSets {
@@ -41,7 +41,7 @@ kotlin {
                 api(libs.kotlinTestAnnotationsCommon)
                 api("com.squareup.okio:okio:3.0.0")
                 api(project(":datastore:datastore-core"))
-
+                api(project(":datastore:datastore-core-okio"))
             }
         }
         commonTest
@@ -66,6 +66,10 @@ kotlin {
         }
         nativeTest {
             dependsOn(commonTest)
+            dependencies {
+                api(project(":datastore:datastore-core-okio"))
+                api("com.squareup.okio:okio:3.0.0")
+            }
         }
     }
     targets.forEach {target ->

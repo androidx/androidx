@@ -23,9 +23,9 @@ import okio.BufferedSource
 
 
 actual fun InputStream.asBufferedSource(): BufferedSource {
-    return this
+    return this.delegate as BufferedSource
 }
 
 actual  fun OutputStream.asBufferedSink(): BufferedSink {
-    return this
+    return this.delegate as BufferedSink
 }

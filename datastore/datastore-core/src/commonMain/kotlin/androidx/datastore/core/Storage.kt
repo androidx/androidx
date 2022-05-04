@@ -22,6 +22,6 @@ interface Storage<T> {
     fun onComplete()
 
     companion object {
-        internal val SCRATCH_SUFFIX = ".tmp"
+        val SCRATCH_SUFFIX = ".tmp"
     }
 }

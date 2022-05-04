@@ -27,3 +27,10 @@ internal actual class AtomicInt {
     actual fun get(): Int = delegate
     actual fun incrementAndGet(): Int = ++delegate
 }
+
+public actual open class IOException actual constructor(message: String?, cause: Throwable?) : Exception() {
+   actual constructor(message: String?) : this(message, null)
+}
+
+public actual abstract class InputStream(val delegate:Any)
+public actual abstract class OutputStream(val delegate:Any)

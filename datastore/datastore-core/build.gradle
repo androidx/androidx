@@ -29,7 +29,7 @@ kotlin {
         withJava()
     }
     macosX64()
-    linuxArm64()
+//    linuxArm64()
     macosArm64()
     mingwX64()
     sourceSets {
@@ -44,7 +44,6 @@ kotlin {
                 implementation(libs.kotlinTestCommon)
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesTest)
-                implementation(project(":datastore:datastore-core-okio"))
                 implementation(project(":datastore:datastore-internal-test-utils"))
             }
         }
@@ -52,7 +51,6 @@ kotlin {
         nativeMain {
             dependsOn(commonMain)
             dependencies {
-                api("com.squareup.okio:okio:3.0.0")
                 implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
             }
         }
@@ -78,7 +76,7 @@ kotlin {
         nativeTest {
             dependsOn(commonTest)
             dependencies {
-
+                api(project(":datastore:datastore-core-okio"))
             }
         }
     }

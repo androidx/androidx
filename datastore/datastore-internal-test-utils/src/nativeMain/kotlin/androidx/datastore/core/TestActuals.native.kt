@@ -16,6 +16,7 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.core.okio.OkioStorage
 import kotlin.random.Random
 import okio.BufferedSink
 import okio.BufferedSource

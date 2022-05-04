@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,17 @@
 
 package androidx.datastore.core
 
-import okio.BufferedSink
-import okio.BufferedSource
+internal expect class AtomicInt {
+    constructor(initialValue: Int)
+    fun getAndIncrement(): Int
+    fun incrementAndGet(): Int
+    fun decrementAndGet(): Int
+    fun get(): Int
+}
 
-// TODO try to clean this up or at least have real classes.
-internal fun BufferedSource.toInputStream() = object : InputStream(this) {}
-internal fun BufferedSink.toOutputStream() = object : OutputStream(this) {}
-public actual abstract class InputStream(
-    delegate: okio.BufferedSource
-) : okio.BufferedSource by delegate
-actual abstract class OutputStream(
-    delegate: okio.BufferedSink
-) : okio.BufferedSink by delegate
+expect abstract class InputStream
+expect abstract class OutputStream
 
-actual typealias IOException = okio.IOException
+expect open class IOException(message: String?, cause: Throwable?) : Exception {
+    constructor(message: String?)
+}

@@ -39,6 +39,7 @@ kotlin {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api("com.squareup.okio:okio:3.0.0")
+                implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
             }
         }
         jvmMain {
@@ -46,6 +47,10 @@ kotlin {
         }
         nativeMain {
             dependsOn(commonMain)
+            dependencies {
+                api(libs.kotlinCoroutinesCore)
+                implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
+            }
         }
     }
     targets.forEach {target ->

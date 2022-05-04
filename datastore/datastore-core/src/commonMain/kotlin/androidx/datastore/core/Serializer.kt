@@ -16,12 +16,7 @@
 
 package androidx.datastore.core
 
-expect abstract class InputStream
-expect abstract class OutputStream
 
-expect open class IOException(message: String?, cause: Throwable?) : Exception {
-    constructor(message: String?)
-}
 /**
  * The serializer determines the on-disk format and API for accessing it.
  *

@@ -19,8 +19,6 @@ package androidx.datastore.core
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import kotlinx.coroutines.CoroutineScope
-import okio.FileSystem
-import okio.Path
 
 actual object DataStoreFactory {
     /**
@@ -58,17 +56,5 @@ actual object DataStoreFactory {
         scope = scope
     )
 
-    fun <T> create(
-        fileSystem: FileSystem,
-        producePath: () -> Path,
-        serializer: Serializer<T>,
-        corruptionHandler: ReplaceFileCorruptionHandler<T>?,
-        migrations: List<DataMigration<T>>,
-        scope: CoroutineScope
-    ): DataStore<T> = create(
-        storage = OkioStorage(fileSystem, producePath, serializer),
-        corruptionHandler = corruptionHandler,
-        migrations = migrations,
-        scope = scope
-    )
+
 }

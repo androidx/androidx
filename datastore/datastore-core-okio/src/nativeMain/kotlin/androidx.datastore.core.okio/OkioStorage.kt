@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core
+package androidx.datastore.core.okio
 
+import androidx.datastore.core.Serializer
 import androidx.datastore.core.Storage.Companion.SCRATCH_SUFFIX
+import androidx.datastore.core.StorageImpl
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.update
 import okio.FileNotFoundException
