@@ -33,23 +33,23 @@ import androidx.camera.camera2.pipe.config.Camera2CameraPipeModules
 import androidx.camera.camera2.pipe.config.CameraGraphModules
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
-import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
-import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import javax.inject.Singleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
-import javax.inject.Singleton
-import kotlinx.coroutines.test.runTest
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

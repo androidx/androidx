@@ -30,11 +30,11 @@ import androidx.camera.camera2.pipe.core.AndroidThreads.withPrefix
 import androidx.camera.camera2.pipe.core.Threads
 import dagger.Module
 import dagger.Provides
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
-import javax.inject.Singleton
 
 /**
  * Configure and provide a single [Threads] object to other parts of the library.

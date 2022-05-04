@@ -26,14 +26,13 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.core.Timestamps
-import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import androidx.camera.camera2.pipe.core.Permissions
 import androidx.camera.camera2.pipe.core.Threads
-import kotlinx.coroutines.withContext
-import java.lang.IllegalStateException
+import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Timestamps.formatMs
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.withContext
 
 /**
  * Provides caching and querying of [CameraMetadata] via Camera2.

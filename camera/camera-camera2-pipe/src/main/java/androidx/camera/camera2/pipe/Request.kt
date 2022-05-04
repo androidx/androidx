@@ -18,10 +18,10 @@
 
 package androidx.camera.camera2.pipe
 
-import android.hardware.camera2.CaptureFailure
-import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CaptureFailure
+import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RequiresApi
 
 /**
