@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.testutil.AppSearchEmail;
 
+import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
@@ -386,5 +387,89 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(inGift).isEqualTo(outGift);
         assertThat(genericDocument1).isNotSameInstanceAs(genericDocument2);
         assertThat(genericDocument1).isEqualTo(genericDocument2);
+    }
+
+    /**
+     * Simple Document to demonstrate use of AutoValue and Document annotations, also nested
+     */
+    @Document
+    @AutoValue
+    public abstract static class SampleAutoValue {
+        @AutoValue.CopyAnnotations
+        @Document.Id
+        abstract String id();
+
+        @AutoValue.CopyAnnotations
+        @Document.Namespace
+        abstract String namespace();
+
+        @AutoValue.CopyAnnotations
+        @Document.StringProperty
+        abstract String property();
+
+        /** AutoValue constructor */
+        public static SampleAutoValue create(String id, String namespace, String property) {
+            return new AutoValue_AnnotationProcessorTestBase_SampleAutoValue(id,
+                    namespace, property);
+        }
+    }
+
+
+    /**
+     * Simple Document to demonstrate use of inheritance with Document annotations
+     */
+    @Document
+    static class Pineapple {
+        @Document.Namespace String mNamespace;
+        @Document.Id String mId;
+    }
+
+    @Document
+    static class CoolPineapple extends Pineapple {
+        @Document.StringProperty String mCool;
+
+        @Document.CreationTimestampMillis long mCreationTimestampMillis;
+    }
+
+    @Test
+    public void testGenericDocumentConversion_AutoValue() throws Exception {
+        SampleAutoValue sampleAutoValue = SampleAutoValue.create("id", "namespace", "property");
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(sampleAutoValue);
+        assertThat(genericDocument.getId()).isEqualTo("id");
+        assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
+        assertThat(genericDocument.getSchemaType()).isEqualTo("SampleAutoValue");
+        assertThat(genericDocument.getPropertyStringArray("property"))
+                .asList().containsExactly("property");
+    }
+
+    @Test
+    public void testGenericDocumentConversion_Superclass() throws Exception {
+        CoolPineapple inputDoc = new CoolPineapple();
+        inputDoc.mId = "id";
+        inputDoc.mNamespace = "namespace";
+        inputDoc.mCool = "very cool";
+        inputDoc.mCreationTimestampMillis = System.currentTimeMillis();
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(inputDoc);
+        assertThat(genericDocument.getId()).isEqualTo("id");
+        assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
+        assertThat(genericDocument.getSchemaType()).isEqualTo("Pineapple");
+        assertThat(genericDocument.getPropertyStringArray("cool")).asList()
+                .containsExactly("very cool");
+
+        //also try inserting and querying
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addDocumentClasses(CoolPineapple.class).build()).get();
+
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder().addDocuments(inputDoc).build()));
+
+        // Query the documents by it's schema type.
+        SearchResults searchResults = mSession.search("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .addFilterSchemas("Pineapple", AppSearchEmail.SCHEMA_TYPE)
+                        .build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).containsExactly(genericDocument);
     }
 }
