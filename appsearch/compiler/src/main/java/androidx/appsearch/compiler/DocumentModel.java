@@ -638,8 +638,10 @@ class DocumentModel {
         // If we got here, we couldn't find any creation methods.
         ProcessingException e =
                 new ProcessingException(
-                        "Failed to find any suitable creation methods to build this class. See "
-                                + "warnings for details.", mClass);
+                        "Failed to find any suitable creation methods to build class \""
+                                + mClass.getQualifiedName()
+                                + "\". See warnings for details.",
+                        mClass);
 
         // Inform the developer why we started looking for creation methods in the first place.
         for (VariableElement field : creationMethodWrittenFields.values()) {

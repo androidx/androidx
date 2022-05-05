@@ -574,7 +574,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build this class");
+                "Failed to find any suitable creation methods to build class "
+                        + "\"com.example.appsearch.Gift\"");
         assertThat(compilation).hadWarningContainingMatch(
                 "Field cannot be written .* failed to find a suitable setter for field \"price\"");
         assertThat(compilation).hadWarningContaining(
@@ -595,7 +596,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build this class");
+                "Failed to find any suitable creation methods to build class "
+                        + "\"com.example.appsearch.Gift\"");
         assertThat(compilation).hadWarningContainingMatch(
                 "Field cannot be written .* failed to find a suitable setter for field \"price\"");
         assertThat(compilation).hadWarningContaining(
@@ -618,7 +620,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build this class");
+                "Failed to find any suitable creation methods to build class "
+                        + "\"com.example.appsearch.Gift\"");
         assertThat(compilation).hadWarningContainingMatch(
                 "Field cannot be written .* failed to find a suitable setter for field \"price\"");
         assertThat(compilation).hadWarningContaining(
@@ -657,7 +660,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build this class");
+                "Failed to find any suitable creation methods to build class "
+                        + "\"com.example.appsearch.Gift\"");
         assertThat(compilation).hadWarningContaining("Creation method is private");
     }
 
@@ -673,7 +677,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build this class");
+                "Failed to find any suitable creation methods to build class "
+                        + "\"com.example.appsearch.Gift\"");
         assertThat(compilation).hadWarningContaining(
                 "doesn't have parameters for the following fields: [id]");
     }
@@ -791,7 +796,8 @@ public class AppSearchCompilerTest {
                         + "}\n");
 
         assertThat(compilation).hadErrorContaining(
-                "Failed to find any suitable creation methods to build this class");
+                "Failed to find any suitable creation methods to build class "
+                        + "\"com.example.appsearch.Gift\"");
         assertThat(compilation).hadWarningContaining(
                 "Parameter \"unknownParam\" is not an AppSearch parameter; don't know how to "
                         + "supply it");
