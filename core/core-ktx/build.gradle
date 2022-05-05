@@ -7,6 +7,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":core:core"))
+    }
+
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
     api(project(":core:core"))

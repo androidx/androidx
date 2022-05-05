@@ -28,6 +28,11 @@ android {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":biometric:biometric-ktx"))
+    }
+
     // Public API dependencies
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.3.2")

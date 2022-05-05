@@ -23,6 +23,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":savedstate:savedstate"))
+    }
+
     api(project(":savedstate:savedstate"))
     api(libs.kotlinStdlib)
 

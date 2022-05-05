@@ -23,6 +23,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":preference:preference"))
+    }
+
     api(project(":preference:preference"))
     api("androidx.core:core-ktx:1.1.0") {
         because "Mirror preference dependency graph for -ktx artifacts"
