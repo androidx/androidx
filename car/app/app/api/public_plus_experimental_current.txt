@@ -245,6 +245,8 @@ package androidx.car.app.hardware.common {
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarValue<T> {
     ctor public CarValue(T?, long, int);
+    ctor @androidx.car.app.annotations.ExperimentalCarApi public CarValue(T?, long, int, java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method @androidx.car.app.annotations.ExperimentalCarApi public java.util.List<androidx.car.app.hardware.common.CarZone!> getCarZones();
     method public int getStatus();
     method public long getTimestampMillis();
     method public T? getValue();
@@ -252,6 +254,30 @@ package androidx.car.app.hardware.common {
     field public static final int STATUS_UNAVAILABLE = 3; // 0x3
     field public static final int STATUS_UNIMPLEMENTED = 2; // 0x2
     field public static final int STATUS_UNKNOWN = 0; // 0x0
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class CarZone {
+    method public int getColumn();
+    method public int getRow();
+    field public static final int CAR_ZONE_COLUMN_ALL = 16; // 0x10
+    field public static final int CAR_ZONE_COLUMN_CENTER = 48; // 0x30
+    field public static final int CAR_ZONE_COLUMN_DRIVER = 80; // 0x50
+    field public static final int CAR_ZONE_COLUMN_LEFT = 32; // 0x20
+    field public static final int CAR_ZONE_COLUMN_PASSENGER = 96; // 0x60
+    field public static final int CAR_ZONE_COLUMN_RIGHT = 64; // 0x40
+    field public static final androidx.car.app.hardware.common.CarZone CAR_ZONE_GLOBAL;
+    field public static final int CAR_ZONE_ROW_ALL = 0; // 0x0
+    field public static final int CAR_ZONE_ROW_EXCLUDE_FIRST = 4; // 0x4
+    field public static final int CAR_ZONE_ROW_FIRST = 1; // 0x1
+    field public static final int CAR_ZONE_ROW_SECOND = 2; // 0x2
+    field public static final int CAR_ZONE_ROW_THIRD = 3; // 0x3
+  }
+
+  public static final class CarZone.Builder {
+    ctor public CarZone.Builder();
+    method public androidx.car.app.hardware.common.CarZone build();
+    method public androidx.car.app.hardware.common.CarZone.Builder setColumn(int);
+    method public androidx.car.app.hardware.common.CarZone.Builder setRow(int);
   }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public interface OnCarDataAvailableListener<T> {
