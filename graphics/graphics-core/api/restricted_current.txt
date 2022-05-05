@@ -237,20 +237,25 @@ package androidx.graphics.surface {
   public static final class SurfaceControlCompat.Companion {
   }
 
-  public static class SurfaceControlCompat.Transaction {
+  public static final class SurfaceControlCompat.Transaction {
     ctor public SurfaceControlCompat.Transaction();
-    method public final void addTransactionCompletedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCompletedListener listener);
-    method public final void commit();
-    method public final void delete();
-    method public final void finalize();
+    method @RequiresApi(android.os.Build.VERSION_CODES.S) public androidx.graphics.surface.SurfaceControlCompat.Transaction addTransactionCommittedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener listener);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction addTransactionCompletedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCompletedListener listener);
+    method public void close();
+    method public void commit();
+    method public void finalize();
     field public static final androidx.graphics.surface.SurfaceControlCompat.Transaction.Companion Companion;
   }
 
   public static final class SurfaceControlCompat.Transaction.Companion {
   }
 
+  public static interface SurfaceControlCompat.TransactionCommittedListener {
+    method public void onCommit(long latchTimeNanos, long presentTimeNanos);
+  }
+
   public static interface SurfaceControlCompat.TransactionCompletedListener {
-    method public void onComplete(long latchTime, long presentTime);
+    method public void onComplete(long latchTimeNanos, long presentTimeNanos);
   }
 
 }

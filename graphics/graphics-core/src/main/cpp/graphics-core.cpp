@@ -107,9 +107,17 @@ Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactio
 }
 
 static struct {
-    jclass clazz;
-    jmethodID onComplete;
+    bool CLASS_INFO_INITIALIZED = false;
+    jclass clazz{};
+    jmethodID onComplete{};
+
 } gTransactionCompletedListenerClassInfo;
+
+static struct {
+    bool CLASS_INFO_INITIALIZED = false;
+    jclass clazz{};
+    jmethodID onCommit{};
+} gTransactionCommittedListenerClassInfo;
 
 #define NANO_SECONDS 1000000000LL
 
@@ -129,24 +137,9 @@ int64_t getSystemTime() {
  */
 class CallbackWrapper {
 public:
-    explicit CallbackWrapper(JNIEnv *env, jobject object) {
-        env->GetJavaVM(&mVm);
-        mCallbackObject = env->NewGlobalRef(object);
-    }
+    virtual ~CallbackWrapper() = default;
 
-    ~CallbackWrapper() {
-        getEnv()->DeleteGlobalRef(mCallbackObject);
-    }
-
-    void callback(ASurfaceTransactionStats *stats) {
-        JNIEnv *env = getEnv();
-        int64_t latchTime = ASurfaceTransactionStats_getLatchTime(stats);
-        uint64_t presentTime = getSystemTime();
-
-        env->CallVoidMethod(mCallbackObject,
-                            gTransactionCompletedListenerClassInfo.onComplete, latchTime,
-                            presentTime);
-    }
+    virtual void callback(ASurfaceTransactionStats *stats) = 0;
 
     static void transactionCallbackThunk(void *context, ASurfaceTransactionStats *stats) {
         CallbackWrapper *listener = reinterpret_cast<CallbackWrapper *>(context);
@@ -154,9 +147,9 @@ public:
         delete listener;
     }
 
-private:
-    JavaVM *mVm;
-    jobject mCallbackObject;
+protected:
+    JavaVM *mVm{};
+    jobject mCallbackObject{};
 
     JNIEnv *getEnv() {
         JNIEnv *env;
@@ -165,16 +158,85 @@ private:
     }
 };
 
+class OnCompleteCallbackWrapper : public CallbackWrapper {
+public:
+    explicit OnCompleteCallbackWrapper(JNIEnv *env, jobject object) {
+        env->GetJavaVM(&mVm);
+        mCallbackObject = env->NewGlobalRef(object);
+    }
+
+    ~OnCompleteCallbackWrapper() override {
+        getEnv()->DeleteGlobalRef(mCallbackObject);
+    }
+
+    void callback(ASurfaceTransactionStats *stats) override {
+        JNIEnv *env = getEnv();
+        int64_t latchTime = ASurfaceTransactionStats_getLatchTime(stats);
+        uint64_t presentTime = getSystemTime();
+
+        env->CallVoidMethod(mCallbackObject,
+                            gTransactionCompletedListenerClassInfo.onComplete,
+                            latchTime,
+                            presentTime);
+    }
+};
+
+class OnCommitCallbackWrapper : public CallbackWrapper {
+public:
+    explicit OnCommitCallbackWrapper(JNIEnv *env, jobject object) {
+        env->GetJavaVM(&mVm);
+        mCallbackObject = env->NewGlobalRef(object);
+    }
+
+    ~OnCommitCallbackWrapper() override {
+        getEnv()->DeleteGlobalRef(mCallbackObject);
+    }
+
+    void callback(ASurfaceTransactionStats *stats) override {
+        JNIEnv *env = getEnv();
+        int64_t latchTime = ASurfaceTransactionStats_getLatchTime(stats);
+        uint64_t presentTime = getSystemTime();
+
+        env->CallVoidMethod(mCallbackObject,
+                            gTransactionCommittedListenerClassInfo.onCommit,
+                            latchTime,
+                            presentTime);
+    }
+};
+
 void setupTransactionCompletedListenerClassInfo(JNIEnv *env) {
-    //setup transactionCompleteListenerClassInfo for test usage
-    jclass transactionCompletedListenerClazz =
-            env->FindClass(
+    //ensure we only ever initialize class info once
+    if (!gTransactionCompletedListenerClassInfo.CLASS_INFO_INITIALIZED) {
+        //setup transactionCompleteListenerClassInfo for test usage
+        jclass transactionCompletedListenerClazz =
+                env->FindClass(
                     "androidx/graphics/surface/SurfaceControlCompat$TransactionCompletedListener");
-    gTransactionCompletedListenerClassInfo.clazz =
-            static_cast<jclass>(env->NewGlobalRef(transactionCompletedListenerClazz));
-    gTransactionCompletedListenerClassInfo.onComplete =
-            env->GetMethodID(transactionCompletedListenerClazz, "onComplete",
-                             "(JJ)V");
+        gTransactionCompletedListenerClassInfo.clazz =
+                static_cast<jclass>(env->NewGlobalRef(transactionCompletedListenerClazz));
+        gTransactionCompletedListenerClassInfo.onComplete =
+                env->GetMethodID(transactionCompletedListenerClazz, "onComplete",
+                                 "(JJ)V");
+
+        gTransactionCompletedListenerClassInfo.CLASS_INFO_INITIALIZED = true;
+    }
+
+}
+
+void setupTransactionCommittedListenerClassInfo(JNIEnv *env) {
+    //ensure we only ever initialize class info once
+    if (!gTransactionCommittedListenerClassInfo.CLASS_INFO_INITIALIZED) {
+        //setup transactionCommittedListenerClassInfo for test usage
+        jclass transactionCommittedListenerClazz =
+                env->FindClass(
+                    "androidx/graphics/surface/SurfaceControlCompat$TransactionCommittedListener");
+        gTransactionCommittedListenerClassInfo.clazz =
+                static_cast<jclass>(env->NewGlobalRef(transactionCommittedListenerClazz));
+        gTransactionCommittedListenerClassInfo.onCommit =
+                env->GetMethodID(transactionCommittedListenerClazz, "onCommit",
+                                 "(JJ)V");
+
+        gTransactionCommittedListenerClassInfo.CLASS_INFO_INITIALIZED = true;
+    }
 }
 
 extern "C"
@@ -185,8 +247,22 @@ Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactio
         jlong surfaceTransaction, jobject callback) {
     if (android_get_device_api_level() >= 29) {
         setupTransactionCompletedListenerClassInfo(env);
-        void *context = new CallbackWrapper(env, callback);
+        void *context = new OnCompleteCallbackWrapper(env, callback);
         ASurfaceTransaction_setOnComplete(
+                reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction),
+                reinterpret_cast<void *>(context),
+                CallbackWrapper::transactionCallbackThunk);
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactionSetOnCommit(
+        JNIEnv *env, jobject thiz, jlong surfaceTransaction, jobject listener) {
+    if (android_get_device_api_level() >= 31) {
+        setupTransactionCommittedListenerClassInfo(env);
+        void *context = new OnCommitCallbackWrapper(env, listener);
+        ASurfaceTransaction_setOnCommit(
                 reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction),
                 reinterpret_cast<void *>(context),
                 CallbackWrapper::transactionCallbackThunk);
