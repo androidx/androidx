@@ -70,6 +70,7 @@ import java.io.File
 import java.util.concurrent.Executor
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -452,6 +453,35 @@ class RecorderTest {
 
         recording.stopSafely()
 
+        file.delete()
+    }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    fun canRecordWithAvSyncInStart() {
+        val diffThresholdUs = 50000L // 50,000 is about 0.05 second
+
+        clearInvocations(videoRecordEventListener)
+        invokeSurfaceRequest()
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val recording = recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
+            .withAudioEnabled()
+            .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+
+        val inOrder = inOrder(videoRecordEventListener)
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
+            .accept(any(VideoRecordEvent.Start::class.java))
+        inOrder.verify(videoRecordEventListener, timeout(15000L)
+            .atLeast(5))
+            .accept(any(VideoRecordEvent.Status::class.java))
+
+        // check if the time difference between the first video and audio data is within a threshold
+        val firstAudioTime = recorder.mFirstRecordingAudioDataTimeUs
+        val firstVideoTime = recorder.mFirstRecordingVideoDataTimeUs
+        val timeDiff = abs(firstAudioTime - firstVideoTime)
+        assertThat(timeDiff).isLessThan(diffThresholdUs)
+
+        recording.stopSafely()
         file.delete()
     }
 
