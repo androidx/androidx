@@ -27,6 +27,7 @@ import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_BUTTON_S
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.Column;
@@ -112,9 +113,9 @@ public class MultiButtonLayout implements LayoutElement {
             int buttonNum = mButtonsContent.size();
             if (buttonNum > MULTI_BUTTON_MAX_NUMBER) {
                 throw new IllegalArgumentException(
-                        "Too many button are added. Maximum number is "
-                                + MULTI_BUTTON_MAX_NUMBER + "."
-                );
+                        "Too many buttons are added. Maximum number is "
+                                + MULTI_BUTTON_MAX_NUMBER
+                                + ".");
             }
 
             LayoutElement buttons = buildButtons(buttonNum);
@@ -263,7 +264,7 @@ public class MultiButtonLayout implements LayoutElement {
     public List<LayoutElement> getButtonContents() {
         List<LayoutElement> buttons = new ArrayList<>();
         List<LayoutElement> contents = mElement.getContents();
-        if (contents.size() == 0) {
+        if (contents.isEmpty()) {
             return buttons;
         }
         LayoutElement innerContent = contents.get(0);
@@ -295,8 +296,7 @@ public class MultiButtonLayout implements LayoutElement {
         LayoutElement innerContent = contents.get(0);
         if (innerContent instanceof Column && ((Column) innerContent).getContents().size() == 3) {
             // 1st and 3rd row are buttons. Check whether the first row has 5 (3 buttons + 2 spacer)
-            // - top
-            // heavy or 3 (2 buttons + spacer) - bottom heavy elements.
+            // - top heavy or 3 (2 buttons + spacer) - bottom heavy elements.
             LayoutElement firstElement = ((Column) innerContent).getContents().get(0);
             if (firstElement instanceof Row && ((Row) firstElement).getContents().size() == 5) {
                 return FIVE_BUTTON_DISTRIBUTION_TOP_HEAVY;
@@ -318,7 +318,7 @@ public class MultiButtonLayout implements LayoutElement {
     /** @hide */
     @NonNull
     @Override
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public LayoutElementProto.LayoutElement toLayoutElementProto() {
         return mElement.toLayoutElementProto();
     }

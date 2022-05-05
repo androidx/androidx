@@ -137,9 +137,9 @@ public class MultiSlotLayout implements LayoutElement {
     }
 
     /** Gets the width of horizontal spacer that is between slots. */
-    // The @Dimension(unit = DP) on getLinearDimension.getValue() is seemingly being ignored,
-    // so lint complains that we're passing PX to something expecting DP. Just suppress the
-    // warning for now.
+    // The @Dimension(unit = DP) on getLinearDimension.getValue() is seemingly being ignored, so
+    // lint complains that we're passing PX to something expecting DP. Just suppress the warning for
+    // now.
     @SuppressLint("ResourceType")
     @Dimension(unit = DP)
     public float getHorizontalSpacerWidth() {

@@ -29,20 +29,23 @@ import android.graphics.Color;
 
 import androidx.annotation.NonNull;
 import androidx.wear.tiles.ActionBuilders.LaunchAction;
-import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
+import androidx.wear.tiles.DeviceParametersBuilders;
 import androidx.wear.tiles.LayoutElementBuilders;
+import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
+import androidx.wear.tiles.LayoutElementBuilders.Row;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class TestCasesGenerator {
     private TestCasesGenerator() {}
 
-    private static final String ICON_ID = "tile_icon";
-    private static final String AVATAR = "avatar_image";
     public static final String NORMAL_SCALE_SUFFIX = "";
     public static final String XXXL_SCALE_SUFFIX = "_xxxl";
+    private static final String ICON_ID = "tile_icon";
+    private static final String AVATAR = "avatar_image";
 
     /**
      * This function will append goldenSuffix on the name of the golden images that should be
@@ -50,9 +53,10 @@ public class TestCasesGenerator {
      * as it should point on the same size independent image.
      */
     @NonNull
-    static HashMap<LayoutElement, String> generateTestCases(
+    // TODO(b/229188628): Reverse map to be <String,LayoutElement>.
+    static Map<LayoutElement, String> generateTestCases(
             @NonNull Context context,
-            @NonNull DeviceParameters deviceParameters,
+            @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters,
             @NonNull String goldenSuffix) {
         Clickable clickable =
                 new Clickable.Builder()
@@ -157,7 +161,7 @@ public class TestCasesGenerator {
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
                         .setContent(
-                                new LayoutElementBuilders.Box.Builder()
+                                new Box.Builder()
                                         .addContent(
                                                 new Text.Builder(context, "random text")
                                                         .setTypography(Typography.TYPOGRAPHY_TITLE3)
@@ -171,7 +175,7 @@ public class TestCasesGenerator {
                         .setChipColors(ChipDefaults.SECONDARY_COLORS)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
                         .setContent(
-                                new LayoutElementBuilders.Row.Builder()
+                                new Row.Builder()
                                         .addContent(
                                                 new Text.Builder(context, "text1")
                                                         .setTypography(Typography.TYPOGRAPHY_TITLE3)
@@ -205,8 +209,8 @@ public class TestCasesGenerator {
                 new CompactChip.Builder(context, "Abcdefghi", clickable, deviceParameters).build(),
                 "compactchip_default_len9_golden" + goldenSuffix);
         testCases.put(
-                new CompactChip.Builder(context, "AbcdefghiEXTRA", clickable,
-                        deviceParameters).build(),
+                new CompactChip.Builder(context, "AbcdefghiEXTRA", clickable, deviceParameters)
+                        .build(),
                 "compactchip_default_toolong_golden" + goldenSuffix);
         testCases.put(
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
@@ -218,8 +222,8 @@ public class TestCasesGenerator {
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters).build(),
                 "titlechip_default_golden" + goldenSuffix);
         testCases.put(
-                new TitleChip.Builder(context, "abcdeabcdeabcdeEXTRA", clickable,
-                        deviceParameters).build(),
+                new TitleChip.Builder(context, "abcdeabcdeabcdeEXTRA", clickable, deviceParameters)
+                        .build(),
                 "titlechip_default_texttoolong_golden" + goldenSuffix);
         testCases.put(
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
@@ -266,12 +270,12 @@ public class TestCasesGenerator {
                 "custom_gap_45_circularprogressindicator");
 
         testCases.put(
-                new Text.Builder(context, "Testing").build(),
-                "default_text_golden" + goldenSuffix);
+                new Text.Builder(context, "Testing").build(), "default_text_golden" + goldenSuffix);
         testCases.put(
                 new Text.Builder(context, "Testing text.")
                         .setItalic(true)
                         .setColor(argb(Color.YELLOW))
+                        .setWeight(LayoutElementBuilders.FONT_WEIGHT_BOLD)
                         .setTypography(Typography.TYPOGRAPHY_BODY2)
                         .build(),
                 "custom_text_golden" + goldenSuffix);
