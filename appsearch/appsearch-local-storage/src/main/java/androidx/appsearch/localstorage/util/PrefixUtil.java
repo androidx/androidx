@@ -16,13 +16,12 @@
 
 package androidx.appsearch.localstorage.util;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.util.LogUtil;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.PropertyConfigProto;
@@ -76,7 +75,7 @@ public class PrefixUtil {
         int delimiterIndex = prefix.indexOf(PACKAGE_DELIMITER);
         if (delimiterIndex == -1) {
             // This should never happen if we construct our prefixes properly
-            Log.wtf(TAG, "Malformed prefix doesn't contain package delimiter: " + prefix);
+            LogUtil.wtf(TAG, "Malformed prefix doesn't contain package delimiter: ", prefix);
             return "";
         }
         return prefix.substring(0, delimiterIndex);
@@ -96,12 +95,12 @@ public class PrefixUtil {
         int databaseDelimiterIndex = prefix.indexOf(DATABASE_DELIMITER);
         if (packageDelimiterIndex == -1) {
             // This should never happen if we construct our prefixes properly
-            Log.wtf(TAG, "Malformed prefix doesn't contain package delimiter: " + prefix);
+            LogUtil.wtf(TAG, "Malformed prefix doesn't contain package delimiter: ", prefix);
             return "";
         }
         if (databaseDelimiterIndex == -1) {
             // This should never happen if we construct our prefixes properly
-            Log.wtf(TAG, "Malformed prefix doesn't contain database delimiter: " + prefix);
+            LogUtil.wtf(TAG, "Malformed prefix doesn't contain database delimiter: ", prefix);
             return "";
         }
         return prefix.substring(packageDelimiterIndex + 1, databaseDelimiterIndex);

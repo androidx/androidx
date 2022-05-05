@@ -20,8 +20,6 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPackageName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefix;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -31,6 +29,7 @@ import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityChecker;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityUtil;
+import androidx.appsearch.util.LogUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -339,7 +338,7 @@ public final class SearchSpecToProtoConverter {
                     namespace = removePrefix(prefixedNamespace);
                 } catch (AppSearchException e) {
                     // This should never happen. Skip this namespace if it does.
-                    Log.e(TAG, "Prefixed namespace " + prefixedNamespace + " is malformed.");
+                    LogUtil.e(TAG, "Prefixed namespace ", prefixedNamespace, " is malformed.");
                     continue;
                 }
                 String emptyDatabasePrefixedNamespace = emptyDatabasePrefix + namespace;
@@ -425,7 +424,7 @@ public final class SearchSpecToProtoConverter {
                     namespace = removePrefix(prefixedNamespace);
                 } catch (AppSearchException e) {
                     // This should never happen. Skip this namespace if it does.
-                    Log.e(TAG, "Prefixed namespace " + prefixedNamespace + " is malformed.");
+                    LogUtil.e(TAG, "Prefixed namespace ", prefixedNamespace, " is malformed.");
                     continue;
                 }
                 List<String> groupedPrefixedNamespaces =
