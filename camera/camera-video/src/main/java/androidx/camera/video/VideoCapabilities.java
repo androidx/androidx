@@ -134,8 +134,8 @@ public final class VideoCapabilities {
      * Checks if the quality is supported.
      *
      * @param quality one of the quality constants. Possible values include
-     * {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link {@link Quality#SD},
-     * {@link Quality#HD}, {@link {@link Quality#FHD}, or {@link Quality#UHD}.
+     * {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link Quality#SD},
+     * {@link Quality#HD}, {@link Quality#FHD}, or {@link Quality#UHD}.
      * @return {@code true} if the quality is supported; {@code false} otherwise.
      * @throws IllegalArgumentException if not a quality constant.
      */
