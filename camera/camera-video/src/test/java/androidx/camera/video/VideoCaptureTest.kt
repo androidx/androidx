@@ -52,6 +52,7 @@ import androidx.camera.video.impl.VideoCaptureConfig
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Test
@@ -237,7 +238,8 @@ class VideoCaptureTest {
 
         // Assert.
         assertSupportedResolutions(
-            videoCapture, RESOLUTION_2160P, RESOLUTION_480P, RESOLUTION_720P, RESOLUTION_1080P
+            videoCapture, RESOLUTION_2160P, RESOLUTION_480P
+            // RESOLUTION_720P, RESOLUTION_1080P is filtered out
         )
         assertThat(videoCapture.attachedSurfaceResolution).isEqualTo(RESOLUTION_480P)
     }
@@ -398,6 +400,40 @@ class VideoCaptureTest {
 
         // Assert.
         assertThat(transformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_180)
+    }
+
+    @Test
+    fun filterOutResolutions() {
+        // Arrange.
+        val inputs = listOf(
+            listOf(RESOLUTION_2160P, RESOLUTION_1080P, RESOLUTION_720P), // 0
+            listOf(RESOLUTION_2160P, RESOLUTION_720P, RESOLUTION_1080P), // 1
+            listOf(RESOLUTION_1080P, RESOLUTION_2160P, RESOLUTION_720P), // 2
+            listOf(RESOLUTION_1080P, RESOLUTION_720P, RESOLUTION_2160P), // 3
+            listOf(RESOLUTION_720P, RESOLUTION_2160P, RESOLUTION_1080P), // 4
+            listOf(RESOLUTION_720P, RESOLUTION_1080P, RESOLUTION_2160P), // 5
+            listOf(RESOLUTION_1080P, RESOLUTION_1080P, RESOLUTION_720P), // 6 contain duplicate
+        )
+
+        val expected = listOf(
+            listOf(RESOLUTION_2160P, RESOLUTION_1080P, RESOLUTION_720P), // 0
+            listOf(RESOLUTION_2160P, RESOLUTION_720P), // 1
+            listOf(RESOLUTION_1080P, RESOLUTION_720P), // 2
+            listOf(RESOLUTION_1080P, RESOLUTION_720P), // 3
+            listOf(RESOLUTION_720P), // 4
+            listOf(RESOLUTION_720P), // 5
+            listOf(RESOLUTION_1080P, RESOLUTION_720P), // 6
+        )
+
+        inputs.zip(expected).forEachIndexed { index, (input, exp) ->
+            // Act.
+            val result = VideoCapture.filterOutResolutions(input)
+
+            // Assert.
+            assertWithMessage("filterOutResolutions fails on index: $index")
+                .that(result)
+                .isEqualTo(exp)
+        }
     }
 
     private fun assertSupportedResolutions(
