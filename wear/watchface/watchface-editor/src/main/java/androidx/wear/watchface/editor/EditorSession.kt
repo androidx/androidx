@@ -673,8 +673,10 @@ public abstract class BaseEditorSession internal constructor(
         }
         requireNotClosed()
         EditorService.globalEditorService.removeCloseCallback(closeCallback)
-        // We need to send the preview data which we obtain asynchronously.
-        coroutineScope.launchWithTracing("BaseEditorSession.close") {
+        // We need to send the preview data which we obtain asynchronously, however we need to
+        // shutdown gracefully in the same task or we risk leaking the
+        // ComplicationDataSourceInfoRetriever.
+        runBlocking {
             try {
                 withTimeout(CLOSE_BROADCAST_TIMEOUT_MILLIS) {
                     deferredComplicationPreviewDataAvailable.await()
