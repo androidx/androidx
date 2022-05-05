@@ -16,6 +16,7 @@
 
 package androidx.appsearch.localstorage;
 
+import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_ARGUMENT;
 import static androidx.appsearch.localstorage.util.PrefixUtil.addPrefixToDocument;
 import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromDocument;
@@ -35,6 +36,8 @@ import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.app.SearchSuggestionResult;
+import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.VisibilityDocument;
@@ -704,6 +707,328 @@ public class AppSearchImplTest {
                 new CallerAccess(/*callingPackageName=*/""),
                 /*logger=*/ null);
         assertThat(searchResultPage.getResults()).isEmpty();
+    }
+
+    @Test
+    public void testSearchSuggestion() throws Exception {
+        // Insert schema
+        List<AppSearchSchema> schemas = Collections.singletonList(
+                new AppSearchSchema.Builder("type")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                        .build());
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+
+        // Insert three documents.
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "type")
+                .setPropertyString("body", "termOne")
+                .build();
+        GenericDocument doc2 = new GenericDocument.Builder<>("namespace", "id2", "type")
+                .setPropertyString("body", "termOne termTwo")
+                .build();
+        GenericDocument doc3 = new GenericDocument.Builder<>("namespace", "id3", "type")
+                .setPropertyString("body", "termOne termTwo termThree")
+                .build();
+        mAppSearchImpl.putDocument("package", "database", doc1,
+                /*sendChangeNotifications=*/ false, /*logger=*/ null);
+        mAppSearchImpl.putDocument("package", "database", doc2,
+                /*sendChangeNotifications=*/ false, /*logger=*/ null);
+        mAppSearchImpl.putDocument("package", "database", doc3,
+                /*sendChangeNotifications=*/ false, /*logger=*/ null);
+
+        List<SearchSuggestionResult> suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build());
+        assertThat(suggestions).hasSize(3);
+        assertThat(suggestions.get(0).getSuggestedResult()).isEqualTo("termone");
+        assertThat(suggestions.get(1).getSuggestedResult()).isEqualTo("termtwo");
+        assertThat(suggestions.get(2).getSuggestedResult()).isEqualTo("termthree");
+
+        // Set total result count to be 2.
+        suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/2).build());
+        assertThat(suggestions).hasSize(2);
+        assertThat(suggestions.get(0).getSuggestedResult()).isEqualTo("termone");
+        assertThat(suggestions.get(1).getSuggestedResult()).isEqualTo("termtwo");
+    }
+
+    @Test
+    public void testSearchSuggestion_removeDocument() throws Exception {
+        // Insert schema
+        List<AppSearchSchema> schemas = Collections.singletonList(
+                new AppSearchSchema.Builder("type")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                        .build());
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+
+        // Insert a document.
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "type")
+                .setPropertyString("body", "termOne")
+                .build();
+        mAppSearchImpl.putDocument("package", "database", doc1,
+                /*sendChangeNotifications=*/ false, /*logger=*/ null);
+
+        List<SearchSuggestionResult> suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build());
+        assertThat(suggestions).hasSize(1);
+        assertThat(suggestions.get(0).getSuggestedResult()).isEqualTo("termone");
+
+        // Remove the document.
+        mAppSearchImpl.remove("package", "database", "namespace", "id1",
+                /*removeStatsBuilder=*/null);
+
+        // Now we cannot find any suggestion
+        suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build());
+        assertThat(suggestions).isEmpty();
+    }
+
+    @Test
+    public void testSearchSuggestion_replaceDocument() throws Exception {
+        // Insert schema
+        List<AppSearchSchema> schemas = Collections.singletonList(
+                new AppSearchSchema.Builder("type")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                        .build());
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+
+        // Insert a document.
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace", "id1", "type")
+                .setPropertyString("body", "tart two three")
+                .build();
+        mAppSearchImpl.putDocument("package", "database", doc1,
+                /*sendChangeNotifications=*/ false, /*logger=*/ null);
+        SearchSuggestionResult tartResult =
+                new SearchSuggestionResult.Builder().setSuggestedResult("tart").build();
+        SearchSuggestionResult twoResult =
+                new SearchSuggestionResult.Builder().setSuggestedResult("two").build();
+        SearchSuggestionResult threeResult =
+                new SearchSuggestionResult.Builder().setSuggestedResult("three").build();
+        SearchSuggestionResult twistResult =
+                new SearchSuggestionResult.Builder().setSuggestedResult("twist").build();
+        List<SearchSuggestionResult> suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build());
+        assertThat(suggestions).containsExactly(tartResult, twoResult, threeResult);
+
+        // replace the document with two terms.
+        GenericDocument replaceDocument = new GenericDocument.Builder<>("namespace", "id1", "type")
+                .setPropertyString("body", "twist three")
+                .build();
+        mAppSearchImpl.putDocument("package", "database", replaceDocument,
+                /*sendChangeNotifications=*/ false, /*logger=*/ null);
+
+        // Now we cannot find any suggestion
+        suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build());
+        assertThat(suggestions).containsExactly(twistResult, threeResult);
+    }
+
+    @Test
+    public void testSearchSuggestion_namespaceFilter() throws Exception {
+        // Insert schema
+        List<AppSearchSchema> schemas = Collections.singletonList(
+                new AppSearchSchema.Builder("type")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                        .build());
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+
+        // Insert three documents.
+        GenericDocument doc1 = new GenericDocument.Builder<>("namespace1", "id1", "type")
+                .setPropertyString("body", "term1")
+                .build();
+        GenericDocument doc2 = new GenericDocument.Builder<>("namespace2", "id2", "type")
+                .setPropertyString("body", "term1 term2")
+                .build();
+        GenericDocument doc3 = new GenericDocument.Builder<>("namespace3", "id3", "type")
+                .setPropertyString("body", "term1 term2 term3")
+                .build();
+
+        mAppSearchImpl.putDocument("package", "database", doc1,
+                /*sendChangeNotifications=*/ false, /*logger=*/ null);
+        mAppSearchImpl.putDocument("package", "database", doc2,
+                /*sendChangeNotifications=*/ false, /*logger=*/ null);
+        mAppSearchImpl.putDocument("package", "database", doc3,
+                /*sendChangeNotifications=*/ false, /*logger=*/ null);
+
+        List<SearchSuggestionResult> suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterNamespaces("namespace1").build());
+        assertThat(suggestions).hasSize(1);
+        assertThat(suggestions.get(0).getSuggestedResult()).isEqualTo("term1");
+
+        suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"t",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                        .addFilterNamespaces("namespace1", "namespace2")
+                        .build());
+        assertThat(suggestions).hasSize(2);
+        assertThat(suggestions.get(0).getSuggestedResult()).isEqualTo("term1");
+        assertThat(suggestions.get(1).getSuggestedResult()).isEqualTo("term2");
+    }
+
+    @Test
+    public void testSearchSuggestion_invalidPrefix() throws Exception {
+        // Insert schema just put something in the AppSearch to make it searchable.
+        List<AppSearchSchema> schemas = Collections.singletonList(
+                new AppSearchSchema.Builder("type")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                        .build());
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+        GenericDocument doc = new GenericDocument.Builder<>("namespace1", "id1", "type")
+                .setPropertyString("body", "term1")
+                .build();
+        mAppSearchImpl.putDocument("package", "database", doc,
+                /*sendChangeNotifications=*/ false, /*logger=*/ null);
+
+        List<SearchSuggestionResult> suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"t:",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build());
+        assertThat(suggestions).isEmpty();
+        suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"t-",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build());
+        assertThat(suggestions).isEmpty();
+        suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"t  ",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build());
+        assertThat(suggestions).isEmpty();
+        suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"{t}",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build());
+        assertThat(suggestions).isEmpty();
+        suggestions = mAppSearchImpl.searchSuggestion(
+                "package",
+                "database",
+                /*suggestionQueryExpression=*/"(t)",
+                new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build());
+        assertThat(suggestions).isEmpty();
+    }
+
+    @Test
+    public void testSearchSuggestion_emptyPrefix() throws Exception {
+        // Insert schema just put something in the AppSearch to make it searchable.
+        List<AppSearchSchema> schemas = Collections.singletonList(
+                new AppSearchSchema.Builder("type")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("body")
+                                .setIndexingType(
+                                        AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+                                .setTokenizerType(
+                                        AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                                .build())
+                        .build());
+        mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+        GenericDocument doc = new GenericDocument.Builder<>("namespace1", "id1", "type")
+                .setPropertyString("body", "term1")
+                .build();
+        mAppSearchImpl.putDocument("package", "database", doc,
+                /*sendChangeNotifications=*/ false, /*logger=*/ null);
+
+        AppSearchException e = assertThrows(AppSearchException.class,
+                () -> mAppSearchImpl.searchSuggestion(
+                        "package",
+                        "database",
+                        /*suggestionQueryExpression=*/"",
+                        new SearchSuggestionSpec.Builder(/*totalResultCount=*/10)
+                                .addFilterNamespaces("namespace1")
+                                .build()));
+        assertThat(e.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
+        assertThat(e).hasMessageThat().contains("suggestionQueryExpression cannot be empty.");
     }
 
     @Test
@@ -2382,6 +2707,11 @@ public class AppSearchImplTest {
                     public int getMaxDocumentCount() {
                         return 1;
                     }
+
+                    @Override
+                    public int getMaxSuggestionCount() {
+                        return Integer.MAX_VALUE;
+                    }
                 },
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -2457,6 +2787,11 @@ public class AppSearchImplTest {
                     public int getMaxDocumentCount() {
                         return 1;
                     }
+
+                    @Override
+                    public int getMaxSuggestionCount() {
+                        return Integer.MAX_VALUE;
+                    }
                 },
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -2510,6 +2845,11 @@ public class AppSearchImplTest {
                     public int getMaxDocumentCount() {
                         return 1;
                     }
+
+                    @Override
+                    public int getMaxSuggestionCount() {
+                        return Integer.MAX_VALUE;
+                    }
                 },
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -2542,6 +2882,11 @@ public class AppSearchImplTest {
                     @Override
                     public int getMaxDocumentCount() {
                         return 3;
+                    }
+
+                    @Override
+                    public int getMaxSuggestionCount() {
+                        return Integer.MAX_VALUE;
                     }
                 },
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
@@ -2652,6 +2997,11 @@ public class AppSearchImplTest {
                     public int getMaxDocumentCount() {
                         return 2;
                     }
+
+                    @Override
+                    public int getMaxSuggestionCount() {
+                        return Integer.MAX_VALUE;
+                    }
                 },
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -2744,6 +3094,11 @@ public class AppSearchImplTest {
                     public int getMaxDocumentCount() {
                         return 2;
                     }
+
+                    @Override
+                    public int getMaxSuggestionCount() {
+                        return Integer.MAX_VALUE;
+                    }
                 },
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -2796,6 +3151,11 @@ public class AppSearchImplTest {
                     @Override
                     public int getMaxDocumentCount() {
                         return 3;
+                    }
+
+                    @Override
+                    public int getMaxSuggestionCount() {
+                        return Integer.MAX_VALUE;
                     }
                 },
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
@@ -2931,6 +3291,11 @@ public class AppSearchImplTest {
                     public int getMaxDocumentCount() {
                         return 2;
                     }
+
+                    @Override
+                    public int getMaxSuggestionCount() {
+                        return Integer.MAX_VALUE;
+                    }
                 },
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -3010,6 +3375,11 @@ public class AppSearchImplTest {
                     public int getMaxDocumentCount() {
                         return 2;
                     }
+
+                    @Override
+                    public int getMaxSuggestionCount() {
+                        return Integer.MAX_VALUE;
+                    }
                 },
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -3063,6 +3433,11 @@ public class AppSearchImplTest {
                     public int getMaxDocumentCount() {
                         return 2;
                     }
+
+                    @Override
+                    public int getMaxSuggestionCount() {
+                        return Integer.MAX_VALUE;
+                    }
                 },
                 /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
@@ -3088,6 +3463,41 @@ public class AppSearchImplTest {
         assertThat(e.getResultCode()).isEqualTo(AppSearchResult.RESULT_OUT_OF_SPACE);
         assertThat(e).hasMessageThat().contains(
                 "Package \"package\" exceeded limit of 2 documents");
+    }
+    @Test
+    public void testLimitConfig_suggestion() throws Exception {
+        mAppSearchImpl.close();
+        File tempFolder = mTemporaryFolder.newFolder();
+        mAppSearchImpl = AppSearchImpl.create(
+                tempFolder,
+                new LimitConfig() {
+                    @Override
+                    public int getMaxDocumentSizeBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getMaxDocumentCount() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getMaxSuggestionCount() {
+                        return 2;
+                    }
+                },
+                /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
+                /*visibilityChecker=*/null);
+
+        AppSearchException e = assertThrows(AppSearchException.class, () ->
+                mAppSearchImpl.searchSuggestion(
+                        "package",
+                        "database",
+                        /*suggestionQueryExpression=*/"t",
+                        new SearchSuggestionSpec.Builder(/*totalResultCount=*/10).build()));
+        assertThat(e.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
+        assertThat(e).hasMessageThat().contains(
+                "Trying to get 10 suggestion results, which exceeds limit of 2");
     }
 
     /**
