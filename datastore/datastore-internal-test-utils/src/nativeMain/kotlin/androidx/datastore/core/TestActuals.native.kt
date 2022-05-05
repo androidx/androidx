@@ -16,8 +16,8 @@
 
 package androidx.datastore.core
 
-import androidx.datastore.core.okio.OkioSerializer
-import androidx.datastore.core.okio.OkioStorage
+import androidx.datastore.core.kmp.KmpSerializer
+import androidx.datastore.core.kmp.KmpStorage
 import kotlin.random.Random
 import okio.BufferedSink
 import okio.BufferedSource
@@ -40,10 +40,10 @@ actual class TestIO actual constructor(dirName: String) {
     }
     private val tmpDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / randomFileName(dirName)
     actual fun <T> newFileStorage(
-        serializer: OkioSerializer<T>,
+        serializer: KmpSerializer<T>,
         prefix: String
     ): StorageImpl<T> {
-        val storage = OkioStorage(
+        val storage = KmpStorage(
             fileSystem = fileSystem,
             producePath = {
                 onProduceFileCallback()
@@ -55,10 +55,10 @@ actual class TestIO actual constructor(dirName: String) {
     }
 
     actual fun <T> newFileStorage(
-        serializer: OkioSerializer<T>,
+        serializer: KmpSerializer<T>,
         testFile: TestFile
     ): StorageImpl<T> {
-        return OkioStorage(fileSystem, {testFile}, serializer)
+        return KmpStorage(fileSystem, {testFile}, serializer)
     }
 
     actual var onProduceFileCallback: () -> Unit = {}

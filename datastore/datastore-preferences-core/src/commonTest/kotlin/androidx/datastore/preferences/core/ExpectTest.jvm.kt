@@ -16,6 +16,6 @@
 
 package androidx.datastore.preferences.core
 
-import androidx.datastore.core.Serializer
+import androidx.datastore.core.kmp.KmpSerializer
 
-expect fun getSerializer(): Serializer<Preferences>
+expect fun getSerializer(): KmpSerializer<Preferences>

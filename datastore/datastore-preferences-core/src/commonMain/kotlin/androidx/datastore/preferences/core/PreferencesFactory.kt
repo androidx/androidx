@@ -56,3 +56,6 @@ public fun preferencesOf(vararg pairs: Preferences.Pair<*>): Preferences =
 @JvmName("createMutable")
 public fun mutablePreferencesOf(vararg pairs: Preferences.Pair<*>): MutablePreferences =
     MutablePreferences(startFrozen = false).apply { putAll(*pairs) }
+
+
+public fun emptyPreferences2(): Preferences = emptyPreferences()

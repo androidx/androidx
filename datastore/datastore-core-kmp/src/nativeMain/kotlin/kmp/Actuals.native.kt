@@ -14,28 +14,18 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.okio
+package androidx.datastore.core.kmp
 
 import androidx.datastore.core.InputStream
 import androidx.datastore.core.OutputStream
 import okio.BufferedSink
 import okio.BufferedSource
-import okio.buffer
-import okio.sink
-import okio.source
+
 
 actual fun InputStream.asBufferedSource(): BufferedSource {
-    return if (this is BufferedSource) {
-        return this
-    } else {
-        this.source().buffer()
-    }
+    return this.delegate as BufferedSource
 }
 
 actual  fun OutputStream.asBufferedSink(): BufferedSink {
-    return if (this is BufferedSink) {
-        this
-    } else {
-        this.sink().buffer()
-    }
+    return this.delegate as BufferedSink
 }

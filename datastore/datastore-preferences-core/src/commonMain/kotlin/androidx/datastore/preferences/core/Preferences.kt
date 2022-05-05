@@ -33,7 +33,7 @@ public abstract class Preferences internal constructor() {
      * [longPreferencesKey], [floatPreferencesKey], [stringPreferencesKey], [stringSetPreferencesKey]
      */
     public class Key<T>
-    internal constructor(public val name: String) {
+    constructor(public val name: String) {
         /**
          * Infix function to create a Preferences.Pair.
          * This is used to support [preferencesOf] and [MutablePreferences.putAll]
@@ -357,3 +357,7 @@ public suspend fun DataStore<Preferences>.edit(
         it.toMutablePreferences().apply { transform(this) }
     }
 }
+
+
+//fun kmpEmptyPreferences() = emptyPreferences()
+//fun kmpMutablePreferencesOf(vararg pairs: Preferences.Pair<*>) = mutablePreferencesOf(pairs)

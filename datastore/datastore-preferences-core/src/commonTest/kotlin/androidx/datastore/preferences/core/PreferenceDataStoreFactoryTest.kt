@@ -19,7 +19,7 @@ package androidx.datastore.preferences.core
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.TestIO
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import androidx.datastore.core.okio.asBufferedSink
+import androidx.datastore.core.kmp.asBufferedSink
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.first

@@ -17,26 +17,24 @@
 package androidx.datastore.preferences.core
 
 import androidx.datastore.core.CorruptionException
-import androidx.datastore.core.InputStream
-import androidx.datastore.core.OutputStream
 import androidx.datastore.core.IOException
-import androidx.datastore.core.Serializer
-import androidx.datastore.core.okio.asBufferedSink
-import androidx.datastore.core.okio.asBufferedSource
+import androidx.datastore.core.kmp.KmpSerializer
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import okio.BufferedSink
+import okio.BufferedSource
 import okio.use
 
-object PreferencesJsonSerializer  : Serializer<Preferences> {
+object PreferencesJsonSerializer  : KmpSerializer<Preferences>() {
     override val defaultValue: Preferences
         get() {
             return emptyPreferences()
         }
 
-    override suspend fun readFrom(input: InputStream): Preferences {
-        val buf = input.asBufferedSource()
+    override suspend fun readFrom(source: BufferedSource): Preferences {
+
         val prefMap: PreferencesMap = try {
-            val jsonString = buf.readUtf8()
+            val jsonString = source.readUtf8()
             if (jsonString.isBlank()) {
                 return defaultValue
             }
@@ -54,35 +52,35 @@ object PreferencesJsonSerializer  : Serializer<Preferences> {
 
     private fun addPrefToMap(key: String, value: Value, prefs: MutablePreferences) {
         prefs[Preferences.Key(key)] =
-        if (value.boolean != null) {
-            value.boolean
-        } else if (value.int != null) {
-            value.int
-        } else if (value.double != null) {
-            value.double
-        } else if (value.float != null) {
-            value.float
-        } else if (value.bytes != null) {
-            value.bytes
-        } else if (value.long != null) {
-            value.long
-        } else if (value.string != null) {
-            value.string
-        } else if (value.stringSet != null) {
-            value.stringSet
-        } else {
-            throw IOException("Invalid preference type for key: $key")
-        }
+            if (value.boolean != null) {
+                value.boolean
+            } else if (value.int != null) {
+                value.int
+            } else if (value.double != null) {
+                value.double
+            } else if (value.float != null) {
+                value.float
+            } else if (value.bytes != null) {
+                value.bytes
+            } else if (value.long != null) {
+                value.long
+            } else if (value.string != null) {
+                value.string
+            } else if (value.stringSet != null) {
+                value.stringSet
+            } else {
+                throw IOException("Invalid preference type for key: $key")
+            }
     }
 
-    override suspend fun writeTo(t: Preferences, output: OutputStream) {
+    override suspend fun writeTo(t: Preferences, sink: BufferedSink) {
         val prefs = mutableMapOf<String, Value>()
         t.asMap().map { (key, value) ->
             prefs.put(key.name, toValue(value))
         }
 
         val string = Json.encodeToString(PreferencesMap(prefs))
-        output.asBufferedSink().use {
+        sink.use {
             it.writeUtf8(string)
         }
     }

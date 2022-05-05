@@ -18,28 +18,25 @@ package androidx.datastore.preferences.core
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.IOException
-import androidx.datastore.core.InputStream
-import androidx.datastore.core.OutputStream
-import androidx.datastore.core.Serializer
-import androidx.datastore.core.okio.asBufferedSink
-import androidx.datastore.core.okio.asBufferedSource
+import androidx.datastore.core.kmp.KmpSerializer
 import androidx.datastore.preferences.PreferenceMap
 import androidx.datastore.preferences.StringSet
 import androidx.datastore.preferences.Value
-import com.squareup.wire.ProtoReader
+import okio.BufferedSink
+import okio.BufferedSource
 import okio.ByteString
 import okio.ByteString.Companion.toByteString
 import okio.use
 
-object PreferencesWireSerializer : Serializer<Preferences> {
+object PreferencesWireSerializer : KmpSerializer<Preferences>() {
     override val defaultValue: Preferences
         get() {
             return emptyPreferences()
         }
 
-    override suspend fun readFrom(input: InputStream): Preferences {
+    override suspend fun readFrom(source: BufferedSource): Preferences {
         val proto = try {
-            PreferenceMap.ADAPTER.decode(input.asBufferedSource())
+            PreferenceMap.ADAPTER.decode(source)
         } catch (e: IOException) {
             throw CorruptionException("Unable to parse preferences proto.", e)
         }
@@ -79,13 +76,13 @@ object PreferencesWireSerializer : Serializer<Preferences> {
         }
     }
 
-    override suspend fun writeTo(t: Preferences, output: OutputStream) {
+    override suspend fun writeTo(t: Preferences, sink: BufferedSink) {
         val preferences = t.asMap()
         val map = mutableMapOf<String, Value>()
         for ((key, value) in preferences) {
             map.put(key.name, getValueProto(value))
         }
-        output.asBufferedSink().use {
+        sink.use {
             PreferenceMap.ADAPTER.encode(it, PreferenceMap(map))
         }
     }

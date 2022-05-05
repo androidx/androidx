@@ -14,27 +14,26 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.okio
+package androidx.datastore.core.kmp
 
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
-import androidx.datastore.core.Serializer
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import kotlinx.coroutines.CoroutineScope
 import okio.FileSystem
 import okio.Path
 
-object DatastoreFactoryOkio {
+object DatastoreFactoryKmp {
     fun <T> create(
         fileSystem: FileSystem,
         producePath: () -> Path,
-        serializer: OkioSerializer<T>,
+        serializer: KmpSerializer<T>,
         corruptionHandler: ReplaceFileCorruptionHandler<T>?,
         migrations: List<DataMigration<T>>,
         scope: CoroutineScope
     ): DataStore<T> = DataStoreFactory.create(
-        storage = OkioStorage(fileSystem, producePath, serializer),
+        storage = KmpStorage(fileSystem, producePath, serializer),
         corruptionHandler = corruptionHandler,
         migrations = migrations,
         scope = scope

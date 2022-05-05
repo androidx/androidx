@@ -18,8 +18,8 @@ package androidx.datastore.preferences.core
 
 import kotlinx.coroutines.CoroutineDispatcher
 
-internal expect fun <K, V> immutableMap(map:Map<K, V>):Map<K, V>
-internal expect fun <T> immutableSet(set:Set<T>):Set<T>
+expect fun <K, V> immutableMap(map:Map<K, V>):Map<K, V>
+expect fun <T> immutableSet(set:Set<T>):Set<T>
 
 internal expect fun ioDispatcher(): CoroutineDispatcher
 

@@ -16,8 +16,9 @@
 
 package androidx.datastore.preferences.core
 
-import androidx.datastore.core.Serializer
+import androidx.datastore.core.okio.KmpSerializer
 
-actual fun getSerializer(): Serializer<Preferences> {
+actual fun getSerializer(): KmpSerializer<Preferences> {
+    //todo: creat OkioWrapped proto preferences serializer.
     return PreferencesWireSerializer
 }

@@ -14,26 +14,28 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.okio
+package androidx.datastore.core.kmp
 
 import androidx.datastore.core.InputStream
 import androidx.datastore.core.OutputStream
-import androidx.datastore.core.Serializer
 import okio.BufferedSink
 import okio.BufferedSource
+import okio.buffer
+import okio.sink
+import okio.source
 
-
-abstract class OkioSerializer<T> : Serializer<T> {
-
-    final override suspend fun readFrom(input: InputStream): T {
-        return readFrom(input.asBufferedSource())
+actual fun InputStream.asBufferedSource(): BufferedSource {
+    return if (this is BufferedSource) {
+        return this
+    } else {
+        this.source().buffer()
     }
+}
 
-    final override suspend fun writeTo(t: T, output: OutputStream) {
-        return writeTo(t, output.asBufferedSink())
+actual  fun OutputStream.asBufferedSink(): BufferedSink {
+    return if (this is BufferedSink) {
+        this
+    } else {
+        this.sink().buffer()
     }
-
-    abstract suspend fun readFrom(source:BufferedSource): T
-
-    abstract suspend fun writeTo(t: T, sink:BufferedSink)
 }

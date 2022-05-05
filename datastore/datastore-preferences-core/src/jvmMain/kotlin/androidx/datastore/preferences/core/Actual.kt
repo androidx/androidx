@@ -21,12 +21,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
-internal actual fun <K, V> immutableMap(map:Map<K, V>):Map<K, V> {
+actual fun <K, V> immutableMap(map:Map<K, V>):Map<K, V> {
     return Collections.unmodifiableMap(map)
 }
 
 
-internal actual fun <T> immutableSet(set:Set<T>):Set<T>
+actual fun <T> immutableSet(set:Set<T>):Set<T>
     = Collections.unmodifiableSet(set)
 
 internal actual fun ioDispatcher(): CoroutineDispatcher = Dispatchers.IO

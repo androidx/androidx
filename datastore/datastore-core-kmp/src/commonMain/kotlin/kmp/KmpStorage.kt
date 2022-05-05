@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.okio
+package androidx.datastore.core.kmp
 
 import androidx.datastore.core.Storage.Companion.SCRATCH_SUFFIX
 import androidx.datastore.core.StorageImpl
@@ -24,10 +24,10 @@ import okio.FileNotFoundException
 import okio.FileSystem
 import okio.Path
 
-class OkioStorage<T>(
+class KmpStorage<T>(
     private val fileSystem: FileSystem,
     private val producePath: () -> Path,
-    private val serializer: OkioSerializer<T>
+    private val serializer: KmpSerializer<T>
 ) : StorageImpl<T>() {
     private val canonicalPath by lazy {
         val originalPath = producePath()

@@ -21,8 +21,8 @@ import androidx.datastore.core.OutputStream
 import androidx.datastore.core.InputStream
 import androidx.datastore.core.TestFile
 import androidx.datastore.core.TestIO
-import androidx.datastore.core.okio.asBufferedSink
-import androidx.datastore.core.okio.asBufferedSource
+import androidx.datastore.core.kmp.asBufferedSink
+import androidx.datastore.core.kmp.asBufferedSource
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.test.runTest

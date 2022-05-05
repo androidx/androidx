@@ -30,10 +30,10 @@ kotlin {
     jvm {
         withJava()
     }
-    macosX64()
-    linuxArm64()
+//    macosX64()
+//    linuxArm64()
 //    macosArm64()
-    mingwX64()
+//    mingwX64()
 
     BundleInsideHelper.forInsideJarKmp(
             project,
@@ -46,9 +46,6 @@ kotlin {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(project(":datastore:datastore-core"))
-                api(project(":datastore:datastore-core-okio"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0")
-                implementation(libs.wireRuntimeMultiplatform)
             }
         }
         commonTest {
@@ -56,7 +53,8 @@ kotlin {
                 implementation(libs.kotlinTestCommon)
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesTest)
-                implementation(project(":datastore:datastore-core-okio"))
+                implementation(project(":datastore:datastore-core-kmp"))
+                implementation(project(":datastore:datastore-preferences-core-kmp"))
                 implementation(project(":datastore:datastore-internal-test-utils"))
             }
         }
@@ -74,7 +72,8 @@ kotlin {
                 implementation(libs.junit)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinTest)
-                implementation(project(":datastore:datastore-core"))
+                implementation(project(":datastore:datastore-core-kmp"))
+                implementation(project(":datastore:datastore-preferences-core-kmp"))
             }
         }
         nativeMain {

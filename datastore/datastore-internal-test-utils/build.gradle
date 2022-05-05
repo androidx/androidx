@@ -40,8 +40,7 @@ kotlin {
                 api(libs.kotlinTestCommon)
                 api(libs.kotlinTestAnnotationsCommon)
                 api("com.squareup.okio:okio:3.0.0")
-                api(project(":datastore:datastore-core"))
-                api(project(":datastore:datastore-core-okio"))
+                api(project(":datastore:datastore-core-kmp"))
             }
         }
         commonTest
@@ -67,7 +66,7 @@ kotlin {
         nativeTest {
             dependsOn(commonTest)
             dependencies {
-                api(project(":datastore:datastore-core-okio"))
+                api(project(":datastore:datastore-core-kmp"))
                 api("com.squareup.okio:okio:3.0.0")
             }
         }

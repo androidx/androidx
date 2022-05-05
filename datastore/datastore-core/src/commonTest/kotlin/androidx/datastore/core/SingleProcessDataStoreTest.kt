@@ -19,7 +19,7 @@
 package androidx.datastore.core
 
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
-import androidx.datastore.core.okio.OkioSerializer
+import androidx.datastore.core.kmp.KmpSerializer
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlinx.coroutines.CancellationException
@@ -884,7 +884,7 @@ class SingleProcessDataStoreTest {
 
     // Mutable wrapper around a byte
     data class ByteWrapper(var byte: Byte) {
-        internal class ByteWrapperSerializer() : OkioSerializer<ByteWrapper>() {
+        internal class ByteWrapperSerializer() : KmpSerializer<ByteWrapper>() {
             private val delegate = TestingSerializer()
 
             override val defaultValue = ByteWrapper(delegate.defaultValue)

@@ -16,7 +16,7 @@
 
 package androidx.datastore.core
 
-import androidx.datastore.core.okio.OkioSerializer
+import androidx.datastore.core.kmp.KmpSerializer
 import kotlin.jvm.Volatile
 import okio.BufferedSink
 import okio.BufferedSource
@@ -28,7 +28,7 @@ internal class TestingSerializer(
     @Volatile var failingRead: Boolean = false,
     @Volatile var failingWrite: Boolean = false,
     override val defaultValue: Byte = 0
-) : OkioSerializer<Byte>() {
+) : KmpSerializer<Byte>() {
 
     override suspend fun readFrom(source: BufferedSource): Byte {
         if (failReadWithCorruptionException) {
