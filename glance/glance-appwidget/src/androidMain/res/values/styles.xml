@@ -32,7 +32,9 @@
     <style name="Glance.AppWidget.CheckBoxText" parent=""/>
 
     <style name="Glance.AppWidget.Column" parent=""/>
-    <style name="Glance.AppWidget.List" parent=""/>
+    <style name="Glance.AppWidget.List" parent="">
+        <item name="android:foreground">@null</item>
+    </style>
     <style name="Glance.AppWidget.Row" parent=""/>
 
     <style name="Glance.AppWidget.Switch" parent="Base.Glance.AppWidget.Button"/>
