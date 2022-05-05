@@ -33,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
+import androidx.webkit.internal.ApiFeature;
 import androidx.webkit.internal.WebMessagePortImpl;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
@@ -161,7 +162,7 @@ public class WebViewCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void postVisualStateCallback(@NonNull WebView webview, long requestId,
             @NonNull final VisualStateCallback callback) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.VISUAL_STATE_CALLBACK;
+        ApiFeature.M feature = WebViewFeatureInternal.VISUAL_STATE_CALLBACK;
         if (feature.isSupportedByFramework()) {
             webview.postVisualStateCallback(requestId,
                     new android.webkit.WebView.VisualStateCallback() {
@@ -205,7 +206,7 @@ public class WebViewCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void startSafeBrowsing(@NonNull Context context,
             @Nullable ValueCallback<Boolean> callback) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.START_SAFE_BROWSING;
+        ApiFeature.O_MR1 feature = WebViewFeatureInternal.START_SAFE_BROWSING;
         if (feature.isSupportedByFramework()) {
             WebView.startSafeBrowsing(context, callback);
         } else if (feature.isSupportedByWebView()) {
@@ -247,9 +248,9 @@ public class WebViewCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingAllowlist(@NonNull Set<String> hosts,
             @Nullable ValueCallback<Boolean> callback) {
-        WebViewFeatureInternal preferredFeature =
+        ApiFeature.O_MR1 preferredFeature =
                 WebViewFeatureInternal.SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_PREFERRED;
-        WebViewFeatureInternal deprecatedFeature =
+        ApiFeature.O_MR1 deprecatedFeature =
                 WebViewFeatureInternal.SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_DEPRECATED;
         if (preferredFeature.isSupportedByWebView()) {
             getFactory().getStatics().setSafeBrowsingAllowlist(hosts, callback);
@@ -317,7 +318,7 @@ public class WebViewCompat {
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_PRIVACY_POLICY_URL,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static Uri getSafeBrowsingPrivacyPolicyUrl() {
-        WebViewFeatureInternal feature =
+        ApiFeature.O_MR1 feature =
                 WebViewFeatureInternal.SAFE_BROWSING_PRIVACY_POLICY_URL;
         if (feature.isSupportedByFramework()) {
             return WebView.getSafeBrowsingPrivacyPolicyUrl();
@@ -443,7 +444,7 @@ public class WebViewCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull WebMessagePortCompat[] createWebMessageChannel(
             @NonNull WebView webview) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.CREATE_WEB_MESSAGE_CHANNEL;
+        final ApiFeature.M feature = WebViewFeatureInternal.CREATE_WEB_MESSAGE_CHANNEL;
         if (feature.isSupportedByFramework()) {
             return WebMessagePortImpl.portsToCompat(webview.createWebMessageChannel());
         } else if (feature.isSupportedByWebView()) {
@@ -482,7 +483,7 @@ public class WebViewCompat {
             targetOrigin = EMPTY_URI;
         }
 
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.POST_WEB_MESSAGE;
+        final ApiFeature.M feature = WebViewFeatureInternal.POST_WEB_MESSAGE;
         if (feature.isSupportedByFramework()) {
             webview.postWebMessage(
                     WebMessagePortImpl.compatToFrameworkMessage(message),
@@ -649,7 +650,7 @@ public class WebViewCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void addWebMessageListener(@NonNull WebView webView, @NonNull String jsObjectName,
             @NonNull Set<String> allowedOriginRules, @NonNull WebMessageListener listener) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_MESSAGE_LISTENER;
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.WEB_MESSAGE_LISTENER;
         if (feature.isSupportedByWebView()) {
             getProvider(webView).addWebMessageListener(
                     jsObjectName, allowedOriginRules.toArray(new String[0]), listener);
@@ -680,7 +681,7 @@ public class WebViewCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void removeWebMessageListener(
             @NonNull WebView webview, @NonNull String jsObjectName) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_MESSAGE_LISTENER;
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.WEB_MESSAGE_LISTENER;
         if (feature.isSupportedByWebView()) {
             getProvider(webview).removeWebMessageListener(jsObjectName);
         } else {
@@ -732,7 +733,7 @@ public class WebViewCompat {
             @NonNull WebView webview,
             @NonNull String script,
             @NonNull Set<String> allowedOriginRules) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.DOCUMENT_START_SCRIPT;
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.DOCUMENT_START_SCRIPT;
         if (feature.isSupportedByWebView()) {
             return getProvider(webview)
                     .addDocumentStartJavaScript(script, allowedOriginRules.toArray(new String[0]));
@@ -754,7 +755,7 @@ public class WebViewCompat {
     @RequiresFeature(name = WebViewFeature.GET_WEB_VIEW_CLIENT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull WebViewClient getWebViewClient(@NonNull WebView webview) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.GET_WEB_VIEW_CLIENT;
+        final ApiFeature.O feature = WebViewFeatureInternal.GET_WEB_VIEW_CLIENT;
         if (feature.isSupportedByFramework()) {
             return webview.getWebViewClient();
         } else if (feature.isSupportedByWebView()) {
@@ -777,7 +778,7 @@ public class WebViewCompat {
     @RequiresFeature(name = WebViewFeature.GET_WEB_CHROME_CLIENT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @Nullable WebChromeClient getWebChromeClient(@NonNull WebView webview) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.GET_WEB_CHROME_CLIENT;
+        final ApiFeature.O feature = WebViewFeatureInternal.GET_WEB_CHROME_CLIENT;
         if (feature.isSupportedByFramework()) {
             return webview.getWebChromeClient();
         } else if (feature.isSupportedByWebView()) {
@@ -811,7 +812,7 @@ public class WebViewCompat {
     @RequiresFeature(name = WebViewFeature.GET_WEB_VIEW_RENDERER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @Nullable WebViewRenderProcess getWebViewRenderProcess(@NonNull WebView webview) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.GET_WEB_VIEW_RENDERER;
+        final ApiFeature.Q feature = WebViewFeatureInternal.GET_WEB_VIEW_RENDERER;
         if (feature.isSupportedByFramework()) {
             android.webkit.WebViewRenderProcess renderer = webview.getWebViewRenderProcess();
             return renderer != null ? WebViewRenderProcessImpl.forFrameworkObject(renderer) : null;
@@ -861,7 +862,7 @@ public class WebViewCompat {
             @NonNull WebView webview,
             @NonNull /* @CallbackExecutor */ Executor executor,
             @NonNull WebViewRenderProcessClient webViewRenderProcessClient) {
-        final WebViewFeatureInternal feature =
+        final ApiFeature.Q feature =
                 WebViewFeatureInternal.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
             webview.setWebViewRenderProcessClient(executor, webViewRenderProcessClient != null
@@ -899,7 +900,7 @@ public class WebViewCompat {
     public static void setWebViewRenderProcessClient(
             @NonNull WebView webview,
             @Nullable WebViewRenderProcessClient webViewRenderProcessClient) {
-        final WebViewFeatureInternal feature =
+        final ApiFeature.Q feature =
                 WebViewFeatureInternal.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
             webview.setWebViewRenderProcessClient(webViewRenderProcessClient != null
@@ -928,7 +929,7 @@ public class WebViewCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @Nullable WebViewRenderProcessClient getWebViewRenderProcessClient(
             @NonNull WebView webview) {
-        final WebViewFeatureInternal feature =
+        final ApiFeature.Q feature =
                 WebViewFeatureInternal.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
             android.webkit.WebViewRenderProcessClient renderer =
@@ -958,7 +959,7 @@ public class WebViewCompat {
     @RequiresFeature(name = WebViewFeature.MULTI_PROCESS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean isMultiProcessEnabled() {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.MULTI_PROCESS;
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.MULTI_PROCESS;
         if (feature.isSupportedByWebView()) {
             return getFactory().getStatics().isMultiProcessEnabled();
         } else {
@@ -981,7 +982,7 @@ public class WebViewCompat {
             name = WebViewFeature.GET_VARIATIONS_HEADER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @NonNull String getVariationsHeader() {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.GET_VARIATIONS_HEADER;
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.GET_VARIATIONS_HEADER;
         if (feature.isSupportedByWebView()) {
             return getFactory().getStatics().getVariationsHeader();
         } else {

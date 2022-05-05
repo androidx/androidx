@@ -77,7 +77,7 @@ public class WebResourceErrorImpl extends WebResourceErrorCompat {
 
     @Override
     public int getErrorCode() {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_RESOURCE_ERROR_GET_CODE;
+        final ApiFeature.M feature = WebViewFeatureInternal.WEB_RESOURCE_ERROR_GET_CODE;
         if (feature.isSupportedByFramework()) {
             return getFrameworksImpl().getErrorCode();
         } else if (feature.isSupportedByWebView()) {
@@ -90,8 +90,7 @@ public class WebResourceErrorImpl extends WebResourceErrorCompat {
     @NonNull
     @Override
     public CharSequence getDescription() {
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.WEB_RESOURCE_ERROR_GET_DESCRIPTION;
+        final ApiFeature.M feature = WebViewFeatureInternal.WEB_RESOURCE_ERROR_GET_DESCRIPTION;
         if (feature.isSupportedByFramework()) {
             return getFrameworksImpl().getDescription();
         } else if (feature.isSupportedByWebView()) {
