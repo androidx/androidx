@@ -19,9 +19,7 @@ package androidx.graphics.opengl.egl
 import android.hardware.HardwareBuffer
 import android.opengl.EGLDisplay
 import android.os.Build
-import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
-import androidx.graphics.opengl.egl.EGLUtils.Companion.eglCreateSyncKHR
 
 /**
  * Utility class that provides some helper methods for interacting EGL Extension APIs
@@ -32,91 +30,12 @@ class EGLUtils private constructor() {
     companion object {
 
         /**
-         * Specifies the types of attributes that can be queried in [eglGetSyncAttribKHR]
-         *
-         * @hide
-         */
-        @Suppress("AcronymName")
-        @IntDef(value = [EGL_SYNC_TYPE_KHR, EGL_SYNC_STATUS_KHR, EGL_SYNC_CONDITION_KHR])
-        annotation class EGLSyncAttribute
-
-        /**
-         * Attribute that can be queried in [eglGetSyncAttribKHR].
-         * The results can be either [EGL_SYNC_FENCE_KHR] or [EGL_SYNC_NATIVE_FENCE_ANDROID].
-         *
-         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
-         */
-        const val EGL_SYNC_TYPE_KHR = 0x30F7
-
-        /**
-         * Attribute that can be queried in [eglGetSyncAttribKHR].
-         * The results can be either [EGL_SIGNALED_KHR] or [EGL_UNSIGNALED_KHR] representing
-         * whether or not the sync object has been signalled or not.
-         * This can be queried on all sync object types.
-         *
-         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
-         */
-        const val EGL_SYNC_STATUS_KHR = 0x30F1
-
-        /**
-         * Attribute that can be queried in [eglGetSyncAttribKHR].
-         * This attribute can only be queried on sync objects of the type [EGL_SYNC_FENCE_KHR].
-         *
-         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
-         */
-        const val EGL_SYNC_CONDITION_KHR = 0x30F8
-
-        /**
-         * Return value when [eglGetSyncAttribKHR] is called with [EGL_SYNC_STATUS_KHR] indicating
-         * that the sync object has already been signalled.
-         *
-         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
-         */
-        const val EGL_SIGNALED_KHR = 0x30F2
-
-        /**
-         * Return value when [eglGetSyncAttribKHR] is called with [EGL_SYNC_STATUS_KHR] indicating
-         * that the sync object has not yet been signalled.
-         *
-         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
-         */
-        const val EGL_UNSIGNALED_KHR = 0x30F3
-
-        /**
-         * Return value when [eglGetSyncAttribKHR] is called with [EGL_SYNC_CONDITION_KHR].
-         * This indicates that the sync object will signal on the condition of the completion
-         * of the fence command on the corresponding sync object and all preceding commands
-         * in th EGL client API's command stream.
-         */
-        const val EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR = 0x30F0
-
-        /**
-         * Specifies the type of fence to create in [eglCreateSyncKHR]
-         *
-         * @hide
-         */
-        @Suppress("AcronymName")
-        @IntDef(value = [EGL_SYNC_FENCE_KHR, EGL_SYNC_NATIVE_FENCE_ANDROID])
-        annotation class EGLFenceType
-
-        /**
-         * Create an EGL fence sync object for signalling one time events. The fence object
-         * created is not associated with the Android Sync fence object and is not recommended
-         * for waiting for events in a portable manner across Android/EGL boundaries but rather
-         * other EGL primitives.
-         *
-         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
-         */
-        const val EGL_SYNC_FENCE_KHR = 0x30F9
-
-        /**
          * This extension enables the creation of EGL fence sync objects that are
          * associated with a native synchronization fence object that is referenced
          * using a file descriptor.  These EGL fence sync objects have nearly
          * identical semantics to those defined by the KHR_fence_sync extension,
          * except that they have an additional attribute storing the file descriptor
-         * referring to the native fence object. This differs from EGL_SYNC_FENCE_KHR
-         * as the fence sync object is associated with an Android Sync HAL fence object.
+         * referring to the native fence object.
          *
          * This extension assumes the existence of a native fence synchronization
          * object that behaves similarly to an EGL fence sync object.  These native
@@ -127,56 +46,7 @@ class EGLUtils private constructor() {
          * See:
          * https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_native_fence_sync.txt
          */
-        const val EGL_SYNC_NATIVE_FENCE_ANDROID = 0x3144
-
-        /**
-         * Value that can be sent as the timeoutNanos parameter of [eglClientWaitSyncKHR]
-         * indicating that waiting on the sync object to signal will never time out.
-         */
-        // Note EGL has EGL_FOREVER_KHR defined as 0xFFFFFFFFFFFFFFFFuL. However, Java does not
-        // support unsigned long types. So use -1 as the constant value here as it will be casted
-        // as an EGLTimeKHR type which is uint64 in the corresponding JNI method
-        const val EGL_FOREVER_KHR = -1L
-
-        /**
-         * Specifies various return values for the [eglClientWaitSyncKHR] method
-         *
-         * @hide
-         */
-        @Target(AnnotationTarget.TYPE)
-        @Suppress("AcronymName")
-        @IntDef(value = [EGL_CONDITION_SATISFIED_KHR, EGL_TIMEOUT_EXPIRED_KHR, EGL_FALSE])
-        annotation class EGLClientWaitResult
-
-        /**
-         * Return value used in [eglClientWaitSyncKHR] to indicate that the specified timeout period
-         * had expired before a sync object was signalled.
-         */
-        const val EGL_TIMEOUT_EXPIRED_KHR = 0x30F5
-
-        /**
-         * Return value used in [eglClientWaitSyncKHR] to indicate that the sync object had
-         * signalled before the timeout expired. This includes the case where the sync object had
-         * already signalled before [eglClientWaitSyncKHR] was called.
-         */
-        const val EGL_CONDITION_SATISFIED_KHR = 0x30F6
-
-        /**
-         * Accepted in the flags parameter of [eglClientWaitSyncKHR]. This will implicitly ensure
-         * pending commands are flushed to prevent [eglClientWaitSyncKHR] from potentially blocking
-         * forever. See [eglClientWaitSyncKHR] for details.
-         */
-        const val EGL_SYNC_FLUSH_COMMANDS_BIT_KHR = 0x0001
-
-        /**
-         * Constant indicating true within EGL. This is often returned in success cases.
-         */
-        const val EGL_TRUE = 1
-
-        /**
-         * Constant indicating false within EGL. This is often returned in failure cases.
-         */
-        const val EGL_FALSE = 0
+        const val EGL_SYNC_NATIVE_FENCE_ANDROID = 12612
 
         /**
          * Creates an EGLImage from the provided [HardwareBuffer]. This handles
@@ -195,7 +65,7 @@ class EGLUtils private constructor() {
             eglDisplay: EGLDisplay,
             hardwareBuffer: HardwareBuffer
         ): EGLImageKHR? {
-            val handle = EGLBindings.nCreateImageFromHardwareBuffer(
+            val handle = EGLUtilsBindings.nCreateImageFromHardwareBuffer(
                 eglDisplay.obtainNativeHandle(), hardwareBuffer)
             return if (handle == 0L) {
                 null
@@ -223,7 +93,7 @@ class EGLUtils private constructor() {
         fun eglDestroyImageKHR(
             eglDisplay: EGLDisplay,
             image: EGLImageKHR
-        ): Boolean = EGLBindings.nDestroyImageKHR(
+        ): Boolean = EGLUtilsBindings.nDestroyImageKHR(
             eglDisplay.obtainNativeHandle(),
             image.nativeHandle
         )
@@ -239,7 +109,7 @@ class EGLUtils private constructor() {
         @JvmStatic
         @Suppress("AcronymName")
         fun glEGLImageTargetTexture2DOES(target: Int, image: EGLImageKHR) {
-            EGLBindings.nImageTargetTexture2DOES(target, image.nativeHandle)
+            EGLUtilsBindings.nImageTargetTexture2DOES(target, image.nativeHandle)
         }
 
         /**
@@ -264,10 +134,10 @@ class EGLUtils private constructor() {
         @Suppress("AcronymName")
         fun eglCreateSyncKHR(
             eglDisplay: EGLDisplay,
-            @EGLFenceType type: Int,
+            type: Int,
             attributes: EglConfigAttributes?
         ): EGLSyncKHR? {
-            val handle = EGLBindings.nCreateSyncKHR(
+            val handle = EGLUtilsBindings.nCreateSyncKHR(
                 eglDisplay.obtainNativeHandle(), type, attributes?.attrs)
             return if (handle == 0L) {
                 null
@@ -275,99 +145,6 @@ class EGLUtils private constructor() {
                 EGLSyncKHR(handle)
             }
         }
-
-        /**
-         * Query attributes of the provided sync object. Accepted attributes to query depend
-         * on the type of sync object. If no errors are generated, this returns true and the
-         * value of the queried attribute is stored in the value array at the offset position.
-         * If this method returns false, the provided value array is unmodified.
-         *
-         * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
-         *
-         * @param eglDisplay EGLDisplay to associate the sync object with
-         * @param sync EGLSyncKHR object to query attributes
-         * @param attribute Corresponding EGLSyncKHR attribute to query on [sync]
-         * @param value Integer array used to store the result of the query
-         * @param offset Index within the value array to store the result of the attribute query
-         *
-         * @return True if the attribute was queried successfully, false otherwise. Failure cases
-         * include attempting to call this method on an invalid sync object, or the display provided
-         * not matching the display that was used to create this sync object. Additionally if the
-         * queried attribute is not supported for the sync object, false is returned.
-         */
-        @JvmStatic
-        @Suppress("AcronymName")
-        fun eglGetSyncAttribKHR(
-            eglDisplay: EGLDisplay,
-            sync: EGLSyncKHR,
-            @EGLSyncAttribute attribute: Int,
-            value: IntArray,
-            offset: Int
-        ): Boolean =
-            EGLBindings.nGetSyncAttribKHR(
-                eglDisplay.obtainNativeHandle(),
-                sync.nativeHandle,
-                attribute,
-                value,
-                offset
-            )
-
-        /**
-         * Blocks the calling thread until the specified sync object is signalled or until
-         * [timeoutNanos] nanoseconds have passed.
-         * More than one [eglClientWaitSyncKHR] may be outstanding on the same [sync] at any given
-         * time. When there are multiple threads blocked on the same [sync] and the [sync] object
-         * has signalled, all such threads are released, but the order in which they are released is
-         * not defined.
-         *
-         * If the value of [timeoutNanos] is zero, then [eglClientWaitSyncKHR] simply tests the
-         * current status of sync. If the value of [timeoutNanos] is the special value
-         * [EGL_FOREVER_KHR], then [eglClientWaitSyncKHR] does not time out. For all other values,
-         * [timeoutNanos] is adjusted to the closest value allowed by the implementation-dependent
-         * timeout accuracy, which may be substantially longer than one nanosecond.
-         *
-         * [eglClientWaitSyncKHR] returns one of three status values describing the reason for
-         * returning. A return value of [EGL_TIMEOUT_EXPIRED_KHR] indicates that the specified
-         * timeout period expired before [sync] was signalled, or if [timeoutNanos] is zero,
-         * indicates that [sync] is not signaled. A return value of [EGL_CONDITION_SATISFIED_KHR]
-         * indicates that [sync] was signaled before the timeout expired, which includes the case
-         * when [sync] was already signaled when [eglClientWaitSyncKHR] was called. If an error
-         * occurs then an error is generated and [EGL_FALSE] is returned.
-         *
-         * If the sync object being blokced upon will not be signaled in finite time (for example
-         * by an associated fence command issued previously, but not yet flushed to the graphics
-         * pipeline), then [eglClientWaitSyncKHR] may wait forever. To help prevent this behavior,
-         * if the [EGL_SYNC_FLUSH_COMMANDS_BIT_KHR] is set on the flags parameter and the [sync] is
-         * unsignaled when [eglClientWaitSyncKHR] is called, then the equivalent flush will be
-         * perfoemd for the current EGL context before blocking on sync. If no context is
-         * current bound for the API, the [EGL_SYNC_FLUSH_COMMANDS_BIT_KHR] bit is ignored.
-         *
-         * @param eglDisplay EGLDisplay to associate the sync object with
-         * @param sync EGLSyncKHR object to wait on
-         * @param flags Optional flags to provide to handle flushing of pending commands
-         * @param timeoutNanos Optional timeout value to wait before this method returns, measured
-         * in nanoseconds. This value is always consumed as an unsigned long value so even negative
-         * values will be converted to their unsigned equivalent.
-         *
-         * @return Result code indicating the status of the wait request. Either
-         * [EGL_CONDITION_SATISFIED_KHR], if the sync did signal within the specified timeout,
-         * [EGL_TIMEOUT_EXPIRED_KHR] if the sync did not signal within the specified timeout,
-         * or [EGL_FALSE] if an error occurs.
-         */
-        @JvmStatic
-        @Suppress("AcronymName")
-        fun eglClientWaitSyncKHR(
-            eglDisplay: EGLDisplay,
-            sync: EGLSyncKHR,
-            flags: Int,
-            timeoutNanos: Long
-        ): @EGLClientWaitResult Int =
-            EGLBindings.nClientWaitSyncKHR(
-                eglDisplay.obtainNativeHandle(),
-                sync.nativeHandle,
-                flags,
-                timeoutNanos
-            )
 
         /**
          * Destroys the given sync object associated with the specified display
@@ -389,7 +166,7 @@ class EGLUtils private constructor() {
         fun eglDestroySyncKHR(
             eglDisplay: EGLDisplay,
             eglSync: EGLSyncKHR
-        ): Boolean = EGLBindings.nDestroySyncKHR(
+        ): Boolean = EGLUtilsBindings.nDestroySyncKHR(
             eglDisplay.obtainNativeHandle(),
             eglSync.nativeHandle
         )
@@ -417,7 +194,7 @@ class EGLUtils private constructor() {
  * public API. This class is provided to separate responsibilities of jni method registration
  * and helps to avoid synthetic accessor warnings
  */
-internal class EGLBindings {
+internal class EGLUtilsBindings {
     companion object {
         external fun nCreateImageFromHardwareBuffer(
             eglDisplayPtr: Long,
@@ -428,19 +205,6 @@ internal class EGLBindings {
         // why this has the GL prefix vs EGL
         external fun nImageTargetTexture2DOES(target: Int, eglImagePtr: Long)
         external fun nCreateSyncKHR(eglDisplayPtr: Long, type: Int, attrs: IntArray?): Long
-        external fun nGetSyncAttribKHR(
-            eglDisplayPtr: Long,
-            syncPtr: Long,
-            attrib: Int,
-            result: IntArray,
-            offset: Int
-        ): Boolean
-        external fun nClientWaitSyncKHR(
-            eglDisplayPtr: Long,
-            syncPtr: Long,
-            flags: Int,
-            timeout: Long
-        ): Int
         external fun nDestroySyncKHR(eglDisplayPtr: Long, syncPtr: Long): Boolean
         external fun nDestroyImageKHR(eglDisplayPtr: Long, eglImagePtr: Long): Boolean
         external fun nSupportsEglGetNativeClientBufferAndroid(): Boolean
@@ -448,10 +212,7 @@ internal class EGLBindings {
         external fun nSupportsEglDestroyImageKHR(): Boolean
         external fun nSupportsGlImageTargetTexture2DOES(): Boolean
         external fun nSupportsEglCreateSyncKHR(): Boolean
-        external fun nSupportsEglGetSyncAttribKHR(): Boolean
-        external fun nSupportsEglClientWaitSyncKHR(): Boolean
         external fun nSupportsEglDestroySyncKHR(): Boolean
-        external fun nEqualToNativeForeverTimeout(timeoutNanos: Long): Boolean
 
         init {
             System.loadLibrary("graphics-core")
