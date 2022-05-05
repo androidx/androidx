@@ -19,26 +19,13 @@ package androidx.glance.wear.tiles
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Composition
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.glance.Applier
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
-import androidx.glance.GlanceModifier
-import androidx.glance.LocalContext
-import androidx.glance.LocalGlanceId
-import androidx.glance.LocalSize
-import androidx.glance.LocalState
-import androidx.glance.layout.Alignment
-import androidx.glance.layout.EmittableBox
-import androidx.glance.layout.fillMaxSize
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.wear.tiles.action.RunCallbackAction
@@ -57,10 +44,8 @@ import androidx.wear.tiles.TimelineBuilders
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.Arrays
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.guava.future
 import kotlinx.coroutines.launch
 
@@ -155,6 +140,21 @@ public abstract class GlanceTileService(
             updateState
         )
 
+    private suspend fun findCurrentState(
+        state: Any?,
+        lastClickableId: String
+    ): Any? = coroutineScope {
+        var currentState = state
+        if (lastClickableId.isNotEmpty()) {
+            RunCallbackAction.run(
+                this@GlanceTileService,
+                lastClickableId,
+                getGlanceId()
+            )
+            currentState = if (stateDefinition != null) getTileState<Any>() else null
+        }
+        currentState
+    }
     /**
      * Run the composition on the given time interval
      * When the timeline mode is singleEntry, pass in null argument
@@ -166,51 +166,13 @@ public abstract class GlanceTileService(
         timeInterval: TimeInterval? = null
     ): CompositionResult =
         coroutineScope {
-            val root = EmittableBox()
-            root.modifier = GlanceModifier.fillMaxSize()
-            root.contentAlignment = Alignment.Center
-            val applier = Applier(root)
-            val recomposer = Recomposer(currentCoroutineContext())
-            val composition = Composition(applier, recomposer)
-
-            var currentState = state
-            if (lastClickableId.isNotEmpty()) {
-                RunCallbackAction.run(
-                    this@GlanceTileService,
-                    lastClickableId,
-                    getGlanceId()
-                )
-                currentState = if (stateDefinition != null) getTileState<Any>() else null
-            }
-
-            composition.setContent {
-                CompositionLocalProvider(
-                    LocalContext provides this@GlanceTileService,
-                    LocalSize provides screenSize,
-                    LocalState provides currentState,
-                    LocalTimeInterval provides timeInterval,
-                    LocalGlanceId provides getGlanceId()
-                ) { Content() }
-            }
-
-            launch { recomposer.runRecomposeAndApplyChanges() }
-
-            recomposer.close()
-            recomposer.join()
-
-            normalizeCompositionTree(this@GlanceTileService, root)
-
-            try {
-                translateTopLevelComposition(this@GlanceTileService, root)
-            } catch (ex: CancellationException) {
-                throw ex
-            } catch (throwable: Throwable) {
-                if (errorUiLayout == null) {
-                    throw throwable
-                }
-                Log.e(GlanceWearTileTag, throwable.toString())
-                CompositionResult(errorUiLayout, ResourceBuilders.Resources.Builder())
-            }
+            composeTileHelper(screenSize,
+                { findCurrentState(state, lastClickableId) },
+                timeInterval,
+                getGlanceId(),
+                this@GlanceTileService,
+                errorUiLayout,
+                { Content() })
         }
 
     internal class GlanceTile(
