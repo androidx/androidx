@@ -88,8 +88,8 @@ public class Text implements LayoutElement {
         @NonNull
         @SuppressWarnings("MissingGetterMatchingBuilder")
         // There is getFontStyle matching getter for this setter as the serialized format of the
-        // Tiles do not allow for a direct reconstruction of the all arguments, but it has
-        // FontStyle object of that text.
+        // Tiles do not allow for a direct reconstruction of the all arguments, but it has FontStyle
+        // object of that text.
         public Builder setTypography(@TypographyName int typography) {
             this.mTypographyName = typography;
             return this;

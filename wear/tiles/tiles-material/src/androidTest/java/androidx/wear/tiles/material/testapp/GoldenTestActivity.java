@@ -43,7 +43,6 @@ import androidx.wear.tiles.renderer.TileRenderer;
 
 import java.util.concurrent.Executor;
 
-
 public class GoldenTestActivity extends Activity {
     private static final String ICON_ID = "tile_icon";
     private static final String AVATAR = "avatar_image";
@@ -55,8 +54,7 @@ public class GoldenTestActivity extends Activity {
 
         LayoutElement layoutElementProto;
         try {
-            layoutElementProto =
-                    LayoutElement.parseFrom(layoutPayload);
+            layoutElementProto = LayoutElement.parseFrom(layoutPayload);
         } catch (Exception ex) {
             // It's a test, just rethrow.
             throw new IllegalArgumentException("Could not deserialize layout proto", ex);
@@ -75,12 +73,7 @@ public class GoldenTestActivity extends Activity {
 
         Resources resources = generateResources();
         TileRenderer renderer =
-                new TileRenderer(
-                        appContext,
-                        layout,
-                        resources,
-                        mainExecutor,
-                        i -> {});
+                new TileRenderer(appContext, layout, resources, mainExecutor, i -> {});
 
         View firstChild = renderer.inflate(root);
 
@@ -90,8 +83,10 @@ public class GoldenTestActivity extends Activity {
 
         // Set the activity to be full screen so when we crop the Bitmap we don't get time bar etc.
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow()
+                .setFlags(
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                        WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         setContentView(root, new ViewGroup.LayoutParams(SCREEN_WIDTH, SCREEN_HEIGHT));
         super.onCreate(savedInstanceState);
@@ -118,4 +113,3 @@ public class GoldenTestActivity extends Activity {
                 .build();
     }
 }
-

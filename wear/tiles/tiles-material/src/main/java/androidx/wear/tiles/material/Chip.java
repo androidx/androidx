@@ -55,6 +55,7 @@ import androidx.wear.tiles.ModifiersBuilders.Clickable;
 import androidx.wear.tiles.ModifiersBuilders.Corner;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
+import androidx.wear.tiles.ModifiersBuilders.Semantics;
 import androidx.wear.tiles.material.Typography.TypographyName;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
@@ -270,8 +271,8 @@ public class Chip implements LayoutElement {
          * Sets the colors for the {@link Chip}. If set, {@link ChipColors#getBackgroundColor()}
          * will be used for the background of the button, {@link ChipColors#getContentColor()} for
          * main text, {@link ChipColors#getSecondaryContentColor()} for label text and {@link
-         * ChipColors#getIconTintColor()} will be used as tint color for the icon itself. If not
-         * set, {@link ChipDefaults#PRIMARY_COLORS} will be used.
+         * ChipColors#getIconColor()} will be used as color for the icon itself. If not set, {@link
+         * ChipDefaults#PRIMARY_COLORS} will be used.
          */
         @NonNull
         public Builder setChipColors(@NonNull ChipColors chipColors) {
@@ -399,7 +400,7 @@ public class Chip implements LayoutElement {
                                         .setHeight(ICON_SIZE)
                                         .setColorFilter(
                                                 new ColorFilter.Builder()
-                                                        .setTint(mChipColors.getIconTintColor())
+                                                        .setTint(mChipColors.getIconColor())
                                                         .build())
                                         .build())
                         .addContent(
@@ -539,11 +540,13 @@ public class Chip implements LayoutElement {
     }
 
     /** Returns content description of this Chip. */
-    @NonNull
+    @Nullable
     public CharSequence getContentDescription() {
-        return checkNotNull(
-                checkNotNull(checkNotNull(mElement.getModifiers()).getSemantics())
-                        .getContentDescription());
+        Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
+        if (semantics == null) {
+            return null;
+        }
+        return semantics.getContentDescription();
     }
 
     /** Returns content of this Chip. */

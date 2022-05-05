@@ -40,6 +40,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
+import androidx.wear.tiles.DimensionBuilders.SpacerDimension;
 import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.Column;
@@ -50,6 +51,8 @@ import androidx.wear.tiles.ModifiersBuilders.Padding;
 import androidx.wear.tiles.material.CompactChip;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
+import java.util.List;
+
 /**
  * Tiles layout that represents a suggested layout style for Material Tiles with the primary
  * (compact) chip at the bottom with the given content in the center and the recommended margin and
@@ -57,10 +60,18 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  */
 // TODO(b/215323986): Link visuals.
 public class PrimaryLayout implements LayoutElement {
-    @NonNull private final LayoutElement mElement;
+    @NonNull private final Box mImpl;
 
-    PrimaryLayout(@NonNull LayoutElement layoutElement) {
-        this.mElement = layoutElement;
+    // This contains inner columns and primary chip.
+    @NonNull private final List<LayoutElement> mAllContent;
+
+    // This contains optional labels, spacers and main content.
+    @NonNull private final List<LayoutElement> mInnerColumn;
+
+    PrimaryLayout(@NonNull Box layoutElement) {
+        this.mImpl = layoutElement;
+        this.mAllContent = ((Column) layoutElement.getContents().get(0)).getContents();
+        this.mInnerColumn = ((Column) mAllContent.get(0)).getContents();
     }
 
     /** Builder class for {@link PrimaryLayout}. */
@@ -88,10 +99,6 @@ public class PrimaryLayout implements LayoutElement {
          * {@link CompactChip} as the layout is optimized for it.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // There is no direct matching getter for this setter as the serialized format of the
-        // Tiles do not allow for a direct reconstruction of the arguments. Instead there are
-        // methods to get the contents a whole for rendering.
         public Builder setPrimaryChipContent(@NonNull LayoutElement compactChip) {
             this.mPrimaryChip = compactChip;
             return this;
@@ -99,10 +106,6 @@ public class PrimaryLayout implements LayoutElement {
 
         /** Sets the content in the primary label slot which will be above the main content. */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // There is no direct matching getter for this setter as the serialized format of the
-        // Tiles do not allow for a direct reconstruction of the arguments. Instead there are
-        // methods to get the contents a whole for rendering.
         public Builder setPrimaryLabelTextContent(@NonNull LayoutElement primaryLabelText) {
             this.mPrimaryLabelText = primaryLabelText;
             return this;
@@ -113,10 +116,6 @@ public class PrimaryLayout implements LayoutElement {
          * highly recommended to have primary label set when having secondary label.
          */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // There is no direct matching getter for this setter as the serialized format of the
-        // Tiles do not allow for a direct reconstruction of the arguments. Instead there are
-        // methods to get the contents a whole for rendering.
         public Builder setSecondaryLabelTextContent(@NonNull LayoutElement secondaryLabelText) {
             this.mSecondaryLabelText = secondaryLabelText;
             return this;
@@ -124,9 +123,6 @@ public class PrimaryLayout implements LayoutElement {
 
         /** Sets the additional content to this layout, above the primary chip. */
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // TODO(b/221427609): Add getter - there is a problem when serialising this to the Tiles
-        // as we can't easily reconstruct the position of the actual content vs additional labels.
         public Builder setContent(@NonNull LayoutElement content) {
             this.mContent = content;
             return this;
@@ -141,10 +137,6 @@ public class PrimaryLayout implements LayoutElement {
         // The @Dimension(unit = DP) on dp() is seemingly being ignored, so lint complains that
         // we're passing PX to something expecting DP. Just suppress the warning for now.
         @SuppressLint("ResourceType")
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        // There is no direct matching getter for this setter as the serialized format of the
-        // Tiles do not allow for a direct reconstruction of the arguments. Instead there are
-        // methods to get the contents a whole for rendering.
         public Builder setVerticalSpacerHeight(@Dimension(unit = DP) float height) {
             this.mVerticalSpacerHeight = dp(height);
             return this;
@@ -241,7 +233,7 @@ public class PrimaryLayout implements LayoutElement {
                                         .build());
             }
 
-            LayoutElement.Builder element =
+            Box.Builder element =
                     new Box.Builder()
                             .setWidth(expand())
                             .setHeight(expand())
@@ -263,11 +255,118 @@ public class PrimaryLayout implements LayoutElement {
         }
     }
 
+    private int getFirstInnerSpacerPosition() {
+        for (int i = 0; i < mInnerColumn.size(); i++) {
+            LayoutElement element = mInnerColumn.get(i);
+            if (element instanceof Spacer) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private int getLastInnerSpacerPosition() {
+        for (int i = mInnerColumn.size() - 1; i >= 0; i--) {
+            LayoutElement element = mInnerColumn.get(i);
+            if (element instanceof Spacer) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /** Get the primary label content from this layout. */
+    @Nullable
+    public LayoutElement getPrimaryLabelTextContent() {
+        if (mInnerColumn.size() >= 3) {
+            int spacerPosition = getFirstInnerSpacerPosition();
+            if (spacerPosition != -1) {
+                LayoutElement potentialLabel = mInnerColumn.get(spacerPosition - 1);
+                // Primary label is the one before the first spacer.
+                // TODO(b/231289666): Use tags to perform this check.
+                if (!(potentialLabel instanceof Box)) {
+                    return potentialLabel;
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Get the secondary label content from this layout. */
+    @Nullable
+    public LayoutElement getSecondaryLabelTextContent() {
+        if (mInnerColumn.size() >= 3) {
+            int spacerPosition = getLastInnerSpacerPosition();
+            if (spacerPosition != -1) {
+                LayoutElement potentialLabel = mInnerColumn.get(spacerPosition + 1);
+                // Secondary label is the one after the last spacer.
+                // TODO(b/231289666): Use tags to perform this check.
+                if (!(potentialLabel instanceof Box)) {
+                    return potentialLabel;
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Get the inner content from this layout. */
+    @Nullable
+    public LayoutElement getContent() {
+        if (mInnerColumn.size() == 1) {
+            return ((Box) mInnerColumn.get(0)).getContents().get(0);
+        } else {
+            int spacerPosition = getFirstInnerSpacerPosition();
+            if (spacerPosition != -1) {
+                // Here we found where the first spacer is. There are couple of cases: 1. Both label
+                // are present -> content is after found spacer. 2. Primary label is present ->
+                // content is after found spacer. 3. Secondary label is present -> content is before
+                // found spacer. Cases 2 & 3 are only differentiated by whether the element before
+                // or after spacer is Box
+                // (then we're fairly sure it's a content).
+                LayoutElement potentialContent = mInnerColumn.get(spacerPosition + 1);
+                if (potentialContent instanceof Box) {
+                    return ((Box) potentialContent).getContents().get(0);
+                } else {
+                    potentialContent = mInnerColumn.get(spacerPosition - 1);
+                    if (potentialContent instanceof Box) {
+                        return ((Box) potentialContent).getContents().get(0);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /** Get the primary chip content from this layout. */
+    @Nullable
+    public LayoutElement getPrimaryChipContent() {
+        if (mAllContent.size() == 3) {
+            return ((Box) mAllContent.get(2)).getContents().get(0);
+        }
+        return null;
+    }
+
+    /** Get the primary chip content from this layout. */
+    // The @Dimension(unit = DP) on getValue() is seemingly being ignored, so lint complains that
+    // we're passing PX to something expecting DP. Just suppress the warning for now.
+    @SuppressLint("ResourceType")
+    @Dimension(unit = DP)
+    public float getVerticalSpacerHeight() {
+        int spacerPosition = getFirstInnerSpacerPosition();
+        if (spacerPosition >= 0) {
+            SpacerDimension height = ((Spacer) mInnerColumn.get(spacerPosition)).getHeight();
+            if (height instanceof DpProp) {
+                return ((DpProp) height).getValue();
+            }
+        }
+        return DEFAULT_VERTICAL_SPACER_HEIGHT.getValue();
+    }
+
     /** @hide */
     @NonNull
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     public LayoutElementProto.LayoutElement toLayoutElementProto() {
-        return mElement.toLayoutElementProto();
+        return mImpl.toLayoutElementProto();
     }
 }
