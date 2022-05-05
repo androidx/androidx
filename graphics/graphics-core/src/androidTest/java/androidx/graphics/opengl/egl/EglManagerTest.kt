@@ -22,21 +22,14 @@ import android.graphics.SurfaceTexture
 import android.hardware.HardwareBuffer
 import android.media.ImageReader
 import android.opengl.EGL14
-import android.opengl.EGL15
 import android.opengl.EGLSurface
 import android.opengl.GLES20
 import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
-import androidx.graphics.opengl.egl.EGLUtils.Companion.EGL_SYNC_CONDITION_KHR
-import androidx.graphics.opengl.egl.EGLUtils.Companion.EGL_SYNC_FENCE_KHR
-import androidx.graphics.opengl.egl.EGLUtils.Companion.EGL_SYNC_NATIVE_FENCE_ANDROID
-import androidx.graphics.opengl.egl.EGLUtils.Companion.EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR
-import androidx.graphics.opengl.egl.EGLUtils.Companion.EGL_SYNC_TYPE_KHR
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import kotlin.concurrent.thread
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -45,6 +38,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
+import kotlin.concurrent.thread
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -384,7 +378,6 @@ class EglManagerTest {
     @Test
     fun testEglGetNativeClientBufferANDROIDSupported() {
         testEglManager {
-            initializeWithDefaultConfig()
             val khrImageBaseSupported =
                 isExtensionSupported(EglKhrImageBase)
             val androidImageNativeBufferSupported =
@@ -392,20 +385,17 @@ class EglManagerTest {
             // According to EGL spec both these extensions are required in order to support
             // eglGetNativeClientBufferAndroid
             if (khrImageBaseSupported && androidImageNativeBufferSupported) {
-                assertTrue(EGLBindings.nSupportsEglGetNativeClientBufferAndroid())
+                assertTrue(EGLUtilsBindings.nSupportsEglGetNativeClientBufferAndroid())
             }
         }
     }
 
     @Test
-    fun testEglFenceAPIsSupported() {
+    fun testEglCreateAndDestroyImageKHRSupported() {
         testEglManager {
-            initializeWithDefaultConfig()
             if (isExtensionSupported(EglKhrImageBase)) {
-                assertTrue(EGLBindings.nSupportsEglCreateImageKHR())
-                assertTrue(EGLBindings.nSupportsEglClientWaitSyncKHR())
-                assertTrue(EGLBindings.nSupportsEglGetSyncAttribKHR())
-                assertTrue(EGLBindings.nSupportsEglDestroyImageKHR())
+                assertTrue(EGLUtilsBindings.nSupportsEglCreateImageKHR())
+                assertTrue(EGLUtilsBindings.nSupportsEglDestroyImageKHR())
             }
         }
     }
@@ -414,7 +404,6 @@ class EglManagerTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun testEglCreateAndDestroyImageKHR() {
         testEglManager {
-            initializeWithDefaultConfig()
             if (isExtensionSupported(EglKhrImageBase)) {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
                 val hardwareBuffer = HardwareBuffer.create(
@@ -434,11 +423,10 @@ class EglManagerTest {
     @Test
     fun testGlImageTargetTexture2DOESSupported() {
         testEglManager {
-            initializeWithDefaultConfig()
             // According to EGL spec *EITHER* EGL_KHR_image_base or EGL_KHR_image
             // indicate that the eglImageTargetTexture2DOES method is supported on this device
             if (isExtensionSupported(EglKhrImageBase) || isExtensionSupported(EglKhrImage)) {
-                assertTrue(EGLBindings.nSupportsGlImageTargetTexture2DOES())
+                assertTrue(EGLUtilsBindings.nSupportsGlImageTargetTexture2DOES())
             }
         }
     }
@@ -446,171 +434,24 @@ class EglManagerTest {
     @Test
     fun testEglCreateAndDestroySyncKHRSupported() {
         testEglManager {
-            initializeWithDefaultConfig()
             if (isExtensionSupported(EglKhrFenceSync)) {
-                assertTrue(EGLBindings.nSupportsEglCreateSyncKHR())
-                assertTrue(EGLBindings.nSupportsEglDestroySyncKHR())
+                assertTrue(EGLUtilsBindings.nSupportsEglCreateSyncKHR())
+                assertTrue(EGLUtilsBindings.nSupportsEglDestroySyncKHR())
             }
         }
     }
 
     @Test
-    fun testEglCreateAndDestroyAndroidFenceSyncKHR() {
+    fun testEglCreateAndDestroySyncKHR() {
         testEglManager {
-            initializeWithDefaultConfig()
             if (isExtensionSupported(EglKhrFenceSync)) {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
                 val sync = EGLUtils.eglCreateSyncKHR(display,
-                    EGL_SYNC_NATIVE_FENCE_ANDROID, null)
+                    EGLUtils.EGL_SYNC_NATIVE_FENCE_ANDROID, null)
                 assertNotNull(sync)
-                val syncAttr = IntArray(1)
-                assertTrue(
-                    EGLUtils.eglGetSyncAttribKHR(display, sync!!, EGL_SYNC_TYPE_KHR, syncAttr, 0))
-                assertEquals(EGL_SYNC_NATIVE_FENCE_ANDROID, syncAttr[0])
-                assertTrue(EGLUtils.eglDestroySyncKHR(display, sync))
+                assertTrue(EGLUtils.eglDestroySyncKHR(display, sync!!))
             }
         }
-    }
-
-    @Test
-    fun testEglCreateAndDestroyFenceSyncKHR() {
-        testEglManager {
-            initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrFenceSync)) {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
-                assertNotNull(sync)
-                val syncAttr = IntArray(1)
-                assertTrue(
-                    EGLUtils.eglGetSyncAttribKHR(display, sync!!, EGL_SYNC_TYPE_KHR, syncAttr, 0))
-                assertEquals(EGL_SYNC_FENCE_KHR, syncAttr[0])
-                assertTrue(
-                    EGLUtils.eglGetSyncAttribKHR(
-                        display,
-                        sync,
-                        EGL_SYNC_CONDITION_KHR,
-                        syncAttr,
-                        0
-                    )
-                )
-                assertEquals(EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR, syncAttr[0])
-                assertTrue(EGLUtils.eglDestroySyncKHR(display, sync))
-            }
-        }
-    }
-
-    @Test
-    fun testEglGetSyncAttribKHROutOfBounds() {
-        testEglManager {
-            initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrFenceSync)) {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_NATIVE_FENCE_ANDROID, null)
-                assertNotNull(sync)
-                val syncAttr = IntArray(1)
-                try {
-                    assertFalse(
-                        EGLUtils.eglGetSyncAttribKHR(
-                            display,
-                            sync!!,
-                            EGL_SYNC_TYPE_KHR,
-                            syncAttr,
-                            1
-                        )
-                    )
-                    fail("Should have thrown for array out of bounds exception")
-                } catch (_: IllegalArgumentException) {
-                    // NO-OP
-                }
-
-                if (sync != null) {
-                    assertTrue(EGLUtils.eglDestroySyncKHR(display, sync))
-                }
-            }
-        }
-    }
-
-    @Test
-    fun testEglGetSyncAttribKHRNegativeOffset() {
-        testEglManager {
-            initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrFenceSync)) {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_NATIVE_FENCE_ANDROID, null)
-                assertNotNull(sync)
-                val syncAttr = IntArray(1)
-                try {
-                    assertFalse(
-                        EGLUtils.eglGetSyncAttribKHR(
-                            display,
-                            sync!!,
-                            EGL_SYNC_TYPE_KHR,
-                            syncAttr,
-                            -1
-                        )
-                    )
-                    fail("Should have thrown for negative offset into attributes array")
-                } catch (_: IllegalArgumentException) {
-                    // NO-OP
-                }
-
-                if (sync != null) {
-                    assertTrue(EGLUtils.eglDestroySyncKHR(display, sync))
-                }
-            }
-        }
-    }
-
-    @Test
-    fun testEglClientWaitSyncKHR() {
-        testEglManager {
-            initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrFenceSync)) {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_NATIVE_FENCE_ANDROID, null)
-                assertNotNull(sync)
-
-                var error = eglSpec.eglGetError()
-                if (error != EGL14.EGL_SUCCESS) {
-                    throw RuntimeException("eglCreateSync failed")
-                }
-
-                GLES20.glFlush()
-                error = GLES20.glGetError()
-                if (error != GLES20.GL_NO_ERROR) {
-                    throw RuntimeException("glFlush failed")
-                }
-
-                val status = EGLUtils.eglClientWaitSyncKHR(
-                    display,
-                    sync!!,
-                    0,
-                    EGLUtils.EGL_FOREVER_KHR
-                )
-                if (status != EGL15.EGL_CONDITION_SATISFIED) {
-                    throw RuntimeException("eglClientWaitSync failed")
-                }
-                assertEquals("eglClientWaitSyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
-                assertTrue(EGLUtils.eglDestroySyncKHR(display, sync))
-                assertEquals("eglDestroySyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
-            }
-        }
-    }
-
-    @Test
-    fun testSignedForeverConstantMatchesNDK() {
-        assertTrue(EGLBindings.nEqualToNativeForeverTimeout(EGLUtils.EGL_FOREVER_KHR))
-    }
-
-    // Helper method used in testing to initialize EGL and default
-    // EGLConfig to the ARGB8888 configuration
-    private fun EglManager.initializeWithDefaultConfig() {
-        initialize()
-        val config = loadConfig(EglConfigAttributes8888)
-        if (config == null) {
-            fail("Config 8888 should be supported")
-        }
-        createContext(config!!)
     }
 
     /**

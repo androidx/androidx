@@ -71,22 +71,6 @@ PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR = nullptr;
 PFNEGLCREATESYNCKHRPROC eglCreateSyncKHR = nullptr;
 
 /**
- * Cached reference to the eglGetSyncAttribKHR egl extension method.
- * On first invocation within the corresponding JNI method, a call to eglGetProcAddress
- * is made to determine if this method exists. If it does then this function pointer
- * is persisted for subsequent method calls.
- */
-PFNEGLGETSYNCATTRIBKHRPROC eglGetSyncAttribKHR = nullptr;
-
-/**
- * Cached reference to the eglClientWaitSyncKHR egl extension method.
- * On first invocation within the corresponding JNI method, a call to eglGetProcAddress
- * is made to determine if this method exists. If it does then this function pointer
- * is persisted for subsequent method calls.
- */
-PFNEGLCLIENTWAITSYNCKHRPROC eglClientWaitSyncKHR = nullptr;
-
-/**
  * Cached reference to the eglDestroySyncKHR egl extension method.
  * On first invocation within the corresponding JNI method, a call to eglGetProcAddress
  * is made to determine if this method exists. If it does then this function pointer
@@ -173,30 +157,6 @@ static PFNEGLCREATESYNCKHRPROC obtainEglCreateSyncKHR() {
 }
 
 /**
- * Helper method for querying the EGL extension method eglGetSyncAttribKHR.
- * This is used in initial invocations of the corresponding JNI method to query
- * properties of an EGLSync object returned by eglCreateSyncKHR as well as for
- * testing purposes to guarantee that Android devices that advertise support for
- * the corresponding extensions actually expose this API.
- */
-static PFNEGLGETSYNCATTRIBKHRPROC obtainEglGetSyncAttribKHR() {
-    return reinterpret_cast<PFNEGLGETSYNCATTRIBKHRPROC>(
-            eglGetProcAddress("eglGetSyncAttribKHR"));
-}
-
-/**
- * Helper method for querying the EGL extension method eglClientWaitSyncKHR.
- * This is used in initial invocations of the corresponding JNI method to block
- * the current thread until the specified sync object is signalled or until a timeout
- * has passed. Additionally this is used for testing purposes to guarantee that Android devices
- * that advertise support for the corresponding extensions actually expose this API.
- */
-static PFNEGLCLIENTWAITSYNCKHRPROC obtainEglClientWaitSyncKHR() {
-    return reinterpret_cast<PFNEGLCLIENTWAITSYNCKHRPROC>(
-            eglGetProcAddress("eglClientWaitSyncKHR"));
-}
-
-/**
  * Helper method for querying the EGL extension method eglDestroySyncKHR.
  * This is used in initial invocations of the corresponding JNI method to destroy an EGL fence sync
  * object. Additionally this is used for testing purposes to guarantee that Android devices that
@@ -209,7 +169,7 @@ static PFNEGLDESTROYSYNCKHRPROC obtainEglDestroySyncKHR() {
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nCreateImageFromHardwareBuffer(
+Java_androidx_graphics_opengl_egl_EGLUtilsBindings_00024Companion_nCreateImageFromHardwareBuffer(
         JNIEnv *env, jobject thiz, jlong egl_display_ptr, jobject hardware_buffer) {
     static std::once_flag eglGetNativeClientBufferANDROIDFlag;
     static std::once_flag eglCreateImageKHRFlag;
@@ -248,7 +208,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nCreateImageFromHar
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nDestroyImageKHR(
+Java_androidx_graphics_opengl_egl_EGLUtilsBindings_00024Companion_nDestroyImageKHR(
         JNIEnv *env, jobject thiz, jlong egl_display_ptr, jlong egl_image_ptr) {
     static std::once_flag eglDestroyImageKHRFlag;
     std::call_once(eglDestroyImageKHRFlag, [](){
@@ -264,9 +224,10 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nDestroyImageKHR(
     return static_cast<jboolean>(eglDestroyImageKHR(display, eglImage));
 }
 
+
 extern "C"
 JNIEXPORT void JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nImageTargetTexture2DOES(
+Java_androidx_graphics_opengl_egl_EGLUtilsBindings_00024Companion_nImageTargetTexture2DOES(
         JNIEnv *env, jobject thiz, jint target, jlong egl_image_ptr) {
     static std::once_flag glEGLImageTargetTexture2DOESFlag;
     std::call_once(glEGLImageTargetTexture2DOESFlag, [](){
@@ -282,7 +243,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nImageTargetTexture
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nCreateSyncKHR(
+Java_androidx_graphics_opengl_egl_EGLUtilsBindings_00024Companion_nCreateSyncKHR(
         JNIEnv *env, jobject thiz, jlong egl_display_ptr, jint type,
         jintArray attrs) {
     static std::once_flag eglCreateSyncKHRFlag;
@@ -299,118 +260,10 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nCreateSyncKHR(
     return reinterpret_cast<jlong>(eglCreateSyncKHR(display, type, attrib_list));
 }
 
-static jobject createIllegalArgumentException(JNIEnv* env, jstring message) {
-    jclass exceptionClass = env->FindClass("java/lang/IllegalArgumentException");
-    if (exceptionClass != nullptr) {
-        jmethodID init = env->GetMethodID(exceptionClass, "<init>", "(Ljava/lang/String;)V");
-        jobject instance;
-        if (init != nullptr) {
-            instance = env->NewObject(exceptionClass, init, message);
-        } else {
-            ALOGE("Unable to find constructor for IllegalArgumentException");
-            instance = nullptr;
-        }
-        env->DeleteLocalRef(exceptionClass);
-        return instance;
-    } else {
-        ALOGE("Unable to find IllegalArgumentException class");
-        return nullptr;
-    }
-}
-
-static int jniThrowIllegalArgumentException(JNIEnv* env, const char* msg) {
-    jstring message = env->NewStringUTF(msg);
-    if (message != nullptr) {
-        jobject exception = createIllegalArgumentException(env, message);
-        int status = 0;
-        if (exception != nullptr) {
-            if (env->Throw((jthrowable) exception) != JNI_OK) {
-                ALOGE("Unable to throw IllegalArgumentException");
-                status = -1;
-            }
-        } else {
-            status = -1;
-        }
-        env->DeleteLocalRef(message);
-        return status;
-    } else {
-        env->ExceptionClear();
-        return -1;
-    }
-}
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nGetSyncAttribKHR(
-        JNIEnv *env,
-        jobject thiz,
-        jlong egl_display_ptr,
-        jlong sync_ptr,
-        jint attrib,
-        jintArray result_ref,
-        jint offset
-        ) {
-    static std::once_flag eglGetSyncAttribKHRFlag;
-    std::call_once(eglGetSyncAttribKHRFlag, []() {
-        eglGetSyncAttribKHR = obtainEglGetSyncAttribKHR();
-    });
-    if (!eglGetSyncAttribKHR) {
-        ALOGE("Unable to resolve eglGetSyncAttribKHR");
-        return static_cast<jboolean>(false);
-    }
-
-    if (!result_ref) {
-        jniThrowIllegalArgumentException(env,
-            "Null pointer received, invalid array provided to store eglGetSyncAttribKHR result");
-        return static_cast<jboolean>(false);
-    }
-
-    if (offset < 0) {
-        jniThrowIllegalArgumentException(env,
-            "Invalid offset provided, must be greater than or equal to 0");
-        return static_cast<jboolean>(false);
-    }
-
-    jint remaining = env->GetArrayLength(result_ref) - offset;
-    if (remaining < 1) {
-        jniThrowIllegalArgumentException(env, "length - offset is out of bounds");
-        return static_cast<jboolean>(false);
-    }
-
-    auto result_base = (GLint *)env->GetIntArrayElements(result_ref, (jboolean *)nullptr);
-    auto result = (GLint *)(result_base + offset);
-    auto display = reinterpret_cast<EGLDisplay *>(egl_display_ptr);
-    auto sync = reinterpret_cast<EGLSync>(sync_ptr);
-    auto success = static_cast<jboolean>(eglGetSyncAttribKHR(display, sync, attrib, result));
-    env->ReleaseIntArrayElements(result_ref, (jint*) result_base, 0);
-    return success;
-}
-
-extern "C"
-JNIEXPORT jint JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nClientWaitSyncKHR(
-        JNIEnv *env,
-        jobject thiz,
-        jlong egl_display_ptr,
-        jlong sync_ptr,
-        jint flags,
-        jlong timeout
-) {
-    static std::once_flag eglClientWaitKRFlag;
-    std::call_once(eglClientWaitKRFlag, []() {
-        eglClientWaitSyncKHR = obtainEglClientWaitSyncKHR();
-    });
-
-    auto display = reinterpret_cast<EGLDisplay *>(egl_display_ptr);
-    auto sync = reinterpret_cast<EGLSync>(sync_ptr);
-    auto wait_flags = static_cast<EGLint>(flags);
-    auto wait_timeout = static_cast<EGLTimeKHR>(timeout);
-    return static_cast<jint>(eglClientWaitSyncKHR(display, sync, wait_flags, wait_timeout));
-}
-
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nDestroySyncKHR(
+Java_androidx_graphics_opengl_egl_EGLUtilsBindings_00024Companion_nDestroySyncKHR(
         JNIEnv *env, jobject thiz, jlong egl_display_ptr, jlong sync_ptr) {
     static std::once_flag eglDestroySyncKHRFlag;
     std::call_once(eglDestroySyncKHRFlag, [](){
@@ -432,7 +285,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nDestroySyncKHR(
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglGetNativeClientBufferAndroid(
+Java_androidx_graphics_opengl_egl_EGLUtilsBindings_00024Companion_nSupportsEglGetNativeClientBufferAndroid(
         JNIEnv *env, jobject thiz) {
     return obtainEglGetNativeClientBufferANDROID() != nullptr;
 }
@@ -443,7 +296,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglGetNati
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglCreateImageKHR(
+Java_androidx_graphics_opengl_egl_EGLUtilsBindings_00024Companion_nSupportsEglCreateImageKHR(
         JNIEnv *env, jobject thiz) {
     return obtainEglCreateImageKHR() != nullptr;
 }
@@ -454,7 +307,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglCreateI
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglDestroyImageKHR(
+Java_androidx_graphics_opengl_egl_EGLUtilsBindings_00024Companion_nSupportsEglDestroyImageKHR(
         JNIEnv *env, jobject thiz) {
     return obtainEglDestroyImageKHR() != nullptr;
 }
@@ -465,7 +318,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglDestroy
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsGlImageTargetTexture2DOES(
+Java_androidx_graphics_opengl_egl_EGLUtilsBindings_00024Companion_nSupportsGlImageTargetTexture2DOES(
         JNIEnv *env, jobject thiz) {
     return obtainGlImageTargetTexture2DOES() != nullptr;
 }
@@ -476,7 +329,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsGlImageTar
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglCreateSyncKHR(
+Java_androidx_graphics_opengl_egl_EGLUtilsBindings_00024Companion_nSupportsEglCreateSyncKHR(
         JNIEnv *env, jobject thiz) {
     return obtainEglCreateSyncKHR() != nullptr;
 }
@@ -487,40 +340,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglCreateS
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglDestroySyncKHR(
+Java_androidx_graphics_opengl_egl_EGLUtilsBindings_00024Companion_nSupportsEglDestroySyncKHR(
         JNIEnv *env, jobject thiz) {
     return obtainEglDestroySyncKHR() != nullptr;
-}
-
-/**
- * Helper method used in testing to verify if the eglGetSyncAttribKHR method is actually supported
- * on the Android device
- */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglGetSyncAttribKHR(
-        JNIEnv *env, jobject thiz) {
-    return obtainEglGetSyncAttribKHR() != nullptr;
-}
-
-/**
- * Helper method used in testing to verify if the eglClientWaitSyncKHR method is actually supported
- * on the Android device
- */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglClientWaitSyncKHR(
-        JNIEnv *env, jobject thiz) {
-    return obtainEglClientWaitSyncKHR() != nullptr;
-}
-
-/**
- * Java does not support unsigned long types. Ensure that our casting of Java types the native
- * equivalent matches.
- */
-extern "C"
-JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nEqualToNativeForeverTimeout(
-        JNIEnv *env, jobject thiz, jlong timeout_nanos) {
-    return static_cast<EGLTimeKHR>(timeout_nanos) == EGL_FOREVER_KHR;
 }
