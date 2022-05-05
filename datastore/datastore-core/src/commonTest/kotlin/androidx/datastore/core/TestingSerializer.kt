@@ -16,9 +16,10 @@
 
 package androidx.datastore.core
 
-import androidx.datastore.core.okio.asBufferedSink
-import androidx.datastore.core.okio.asBufferedSource
+import androidx.datastore.core.okio.OkioSerializer
 import kotlin.jvm.Volatile
+import okio.BufferedSink
+import okio.BufferedSource
 import okio.EOFException
 import okio.use
 
@@ -27,8 +28,9 @@ internal class TestingSerializer(
     @Volatile var failingRead: Boolean = false,
     @Volatile var failingWrite: Boolean = false,
     override val defaultValue: Byte = 0
-) : Serializer<Byte> {
-    override suspend fun readFrom(input: InputStream): Byte {
+) : OkioSerializer<Byte>() {
+
+    override suspend fun readFrom(source: BufferedSource): Byte {
         if (failReadWithCorruptionException) {
             throw CorruptionException(
                 "CorruptionException",
@@ -41,7 +43,7 @@ internal class TestingSerializer(
         }
 
         val read = try {
-            input.asBufferedSource().use {
+            source.use {
                 it.readInt()
             }
         } catch (eof: EOFException) {
@@ -50,11 +52,11 @@ internal class TestingSerializer(
         return read.toByte()
     }
 
-    override suspend fun writeTo(t: Byte, output: OutputStream) {
+    override suspend fun writeTo(t: Byte, sink: BufferedSink) {
         if (failingWrite) {
             throw IOException("I was asked to fail on writes")
         }
-        output.asBufferedSink().use {
+        sink.use {
             it.writeInt(t.toInt())
         }
     }

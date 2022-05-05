@@ -16,6 +16,7 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.core.okio.OkioSerializer
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -28,7 +29,7 @@ actual class TestIO actual constructor(dirName: String) {
         it.toFile().deleteOnExit()
     }
 
-    actual fun <T> newFileStorage(serializer: Serializer<T>, prefix: String):
+    actual fun <T> newFileStorage(serializer: OkioSerializer<T>, prefix: String):
         StorageImpl<T> {
         return FileStorage(
             produceFile = {
@@ -44,7 +45,7 @@ actual class TestIO actual constructor(dirName: String) {
 
     }
 
-    actual fun <T> newFileStorage(serializer: Serializer<T>, testFile: TestFile): StorageImpl<T> {
+    actual fun <T> newFileStorage(serializer: OkioSerializer<T>, testFile: TestFile): StorageImpl<T> {
         return FileStorage({ testFile }, serializer)
     }
 

@@ -19,6 +19,7 @@
 package androidx.datastore.core
 
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import androidx.datastore.core.okio.OkioSerializer
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlinx.coroutines.CancellationException
@@ -50,6 +51,8 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import okio.BufferedSink
+import okio.BufferedSource
 
 @ExperimentalCoroutinesApi
 class SingleProcessDataStoreTest {
@@ -881,17 +884,17 @@ class SingleProcessDataStoreTest {
 
     // Mutable wrapper around a byte
     data class ByteWrapper(var byte: Byte) {
-        internal class ByteWrapperSerializer() : Serializer<ByteWrapper> {
+        internal class ByteWrapperSerializer() : OkioSerializer<ByteWrapper>() {
             private val delegate = TestingSerializer()
 
             override val defaultValue = ByteWrapper(delegate.defaultValue)
 
-            override suspend fun readFrom(input: InputStream): ByteWrapper {
-                return ByteWrapper(delegate.readFrom(input))
+            override suspend fun readFrom(source: BufferedSource): ByteWrapper {
+                return ByteWrapper(delegate.readFrom(source))
             }
 
-            override suspend fun writeTo(t: ByteWrapper, output: OutputStream) {
-                delegate.writeTo(t.byte, output)
+            override suspend fun writeTo(t: ByteWrapper, sink: BufferedSink) {
+                delegate.writeTo(t.byte, sink)
             }
         }
     }

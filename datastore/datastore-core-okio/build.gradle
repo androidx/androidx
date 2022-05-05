@@ -47,10 +47,6 @@ kotlin {
         }
         nativeMain {
             dependsOn(commonMain)
-            dependencies {
-                api(libs.kotlinCoroutinesCore)
-                implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
-            }
         }
     }
     targets.forEach {target ->

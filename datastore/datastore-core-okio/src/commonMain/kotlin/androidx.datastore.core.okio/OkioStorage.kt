@@ -16,7 +16,6 @@
 
 package androidx.datastore.core.okio
 
-import androidx.datastore.core.Serializer
 import androidx.datastore.core.Storage.Companion.SCRATCH_SUFFIX
 import androidx.datastore.core.StorageImpl
 import kotlinx.atomicfu.atomic
@@ -28,7 +27,7 @@ import okio.Path
 class OkioStorage<T>(
     private val fileSystem: FileSystem,
     private val producePath: () -> Path,
-    private val serializer: Serializer<T>
+    private val serializer: OkioSerializer<T>
 ) : StorageImpl<T>() {
     private val canonicalPath by lazy {
         val originalPath = producePath()
@@ -62,7 +61,7 @@ class OkioStorage<T>(
             fileSystem.read(
                 file = canonicalPath
             ) {
-                serializer.readFrom(this.toInputStream())
+                serializer.readFrom(this)
             }
         } catch (th: FileNotFoundException) {
             println("CAUGHT EXCEPTION $th /${th::class.qualifiedName}")
@@ -89,10 +88,7 @@ class OkioStorage<T>(
                 file = scratchPath,
                 mustCreate = false
             ) {
-                serializer.writeTo(
-                    t = newData,
-                    output = this.toOutputStream()
-                )
+                serializer.writeTo(newData,this)
             }
             fileSystem.atomicMove(scratchPath, canonicalPath)
         } catch (ex: okio.IOException) {

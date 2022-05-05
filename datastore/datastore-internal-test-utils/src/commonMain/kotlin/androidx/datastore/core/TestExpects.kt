@@ -16,14 +16,16 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.core.okio.OkioSerializer
+
 expect class TestIO(dirName: String = "datastore-test-dir") {
     fun <T> newFileStorage(
-        serializer: Serializer<T>,
+        serializer: OkioSerializer<T>,
         prefix: String = "temp-file"
     ): StorageImpl<T>
 
     fun <T> newFileStorage(
-        serializer: Serializer<T>,
+        serializer: OkioSerializer<T>,
         testFile: TestFile,
     ): StorageImpl<T>
 

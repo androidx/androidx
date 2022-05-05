@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,22 @@ package androidx.datastore.core.okio
 
 import androidx.datastore.core.InputStream
 import androidx.datastore.core.OutputStream
+import androidx.datastore.core.Serializer
 import okio.BufferedSink
 import okio.BufferedSource
 
-// TODO try to clean this up or at least have real classes.
-internal fun BufferedSource.toInputStream() = object : InputStream(this) {}
-internal fun BufferedSink.toOutputStream() = object : OutputStream(this) {}
 
+abstract class OkioSerializer<T> : Serializer<T> {
+
+    final override suspend fun readFrom(input: InputStream): T {
+        return readFrom(input.asBufferedSource())
+    }
+
+    final override suspend fun writeTo(t: T, output: OutputStream) {
+        return writeTo(t, output.asBufferedSink())
+    }
+
+    abstract suspend fun readFrom(source:BufferedSource): T
+
+    abstract suspend fun writeTo(t: T, sink:BufferedSink)
+}

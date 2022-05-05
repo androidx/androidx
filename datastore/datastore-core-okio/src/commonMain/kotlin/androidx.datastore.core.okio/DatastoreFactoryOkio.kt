@@ -29,7 +29,7 @@ object DatastoreFactoryOkio {
     fun <T> create(
         fileSystem: FileSystem,
         producePath: () -> Path,
-        serializer: Serializer<T>,
+        serializer: OkioSerializer<T>,
         corruptionHandler: ReplaceFileCorruptionHandler<T>?,
         migrations: List<DataMigration<T>>,
         scope: CoroutineScope

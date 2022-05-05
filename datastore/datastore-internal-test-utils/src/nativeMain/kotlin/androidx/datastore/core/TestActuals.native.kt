@@ -16,6 +16,7 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
 import kotlin.random.Random
 import okio.BufferedSink
@@ -39,7 +40,7 @@ actual class TestIO actual constructor(dirName: String) {
     }
     private val tmpDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / randomFileName(dirName)
     actual fun <T> newFileStorage(
-        serializer: Serializer<T>,
+        serializer: OkioSerializer<T>,
         prefix: String
     ): StorageImpl<T> {
         val storage = OkioStorage(
@@ -54,7 +55,7 @@ actual class TestIO actual constructor(dirName: String) {
     }
 
     actual fun <T> newFileStorage(
-        serializer: Serializer<T>,
+        serializer: OkioSerializer<T>,
         testFile: TestFile
     ): StorageImpl<T> {
         return OkioStorage(fileSystem, {testFile}, serializer)
