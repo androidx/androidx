@@ -332,7 +332,7 @@ public class SwipeToDismissBoxState(
                 override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                     val delta = available.x
                     // If edge was clicked - perform swipe drag and consume everything
-                    if (edgeTouched.value && delta > 0) {
+                    if (edgeTouched.value && delta > 0 && source == NestedScrollSource.Drag) {
                         performDrag(delta)
                         return available
                     } else {
@@ -349,20 +349,7 @@ public class SwipeToDismissBoxState(
                     consumed: Offset,
                     available: Offset,
                     source: NestedScrollSource
-                ): Offset {
-                    // If edge was touched and not all scroll was consumed, assume it was
-                    // consumed by the parent
-                    if (edgeTouched.value && available.x > 0) {
-                        return available
-                    } else {
-                        // Finish scroll if it wasn't an edge touch
-                        return if (source == NestedScrollSource.Drag) {
-                            performDrag(available.x).toOffsetX()
-                        } else {
-                            Offset.Zero
-                        }
-                    }
-                }
+                ): Offset = Offset.Zero
 
                 override suspend fun onPreFling(available: Velocity): Velocity {
                     val toFling = available.x
