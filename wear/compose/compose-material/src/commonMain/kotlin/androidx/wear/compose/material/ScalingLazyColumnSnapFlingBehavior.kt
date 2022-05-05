@@ -16,18 +16,17 @@
 
 package androidx.wear.compose.material
 
-import androidx.compose.animation.core.AnimationScope
 import androidx.compose.animation.core.AnimationState
-import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.exponentialDecay
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import kotlin.math.abs
-import kotlin.math.roundToInt
 
 internal class ScalingLazyColumnSnapFlingBehavior(
     val state: ScalingLazyListState,
@@ -41,85 +40,45 @@ internal class ScalingLazyColumnSnapFlingBehavior(
             initialVelocity = initialVelocity,
         )
 
-        // Is it actually a fling?
+        var lastValue = 0f
         val visibleItemsInfo = state.layoutInfo.visibleItemsInfo
-        if (abs(initialVelocity) > 1f && visibleItemsInfo.size > 1) {
+        val isAFling = abs(initialVelocity) > 1f && visibleItemsInfo.size > 1
+        val finalTarget = if (isAFling) {
             // Target we will land on given initialVelocity & decay
-            val unmodifiedTarget = decay.calculateTargetValue(0f, initialVelocity)
-            val viewPortHeight = state.viewportHeightPx.value!!
+            val decayTarget = decay.calculateTargetValue(0f, initialVelocity)
 
-            // Estimate the item closest to the target, and adjust our aim.
-            val totalSize = visibleItemsInfo.last().unadjustedOffset -
-                visibleItemsInfo.first().unadjustedOffset
-            val estimatedItemDistance = totalSize.toFloat() / (visibleItemsInfo.size - 1)
-            val centerOffset = state.centerItemScrollOffset
-            val itemsToTarget = (unmodifiedTarget + centerOffset) / estimatedItemDistance
-
-            val estimatedTarget = itemsToTarget.roundToInt() * estimatedItemDistance -
-                centerOffset + snapOffset
-
-            animationState.animateDecayTo(estimatedTarget, decay) { delta ->
-                val consumed = scrollBy(delta)
-
-                // Check if the target entered the screen
-                if (abs(value - estimatedTarget) < viewPortHeight / 2) {
-                    this.cancelAnimation()
-                }
-                consumed
-            }
-
-            // Now that the target position is visible, adjust the animation to land on the
-            // closest item.
-            val finalTarget = (state.layoutInfo.visibleItemsInfo
-                .map { animationState.value + it.unadjustedOffset + snapOffset }
-                .minByOrNull { abs(it - estimatedTarget) } ?: estimatedTarget)
-
-            animationState.animateDecayTo(
-                finalTarget,
-                decay,
-                sequentialAnimation = true
-            ) { delta -> scrollBy(delta) }
-
-            // Since the previous animation can finish a bit early, do a final scroll to ensure we
-            // have an item properly positioned.
-            scrollBy((snapOffset - state.centerItemScrollOffset).toFloat())
-        } else {
-            // The fling was too slow (or not even a fling), just animate a snap to the item
-            // already in the center.
-            var lastValue = 0f
-            animationState.animateTo(
-                targetValue = (snapOffset - state.centerItemScrollOffset).toFloat(),
-                sequentialAnimation = true
-            ) {
-                scrollBy(value - lastValue)
+            animationState.animateDecay(decay) {
+                val delta = value - lastValue
+                scrollBy(delta)
                 lastValue = value
+
+                // When we are "slow" enough, switch from decay to spring
+                if (abs(velocity) < CASUAL_SPRING_THRESHOLD) cancelAnimation()
             }
+
+            // Now that scrolling slowed down, adjust the animation to land in the item closest to
+            // the original target. Note that the target may be off-screen, in that case we will
+            // land on the last visible item in that direction.
+            (state.layoutInfo.visibleItemsInfo
+                .map { animationState.value + it.unadjustedOffset + snapOffset }
+                .minByOrNull { abs(it - decayTarget) } ?: decayTarget)
+        } else {
+            // Not a fling, just snap to the current item.
+            (snapOffset - state.centerItemScrollOffset).toFloat()
         }
+
+        animationState.animateTo(
+            targetValue = finalTarget,
+            sequentialAnimation = isAFling,
+            animationSpec = spring(stiffness = Spring.StiffnessVeryLow)
+        ) {
+            scrollBy(value - lastValue)
+            lastValue = value
+        }
+
         return animationState.velocity
     }
 
-    private suspend fun <V : AnimationVector> AnimationState<Float, V>.animateDecayTo(
-        targetValue: Float,
-        decay: DecayAnimationSpec<Float>,
-        // Indicates whether the animation should start from last frame
-        sequentialAnimation: Boolean = false,
-        block: AnimationScope<Float, V>.(delta: Float) -> Float
-    ) {
-        var lastValue = value
-        val initialValue = value
-        val target = decay.calculateTargetValue(initialValue = value, initialVelocity = velocity)
-        val velocityAdjustment = (targetValue - value) / (target - value)
-        animateDecay(decay, sequentialAnimation = sequentialAnimation) {
-            val delta = (value - lastValue) * velocityAdjustment
-            val consumed = block(delta)
-            lastValue = value
-
-            // avoid rounding errors and stop if anything is unconsumed
-            if (abs(delta - consumed) > 0.5f) this.cancelAnimation()
-
-            // Stop when we are there.
-            val projectedTarget = initialValue + (lastValue - initialValue) * velocityAdjustment
-            if (abs(projectedTarget - targetValue) < 1f) this.cancelAnimation()
-        }
-    }
+    // Speed, in pixels per second, to switch between decay and spring.
+    private val CASUAL_SPRING_THRESHOLD = 1000
 }
