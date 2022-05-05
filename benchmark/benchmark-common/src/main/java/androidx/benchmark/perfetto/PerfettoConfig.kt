@@ -170,7 +170,8 @@ fun perfettoConfig(
         PROCESS_STATS_DATASOURCE,
         LINUX_SYS_STATS_DATASOURCE,
         ANDROID_POWER_DATASOURCE,
-        TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline"))
+        TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline")),
+        TraceConfig.DataSource(DataSourceConfig("track_event")) // required by tracing-perfetto
     ),
     // periodically dump to file, so we don't overrun our ring buffer
     // buffers are expected to be big enough for 5 seconds, so conservatively set 2.5 dump
