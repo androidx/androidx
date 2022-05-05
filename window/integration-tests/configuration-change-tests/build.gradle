@@ -36,11 +36,10 @@ dependencies {
     // Dependencies for coroutines.
     androidTestImplementation(libs.kotlinCoroutinesTest)
     // Project dependencies.
-    androidTestImplementation project(path: ':lifecycle:lifecycle-runtime-ktx')
-    androidTestImplementation project(path: ':window:window')
-    androidTestImplementation project(path: ":core:core")
-    implementation project(path: ':activity:activity')
-
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0-rc01")
+    implementation(project(":window:window"))
+    implementation("androidx.core:core:1.8.0-rc01")
+    implementation("androidx.activity:activity:1.5.0-beta01")
 }
 
 // Allow usage of Kotlin's @OptIn.
