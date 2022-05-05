@@ -35,6 +35,8 @@ import androidx.compose.compiler.plugins.kotlin.lower.decoys.SubstituteDecoyCall
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.serialization.DeclarationTable
+import org.jetbrains.kotlin.backend.common.serialization.GlobalDeclarationTable
+import org.jetbrains.kotlin.backend.common.serialization.mangle.ir.IrBasedKotlinManglerImpl
 import org.jetbrains.kotlin.backend.common.serialization.signature.IdSignatureSerializer
 import org.jetbrains.kotlin.backend.common.serialization.signature.PublicIdSignatureComputer
 import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
@@ -43,7 +45,9 @@ import org.jetbrains.kotlin.ir.backend.js.lower.serialization.ir.JsManglerIr
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.platform.js.isJs
 import org.jetbrains.kotlin.platform.jvm.isJvm
+import org.jetbrains.kotlin.platform.konan.isNative
 import org.jetbrains.kotlin.resolve.DelegatingBindingTrace
+import kotlin.reflect.full.primaryConstructor
 
 class ComposeIrGenerationExtension(
     @Suppress("unused") private val liveLiteralsEnabled: Boolean = false,
@@ -56,6 +60,7 @@ class ComposeIrGenerationExtension(
     private val reportsDestination: String? = null
 ) : IrGenerationExtension {
     var metrics: ModuleMetrics = EmptyModuleMetrics
+
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     override fun generate(
         moduleFragment: IrModuleFragment,
@@ -121,6 +126,18 @@ class ComposeIrGenerationExtension(
 
         val mangler = when {
             pluginContext.platform.isJs() -> JsManglerIr
+            // Use Reflection to get KonanManglerIr from konan
+            // TODO: Use `import` to get org.jetbrains.kotlin.backend.konan.* modules
+            pluginContext.platform.isNative() -> {
+                try {
+                    val konanManglerIrClass =
+                        Class.forName("org.jetbrains.kotlin.backend.konan.serialization." +
+                                "KonanManglerIr").kotlin
+                    konanManglerIrClass.objectInstance as IrBasedKotlinManglerImpl
+                } catch (t: Throwable) {
+                    throw t
+                }
+            }
             else -> null
         }
 
@@ -129,6 +146,21 @@ class ComposeIrGenerationExtension(
                 PublicIdSignatureComputer(mangler!!),
                 DeclarationTable(JsGlobalDeclarationTable(pluginContext.irBuiltIns))
             )
+            pluginContext.platform.isNative() -> {
+                try {
+                    // Use Reflection to get classes from konan
+                    val globalTableClassCons =
+                        Class.forName("org.jetbrains.kotlin.backend.konan.serialization." +
+                            "KonanGlobalDeclarationTable").kotlin.primaryConstructor
+                    IdSignatureSerializer(
+                        PublicIdSignatureComputer(mangler!!),
+                        DeclarationTable(globalTableClassCons?.call(pluginContext.irBuiltIns)
+                            as GlobalDeclarationTable)
+                    )
+                } catch (t: Throwable) {
+                    throw t
+                }
+            }
             else -> null
         }
         if (decoysEnabled) {

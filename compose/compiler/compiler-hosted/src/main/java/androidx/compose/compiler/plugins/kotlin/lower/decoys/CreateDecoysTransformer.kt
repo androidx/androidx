@@ -43,8 +43,11 @@ import org.jetbrains.kotlin.ir.declarations.IrFunction
 import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.declarations.IrSimpleFunction
 import org.jetbrains.kotlin.ir.declarations.IrValueParameter
+import org.jetbrains.kotlin.ir.expressions.IrCall
+import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrExpressionBody
+import org.jetbrains.kotlin.ir.expressions.IrFunctionReference
 import org.jetbrains.kotlin.ir.expressions.IrGetValue
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
 import org.jetbrains.kotlin.ir.types.IrSimpleType
@@ -61,7 +64,10 @@ import org.jetbrains.kotlin.ir.util.patchDeclarationParents
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
 import org.jetbrains.kotlin.name.Name
+import org.jetbrains.kotlin.platform.konan.isNative
 import org.jetbrains.kotlin.resolve.BindingTrace
+import java.lang.reflect.Field
+import java.lang.reflect.Modifier
 
 /**
  * Copies each IR declaration that won't match descriptors after Compose transforms (see [shouldBeRemapped]).
@@ -100,8 +106,11 @@ class CreateDecoysTransformer(
     metrics = metrics,
     signatureBuilder = signatureBuilder
 ), ModuleLoweringPass {
+    private var fieldModifiers: Field? = null
 
     private val originalFunctions: MutableMap<IrFunction, IrDeclarationParent> = mutableMapOf()
+
+    private val stubDecoied = mutableSetOf<IrFunction>()
 
     private val decoyAnnotation by lazy {
         getTopLevelClass(DecoyFqNames.Decoy).owner
@@ -150,6 +159,64 @@ class CreateDecoysTransformer(
         }
     }
 
+    override fun visitCall(expression: IrCall): IrExpression {
+        val function = (expression.symbol.owner as? IrSimpleFunction)
+            ?: return super.visitCall(expression)
+        val property = (function.correspondingPropertySymbol?.owner)
+            ?: return super.visitCall(expression)
+
+        if (function.isDecoy() || !function.shouldBeRemapped()) {
+            return super.visitCall(expression)
+        }
+
+        when (function.origin) {
+            IrDeclarationOrigin.FAKE_OVERRIDE -> {
+                if (property.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB) {
+                    createExternalDecoyImplStub(function)
+                }
+            }
+            IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB ->
+                createExternalDecoyImplStub(function)
+        }
+
+        return super.visitCall(expression)
+    }
+
+    override fun visitFunctionReference(expression: IrFunctionReference): IrExpression {
+        val function = (expression.symbol.owner as? IrSimpleFunction)
+            ?: return super.visitFunctionReference(expression)
+        val property = (function.correspondingPropertySymbol?.owner)
+            ?: return super.visitFunctionReference(expression)
+
+        if (function.isDecoy() || !function.shouldBeRemapped()) {
+            return super.visitFunctionReference(expression)
+        }
+
+        when (function.origin) {
+            IrDeclarationOrigin.FAKE_OVERRIDE -> {
+                if (property.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB) {
+                    createExternalDecoyImplStub(function)
+                }
+            }
+            IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB ->
+                createExternalDecoyImplStub(function)
+        }
+
+        return super.visitFunctionReference(expression)
+    }
+
+    override fun visitConstructorCall(expression: IrConstructorCall): IrExpression {
+        val function = (expression.symbol.owner as? IrConstructor)
+            ?: return super.visitConstructorCall(expression)
+
+        if (!function.isDecoy() && function.shouldBeRemapped() &&
+            function.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB) {
+            createExternalDecoyImplStub(function, ::externalStubConstructorBuilder)
+        }
+
+        return super.visitConstructorCall(expression)
+    }
+
     override fun visitConstructor(declaration: IrConstructor): IrStatement {
         if (!declaration.shouldBeRemapped()) {
             return super.visitConstructor(declaration)
@@ -162,10 +229,112 @@ class CreateDecoysTransformer(
 
         originalFunctions += copied to declaration.parent
 
-        return original.apply {
+        original.apply {
             setDecoyAnnotation(newName.asString())
             stubBody()
         }
+
+        // We want to make origin constructor non-primary, cause ONLY primary constructor can have
+        // instance initializer call. We create a constructor's copy to transfer to non-primary,
+        // but after that, we should fix references to the origin one to make IR tree correct,
+        // modify by reflecting is the more convenient way :).
+        // If you want to copy from origin, should add @Decoy annotation on it also. References to
+        // the origin constructor haven't been changed, pass "SubstituteDecoyCallsTransformer"
+        // will check @Decoy annotation and change reference to decoy implementation.
+        if (context.platform.isNative() && original.isPrimary) {
+            try {
+                val field =
+                    original.javaClass.getDeclaredField("isPrimary").also { it.isAccessible = true }
+                // compatible with JDK12 or above
+                findFieldModifier().also {
+                    it?.isAccessible = true
+                    it?.setInt(field, field.modifiers and Modifier.FINAL.inv())
+                }
+                field.setBoolean(original, false)
+            } catch (t: Throwable) {
+                throw t
+            }
+
+            // After transfer flag "isPrimary" to new one, we MUST care about a special situation.
+            // When a field declaration occurs in constructor, FE will generate a "IrProperty",
+            // which has a "backing field" behind. And its "Initializer" will point to the
+            // IrValueParameter which IrConstructor has. But in K/N, ONLY a primary constructor can
+            // define a field, in other words, the "Initializer" of property MUST point to a
+            // IrValueParameter which locate in primary constructor, or error will occur when
+            // LLVM-codegen or deserialize symbols from Klib.
+            // We will fix it in "SubstituteDecoyCallsTransformer" pass.
+        }
+
+        return original
+    }
+
+    private fun findFieldModifier(): Field? {
+        if (fieldModifiers != null) {
+            return fieldModifiers
+        }
+
+        try {
+            fieldModifiers = Field::class.java.getDeclaredField("modifiers")
+            return fieldModifiers
+        } catch (t: Throwable) {
+            try {
+                val getDeclaredFields0 =
+                    Class::class.java.getDeclaredMethod("getDeclaredFields0", Boolean::class.java)
+                val accessible = getDeclaredFields0.canAccess(null)
+                getDeclaredFields0.isAccessible = true
+
+                fieldModifiers = (getDeclaredFields0.invoke(
+                    Field::class.java,
+                    false
+                ) as List<Field>).firstOrNull { f -> f.name == "modifiers" }
+
+                getDeclaredFields0.isAccessible = accessible
+
+                return fieldModifiers
+            } catch (t0: Throwable) {
+                throw t0
+            }
+        }
+    }
+
+    private fun createExternalDecoyImplStub(
+        function: IrFunction,
+        factory: ((IrFunctionBuilder.() -> Unit) -> IrFunction)? = null
+    ) {
+        val newName = function.decoyImplementationName()
+        val original = when (function) {
+            is IrSimpleFunction -> super.visitSimpleFunction(function) as IrSimpleFunction
+            is IrConstructor -> super.visitConstructor(function) as IrConstructor
+            else -> throw IllegalArgumentException("Receive $function")
+        }
+        if (!stubDecoied.contains(original)) {
+            original.createExternalDecoyImplStub(newName, factory)
+            stubDecoied.add(function)
+        }
+    }
+
+    private inline fun externalStubConstructorBuilder(builder: IrFunctionBuilder.() -> Unit) =
+        context.irFactory.buildConstructor(builder).also {
+            it.origin = IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB
+        }
+
+    private fun IrFunction.createExternalDecoyImplStub(
+        newName: Name,
+        factory: ((IrFunctionBuilder.() -> Unit) -> IrFunction)? = null
+    ): IrStatement {
+        val copied = copyWithName(newName, factory ?: context.irFactory::buildFun, true)
+        copied.parent = parent
+
+        originalFunctions += copied to parent
+
+        setDecoyAnnotation(newName.asString())
+
+        valueParameters.forEach { it.defaultValue = null }
+        if (body != null) {
+            stubBody()
+        }
+
+        return this
     }
 
     @OptIn(ObsoleteDescriptorBasedAPI::class)
@@ -178,14 +347,21 @@ class CreateDecoysTransformer(
     @OptIn(ObsoleteDescriptorBasedAPI::class)
     private fun IrFunction.copyWithName(
         newName: Name,
-        factory: (IrFunctionBuilder.() -> Unit) -> IrFunction = context.irFactory::buildFun
+        factory: (IrFunctionBuilder.() -> Unit) -> IrFunction = context.irFactory::buildFun,
+        externalStub: Boolean = false
     ): IrFunction {
         val original = this
         val newFunction = factory {
             updateFrom(original)
             name = newName
             returnType = original.returnType
-            isPrimary = (original as? IrConstructor)?.isPrimary ?: false
+            // In konan backend for K/N, only a primary constructor can has
+            // IrInstanceInitializerCall inside, others MUST have IrDelegatingConstructorCall.
+            // So if we building a decoy implementation constructor, we should check and transfer
+            // "isPrimary" flag if need.
+            isPrimary =
+                if (original is IrConstructor && context.platform.isNative()) original.isPrimary
+                else false
             isOperator = false
         }
         newFunction.annotations = original.annotations
@@ -195,7 +371,9 @@ class CreateDecoysTransformer(
             newFunction.overriddenSymbols = (original as IrSimpleFunction).overriddenSymbols
             newFunction.correspondingPropertySymbol = null
         }
-        newFunction.origin = IrDeclarationOrigin.DEFINED
+        newFunction.origin =
+            if (externalStub) IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB
+            else IrDeclarationOrigin.DEFINED
 
         // here generic value parameters will be applied
         newFunction.copyTypeParametersFrom(original)
