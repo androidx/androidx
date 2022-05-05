@@ -37,6 +37,7 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.Applier
+import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
 import androidx.glance.LocalContext
 import androidx.glance.LocalGlanceId
@@ -46,14 +47,14 @@ import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
 import androidx.glance.state.PreferencesGlanceStateDefinition
+import kotlin.math.ceil
+import kotlin.math.min
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlin.math.ceil
-import kotlin.math.min
 
 /**
  * Object handling the composition and the communication with [AppWidgetManager].
@@ -73,6 +74,7 @@ public abstract class GlanceAppWidget(
      * Definition of the UI.
      */
     @Composable
+    @GlanceComposable
     public abstract fun Content()
 
     /**
