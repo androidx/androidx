@@ -37,7 +37,7 @@ public class RunnerUtils {
 
     private RunnerUtils() {}
 
-    static void runSingleScreenshotTest(
+    public static void runSingleScreenshotTest(
             @NonNull AndroidXScreenshotTestRule rule,
             @NonNull LayoutElementBuilders.LayoutElement layoutElement,
             @NonNull String expected) {
