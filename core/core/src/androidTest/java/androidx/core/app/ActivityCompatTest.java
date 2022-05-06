@@ -18,6 +18,7 @@ package androidx.core.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.mockito.AdditionalMatchers.aryEq;
@@ -38,11 +39,13 @@ import androidx.core.test.R;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -154,5 +157,24 @@ public class ActivityCompatTest extends BaseInstrumentationTestCase<TestActivity
             assertFalse(ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                     Manifest.permission.POST_NOTIFICATIONS));
         }
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testOnSharedElementsReady() {
+        AtomicInteger counter = new AtomicInteger();
+        SharedElementCallback callback = new SharedElementCallback() {};
+        android.app.SharedElementCallback.OnSharedElementsReadyListener listener =
+                counter::incrementAndGet;
+
+        // Ensure that the method wrapper works as intended.
+        ActivityCompat.Api23Impl.onSharedElementsReady(listener);
+        assertEquals(1, counter.get());
+
+        // Ensure that the callback wrapper calls the method wrapper.
+        android.app.SharedElementCallback wrapper =
+                new ActivityCompat.SharedElementCallback21Impl(callback);
+        wrapper.onSharedElementsArrived(null, null, listener);
+        assertEquals(2, counter.get());
     }
 }
