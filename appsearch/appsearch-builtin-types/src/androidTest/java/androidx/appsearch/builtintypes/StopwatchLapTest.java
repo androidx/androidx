@@ -30,8 +30,8 @@ public class StopwatchLapTest {
                 .setCreationTimestampMillis(100)
                 .setDocumentTtlMillis(6000)
                 .setLapNumber(2)
-                .setLapTimeMillis(100)
-                .setAccumulatedLapTimeMillis(1100)
+                .setLapDurationMillis(100)
+                .setAccumulatedLapDurationMillis(1100)
                 .build();
 
         assertThat(stopwatchLap.getNamespace()).isEqualTo("namespace");
@@ -40,8 +40,8 @@ public class StopwatchLapTest {
         assertThat(stopwatchLap.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(stopwatchLap.getDocumentTtlMillis()).isEqualTo(6000);
         assertThat(stopwatchLap.getLapNumber()).isEqualTo(2);
-        assertThat(stopwatchLap.getLapTimeMillis()).isEqualTo(100);
-        assertThat(stopwatchLap.getAccumulatedLapTimeMillis()).isEqualTo(1100);
+        assertThat(stopwatchLap.getLapDurationMillis()).isEqualTo(100);
+        assertThat(stopwatchLap.getAccumulatedLapDurationMillis()).isEqualTo(1100);
     }
 
     @Test
@@ -51,8 +51,8 @@ public class StopwatchLapTest {
                 .setCreationTimestampMillis(100)
                 .setDocumentTtlMillis(6000)
                 .setLapNumber(2)
-                .setLapTimeMillis(100)
-                .setAccumulatedLapTimeMillis(1100)
+                .setLapDurationMillis(100)
+                .setAccumulatedLapDurationMillis(1100)
                 .build();
         StopwatchLap stopwatchLap2 = new StopwatchLap.Builder(stopwatchLap1).build();
 
@@ -64,10 +64,10 @@ public class StopwatchLapTest {
         assertThat(stopwatchLap1.getDocumentTtlMillis())
                 .isEqualTo(stopwatchLap2.getDocumentTtlMillis());
         assertThat(stopwatchLap1.getLapNumber()).isEqualTo(stopwatchLap2.getLapNumber());
-        assertThat(stopwatchLap1.getLapTimeMillis())
-                .isEqualTo(stopwatchLap2.getLapTimeMillis());
-        assertThat(stopwatchLap1.getAccumulatedLapTimeMillis())
-                .isEqualTo(stopwatchLap2.getAccumulatedLapTimeMillis());
+        assertThat(stopwatchLap1.getLapDurationMillis())
+                .isEqualTo(stopwatchLap2.getLapDurationMillis());
+        assertThat(stopwatchLap1.getAccumulatedLapDurationMillis())
+                .isEqualTo(stopwatchLap2.getAccumulatedLapDurationMillis());
     }
 
     @Test
@@ -77,8 +77,8 @@ public class StopwatchLapTest {
                 .setCreationTimestampMillis(100)
                 .setDocumentTtlMillis(6000)
                 .setLapNumber(2)
-                .setLapTimeMillis(100)
-                .setAccumulatedLapTimeMillis(1100)
+                .setLapDurationMillis(100)
+                .setAccumulatedLapDurationMillis(1100)
                 .build();
 
         GenericDocument genericDocument = GenericDocument.fromDocumentClass(stopwatchLap);
@@ -89,8 +89,8 @@ public class StopwatchLapTest {
         assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(genericDocument.getTtlMillis()).isEqualTo(6000);
         assertThat(genericDocument.getPropertyLong("lapNumber")).isEqualTo(2);
-        assertThat(genericDocument.getPropertyLong("lapTimeMillis")).isEqualTo(100);
-        assertThat(genericDocument.getPropertyLong("accumulatedLapTimeMillis"))
+        assertThat(genericDocument.getPropertyLong("lapDurationMillis")).isEqualTo(100);
+        assertThat(genericDocument.getPropertyLong("accumulatedLapDurationMillis"))
                 .isEqualTo(1100);
     }
 }
