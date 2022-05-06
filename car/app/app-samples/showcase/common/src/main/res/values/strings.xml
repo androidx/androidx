@@ -37,7 +37,7 @@
   <string name="on_action_title">On</string>
   <string name="off_action_title">Off</string>
   <string name="settings_action_title">Settings</string>
-  <string name="accept_action_title">Settings</string>
+  <string name="accept_action_title">Accept</string>
   <string name="reject_action_title">Reject</string>
   <string name="ok_action_title">OK</string>
   <string name="throw_action_title">Throw</string>
