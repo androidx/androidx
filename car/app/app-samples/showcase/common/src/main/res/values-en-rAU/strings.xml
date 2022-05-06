@@ -36,7 +36,7 @@
     <string name="on_action_title" msgid="4129601573763429611">"On"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Off"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Settings"</string>
-    <string name="accept_action_title" msgid="6172053420803596132">"Settings"</string>
+    <string name="accept_action_title" msgid="6172053420803596132">"Accept"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"Reject"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"OK"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Throw"</string>
