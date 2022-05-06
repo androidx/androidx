@@ -18,10 +18,9 @@ package androidx.core.uwb.impl
 
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult
-import androidx.core.uwb.RangingResultPeerDisconnected
-import androidx.core.uwb.RangingResultPosition
+import androidx.core.uwb.RangingResult.RangingResultPeerDisconnected
+import androidx.core.uwb.RangingResult.RangingResultPosition
 import androidx.core.uwb.UwbDevice
-import androidx.core.uwb.exceptions.UwbRangingAlreadyStartedException
 import androidx.core.uwb.mock.TestUwbClient
 import com.google.android.gms.nearby.uwb.RangingCapabilities
 import com.google.android.gms.nearby.uwb.UwbAddress
@@ -68,7 +67,7 @@ class UwbClientSessionScopeImplTest {
 
     @Test
     public fun testInitSession_singleConsumer() {
-        val sessionFlow = uwbClientSessionScopeImpl.initSession(rangingParameters)
+        val sessionFlow = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
         var rangingResult: RangingResult? = null
         val job = sessionFlow
             .cancellable()
@@ -100,7 +99,7 @@ class UwbClientSessionScopeImplTest {
     public fun testInitSession_multipleSharedConsumers() {
         var passed1 = false
         var passed2 = false
-        val sharedFlow = uwbClientSessionScopeImpl.initSession(rangingParameters)
+        val sharedFlow = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
             .shareIn(CoroutineScope(Dispatchers.Main.immediate), SharingStarted.WhileSubscribed(),
                 replay = 1)
         val job = CoroutineScope(Dispatchers.Main.immediate).launch {
@@ -150,7 +149,7 @@ class UwbClientSessionScopeImplTest {
 
     @Test
     public fun testInitSession_singleConsumer_disconnectPeerDevice() {
-        val sessionFlow = uwbClientSessionScopeImpl.initSession(rangingParameters)
+        val sessionFlow = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
         var peerDisconnected = false
         val job = CoroutineScope(Dispatchers.Main.immediate).launch {
             sessionFlow
@@ -187,7 +186,7 @@ class UwbClientSessionScopeImplTest {
 
     @Test
     public fun testInitSession_multipleSharedConsumers_disconnectPeerDevice() {
-        val sharedFlow = uwbClientSessionScopeImpl.initSession(rangingParameters)
+        val sharedFlow = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
             .shareIn(CoroutineScope(Dispatchers.Main.immediate), SharingStarted.WhileSubscribed())
 
         var peerDisconnected = false
@@ -244,8 +243,8 @@ class UwbClientSessionScopeImplTest {
 
     @Test
     public fun testInitSession_multipleSessions_throwsUwbApiException() {
-        val sessionFlow = uwbClientSessionScopeImpl.initSession(rangingParameters)
-        val sessionFlow2 = uwbClientSessionScopeImpl.initSession(rangingParameters)
+        val sessionFlow = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
+        val sessionFlow2 = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
 
         val job = CoroutineScope(Dispatchers.Main.immediate).launch {
             sessionFlow.collect()
@@ -258,7 +257,7 @@ class UwbClientSessionScopeImplTest {
             try {
                 sessionFlow2.collect()
                 Assert.fail()
-            } catch (e: UwbRangingAlreadyStartedException) {
+            } catch (e: IllegalStateException) {
                 // verified the exception was thrown.
             }
         }
@@ -268,7 +267,7 @@ class UwbClientSessionScopeImplTest {
 
     @Test
     public fun testInitSession_reusingSession_throwsUwbApiException() {
-        val sessionFlow = uwbClientSessionScopeImpl.initSession(rangingParameters)
+        val sessionFlow = uwbClientSessionScopeImpl.prepareSession(rangingParameters)
 
         val job = CoroutineScope(Dispatchers.Main.immediate).launch {
             sessionFlow.collect()
@@ -289,7 +288,7 @@ class UwbClientSessionScopeImplTest {
                 // Reuse the same session after it was closed.
                 sessionFlow.collect()
                 Assert.fail()
-            } catch (e: UwbRangingAlreadyStartedException) {
+            } catch (e: IllegalStateException) {
                 // verified the exception was thrown.
             }
         }

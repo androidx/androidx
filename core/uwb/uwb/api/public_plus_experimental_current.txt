@@ -2,13 +2,13 @@
 package androidx.core.uwb {
 
   public final class RangingCapabilities {
-    ctor public RangingCapabilities(boolean supportsDistance, boolean supportsAzimuthalAngle, boolean supportsElevationAngle);
-    method public boolean getSupportsAzimuthalAngle();
-    method public boolean getSupportsDistance();
-    method public boolean getSupportsElevationAngle();
-    property public final boolean supportsAzimuthalAngle;
-    property public final boolean supportsDistance;
-    property public final boolean supportsElevationAngle;
+    ctor public RangingCapabilities(boolean isDistanceSupported, boolean isAzimuthalAngleSupported, boolean isElevationAngleSupported);
+    method public boolean isAzimuthalAngleSupported();
+    method public boolean isDistanceSupported();
+    method public boolean isElevationAngleSupported();
+    property public final boolean isAzimuthalAngleSupported;
+    property public final boolean isDistanceSupported;
+    property public final boolean isElevationAngleSupported;
   }
 
   public final class RangingMeasurement {
@@ -18,19 +18,19 @@ package androidx.core.uwb {
   }
 
   public final class RangingParameters {
-    ctor public RangingParameters(int uwbConfigId, int sessionId, byte[]? sessionKeyInfo, androidx.core.uwb.UwbComplexChannel? complexChannel, java.util.List<androidx.core.uwb.UwbDevice> peerDevices, int updateRate);
+    ctor public RangingParameters(int uwbConfigType, int sessionId, byte[]? sessionKeyInfo, androidx.core.uwb.UwbComplexChannel? complexChannel, java.util.List<androidx.core.uwb.UwbDevice> peerDevices, int updateRateType);
     method public androidx.core.uwb.UwbComplexChannel? getComplexChannel();
     method public java.util.List<androidx.core.uwb.UwbDevice> getPeerDevices();
     method public int getSessionId();
     method public byte[]? getSessionKeyInfo();
-    method public int getUpdateRate();
-    method public int getUwbConfigId();
+    method public int getUpdateRateType();
+    method public int getUwbConfigType();
     property public final androidx.core.uwb.UwbComplexChannel? complexChannel;
     property public final java.util.List<androidx.core.uwb.UwbDevice> peerDevices;
     property public final int sessionId;
     property public final byte[]? sessionKeyInfo;
-    property public final int updateRate;
-    property public final int uwbConfigId;
+    property public final int updateRateType;
+    property public final int uwbConfigType;
     field public static final androidx.core.uwb.RangingParameters.Companion Companion;
     field public static final int RANGING_UPDATE_RATE_AUTOMATIC;
     field public static final int RANGING_UPDATE_RATE_FREQUENT;
@@ -53,19 +53,18 @@ package androidx.core.uwb {
   }
 
   public abstract class RangingResult {
-    ctor public RangingResult();
     method public abstract androidx.core.uwb.UwbDevice getDevice();
     property public abstract androidx.core.uwb.UwbDevice device;
   }
 
-  public final class RangingResultPeerDisconnected extends androidx.core.uwb.RangingResult {
-    ctor public RangingResultPeerDisconnected(androidx.core.uwb.UwbDevice device);
+  public static final class RangingResult.RangingResultPeerDisconnected extends androidx.core.uwb.RangingResult {
+    ctor public RangingResult.RangingResultPeerDisconnected(androidx.core.uwb.UwbDevice device);
     method public androidx.core.uwb.UwbDevice getDevice();
     property public androidx.core.uwb.UwbDevice device;
   }
 
-  public final class RangingResultPosition extends androidx.core.uwb.RangingResult {
-    ctor public RangingResultPosition(androidx.core.uwb.UwbDevice device, androidx.core.uwb.RangingPosition position);
+  public static final class RangingResult.RangingResultPosition extends androidx.core.uwb.RangingResult {
+    ctor public RangingResult.RangingResultPosition(androidx.core.uwb.UwbDevice device, androidx.core.uwb.RangingPosition position);
     method public androidx.core.uwb.UwbDevice getDevice();
     method public androidx.core.uwb.RangingPosition getPosition();
     property public androidx.core.uwb.UwbDevice device;
@@ -86,7 +85,7 @@ package androidx.core.uwb {
   public interface UwbClientSessionScope {
     method public androidx.core.uwb.UwbAddress getLocalAddress();
     method public androidx.core.uwb.RangingCapabilities getRangingCapabilities();
-    method public kotlinx.coroutines.flow.Flow<androidx.core.uwb.RangingResult> initSession(androidx.core.uwb.RangingParameters parameters);
+    method public kotlinx.coroutines.flow.Flow<androidx.core.uwb.RangingResult> prepareSession(androidx.core.uwb.RangingParameters parameters);
     property public abstract androidx.core.uwb.UwbAddress localAddress;
     property public abstract androidx.core.uwb.RangingCapabilities rangingCapabilities;
   }
@@ -118,12 +117,12 @@ package androidx.core.uwb {
 
   public interface UwbManager {
     method public suspend <R> Object? clientSessionScope(kotlin.jvm.functions.Function2<? super androidx.core.uwb.UwbClientSessionScope,? super kotlin.coroutines.Continuation<? super R>,?> sessionHandler, kotlin.coroutines.Continuation<? super R>);
-    method public default static androidx.core.uwb.UwbManager getInstance(android.content.Context context);
+    method public default static androidx.core.uwb.UwbManager createInstance(android.content.Context context);
     field public static final androidx.core.uwb.UwbManager.Companion Companion;
   }
 
   public static final class UwbManager.Companion {
-    method public androidx.core.uwb.UwbManager getInstance(android.content.Context context);
+    method public androidx.core.uwb.UwbManager createInstance(android.content.Context context);
   }
 
 }
@@ -134,16 +133,8 @@ package androidx.core.uwb.exceptions {
     ctor public UwbApiException(String message);
   }
 
-  public final class UwbBackgroundPolicyException extends androidx.core.uwb.exceptions.UwbApiException {
-    ctor public UwbBackgroundPolicyException(String message);
-  }
-
   public final class UwbHardwareNotAvailableException extends androidx.core.uwb.exceptions.UwbApiException {
     ctor public UwbHardwareNotAvailableException(String message);
-  }
-
-  public final class UwbRangingAlreadyStartedException extends androidx.core.uwb.exceptions.UwbApiException {
-    ctor public UwbRangingAlreadyStartedException(String message);
   }
 
   public final class UwbServiceNotAvailableException extends androidx.core.uwb.exceptions.UwbApiException {
