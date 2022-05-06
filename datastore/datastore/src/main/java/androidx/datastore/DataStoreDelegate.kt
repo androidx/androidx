@@ -23,11 +23,14 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.core.Serializer
+import androidx.datastore.core.kmp.KmpSerializer
+import androidx.datastore.core.kmp.DatastoreFactoryKmp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
+import okio.FileSystem
 
 /**
  * Creates a property delegate for a single process DataStore. This should only be called once
@@ -102,6 +105,60 @@ internal class DataStoreSingletonDelegate<T> internal constructor(
                 INSTANCE = DataStoreFactory.create(
                     serializer = serializer,
                     produceFile = { applicationContext.dataStoreFile(fileName) },
+                    corruptionHandler = corruptionHandler,
+                    migrations = produceMigrations(applicationContext),
+                    scope = scope
+                )
+            }
+            INSTANCE!!
+        }
+    }
+}
+
+
+public fun <T> dataStoreKmp(
+    fileName: String,
+    serializer: KmpSerializer<T>,
+    corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
+    produceMigrations: (Context) -> List<DataMigration<T>> = { listOf() },
+    scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+): ReadOnlyProperty<Context, DataStore<T>> {
+    return DataStoreSingletonDelegateKmp(
+        fileName, serializer, corruptionHandler, produceMigrations, scope
+    )
+}
+
+/**
+ * Delegate class to manage DataStore as a singleton.
+ */
+internal class DataStoreSingletonDelegateKmp<T> internal constructor(
+    private val fileName: String,
+    private val serializer: KmpSerializer<T>,
+    private val corruptionHandler: ReplaceFileCorruptionHandler<T>?,
+    private val produceMigrations: (Context) -> List<DataMigration<T>>,
+    private val scope: CoroutineScope
+) : ReadOnlyProperty<Context, DataStore<T>> {
+
+    private val lock = Any()
+
+    @GuardedBy("lock")
+    @Volatile
+    private var INSTANCE: DataStore<T>? = null
+
+    /**
+     * Gets the instance of the DataStore.
+     *
+     * @param thisRef must be an instance of [Context]
+     * @param property not used
+     */
+    override fun getValue(thisRef: Context, property: KProperty<*>): DataStore<T> {
+        return INSTANCE ?: synchronized(lock) {
+            if (INSTANCE == null) {
+                val applicationContext = thisRef.applicationContext
+                INSTANCE = DatastoreFactoryKmp.create(
+                    FileSystem.SYSTEM,
+                    serializer = serializer,
+                    producePath = { applicationContext.dataStorePath(fileName) },
                     corruptionHandler = corruptionHandler,
                     migrations = produceMigrations(applicationContext),
                     scope = scope

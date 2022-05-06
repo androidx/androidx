@@ -530,6 +530,7 @@ includeProject(":customview:customview-poolingcontainer", [BuildType.MAIN, Build
 includeProject(":datastore:datastore", [BuildType.MAIN])
 includeProject(":datastore:datastore-core", [BuildType.MAIN])
 includeProject(":datastore:datastore-compose-samples", [BuildType.COMPOSE])
+includeProject(":datastore:datastore-io", [BuildType.MAIN])
 includeProject(":datastore:datastore-multiprocess", [BuildType.MAIN])
 includeProject(":datastore:datastore-preferences", [BuildType.MAIN])
 includeProject(":datastore:datastore-preferences-core", [BuildType.MAIN])

@@ -1,0 +1,91 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
+plugins {
+    id("AndroidXPlugin")
+    id("org.jetbrains.kotlin.multiplatform")
+}
+
+def googleBuild = false
+
+kotlin {
+    jvm()
+    jvm("goog")
+    sourceSets {
+        okioCommonMain {
+            dependencies {
+                implementation("com.squareup.okio:okio:3.0.0")
+            }
+        }
+        jvmGoogCommonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+            }
+        }
+        commonMain {
+            if (googleBuild) {
+                dependsOn(jvmGoogCommonMain)
+            } else {
+                dependsOn(okioCommonMain)
+            }
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
+            }
+        }
+        okioCommonMain2 {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("com.squareup.okio:okio:3.0.0")
+                implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
+            }
+
+        }
+        jvmGoogCommonMain2 {
+            dependsOn(commonMain)
+        }
+    }
+}
+
+androidx {
+    name = "Android DataStore Core"
+    publish = Publish.SNAPSHOT_AND_RELEASE
+    mavenGroup = LibraryGroups.DATASTORE
+    inceptionYear = "2020"
+    description = "Android DataStore Core - contains the underlying store used by each serialization method"
+    legacyDisableKotlinStrictApiMode = true
+    publishPlatforms = ["jvm"]
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinNativeCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+    }
+}

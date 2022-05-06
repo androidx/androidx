@@ -20,6 +20,8 @@ package androidx.datastore
 
 import android.content.Context
 import java.io.File
+import okio.Path
+import okio.Path.Companion.toPath
 
 /**
  * Generate the File object for DataStore based on the provided context and name. the
@@ -34,3 +36,7 @@ import java.io.File
  */
 public fun Context.dataStoreFile(fileName: String): File =
     File(applicationContext.filesDir, "datastore/$fileName")
+
+
+public fun Context.dataStorePath(fileName: String): Path =
+    File(applicationContext.filesDir, "datastore/$fileName").absolutePath.toPath()
