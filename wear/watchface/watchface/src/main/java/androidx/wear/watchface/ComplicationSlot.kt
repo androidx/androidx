@@ -105,6 +105,7 @@ public interface CanvasComplication {
      * @param zonedDateTime The [ZonedDateTime] to render the highlight with
      * @param color The color to render the highlight with
      */
+    // TODO(b/230364881): Deprecate this when BoundingArc is no longer experimental.
     public fun drawHighlight(
         canvas: Canvas,
         bounds: Rect,
@@ -112,6 +113,29 @@ public interface CanvasComplication {
         zonedDateTime: ZonedDateTime,
         @ColorInt color: Int
     )
+
+    /**
+     * Draws a highlight for a [ComplicationSlotBoundsType.ROUND_RECT] complication. The default
+     * implementation does this by drawing a dashed line around the complication, other visual effects
+     * may be used if desired.
+     *
+     * @param canvas The [Canvas] to render into
+     * @param bounds A [Rect] describing the bounds of the complication
+     * @param boundsType The [ComplicationSlotBoundsType] of the complication
+     * @param zonedDateTime The [ZonedDateTime] to render the highlight with
+     * @param color The color to render the highlight with
+     */
+    @ComplicationExperimental
+    public fun drawHighlight(
+        canvas: Canvas,
+        bounds: Rect,
+        @ComplicationSlotBoundsType boundsType: Int,
+        zonedDateTime: ZonedDateTime,
+        @ColorInt color: Int,
+        boundingArc: BoundingArc?
+    ) {
+        drawHighlight(canvas, bounds, boundsType, zonedDateTime, color)
+    }
 
     /** Returns the [ComplicationData] to render with. */
     public fun getData(): ComplicationData
@@ -926,6 +950,7 @@ public class ComplicationSlot
      * @param renderParameters The current [RenderParameters]
      */
     @UiThread
+    @OptIn(ComplicationExperimental::class)
     public fun renderHighlightLayer(
         canvas: Canvas,
         zonedDateTime: ZonedDateTime,
@@ -945,7 +970,8 @@ public class ComplicationSlot
                     bounds,
                     boundsType,
                     zonedDateTime,
-                    renderParameters.highlightLayer.highlightTint
+                    renderParameters.highlightLayer.highlightTint,
+                    boundingArc
                 )
             }
 
@@ -956,7 +982,8 @@ public class ComplicationSlot
                         bounds,
                         boundsType,
                         zonedDateTime,
-                        renderParameters.highlightLayer.highlightTint
+                        renderParameters.highlightLayer.highlightTint,
+                        boundingArc
                     )
                 }
             }
