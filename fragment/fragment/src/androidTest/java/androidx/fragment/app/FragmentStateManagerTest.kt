@@ -59,12 +59,9 @@ class FragmentStateManagerTest {
         FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
 
         val stateBundle: Bundle = fragmentStore.getSavedState(fragment.mWho)!!
-        val fragmentState: FragmentState =
-            stateBundle.getParcelable(FragmentManager.FRAGMENT_STATE_TAG)!!
-
         val fragmentStateManager = FragmentStateManager(
             dispatcher, fragmentStore,
-            classLoader, FragmentFactory(), fragmentState
+            classLoader, FragmentFactory(), stateBundle
         )
 
         val restoredFragment = fragmentStateManager.fragment
@@ -83,11 +80,9 @@ class FragmentStateManagerTest {
             .isNull()
 
         val stateBundle: Bundle = fragmentStore.getSavedState(fragment.mWho)!!
-        val fragmentState: FragmentState =
-            stateBundle.getParcelable(FragmentManager.FRAGMENT_STATE_TAG)!!
         val fragmentStateManager = FragmentStateManager(
             dispatcher, fragmentStore,
-            fragment, fragmentState
+            fragment, stateBundle
         )
 
         val restoredFragment = fragmentStateManager.fragment
@@ -159,5 +154,25 @@ class FragmentStateManagerTest {
         // despite never calling setFragmentManagerState(Fragment.CREATED)
         assertThat(fragmentStateManager.computeExpectedState())
             .isEqualTo(Fragment.CREATED)
+    }
+
+    @Test
+    fun testNullArgumentsNullAfterRestore() {
+        val fragment = StrictFragment()
+        assertThat(fragment.arguments)
+            .isNull()
+
+        FragmentStateManager(dispatcher, fragmentStore, fragment).saveState()
+        val stateBundle: Bundle = fragmentStore.getSavedState(fragment.mWho)!!
+        val fragmentStateManager = FragmentStateManager(
+            dispatcher, fragmentStore,
+            classLoader, FragmentFactory(), stateBundle
+        )
+
+        val restoredFragment = fragmentStateManager.fragment
+        assertThat(restoredFragment)
+            .isInstanceOf(StrictFragment::class.java)
+        assertThat(restoredFragment.arguments)
+            .isNull()
     }
 }
