@@ -25,28 +25,6 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.webkit.WebSettings#setForceDark`"
-        errorLine1="            settings.setForceDark(forceDarkMode);"
-        errorLine2="                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/WebSettingsCompat.java"
-            line="357"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.webkit.WebSettings#getForceDark`"
-        errorLine1="            return settings.getForceDark();"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/webkit/WebSettingsCompat.java"
-            line="386"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Call requires API level 21 (current min is 14): `android.webkit.WebResourceRequest#getUrl`"
         errorLine1="                webViewClient.getLastShouldOverrideResourceRequest().getUrl().toString());"
         errorLine2="                                                                     ~~~~~~">
