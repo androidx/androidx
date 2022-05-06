@@ -1360,7 +1360,7 @@ component via service discovery or initialization.
 Some examples of safely depending on closed-source components include:
 
 -   WorkManager's GCM Network Manager integration, which uses
-    [manifest metadata](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:work/workmanager-gcm/src/main/AndroidManifest.xml)
+    [manifest metadata](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:work/workmanager-gcm/src/main/AndroidManifest.xml)
     for service discovery and provides an optional artifact exposing the
     service.
 -   Ads Identifier's Play Services integration, which provides a default backend
@@ -1368,7 +1368,7 @@ Some examples of safely depending on closed-source components include:
     [`Intent` handling](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:ads/ads-identifier-provider/src/main/java/androidx/ads/identifier/provider/AdvertisingIdProviderManager.java;l=108)
     as a service discovery mechanism for Play Services.
 -   Downloadable Fonts integration with Play Services, which plugs in via a
-    [`ContentProvider`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:core/core/src/androidTest/java/androidx/core/provider/MockFontProvider.java)
+    [`ContentProvider`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:core/core/src/androidTest/java/androidx/core/provider/MockFontProvider.java)
     as a service discovery mechanism with developer-specified
     [signature verification](https://developer.android.com/guide/topics/ui/look-and-feel/downloadable-fonts#adding-certificates)
     for additional security.
