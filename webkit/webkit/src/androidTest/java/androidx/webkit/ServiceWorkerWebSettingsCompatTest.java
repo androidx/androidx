@@ -288,7 +288,7 @@ public class ServiceWorkerWebSettingsCompatTest {
             Assert.assertNotNull("Test timed out while waiting for expected request", request);
             Assert.assertNull("No X-Requested-With header is expected",
                     request.getHeader("X-Requested-With"));
-            waitForServiceWorkerDone(webViewOnUiThread);
+            webViewOnUiThread.setCleanupTask(() -> waitForServiceWorkerDone(webViewOnUiThread));
         }
     }
 
@@ -316,7 +316,7 @@ public class ServiceWorkerWebSettingsCompatTest {
             } while (request != null && !TEXT_CONTENT_PATH.equals(request.getPath()));
             Assert.assertNotNull("Test timed out while waiting for expected request", request);
             Assert.assertEquals("androidx.webkit.test", request.getHeader("X-Requested-With"));
-            waitForServiceWorkerDone(webViewOnUiThread);
+            webViewOnUiThread.setCleanupTask(() -> waitForServiceWorkerDone(webViewOnUiThread));
         }
     }
 
