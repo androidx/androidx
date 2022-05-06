@@ -2370,8 +2370,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
         // First save all active fragments.
         ArrayList<String> active = mFragmentStore.saveActiveFragments();
 
-        // And grab all FragmentState objects
-        ArrayList<FragmentState> savedState = mFragmentStore.getAllSavedState();
+        // And grab all fragments' saved state bundles
+        HashMap<String, Bundle> savedState = mFragmentStore.getAllSavedState();
         if (savedState.isEmpty()) {
             if (isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(TAG, "saveAllState: no fragments!");
@@ -2413,10 +2413,8 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 bundle.putBundle(RESULT_NAME_PREFIX + resultName, mResults.get(resultName));
             }
 
-            for (FragmentState state : savedState) {
-                Bundle fragmentBundle = new Bundle();
-                fragmentBundle.putParcelable(FRAGMENT_STATE_TAG, state);
-                bundle.putBundle(FRAGMENT_NAME_PREFIX + state.mWho, fragmentBundle);
+            for (String fWho : savedState.keySet()) {
+                bundle.putBundle(FRAGMENT_NAME_PREFIX + fWho, savedState.get(fWho));
             }
         }
 
@@ -2447,6 +2445,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (state == null) return;
         Bundle bundle = (Bundle) state;
 
+        // Restore the fragment results
         for (String bundleKey : bundle.keySet()) {
             if (bundleKey.startsWith(RESULT_NAME_PREFIX)) {
                 Bundle savedResult = bundle.getBundle(bundleKey);
@@ -2458,18 +2457,19 @@ public abstract class FragmentManager implements FragmentResultOwner {
             }
         }
 
-        // Restore the saved state of all fragments
-        ArrayList<FragmentState> allFragmentStates = new ArrayList<>();
+        // Restore the saved bundle for all fragments
+        HashMap<String, Bundle> allStateBundles = new HashMap<>();
         for (String bundleKey : bundle.keySet()) {
             if (bundleKey.startsWith(FRAGMENT_NAME_PREFIX)) {
                 Bundle savedFragmentBundle = bundle.getBundle(bundleKey);
                 if (savedFragmentBundle != null) {
                     savedFragmentBundle.setClassLoader(mHost.getContext().getClassLoader());
-                    allFragmentStates.add(savedFragmentBundle.getParcelable(FRAGMENT_STATE_TAG));
+                    String fragmentKey = bundleKey.substring(FRAGMENT_NAME_PREFIX.length());
+                    allStateBundles.put(fragmentKey, savedFragmentBundle);
                 }
             }
         }
-        mFragmentStore.restoreSaveState(allFragmentStates);
+        mFragmentStore.restoreSaveState(allStateBundles);
 
         FragmentManagerState fms = bundle.getParcelable(FRAGMENT_MANAGER_STATE_TAG);
         if (fms == null) return;
@@ -2479,9 +2479,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
         mFragmentStore.resetActiveFragments();
         for (String who : fms.mActive) {
             // Retrieve any saved state, clearing it out for future calls
-            FragmentState fs = mFragmentStore.setSavedState(who, null);
-            if (fs != null) {
+            Bundle stateBundle = mFragmentStore.setSavedState(who, null);
+            if (stateBundle != null) {
                 FragmentStateManager fragmentStateManager;
+                FragmentState fs = stateBundle.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
                 Fragment retainedFragment = mNonConfig.findRetainedFragmentByWho(fs.mWho);
                 if (retainedFragment != null) {
                     if (isLoggingEnabled(Log.VERBOSE)) {

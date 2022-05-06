@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import android.os.Bundle
 import android.os.Parcel
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.lifecycle.Lifecycle
@@ -64,6 +65,7 @@ class BackStackStateTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testParcel() {
         val fragment = StrictFragment()
         val backStackRecord = BackStackRecord(fragmentManager).apply {
@@ -73,7 +75,9 @@ class BackStackStateTest {
             setMaxLifecycle(fragment, Lifecycle.State.STARTED)
         }
 
-        fragmentManager.fragmentStore.setSavedState(fragment.mWho, FragmentState(fragment))
+        val stateBundle = Bundle()
+        stateBundle.putParcelable(FragmentManager.FRAGMENT_STATE_TAG, FragmentState(fragment))
+        fragmentManager.fragmentStore.setSavedState(fragment.mWho, stateBundle)
         val backStackState = BackStackState(
             listOf(fragment.mWho),
             listOf(BackStackRecordState(backStackRecord))
