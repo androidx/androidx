@@ -19,8 +19,8 @@ package androidx.core.uwb
 /**
  * Set of parameters which should be passed to the UWB chip to start ranging.
  *
- * @property uwbConfigId
- * The UWB configuration ID. One ID specifies one fixed set of pre-defined parameters.
+ * @property uwbConfigType
+ * The UWB configuration type. One type specifies one fixed set of pre-defined parameters.
  *
  * @property sessionId
  * The ID of the ranging session. If the value is SESSION_ID_UNSET (0), it will
@@ -42,16 +42,16 @@ package androidx.core.uwb
  * @property peerDevices
  * The peers to perform ranging with. If using unicast, length should be 1.
  *
- * @property updateRate
- * The update rate of the ranging data
+ * @property updateRateType
+ * The update rate type of the ranging data
  */
 class RangingParameters(
-    val uwbConfigId: Int,
+    val uwbConfigType: Int,
     val sessionId: Int,
     val sessionKeyInfo: ByteArray?,
     val complexChannel: UwbComplexChannel?,
     val peerDevices: List<UwbDevice>,
-    val updateRate: Int
+    val updateRateType: Int
 ) {
 
     companion object {
