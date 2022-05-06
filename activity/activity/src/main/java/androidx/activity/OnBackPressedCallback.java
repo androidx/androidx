@@ -19,6 +19,8 @@ package androidx.activity;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Consumer;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -69,6 +71,7 @@ public abstract class OnBackPressedCallback {
      *
      * @param enabled whether the callback should be considered enabled
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @MainThread
     public final void setEnabled(boolean enabled) {
         mEnabled = enabled;

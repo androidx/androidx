@@ -37,6 +37,7 @@ import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.platformstorage.PlatformStorage;
 import androidx.appsearch.testutil.AppSearchEmail;
+import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 
@@ -72,19 +73,19 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
                 new PlatformStorage.SearchContext.Builder(context, DB_NAME_2).build()).get();
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH))
-                .isEqualTo(Build.VERSION.SDK_INT >= 33);
+                .isEqualTo(BuildCompat.isAtLeastT());
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.GLOBAL_SEARCH_SESSION_REGISTER_OBSERVER_CALLBACK))
-                .isEqualTo(Build.VERSION.SDK_INT >= 33);
+                .isEqualTo(BuildCompat.isAtLeastT());
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.GLOBAL_SEARCH_SESSION_GET_SCHEMA))
-                .isEqualTo(Build.VERSION.SDK_INT >= 33);
+                .isEqualTo(BuildCompat.isAtLeastT());
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.GLOBAL_SEARCH_SESSION_GET_BY_ID))
-                .isEqualTo(Build.VERSION.SDK_INT >= 33);
+                .isEqualTo(BuildCompat.isAtLeastT());
         assertThat(db2.getFeatures().isFeatureSupported(
                 Features.ADD_PERMISSIONS_AND_GET_VISIBILITY))
-                .isEqualTo(Build.VERSION.SDK_INT >= 33);
+                .isEqualTo(BuildCompat.isAtLeastT());
     }
 
     @Test
@@ -139,7 +140,7 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
     @Test
     public void testPutLargeDocumentBatch() throws Exception {
         // b/185441119 was fixed in Android T, this test will fail on S_V2 devices and below.
-        assumeTrue(Build.VERSION.SDK_INT >= 33);
+        assumeTrue(BuildCompat.isAtLeastT());
         super.testPutLargeDocumentBatch();
     }
 }

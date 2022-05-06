@@ -44,6 +44,7 @@ import androidx.appsearch.platformstorage.converter.SearchSpecToPlatformConverte
 import androidx.appsearch.platformstorage.converter.SetSchemaRequestToPlatformConverter;
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -75,6 +76,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
+    @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<SetSchemaResponse> setSchemaAsync(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
         ResolvableFuture<SetSchemaResponse> future = ResolvableFuture.create();
@@ -91,6 +93,7 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
+    @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<GetSchemaResponse> getSchemaAsync() {
         ResolvableFuture<GetSchemaResponse> future = ResolvableFuture.create();
         mPlatformSession.getSchema(
@@ -183,13 +186,14 @@ class SearchSessionImpl implements AppSearchSession {
 
     @Override
     @NonNull
+    @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<Void> removeAsync(
             @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
         ResolvableFuture<Void> future = ResolvableFuture.create();
 
-        if (Build.VERSION.SDK_INT < 33 && !searchSpec.getFilterNamespaces().isEmpty()) {
+        if (!BuildCompat.isAtLeastT() && !searchSpec.getFilterNamespaces().isEmpty()) {
             // This is a patch for b/197361770, framework-appsearch in Android S will
             // disable the given namespace filter if it is not empty and none of given namespaces
             // exist.

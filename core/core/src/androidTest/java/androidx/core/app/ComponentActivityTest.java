@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import android.os.Build;
 import android.support.v4.BaseInstrumentationTestCase;
 
+import androidx.core.os.BuildCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
@@ -117,7 +118,7 @@ public class ComponentActivityTest extends BaseInstrumentationTestCase<TestCompo
         String[] args = { specialArg };
         int actualApiVersion = Build.VERSION.SDK_INT;
 
-        if (Build.VERSION.SDK_INT >= 33) {
+        if (BuildCompat.isAtLeastT()) {
             assertFalse(specialArg + " should be skipped on API " + actualApiVersion,
                     mComponentActivity.shouldDumpInternalState(args));
         } else {

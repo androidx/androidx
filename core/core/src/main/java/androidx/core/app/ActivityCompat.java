@@ -41,10 +41,12 @@ import androidx.annotation.IdRes;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.DragAndDropPermissionsCompat;
 
 import java.util.Arrays;
@@ -510,6 +512,7 @@ public class ActivityCompat extends ContextCompat {
      * @see #checkSelfPermission(android.content.Context, String)
      * @see #shouldShowRequestPermissionRationale(android.app.Activity, String)
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static void requestPermissions(final @NonNull Activity activity,
             final @NonNull String[] permissions, final @IntRange(from = 0) int requestCode) {
         if (sDelegate != null
@@ -525,7 +528,7 @@ public class ActivityCompat extends ContextCompat {
                         + Arrays.toString(permissions) + " must not contain null or empty values");
             }
 
-            if (Build.VERSION.SDK_INT < 33) {
+            if (!BuildCompat.isAtLeastT()) {
                 if (TextUtils.equals(permissions[i], Manifest.permission.POST_NOTIFICATIONS)) {
                     indicesOfPermissionsToRemove.add(i);
                 }
@@ -585,9 +588,10 @@ public class ActivityCompat extends ContextCompat {
      * @see #checkSelfPermission(Context, String)
      * @see #requestPermissions(Activity, String[], int)
      */
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static boolean shouldShowRequestPermissionRationale(@NonNull Activity activity,
             @NonNull String permission) {
-        if (Build.VERSION.SDK_INT < 33
+        if (!BuildCompat.isAtLeastT()
                 && TextUtils.equals(Manifest.permission.POST_NOTIFICATIONS, permission)) {
             // notification permission doesn't exist before T
             return false;
