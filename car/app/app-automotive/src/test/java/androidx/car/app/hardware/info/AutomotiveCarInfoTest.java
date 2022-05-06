@@ -36,6 +36,7 @@ import static android.car.VehiclePropertyIds.RANGE_REMAINING;
 
 import static androidx.car.app.hardware.common.CarValue.STATUS_SUCCESS;
 import static androidx.car.app.hardware.common.CarValue.STATUS_UNAVAILABLE;
+import static androidx.car.app.hardware.common.CarValue.STATUS_UNKNOWN;
 import static androidx.car.app.hardware.info.AutomotiveCarInfo.DEFAULT_SAMPLE_RATE;
 import static androidx.car.app.hardware.info.AutomotiveCarInfo.SPEED_DISPLAY_UNIT_ID;
 import static androidx.car.app.hardware.info.AutomotiveCarInfo.TOLL_CARD_STATUS_ID;
@@ -59,6 +60,7 @@ import android.car.hardware.property.CarPropertyManager;
 import androidx.car.app.hardware.common.CarPropertyResponse;
 import androidx.car.app.hardware.common.CarUnit;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.hardware.common.CarZone;
 import androidx.car.app.hardware.common.GetPropertyRequest;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 import androidx.car.app.hardware.common.OnCarPropertyResponseListener;
@@ -79,6 +81,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -103,6 +106,8 @@ public class AutomotiveCarInfoTest {
     private CarPropertyManager mCarPropertyManagerMock;
     @Mock
     private PropertyManager mPropertyManager;
+    private static final List<CarZone> GLOBAL_ZONE = Collections.singletonList(
+            CarZone.CAR_ZONE_GLOBAL);
 
     @Before
     public void setUp() {
@@ -124,12 +129,21 @@ public class AutomotiveCarInfoTest {
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_MODEL_YEAR));
 
         // Add "make", "model", "year" values to the response.
-        mResponse.add(CarPropertyResponse.create(INFO_MAKE,
-                STATUS_SUCCESS, 1, "Toy Vehicle"));
-        mResponse.add(CarPropertyResponse.create(INFO_MODEL,
-                STATUS_SUCCESS, 2, "Speedy Model"));
-        mResponse.add(CarPropertyResponse.create(INFO_MODEL_YEAR,
-                STATUS_SUCCESS, 3, 2020));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_MAKE)
+                .setStatus(STATUS_SUCCESS)
+                .setValue("Toy Vehicle")
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_MODEL)
+                .setStatus(STATUS_SUCCESS)
+                .setValue("Speedy Model")
+                .setTimestampMillis(2L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_MODEL_YEAR)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(2020)
+                .setTimestampMillis(3L).build());
         ListenableFuture<List<CarPropertyResponse<?>>> listenableCarPropertyResponse =
                 Futures.immediateFuture(mResponse);
         when(mPropertyManager.submitGetPropertyRequest(
@@ -149,6 +163,10 @@ public class AutomotiveCarInfoTest {
         assertThat(mModel.getYear().getValue()).isEqualTo(2020);
         assertThat(mModel.getManufacturer().getTimestampMillis()).isEqualTo(1);
         assertThat(mModel.getName().getTimestampMillis()).isEqualTo(2);
+        // test CarZone
+        assertThat(mModel.getName().getCarZones()).isEqualTo(GLOBAL_ZONE);
+        assertThat(mModel.getManufacturer().getCarZones()).isEqualTo(GLOBAL_ZONE);
+        assertThat(mModel.getYear().getCarZones()).isEqualTo(GLOBAL_ZONE);
         assertThat(mModel.getYear().getTimestampMillis()).isEqualTo(3);
     }
 
@@ -159,12 +177,21 @@ public class AutomotiveCarInfoTest {
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_MODEL));
 
         // Add "make", "model", "year" values to the response.
-        mResponse.add(CarPropertyResponse.create(INFO_MAKE,
-                STATUS_SUCCESS, 1, "Toy Vehicle"));
-        mResponse.add(CarPropertyResponse.create(INFO_MODEL,
-                STATUS_SUCCESS, 2, "Speedy Model"));
-        mResponse.add(CarPropertyResponse.create(INFO_MODEL_YEAR,
-                STATUS_SUCCESS, 3, 2020));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_MAKE)
+                .setStatus(STATUS_SUCCESS)
+                .setValue("Toy Vehicle")
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_MODEL)
+                .setStatus(STATUS_SUCCESS)
+                .setValue("Speedy Model")
+                .setTimestampMillis(2L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_MODEL_YEAR)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(2020)
+                .setTimestampMillis(3L).build());
         ListenableFuture<List<CarPropertyResponse<?>>> listenableCarPropertyResponse =
                 Futures.immediateFuture(mResponse);
         when(mPropertyManager.submitGetPropertyRequest(
@@ -187,10 +214,16 @@ public class AutomotiveCarInfoTest {
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_FUEL_TYPE));
 
         // Add "evConnector" and "fuel" type of the vehicle to the response.
-        mResponse.add(CarPropertyResponse.create(INFO_EV_CONNECTOR_TYPE,
-                STATUS_SUCCESS, 1, new Integer[]{chademoInVehicle}));
-        mResponse.add(CarPropertyResponse.create(INFO_FUEL_TYPE,
-                STATUS_SUCCESS, 2, new Integer[]{FUEL_TYPE_UNLEADED}));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_EV_CONNECTOR_TYPE)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(new Integer[]{chademoInVehicle})
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_FUEL_TYPE)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(new Integer[]{FUEL_TYPE_UNLEADED})
+                .setTimestampMillis(2L).build());
         ListenableFuture<List<CarPropertyResponse<?>>> listenableCarPropertyResponse =
                 Futures.immediateFuture(mResponse);
         when(mPropertyManager.submitGetPropertyRequest(
@@ -262,9 +295,16 @@ public class AutomotiveCarInfoTest {
         verify(mPropertyManager).submitRegisterListenerRequest(eq(mPropertyIds),
                 eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
 
-        mResponse.add(CarPropertyResponse.create(PERF_ODOMETER, STATUS_SUCCESS, 1, 1f));
-        mResponse.add(CarPropertyResponse.create(DISTANCE_DISPLAY_UNITS, STATUS_SUCCESS, 2,
-                meterUnit));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(PERF_ODOMETER)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(1f)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(DISTANCE_DISPLAY_UNITS)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(meterUnit)
+                .setTimestampMillis(2L).build());
 
         captor.getValue().onCarPropertyResponses(mResponse);
         mCountDownLatch.await();
@@ -297,9 +337,16 @@ public class AutomotiveCarInfoTest {
         verify(mPropertyManager, times(2)).submitRegisterListenerRequest(
                 eq(mPropertyIds), eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
 
-        mResponse.add(CarPropertyResponse.create(PERF_ODOMETER, STATUS_SUCCESS, 1, 1f));
-        mResponse.add(CarPropertyResponse.create(DISTANCE_DISPLAY_UNITS, STATUS_SUCCESS, 2,
-                meterUnit));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(PERF_ODOMETER)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(1f)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(DISTANCE_DISPLAY_UNITS)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(meterUnit)
+                .setTimestampMillis(2L).build());
 
         captor.getValue().onCarPropertyResponses(mResponse);
         mCountDownLatch.await();
@@ -345,9 +392,16 @@ public class AutomotiveCarInfoTest {
                 eq(mPropertyIds), eq(DEFAULT_SAMPLE_RATE), firstCaptor.capture(),
                 eq(firstExecutor));
 
-        mResponse.add(CarPropertyResponse.create(PERF_ODOMETER, STATUS_SUCCESS, 1, 1f));
-        mResponse.add(CarPropertyResponse.create(DISTANCE_DISPLAY_UNITS, STATUS_SUCCESS, 2,
-                meterUnit));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(PERF_ODOMETER)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(1f)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(DISTANCE_DISPLAY_UNITS)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(meterUnit)
+                .setTimestampMillis(2L).build());
 
         firstCaptor.getValue().onCarPropertyResponses(mResponse);
 
@@ -393,9 +447,16 @@ public class AutomotiveCarInfoTest {
         verify(mPropertyManager).submitRegisterListenerRequest(eq(mPropertyIds),
                 eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
 
-        mResponse.add(CarPropertyResponse.create(EV_CHARGE_PORT_OPEN, STATUS_SUCCESS, 1, true));
-        mResponse.add(
-                CarPropertyResponse.create(EV_CHARGE_PORT_CONNECTED, STATUS_SUCCESS, 2, false));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(EV_CHARGE_PORT_OPEN)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(true)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(EV_CHARGE_PORT_CONNECTED)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(false)
+                .setTimestampMillis(2L).build());
 
         captor.getValue().onCarPropertyResponses(mResponse);
         mCountDownLatch.await();
@@ -424,10 +485,16 @@ public class AutomotiveCarInfoTest {
         verify(mPropertyManager).submitRegisterListenerRequest(eq(mPropertyIds),
                 eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
 
-        mResponse.add(CarPropertyResponse.create(EV_CHARGE_PORT_OPEN, STATUS_SUCCESS, 1, true));
-        mResponse.add(
-                CarPropertyResponse.create(EV_CHARGE_PORT_CONNECTED, CarValue.STATUS_UNKNOWN, 1,
-                        null));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(EV_CHARGE_PORT_OPEN)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(true)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(EV_CHARGE_PORT_CONNECTED)
+                .setStatus(STATUS_UNKNOWN)
+                .setValue(null)
+                .setTimestampMillis(1L).build());
 
         captor.getValue().onCarPropertyResponses(mResponse);
         mCountDownLatch.await();
@@ -457,14 +524,18 @@ public class AutomotiveCarInfoTest {
         verify(mPropertyManager).submitRegisterListenerRequest(eq(mPropertyIds),
                 eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
 
-        mResponse.add(CarPropertyResponse.create(TOLL_CARD_STATUS_ID,
-                STATUS_SUCCESS, 1, TollCard.TOLLCARD_STATE_VALID));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(TOLL_CARD_STATUS_ID)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(TollCard.TOLLCARD_STATE_VALID)
+                .setTimestampMillis(1L).build());
 
         captor.getValue().onCarPropertyResponses(mResponse);
         mCountDownLatch.await();
 
         TollCard tollCard = loadedResult.get();
         assertThat(tollCard.getCardState().getValue()).isEqualTo(TollCard.TOLLCARD_STATE_VALID);
+        assertThat(tollCard.getCardState().getCarZones()).isEqualTo(GLOBAL_ZONE);
     }
 
     @Config(maxSdk = 30)
@@ -479,6 +550,7 @@ public class AutomotiveCarInfoTest {
 
         TollCard tollCard = loadedResult.get();
         assertThat(tollCard.getCardState().getStatus()).isEqualTo(CarValue.STATUS_UNIMPLEMENTED);
+        assertThat(tollCard.getCardState().getCarZones().isEmpty()).isTrue();
     }
 
     @Test
@@ -508,12 +580,21 @@ public class AutomotiveCarInfoTest {
         verify(mPropertyManager).submitRegisterListenerRequest(eq(mPropertyIds),
                 eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
 
-        mResponse.add(CarPropertyResponse.create(SPEED_DISPLAY_UNIT_ID, STATUS_SUCCESS, 1,
-                metersPerSec));
-        mResponse.add(CarPropertyResponse.create(PERF_VEHICLE_SPEED,
-                STATUS_SUCCESS, 2, defaultRawSpeed));
-        mResponse.add(CarPropertyResponse.create(PERF_VEHICLE_SPEED_DISPLAY,
-                STATUS_SUCCESS, 3, defaultSpeed));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(SPEED_DISPLAY_UNIT_ID)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(metersPerSec)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(PERF_VEHICLE_SPEED)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(defaultRawSpeed)
+                .setTimestampMillis(2L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(PERF_VEHICLE_SPEED_DISPLAY)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(defaultSpeed)
+                .setTimestampMillis(3L).build());
 
         captor.getValue().onCarPropertyResponses(mResponse);
         mCountDownLatch.await();
@@ -539,10 +620,16 @@ public class AutomotiveCarInfoTest {
         float fuelCapacity = 120f;
         float fuelLevelValue = 50f;
         List<CarPropertyResponse<?>> capacities = new ArrayList<>();
-        capacities.add(CarPropertyResponse.create(INFO_EV_BATTERY_CAPACITY,
-                STATUS_SUCCESS, 1, evBatteryCapacity));
-        capacities.add(CarPropertyResponse.create(INFO_FUEL_CAPACITY,
-                STATUS_SUCCESS, 1, fuelCapacity));
+        capacities.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_EV_BATTERY_CAPACITY)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(evBatteryCapacity)
+                .setTimestampMillis(1L).build());
+        capacities.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_FUEL_CAPACITY)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(fuelCapacity)
+                .setTimestampMillis(1L).build());
         ListenableFuture<List<CarPropertyResponse<?>>> future =
                 Futures.immediateFuture(capacities);
         when(mPropertyManager.submitGetPropertyRequest(eq(mGetPropertyRequests), any()))
@@ -570,18 +657,37 @@ public class AutomotiveCarInfoTest {
         verify(mPropertyManager, times(1)).submitRegisterListenerRequest(
                 eq(mPropertyIds), eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
 
-        mResponse.add(CarPropertyResponse.create(EV_BATTERY_LEVEL,
-                STATUS_SUCCESS, 1, evBatteryLevelValue));
-        mResponse.add(CarPropertyResponse.create(FUEL_LEVEL,
-                STATUS_SUCCESS, 1, fuelLevelValue));
-        mResponse.add(CarPropertyResponse.create(FUEL_LEVEL_LOW,
-                STATUS_SUCCESS, 1, true));
-        mResponse.add(CarPropertyResponse.create(RANGE_REMAINING,
-                STATUS_SUCCESS, 1, 5f));
-        mResponse.add(CarPropertyResponse.create(DISTANCE_DISPLAY_UNITS,
-                STATUS_SUCCESS, 1, meterDistanceUnit));
-        mResponse.add(CarPropertyResponse.create(FUEL_VOLUME_DISPLAY_UNITS,
-                STATUS_SUCCESS, 2, meterVolumeUnit));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(EV_BATTERY_LEVEL)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(evBatteryLevelValue)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(FUEL_LEVEL)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(fuelLevelValue)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(FUEL_LEVEL_LOW)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(true)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(RANGE_REMAINING)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(5f)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(DISTANCE_DISPLAY_UNITS)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(meterDistanceUnit)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(FUEL_VOLUME_DISPLAY_UNITS)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(meterVolumeUnit)
+                .setTimestampMillis(1L).build());
+
         captor.getValue().onCarPropertyResponses(mResponse);
         mCountDownLatch.await();
 
@@ -613,10 +719,16 @@ public class AutomotiveCarInfoTest {
         float fuelCapacity = 120f;
         float fuelLevelValue = 50f;
         List<CarPropertyResponse<?>> capacities = new ArrayList<>();
-        capacities.add(CarPropertyResponse.create(INFO_EV_BATTERY_CAPACITY,
-                STATUS_UNAVAILABLE, 1, evBatteryCapacity));
-        capacities.add(CarPropertyResponse.create(INFO_FUEL_CAPACITY,
-                STATUS_UNAVAILABLE, 1, fuelCapacity));
+        capacities.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_EV_BATTERY_CAPACITY)
+                .setStatus(STATUS_UNAVAILABLE)
+                .setValue(evBatteryCapacity)
+                .setTimestampMillis(1L).build());
+        capacities.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_FUEL_CAPACITY)
+                .setStatus(STATUS_UNAVAILABLE)
+                .setValue(fuelCapacity)
+                .setTimestampMillis(1L).build());
         ListenableFuture<List<CarPropertyResponse<?>>> future =
                 Futures.immediateFuture(capacities);
         when(mPropertyManager.submitGetPropertyRequest(
@@ -644,18 +756,36 @@ public class AutomotiveCarInfoTest {
         verify(mPropertyManager, times(1)).submitRegisterListenerRequest(
                 eq(mPropertyIds), eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
 
-        mResponse.add(CarPropertyResponse.create(EV_BATTERY_LEVEL,
-                STATUS_SUCCESS, 1, evBatteryLevelValue));
-        mResponse.add(CarPropertyResponse.create(FUEL_LEVEL,
-                STATUS_SUCCESS, 1, fuelLevelValue));
-        mResponse.add(CarPropertyResponse.create(FUEL_LEVEL_LOW,
-                STATUS_SUCCESS, 1, true));
-        mResponse.add(CarPropertyResponse.create(RANGE_REMAINING,
-                STATUS_SUCCESS, 1, 5f));
-        mResponse.add(CarPropertyResponse.create(DISTANCE_DISPLAY_UNITS,
-                STATUS_SUCCESS, 1, meterDistanceUnit));
-        mResponse.add(CarPropertyResponse.create(FUEL_VOLUME_DISPLAY_UNITS,
-                STATUS_SUCCESS, 2, meterVolumeUnit));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(EV_BATTERY_LEVEL)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(evBatteryLevelValue)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(FUEL_LEVEL)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(fuelLevelValue)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(FUEL_LEVEL_LOW)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(true)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(RANGE_REMAINING)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(5f)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(DISTANCE_DISPLAY_UNITS)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(meterDistanceUnit)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(FUEL_VOLUME_DISPLAY_UNITS)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(meterVolumeUnit)
+                .setTimestampMillis(1L).build());
         captor.getValue().onCarPropertyResponses(mResponse);
         mCountDownLatch.await();
 
@@ -691,10 +821,16 @@ public class AutomotiveCarInfoTest {
         float fuelCapacity = 120f;
         float fuelLevelValue = 50f;
         List<CarPropertyResponse<?>> capacities = new ArrayList<>();
-        capacities.add(CarPropertyResponse.create(INFO_EV_BATTERY_CAPACITY,
-                STATUS_SUCCESS, 1, evBatteryCapacity));
-        capacities.add(CarPropertyResponse.create(INFO_FUEL_CAPACITY,
-                STATUS_SUCCESS, 1, fuelCapacity));
+        capacities.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_EV_BATTERY_CAPACITY)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(evBatteryCapacity)
+                .setTimestampMillis(1L).build());
+        capacities.add(CarPropertyResponse.builder()
+                .setPropertyId(INFO_FUEL_CAPACITY)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(fuelCapacity)
+                .setTimestampMillis(1L).build());
         ListenableFuture<List<CarPropertyResponse<?>>> future =
                 Futures.immediateFuture(capacities);
         when(mPropertyManager.submitGetPropertyRequest(
@@ -723,16 +859,31 @@ public class AutomotiveCarInfoTest {
                 eq(mPropertyIds), eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
 
         // Missing response for FUEL_VOLUME_DISPLAY_UNITS.
-        mResponse.add(CarPropertyResponse.create(EV_BATTERY_LEVEL,
-                STATUS_SUCCESS, 1, evBatteryLevelValue));
-        mResponse.add(CarPropertyResponse.create(FUEL_LEVEL,
-                STATUS_SUCCESS, 1, fuelLevelValue));
-        mResponse.add(CarPropertyResponse.create(FUEL_LEVEL_LOW,
-                STATUS_SUCCESS, 1, true));
-        mResponse.add(CarPropertyResponse.create(RANGE_REMAINING,
-                STATUS_SUCCESS, 1, 5f));
-        mResponse.add(CarPropertyResponse.create(DISTANCE_DISPLAY_UNITS,
-                STATUS_SUCCESS, 1, meterDistanceUnit));
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(EV_BATTERY_LEVEL)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(evBatteryLevelValue)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(FUEL_LEVEL)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(fuelLevelValue)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(FUEL_LEVEL_LOW)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(true)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(RANGE_REMAINING)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(5f)
+                .setTimestampMillis(1L).build());
+        mResponse.add(CarPropertyResponse.builder()
+                .setPropertyId(DISTANCE_DISPLAY_UNITS)
+                .setStatus(STATUS_SUCCESS)
+                .setValue(meterDistanceUnit)
+                .setTimestampMillis(1L).build());
 
         captor.getValue().onCarPropertyResponses(mResponse);
         mCountDownLatch.await();

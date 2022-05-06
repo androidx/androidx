@@ -23,21 +23,27 @@ import static androidx.car.app.hardware.common.CarUnit.MILLILITER;
 import static androidx.car.app.hardware.common.CarUnit.US_GALLON;
 
 import android.car.Car;
+import android.car.VehicleAreaSeat;
+import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.info.AutomotiveCarInfo;
 import androidx.car.app.hardware.info.EnergyProfile;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Utility functions to work with {@link android.car.hardware.CarPropertyValue}
@@ -99,6 +105,39 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.PARKING_BRAKE_ON, Car.PERMISSION_POWERTRAIN);
             append(VehiclePropertyIds.PARKING_BRAKE_AUTO_APPLY, Car.PERMISSION_POWERTRAIN);
             append(VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS, Car.PERMISSION_READ_DISPLAY_UNITS);
+        }
+    };
+
+    @ExperimentalCarApi
+    private static final SparseArray<CarZone> AREAID_TO_CARZONE = new SparseArray<CarZone>() {
+        {
+            append(VehicleAreaSeat.SEAT_ROW_1_LEFT,
+                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
+                            .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build());
+            append(VehicleAreaSeat.SEAT_ROW_1_CENTER,
+                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
+                            .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build());
+            append(VehicleAreaSeat.SEAT_ROW_1_RIGHT,
+                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
+                            .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build());
+            append(VehicleAreaSeat.SEAT_ROW_2_LEFT,
+                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
+                            .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build());
+            append(VehicleAreaSeat.SEAT_ROW_2_CENTER,
+                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
+                            .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build());
+            append(VehicleAreaSeat.SEAT_ROW_2_RIGHT,
+                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
+                            .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build());
+            append(VehicleAreaSeat.SEAT_ROW_3_LEFT,
+                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
+                            .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build());
+            append(VehicleAreaSeat.SEAT_ROW_3_CENTER,
+                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
+                            .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build());
+            append(VehicleAreaSeat.SEAT_ROW_3_RIGHT,
+                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
+                            .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build());
         }
     };
 
@@ -247,6 +286,30 @@ public final class PropertyUtils {
     }
 
     /**
+     * Creates a response from {@link CarPropertyValue}.
+     */
+    @SuppressWarnings("unchecked")
+    @NonNull
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    public static CarPropertyResponse<?> convertPropertyValueToPropertyResponse(
+            @NonNull CarPropertyValue<?> propertyValue) {
+        int status = mapToStatusCodeInCarValue(propertyValue.getStatus());
+        long timestamp = TimeUnit.MILLISECONDS.convert(propertyValue.getTimestamp(),
+                TimeUnit.NANOSECONDS);
+        List<CarZone> carZones;
+        if (propertyValue.getAreaId() == VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL) {
+            carZones = Collections.singletonList(CarZone.CAR_ZONE_GLOBAL);
+        } else {
+            carZones = mapAreaIdToCarZones(propertyValue.getAreaId());
+        }
+        return CarPropertyResponse.builder().setValue(propertyValue.getValue())
+                .setPropertyId(propertyValue.getPropertyId())
+                .setCarZones(carZones)
+                .setStatus(status)
+                .setTimestampMillis(timestamp).build();
+    }
+
+    /**
      * Returns a {@link Set<String>} that contains permissions for reading properties.
      *
      * @throws SecurityException if android application cannot access the property
@@ -317,6 +380,21 @@ public final class PropertyUtils {
                 throw new IllegalArgumentException("Invalid car property status: "
                         + carPropertyStatus);
         }
+    }
+
+    /**
+     * Builds a list of {@link CarZone}s from the {@link CarPropertyValue#getAreaId()}.
+     */
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    static List<CarZone> mapAreaIdToCarZones(int areaId) {
+        List<CarZone> carZones = new ArrayList<>();
+        for (int i = 0; i < AREAID_TO_CARZONE.size(); i++) {
+            int key = AREAID_TO_CARZONE.keyAt(i);
+            if ((key & areaId) != key) {
+                carZones.add(AREAID_TO_CARZONE.valueAt(i));
+            }
+        }
+        return carZones;
     }
 
     private PropertyUtils() {
