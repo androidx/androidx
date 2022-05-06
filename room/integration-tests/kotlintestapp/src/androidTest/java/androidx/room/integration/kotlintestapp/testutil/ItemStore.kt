@@ -102,10 +102,10 @@ class ItemStore(private val coroutineScope: CoroutineScope) {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun awaitItem(index: Int): PagingEntity = withTestTimeout {
-        generation.mapLatest {
-            asyncDiffer.peek(index)
-        }.filterNotNull().first()
+    suspend fun awaitItem(index: Int, timeOutDuration: Long = 3): PagingEntity =
+        withTestTimeout(timeOutDuration) {
+            generation.mapLatest { asyncDiffer.peek(index) }
+        .filterNotNull().first()
     }
 
     suspend fun collectFrom(data: PagingData<PagingEntity>) {
@@ -128,8 +128,8 @@ class ItemStore(private val coroutineScope: CoroutineScope) {
         }
     }
 
-    suspend fun awaitInitialLoad(): ItemSnapshotList<PagingEntity> =
-        withTestTimeout {
+    suspend fun awaitInitialLoad(timeOutDuration: Long = 3): ItemSnapshotList<PagingEntity> =
+        withTestTimeout(timeOutDuration) {
             withContext(Dispatchers.Main) {
                 generation.filter { it.initialLoadCompleted }.first()
                 asyncDiffer.snapshot()
