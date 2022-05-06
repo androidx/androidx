@@ -454,11 +454,18 @@ class EglManagerTest {
         }
     }
 
+    /**
+     * Helper method to determine if both EGLSync fences are supported
+     * along with Android platform specific EGLSync fence types
+     */
+    private fun EglManager.supportsNativeAndroidFence(): Boolean =
+        isExtensionSupported(EglKhrFenceSync) && isExtensionSupported(EglAndroidNativeFenceSync)
+
     @Test
     fun testEglCreateAndDestroyAndroidFenceSyncKHR() {
         testEglManager {
             initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrFenceSync)) {
+            if (supportsNativeAndroidFence()) {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
                 val sync = EGLUtils.eglCreateSyncKHR(display,
                     EGL_SYNC_NATIVE_FENCE_ANDROID, null)
@@ -505,7 +512,7 @@ class EglManagerTest {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EglKhrFenceSync)) {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_NATIVE_FENCE_ANDROID, null)
+                val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
                 val syncAttr = IntArray(1)
                 try {
@@ -536,7 +543,7 @@ class EglManagerTest {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EglKhrFenceSync)) {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_NATIVE_FENCE_ANDROID, null)
+                val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
                 val syncAttr = IntArray(1)
                 try {
@@ -567,7 +574,7 @@ class EglManagerTest {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EglKhrFenceSync)) {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_NATIVE_FENCE_ANDROID, null)
+                val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
 
                 var error = eglSpec.eglGetError()
