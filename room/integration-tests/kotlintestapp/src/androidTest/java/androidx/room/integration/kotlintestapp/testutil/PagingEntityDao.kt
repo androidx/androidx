@@ -16,6 +16,7 @@
 
 package androidx.room.androidx.room.integration.kotlintestapp.testutil
 
+import androidx.paging.ListenableFuturePagingSource
 import androidx.paging.PagingSource
 import androidx.room.Dao
 import androidx.room.Insert
@@ -39,4 +40,11 @@ interface PagingEntityDao {
 
     @RawQuery(observedEntities = [PagingEntity::class])
     fun loadItemsRaw(query: SupportSQLiteQuery): PagingSource<Int, PagingEntity>
+
+    @Query("SELECT * FROM PagingEntity ORDER BY id ASC")
+    fun loadItemsListenableFuture(): ListenableFuturePagingSource<Int, PagingEntity>
+
+    @RawQuery(observedEntities = [PagingEntity::class])
+    fun loadItemsRawListenableFuture(query: SupportSQLiteQuery):
+        ListenableFuturePagingSource<Int, PagingEntity>
 }

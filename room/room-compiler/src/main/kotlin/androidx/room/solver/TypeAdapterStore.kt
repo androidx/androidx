@@ -44,6 +44,7 @@ import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderPro
 import androidx.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.GuavaListenableFutureQueryResultBinderProvider
 import androidx.room.solver.binderprovider.InstantQueryResultBinderProvider
+import androidx.room.solver.binderprovider.ListenableFuturePagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxCallableQueryResultBinderProvider
@@ -200,6 +201,7 @@ class TypeAdapterStore private constructor(
             addAll(RxCallableQueryResultBinderProvider.getAll(context))
             add(DataSourceQueryResultBinderProvider(context))
             add(DataSourceFactoryQueryResultBinderProvider(context))
+            add(ListenableFuturePagingSourceQueryResultBinderProvider(context))
             add(PagingSourceQueryResultBinderProvider(context))
             add(CoroutineFlowResultBinderProvider(context))
             add(InstantQueryResultBinderProvider(context))
