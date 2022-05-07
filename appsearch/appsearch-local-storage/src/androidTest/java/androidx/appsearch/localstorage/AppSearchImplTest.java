@@ -57,6 +57,8 @@ import androidx.collection.ArraySet;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.FlakyTest;
 
+import com.google.android.icing.proto.DebugInfoProto;
+import com.google.android.icing.proto.DebugInfoVerbosity;
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.GetOptimizeInfoResultProto;
 import com.google.android.icing.proto.PersistType;
@@ -2689,6 +2691,51 @@ public class AppSearchImplTest {
         assertThat(
                 storageInfo.getSchemaStoreStorageInfo().getNumSchemaTypes())
                 .isEqualTo(3); // +2 for VisibilitySchema
+    }
+
+    @Test
+    public void testGetIcingSearchEngineDebugInfo() throws Exception {
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityDocuments=*/ Collections.emptyList(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /* setSchemaStatsBuilder= */ null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        // Add two documents
+        GenericDocument document1 =
+                new GenericDocument.Builder<>("namespace1", "id1", "type").build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                document1,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
+        GenericDocument document2 =
+                new GenericDocument.Builder<>("namespace1", "id2", "type").build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                document2,
+                /*sendChangeNotifications=*/ false,
+                /*logger=*/ null);
+
+        DebugInfoProto debugInfo =
+                mAppSearchImpl.getRawDebugInfoProto(DebugInfoVerbosity.Code.DETAILED);
+
+        // Simple checks to verify if we can get correct DebugInfoProto from IcingSearchEngine
+        // No need to cover all the fields
+        assertThat(debugInfo.getDocumentInfo().getCorpusInfoList()).hasSize(1);
+        assertThat(
+                debugInfo.getDocumentInfo().getDocumentStorageInfo().getNumAliveDocuments())
+                .isEqualTo(2);
+        assertThat(debugInfo.getSchemaInfo().getSchema().getTypesList())
+                .hasSize(3); // +2 for VisibilitySchema
     }
 
     @Test
