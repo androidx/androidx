@@ -1425,7 +1425,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         )
 
         val imageCapture = builder
-            .setSessionProcessorEnabled(true)
             .setSupportedResolutions(
                 listOf(android.util.Pair(ImageFormat.YUV_420_888, arrayOf(Size(640, 480)))))
             .build()
@@ -1473,7 +1472,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         )
 
         val imageCapture = builder
-            .setSessionProcessorEnabled(true)
             .setSupportedResolutions(
                 listOf(android.util.Pair(ImageFormat.JPEG, arrayOf(Size(640, 480)))))
             .build()
