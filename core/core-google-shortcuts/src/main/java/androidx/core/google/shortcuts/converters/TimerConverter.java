@@ -43,7 +43,7 @@ public class TimerConverter implements AppSearchDocumentConverter {
     // Keys from the AppSearch document
     private static final String NAME_KEY = "name";
     private static final String DURATION_MILLIS_KEY = "durationMillis";
-    private static final String REMAINING_TIME_MILLIS_KEY = "remainingTimeMillis";
+    private static final String REMAINING_DURATION_MILLIS_KEY = "remainingDurationMillis";
     private static final String RINGTONE_KEY = "ringtone";
     private static final String STATUS_KEY = "status";
     private static final String SHOULD_VIBRATE_KEY = "shouldVibrate";
@@ -98,7 +98,7 @@ public class TimerConverter implements AppSearchDocumentConverter {
                 .put(MESSAGE_KEY, timer.getPropertyString(NAME_KEY))
                 .put(LENGTH_KEY, timer.getPropertyLong(DURATION_MILLIS_KEY))
                 .put(REMAINING_TIME_KEY,
-                        timer.getPropertyLong(REMAINING_TIME_MILLIS_KEY))
+                        timer.getPropertyLong(REMAINING_DURATION_MILLIS_KEY))
                 .put(RINGTONE_KEY, timer.getPropertyString(RINGTONE_KEY))
                 .put(VIBRATE_KEY, timer.getPropertyBoolean(SHOULD_VIBRATE_KEY))
                 .put(BOOT_COUNT_KEY, timer.getPropertyLong(BOOT_COUNT_KEY))
@@ -133,7 +133,7 @@ public class TimerConverter implements AppSearchDocumentConverter {
 
         if (timerStatus == Timer.STATUS_STARTED) {
             long startTime = timer.getPropertyLong(BASE_TIME_MILLIS_KEY);
-            long remainingTime = timer.getPropertyLong(REMAINING_TIME_MILLIS_KEY);
+            long remainingTime = timer.getPropertyLong(REMAINING_DURATION_MILLIS_KEY);
 
             long expireTime = remainingTime + startTime;
             indexableBuilder.put(EXPIRE_TIME_KEY,
