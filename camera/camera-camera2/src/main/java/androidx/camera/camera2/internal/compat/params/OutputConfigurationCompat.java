@@ -48,17 +48,20 @@ public final class OutputConfigurationCompat {
     private final OutputConfigurationCompatImpl mImpl;
 
     public OutputConfigurationCompat(@NonNull Surface surface) {
+        this(SURFACE_GROUP_ID_NONE, surface);
+    }
+
+    public OutputConfigurationCompat(int surfaceGroupId, @NonNull Surface surface) {
         if (Build.VERSION.SDK_INT >= 28) {
-            mImpl = new OutputConfigurationCompatApi28Impl(surface);
+            mImpl = new OutputConfigurationCompatApi28Impl(surfaceGroupId, surface);
         } else if (Build.VERSION.SDK_INT >= 26) {
-            mImpl = new OutputConfigurationCompatApi26Impl(surface);
+            mImpl = new OutputConfigurationCompatApi26Impl(surfaceGroupId, surface);
         } else if (Build.VERSION.SDK_INT >= 24) {
-            mImpl = new OutputConfigurationCompatApi24Impl(surface);
+            mImpl = new OutputConfigurationCompatApi24Impl(surfaceGroupId, surface);
         } else {
             mImpl = new OutputConfigurationCompatBaseImpl(surface);
         }
     }
-
 
     /**
      * Create a new {@link OutputConfigurationCompat} instance, with desired Surface size and

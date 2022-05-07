@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static junit.framework.TestCase.assertTrue;
 import static junit.framework.TestCase.fail;
 
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.clearInvocations;
@@ -40,12 +41,14 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
+import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -72,6 +75,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -237,6 +241,161 @@ public final class CaptureSessionTest {
         // CameraCaptureCallback.onCaptureCompleted() should be called to signal a capture attempt.
         verify(mTestParameters0.mSessionCameraCaptureCallback, timeout(3000).atLeastOnce())
                 .onCaptureCompleted(any(CameraCaptureResult.class));
+    }
+
+    // Sharing surface of YUV format is supported since API 28
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    public void openCaptureSessionWithSharedSurface()
+            throws InterruptedException, ExecutionException, TimeoutException {
+        // 1. Arrange
+        ImageReader imageReader0 = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+        assumeTrue(
+                new OutputConfigurationCompat(imageReader0.getSurface()).getMaxSharedSurfaceCount()
+                        > 1);
+        DeferrableSurface surface0 = new ImmediateSurface(imageReader0.getSurface());
+        ImageReader imageReader1 = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+        DeferrableSurface surface1 = new ImmediateSurface(imageReader1.getSurface());
+        SessionConfig.OutputConfig outputConfig0 =
+                SessionConfig.OutputConfig.builder(surface0).setSharedSurfaces(
+                        Arrays.asList(surface1)).build();
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder()
+                        .addOutputConfig(outputConfig0)
+                        .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                        .build();
+
+        // 2. Act
+        CaptureSession captureSession = createCaptureSession();
+        captureSession.setSessionConfig(sessionConfig); // set repeating request
+        ListenableFuture<Void> future = captureSession.open(sessionConfig,
+                mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build());
+        future.get(2, TimeUnit.SECONDS);
+
+        // 3. Assert
+        Handler handler = new Handler(Looper.getMainLooper());
+        CountDownLatch latch0 = new CountDownLatch(1);
+        CountDownLatch latch1 = new CountDownLatch(1);
+        imageReader0.setOnImageAvailableListener(reader -> {
+            latch0.countDown();
+        }, handler);
+
+        imageReader1.setOnImageAvailableListener(reader -> {
+            latch1.countDown();
+        }, handler);
+
+        // Ensures main surface and shared share surface have outputs.
+        assertThat(latch0.await(2, TimeUnit.SECONDS)).isTrue();
+        assertThat(latch1.await(2, TimeUnit.SECONDS)).isTrue();
+
+        // clean up
+        surface0.getTerminationFuture().addListener(() -> imageReader0.close(),
+                CameraXExecutors.mainThreadExecutor()
+        );
+        surface1.getTerminationFuture().addListener(() -> imageReader1.close(),
+                CameraXExecutors.mainThreadExecutor());
+        surface0.close();
+        surface1.close();
+    }
+
+    // LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_ID is supported since API 29
+    @SdkSuppress(minSdkVersion = 29)
+    @Test
+    public void openCaptureSessionWithPhysicalCameraId()
+            throws InterruptedException, ExecutionException, TimeoutException {
+        String cameraId = CameraUtil.getBackwardCompatibleCameraIdListOrThrow().get(0);
+        // 1. Arrange
+        List<String> physicalCameraIds = CameraUtil.getPhysicalCameraIds(cameraId);
+        assumeFalse(physicalCameraIds.isEmpty());
+        // get last physical camera id to make it different from default value
+        String physicalCameraId = physicalCameraIds.get(physicalCameraIds.size() - 1);
+
+        ImageReader imageReader0 = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+        DeferrableSurface surface0 = new ImmediateSurface(imageReader0.getSurface());
+        SessionConfig.OutputConfig outputConfig0 =
+                SessionConfig.OutputConfig.builder(surface0).setPhysicalCameraId(
+                        physicalCameraId).build();
+        SessionConfig.Builder sessionConfigBuilder =
+                new SessionConfig.Builder()
+                        .addOutputConfig(outputConfig0)
+                        .setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+
+        // future to receive the capture result
+        ListenableFuture<CaptureResult> captureResultFuture =
+                CallbackToFutureAdapter.getFuture(completer -> {
+                    CameraCaptureCallback callback =
+                            CaptureCallbackContainer.create(
+                                    new CameraCaptureSession.CaptureCallback() {
+                                        @Override
+                                        public void onCaptureCompleted(
+                                                @NonNull CameraCaptureSession session,
+                                                @NonNull CaptureRequest request,
+                                                @NonNull TotalCaptureResult result) {
+                                            completer.set(result);
+                                        }
+                                    }
+                            );
+                    sessionConfigBuilder.addCameraCaptureCallback(callback);
+                    return "capture result completer";
+                });
+        SessionConfig sessionConfig = sessionConfigBuilder.build();
+
+        // 2. Act
+        CaptureSession captureSession = createCaptureSession();
+        captureSession.setSessionConfig(sessionConfig);
+        captureSession.open(sessionConfig,
+                mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build());
+
+        // 3. Assert.
+        CaptureResult captureResult = captureResultFuture.get(3, TimeUnit.SECONDS);
+        assertThat(captureResult.get(CaptureResult.LOGICAL_MULTI_CAMERA_ACTIVE_PHYSICAL_ID))
+                .isEqualTo(physicalCameraId);
+
+        // clean up
+        surface0.getTerminationFuture().addListener(() -> imageReader0.close(),
+                CameraXExecutors.mainThreadExecutor()
+        );
+        surface0.close();
+    }
+
+    @Test
+    public void openCaptureSessionWithDuplicateSurface()
+            throws InterruptedException, ExecutionException, TimeoutException {
+        // 1. Arrange
+        ImageReader imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+        // deferrableSurface0 and deferrableSurface1 contain the same Surface.
+        DeferrableSurface deferrableSurface0 = new ImmediateSurface(imageReader.getSurface());
+        DeferrableSurface deferrableSurface1 = new ImmediateSurface(imageReader.getSurface());
+        SessionConfig sessionConfig =
+                new SessionConfig.Builder()
+                        .addSurface(deferrableSurface0)
+                        .addSurface(deferrableSurface1)
+                        .setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
+                        .build();
+
+        // 2. Act
+        CaptureSession captureSession = createCaptureSession();
+        captureSession.setSessionConfig(sessionConfig); // set repeating request
+        ListenableFuture<Void> future = captureSession.open(sessionConfig,
+                mCameraDeviceHolder.get(), mCaptureSessionOpenerBuilder.build());
+        future.get(2, TimeUnit.SECONDS);
+
+        // 3. Assert
+        Handler handler = new Handler(Looper.getMainLooper());
+        CountDownLatch latch0 = new CountDownLatch(1);
+        CountDownLatch latch1 = new CountDownLatch(1);
+        imageReader.setOnImageAvailableListener(reader -> {
+            latch0.countDown();
+        }, handler);
+
+        assertThat(latch0.await(2, TimeUnit.SECONDS)).isTrue();
+
+        // clean up
+        deferrableSurface0.getTerminationFuture().addListener(() -> imageReader.close(),
+                CameraXExecutors.mainThreadExecutor()
+        );
+        deferrableSurface0.close();
+        deferrableSurface1.close();
     }
 
     @Test

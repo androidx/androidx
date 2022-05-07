@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.Preview;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.core.internal.compat.quirk.SurfaceOrderQuirk;
 
@@ -47,15 +48,15 @@ public class SurfaceSorter {
     /**
      * Sorts the list to prevent from the device specific issue.
      *
-     * @param surfaces the input surface list to sort, must be a mutable list.
+     * @param outputConfigs the input OutputConfig list to sort, must be a mutable list.
      */
-    public void sort(@NonNull List<DeferrableSurface> surfaces) {
+    public void sort(@NonNull List<SessionConfig.OutputConfig> outputConfigs) {
         if (!mHasQuirk) {
             return;
         }
-        Collections.sort(surfaces, (surface1, surface2) -> {
-            int p1 = getSurfacePriority(surface1);
-            int p2 = getSurfacePriority(surface2);
+        Collections.sort(outputConfigs, (outputConfig1, outputConfig2) -> {
+            int p1 = getSurfacePriority(outputConfig1.getSurface());
+            int p2 = getSurfacePriority(outputConfig2.getSurface());
             return p1 - p2;
         });
     }
