@@ -36,7 +36,8 @@
     <string name="on_action_title" msgid="4129601573763429611">"On"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Off"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Settings"</string>
-    <string name="accept_action_title" msgid="6172053420803596132">"Accept"</string>
+    <!-- no translation found for accept_action_title (4899660585470647578) -->
+    <skip />
     <string name="reject_action_title" msgid="6730366705938402668">"Reject"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"OK"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Throw"</string>
@@ -140,6 +141,10 @@
     <string name="importance_title" msgid="9034862997821839831">"Importance"</string>
     <string name="category_title" msgid="4783851267093259949">"Category"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"Ongoing"</string>
+    <string name="default_importance" msgid="6347996298832939989">"Default"</string>
+    <string name="high_importance" msgid="5009120714837304882">"High"</string>
+    <string name="low_importance" msgid="4721161314404294033">"Low"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"Unknown"</string>
     <string name="notification_demo" msgid="1819496937832036387">"Notification demo"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"Misc demos"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"Navigating demo"</string>
@@ -286,8 +291,7 @@
     <string name="additional_data_text" msgid="2846223398214158872">"Updates allowed on back operations."</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Misc templates demos"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase demos"</string>
-    <!-- no translation found for location_1_title (3939821089928425181) -->
-    <skip />
+    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Tinted resource vector"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Image resource bitmap"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Coloured text marker"</string>
