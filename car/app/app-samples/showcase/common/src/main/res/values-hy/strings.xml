@@ -36,7 +36,8 @@
     <string name="on_action_title" msgid="4129601573763429611">"Միացված է"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Անջատված է"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Կարգավորումներ"</string>
-    <string name="accept_action_title" msgid="6172053420803596132">"Կարգավորումներ"</string>
+    <!-- no translation found for accept_action_title (4899660585470647578) -->
+    <skip />
     <string name="reject_action_title" msgid="6730366705938402668">"Մերժել"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"Եղավ"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Նետում"</string>
@@ -110,8 +111,7 @@
     <string name="content_limits_demo_title" msgid="3207211638386727610">"Բովանդակության սահմանափակումների դեմո"</string>
     <string name="finish_app_msg" msgid="8354334557053141891">"Հավելվածը կփակվի, և երբ այն նորից բացեք, թույլտվությունների էկրանը նախապես կբեռնվի"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Հավելվածից դուրս գալու դեմո"</string>
-    <!-- no translation found for finish_app_demo_title (8223819062053448384) -->
-    <skip />
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"Թույլտվությունների Էկրանի նախապես կարգավորված տեղադրման դեմո հաջորդ գործարկման ժամանակ"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"Բեռնման դեմո"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Բեռնումն ավարտվեց"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Անցնել կատալոգին"</string>
@@ -141,6 +141,14 @@
     <string name="importance_title" msgid="9034862997821839831">"Կարևորություն"</string>
     <string name="category_title" msgid="4783851267093259949">"Կատեգորիա"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"Ընթացիկ"</string>
+    <!-- no translation found for default_importance (6347996298832939989) -->
+    <skip />
+    <!-- no translation found for high_importance (5009120714837304882) -->
+    <skip />
+    <!-- no translation found for low_importance (4721161314404294033) -->
+    <skip />
+    <!-- no translation found for unknown_importance (909001735933359216) -->
+    <skip />
     <string name="notification_demo" msgid="1819496937832036387">"Ծանուցման դեմո"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"Այլ դեմոներ"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"Նավիգացիայի օգտագործման դեմո"</string>
@@ -284,12 +292,10 @@
     <string name="image_test_title" msgid="8273863429801477547">"Պատկերների ստուգում"</string>
     <string name="image_test_text" msgid="6264812093895530445">"Դուք կարող եք փոխել պատկերները"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Լրացուցիչ տվյալներ"</string>
-    <!-- no translation found for additional_data_text (2846223398214158872) -->
-    <skip />
+    <string name="additional_data_text" msgid="2846223398214158872">"Թարմացումները թույլատրված են՝ ֆոնային ռեժիմում գործողություններ կատարելու համար։"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Այլ ձևանմուշների դեմոներ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Ցուցադրել դեմոները"</string>
-    <!-- no translation found for location_1_title (3939821089928425181) -->
-    <skip />
+    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Երանգավորված ռեսուրսների վեկտոր"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Պատկերի ռեսուրսի բիթային քարտեզ"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Գունավոր տեքստի նշիչ"</string>
