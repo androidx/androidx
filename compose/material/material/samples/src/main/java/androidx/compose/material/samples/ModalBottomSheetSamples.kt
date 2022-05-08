@@ -61,6 +61,7 @@ fun ModalBottomSheetSample() {
     val scope = rememberCoroutineScope()
     ModalBottomSheetLayout(
         sheetState = state,
+        sheetGesturesEnabled = false,
         sheetContent = {
             LazyColumn {
                 items(50) {

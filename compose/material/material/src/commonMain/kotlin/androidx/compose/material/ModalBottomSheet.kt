@@ -306,6 +306,7 @@ fun rememberModalBottomSheetState(
  * bottom sheet is visible. If the color passed is [Color.Unspecified], then a scrim will no
  * longer be applied and the bottom sheet will not block interaction with the rest of the screen
  * when visible.
+ * @param sheetGesturesEnabled Whether the bottom sheet can be interacted with by gestures.
  * @param content The content of rest of the screen.
  */
 @Composable
@@ -320,6 +321,7 @@ fun ModalBottomSheetLayout(
     sheetBackgroundColor: Color = MaterialTheme.colors.surface,
     sheetContentColor: Color = contentColorFor(sheetBackgroundColor),
     scrimColor: Color = ModalBottomSheetDefaults.scrimColor,
+    sheetGesturesEnabled: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -331,7 +333,7 @@ fun ModalBottomSheetLayout(
             Scrim(
                 color = scrimColor,
                 onDismiss = {
-                    if (sheetState.confirmStateChange(Hidden)) {
+                    if (sheetGesturesEnabled && sheetState.confirmStateChange(Hidden)) {
                         scope.launch { sheetState.hide() }
                     }
                 },
