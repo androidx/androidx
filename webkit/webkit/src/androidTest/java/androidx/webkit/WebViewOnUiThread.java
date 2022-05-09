@@ -79,6 +79,11 @@ public class WebViewOnUiThread implements AutoCloseable{
     private boolean mOwnsWebView;
 
     /**
+     * Optional extra steps to execute during cleanup.
+     */
+    private Runnable mCleanupTask;
+
+    /**
      * Create a new WebViewOnUiThread that owns its own WebView instance.
      */
     public WebViewOnUiThread() {
@@ -130,6 +135,9 @@ public class WebViewOnUiThread implements AutoCloseable{
      * the view hierarchy, if needed.
      */
     public void cleanUp() {
+        if (mCleanupTask != null) {
+            mCleanupTask.run();
+        }
         WebkitUtils.onMainThreadSync(() -> {
             mWebView.clearHistory();
             mWebView.clearCache(true);
@@ -139,6 +147,15 @@ public class WebViewOnUiThread implements AutoCloseable{
                 mWebView.destroy();
             }
         });
+    }
+
+    /**
+     * set a task that will be executed before any other cleanup code.
+     *
+     * The task will be executed on the same thread that executes the cleanup.
+     */
+    public void setCleanupTask(Runnable cleanupTask) {
+        mCleanupTask = cleanupTask;
     }
 
     /**
