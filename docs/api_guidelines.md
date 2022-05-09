@@ -925,8 +925,17 @@ encourages them -- through Lint warnings -- to migrate elsewhere. This is
 accomplished by adding a `@Deprecated` and `@deprecated` (with migration
 comment) annotation pair to *every* class and interface in the artifact.
 
-Entire packages (including Kotlin) can be deprecated by using a
-`package-info.java` file and applying the `@Deprecated` annotation there.
+To deprecate an entire artifact:
+
+1.  Mark every top-level API (class, interface, extension function, etc.) in the
+    artifact as `@Deprecated` and update the API files
+    ([example CL](https://android-review.googlesource.com/c/platform/frameworks/support/+/1938773))
+1.  Schedule a release of the artifact as a new minor version. When you populate
+    the release notes, explain that the entire artifact has been deprecated.
+    Include the reason for deprecation and the migration strategy.
+1.  After the artifact has been released, remove the artifact from the source
+    tree, versions file, and tip-of-tree docs configuration
+    ([example CL](https://android-review.googlesource.com/c/platform/frameworks/support/+/2061731/))
 
 The fully-deprecated artifact will be released as a deprecation release -- it
 will ship normally with accompanying release notes indicating the reason for
