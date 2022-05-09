@@ -1359,7 +1359,7 @@ including:
 
 Primary artifacts, e.g. `workmanager`, **must not** depend on closed-source
 components including libraries and hard-coded references to packages,
-permissions, or IPC mechanisms that may only be fulfulled by closed-source
+permissions, or IPC mechanisms that may only be fulfilled by closed-source
 components.
 
 Optional artifacts, e.g. `workmanager-gcm`, *may* depend on closed-source
