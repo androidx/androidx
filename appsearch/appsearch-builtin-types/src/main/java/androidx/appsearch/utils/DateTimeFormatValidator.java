@@ -25,6 +25,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Helper class used to validate date time formats.
@@ -54,7 +55,11 @@ public final class DateTimeFormatValidator {
      * Returns true if the date string matches the provided format exactly.
      */
     public static boolean validateDateFormat(@NonNull String format, @NonNull String dateString) {
-        DateFormat dateFormat = new SimpleDateFormat(format);
+        // ISO 8601 DateTime format must be represented using arabic numerals (0-9). en-US is
+        // one of many locales that uses arabic numerals, therefore it is used during formatting.
+        // Even if the user's device is not in the en-US locale, this will still work since ISO
+        // 8601 is an international standard, and does not change based on locales.
+        DateFormat dateFormat = new SimpleDateFormat(format, Locale.US);
         dateFormat.setLenient(false);
         try {
             Date date = dateFormat.parse(dateString);
