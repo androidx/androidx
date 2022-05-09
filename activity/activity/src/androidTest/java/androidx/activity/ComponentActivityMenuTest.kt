@@ -17,15 +17,21 @@
 package androidx.activity
 
 import android.os.Build
+import android.os.Bundle
+import android.view.ContextMenu
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
 import androidx.activity.test.R
 import androidx.core.view.MenuProvider
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
+import androidx.test.espresso.Espresso.pressBack
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
@@ -34,6 +40,9 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -175,5 +184,47 @@ class ComponentActivityMenuTest {
             withActivity { closeOptionsMenu() }
             assertThat(menuClosed).isTrue()
         }
+    }
+
+    @Test
+    fun onPanelClosed() {
+        with(ActivityScenario.launch(ContextMenuComponentActivity::class.java)) {
+            onView(withText("Context Menu")).perform(longClick())
+            onView(withText("Item1")).check(matches(isDisplayed()))
+            onView(withText("Item2")).check(matches(isDisplayed()))
+
+            pressBack()
+            val countDownLatch = withActivity { this.contextMenuClosedCountDownLatch }
+            assertWithMessage("onPanelClosed was not called")
+                .that(countDownLatch.await(1000, TimeUnit.MILLISECONDS))
+                .isTrue()
+        }
+    }
+}
+
+class ContextMenuComponentActivity : ComponentActivity() {
+
+    val contextMenuClosedCountDownLatch = CountDownLatch(1)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.context_menu)
+        val contextMenuTextView = findViewById<TextView>(R.id.context_menu_tv)
+        registerForContextMenu(contextMenuTextView)
+    }
+
+    override fun onCreateContextMenu(
+        menu: ContextMenu,
+        v: View,
+        menuInfo: ContextMenu.ContextMenuInfo?
+    ) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+        val inflater: MenuInflater = menuInflater
+        inflater.inflate(R.menu.example_menu, menu)
+    }
+
+    override fun onContextMenuClosed(menu: Menu) {
+        contextMenuClosedCountDownLatch.countDown()
+        super.onContextMenuClosed(menu)
     }
 }
