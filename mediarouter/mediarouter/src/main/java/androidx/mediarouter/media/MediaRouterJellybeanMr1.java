@@ -16,6 +16,7 @@
 
 package androidx.mediarouter.media;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
@@ -41,7 +42,7 @@ final class MediaRouterJellybeanMr1 {
 
     public static final class RouteInfo {
         public static boolean isEnabled(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo)routeObj).isEnabled();
+            return ((android.media.MediaRouter.RouteInfo) routeObj).isEnabled();
         }
 
         @Nullable
@@ -49,7 +50,7 @@ final class MediaRouterJellybeanMr1 {
             // android.media.MediaRouter.RouteInfo.getPresentationDisplay() was
             // added in API 17. However, some factory releases of JB MR1 missed it.
             try {
-                return ((android.media.MediaRouter.RouteInfo)routeObj).getPresentationDisplay();
+                return ((android.media.MediaRouter.RouteInfo) routeObj).getPresentationDisplay();
             } catch (NoSuchMethodError ex) {
                 Log.w(TAG, "Cannot get presentation display for the route.", ex);
             }
@@ -126,6 +127,7 @@ final class MediaRouterJellybeanMr1 {
             }
         }
 
+        @SuppressLint("BanUncheckedReflection") // TODO: b/232075564
         @Override
         public void run() {
             if (mActivelyScanningWifiDisplays) {
@@ -149,7 +151,7 @@ final class MediaRouterJellybeanMr1 {
         private Method mGetStatusCodeMethod;
         private int mStatusConnecting;
 
-        public IsConnectingWorkaround() {
+        IsConnectingWorkaround() {
             if (Build.VERSION.SDK_INT != 17) {
                 throw new UnsupportedOperationException();
             }
@@ -166,13 +168,14 @@ final class MediaRouterJellybeanMr1 {
             }
         }
 
+        @SuppressLint("BanUncheckedReflection") // TODO: b/232075564
         public boolean isConnecting(@NonNull Object routeObj) {
             android.media.MediaRouter.RouteInfo route =
-                    (android.media.MediaRouter.RouteInfo)routeObj;
+                    (android.media.MediaRouter.RouteInfo) routeObj;
 
             if (mGetStatusCodeMethod != null) {
                 try {
-                    int statusCode = (Integer)mGetStatusCodeMethod.invoke(route);
+                    int statusCode = (Integer) mGetStatusCodeMethod.invoke(route);
                     return statusCode == mStatusConnecting;
                 } catch (IllegalAccessException ex) {
                 } catch (InvocationTargetException ex) {
@@ -186,7 +189,7 @@ final class MediaRouterJellybeanMr1 {
 
     static class CallbackProxy<T extends Callback>
             extends MediaRouterJellybean.CallbackProxy<T> {
-        public CallbackProxy(T callback) {
+        CallbackProxy(T callback) {
             super(callback);
         }
 
