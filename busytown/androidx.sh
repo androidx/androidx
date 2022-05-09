@@ -5,6 +5,9 @@ echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"
 
+# this target is for testing that clean builds work correctly
+export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
+
 EXIT_VALUE=0
 
 # Validate translation exports, if present
