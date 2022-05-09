@@ -20,6 +20,7 @@ import android.webkit.WebResourceRequest;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
+import androidx.webkit.internal.ApiFeature;
 import androidx.webkit.internal.WebResourceRequestAdapter;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
@@ -45,7 +46,7 @@ public class WebResourceRequestCompat {
     @RequiresFeature(name = WebViewFeature.WEB_RESOURCE_REQUEST_IS_REDIRECT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean isRedirect(@NonNull WebResourceRequest request) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_RESOURCE_REQUEST_IS_REDIRECT;
+        ApiFeature.N feature = WebViewFeatureInternal.WEB_RESOURCE_REQUEST_IS_REDIRECT;
         if (feature.isSupportedByFramework()) {
             return request.isRedirect();
         } else if (feature.isSupportedByWebView()) {

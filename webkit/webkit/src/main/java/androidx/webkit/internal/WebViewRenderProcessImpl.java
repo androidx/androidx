@@ -85,7 +85,7 @@ public class WebViewRenderProcessImpl extends WebViewRenderProcess {
 
     @Override
     public boolean terminate() {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_VIEW_RENDERER_TERMINATE;
+        final ApiFeature.Q feature = WebViewFeatureInternal.WEB_VIEW_RENDERER_TERMINATE;
         if (feature.isSupportedByFramework()) {
             android.webkit.WebViewRenderProcess renderer = mFrameworkObject.get();
             return renderer != null ? renderer.terminate() : false;
