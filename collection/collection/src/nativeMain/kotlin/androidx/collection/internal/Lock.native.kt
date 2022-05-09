@@ -16,6 +16,7 @@
 
 package androidx.collection.internal
 
+import kotlin.native.internal.createCleaner
 import kotlinx.cinterop.Arena
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.ptr
@@ -28,7 +29,6 @@ import platform.posix.pthread_mutexattr_destroy
 import platform.posix.pthread_mutexattr_init
 import platform.posix.pthread_mutexattr_settype
 import platform.posix.pthread_mutexattr_t
-import kotlin.native.internal.createCleaner
 
 /**
  * Wrapper for platform.posix.PTHREAD_MUTEX_RECURSIVE which
@@ -46,11 +46,20 @@ internal actual class Lock actual constructor() {
     @ExperimentalStdlibApi
     private val cleaner = createCleaner(resources, Resources::destroy)
 
-    actual fun lock() {
+    actual inline fun <T> synchronizedImpl(block: () -> T): T {
+        lock()
+        return try {
+            block()
+        } finally {
+            unlock()
+        }
+    }
+
+    fun lock() {
         pthread_mutex_lock(resources.mutex.ptr)
     }
 
-    actual fun unlock() {
+    fun unlock() {
         pthread_mutex_unlock(resources.mutex.ptr)
     }
 
