@@ -170,7 +170,7 @@ fun ImageBitmap.assertColorInPercentageRange(
         throw AssertionError("Expected color $expectedColor was not found in the bitmap.")
     }
 
-    round((histogram[expectedColor]!! * 100f) / (width * height)).let { actualPercent ->
+    ((histogram[expectedColor]!! * 100f) / (width * height)).let { actualPercent ->
         if (actualPercent !in range) {
             throw AssertionError(
                 "Expected color $expectedColor found " +
