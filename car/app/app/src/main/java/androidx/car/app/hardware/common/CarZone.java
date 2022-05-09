@@ -224,6 +224,12 @@ public final class CarZone {
                 && Objects.equals(mRow, otherZone.getRow());
     }
 
+    /** Constructs an empty instance, used by serialization code. */
+    private CarZone() {
+        mRow = 0;
+        mColumn = 0;
+    }
+
     /** A builder for instantiating {@link CarZone}. */
     public static final class Builder {
         int mRow = CAR_ZONE_ROW_ALL;
