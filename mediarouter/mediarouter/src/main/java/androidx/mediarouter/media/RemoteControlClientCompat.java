@@ -19,6 +19,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -175,7 +176,7 @@ abstract class RemoteControlClientCompat {
             }
 
             @Override
-            public void onVolumeUpdateRequest(Object routeObj, int direction) {
+            public void onVolumeUpdateRequest(@NonNull Object routeObj, int direction) {
                 JellybeanImpl impl = mImplWeak.get();
                 if (impl != null && impl.mVolumeCallback != null) {
                     impl.mVolumeCallback.onVolumeUpdateRequest(direction);
@@ -183,7 +184,7 @@ abstract class RemoteControlClientCompat {
             }
 
             @Override
-            public void onVolumeSetRequest(Object routeObj, int volume) {
+            public void onVolumeSetRequest(@NonNull Object routeObj, int volume) {
                 JellybeanImpl impl = mImplWeak.get();
                 if (impl != null && impl.mVolumeCallback != null) {
                     impl.mVolumeCallback.onVolumeSetRequest(volume);
