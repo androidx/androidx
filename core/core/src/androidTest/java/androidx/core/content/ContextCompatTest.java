@@ -144,7 +144,9 @@ import android.view.accessibility.CaptioningManager;
 import android.view.inputmethod.InputMethodManager;
 import android.view.textservice.TextServicesManager;
 
+import androidx.annotation.OptIn;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.test.R;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -583,8 +585,9 @@ public class ContextCompatTest extends BaseInstrumentationTestCase<ThemedYellowA
     }
 
     @Test
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public void testCheckSelfPermissionNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= 33) {
+        if (BuildCompat.isAtLeastT()) {
             assertEquals(
                     mContext.checkCallingPermission(Manifest.permission.POST_NOTIFICATIONS),
                     ContextCompat.checkSelfPermission(

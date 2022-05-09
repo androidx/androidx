@@ -26,6 +26,7 @@ import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.platformstorage.converter.SearchResultToPlatformConverter;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -58,6 +59,7 @@ class SearchResultsImpl implements SearchResults {
 
     @Override
     @NonNull
+    @BuildCompat.PrereleaseSdkCheck
     public ListenableFuture<List<SearchResult>> getNextPageAsync() {
         ResolvableFuture<List<SearchResult>> future = ResolvableFuture.create();
         mPlatformResults.getNextPage(mExecutor, result -> {

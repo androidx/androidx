@@ -23,6 +23,7 @@ import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.Size;
 import androidx.core.text.ICUCompat;
@@ -245,9 +246,10 @@ public final class LocaleListCompat {
      * @return True if they match, false otherwise.
      */
     @RequiresApi(21)
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static boolean matchesLanguageAndScript(@NonNull Locale supported,
             @NonNull Locale desired) {
-        if (Build.VERSION.SDK_INT >= 33) {
+        if (BuildCompat.isAtLeastT()) {
             return LocaleList.matchesLanguageAndScript(supported, desired);
         } else if (Build.VERSION.SDK_INT >= 21) {
             return Api21Impl.matchesLanguageAndScript(supported, desired);

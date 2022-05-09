@@ -18,13 +18,13 @@
 
 package androidx.appcompat.app
 
-import android.os.Build
 import android.os.LocaleList
 import androidx.annotation.RequiresApi
 import androidx.appcompat.testutils.LocalesActivityTestRule
 import androidx.appcompat.testutils.LocalesUtils
 import androidx.appcompat.testutils.LocalesUtils.CUSTOM_LOCALE_LIST
 import androidx.appcompat.testutils.LocalesUtils.assertConfigurationLocalesEquals
+import androidx.core.os.BuildCompat
 import androidx.core.os.LocaleListCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -52,8 +52,10 @@ class LocalesSetUsingFrameworkApiTestCase {
     @RequiresApi(33)
     @Before
     fun setUp() {
+        // TODO(b/223775393): Remove BuildCompat.isAtLeastT() checks after API version is
+        //  bumped to 33
         assumeTrue(
-            "Requires API version >=T", Build.VERSION.SDK_INT >= 33
+            "Requires API version >=T", BuildCompat.isAtLeastT()
         )
 
         // setting the app to follow system.
@@ -113,7 +115,9 @@ class LocalesSetUsingFrameworkApiTestCase {
     @RequiresApi(33)
     @After
     fun teardown() {
-        if (!(Build.VERSION.SDK_INT >= 33)) {
+        // TODO(b/223775393): Remove BuildCompat.isAtLeastT() checks after API version is
+        //  bumped to 33
+        if (!BuildCompat.isAtLeastT()) {
             return
         }
         // clearing locales from framework. setting the app to follow system.
