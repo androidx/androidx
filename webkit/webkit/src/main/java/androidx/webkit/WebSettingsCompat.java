@@ -22,6 +22,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.webkit.internal.ApiFeature;
 import androidx.webkit.internal.WebSettingsAdapter;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
@@ -60,7 +61,7 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setOffscreenPreRaster(@NonNull WebSettings settings, boolean enabled) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.OFF_SCREEN_PRERASTER;
+        ApiFeature.M feature = WebViewFeatureInternal.OFF_SCREEN_PRERASTER;
         if (feature.isSupportedByFramework()) {
             settings.setOffscreenPreRaster(enabled);
         } else if (feature.isSupportedByWebView()) {
@@ -85,7 +86,7 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean getOffscreenPreRaster(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.OFF_SCREEN_PRERASTER;
+        ApiFeature.M feature = WebViewFeatureInternal.OFF_SCREEN_PRERASTER;
         if (feature.isSupportedByFramework()) {
             return settings.getOffscreenPreRaster();
         } else if (feature.isSupportedByWebView()) {
@@ -117,7 +118,7 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingEnabled(@NonNull WebSettings settings, boolean enabled) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.SAFE_BROWSING_ENABLE;
+        ApiFeature.O feature = WebViewFeatureInternal.SAFE_BROWSING_ENABLE;
         if (feature.isSupportedByFramework()) {
             settings.setSafeBrowsingEnabled(enabled);
         } else if (feature.isSupportedByWebView()) {
@@ -141,7 +142,7 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean getSafeBrowsingEnabled(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.SAFE_BROWSING_ENABLE;
+        ApiFeature.O feature = WebViewFeatureInternal.SAFE_BROWSING_ENABLE;
         if (feature.isSupportedByFramework()) {
             return settings.getSafeBrowsingEnabled();
         } else if (feature.isSupportedByWebView()) {
@@ -179,8 +180,7 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setDisabledActionModeMenuItems(@NonNull WebSettings settings,
             @MenuItemFlags int menuItems) {
-        WebViewFeatureInternal feature =
-                WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
+        ApiFeature.N feature = WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
         if (feature.isSupportedByFramework()) {
             settings.setDisabledActionModeMenuItems(menuItems);
         } else if (feature.isSupportedByWebView()) {
@@ -204,8 +204,7 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @MenuItemFlags int getDisabledActionModeMenuItems(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature =
-                WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
+        ApiFeature.N feature = WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
         if (feature.isSupportedByFramework()) {
             return settings.getDisabledActionModeMenuItems();
         } else if (feature.isSupportedByWebView()) {
@@ -236,7 +235,7 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWillSuppressErrorPage(@NonNull WebSettings settings,
             boolean suppressed) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.SUPPRESS_ERROR_PAGE;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.SUPPRESS_ERROR_PAGE;
         if (feature.isSupportedByWebView()) {
             getAdapter(settings).setWillSuppressErrorPage(suppressed);
         } else {
@@ -263,7 +262,7 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean willSuppressErrorPage(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.SUPPRESS_ERROR_PAGE;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.SUPPRESS_ERROR_PAGE;
         if (feature.isSupportedByWebView()) {
             return getAdapter(settings).willSuppressErrorPage();
         } else {
@@ -353,7 +352,7 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setForceDark(@NonNull WebSettings settings,
             @ForceDark int forceDarkMode) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.FORCE_DARK;
+        ApiFeature.Q feature = WebViewFeatureInternal.FORCE_DARK;
         if (feature.isSupportedByFramework()) {
             settings.setForceDark(forceDarkMode);
         } else if (feature.isSupportedByWebView()) {
@@ -382,7 +381,7 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @ForceDark int getForceDark(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.FORCE_DARK;
+        ApiFeature.Q feature = WebViewFeatureInternal.FORCE_DARK;
         if (feature.isSupportedByFramework()) {
             return settings.getForceDark();
         } else if (feature.isSupportedByWebView()) {
@@ -478,7 +477,7 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setAlgorithmicDarkeningAllowed(@NonNull WebSettings settings,
             boolean allow) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
         if (feature.isSupportedByWebView()) {
             getAdapter(settings).setAlgorithmicDarkeningAllowed(allow);
         } else {
@@ -496,7 +495,7 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.ALGORITHMIC_DARKENING,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean isAlgorithmicDarkeningAllowed(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.ALGORITHMIC_DARKENING;
         if (feature.isSupportedByWebView()) {
             return getAdapter(settings).isAlgorithmicDarkeningAllowed();
         } else {
@@ -586,7 +585,7 @@ public class WebSettingsCompat {
     @Deprecated
     public static void setForceDarkStrategy(@NonNull WebSettings settings,
             @ForceDarkStrategy int forceDarkBehavior) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.FORCE_DARK_STRATEGY;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.FORCE_DARK_STRATEGY;
         if (feature.isSupportedByWebView()) {
             getAdapter(settings).setForceDarkStrategy(forceDarkBehavior);
         } else {
@@ -614,7 +613,7 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @Deprecated
     public static @ForceDarkStrategy int getForceDarkStrategy(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.FORCE_DARK_STRATEGY;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.FORCE_DARK_STRATEGY;
         if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getForceDark();
         } else {
@@ -684,7 +683,7 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setRequestedWithHeaderMode(@NonNull WebSettings settings,
             @RequestedWithHeaderMode int requestedWithHeaderMode) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
         if (feature.isSupportedByWebView()) {
             getAdapter(settings).setRequestedWithHeaderMode(requestedWithHeaderMode);
         } else {
@@ -709,7 +708,7 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @RequestedWithHeaderMode
     public static int getRequestedWithHeaderMode(@NonNull WebSettings settings) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
+        ApiFeature.NoFramework feature = WebViewFeatureInternal.REQUESTED_WITH_HEADER_CONTROL;
         if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getRequestedWithHeaderMode();
         } else {

@@ -36,8 +36,7 @@ public class TracingControllerImpl extends TracingController {
     private TracingControllerBoundaryInterface mBoundaryInterface;
 
     public TracingControllerImpl() {
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
+        final ApiFeature.P feature = WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
             mFrameworksImpl = android.webkit.TracingController.getInstance();
             mBoundaryInterface = null;
@@ -66,8 +65,7 @@ public class TracingControllerImpl extends TracingController {
 
     @Override
     public boolean isTracing() {
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
+        final ApiFeature.P feature = WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
             return getFrameworksImpl().isTracing();
         } else if (feature.isSupportedByWebView()) {
@@ -83,8 +81,7 @@ public class TracingControllerImpl extends TracingController {
             throw new IllegalArgumentException("Tracing config must be non null");
         }
 
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
+        final ApiFeature.P feature = WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
             android.webkit.TracingConfig config = new android.webkit.TracingConfig.Builder()
                     .addCategories(tracingConfig.getPredefinedCategories())
@@ -102,8 +99,7 @@ public class TracingControllerImpl extends TracingController {
 
     @Override
     public boolean stop(OutputStream outputStream, Executor executor) {
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
+        final ApiFeature.P feature = WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
             return getFrameworksImpl().stop(outputStream, executor);
         } else if (feature.isSupportedByWebView()) {

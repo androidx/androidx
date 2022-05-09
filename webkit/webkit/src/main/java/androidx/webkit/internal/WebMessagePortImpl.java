@@ -71,7 +71,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
 
     @Override
     public void postMessage(@NonNull WebMessageCompat message) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_POST_MESSAGE;
+        final ApiFeature.M feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_POST_MESSAGE;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().postMessage(compatToFrameworkMessage(message));
         } else if (feature.isSupportedByWebView()) {
@@ -85,7 +85,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
 
     @Override
     public void close() {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_CLOSE;
+        final ApiFeature.M feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_CLOSE;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().close();
         } else if (feature.isSupportedByWebView()) {
@@ -97,8 +97,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
 
     @Override
     public void setWebMessageCallback(@NonNull final WebMessageCallbackCompat callback) {
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK;
+        final ApiFeature.M feature = WebViewFeatureInternal.WEB_MESSAGE_PORT_SET_MESSAGE_CALLBACK;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
                 @Override
@@ -119,7 +118,7 @@ public class WebMessagePortImpl extends WebMessagePortCompat {
     @Override
     public void setWebMessageCallback(Handler handler,
             @NonNull final WebMessageCallbackCompat callback) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.CREATE_WEB_MESSAGE_CHANNEL;
+        final ApiFeature.M feature = WebViewFeatureInternal.CREATE_WEB_MESSAGE_CHANNEL;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
                 @Override

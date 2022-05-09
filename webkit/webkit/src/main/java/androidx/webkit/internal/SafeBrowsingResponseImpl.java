@@ -78,7 +78,7 @@ public class SafeBrowsingResponseImpl extends SafeBrowsingResponseCompat {
 
     @Override
     public void showInterstitial(boolean allowReporting) {
-        final WebViewFeatureInternal feature =
+        final ApiFeature.O_MR1 feature =
                 WebViewFeatureInternal.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().showInterstitial(allowReporting);
@@ -91,8 +91,7 @@ public class SafeBrowsingResponseImpl extends SafeBrowsingResponseCompat {
 
     @Override
     public void proceed(boolean report) {
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.SAFE_BROWSING_RESPONSE_PROCEED;
+        final ApiFeature.O_MR1 feature = WebViewFeatureInternal.SAFE_BROWSING_RESPONSE_PROCEED;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().proceed(report);
         } else if (feature.isSupportedByWebView()) {
@@ -104,7 +103,7 @@ public class SafeBrowsingResponseImpl extends SafeBrowsingResponseCompat {
 
     @Override
     public void backToSafety(boolean report) {
-        final WebViewFeatureInternal feature =
+        final ApiFeature.O_MR1 feature =
                 WebViewFeatureInternal.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().backToSafety(report);

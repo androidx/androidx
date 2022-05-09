@@ -39,7 +39,7 @@ public class ServiceWorkerControllerImpl extends ServiceWorkerControllerCompat {
     private final ServiceWorkerWebSettingsCompat mWebSettings;
 
     public ServiceWorkerControllerImpl() {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_BASIC_USAGE;
+        final ApiFeature.N feature = WebViewFeatureInternal.SERVICE_WORKER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
             mFrameworksImpl = ServiceWorkerController.getInstance();
             // The current WebView APK might not be compatible with the support library, so set the
@@ -80,7 +80,7 @@ public class ServiceWorkerControllerImpl extends ServiceWorkerControllerCompat {
 
     @Override
     public void setServiceWorkerClient(@Nullable ServiceWorkerClientCompat client)  {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.SERVICE_WORKER_BASIC_USAGE;
+        final ApiFeature.N feature = WebViewFeatureInternal.SERVICE_WORKER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
             if (client == null) {
                 getFrameworksImpl().setServiceWorkerClient(null);
