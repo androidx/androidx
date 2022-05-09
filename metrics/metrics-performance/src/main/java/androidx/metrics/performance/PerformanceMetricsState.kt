@@ -54,6 +54,13 @@ class PerformanceMetricsState private constructor() {
      */
     private var singleFrameStates = mutableListOf<StateData>()
 
+    /**
+     * Temporary list to hold states that will be added to for any given frame in addFrameState().
+     * It is used to avoid adding duplicate states by storing all data for states being considered.
+     */
+    private val statesHolder = mutableListOf<StateData>()
+    private val statesToBeCleared = mutableListOf<Int>()
+
     private fun addFrameState(
         frameStartTime: Long,
         frameEndTime: Long,
@@ -70,12 +77,46 @@ class PerformanceMetricsState private constructor() {
                 activeStates.removeAt(i)
             } else if (item.timeAdded < frameEndTime) {
                 // Only add unique state. There may be several states added in
-                // a given frame (especially during heavy jank periods), but it is
-                // only necessary/helpful to log one of those items
-                if (item.state !in frameStates) {
-                    frameStates.add(item.state)
+                // a given frame (especially during heavy jank periods). Only the
+                // most recently added should be logged, as it replaces the earlier ones.
+                statesHolder.add(item)
+                if (activeStates == singleFrameStates && item.timeRemoved == -1L) {
+                    // This marks a single frame state for removal now that it has logged data
+                    // It will actually be removed at the end of the frame, to give it a chance to
+                    // log data for multiple listeners.
+                    item.timeRemoved = System.nanoTime()
                 }
             }
+        }
+        // It's possible to have multiple versions with the same stateName active on a given
+        // frame. This should result in only using the latest state added, which is what
+        // this block ensures.
+        if (statesHolder.size > 0) {
+            for (i in 0 until statesHolder.size) {
+                if (i !in statesToBeCleared) {
+                    val item = statesHolder.get(i)
+                    for (j in (i + 1) until statesHolder.size) {
+                        val otherItem = statesHolder.get(j)
+                        if (item.state.stateName == otherItem.state.stateName) {
+                            // If state names are the same, remove the one added earlier.
+                            // Note that we are only marking them for removal here since we
+                            // cannot alter the structure while iterating through it.
+                            if (item.timeAdded < otherItem.timeAdded) statesToBeCleared.add(i)
+                            else statesToBeCleared.add(j)
+                        }
+                    }
+                }
+            }
+            // This block actually removes the duplicate items
+            for (i in statesToBeCleared.size - 1 downTo 0) {
+                statesHolder.removeAt(statesToBeCleared[i])
+            }
+            // Finally, process all items left in the holder list and add them to frameStates
+            for (i in 0 until statesHolder.size) {
+                frameStates.add(statesHolder[i].state)
+            }
+            statesHolder.clear()
+            statesToBeCleared.clear()
         }
     }
 
@@ -233,7 +274,11 @@ class PerformanceMetricsState private constructor() {
     internal fun cleanupSingleFrameStates() {
         synchronized(singleFrameStates) {
             // Remove all states intended for just one frame
-            singleFrameStates.clear()
+            for (i in singleFrameStates.size - 1 downTo 0) {
+                // SFStates are marked with timeRemoved during processing so we know when
+                // they have logged data and can actually be removed
+                if (singleFrameStates[i].timeRemoved != -1L) singleFrameStates.removeAt(i)
+            }
         }
     }
 
@@ -256,14 +301,14 @@ class PerformanceMetricsState private constructor() {
          */
         @JvmStatic
         @UiThread
-        fun getForHierarchy(view: View): MetricsStateHolder {
+        fun getForHierarchy(view: View): Holder {
             val rootView = getRootView(view)
             var metricsStateHolder = rootView.getTag(R.id.metricsStateHolder)
             if (metricsStateHolder == null) {
-                metricsStateHolder = MetricsStateHolder()
+                metricsStateHolder = Holder()
                 rootView.setTag(R.id.metricsStateHolder, metricsStateHolder)
             }
-            return metricsStateHolder as MetricsStateHolder
+            return metricsStateHolder as Holder
         }
 
         /**
@@ -279,7 +324,7 @@ class PerformanceMetricsState private constructor() {
          */
         @JvmStatic
         @UiThread
-        internal fun create(view: View): MetricsStateHolder {
+        internal fun create(view: View): Holder {
             val holder = getForHierarchy(view)
             if (holder.state == null) {
                 holder.state = PerformanceMetricsState()
@@ -304,7 +349,7 @@ class PerformanceMetricsState private constructor() {
      * the value of the [state] property to see whether state is being tracked by JankStats
      * for the hierarchy.
      */
-    class MetricsStateHolder internal constructor() {
+    class Holder internal constructor() {
 
         /**
          * The current PerformanceMetricsState for the view hierarchy where this
