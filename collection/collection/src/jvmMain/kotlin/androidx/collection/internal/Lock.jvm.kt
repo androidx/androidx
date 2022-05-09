@@ -19,7 +19,9 @@
 package androidx.collection.internal
 
 import androidx.annotation.RestrictTo
-import java.util.concurrent.locks.ReentrantLock
 
-@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
-internal actual typealias Lock = ReentrantLock
+internal actual class Lock {
+
+    actual inline fun <T> synchronizedImpl(block: () -> T): T =
+        synchronized(lock = this, block = block)
+}
