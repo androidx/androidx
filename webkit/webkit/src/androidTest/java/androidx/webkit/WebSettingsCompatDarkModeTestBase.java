@@ -21,12 +21,14 @@ import static org.junit.Assert.assertTrue;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Build;
 import android.util.Base64;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -41,6 +43,7 @@ import java.util.Map;
 /**
  * Base class for dark mode related test.
  */
+@RequiresApi(Build.VERSION_CODES.KITKAT)
 public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
     public final String mDarkThemeSupport = Base64.encodeToString((
             "<html>"
@@ -65,7 +68,7 @@ public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
     @Rule
     public final TargetSdkActivityTestRule<T> mActivityRule;
 
-    public WebSettingsCompatDarkModeTestBase(Class<T> activityClass, int targetSdk) {
+    public WebSettingsCompatDarkModeTestBase(@NonNull Class<T> activityClass, int targetSdk) {
         mActivityRule = new TargetSdkActivityTestRule<T>(activityClass,
                 targetSdk);
     }
@@ -151,6 +154,7 @@ public class WebSettingsCompatDarkModeTestBase<T extends Activity> {
     /**
      * Returns a matcher to check if a color int is mostly green.
      */
+    @NonNull
     public static Matcher<Integer> isGreen() {
         return new TypeSafeMatcher<Integer>() {
             private int mPageColor;

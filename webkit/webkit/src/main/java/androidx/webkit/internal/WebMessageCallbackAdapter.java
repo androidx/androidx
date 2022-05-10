@@ -30,14 +30,14 @@ import java.lang.reflect.InvocationHandler;
  * Adapter between {@link WebMessageCallbackCompat} and {@link WebMessageCallbackBoundaryInterface}.
  */
 public class WebMessageCallbackAdapter implements WebMessageCallbackBoundaryInterface {
-    WebMessageCallbackCompat mImpl;
+    private final WebMessageCallbackCompat mImpl;
 
     public WebMessageCallbackAdapter(@NonNull WebMessageCallbackCompat impl) {
         mImpl = impl;
     }
 
     @Override
-    public void onMessage(InvocationHandler port, InvocationHandler message) {
+    public void onMessage(@NonNull InvocationHandler port, @NonNull InvocationHandler message) {
         mImpl.onMessage(new WebMessagePortImpl(port),
                 WebMessageAdapter.webMessageCompatFromBoundaryInterface(
                         BoundaryInterfaceReflectionUtil.castToSuppLibClass(
