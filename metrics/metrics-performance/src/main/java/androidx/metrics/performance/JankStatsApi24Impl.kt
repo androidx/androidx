@@ -94,15 +94,19 @@ internal open class JankStatsApi24Impl(
 
     override fun setupFrameTimer(enable: Boolean) {
         window.let {
-            if (enable) {
-                if (listenerAddedTime == 0L) {
-                    val delegates = window.getOrCreateFrameMetricsListenerDelegates()
-                    delegates.add(frameMetricsAvailableListenerDelegate)
-                    listenerAddedTime = System.nanoTime()
+            // prevent concurrent modification of delegates list by synchronizing on
+            // Window, whose DecorView holds the delegator object
+            synchronized(window) {
+                if (enable) {
+                    if (listenerAddedTime == 0L) {
+                        val delegates = window.getOrCreateFrameMetricsListenerDelegates()
+                        delegates.add(frameMetricsAvailableListenerDelegate)
+                        listenerAddedTime = System.nanoTime()
+                    }
+                } else {
+                    window.removeFrameMetricsListenerDelegate(frameMetricsAvailableListenerDelegate)
+                    listenerAddedTime = 0
                 }
-            } else {
-                window.removeFrameMetricsListenerDelegate(frameMetricsAvailableListenerDelegate)
-                listenerAddedTime = 0
             }
         }
     }
@@ -148,9 +152,7 @@ internal open class JankStatsApi24Impl(
                 thread.start()
                 frameMetricsHandler = Handler(thread.looper)
             }
-            addOnFrameMetricsAvailableListener(delegator,
-                frameMetricsHandler
-            )
+            addOnFrameMetricsAvailableListener(delegator, frameMetricsHandler)
             decorView.setTag(R.id.metricsDelegator, delegator)
         }
         return delegator.delegates
@@ -172,13 +174,30 @@ private class DelegatingFrameMetricsListener(
         frameMetrics: FrameMetrics?,
         dropCount: Int
     ) {
-        for (delegate in delegates) {
-            delegate.onFrameMetricsAvailable(window, frameMetrics, dropCount)
-        }
-        // Remove singleFrame states now that we are done processing this frame
-        if (window?.decorView != null) {
+        if (window != null) {
+            // prevent concurrent modification of delegates list by synchronizing on
+            // Window, whose DecorView holds the delegator object
+            window.withDelegates() {
+                for (delegate in delegates) {
+                    delegate.onFrameMetricsAvailable(window, frameMetrics, dropCount)
+                }
+            }
+            // Remove singleFrame states now that we are done processing this frame
             val holder = PerformanceMetricsState.getForHierarchy(window.decorView)
             holder.state?.cleanupSingleFrameStates()
+        }
+    }
+
+    /**
+     * Anything dealing with the delegates list must go through this function, to avoid the list
+     * changing while being used on a different thread. It synchronizes on the Window object
+     * to guarantee that all delegate access is similarly synchronized.
+     */
+    fun Window.withDelegates(delegateAction: () -> Unit) {
+        // prevent concurrent modification of delegates list by synchronizing on
+        // DecorView, which holds the delegator object
+        synchronized(this) {
+            delegateAction()
         }
     }
 }
