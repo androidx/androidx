@@ -320,7 +320,9 @@ class Camera2CapturePipeline {
                 // Dequeue image from buffer and enqueue into image writer for reprocessing. If
                 // succeeded, retrieve capture result and set into capture config.
                 CameraCaptureResult cameraCaptureResult = null;
-                if (captureConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG) {
+                if (captureConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+                        && !mCameraControl.getZslControl().isZslDisabledByFlashMode()
+                        && !mCameraControl.getZslControl().isZslDisabledByUserCaseConfig()) {
                     ImageProxy imageProxy =
                             mCameraControl.getZslControl().dequeueImageFromBuffer();
                     boolean isSuccess = imageProxy != null

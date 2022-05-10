@@ -781,8 +781,6 @@ final class Camera2CameraImpl implements CameraInternal {
         synchronized (mLock) {
             mSessionProcessor = sessionProcessor;
         }
-
-        getCameraControlInternal().setZslDisabled(cameraConfig.isZslDisabled());
     }
 
     @NonNull

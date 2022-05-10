@@ -559,27 +559,9 @@ class Camera2CapturePipelineTest {
             it.build()
         }
 
-        val cameraControl = createCameraControl().apply {
-            simulateRepeatingResult(initialDelay = 100)
-        }
-
-        val zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
-            hasCapabilities = true,
-            isYuvReprocessingSupported = true,
-            isPrivateReprocessingSupported = true
-        ))
-
-        val captureResult = FakeCameraCaptureResult()
-        captureResult.afState = AfState.LOCKED_FOCUSED
-        captureResult.aeState = AeState.CONVERGED
-        captureResult.awbState = AwbState.CONVERGED
-        val imageProxy = FakeImageProxy(CameraCaptureResultImageInfo(captureResult))
-        imageProxy.image = mock(Image::class.java)
-
-        zslControl.mImageRingBuffer.enqueue(imageProxy)
-        zslControl.mReprocessingImageWriter = mock(ImageWriter::class.java)
-
-        cameraControl.mZslControl = zslControl
+        val cameraControl = initCameraControlWithZsl(
+            isZslDisabledByFlashMode = false, isZslDisabledByUserCaseConfig = false
+        )
 
         // Act.
         cameraControl.submitStillCaptureRequests(
@@ -603,30 +585,77 @@ class Camera2CapturePipelineTest {
     }
 
     @Test
+    fun submitZslCaptureRequests_withZslDisabledByFlashMode_templateStillPictureSent():
+        Unit = runBlocking {
+        // Arrange.
+        val imageCaptureConfig = CaptureConfig.Builder().let {
+            it.addSurface(fakeStillCaptureSurface)
+            it.templateType = CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+            it.build()
+        }
+
+        val cameraControl = initCameraControlWithZsl(
+            isZslDisabledByFlashMode = true, isZslDisabledByUserCaseConfig = false
+        )
+
+        // Act.
+        cameraControl.submitStillCaptureRequests(
+            listOf(imageCaptureConfig),
+            ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            FLASH_MODE_OFF,
+        ).await()
+
+        // Assert.
+        immediateCompleteCapture.verifyRequestResult { captureConfigList ->
+            captureConfigList.filter {
+                it.surfaces.contains(fakeStillCaptureSurface)
+            }.map { captureConfig ->
+                captureConfig.templateType
+            }.contains(CameraDevice.TEMPLATE_STILL_CAPTURE)
+        }
+    }
+
+    @Test
+    fun submitZslCaptureRequests_withZslDisabledByUseCaseConfig_templateStillPictureSent():
+        Unit = runBlocking {
+        // Arrange.
+        val imageCaptureConfig = CaptureConfig.Builder().let {
+            it.addSurface(fakeStillCaptureSurface)
+            it.templateType = CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+            it.build()
+        }
+
+        val cameraControl = initCameraControlWithZsl(
+            isZslDisabledByFlashMode = false, isZslDisabledByUserCaseConfig = true
+        )
+
+        // Act.
+        cameraControl.submitStillCaptureRequests(
+            listOf(imageCaptureConfig),
+            ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG,
+            FLASH_MODE_OFF,
+        ).await()
+
+        // Assert.
+        immediateCompleteCapture.verifyRequestResult { captureConfigList ->
+            captureConfigList.filter {
+                it.surfaces.contains(fakeStillCaptureSurface)
+            }.map { captureConfig ->
+                captureConfig.templateType
+            }.contains(CameraDevice.TEMPLATE_STILL_CAPTURE)
+        }
+    }
+
+    @Test
     fun submitZslCaptureRequests_withNoTemplate_templateStillPictureSent(): Unit = runBlocking {
         // Arrange.
         val imageCaptureConfig = CaptureConfig.Builder().let {
             it.addSurface(fakeStillCaptureSurface)
             it.build()
         }
-
-        val cameraControl = createCameraControl().apply {
-            simulateRepeatingResult(initialDelay = 100)
-        }
-
-        val zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
-            hasCapabilities = true,
-            isYuvReprocessingSupported = true,
-            isPrivateReprocessingSupported = true
-        ))
-
-        val captureResult = FakeCameraCaptureResult()
-        val imageProxy = FakeImageProxy(CameraCaptureResultImageInfo(captureResult))
-        imageProxy.image = mock(Image::class.java)
-        zslControl.mImageRingBuffer.enqueue(imageProxy)
-        zslControl.mReprocessingImageWriter = mock(ImageWriter::class.java)
-
-        cameraControl.mZslControl = zslControl
+        val cameraControl = initCameraControlWithZsl(
+            isZslDisabledByFlashMode = false, isZslDisabledByUserCaseConfig = false
+        )
 
         // Act.
         cameraControl.submitStillCaptureRequests(
@@ -1159,5 +1188,39 @@ class Camera2CapturePipelineTest {
         }
 
         return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics)
+    }
+
+    private fun initCameraControlWithZsl(
+        isZslDisabledByFlashMode: Boolean,
+        isZslDisabledByUserCaseConfig: Boolean
+    ): Camera2CameraControlImpl {
+        val cameraControl = createCameraControl().apply {
+            simulateRepeatingResult(initialDelay = 100)
+        }
+
+        val zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = true,
+            isPrivateReprocessingSupported = true
+        ))
+
+        // Only need to initialize when not disabled
+        if (!isZslDisabledByFlashMode && !isZslDisabledByUserCaseConfig) {
+            val captureResult = FakeCameraCaptureResult()
+            captureResult.afState = AfState.LOCKED_FOCUSED
+            captureResult.aeState = AeState.CONVERGED
+            captureResult.awbState = AwbState.CONVERGED
+            val imageProxy = FakeImageProxy(CameraCaptureResultImageInfo(captureResult))
+            imageProxy.image = mock(Image::class.java)
+            zslControl.mImageRingBuffer.enqueue(imageProxy)
+            zslControl.mReprocessingImageWriter = mock(ImageWriter::class.java)
+        }
+
+        zslControl.isZslDisabledByFlashMode = isZslDisabledByFlashMode
+        zslControl.isZslDisabledByUserCaseConfig = isZslDisabledByUserCaseConfig
+
+        cameraControl.mZslControl = zslControl
+
+        return cameraControl
     }
 }
