@@ -1772,7 +1772,7 @@ that are more lightweight, depending on your use case:
 *   Update a value from multiple threads atomically
 *   Maintain granular control of your concurrency invariants
 
-### Kotlin {#kotlin}
+### Kotlin-specific guidelines {#kotlin}
 
 #### Nullability from Java (new APIs)
 
