@@ -392,10 +392,6 @@ public final class Recorder implements VideoOutput {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     SourceState mSourceState = SourceState.INACTIVE;
     private ScheduledFuture<?> mSourceNonStreamingTimeout = null;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    boolean mAudioPaused = false;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    boolean mVideoPaused = false;
     //--------------------------------------------------------------------------------------------//
 
     Recorder(@Nullable Executor executor, @NonNull MediaSpec mediaSpec,
@@ -1634,21 +1630,13 @@ public final class Recorder implements VideoOutput {
                         @ExecutedBy("mSequentialExecutor")
                         @Override
                         public void onEncodeStart() {
-                            mVideoPaused = false;
+                            // No-op.
                         }
 
                         @ExecutedBy("mSequentialExecutor")
                         @Override
                         public void onEncodeStop() {
                             completer.set(null);
-                        }
-
-                        @Override
-                        public void onEncodePaused() {
-                            mVideoPaused = true;
-                            if (!isAudioEnabled() || (isAudioEnabled() && mAudioPaused)) {
-                                onRecordingPaused();
-                            }
                         }
 
                         @ExecutedBy("mSequentialExecutor")
@@ -1738,21 +1726,13 @@ public final class Recorder implements VideoOutput {
                             @ExecutedBy("mSequentialExecutor")
                             @Override
                             public void onEncodeStart() {
-                                mAudioPaused = false;
+                                // No-op.
                             }
 
                             @ExecutedBy("mSequentialExecutor")
                             @Override
                             public void onEncodeStop() {
                                 completer.set(null);
-                            }
-
-                            @Override
-                            public void onEncodePaused() {
-                                mAudioPaused = true;
-                                if (mVideoPaused) {
-                                    onRecordingPaused();
-                                }
                             }
 
                             @ExecutedBy("mSequentialExecutor")
@@ -1909,17 +1889,12 @@ public final class Recorder implements VideoOutput {
                 mAudioEncoder.pause();
             }
             mVideoEncoder.pause();
+
+            mInProgressRecording.updateVideoRecordEvent(VideoRecordEvent.pause(
+                    mInProgressRecording.getOutputOptions(),
+                    getInProgressRecordingStats()));
         }
     }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @ExecutedBy("mSequentialExecutor")
-    void onRecordingPaused() {
-        mInProgressRecording.updateVideoRecordEvent(VideoRecordEvent.pause(
-                mInProgressRecording.getOutputOptions(),
-                getInProgressRecordingStats()));
-    }
-
 
     @ExecutedBy("mSequentialExecutor")
     private void resumeInternal(@NonNull RecordingRecord recordingToResume) {
@@ -1927,10 +1902,8 @@ public final class Recorder implements VideoOutput {
         if (mInProgressRecording == recordingToResume && !mInProgressRecordingStopping) {
             if (isAudioEnabled()) {
                 mAudioEncoder.start();
-                mAudioPaused = false;
             }
             mVideoEncoder.start();
-            mVideoPaused = false;
 
             mInProgressRecording.updateVideoRecordEvent(VideoRecordEvent.resume(
                     mInProgressRecording.getOutputOptions(),
