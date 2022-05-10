@@ -22,13 +22,13 @@ import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.hardware.SyncFenceCompat
-import androidx.graphics.opengl.egl.EGLUtils.Companion.eglCreateSyncKHR
+import androidx.graphics.opengl.egl.EGLExt.Companion.eglCreateSyncKHR
 
 /**
  * Utility class that provides some helper methods for interacting EGL Extension APIs
  */
 @Suppress("AcronymName")
-class EGLUtils private constructor() {
+class EGLExt private constructor() {
 
     companion object {
 

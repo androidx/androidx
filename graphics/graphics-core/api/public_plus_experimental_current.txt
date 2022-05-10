@@ -49,24 +49,7 @@ package androidx.graphics.opengl {
 
 package androidx.graphics.opengl.egl {
 
-  public interface EGLHandle {
-    method public long getNativeHandle();
-    property public abstract long nativeHandle;
-  }
-
-  public final class EGLImageKHR implements androidx.graphics.opengl.egl.EGLHandle {
-    ctor public EGLImageKHR(long nativeHandle);
-    method public long getNativeHandle();
-    property public long nativeHandle;
-  }
-
-  public final class EGLSyncKHR implements androidx.graphics.opengl.egl.EGLHandle {
-    ctor public EGLSyncKHR(long nativeHandle);
-    method public long getNativeHandle();
-    property public long nativeHandle;
-  }
-
-  public final class EGLUtils {
+  public final class EGLExt {
     method public static int eglClientWaitSyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int flags, long timeoutNanos);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.graphics.opengl.egl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.opengl.EGLDisplay eglDisplay, android.hardware.HardwareBuffer hardwareBuffer);
     method public static androidx.graphics.opengl.egl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, int[]? attributes);
@@ -75,7 +58,7 @@ package androidx.graphics.opengl.egl {
     method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public static androidx.hardware.SyncFenceCompat eglDupNativeFenceFDANDROID(android.opengl.EGLDisplay display, androidx.graphics.opengl.egl.EGLSyncKHR sync);
     method public static boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int attribute, int[] value, int offset);
     method public static void glEGLImageTargetTexture2DOES(int target, androidx.graphics.opengl.egl.EGLImageKHR image);
-    field public static final androidx.graphics.opengl.egl.EGLUtils.Companion Companion;
+    field public static final androidx.graphics.opengl.egl.EGLExt.Companion Companion;
     field public static final int EGL_CONDITION_SATISFIED_KHR = 12534; // 0x30f6
     field public static final int EGL_FALSE = 0; // 0x0
     field public static final long EGL_FOREVER_KHR = -1L; // 0xffffffffffffffffL
@@ -92,7 +75,7 @@ package androidx.graphics.opengl.egl {
     field public static final int EGL_UNSIGNALED_KHR = 12531; // 0x30f3
   }
 
-  public static final class EGLUtils.Companion {
+  public static final class EGLExt.Companion {
     method public int eglClientWaitSyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int flags, long timeoutNanos);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.graphics.opengl.egl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.opengl.EGLDisplay eglDisplay, android.hardware.HardwareBuffer hardwareBuffer);
     method public androidx.graphics.opengl.egl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, int[]? attributes);
@@ -101,6 +84,23 @@ package androidx.graphics.opengl.egl {
     method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.hardware.SyncFenceCompat eglDupNativeFenceFDANDROID(android.opengl.EGLDisplay display, androidx.graphics.opengl.egl.EGLSyncKHR sync);
     method public boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int attribute, int[] value, int offset);
     method public void glEGLImageTargetTexture2DOES(int target, androidx.graphics.opengl.egl.EGLImageKHR image);
+  }
+
+  public interface EGLHandle {
+    method public long getNativeHandle();
+    property public abstract long nativeHandle;
+  }
+
+  public final class EGLImageKHR implements androidx.graphics.opengl.egl.EGLHandle {
+    ctor public EGLImageKHR(long nativeHandle);
+    method public long getNativeHandle();
+    property public long nativeHandle;
+  }
+
+  public final class EGLSyncKHR implements androidx.graphics.opengl.egl.EGLHandle {
+    ctor public EGLSyncKHR(long nativeHandle);
+    method public long getNativeHandle();
+    property public long nativeHandle;
   }
 
   public final inline class EglConfigAttributes {
