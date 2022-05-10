@@ -162,7 +162,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public RouteController onCreateRouteController(String routeId) {
+        public RouteController onCreateRouteController(@NonNull String routeId) {
             if (routeId.equals(DEFAULT_ROUTE_ID)) {
                 return new DefaultRouteController();
             }
@@ -275,7 +275,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public RouteController onCreateRouteController(String routeId) {
+        public RouteController onCreateRouteController(@NonNull String routeId) {
             int index = findSystemRouteRecordByDescriptorId(routeId);
             if (index >= 0) {
                 SystemRouteRecord record = mSystemRouteRecords.get(index);
@@ -313,7 +313,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public void onRouteAdded(Object routeObj) {
+        public void onRouteAdded(@NonNull Object routeObj) {
             if (addSystemRouteNoPublish(routeObj)) {
                 publishRoutes();
             }
@@ -361,7 +361,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public void onRouteRemoved(Object routeObj) {
+        public void onRouteRemoved(@NonNull Object routeObj) {
             if (getUserRouteRecord(routeObj) == null) {
                 int index = findSystemRouteRecord(routeObj);
                 if (index >= 0) {
@@ -372,7 +372,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public void onRouteChanged(Object routeObj) {
+        public void onRouteChanged(@NonNull Object routeObj) {
             if (getUserRouteRecord(routeObj) == null) {
                 int index = findSystemRouteRecord(routeObj);
                 if (index >= 0) {
@@ -384,7 +384,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public void onRouteVolumeChanged(Object routeObj) {
+        public void onRouteVolumeChanged(@NonNull Object routeObj) {
             if (getUserRouteRecord(routeObj) == null) {
                 int index = findSystemRouteRecord(routeObj);
                 if (index >= 0) {
@@ -393,8 +393,8 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                     if (newVolume != record.mRouteDescriptor.getVolume()) {
                         record.mRouteDescriptor =
                                 new MediaRouteDescriptor.Builder(record.mRouteDescriptor)
-                                .setVolume(newVolume)
-                                .build();
+                                        .setVolume(newVolume)
+                                        .build();
                         publishRoutes();
                     }
                 }
@@ -402,7 +402,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public void onRouteSelected(int type, Object routeObj) {
+        public void onRouteSelected(int type, @NonNull Object routeObj) {
             if (routeObj != MediaRouterJellybean.getSelectedRoute(mRouterObj,
                     MediaRouterJellybean.ALL_ROUTE_TYPES)) {
                 // The currently selected route has already changed so this callback
@@ -425,23 +425,23 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public void onRouteUnselected(int type, Object routeObj) {
+        public void onRouteUnselected(int type, @NonNull Object routeObj) {
             // Nothing to do when a route is unselected.
             // We only need to handle when a route is selected.
         }
 
         @Override
-        public void onRouteGrouped(Object routeObj, Object groupObj, int index) {
+        public void onRouteGrouped(@NonNull Object routeObj, @NonNull Object groupObj, int index) {
             // Route grouping is deprecated and no longer supported.
         }
 
         @Override
-        public void onRouteUngrouped(Object routeObj, Object groupObj) {
+        public void onRouteUngrouped(@NonNull Object routeObj, @NonNull Object groupObj) {
             // Route grouping is deprecated and no longer supported.
         }
 
         @Override
-        public void onVolumeSetRequest(Object routeObj, int volume) {
+        public void onVolumeSetRequest(@NonNull Object routeObj, int volume) {
             UserRouteRecord record = getUserRouteRecord(routeObj);
             if (record != null) {
                 record.mRoute.requestSetVolume(volume);
@@ -449,7 +449,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public void onVolumeUpdateRequest(Object routeObj, int direction) {
+        public void onVolumeUpdateRequest(@NonNull Object routeObj, int direction) {
             UserRouteRecord record = getUserRouteRecord(routeObj);
             if (record != null) {
                 record.mRoute.requestUpdateVolume(direction);
@@ -742,7 +742,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
-        public void onRoutePresentationDisplayChanged(Object routeObj) {
+        public void onRoutePresentationDisplayChanged(@NonNull Object routeObj) {
             int index = findSystemRouteRecord(routeObj);
             if (index >= 0) {
                 SystemRouteRecord record = mSystemRouteRecords.get(index);

@@ -50,7 +50,6 @@ final class RegisteredMediaRouteProviderWatcher {
     private final ArrayList<RegisteredMediaRouteProvider> mProviders = new ArrayList<>();
     private boolean mRunning;
 
-    @SuppressWarnings("deprecation")
     RegisteredMediaRouteProviderWatcher(Context context, Callback callback) {
         mContext = context;
         mCallback = callback;
@@ -95,7 +94,6 @@ final class RegisteredMediaRouteProviderWatcher {
         }
     }
 
-    @SuppressWarnings("deprecation")
     void scanPackages() {
         if (!mRunning) {
             return;
@@ -165,7 +163,6 @@ final class RegisteredMediaRouteProviderWatcher {
 
     @RequiresApi(Build.VERSION_CODES.R)
     @NonNull
-    @SuppressWarnings("deprecation")
     List<ServiceInfo> getMediaRoute2ProviderServices() {
         Intent intent = new Intent(MediaRoute2ProviderService.SERVICE_INTERFACE);
 
