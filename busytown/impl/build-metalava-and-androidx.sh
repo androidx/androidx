@@ -21,7 +21,7 @@ mkdir -p "$DIST_DIR"
 export DIST_DIR="$DIST_DIR"
 
 # resolve GRADLE_USER_HOME
-export GRADLE_USER_HOME="$DIST_DIR/gradle"
+export GRADLE_USER_HOME="$OUT_DIR/gradle"
 mkdir -p "$GRADLE_USER_HOME"
 
 if [ "$ROOT_DIR" == "" ]; then
