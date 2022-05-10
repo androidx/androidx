@@ -23,7 +23,7 @@ import androidx.annotation.RequiresApi;
 final class MediaRouterApi24 {
     public static final class RouteInfo {
         public static int getDeviceType(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo)routeObj).getDeviceType();
+            return ((android.media.MediaRouter.RouteInfo) routeObj).getDeviceType();
         }
 
         private RouteInfo() {
