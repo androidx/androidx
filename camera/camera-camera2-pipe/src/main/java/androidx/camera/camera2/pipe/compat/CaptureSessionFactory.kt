@@ -25,9 +25,9 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Log
-import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import androidx.camera.camera2.pipe.core.Threads
 import dagger.Module
 import dagger.Provides
@@ -193,6 +193,10 @@ internal class AndroidNSessionFactory @Inject constructor(
             streamGraph,
             surfaces
         )
+        if (outputs.all.isEmpty()) {
+            Log.warn { "Failed to create OutputConfigurations for $graphConfig" }
+            return emptyMap()
+        }
 
         try {
             if (graphConfig.input == null) {
@@ -247,6 +251,10 @@ internal class AndroidPSessionFactory @Inject constructor(
             streamGraph,
             surfaces
         )
+        if (outputs.all.isEmpty()) {
+            Log.warn { "Failed to create OutputConfigurations for $graphConfig" }
+            return emptyMap()
+        }
 
         val input = graphConfig.input?.let {
             val outputConfig = it.stream.outputs.single()
@@ -322,6 +330,10 @@ internal fun buildOutputConfigurations(
                     null
                 }
             )
+            if (output == null) {
+                Log.warn { "Failed to create AndroidOutputConfiguration for $outputConfig" }
+                continue
+            }
             allOutputs.add(output)
             for (outputSurface in outputConfig.streamBuilder) {
                 deferredOutputs[outputSurface.id] = output
@@ -346,6 +358,10 @@ internal fun buildOutputConfigurations(
                 null
             }
         )
+        if (output == null) {
+            Log.warn { "Failed to create AndroidOutputConfiguration for $outputConfig" }
+            continue
+        }
         for (surface in outputSurfaces.drop(1)) {
             output.addSurface(surface)
         }
