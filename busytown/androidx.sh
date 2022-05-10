@@ -5,8 +5,11 @@ echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"
 
-# this target is for testing that clean builds work correctly
-export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
+# This target is for testing that clean builds work correctly
+# We disable the remote cache for this target unless it was already enabled
+if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == ""]; then
+  export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
+fi
 
 EXIT_VALUE=0
 
