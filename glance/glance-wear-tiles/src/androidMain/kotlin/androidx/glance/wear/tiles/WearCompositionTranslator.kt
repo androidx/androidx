@@ -30,6 +30,7 @@ import androidx.glance.Emittable
 import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
 import androidx.glance.GlanceModifier
+import androidx.glance.semantics.SemanticsModifier
 import androidx.glance.VisibilityModifier
 import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
@@ -49,6 +50,7 @@ import androidx.glance.layout.PaddingInDp
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
 import androidx.glance.layout.collectPaddingInDp
+import androidx.glance.semantics.SemanticsProperties
 import androidx.glance.text.EmittableText
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
@@ -68,6 +70,7 @@ import androidx.glance.wear.tiles.curved.EmittableCurvedSpacer
 import androidx.glance.wear.tiles.curved.EmittableCurvedText
 import androidx.glance.wear.tiles.curved.GlanceCurvedModifier
 import androidx.glance.wear.tiles.curved.RadialAlignment
+import androidx.glance.wear.tiles.curved.SemanticsCurvedModifier
 import androidx.glance.wear.tiles.curved.SweepAngleModifier
 import androidx.glance.wear.tiles.curved.ThicknessModifier
 import androidx.glance.wear.tiles.curved.findModifier
@@ -159,6 +162,20 @@ private fun BorderModifier.toProto(context: Context): ModifiersBuilders.Border =
         .setWidth(dp(this.width.toDp(context.resources).value))
         .setColor(argb(this.color.getColor(context)))
         .build()
+
+private fun SemanticsModifier.toProto(): ModifiersBuilders.Semantics? =
+    this.configuration.getOrNull(SemanticsProperties.ContentDescription)?.let {
+        ModifiersBuilders.Semantics.Builder()
+            .setContentDescription(it.joinToString())
+            .build()
+    }
+
+private fun SemanticsCurvedModifier.toProto(): ModifiersBuilders.Semantics? =
+    this.configuration.getOrNull(SemanticsProperties.ContentDescription)?.let {
+        ModifiersBuilders.Semantics.Builder()
+            .setContentDescription(it.joinToString())
+            .build()
+    }
 
 private fun ColorProvider.getColor(context: Context) = resolve(context).toArgb()
 
@@ -666,6 +683,9 @@ private fun translateCurvedModifiers(
            is ActionCurvedModifier -> builder.setClickable(element.toProto(context))
            is ThicknessModifier -> builder /* Skip for now, handled elsewhere. */
            is SweepAngleModifier -> builder /* Skip for now, handled elsewhere. */
+           is SemanticsCurvedModifier -> {
+               element.toProto()?.let { builder.setSemantics(it) } ?: builder
+           }
            else -> throw IllegalArgumentException("Unknown curved modifier type")
        }
     }.build()
@@ -686,6 +706,9 @@ private fun translateModifiers(
             is PaddingModifier -> builder // Processing that after
             is VisibilityModifier -> builder // Already processed
             is BorderModifier -> builder.setBorder(element.toProto(context))
+            is SemanticsModifier -> {
+                element.toProto()?.let { builder.setSemantics(it) } ?: builder
+            }
             else -> throw IllegalArgumentException("Unknown modifier type")
         }
     }
