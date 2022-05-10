@@ -19,7 +19,7 @@ package androidx.graphics.opengl.egl
 /**
  * EGLHandle to wrap native EGLSync objects.
  * This is similar to EGL's EGLSync API except the KHR suffix indicates it is generated
- * as part of the extension APIs namely through [EGLUtils.eglCreateSyncKHR].
+ * as part of the extension APIs namely through [EGLExt.eglCreateSyncKHR].
  */
 @Suppress("AcronymName")
 class EGLSyncKHR(override val nativeHandle: Long) : EGLHandle {

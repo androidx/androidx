@@ -20,7 +20,7 @@ package androidx.graphics.opengl.egl
  * EGLImageKHR is an object which can be used to create EGLImage
  * target resources (inside client APIs).
  * This is similar to EGL's EGLImage API except the KHR suffix indicates it is generated
- * as part of the extension APIs namely through [EGLUtils.eglCreateImageFromHardwareBuffer]
+ * as part of the extension APIs namely through [EGLExt.eglCreateImageFromHardwareBuffer]
  */
 @Suppress("AcronymName")
 class EGLImageKHR(override val nativeHandle: Long) : EGLHandle {
