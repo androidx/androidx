@@ -17,7 +17,6 @@
 package androidx.datastore.core
 
 import kotlinx.coroutines.flow.Flow
-import java.io.IOException
 
 /**
  * DataStore provides a safe and durable way to store small amounts of data, such as preferences

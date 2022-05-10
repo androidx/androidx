@@ -16,8 +16,26 @@
 
 package androidx.datastore.io
 
+import java.io.File
+import java.io.InputStream
+import java.io.OutputStream
 import okio.BufferedSink
 import okio.BufferedSource
+import okio.FileSystem
+import okio.Path.Companion.toPath
 
-actual class DatastoreOutput(val bufferedSink:BufferedSink)
-actual class DatastoreInput(val bufferedSource:BufferedSource)
+actual class DatastoreOutput(val bufferedSink:BufferedSink) {
+    fun toOutputStream(): OutputStream {
+        return bufferedSink.outputStream()
+    }
+
+}
+actual class DatastoreInput(val bufferedSource:BufferedSource) {
+    fun toInputStream(): InputStream {
+        return bufferedSource.inputStream()
+    }
+}
+
+fun <T> createFileStorage(produceFile: () -> File, serializer: Serializer<T>):Storage<T> {
+    return OkioStorage(FileSystem.SYSTEM, {produceFile().absolutePath.toPath()}, serializer)
+}

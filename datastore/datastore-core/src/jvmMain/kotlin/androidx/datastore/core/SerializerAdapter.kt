@@ -14,12 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.datastore.io
+package androidx.datastore.core
 
-interface Serializer<T> {
-    val defaultValue:T
-    suspend fun readFrom(input:DatastoreInput): T
-    suspend fun writeTo(value:T, output:DatastoreOutput)
+import androidx.datastore.io.DatastoreInput
+import androidx.datastore.io.DatastoreOutput
+
+
+internal class SerializerAdapter<T>(val serializer: Serializer<T>)
+    : androidx.datastore.io.Serializer<T> {
+    override val defaultValue: T
+        get() = serializer.defaultValue
+
+    override suspend fun readFrom(input: DatastoreInput): T {
+        return serializer.readFrom(input.toInputStream())
+    }
+
+    override suspend fun writeTo(value: T, output: DatastoreOutput) {
+        serializer.writeTo(value, output.toOutputStream())
+    }
 }
-
-

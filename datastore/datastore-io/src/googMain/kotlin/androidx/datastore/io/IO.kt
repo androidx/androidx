@@ -16,8 +16,21 @@
 
 package androidx.datastore.io
 
+import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
 
-actual class DatastoreOutput(val outputStream:OutputStream)
-actual class DatastoreInput(val inputStream:InputStream)
+actual class DatastoreOutput(val outputStream:OutputStream) {
+    fun toOutputStream(): OutputStream {
+        return outputStream
+    }
+}
+actual class DatastoreInput(val inputStream:InputStream) {
+    fun toInputStream(): InputStream {
+        return inputStream
+    }
+}
+
+fun <T> createFileStorage(produceFile: () -> File, serializer: Serializer<T>):Storage<T> {
+    return FileStorage(produceFile, serializer)
+}

@@ -24,11 +24,15 @@ plugins {
     id("org.jetbrains.kotlin.multiplatform")
 }
 
+def datastoreType = Attribute.of('androidx.datastore.type', String)
+
 kotlin {
-    jvm()
-//    jvm {
-//        withJava()
-//    }
+    jvm {
+        attributes.attribute(datastoreType, 'okio')
+    }
+    jvm("goog") {
+        attributes.attribute(datastoreType, 'goog')
+    }
     macosX64()
     linuxArm64()
     macosArm64()
@@ -46,9 +50,16 @@ kotlin {
                 implementation(libs.kotlinTestCommon)
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(project(":datastore:datastore-io"))
-                implementation(project(":datastore:datastore-internal-test-utils"))
+//                implementation(project(":datastore:datastore-internal-test-utils"))
                 implementation(libs.kotlinCoroutinesTest)
                 implementation("com.squareup.okio:okio:3.0.0")
+            }
+        }
+        googMain {
+            kotlin {
+                srcDir {
+                    "src/jvmMain/kotlin"
+                }
             }
         }
         jvmMain {
@@ -60,6 +71,15 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinTest)
             }
+        }
+        nativeMain {
+            dependencies {
+                implementation(project(":datastore:datastore-io"))
+            }
+
+        }
+        nativeTest {
+
         }
 
     }

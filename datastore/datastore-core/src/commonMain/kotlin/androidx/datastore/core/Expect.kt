@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.datastore.io
+package androidx.datastore.core
 
-interface Serializer<T> {
-    val defaultValue:T
-    suspend fun readFrom(input:DatastoreInput): T
-    suspend fun writeTo(value:T, output:DatastoreOutput)
+import kotlinx.coroutines.CoroutineDispatcher
+
+internal expect fun ioDispatcher(): CoroutineDispatcher
+
+expect open class IOException(message: String?, cause: Throwable?) : Exception {
+    constructor(message: String?)
 }
 
-
+internal expect class AtomicInt {
+    constructor(initialValue: Int)
+    fun getAndIncrement(): Int
+    fun incrementAndGet(): Int
+    fun decrementAndGet(): Int
+    fun get(): Int
+}
