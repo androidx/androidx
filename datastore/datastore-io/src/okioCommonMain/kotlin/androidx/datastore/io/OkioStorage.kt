@@ -60,7 +60,7 @@ class OkioStorage<T>(
             fileSystem.read(
                 file = canonicalPath
             ) {
-                serializer.readFrom(this)
+                serializer.readFrom(DatastoreInput(this))
             }
         } catch (th: FileNotFoundException) {
             println("CAUGHT EXCEPTION $th /${th::class.qualifiedName}")
@@ -87,7 +87,7 @@ class OkioStorage<T>(
                 file = scratchPath,
                 mustCreate = false
             ) {
-                serializer.writeTo(newData,this)
+                serializer.writeTo(newData,DatastoreOutput(this))
             }
             fileSystem.atomicMove(scratchPath, canonicalPath)
         } catch (ex: okio.IOException) {
@@ -110,7 +110,7 @@ class OkioStorage<T>(
         private val activePaths = atomic(emptySet<Path>())
     }
 
-    override fun delete(): Boolean {
+    fun delete(): Boolean {
         fileSystem.delete(canonicalPath)
         return fileSystem.exists(canonicalPath)
     }

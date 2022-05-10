@@ -16,6 +16,5 @@
 
 package androidx.datastore.io
 
-
-typealias DatastoreInput = java.io.InputStream
-typealias DatastoreOutput = java.io.OutputStream
+expect class DatastoreInput
+expect class DatastoreOutput

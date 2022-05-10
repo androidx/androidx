@@ -24,29 +24,20 @@ plugins {
     id("org.jetbrains.kotlin.multiplatform")
 }
 
-def googleBuild = false
+
+def datastoreType = Attribute.of('androidx.datastore.type', String)
+
 
 kotlin {
-    jvm()
-    jvm("goog")
+    jvm("okio") {
+        attributes.attribute(datastoreType, 'okio')
+    }
+    jvm("goog") {
+        attributes.attribute(datastoreType, 'goog')
+    }
+    macosArm64()
     sourceSets {
-        okioCommonMain {
-            dependencies {
-                implementation("com.squareup.okio:okio:3.0.0")
-            }
-        }
-        jvmGoogCommonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-            }
-        }
         commonMain {
-            if (googleBuild) {
-                dependsOn(jvmGoogCommonMain)
-            } else {
-                dependsOn(okioCommonMain)
-            }
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
@@ -59,16 +50,54 @@ kotlin {
                 implementation(libs.kotlinCoroutinesTest)
             }
         }
-        okioCommonMain2 {
+        okioCommonMain {
             dependsOn(commonMain)
             dependencies {
                 implementation("com.squareup.okio:okio:3.0.0")
                 implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
             }
-
         }
-        jvmGoogCommonMain2 {
+        okioMain {
+            dependsOn(okioCommonMain)
+            dependencies {
+                implementation("com.squareup.okio:okio:3.0.0")
+                implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
+            }
+        }
+        okioTest {
+            dependsOn
+        }
+        nativeMain {
+            dependsOn(okioCommonMain)
+            dependencies {
+                implementation("com.squareup.okio:okio:3.0.0")
+                implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
+            }
+        }
+        nativeTest {
+            dependsOn(commonTest)
+        }
+        googMain {
             dependsOn(commonMain)
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+            }
+        }
+    }
+    targets.withType(KotlinNativeTarget).configureEach {
+        binaries.all {
+            binaryOptions["memoryModel"] = "experimental"
+        }
+    }
+    targets.forEach {target ->
+        if (target.platformType == KotlinPlatformType.native) {
+            target.compilations["main"].defaultSourceSet {
+                dependsOn(sourceSets["nativeMain"])
+            }
+            target.compilations["test"].defaultSourceSet {
+                dependsOn(sourceSets["nativeTest"])
+            }
         }
     }
 }

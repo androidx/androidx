@@ -16,8 +16,8 @@
 
 package androidx.datastore.io
 
-import okio.BufferedSink
-import okio.BufferedSource
+import java.io.InputStream
+import java.io.OutputStream
 
-//actual class DatastoreOutput(val bufferedSink:BufferedSink)
-//actual class DatastoreInput(val bufferedSource:BufferedSource)
+actual class DatastoreOutput(val outputStream:OutputStream)
+actual class DatastoreInput(val inputStream:InputStream)

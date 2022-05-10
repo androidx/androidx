@@ -49,7 +49,7 @@ class FileStorage<T>(
     override suspend fun readData(): T {
         try {
             FileInputStream(file).use { stream ->
-                return serializer.readFrom(stream)
+                return serializer.readFrom(DatastoreInput(stream))
             }
         } catch (ex: FileNotFoundException) {
             if (file.exists()) {
@@ -65,7 +65,7 @@ class FileStorage<T>(
         val scratchFile = File(file.absolutePath + SCRATCH_SUFFIX)
         try {
             FileOutputStream(scratchFile).use { stream ->
-                serializer.writeTo(newData, UncloseableOutputStream(stream))
+                serializer.writeTo(newData, DatastoreOutput(UncloseableOutputStream(stream)))
                 stream.fd.sync()
                 // TODO(b/151635324): fsync the directory, otherwise a badly timed crash could
                 //  result in reverting to a previous state.
