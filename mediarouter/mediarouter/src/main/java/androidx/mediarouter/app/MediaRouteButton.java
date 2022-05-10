@@ -412,7 +412,6 @@ public class MediaRouteButton extends View {
         return result;
     }
 
-    @SuppressWarnings("deprecation")
     private boolean showOutputSwitcherForAndroidR() {
         Context context = getContext();
 
@@ -800,47 +799,54 @@ public class MediaRouteButton extends View {
         }
 
         @Override
-        public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteAdded(@NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteRemoved(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteChanged(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteSelected(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteUnselected(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onProviderAdded(MediaRouter router, MediaRouter.ProviderInfo provider) {
+        public void onProviderAdded(@NonNull MediaRouter router,
+                @NonNull MediaRouter.ProviderInfo provider) {
             refreshRoute();
         }
 
         @Override
-        public void onProviderRemoved(MediaRouter router, MediaRouter.ProviderInfo provider) {
+        public void onProviderRemoved(@NonNull MediaRouter router,
+                @NonNull MediaRouter.ProviderInfo provider) {
             refreshRoute();
         }
 
         @Override
-        public void onProviderChanged(MediaRouter router, MediaRouter.ProviderInfo provider) {
+        public void onProviderChanged(@NonNull MediaRouter router,
+                @NonNull MediaRouter.ProviderInfo provider) {
             refreshRoute();
         }
 
         @Override
-        public void onRouterParamsChanged(MediaRouter router, MediaRouterParams params) {
+        public void onRouterParamsChanged(@NonNull MediaRouter router, MediaRouterParams params) {
             boolean fixedIcon = false;
             if (params != null) {
                 fixedIcon = params.getExtras()
