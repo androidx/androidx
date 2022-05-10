@@ -779,39 +779,6 @@ class RecorderTest {
     }
 
     @Test
-    fun noStatusEventsComeAfterPauseEventsWithoutResuming() {
-        clearInvocations(videoRecordEventListener)
-        invokeSurfaceRequest()
-        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
-
-        val recording =
-            recorder.prepareRecording(context, FileOutputOptions.Builder(file).build())
-                .withAudioEnabled()
-                .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
-
-        val inOrder = inOrder(videoRecordEventListener)
-        inOrder.verify(videoRecordEventListener, timeout(5000L))
-            .accept(any(VideoRecordEvent.Start::class.java))
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        recording.pause()
-        inOrder.verify(videoRecordEventListener, timeout(5000L).atLeastOnce())
-            .accept(any(VideoRecordEvent.Pause::class.java))
-
-        Thread.sleep(5000L)
-        inOrder.verifyNoMoreInteractions()
-
-        recording.resume()
-        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
-            .accept(any(VideoRecordEvent.Status::class.java))
-
-        recording.stopSafely()
-
-        file.delete()
-    }
-
-    @Test
     fun resume_noOpWhenNotPaused() {
         clearInvocations(videoRecordEventListener)
         invokeSurfaceRequest()
