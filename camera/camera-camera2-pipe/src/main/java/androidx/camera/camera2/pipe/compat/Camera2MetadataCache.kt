@@ -91,6 +91,13 @@ internal class Camera2MetadataCache @Inject constructor(
                 val characteristics =
                     cameraManager.getCameraCharacteristics(cameraId.value)
 
+                // This technically shouldn't be null per documentation, but we suspect it could be
+                // under certain devices in certain situations.
+                @Suppress("RedundantRequireNotNullCall")
+                checkNotNull(characteristics) {
+                    "Failed to get CameraCharacteristics for $cameraId!"
+                }
+
                 // Merge the camera specific and global cache blocklists together.
                 // this will prevent these values from being cached after first access.
                 val cameraBlocklist = cameraMetadataConfig.cameraCacheBlocklist[cameraId]
