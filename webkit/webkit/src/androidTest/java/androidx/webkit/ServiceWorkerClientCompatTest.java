@@ -26,6 +26,8 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -37,6 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -44,6 +47,7 @@ import java.util.concurrent.Callable;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class ServiceWorkerClientCompatTest {
 
     // This test relies on
@@ -107,14 +111,15 @@ public class ServiceWorkerClientCompatTest {
                     return new WebResourceResponse("text/html", "utf-8",
                             new ByteArrayInputStream(INDEX_RAW_HTML.getBytes("UTF-8")));
                 }
-            } catch (java.io.UnsupportedEncodingException e) { }
+            } catch (UnsupportedEncodingException e) { }
             return new WebResourceResponse("text/html", "UTF-8", null);
         }
     }
 
     public static class InterceptServiceWorkerClient extends ServiceWorkerClientCompat {
-        private List<WebResourceRequest> mInterceptedRequests = new ArrayList<>();
+        private final List<WebResourceRequest> mInterceptedRequests = new ArrayList<>();
 
+        @Nullable
         @Override
         public WebResourceResponse shouldInterceptRequest(@NonNull WebResourceRequest request) {
             // Records intercepted requests and only return content for SW_URL.

@@ -17,6 +17,7 @@
 package androidx.webkit.internal;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.TracingConfig;
 import androidx.webkit.TracingController;
@@ -38,7 +39,7 @@ public class TracingControllerImpl extends TracingController {
     public TracingControllerImpl() {
         final ApiFeature.P feature = WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
-            mFrameworksImpl = android.webkit.TracingController.getInstance();
+            mFrameworksImpl = ApiHelperForP.getTracingControllerInstance();
             mBoundaryInterface = null;
         } else if (feature.isSupportedByWebView()) {
             mFrameworksImpl = null;
@@ -51,7 +52,7 @@ public class TracingControllerImpl extends TracingController {
     @RequiresApi(28)
     private android.webkit.TracingController getFrameworksImpl() {
         if (mFrameworksImpl == null) {
-            mFrameworksImpl = android.webkit.TracingController.getInstance();
+            mFrameworksImpl = ApiHelperForP.getTracingControllerInstance();
         }
         return mFrameworksImpl;
     }
@@ -67,7 +68,7 @@ public class TracingControllerImpl extends TracingController {
     public boolean isTracing() {
         final ApiFeature.P feature = WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
-            return getFrameworksImpl().isTracing();
+            return ApiHelperForP.isTracing(getFrameworksImpl());
         } else if (feature.isSupportedByWebView()) {
             return getBoundaryInterface().isTracing();
         } else {
@@ -83,12 +84,7 @@ public class TracingControllerImpl extends TracingController {
 
         final ApiFeature.P feature = WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
-            android.webkit.TracingConfig config = new android.webkit.TracingConfig.Builder()
-                    .addCategories(tracingConfig.getPredefinedCategories())
-                    .addCategories(tracingConfig.getCustomIncludedCategories())
-                    .setTracingMode(tracingConfig.getTracingMode())
-                    .build();
-            getFrameworksImpl().start(config);
+            ApiHelperForP.start(getFrameworksImpl(), tracingConfig);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().start(tracingConfig.getPredefinedCategories(),
                     tracingConfig.getCustomIncludedCategories(), tracingConfig.getTracingMode());
@@ -98,10 +94,10 @@ public class TracingControllerImpl extends TracingController {
     }
 
     @Override
-    public boolean stop(OutputStream outputStream, Executor executor) {
+    public boolean stop(@Nullable OutputStream outputStream, @NonNull Executor executor) {
         final ApiFeature.P feature = WebViewFeatureInternal.TRACING_CONTROLLER_BASIC_USAGE;
         if (feature.isSupportedByFramework()) {
-            return getFrameworksImpl().stop(outputStream, executor);
+            return ApiHelperForP.stop(getFrameworksImpl(), outputStream, executor);
         } else if (feature.isSupportedByWebView()) {
             return getBoundaryInterface().stop(outputStream, executor);
         } else {

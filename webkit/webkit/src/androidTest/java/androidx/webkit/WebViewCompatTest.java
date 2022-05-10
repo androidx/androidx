@@ -39,6 +39,7 @@ import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -53,6 +54,7 @@ import java.util.Set;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class WebViewCompatTest {
     WebViewOnUiThread mWebViewOnUiThread;
 
@@ -160,7 +162,8 @@ public class WebViewCompatTest {
         final ResolvableFuture<Boolean> startSafeBrowsingFuture = ResolvableFuture.create();
         WebViewCompat.startSafeBrowsing(
                 ApplicationProvider.getApplicationContext().getApplicationContext(),
-                value -> startSafeBrowsingFuture.set(Looper.getMainLooper().isCurrentThread()));
+                value -> startSafeBrowsingFuture.set(
+                        WebkitUtils.isCurrentThread(Looper.getMainLooper())));
         assertTrue(WebkitUtils.waitForFuture(startSafeBrowsingFuture));
     }
 

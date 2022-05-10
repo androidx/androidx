@@ -81,7 +81,7 @@ public class SafeBrowsingResponseImpl extends SafeBrowsingResponseCompat {
         final ApiFeature.O_MR1 feature =
                 WebViewFeatureInternal.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL;
         if (feature.isSupportedByFramework()) {
-            getFrameworksImpl().showInterstitial(allowReporting);
+            ApiHelperForOMR1.showInterstitial(getFrameworksImpl(), allowReporting);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().showInterstitial(allowReporting);
         } else {
@@ -93,7 +93,7 @@ public class SafeBrowsingResponseImpl extends SafeBrowsingResponseCompat {
     public void proceed(boolean report) {
         final ApiFeature.O_MR1 feature = WebViewFeatureInternal.SAFE_BROWSING_RESPONSE_PROCEED;
         if (feature.isSupportedByFramework()) {
-            getFrameworksImpl().proceed(report);
+            ApiHelperForOMR1.proceed(getFrameworksImpl(), report);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().proceed(report);
         } else {
@@ -106,7 +106,7 @@ public class SafeBrowsingResponseImpl extends SafeBrowsingResponseCompat {
         final ApiFeature.O_MR1 feature =
                 WebViewFeatureInternal.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY;
         if (feature.isSupportedByFramework()) {
-            getFrameworksImpl().backToSafety(report);
+            ApiHelperForOMR1.backToSafety(getFrameworksImpl(), report);
         } else if (feature.isSupportedByWebView()) {
             getBoundaryInterface().backToSafety(report);
         } else {

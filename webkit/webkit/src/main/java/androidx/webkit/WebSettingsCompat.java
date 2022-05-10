@@ -23,6 +23,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.webkit.internal.ApiFeature;
+import androidx.webkit.internal.ApiHelperForM;
+import androidx.webkit.internal.ApiHelperForN;
+import androidx.webkit.internal.ApiHelperForO;
+import androidx.webkit.internal.ApiHelperForQ;
 import androidx.webkit.internal.WebSettingsAdapter;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
@@ -63,7 +67,7 @@ public class WebSettingsCompat {
     public static void setOffscreenPreRaster(@NonNull WebSettings settings, boolean enabled) {
         ApiFeature.M feature = WebViewFeatureInternal.OFF_SCREEN_PRERASTER;
         if (feature.isSupportedByFramework()) {
-            settings.setOffscreenPreRaster(enabled);
+            ApiHelperForM.setOffscreenPreRaster(settings, enabled);
         } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setOffscreenPreRaster(enabled);
         } else {
@@ -88,7 +92,7 @@ public class WebSettingsCompat {
     public static boolean getOffscreenPreRaster(@NonNull WebSettings settings) {
         ApiFeature.M feature = WebViewFeatureInternal.OFF_SCREEN_PRERASTER;
         if (feature.isSupportedByFramework()) {
-            return settings.getOffscreenPreRaster();
+            return ApiHelperForM.getOffscreenPreRaster(settings);
         } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getOffscreenPreRaster();
         } else {
@@ -120,7 +124,7 @@ public class WebSettingsCompat {
     public static void setSafeBrowsingEnabled(@NonNull WebSettings settings, boolean enabled) {
         ApiFeature.O feature = WebViewFeatureInternal.SAFE_BROWSING_ENABLE;
         if (feature.isSupportedByFramework()) {
-            settings.setSafeBrowsingEnabled(enabled);
+            ApiHelperForO.setSafeBrowsingEnabled(settings, enabled);
         } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setSafeBrowsingEnabled(enabled);
         } else {
@@ -144,7 +148,7 @@ public class WebSettingsCompat {
     public static boolean getSafeBrowsingEnabled(@NonNull WebSettings settings) {
         ApiFeature.O feature = WebViewFeatureInternal.SAFE_BROWSING_ENABLE;
         if (feature.isSupportedByFramework()) {
-            return settings.getSafeBrowsingEnabled();
+            return ApiHelperForO.getSafeBrowsingEnabled(settings);
         } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getSafeBrowsingEnabled();
         } else {
@@ -182,7 +186,7 @@ public class WebSettingsCompat {
             @MenuItemFlags int menuItems) {
         ApiFeature.N feature = WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
         if (feature.isSupportedByFramework()) {
-            settings.setDisabledActionModeMenuItems(menuItems);
+            ApiHelperForN.setDisabledActionModeMenuItems(settings, menuItems);
         } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setDisabledActionModeMenuItems(menuItems);
         } else {
@@ -206,7 +210,7 @@ public class WebSettingsCompat {
     public static @MenuItemFlags int getDisabledActionModeMenuItems(@NonNull WebSettings settings) {
         ApiFeature.N feature = WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
         if (feature.isSupportedByFramework()) {
-            return settings.getDisabledActionModeMenuItems();
+            return ApiHelperForN.getDisabledActionModeMenuItems(settings);
         } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getDisabledActionModeMenuItems();
         } else {
@@ -354,7 +358,7 @@ public class WebSettingsCompat {
             @ForceDark int forceDarkMode) {
         ApiFeature.Q feature = WebViewFeatureInternal.FORCE_DARK;
         if (feature.isSupportedByFramework()) {
-            settings.setForceDark(forceDarkMode);
+            ApiHelperForQ.setForceDark(settings, forceDarkMode);
         } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setForceDark(forceDarkMode);
         } else {
@@ -383,7 +387,7 @@ public class WebSettingsCompat {
     public static @ForceDark int getForceDark(@NonNull WebSettings settings) {
         ApiFeature.Q feature = WebViewFeatureInternal.FORCE_DARK;
         if (feature.isSupportedByFramework()) {
-            return settings.getForceDark();
+            return ApiHelperForQ.getForceDark(settings);
         } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getForceDark();
         } else {
