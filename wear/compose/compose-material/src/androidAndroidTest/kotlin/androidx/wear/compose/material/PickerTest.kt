@@ -450,8 +450,39 @@ class PickerTest {
         assertThat(state.selectedOption).isEqualTo(selectedOption)
     }
 
-    // Regression test for http://b/230485107
     @Test
+    fun can_scroll_picker_up_when_read_only() {
+        val initialOption = 3
+        lateinit var state: PickerState
+
+        rule.setContent {
+            WithTouchSlop(0f) {
+                Picker(
+                    state = rememberPickerState(
+                        initialNumberOfOptions = 5,
+                        initiallySelectedOption = initialOption)
+                        .also { state = it },
+                    readOnly = true,
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
+                ) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput {
+            swipeWithVelocity(
+                start = Offset(centerX, bottom),
+                end = Offset(centerX, bottom - itemSizePx * 16), // 3 loops + 1 element
+                endVelocity = NOT_A_FLING_SPEED
+            )
+        }
+
+        rule.waitForIdle()
+        assertThat(state.selectedOption).isNotEqualTo(initialOption)
+    }
+
     fun scrolls_from_non_canonical_option_works() {
         lateinit var scope: CoroutineScope
         val pickerDriver = PickerDriver(separationSign = 1)
@@ -473,11 +504,13 @@ class PickerTest {
         rule.waitForIdle()
         pickerDriver.readOnly.value = true
         rule.waitForIdle()
-        scope.launch {
-            pickerDriver.state.scrollToOption(
-                (pickerDriver.state.selectedOption + 1) % pickerDriver.state.numberOfOptions
-            )
-            pickerDriver.readOnly.value = false
+        rule.runOnUiThread {
+            scope.launch {
+                pickerDriver.state.scrollToOption(
+                    (pickerDriver.state.selectedOption + 1) % pickerDriver.state.numberOfOptions
+                )
+                pickerDriver.readOnly.value = false
+            }
         }
         rule.waitForIdle()
 

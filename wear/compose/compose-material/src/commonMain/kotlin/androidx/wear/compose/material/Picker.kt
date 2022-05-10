@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,8 +44,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -61,10 +64,10 @@ import androidx.compose.ui.unit.dp
  *
  * @param state The state of the component
  * @param modifier Modifier to be applied to the Picker
- * @param readOnly Determines whether the Picker should allow the currently selected option
- * to be changed - otherwise, displays the currently selected option (and optionally a label).
- * This is intended to be used for screens that display multiple Pickers, only one of which is
- * editable at a time, the others being shown as read-only.
+ * @param readOnly Determines whether the Picker should display other available options for this
+ * field, inviting the user to scroll to change the value. When readOnly = true,
+ * only displays the currently selected option (and optionally a label). This is intended to be
+ * used for screens that display multiple Pickers, only one of which has the focus at a time.
  * @param readOnlyLabel A slot for providing a label, displayed above the selected option
  * when the [Picker] is read-only. The label is overlaid with the currently selected
  * option within a Box, so it is recommended that the label is given [Alignment.TopCenter].
@@ -100,37 +103,31 @@ public fun Picker(
     require(gradientRatio in 0f..0.5f) { "gradientRatio should be between 0.0 and 0.5" }
     val pickerScope = remember(state) { PickerScopeImpl(state) }
     var forceScrollWhenReadOnly by remember { mutableStateOf(false) }
-    if (readOnly) {
-        Box(modifier = modifier) {
-            if (readOnlyLabel != null) {
-                readOnlyLabel()
-            }
-            with(pickerScope) {
-                option(state.selectedOption)
-            }
-        }
-    } else {
-        forceScrollWhenReadOnly = true
+    Box(modifier = modifier) {
         ScalingLazyColumn(
-            modifier = if (gradientRatio > 0.0f) {
-                modifier.drawWithContent {
+            modifier = if (!readOnly && gradientRatio > 0.0f) {
+                Modifier.drawWithContent {
                     drawContent()
-                    // Apply a fade-out gradient on the top and bottom.
-                    drawRect(Brush.linearGradient(
-                        colors = listOf(gradientColor, Color.Transparent),
-                        start = Offset(size.width / 2, 0f),
-                        end = Offset(size.width / 2, size.height * gradientRatio)
-                    ))
-                    drawRect(Brush.linearGradient(
-                        colors = listOf(Color.Transparent, gradientColor),
-                        start = Offset(size.width / 2, size.height * (1 - gradientRatio)),
-                        end = Offset(size.width / 2, size.height)
-                    ))
+                    drawGradient(gradientColor, gradientRatio)
                 }
-                // b/223386180 - prevent artefacts left on screen when scaling gradient by padding.
-                .padding(vertical = 1.dp)
+                // b/223386180 - add padding when drawing rectangles to prevent jitter on screen.
+                .padding(vertical = 1.dp).align(Alignment.Center)
+            } else if (readOnly) {
+                Modifier.drawWithContent {
+                    drawContent()
+                    val visibleItems = state.scalingLazyListState.layoutInfo.visibleItemsInfo
+                    val centerItem =
+                        visibleItems.find {
+                                info -> info.index == state.scalingLazyListState.centerItemIndex
+                        } ?: visibleItems[visibleItems.size / 2]
+                    val shimHeight = (size.height - centerItem.unadjustedSize.toFloat() -
+                        separation.toPx()) / 2.0f
+                    drawShim(gradientColor, shimHeight)
+                }
+                // b/223386180 - add padding when drawing rectangles to prevent jitter on screen.
+                .padding(vertical = 1.dp).align(Alignment.Center)
             } else {
-                modifier
+                Modifier
             },
             state = state.scalingLazyListState,
             content = {
@@ -148,8 +145,15 @@ public fun Picker(
             ),
             flingBehavior = flingBehavior
         )
+        if (readOnly && readOnlyLabel != null) {
+            readOnlyLabel()
+        }
     }
-
+    SideEffect {
+        if (!readOnly) {
+            forceScrollWhenReadOnly = true
+        }
+    }
     // If a Picker switches to read-only during animation, the ScalingLazyColumn can be
     // out of position, so we force an instant scroll to the selected option so that it is
     // correctly lined up when the Picker is next displayed.
@@ -159,6 +163,43 @@ public fun Picker(
             forceScrollWhenReadOnly = false
         }
     }
+}
+
+// Apply a shim on the top and bottom of the Picker to hide all but the selected option.
+private fun ContentDrawScope.drawShim(
+    gradientColor: Color,
+    height: Float
+) {
+    drawRect(
+        color = gradientColor,
+        size = Size(size.width, height)
+    )
+    drawRect(
+        color = gradientColor,
+        topLeft = Offset(0f, size.height - height),
+        size = Size(size.width, height)
+    )
+}
+
+// Apply a fade-out gradient on the top and bottom of the Picker.
+private fun ContentDrawScope.drawGradient(
+    gradientColor: Color,
+    gradientRatio: Float
+) {
+    drawRect(
+        Brush.linearGradient(
+            colors = listOf(gradientColor, Color.Transparent),
+            start = Offset(size.width / 2, 0f),
+            end = Offset(size.width / 2, size.height * gradientRatio)
+        )
+    )
+    drawRect(
+        Brush.linearGradient(
+            colors = listOf(Color.Transparent, gradientColor),
+            start = Offset(size.width / 2, size.height * (1 - gradientRatio)),
+            end = Offset(size.width / 2, size.height)
+        )
+    )
 }
 
 /**
