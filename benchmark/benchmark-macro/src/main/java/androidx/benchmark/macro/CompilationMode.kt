@@ -68,11 +68,11 @@ import org.junit.AssumptionViolatedException
 sealed class CompilationMode {
     internal fun resetAndCompile(packageName: String, warmupBlock: () -> Unit) {
         if (Build.VERSION.SDK_INT >= 24) {
-            // Write skip file to stop profile installer from interfering with the benchmark
-            writeProfileInstallerSkipFile(packageName)
             if (Arguments.enableCompilation) {
                 Log.d(TAG, "Resetting $packageName")
                 reinstallPackage(packageName)
+                // Write skip file to stop profile installer from interfering with the benchmark
+                writeProfileInstallerSkipFile(packageName)
                 compileImpl(packageName, warmupBlock)
             } else {
                 Log.d(TAG, "Compilation is disabled, skipping compilation of $packageName")
