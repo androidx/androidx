@@ -2433,8 +2433,10 @@ internal fun <R> CoroutineScope.runBlockingWithTracing(
     task: suspend () -> R
 ): R = TraceEvent(traceEventName).use {
     try {
+        // Inside runBlocking, coroutineContext has a different value.
+        val desiredContext = coroutineContext
         return runBlocking {
-            withContext(coroutineContext) {
+            withContext(desiredContext) {
                 task()
             }
         }
