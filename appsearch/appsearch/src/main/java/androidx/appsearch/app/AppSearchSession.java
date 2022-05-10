@@ -19,10 +19,12 @@ package androidx.appsearch.app;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.Closeable;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -243,6 +245,80 @@ public interface AppSearchSession extends Closeable {
      */
     @NonNull
     SearchResults search(@NonNull String queryExpression, @NonNull SearchSpec searchSpec);
+
+    /**
+     * Retrieves suggested Strings that could be used as {@code queryExpression} in
+     * {@link #search(String, SearchSpec)} API.
+     *
+     * <p>The {@code suggestionQueryExpression} can contain one term with no operators, or contain
+     * multiple terms and operators. Operators will be considered as a normal term. Please see the
+     * operator examples below. The {@code suggestionQueryExpression} must end with a valid term,
+     * the suggestions are generated based on the last term. If the input
+     * {@code suggestionQueryExpression} doesn't have a valid token, AppSearch will return an
+     * empty result list. Please see the invalid examples below.
+     *
+     * <p>Example: if there are following documents with content stored in AppSearch.
+     * <ul>
+     *     <li>document1: "term1"
+     *     <li>document2: "term1 term2"
+     *     <li>document3: "term1 term2 term3"
+     *     <li>document4: "org"
+     * </ul>
+     *
+     * <p>Search suggestions with the single term {@code suggestionQueryExpression} "t", the
+     * suggested results are:
+     * <ul>
+     *     <li>"term1" - Use it to be queryExpression in {@link #search} could get 3
+     *     {@link SearchResult}s, which contains document 1, 2 and 3.
+     *     <li>"term2" - Use it to be queryExpression in {@link #search} could get 2
+     *     {@link SearchResult}s, which contains document 2 and 3.
+     *     <li>"term3" - Use it to be queryExpression in {@link #search} could get 1
+     *     {@link SearchResult}, which contains document 3.
+     * </ul>
+     *
+     * <p>Search suggestions with the multiple term {@code suggestionQueryExpression} "org t", the
+     * suggested result will be "org term1" - The last token is completed by the suggested
+     * String, even if it won't return any result.
+     *
+     * <p>Search suggestions with operators. All operators will be considered as a normal term.
+     * <ul>
+     *     <li>Search suggestions with the {@code suggestionQueryExpression} "term1 OR", the
+     *     suggested result is "term1 org".
+     *     <li>Search suggestions with the {@code suggestionQueryExpression} "term3 OR t", the
+     *     suggested result is "term3 OR term1".
+     *     <li>Search suggestions with the {@code suggestionQueryExpression} "content:t", the
+     *     suggested result is empty. It cannot find a document that contains the term "content:t".
+     * </ul>
+     *
+     * <p>Invalid example: All these input {@code suggestionQueryExpression} don't have a valid
+     * last token, AppSearch will return an empty result list.
+     * <ul>
+     *     <li>""      - Empty {@code suggestionQueryExpression}.
+     *     <li>"(f)"   - Ending in a closed brackets.
+     *     <li>"f:"    - Ending in an operator.
+     *     <li>"f    " - Ending in trailing space.
+     * </ul>
+     *
+     * @param suggestionQueryExpression the non empty query string to search suggestions
+     * @param searchSuggestionSpec      spec for setting document filters
+     * @return The pending result of performing this operation which resolves to a List of
+     *         {@link SearchSuggestionResult} on success. The returned suggestion Strings are
+     *         ordered by the number of {@link SearchResult} you could get by using that suggestion
+     *         in {@link #search}.
+     *
+     * @see #search(String, SearchSpec)
+     * @hide
+     */
+    //TODO(b/227356108) un-hide this API after fix following issues.
+    // 1: support property restrict tokenization, Example: [subject:car] will return ["cart",
+    // "carburetor"] if AppSearch has documents contain those terms.
+    // 2: support multiple terms, Example: [bar f] will return suggestions [bar foo] that could
+    // be used to retrieve documents that contain both terms "bar" and "foo".
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    ListenableFuture<List<SearchSuggestionResult>> searchSuggestionAsync(
+            @NonNull String suggestionQueryExpression,
+            @NonNull SearchSuggestionSpec searchSuggestionSpec);
 
     /**
      * Reports usage of a particular document by namespace and ID.

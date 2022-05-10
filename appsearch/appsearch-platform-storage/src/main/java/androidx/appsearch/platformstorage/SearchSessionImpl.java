@@ -31,6 +31,8 @@ import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.app.SearchSuggestionResult;
+import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
@@ -156,6 +158,15 @@ class SearchSessionImpl implements AppSearchSession {
                         queryExpression,
                         SearchSpecToPlatformConverter.toPlatformSearchSpec(searchSpec));
         return new SearchResultsImpl(platformSearchResults, searchSpec, mExecutor);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<List<SearchSuggestionResult>> searchSuggestionAsync(
+            @NonNull String suggestionQueryExpression, @NonNull SearchSuggestionSpec searchSpec) {
+        // TODO(b/227356108) Implement this after we export to framework.
+        throw new UnsupportedOperationException(
+                "Search Suggestion is not supported on this AppSearch implementation.");
     }
 
     @Override

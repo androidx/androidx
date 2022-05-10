@@ -46,6 +46,8 @@ import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
+import androidx.appsearch.app.SearchSuggestionResult;
+import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.VisibilityDocument;
@@ -55,6 +57,7 @@ import androidx.appsearch.localstorage.converter.ResultCodeToProtoConverter;
 import androidx.appsearch.localstorage.converter.SchemaToProtoConverter;
 import androidx.appsearch.localstorage.converter.SearchResultToProtoConverter;
 import androidx.appsearch.localstorage.converter.SearchSpecToProtoConverter;
+import androidx.appsearch.localstorage.converter.SearchSuggestionSpecToProtoConverter;
 import androidx.appsearch.localstorage.converter.SetSchemaResponseToProtoConverter;
 import androidx.appsearch.localstorage.converter.TypePropertyPathToProtoConverter;
 import androidx.appsearch.localstorage.stats.InitializeStats;
@@ -106,6 +109,7 @@ import com.google.android.icing.proto.SetSchemaResultProto;
 import com.google.android.icing.proto.StatusProto;
 import com.google.android.icing.proto.StorageInfoProto;
 import com.google.android.icing.proto.StorageInfoResultProto;
+import com.google.android.icing.proto.SuggestionResponse;
 import com.google.android.icing.proto.TypePropertyMask;
 import com.google.android.icing.proto.UsageReport;
 
@@ -1244,9 +1248,9 @@ public final class AppSearchImpl implements Closeable {
 
             String prefix = createPrefix(packageName, databaseName);
             SearchSpecToProtoConverter searchSpecToProtoConverter =
-                    new SearchSpecToProtoConverter(searchSpec, Collections.singleton(prefix),
-                            mNamespaceMapLocked, mSchemaMapLocked);
-            if (searchSpecToProtoConverter.isNothingToSearch()) {
+                    new SearchSpecToProtoConverter(queryExpression, searchSpec,
+                            Collections.singleton(prefix), mNamespaceMapLocked, mSchemaMapLocked);
+            if (searchSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
                 return new SearchResultPage(Bundle.EMPTY);
@@ -1254,7 +1258,6 @@ public final class AppSearchImpl implements Closeable {
 
             SearchResultPage searchResultPage =
                     doQueryLocked(
-                            queryExpression,
                             searchSpecToProtoConverter,
                             sStatsBuilder);
             addNextPageToken(packageName, searchResultPage.getNextPageToken());
@@ -1320,19 +1323,18 @@ public final class AppSearchImpl implements Closeable {
                 }
             }
             SearchSpecToProtoConverter searchSpecToProtoConverter =
-                    new SearchSpecToProtoConverter(searchSpec, prefixFilters, mNamespaceMapLocked,
-                            mSchemaMapLocked);
+                    new SearchSpecToProtoConverter(queryExpression, searchSpec, prefixFilters,
+                            mNamespaceMapLocked, mSchemaMapLocked);
             // Remove those inaccessible schemas.
             searchSpecToProtoConverter.removeInaccessibleSchemaFilter(
                     callerAccess, mVisibilityStoreLocked, mVisibilityCheckerLocked);
-            if (searchSpecToProtoConverter.isNothingToSearch()) {
+            if (searchSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return an
                 // empty SearchResult and skip sending request to Icing.
                 return new SearchResultPage(Bundle.EMPTY);
             }
             SearchResultPage searchResultPage =
                     doQueryLocked(
-                            queryExpression,
                             searchSpecToProtoConverter,
                             sStatsBuilder);
             addNextPageToken(
@@ -1351,15 +1353,13 @@ public final class AppSearchImpl implements Closeable {
 
     @GuardedBy("mReadWriteLock")
     private SearchResultPage doQueryLocked(
-            @NonNull String queryExpression,
             @NonNull SearchSpecToProtoConverter searchSpecToProtoConverter,
             @Nullable SearchStats.Builder sStatsBuilder)
             throws AppSearchException {
         // Rewrite the given SearchSpec into SearchSpecProto, ResultSpecProto and ScoringSpecProto.
         // All processes are counted in rewriteSearchSpecLatencyMillis
         long rewriteSearchSpecLatencyStartMillis = SystemClock.elapsedRealtime();
-        SearchSpecProto finalSearchSpec =
-                searchSpecToProtoConverter.toSearchSpecProto(queryExpression);
+        SearchSpecProto finalSearchSpec = searchSpecToProtoConverter.toSearchSpecProto();
         ResultSpecProto finalResultSpec = searchSpecToProtoConverter.toResultSpecProto(
                 mNamespaceMapLocked);
         ScoringSpecProto scoringSpec = searchSpecToProtoConverter.toScoringSpecProto();
@@ -1406,6 +1406,73 @@ public final class AppSearchImpl implements Closeable {
         }
         checkSuccess(searchResultProto.getStatus());
         return searchResultProto;
+    }
+
+    /**
+     * Generates suggestions based on the given search prefix.
+     *
+     * <p>This method belongs to query group.
+     *
+     * @param packageName               The package name that is performing the query.
+     * @param databaseName              The databaseName this query for.
+     * @param suggestionQueryExpression The non-empty query expression used to be completed.
+     * @param searchSuggestionSpec      Spec for setting filters.
+     * @return a List of {@link SearchSuggestionResult}. The returned {@link SearchSuggestionResult}
+     *      are order by the number of {@link androidx.appsearch.app.SearchResult} you could get
+     *      by using that suggestion in {@link #query}.
+     * @throws AppSearchException if the suggestionQueryExpression is empty.
+     */
+    @NonNull
+    public List<SearchSuggestionResult> searchSuggestion(
+            @NonNull String packageName,
+            @NonNull String databaseName,
+            @NonNull String suggestionQueryExpression,
+            @NonNull SearchSuggestionSpec searchSuggestionSpec) throws AppSearchException {
+        mReadWriteLock.readLock().lock();
+        try {
+            throwIfClosedLocked();
+            if (suggestionQueryExpression.isEmpty()) {
+                throw new AppSearchException(
+                        AppSearchResult.RESULT_INVALID_ARGUMENT,
+                        "suggestionQueryExpression cannot be empty.");
+            }
+            if (searchSuggestionSpec.getMaximumResultCount()
+                    > mLimitConfig.getMaxSuggestionCount()) {
+                throw new AppSearchException(
+                        AppSearchResult.RESULT_INVALID_ARGUMENT,
+                        "Trying to get " + searchSuggestionSpec.getMaximumResultCount()
+                                + " suggestion results, which exceeds limit of "
+                                + mLimitConfig.getMaxSuggestionCount());
+            }
+
+            String prefix = createPrefix(packageName, databaseName);
+            SearchSuggestionSpecToProtoConverter searchSuggestionSpecToProtoConverter =
+                    new SearchSuggestionSpecToProtoConverter(suggestionQueryExpression,
+                            searchSuggestionSpec,
+                            Collections.singleton(prefix),
+                            mNamespaceMapLocked);
+
+            if (searchSuggestionSpecToProtoConverter.hasNothingToSearch()) {
+                // there is nothing to search over given their search filters, so we can return an
+                // empty SearchResult and skip sending request to Icing.
+                return new ArrayList<>();
+            }
+
+            SuggestionResponse response = mIcingSearchEngineLocked.searchSuggestions(
+                    searchSuggestionSpecToProtoConverter.toSearchSuggestionSpecProto());
+
+            checkSuccess(response.getStatus());
+            List<SearchSuggestionResult> suggestions =
+                    new ArrayList<>(response.getSuggestionsCount());
+            for (int i = 0; i < response.getSuggestionsCount(); i++) {
+                suggestions.add(new SearchSuggestionResult.Builder()
+                        .setSuggestedResult(response.getSuggestions(i).getQuery())
+                        .build());
+            }
+            return suggestions;
+        } finally {
+            mReadWriteLock.readLock().unlock();
+        }
     }
 
     /**
@@ -1692,16 +1759,15 @@ public final class AppSearchImpl implements Closeable {
             }
 
             SearchSpecToProtoConverter searchSpecToProtoConverter =
-                    new SearchSpecToProtoConverter(searchSpec, Collections.singleton(prefix),
-                            mNamespaceMapLocked, mSchemaMapLocked);
-            if (searchSpecToProtoConverter.isNothingToSearch()) {
+                    new SearchSpecToProtoConverter(queryExpression, searchSpec,
+                            Collections.singleton(prefix), mNamespaceMapLocked, mSchemaMapLocked);
+            if (searchSpecToProtoConverter.hasNothingToSearch()) {
                 // there is nothing to search over given their search filters, so we can return
                 // early and skip sending request to Icing.
                 return;
             }
 
-            SearchSpecProto finalSearchSpec =
-                    searchSpecToProtoConverter.toSearchSpecProto(queryExpression);
+            SearchSpecProto finalSearchSpec = searchSpecToProtoConverter.toSearchSpecProto();
 
             Set<String> prefixedObservedSchemas = null;
             if (mObserverManager.isPackageObserved(packageName)) {
