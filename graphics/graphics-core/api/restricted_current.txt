@@ -72,6 +72,7 @@ package androidx.graphics.opengl.egl {
     method public static androidx.graphics.opengl.egl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, int[]? attributes);
     method public static boolean eglDestroyImageKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLImageKHR image);
     method public static boolean eglDestroySyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR eglSync);
+    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public static androidx.hardware.SyncFenceCompat eglDupNativeFenceFDANDROID(android.opengl.EGLDisplay display, androidx.graphics.opengl.egl.EGLSyncKHR sync);
     method public static boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int attribute, int[] value, int offset);
     method public static void glEGLImageTargetTexture2DOES(int target, androidx.graphics.opengl.egl.EGLImageKHR image);
     field public static final androidx.graphics.opengl.egl.EGLUtils.Companion Companion;
@@ -97,6 +98,7 @@ package androidx.graphics.opengl.egl {
     method public androidx.graphics.opengl.egl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, int[]? attributes);
     method public boolean eglDestroyImageKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLImageKHR image);
     method public boolean eglDestroySyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR eglSync);
+    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.hardware.SyncFenceCompat eglDupNativeFenceFDANDROID(android.opengl.EGLDisplay display, androidx.graphics.opengl.egl.EGLSyncKHR sync);
     method public boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int attribute, int[] value, int offset);
     method public void glEGLImageTargetTexture2DOES(int target, androidx.graphics.opengl.egl.EGLImageKHR image);
   }
@@ -265,6 +267,25 @@ package androidx.graphics.surface {
 
   public static interface SurfaceControlCompat.TransactionCompletedListener {
     method public void onComplete(long latchTimeNanos, long presentTimeNanos);
+  }
+
+}
+
+package androidx.hardware {
+
+  @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public final class SyncFenceCompat implements java.lang.AutoCloseable {
+    ctor public SyncFenceCompat(int fd);
+    method public boolean await(long timeoutNanos);
+    method public boolean awaitForever();
+    method public void close();
+    method public long getSignalTime();
+    method public boolean isValid();
+    field public static final androidx.hardware.SyncFenceCompat.Companion Companion;
+    field public static final long SIGNAL_TIME_INVALID = -1L; // 0xffffffffffffffffL
+    field public static final long SIGNAL_TIME_PENDING = 9223372036854775807L; // 0x7fffffffffffffffL
+  }
+
+  public static final class SyncFenceCompat.Companion {
   }
 
 }

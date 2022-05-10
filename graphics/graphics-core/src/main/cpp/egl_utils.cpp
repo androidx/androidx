@@ -95,12 +95,12 @@ PFNEGLCLIENTWAITSYNCKHRPROC eglClientWaitSyncKHR = nullptr;
 PFNEGLDESTROYSYNCKHRPROC eglDestroySyncKHR = nullptr;
 
 /**
- * Cached reference to the eglDupNativeFenceANDROID egl extension method.
+ * Cached reference to the eglDupNativeFenceFDANDROID egl extension method.
  * On first invocation within the corresponding JNI method, a call to eglGetProcAddress
  * is made to determine if this method exists. If it does then this function pointer
  * is persisted for subsequent method calls.
  */
-PFNEGLDUPNATIVEFENCEFDANDROIDPROC eglDupNativeFenceANDROID = nullptr;
+PFNEGLDUPNATIVEFENCEFDANDROIDPROC eglDupNativeFenceFDANDROID = nullptr;
 
 /**
  * Helper method for querying the EGL extension method eglGetNativeClientBufferANDROID.
@@ -156,7 +156,7 @@ static PFNGLEGLIMAGETARGETTEXTURE2DOESPROC obtainGlImageTargetTexture2DOES() {
  * a file descriptor. Additionally this is used for testing purposes to guarantee that Android
  * devices that advertise support for the corresponding extensions actually expose this API.
  */
-static PFNEGLDUPNATIVEFENCEFDANDROIDPROC obtainEglDupNativeFenceANDROID() {
+static PFNEGLDUPNATIVEFENCEFDANDROIDPROC obtainEglDupNativeFenceFDANDROID() {
     return reinterpret_cast<PFNEGLDUPNATIVEFENCEFDANDROIDPROC>(
             eglGetProcAddress("eglDupNativeFenceFDANDROID"));
 }
@@ -278,6 +278,24 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nImageTargetTexture
     }
 
     glEGLImageTargetTexture2DOES(target, reinterpret_cast<EGLImage>(egl_image_ptr));
+}
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nDupNativeFenceFDANDROID(
+        JNIEnv *env, jobject thiz, jlong egl_display_ptr, jlong sync_ptr) {
+    static std::once_flag eglDupNativeFenceFDANDROIDflag;
+    std::call_once(eglDupNativeFenceFDANDROIDflag, [](){
+        eglDupNativeFenceFDANDROID = obtainEglDupNativeFenceFDANDROID();
+    });
+    if (!eglDupNativeFenceFDANDROID) {
+        ALOGE("Unable to resolve eglDupNativeFenceFDAndroid");
+        return EGL_NO_NATIVE_FENCE_FD_ANDROID;
+    }
+
+    auto display = reinterpret_cast<EGLDisplay *>(egl_display_ptr);
+    auto sync = reinterpret_cast<EGLSync>(sync_ptr);
+    return (jint)eglDupNativeFenceFDANDROID(display, sync);
 }
 
 extern "C"
@@ -490,6 +508,17 @@ JNIEXPORT jboolean JNICALL
 Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglDestroySyncKHR(
         JNIEnv *env, jobject thiz) {
     return obtainEglDestroySyncKHR() != nullptr;
+}
+
+/**
+ * Helper method used in testing to verify if the eglDupNativeFenceFDAndroid methid is actually
+ * supported on the Android device
+ */
+extern "C"
+JNIEXPORT jboolean JNICALL
+Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsDupNativeFenceFDANDROID(
+        JNIEnv *env, jobject thiz) {
+    return obtainEglDupNativeFenceFDANDROID() != nullptr;
 }
 
 /**

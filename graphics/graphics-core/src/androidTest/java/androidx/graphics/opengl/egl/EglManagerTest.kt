@@ -20,9 +20,9 @@ import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
 import android.hardware.HardwareBuffer
+import android.hardware.SyncFence
 import android.media.ImageReader
 import android.opengl.EGL14
-import android.opengl.EGL15
 import android.opengl.EGLSurface
 import android.opengl.GLES20
 import android.os.Build
@@ -36,6 +36,7 @@ import androidx.graphics.opengl.egl.EGLUtils.Companion.EGL_SYNC_TYPE_KHR
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -480,6 +481,16 @@ class EglManagerTest {
     }
 
     @Test
+    fun testEglDupNativeFenceFDANDROIDSupported() {
+        testEglManager {
+            initializeWithDefaultConfig()
+            if (isExtensionSupported(EglKhrFenceSync)) {
+                assertTrue(EGLBindings.nSupportsDupNativeFenceFDANDROID())
+            }
+        }
+    }
+
+    @Test
     fun testEglCreateAndDestroyFenceSyncKHR() {
         testEglManager {
             initializeWithDefaultConfig()
@@ -577,16 +588,10 @@ class EglManagerTest {
                 val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
 
-                var error = eglSpec.eglGetError()
-                if (error != EGL14.EGL_SUCCESS) {
-                    throw RuntimeException("eglCreateSync failed")
-                }
+                assertEquals("eglCreateSync failed", EGL14.EGL_SUCCESS, eglSpec.eglGetError())
 
                 GLES20.glFlush()
-                error = GLES20.glGetError()
-                if (error != GLES20.GL_NO_ERROR) {
-                    throw RuntimeException("glFlush failed")
-                }
+                assertEquals("glFlush failed", GLES20.GL_NO_ERROR, GLES20.glGetError())
 
                 val status = EGLUtils.eglClientWaitSyncKHR(
                     display,
@@ -594,12 +599,67 @@ class EglManagerTest {
                     0,
                     EGLUtils.EGL_FOREVER_KHR
                 )
-                if (status != EGL15.EGL_CONDITION_SATISFIED) {
-                    throw RuntimeException("eglClientWaitSync failed")
-                }
+                assertEquals("eglClientWaitSync failed",
+                    EGLUtils.EGL_CONDITION_SATISFIED_KHR, status)
                 assertEquals("eglClientWaitSyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
                 assertTrue(EGLUtils.eglDestroySyncKHR(display, sync))
                 assertEquals("eglDestroySyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    @Test
+    fun testEglDupNativeFenceFDANDROID() {
+        testEglManager {
+            initializeWithDefaultConfig()
+            if (supportsNativeAndroidFence()) {
+                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
+                val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_NATIVE_FENCE_ANDROID, null)
+                assertNotNull(sync)
+
+                assertEquals("eglCreateSyncFailed", EGL14.EGL_SUCCESS, eglSpec.eglGetError())
+
+                GLES20.glFlush()
+                assertEquals("glFlush failed", GLES20.GL_NO_ERROR, GLES20.glGetError())
+
+                val syncFence = EGLUtils.eglDupNativeFenceFDANDROID(display, sync!!)
+                assertTrue(syncFence.isValid())
+                assertTrue(syncFence.await(TimeUnit.MILLISECONDS.toNanos(3000)))
+
+                assertTrue(EGLUtils.eglDestroySyncKHR(display, sync))
+                assertEquals("eglDestroySyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
+                syncFence.close()
+                assertFalse(syncFence.isValid())
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    @Test
+    fun testEglDupNativeFenceFDANDROIDawaitForever() {
+        testEglManager {
+            initializeWithDefaultConfig()
+            if (supportsNativeAndroidFence()) {
+                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
+                val sync = EGLUtils.eglCreateSyncKHR(display, EGL_SYNC_NATIVE_FENCE_ANDROID, null)
+                assertNotNull(sync)
+
+                assertEquals("eglCreateSync failed", EGL14.EGL_SUCCESS, eglSpec.eglGetError())
+
+                GLES20.glFlush()
+                assertEquals("glFlush failed", GLES20.GL_NO_ERROR, GLES20.glGetError())
+
+                val syncFence = EGLUtils.eglDupNativeFenceFDANDROID(display, sync!!)
+                assertTrue(syncFence.isValid())
+                assertNotEquals(SyncFence.SIGNAL_TIME_INVALID, syncFence.getSignalTime())
+                assertTrue(syncFence.awaitForever())
+
+                assertTrue(EGLUtils.eglDestroySyncKHR(display, sync))
+                assertEquals("eglDestroySyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
+                syncFence.close()
+                assertFalse(syncFence.isValid())
+                assertEquals(SyncFence.SIGNAL_TIME_INVALID, syncFence.getSignalTime())
             }
         }
     }
