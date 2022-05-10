@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.testing
 
 import android.os.Handler
 import androidx.camera.camera2.pipe.core.Threads
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +26,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.asExecutor
-import java.util.concurrent.Executor
 
 internal object FakeThreads {
     @Suppress("deprecation")
@@ -48,6 +48,7 @@ internal object FakeThreads {
 
     fun fromDispatcher(dispatcher: CoroutineDispatcher): Threads {
         val executor = dispatcher.asExecutor()
+
         @Suppress("deprecation")
         val fakeHandler = { Handler() }
 
