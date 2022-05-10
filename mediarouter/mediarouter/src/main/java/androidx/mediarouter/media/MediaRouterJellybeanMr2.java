@@ -23,22 +23,22 @@ import androidx.annotation.RequiresApi;
 @RequiresApi(18)
 final class MediaRouterJellybeanMr2 {
     public static Object getDefaultRoute(Object routerObj) {
-        return ((android.media.MediaRouter)routerObj).getDefaultRoute();
+        return ((android.media.MediaRouter) routerObj).getDefaultRoute();
     }
 
     public static void addCallback(Object routerObj, int types, Object callbackObj, int flags) {
-        ((android.media.MediaRouter)routerObj).addCallback(types,
-                (android.media.MediaRouter.Callback)callbackObj, flags);
+        ((android.media.MediaRouter) routerObj).addCallback(types,
+                (android.media.MediaRouter.Callback) callbackObj, flags);
     }
 
     public static final class RouteInfo {
         @Nullable
         public static CharSequence getDescription(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo)routeObj).getDescription();
+            return ((android.media.MediaRouter.RouteInfo) routeObj).getDescription();
         }
 
         public static boolean isConnecting(@NonNull Object routeObj) {
-            return ((android.media.MediaRouter.RouteInfo)routeObj).isConnecting();
+            return ((android.media.MediaRouter.RouteInfo) routeObj).isConnecting();
         }
 
         private RouteInfo() {
@@ -48,7 +48,7 @@ final class MediaRouterJellybeanMr2 {
     public static final class UserRouteInfo {
         public static void setDescription(@NonNull Object routeObj,
                 @Nullable CharSequence description) {
-            ((android.media.MediaRouter.UserRouteInfo)routeObj).setDescription(description);
+            ((android.media.MediaRouter.UserRouteInfo) routeObj).setDescription(description);
         }
 
         private UserRouteInfo() {
