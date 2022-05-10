@@ -36,7 +36,8 @@
     <string name="on_action_title" msgid="4129601573763429611">"Hidup"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Mati"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Tetapan"</string>
-    <string name="accept_action_title" msgid="6172053420803596132">"Tetapan"</string>
+    <!-- no translation found for accept_action_title (4899660585470647578) -->
+    <skip />
     <string name="reject_action_title" msgid="6730366705938402668">"Tolak"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"OK"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Baling"</string>
@@ -110,8 +111,7 @@
     <string name="content_limits_demo_title" msgid="3207211638386727610">"Demo Had Kandungan"</string>
     <string name="finish_app_msg" msgid="8354334557053141891">"Hal ini akan menyelesaikan apl dan apabila anda kembali, skrin kebenaran akan disemai terlebih dahulu"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Selesaikan Demo Apl"</string>
-    <!-- no translation found for finish_app_demo_title (8223819062053448384) -->
-    <skip />
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"Semai Kebenaran Skrin terlebih dahulu pada larian Demo seterusnya"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"Memuatkan Demo"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Pemuatan Selesai!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Pergi ke akar"</string>
@@ -141,6 +141,14 @@
     <string name="importance_title" msgid="9034862997821839831">"Kepentingan"</string>
     <string name="category_title" msgid="4783851267093259949">"Kategori"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"Sedang berlangsung"</string>
+    <!-- no translation found for default_importance (6347996298832939989) -->
+    <skip />
+    <!-- no translation found for high_importance (5009120714837304882) -->
+    <skip />
+    <!-- no translation found for low_importance (4721161314404294033) -->
+    <skip />
+    <!-- no translation found for unknown_importance (909001735933359216) -->
+    <skip />
     <string name="notification_demo" msgid="1819496937832036387">"Demo Pemberitahuan"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"Pelbagai Demo"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"Demo Navigasi"</string>
@@ -284,12 +292,10 @@
     <string name="image_test_title" msgid="8273863429801477547">"Ujian imej"</string>
     <string name="image_test_text" msgid="6264812093895530445">"Perubahan imej dibenarkan"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Data Tambahan"</string>
-    <!-- no translation found for additional_data_text (2846223398214158872) -->
-    <skip />
+    <string name="additional_data_text" msgid="2846223398214158872">"Kemaskinian dibenarkan pada operasi belakang."</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Pelbagai Demo Templat"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demo Wadah"</string>
-    <!-- no translation found for location_1_title (3939821089928425181) -->
-    <skip />
+    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Vektor sumber diwarnai"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Peta bit sumber imej"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Penanda teks berwarna"</string>

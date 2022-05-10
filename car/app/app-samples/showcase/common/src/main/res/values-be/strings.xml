@@ -36,7 +36,8 @@
     <string name="on_action_title" msgid="4129601573763429611">"Уключана"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Выключана"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Налады"</string>
-    <string name="accept_action_title" msgid="6172053420803596132">"Налады"</string>
+    <!-- no translation found for accept_action_title (4899660585470647578) -->
+    <skip />
     <string name="reject_action_title" msgid="6730366705938402668">"Адхіліць"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"ОК"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Памылка"</string>
@@ -110,8 +111,7 @@
     <string name="content_limits_demo_title" msgid="3207211638386727610">"Дэманстрацыя абмежаванняў змесціва"</string>
     <string name="finish_app_msg" msgid="8354334557053141891">"Гэта дзеянне закрые праграму, а калі вы зноў запусціце яе, з\'явіцца папярэдне зададзены экран дазволаў"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Завяршыць дэманстрацыю праграмы"</string>
-    <!-- no translation found for finish_app_demo_title (8223819062053448384) -->
-    <skip />
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"Дэманстрацыя папярэдне зададзенага экрана дазволаў, які з\'явіцца пры наступным запуску праграмы"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"Загружаецца дэманстрацыя"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Загрузка завершана!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Перайсці да першага экрана"</string>
@@ -141,6 +141,14 @@
     <string name="importance_title" msgid="9034862997821839831">"Значнасць"</string>
     <string name="category_title" msgid="4783851267093259949">"Катэгорыя"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"Бягучы"</string>
+    <!-- no translation found for default_importance (6347996298832939989) -->
+    <skip />
+    <!-- no translation found for high_importance (5009120714837304882) -->
+    <skip />
+    <!-- no translation found for low_importance (4721161314404294033) -->
+    <skip />
+    <!-- no translation found for unknown_importance (909001735933359216) -->
+    <skip />
     <string name="notification_demo" msgid="1819496937832036387">"Дэманстрацыя апавяшчэння"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"Розныя дэманстрацыі"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"Дэманстрацыя навігацыі"</string>
@@ -284,12 +292,10 @@
     <string name="image_test_title" msgid="8273863429801477547">"Тэсціраванне відарыса"</string>
     <string name="image_test_text" msgid="6264812093895530445">"Дазволена змяняць відарысы"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Дадатковыя даныя"</string>
-    <!-- no translation found for additional_data_text (2846223398214158872) -->
-    <skip />
+    <string name="additional_data_text" msgid="2846223398214158872">"Абнаўленні дазволены для аперацый вяртання."</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Дэманстрацыі розных шаблонаў"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Дэманстрацыі выбранага"</string>
-    <!-- no translation found for location_1_title (3939821089928425181) -->
-    <skip />
+    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Вектар рэсурсу затаніраваны"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Растравая выява рэсурсу відарыса"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Тэкставы маркер афарбаваны"</string>

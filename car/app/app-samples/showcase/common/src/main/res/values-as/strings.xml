@@ -36,7 +36,8 @@
     <string name="on_action_title" msgid="4129601573763429611">"অন আছে"</string>
     <string name="off_action_title" msgid="8669201170189204848">"অফ আছে"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"ছেটিং"</string>
-    <string name="accept_action_title" msgid="6172053420803596132">"ছেটিং"</string>
+    <!-- no translation found for accept_action_title (4899660585470647578) -->
+    <skip />
     <string name="reject_action_title" msgid="6730366705938402668">"প্ৰত্যাখ্যান কৰক"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"ঠিক আছে"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"দলিয়াওক"</string>
@@ -140,6 +141,14 @@
     <string name="importance_title" msgid="9034862997821839831">"প্ৰাধান্য"</string>
     <string name="category_title" msgid="4783851267093259949">"শিতান"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"চলিত"</string>
+    <!-- no translation found for default_importance (6347996298832939989) -->
+    <skip />
+    <!-- no translation found for high_importance (5009120714837304882) -->
+    <skip />
+    <!-- no translation found for low_importance (4721161314404294033) -->
+    <skip />
+    <!-- no translation found for unknown_importance (909001735933359216) -->
+    <skip />
     <string name="notification_demo" msgid="1819496937832036387">"জাননীৰ ডেম’"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"সানমিহলি ডেম’"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"নেভিগেশ্বনৰ ডেম’"</string>
@@ -286,8 +295,7 @@
     <string name="additional_data_text" msgid="2846223398214158872">"নেপথ্যৰ কাৰ্যত আপডে’টৰ অনুমতি আছে।"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"সানমিহলি টেম্পলে’টৰ ডেম’"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ডেম’ দেখুৱাওক"</string>
-    <!-- no translation found for location_1_title (3939821089928425181) -->
-    <skip />
+    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"ৰং কৰা উৎসৰ ভেক্টৰ"</string>
     <string name="location_2_description" msgid="3331356135359047166">"প্ৰতিচ্ছবিৰ উৎসৰ বিটমেপ"</string>
     <string name="location_3_description" msgid="3982142774088944850">"ৰং কৰা পাঠৰ চিহ্ন"</string>

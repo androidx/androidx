@@ -36,7 +36,8 @@
     <string name="on_action_title" msgid="4129601573763429611">"ဖွင့်"</string>
     <string name="off_action_title" msgid="8669201170189204848">"ပိတ်"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"ဆက်တင်များ"</string>
-    <string name="accept_action_title" msgid="6172053420803596132">"ဆက်တင်များ"</string>
+    <!-- no translation found for accept_action_title (4899660585470647578) -->
+    <skip />
     <string name="reject_action_title" msgid="6730366705938402668">"ပယ်ရန်"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"OK"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"ပစ်ရန်"</string>
@@ -110,8 +111,7 @@
     <string name="content_limits_demo_title" msgid="3207211638386727610">"အကြောင်းအရာ ကန့်သတ်ချက်များ သရုပ်ပြချက်"</string>
     <string name="finish_app_msg" msgid="8354334557053141891">"အက်ပ်ကိုအပြီးသတ်လိုက်မည် ဖြစ်ပြီး ပြန်သွားသည့်အခါ ၎င်းက ခွင့်ပြုချက်စခရင်ကို ကြိုတင်ထည့်သွင်းမည်"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"အက်ပ်သရုပ်ပြချက် အပြီးသတ်ရန်"</string>
-    <!-- no translation found for finish_app_demo_title (8223819062053448384) -->
-    <skip />
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"သရုပ်ပြချက်ကို နောက်တစ်ကြိမ်လုပ်ဆောင်သည့်အခါ ခွင့်ပြုချက်စခရင် ကြိုတင်ထည့်သွင်းရန်"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"သရုပ်ပြချက် ဖွင့်နေသည်"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"ဖွင့်ပြီးသွားပြီ။"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"ရင်းမြစ် သို့သွားရန်"</string>
@@ -141,6 +141,10 @@
     <string name="importance_title" msgid="9034862997821839831">"အရေးပါမှု"</string>
     <string name="category_title" msgid="4783851267093259949">"အမျိုးအစား"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"လက်ရှိသုံးနေသည်"</string>
+    <string name="default_importance" msgid="6347996298832939989">"မူရင်း"</string>
+    <string name="high_importance" msgid="5009120714837304882">"မြင့်"</string>
+    <string name="low_importance" msgid="4721161314404294033">"နိမ့်"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"မသိ"</string>
     <string name="notification_demo" msgid="1819496937832036387">"အကြောင်းကြားချက် သရုပ်ပြချက်"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"အထွေထွေသရုပ်ပြချက်"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"လမ်းညွှန် သရုပ်ပြချက်"</string>
@@ -284,12 +288,10 @@
     <string name="image_test_title" msgid="8273863429801477547">"ပုံစစ်ဆေးမှု"</string>
     <string name="image_test_text" msgid="6264812093895530445">"ပုံအပြောင်းအလဲများ ခွင့်ပြုထားသည်"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"နောက်ထပ်ဒေတာများ"</string>
-    <!-- no translation found for additional_data_text (2846223398214158872) -->
-    <skip />
+    <string name="additional_data_text" msgid="2846223398214158872">"ပြန်ရွှေ့ခြင်းများတွင် အပ်ဒိတ်များကို ခွင့်ပြုသည်။"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"အထွေထွေ ပုံစံသရုပ်ပြချက်များ"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase သရုပ်ပြချက်များ"</string>
-    <!-- no translation found for location_1_title (3939821089928425181) -->
-    <skip />
+    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"အရောင်ထည့်ထားသော ရင်းမြစ်ဗက်တာ"</string>
     <string name="location_2_description" msgid="3331356135359047166">"ပုံရင်းမြစ် bitmap"</string>
     <string name="location_3_description" msgid="3982142774088944850">"အရောင်ထည့်ထားသော စာသားညွှန်မှတ်"</string>
