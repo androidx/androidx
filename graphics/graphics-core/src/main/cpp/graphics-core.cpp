@@ -32,9 +32,9 @@
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_androidx_graphics_surface_SurfaceControlCompat_nCreate(JNIEnv *env, jobject thiz,
-                                                            jlong surfaceControl,
-                                                            jstring debug_name) {
+Java_androidx_graphics_surface_JniBindings_00024Companion_nCreate(JNIEnv *env, jobject thiz,
+                                                                  jlong surfaceControl,
+                                                                  jstring debug_name) {
     if (android_get_device_api_level() >= 29) {
         auto aSurfaceControl = reinterpret_cast<ASurfaceControl *>(surfaceControl);
         auto debugName = env->GetStringUTFChars(debug_name, nullptr);
@@ -48,9 +48,10 @@ Java_androidx_graphics_surface_SurfaceControlCompat_nCreate(JNIEnv *env, jobject
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_androidx_graphics_surface_SurfaceControlCompat_nCreateFromWindow(JNIEnv *env, jobject thiz,
-                                                                      jobject surface,
-                                                                      jstring debug_name) {
+Java_androidx_graphics_surface_JniBindings_00024Companion_nCreateFromSurface(JNIEnv *env,
+                                                                             jobject thiz,
+                                                                             jobject surface,
+                                                                             jstring debug_name) {
     if (android_get_device_api_level() >= 29) {
         auto AWindow = ANativeWindow_fromSurface(env, surface);
         auto debugName = env->GetStringUTFChars(debug_name, nullptr);
@@ -66,8 +67,8 @@ Java_androidx_graphics_surface_SurfaceControlCompat_nCreateFromWindow(JNIEnv *en
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_androidx_graphics_surface_SurfaceControlCompat_nRelease(JNIEnv *env, jobject thiz,
-                                                             jlong surfaceControl) {
+Java_androidx_graphics_surface_JniBindings_00024Companion_nRelease(JNIEnv *env, jobject thiz,
+                                                                   jlong surfaceControl) {
     if (android_get_device_api_level() >= 29) {
         ASurfaceControl_release(reinterpret_cast<ASurfaceControl *>(surfaceControl));
     } else {
@@ -77,7 +78,7 @@ Java_androidx_graphics_surface_SurfaceControlCompat_nRelease(JNIEnv *env, jobjec
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactionCreate(
+Java_androidx_graphics_surface_JniBindings_00024Companion_nTransactionCreate(
         JNIEnv *env, jobject thiz) {
     if (android_get_device_api_level() >= 29) {
         return reinterpret_cast<jlong>(ASurfaceTransaction_create());
@@ -88,7 +89,7 @@ Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactio
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactionDelete(
+Java_androidx_graphics_surface_JniBindings_00024Companion_nTransactionDelete(
         JNIEnv *env, jobject thiz,
         jlong surfaceTransaction) {
     if (android_get_device_api_level() >= 29) {
@@ -98,7 +99,7 @@ Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactio
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactionApply(
+Java_androidx_graphics_surface_JniBindings_00024Companion_nTransactionApply(
         JNIEnv *env, jobject thiz,
         jlong surfaceTransaction) {
     if (android_get_device_api_level() >= 29) {
@@ -241,7 +242,7 @@ void setupTransactionCommittedListenerClassInfo(JNIEnv *env) {
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactionSetOnComplete(
+Java_androidx_graphics_surface_JniBindings_00024Companion_nTransactionSetOnComplete(
         JNIEnv *env,
         jobject thiz,
         jlong surfaceTransaction, jobject callback) {
@@ -257,7 +258,7 @@ Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactio
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_androidx_graphics_surface_SurfaceControlCompat_00024Transaction_nTransactionSetOnCommit(
+Java_androidx_graphics_surface_JniBindings_00024Companion_nTransactionSetOnCommit(
         JNIEnv *env, jobject thiz, jlong surfaceTransaction, jobject listener) {
     if (android_get_device_api_level() >= 31) {
         setupTransactionCommittedListenerClassInfo(env);

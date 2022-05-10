@@ -241,7 +241,6 @@ package androidx.graphics.surface {
 
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class SurfaceControlCompat {
     method protected void finalize();
-    field public static final androidx.graphics.surface.SurfaceControlCompat.Companion Companion;
   }
 
   public static final class SurfaceControlCompat.Builder {
@@ -251,9 +250,6 @@ package androidx.graphics.surface {
     method public androidx.graphics.surface.SurfaceControlCompat.Builder setDebugName(String debugName);
   }
 
-  public static final class SurfaceControlCompat.Companion {
-  }
-
   public static final class SurfaceControlCompat.Transaction {
     ctor public SurfaceControlCompat.Transaction();
     method @RequiresApi(android.os.Build.VERSION_CODES.S) public androidx.graphics.surface.SurfaceControlCompat.Transaction addTransactionCommittedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener listener);
@@ -261,10 +257,6 @@ package androidx.graphics.surface {
     method public void close();
     method public void commit();
     method public void finalize();
-    field public static final androidx.graphics.surface.SurfaceControlCompat.Transaction.Companion Companion;
-  }
-
-  public static final class SurfaceControlCompat.Transaction.Companion {
   }
 
   public static interface SurfaceControlCompat.TransactionCommittedListener {
