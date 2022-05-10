@@ -3,7 +3,13 @@ set -e
 
 function runGradle() {
   kmpArgs="-Pandroidx.compose.multiplatformEnabled=true -Pandroidx.kmp.native.enabled=true"
-  ./gradlew $kmpArgs "$@"
+  echo running ./gradlew $kmpArgs "$@"
+  if ./gradlew $kmpArgs "$@"; then
+    echo succeeded: ./gradlew $kmpArgs "$@"
+  else
+    echo failed: ./gradlew $kmpArgs "$@"
+    return 1
+  fi
 }
 
 # This script regenerates signature-related information (dependency-verification-metadata and keyring)
