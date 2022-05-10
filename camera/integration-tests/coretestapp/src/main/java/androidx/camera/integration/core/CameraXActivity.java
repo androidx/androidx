@@ -773,6 +773,8 @@ public class CameraXActivity extends AppCompatActivity {
         mRecordUi.setEnabled(mVideoToggle.isChecked());
         mTakePicture.setEnabled(mPhotoToggle.isChecked());
         mCaptureQualityToggle.setEnabled(mPhotoToggle.isChecked());
+        mZslToggle.setVisibility(getCameraInfo() != null
+                && getCameraInfo().isZslSupported() ? View.VISIBLE : View.GONE);
         mZslToggle.setEnabled(mPhotoToggle.isChecked());
         mCameraDirectionButton.setEnabled(getCameraInfo() != null);
         mTorchButton.setEnabled(isFlashAvailable());

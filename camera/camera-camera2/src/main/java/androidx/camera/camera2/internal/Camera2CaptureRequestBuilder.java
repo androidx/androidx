@@ -48,7 +48,7 @@ class Camera2CaptureRequestBuilder {
     private Camera2CaptureRequestBuilder() {
     }
 
-    private static final String TAG = "CaptureRequestBuilder";
+    private static final String TAG = "Camera2CaptureRequestBuilder";
 
     /**
      * Get the configured Surface from DeferrableSurface list using the Surface map which should be

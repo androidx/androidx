@@ -68,14 +68,26 @@ public interface CameraControlInternal extends CameraControl {
             @NonNull SessionConfig.Builder sessionConfigBuilder);
 
     /**
-     * Sets zsl disabled or not.
+     * Sets the flag if zero-shutter lag needs to be disabled by user case config.
      *
-     * @param disabled True if zero-shutter lag should be disabled. Otherwise, should not be
-     *                 disabled. However, enabling zero-shutter lag needs other conditions e.g.
-     *                 flash mode OFF, so setting to false doesn't guarantee zero-shutter lag to
-     *                 be always ON.
+     * <p> Zero-shutter lag will be disabled when any of the following conditions:
+     * <ul>
+     *     <li> Extension is ON
+     *     <li> VideoCapture is ON
+     * </ul>
+     *
+     * @param disabled True if zero-shutter lag should be disabled. Otherwise returns false.
+     *                 However, enabling zero-shutter lag needs other conditions e.g. flash mode
+     *                 OFF, so setting to false doesn't guarantee zero-shutter lag to be always ON.
      */
-    void setZslDisabled(boolean disabled);
+    void setZslDisabledByUserCaseConfig(boolean disabled);
+
+    /**
+     * Checks if zero-shutter lag is disabled by user case config.
+     *
+     * @return True if zero-shutter lag should be disabled. Otherwise returns false.
+     */
+    boolean isZslDisabledByByUserCaseConfig();
 
     /**
      * Performs still capture requests with the desired capture mode.
@@ -140,7 +152,12 @@ public interface CameraControlInternal extends CameraControl {
         }
 
         @Override
-        public void setZslDisabled(boolean disabled) {
+        public void setZslDisabledByUserCaseConfig(boolean disabled) {
+        }
+
+        @Override
+        public boolean isZslDisabledByByUserCaseConfig() {
+            return false;
         }
 
         @Override

@@ -37,6 +37,7 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
@@ -1064,6 +1065,15 @@ public final class Preview extends UseCase {
         @NonNull
         public Builder setCaptureProcessor(@NonNull CaptureProcessor captureProcessor) {
             getMutableConfig().insertOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, captureProcessor);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setZslDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_ZSL_DISABLED, disabled);
             return this;
         }
     }

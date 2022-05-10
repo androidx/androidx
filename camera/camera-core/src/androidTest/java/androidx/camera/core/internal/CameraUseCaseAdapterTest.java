@@ -43,6 +43,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Identifier;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
@@ -596,6 +597,42 @@ public class CameraUseCaseAdapterTest {
         assertThat(cameraUseCaseAdapter.getUseCases().size()).isEqualTo(1);
     }
 
+    @Test
+    public void addExistingUseCase_isZslDisabledByExtendedConfig_setZslDisabled()
+            throws CameraUseCaseAdapter.CameraException {
+        // Arrange: set up adapter.
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                mUseCaseConfigFactory);
+
+        cameraUseCaseAdapter.setExtendedConfig(new FakeCameraConfig());
+        FakeUseCase fakeUseCase = new FakeUseCase();
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
+
+        assertThat(mFakeCamera.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+                .isTrue();
+    }
+
+    @Test
+    public void addExistingUseCase_isZslDisabledByCameraConfig_setZslDisabled()
+            throws CameraUseCaseAdapter.CameraException {
+        // Arrange: set up adapter.
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager,
+                (captureType, captureMode) -> {
+                    FakeUseCaseConfig.Builder useCaseBuilder = new FakeUseCaseConfig.Builder();
+                    useCaseBuilder.getMutableConfig().insertOption(
+                            UseCaseConfig.OPTION_ZSL_DISABLED, true);
+                    return useCaseBuilder.getUseCaseConfig();
+                });
+
+        FakeUseCase fakeUseCase = new FakeUseCase();
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
+
+        assertThat(mFakeCamera.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+                .isTrue();
+    }
+
     @NonNull
     private CameraConfig createCoexistingRequiredRuleCameraConfig() {
         return new CameraConfig() {
@@ -664,7 +701,10 @@ public class CameraUseCaseAdapterTest {
             public Config getConfig(
                     @NonNull CaptureType captureType,
                     @CaptureMode int captureMode) {
-                return null;
+                FakeUseCaseConfig.Builder useCaseBuilder = new FakeUseCaseConfig.Builder();
+                useCaseBuilder.getMutableConfig().insertOption(
+                        UseCaseConfig.OPTION_ZSL_DISABLED, true);
+                return useCaseBuilder.getUseCaseConfig();
             }
         };
 

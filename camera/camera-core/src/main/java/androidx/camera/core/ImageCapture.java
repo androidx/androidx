@@ -42,6 +42,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -2899,6 +2900,18 @@ public final class ImageCapture extends UseCase {
         public Builder setUseCaseEventCallback(
                 @NonNull UseCase.EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
+            return this;
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setZslDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_ZSL_DISABLED, disabled);
             return this;
         }
     }
