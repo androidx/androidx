@@ -6,22 +6,23 @@ import android.os.Build
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.metrics.performance.PerformanceMetricsState
 
 class DelayedView(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {
 
     var delayMs: Long = 0
     var repetitions: Int = 0
+    var maxReps: Int = 0
+    var perFrameStateData: List<JankStatsTest.FrameStateInputData> = listOf()
 
     @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     override fun onDraw(canvas: Canvas?) {
-        if (repetitions > 0) {
-            repetitions--
-        }
+        repetitions++
         if (delayMs > 0) {
             try {
                 Thread.sleep(delayMs)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
             }
         }
         val randomColor: Int = 0xff000000.toInt() or
@@ -30,8 +31,25 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
             ((Math.random() * 127) + 128).toInt()
 
         canvas!!.drawColor(randomColor)
-        if (repetitions > 0) {
-            postInvalidateOnAnimation()
+        if (perFrameStateData.isNotEmpty()) {
+            val metricsState = PerformanceMetricsState.getForHierarchy(this).state!!
+            val stateData = perFrameStateData[repetitions - 1]
+            for (state in stateData.addSFStates) {
+                metricsState.addSingleFrameState(state.first, state.second)
+            }
+            for (state in stateData.addStates) {
+                metricsState.addState(state.first, state.second)
+            }
+            for (stateName in stateData.removeStates) {
+                metricsState.removeState(stateName)
+            }
+        }
+        if (repetitions < maxReps) {
+            if (Build.VERSION.SDK_INT >= 16) {
+                postInvalidateOnAnimation()
+            } else {
+                postInvalidate()
+            }
         }
     }
 }

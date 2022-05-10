@@ -66,7 +66,7 @@ class JankStats private constructor(
     private val executor: Executor,
     private val frameListener: OnFrameListener
 ) {
-    private val metricsStateHolder: PerformanceMetricsState.MetricsStateHolder
+    private val holder: PerformanceMetricsState.Holder
 
     /**
      * JankStats uses the platform FrameMetrics API internally when it is available to track frame
@@ -88,7 +88,7 @@ class JankStats private constructor(
                     "JankStats can only be created with a Window that has a non-null DecorView"
             )
         }
-        metricsStateHolder = PerformanceMetricsState.create(decorView)
+        holder = PerformanceMetricsState.create(decorView)
         implementation =
             when {
                 Build.VERSION.SDK_INT >= 31 -> {

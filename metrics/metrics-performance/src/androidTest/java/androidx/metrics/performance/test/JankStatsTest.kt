@@ -15,7 +15,11 @@
  */
 package androidx.metrics.performance.test
 
-import androidx.core.util.Pair
+import android.os.Build
+import android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
+import android.os.Build.VERSION_CODES.JELLY_BEAN
+import android.view.Choreographer
+import androidx.annotation.RequiresApi
 import androidx.metrics.performance.PerformanceMetricsState
 import androidx.metrics.performance.FrameData
 import androidx.metrics.performance.FrameDataApi24
@@ -27,6 +31,7 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
@@ -52,9 +57,23 @@ class JankStatsTest {
     private lateinit var delayedView: DelayedView
     private lateinit var latchedListener: LatchedListener
 
-    private val IDLE_PAUSE = 1000
+    private var frameInit: FrameInitCompat
+
     private val NUM_FRAMES = 10
 
+    /**
+     * On some older APIs and emulators, frames may occasionally take longer than predicted
+     * jank. We check against this MIN duration to avoid flaky tests.
+     */
+    private val MIN_JANK_NS = 100000000
+
+    init {
+        if (Build.VERSION.SDK_INT >= 16) {
+            frameInit = FrameInit16(this)
+        } else {
+            frameInit = FrameInitCompat(this)
+        }
+    }
     @Rule
     @JvmField
     var delayedActivityRule: ActivityScenarioRule<DelayedActivity> =
@@ -130,13 +149,12 @@ class JankStatsTest {
         assertNotEquals(frameData31, frameData31A)
     }
 
+    @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
     fun testNoJank() {
         val frameDelay = 0
 
-        // Prime the system first to flush out any frames happening before we start forcing jank
-        runDelayTest(0, NUM_FRAMES, latchedListener)
-        latchedListener.reset()
+        frameInit.initFramePipeline()
 
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         assertEquals("numJankFrames should equal 0", 0, latchedListener.numJankFrames)
@@ -144,22 +162,26 @@ class JankStatsTest {
 
         jankStats.jankHeuristicMultiplier = 0f
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
+        // FrameMetrics sometimes drops a frame, so the total number of
+        // jankData items might be less than NUM_FRAMES
         assertEquals(
-            "multiplier 0, extremeMs 0: numJankFrames should equal NUM_FRAMES",
+            "jank frames != NUMFRAMES",
             NUM_FRAMES, latchedListener.numJankFrames
+        )
+        assertTrue(
+            "With heuristicMultiplier 0, should be at least ${NUM_FRAMES - 1} " +
+                "frames with jank data, not ${latchedListener.numJankFrames}",
+            latchedListener.numJankFrames >= (NUM_FRAMES - 1)
         )
     }
 
+    @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
     fun testMultipleListeners() {
         val frameDelay = 0
 
-        // Prime the system first to flush out any frames happening before we start forcing jank
-        runDelayTest(0, NUM_FRAMES, latchedListener)
-        latchedListener.reset()
+        frameInit.initFramePipeline()
 
-        val testState = StateInfo("Testing State", "sampleState")
-        metricsState.addSingleFrameState(testState.stateName, testState.state)
         val secondListenerStates = mutableListOf<StateInfo>()
         val secondListener = OnFrameListener {
             secondListenerStates.addAll(it.states)
@@ -171,25 +193,32 @@ class JankStatsTest {
                 Dispatchers.Default.asExecutor(), secondListener
             )
         }
+        val testState = StateInfo("Testing State", "sampleState")
+        metricsState.addSingleFrameState(testState.stateName, testState.state)
+
+        // in case earlier frames arrive before our test begins
+        secondListenerStates.clear()
+        latchedListener.reset()
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         val jankData: FrameData = latchedListener.jankData[0]
         assertEquals(listOf(testState), jankData.states)
         assertEquals(listOf(testState), secondListenerStates)
     }
 
+    @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
     fun testRegularJank() {
         val frameDelay = 100
 
-        // Prime the system first to flush out any frames happening before we start forcing jank
-        runDelayTest(0, NUM_FRAMES, latchedListener)
-        latchedListener.reset()
+        frameInit.initFramePipeline()
 
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
-        assertEquals(
-            "numJankFrames should equal NUM_FRAMES",
-            NUM_FRAMES,
-            latchedListener.numJankFrames
+        // FrameMetrics sometimes drops a frame, so the total number of
+        // jankData items might be less than NUM_FRAMES
+        assertTrue(
+            "There should be at least ${NUM_FRAMES - 1} frames with jank data, " +
+                "not ${latchedListener.jankData.size}",
+            latchedListener.jankData.size >= (NUM_FRAMES - 1)
         )
         latchedListener.reset()
 
@@ -201,15 +230,12 @@ class JankStatsTest {
         )
     }
 
+    @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
     fun testFrameStates() {
-        val frameDelay = 100
+        val frameDelay = 0
 
-        // prime the system first -some platform versions start with historical data which may not
-        // have the forced-jank frames up front that we're counting on. Running it twice ensures
-        // that our assumptions will be true the second time around
-        runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
-        latchedListener.reset()
+        frameInit.initFramePipeline()
 
         val state0 = StateInfo("Testing State 0", "sampleStateA")
         val state1 = StateInfo("Testing State 1", "sampleStateB")
@@ -237,7 +263,7 @@ class JankStatsTest {
         // Now test the rest of the frames, which should not include singleFrameState state2
         for (i in 1 until NUM_FRAMES) {
             val item = latchedListener.jankData[i]
-            assertEquals("There should be 2 states at frame 0", 2,
+            assertEquals("There should be 2 states at frame $i", 2,
                 item.states.size)
             for (state in item.states) {
                 assertThat(
@@ -262,16 +288,16 @@ class JankStatsTest {
         latchedListener.reset()
         val state3 = Pair("Testing State 3", "sampleStateD")
         val state4 = Pair("Testing State 4", "sampleStateE")
-        metricsState.addState(state3.first!!, state3.second!!)
-        metricsState.addState(state4.first!!, state4.second!!)
+        metricsState.addState(state3.first, state3.second)
+        metricsState.addState(state4.first, state4.second)
         runDelayTest(frameDelay, 1, latchedListener)
         item0 = latchedListener.jankData[0]
         assertEquals(2, item0.states.size)
         latchedListener.reset()
 
         // Test removal of state3 and replacement of state4
-        metricsState.removeState(state3.first!!)
-        metricsState.addState(state4.first!!, "sampleStateF")
+        metricsState.removeState(state3.first)
+        metricsState.addState(state4.first, "sampleStateF")
         runDelayTest(frameDelay, 1, latchedListener)
         item0 = latchedListener.jankData[0]
         assertEquals(1, item0.states.size)
@@ -280,37 +306,190 @@ class JankStatsTest {
         latchedListener.reset()
     }
 
+    /**
+     * Data structure to hold per-frame state data to be injected during the test
+     */
+    data class FrameStateInputData(
+        val addSFStates: List<Pair<String, String>> = emptyList(),
+        val addStates: List<Pair<String, String>> = emptyList(),
+        val removeStates: List<String> = emptyList()
+    )
+
+    /**
+     * Utility function (embedded in a class because it uses version-specific APIs) which
+     * is used by tests which require the frame pipeline to be empty when they
+     * start. When the activity first starts, there are usually a couple of frames drawn.
+     * Depending on when those frames are drawn relative to when the JankStats object and
+     * OnFrameListener are set up, there can be old frame data still being set to JankStats
+     * after the test has started, which causes problems with a test not getting the result
+     * that it should. The workaround is to force these initial frames to draw before the test
+     * begins, so that any data used by the test will only land on frames after the test begins
+     * instead of these old activity-creation frames.
+     */
+    open class FrameInitCompat(val jankStatsTest: JankStatsTest) {
+        open fun initFramePipeline() {}
+    }
+
+    @RequiresApi(16)
+    class FrameInit16(jankStatsTest: JankStatsTest) : FrameInitCompat(jankStatsTest) {
+        override fun initFramePipeline() {
+            val latch = CountDownLatch(10)
+            var numFrames = 10
+            val callback: Choreographer.FrameCallback = object : Choreographer.FrameCallback {
+                override fun doFrame(frameTimeNanos: Long) {
+                    --numFrames
+                    latch.countDown()
+                    if (numFrames > 0) {
+                        Choreographer.getInstance().postFrameCallback(this)
+                    }
+                }
+            }
+            jankStatsTest.delayedActivityRule.getScenario().onActivity {
+                Choreographer.getInstance().postFrameCallback(callback)
+            }
+            latch.await(5, TimeUnit.SECONDS)
+
+            jankStatsTest.latchedListener.reset()
+        }
+    }
+
+    /**
+     * JankStats doesn't do anything pre API 16. But it would be nice to not crash running
+     * code that calls JankStats functionality on that version. This test just calls basic APIs
+     * to make sure they don't crash.
+     */
+    @SdkSuppress(maxSdkVersion = ICE_CREAM_SANDWICH_MR1)
+    @Test
+    fun testPreAPI16() {
+        delayedActivityRule.getScenario().onActivity {
+            val state0 = StateInfo("Testing State 0", "sampleStateA")
+            val state1 = StateInfo("Testing State 1", "sampleStateB")
+            metricsState.addState(state0.stateName, state0.state)
+            metricsState.addSingleFrameState(state1.stateName, state1.state)
+        }
+        runDelayTest(0, NUM_FRAMES, latchedListener)
+    }
+
+    @SdkSuppress(minSdkVersion = JELLY_BEAN)
+    @Test
+    fun testComplexFrameStateData() {
+        frameInit.initFramePipeline()
+
+        // perFrameStateData is a structure for testing which holds information about the
+        // states that should be added or removed on every frame. This functionality is
+        // handled inside DelayedView. //-Comments above each item indicate what the resulting
+        // state should be in that frame, which is checked in the asserts below
+        // TODO: make immutable, copy to mutable list for delayedView
+        var perFrameStateData = mutableListOf(
+            // 0: A:0
+            JankStatsTest.FrameStateInputData(
+                addStates = listOf("stateNameA" to "0"),
+            ),
+            // 1: A:0
+            JankStatsTest.FrameStateInputData(),
+            // 2: A:1
+            JankStatsTest.FrameStateInputData(
+                addStates = listOf("stateNameA" to "1"),
+            ),
+            // 3: A:2
+            JankStatsTest.FrameStateInputData(
+                addStates = listOf("stateNameA" to "2"),
+            ),
+            // 4: A:2
+            JankStatsTest.FrameStateInputData(
+                removeStates = listOf("stateNameA"),
+            ),
+            // 5: [nothing]
+            JankStatsTest.FrameStateInputData(),
+            // 6: A:0, B:10
+            JankStatsTest.FrameStateInputData(
+                addStates = listOf("stateNameA" to "0", "stateNameB" to "10"),
+            ),
+            // 7: A:0, B:10, C:100
+            JankStatsTest.FrameStateInputData(
+                addSFStates = listOf("stateNameC" to "100"),
+            ),
+            // 8: A:0, B:10
+            JankStatsTest.FrameStateInputData(),
+            // 9: A:0, B:10
+            JankStatsTest.FrameStateInputData(
+                removeStates = listOf("stateNameA", "stateNameB"),
+            ),
+            // 10: empty
+            JankStatsTest.FrameStateInputData(),
+            // 11: A:1
+            JankStatsTest.FrameStateInputData(
+                addStates = listOf("stateNameA" to "0", "stateNameA" to "1"),
+            ),
+        )
+        // testData will hold input (above) plus expected results
+        val expectedResults = listOf(
+            mapOf("stateNameA" to "0"),
+            mapOf("stateNameA" to "0"),
+            mapOf("stateNameA" to "1"),
+            mapOf("stateNameA" to "2"),
+            mapOf("stateNameA" to "2"),
+            emptyMap(),
+            mapOf("stateNameA" to "0", "stateNameB" to "10"),
+            mapOf("stateNameA" to "0", "stateNameB" to "10", "stateNameC" to "100"),
+            mapOf("stateNameA" to "0", "stateNameB" to "10"),
+            mapOf("stateNameA" to "0", "stateNameB" to "10"),
+            emptyMap(),
+            mapOf("stateNameA" to "1"),
+        )
+
+        runDelayTest(frameDelay = 0, numFrames = perFrameStateData.size,
+            latchedListener, perFrameStateData)
+
+        assertEquals("There should be ${expectedResults.size} frames of data",
+            expectedResults.size, latchedListener.jankData.size)
+        for (i in 0 until expectedResults.size) {
+            val testResultStates = latchedListener.jankData[i].states
+            val expectedResult = expectedResults[i]
+            assertEquals("There should be ${expectedResult.size} states",
+                expectedResult.size, testResultStates.size)
+            for (state in testResultStates) {
+                assertEquals("State value not correct",
+                    state.state, expectedResult.get(state.stateName))
+            }
+        }
+    }
+
     private fun runDelayTest(
         frameDelay: Int,
         numFrames: Int,
-        listener: LatchedListener
+        listener: LatchedListener,
+        perFrameStateData: List<FrameStateInputData>? = null
     ) {
-        val latch = CountDownLatch(numFrames)
+        val latch = CountDownLatch(1)
         listener.latch = latch
-        delayedActivity.repetions = numFrames
-        delayedActivity.delayMs = frameDelay.toLong()
-        delayedActivityRule.scenario.onActivity {
+        listener.minFrames = numFrames
+        delayedActivityRule.getScenario().onActivity {
+            if (perFrameStateData != null) delayedView.perFrameStateData = perFrameStateData
+            delayedActivity.repetitions = 0
+            delayedActivity.maxReps = numFrames
+            delayedActivity.delayMs = frameDelay.toLong()
             delayedActivity.invalidate()
+            listener.numFrames = 0
         }
         try {
-            Thread.sleep((numFrames * frameDelay + IDLE_PAUSE).toLong())
-        } catch (e: Exception) {
-        }
-        try {
-            latch.await(20, TimeUnit.SECONDS)
+            latch.await(frameDelay * numFrames + 1000L, TimeUnit.MILLISECONDS)
         } catch (e: InterruptedException) {
             assert(false)
         }
     }
 
-    internal inner class LatchedListener : OnFrameListener {
+    inner class LatchedListener : OnFrameListener {
         var numJankFrames = 0
         var jankData = mutableListOf<FrameData>()
         var latch: CountDownLatch? = null
+        var minFrames = 0
+        var numFrames = 0
 
         fun reset() {
             jankData.clear()
             numJankFrames = 0
+            numFrames = 0
         }
 
         override fun onFrame(
@@ -319,12 +498,26 @@ class JankStatsTest {
             if (latch == null) {
                 throw Exception("latch not set in LatchedListener")
             } else {
-                if (frameData.isJank) {
+                if (frameData.isJank && frameData.frameDurationUiNanos >
+                        (MIN_JANK_NS * jankStats.jankHeuristicMultiplier)) {
                     this.numJankFrames++
                 }
                 this.jankData.add(frameData)
-                latch!!.countDown()
+                numFrames++
+                if (numFrames >= minFrames) {
+                    latch!!.countDown()
+                }
             }
         }
+    }
+
+    private fun getFrameEndTime(frameData: FrameData): Long {
+        var duration = frameData.frameStartNanos
+        if (frameData is FrameDataApi24) {
+            duration += frameData.frameDurationCpuNanos
+        } else {
+            duration += frameData.frameDurationUiNanos
+        }
+        return duration
     }
 }

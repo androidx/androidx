@@ -61,7 +61,7 @@ class MessageListFragment : Fragment() {
     }
 
     class MetricsStateCache : View.OnAttachStateChangeListener {
-        private var holder: PerformanceMetricsState.MetricsStateHolder? = null
+        private var holder: PerformanceMetricsState.Holder? = null
 
         val state: PerformanceMetricsState?
             get() = holder?.state
