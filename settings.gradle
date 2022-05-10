@@ -825,6 +825,7 @@ includeProject(":wear:watchface:watchface-samples", "wear/watchface/watchface/sa
 includeProject(":wear:watchface:watchface-samples-app", "wear/watchface/watchface/samples/app", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-samples-minimal", "wear/watchface/watchface/samples/minimal", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-samples-minimal-complications", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:watchface:watchface-samples-minimal-instances", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-samples-minimal-style", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:watchface:watchface-style", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":webkit:integration-tests:testapp", [BuildType.MAIN])
