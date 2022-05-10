@@ -30,6 +30,9 @@ android {
         consumerProguardFiles "proguard-rules.pro"
     }
     namespace "androidx.room"
+    kotlinOptions {
+        freeCompilerArgs += ["-Xjvm-default=all"]
+    }
 }
 
 dependencies {
