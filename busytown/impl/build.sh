@@ -63,6 +63,11 @@ function run() {
 # export some variables
 ANDROID_HOME=../../prebuilts/fullsdk-linux
 
+# enable remote build cache unless explicitly disabled
+if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
+  export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
+fi
+
 # run the build
 if run ./gradlew --ci saveSystemStats "$@"; then
   echo build passed
