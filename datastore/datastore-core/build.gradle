@@ -15,22 +15,83 @@
  */
 
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
+    id("org.jetbrains.kotlin.multiplatform")
 }
 
-dependencies {
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesCore)
-    api("androidx.annotation:annotation:1.1.0")
+kotlin {
+    jvm {
+        withJava()
+    }
+    macosX64()
+//    linuxArm64()
+    macosArm64()
+    mingwX64()
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(project(":datastore:datastore-internal-test-utils"))
+            }
+        }
 
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.truth)
-    testImplementation(project(":internal-testutils-truth"))
+        nativeMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
+            }
+        }
+
+        jvmMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+                api("androidx.annotation:annotation:1.1.0")
+            }
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlinTestJunit)
+                implementation(libs.truth)
+                implementation(project(":internal-testutils-truth"))
+            }
+        }
+
+        nativeTest {
+            dependsOn(commonTest)
+        }
+    }
+    targets.withType(KotlinNativeTarget).configureEach {
+        binaries.all {
+            binaryOptions["memoryModel"] = "experimental"
+        }
+    }
+    targets.forEach {target ->
+        if (target.platformType == KotlinPlatformType.native) {
+            target.compilations["main"].defaultSourceSet {
+                dependsOn(sourceSets["nativeMain"])
+            }
+            target.compilations["test"].defaultSourceSet {
+                dependsOn(sourceSets["nativeTest"])
+            }
+        }
+    }
 }
 
 androidx {
@@ -40,10 +101,11 @@ androidx {
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
     legacyDisableKotlinStrictApiMode = true
+    publishPlatforms = ["jvm"]
 }
 
 // Allow usage of Kotlin's @OptIn.
-tasks.withType(KotlinCompile).configureEach {
+tasks.withType(KotlinNativeCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
