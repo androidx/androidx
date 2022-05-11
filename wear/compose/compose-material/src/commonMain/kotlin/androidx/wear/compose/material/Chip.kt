@@ -21,10 +21,12 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -118,6 +120,7 @@ public fun Chip(
             modifier = modifier
                 .height(ChipDefaults.Height)
                 .clip(shape = shape)
+                .width(intrinsicSize = IntrinsicSize.Max)
                 .paint(
                     painter = colors.background(enabled = enabled).value,
                     contentScale = ContentScale.Crop
@@ -129,7 +132,6 @@ public fun Chip(
                     indication = rememberRipple(),
                     interactionSource = interactionSource,
                 )
-                .fillMaxSize()
                 .padding(contentPadding),
             content = content
         )
@@ -214,7 +216,9 @@ public fun Chip(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxSize()
+            // Fill the container height but not its width as chips have fixed size height but we
+            // want them to be able to fit their content
+            modifier = Modifier.fillMaxHeight()
         ) {
             if (icon != null) {
                 CompositionLocalProvider(
