@@ -17,16 +17,19 @@
 package androidx.wear.compose.material
 
 import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.exponentialDecay
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.ui.util.lerp
 import kotlin.math.abs
+import kotlin.math.roundToInt
+import kotlin.math.sqrt
 
 internal class ScalingLazyColumnSnapFlingBehavior(
     val state: ScalingLazyListState,
@@ -46,32 +49,70 @@ internal class ScalingLazyColumnSnapFlingBehavior(
         val finalTarget = if (isAFling) {
             // Target we will land on given initialVelocity & decay
             val decayTarget = decay.calculateTargetValue(0f, initialVelocity)
+            var endOfListReached = false
 
             animationState.animateDecay(decay) {
                 val delta = value - lastValue
-                scrollBy(delta)
+                val consumed = scrollBy(delta)
                 lastValue = value
 
-                // When we are "slow" enough, switch from decay to spring
-                if (abs(velocity) < CASUAL_SPRING_THRESHOLD) cancelAnimation()
+                // When we are "slow" enough, switch from decay to the final snap.
+                if (abs(velocity) < SNAP_SPEED_THRESHOLD) cancelAnimation()
+
+                // If we can't consume the scroll, also stop.
+                if (abs(delta - consumed) > 0.1f) {
+                    endOfListReached = true
+                    cancelAnimation()
+                }
             }
 
-            // Now that scrolling slowed down, adjust the animation to land in the item closest to
-            // the original target. Note that the target may be off-screen, in that case we will
-            // land on the last visible item in that direction.
-            (state.layoutInfo.visibleItemsInfo
-                .map { animationState.value + it.unadjustedOffset + snapOffset }
-                .minByOrNull { abs(it - decayTarget) } ?: decayTarget)
+            if (endOfListReached) {
+                // We couldn't scroll as much as we wanted, likely we reached the end of the list,
+                // Snap to the current item and finish.
+                scrollBy((snapOffset - state.centerItemScrollOffset).toFloat())
+                return animationState.velocity
+            } else {
+                // Now that scrolling slowed down, adjust the animation to land in the item closest
+                // to the original target. Note that the target may be off-screen, in that case we
+                // will land on the last visible item in that direction.
+                (state.layoutInfo.visibleItemsInfo
+                    .map { animationState.value + it.unadjustedOffset + snapOffset }
+                    .minByOrNull { abs(it - decayTarget) } ?: decayTarget)
+            }
         } else {
             // Not a fling, just snap to the current item.
             (snapOffset - state.centerItemScrollOffset).toFloat()
         }
 
-        animationState.animateTo(
-            targetValue = finalTarget,
-            sequentialAnimation = isAFling,
-            animationSpec = spring(stiffness = Spring.StiffnessVeryLow)
-        ) {
+        // We have a velocity (animationState.velocity), and a target (finalTarget),
+        // Construct a cubic bezier with the given initial velocity, and ending at 0 speed,
+        // unless that will mean that we need to accelerate and decelerate.
+        // We can also control the inertia of these speeds, i.e. how much it will accelerate/
+        // decelerate at the beginning and end.
+        val distance = finalTarget - animationState.value
+        val initialSpeed = animationState.velocity
+
+        // Inertia of the initial speed.
+        val initialInertia = 0.5f
+
+        // Compute how much time we want to spend on the final snap, depending on the speed
+        val finalSnapDuration = lerp(FINAL_SNAP_DURATION_MIN, FINAL_SNAP_DURATION_MAX,
+            abs(initialSpeed) / SNAP_SPEED_THRESHOLD)
+
+        // Initial control point. Has slope (velocity) adjustedSpeed and magnitude (inertia)
+        // initialInertia
+        val adjustedSpeed = initialSpeed * finalSnapDuration / distance
+        val easingX0 = initialInertia / sqrt(1f + adjustedSpeed * adjustedSpeed)
+        val easingY0 = easingX0 * adjustedSpeed
+
+        // Final control point. Has slope 0, unless that will make us accelerate then decelerate,
+        // in that case we set the slope to 1.
+        val easingX1 = 0.8f
+        val easingY1 = if (easingX0 > easingY0) 0.8f else 1f
+
+        animationState.animateTo(finalTarget, tween((finalSnapDuration * 1000).roundToInt(),
+            easing = CubicBezierEasing(easingX0, easingY0, easingX1, easingY1)
+        )) {
             scrollBy(value - lastValue)
             lastValue = value
         }
@@ -79,6 +120,14 @@ internal class ScalingLazyColumnSnapFlingBehavior(
         return animationState.velocity
     }
 
-    // Speed, in pixels per second, to switch between decay and spring.
-    private val CASUAL_SPRING_THRESHOLD = 1000
+    // Speed, in pixels per second, to switch between decay and final snap.
+    private val SNAP_SPEED_THRESHOLD = 1200
+
+    // Minimum duration for the final snap after the fling, in seconds, used when the initial speed
+    // is 0
+    private val FINAL_SNAP_DURATION_MIN = .1f
+
+    // Maximum duration for the final snap after the fling, in seconds, used when the speed is
+    // SNAP_SPEED_THRESHOLD
+    private val FINAL_SNAP_DURATION_MAX = .35f
 }
