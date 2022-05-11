@@ -292,6 +292,9 @@ public class ProfileInstaller {
     /**
      * Indicates that the device requires a metadata file in order to install the profile
      * successfully, but there was not one included in the APK.
+     *
+     * The correct metadata files are produced when using Android Gradle Plugin `7.1.0-alpha05` or
+     * newer.
      */
     @ResultCode public static final int RESULT_META_FILE_REQUIRED_BUT_NOT_FOUND = 9;
 
