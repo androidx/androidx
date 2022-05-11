@@ -351,7 +351,7 @@ public final class MediaRouteDescriptor {
     @NonNull
     @Override
     public String toString() {
-        String result = "MediaRouteDescriptor{ "
+        return "MediaRouteDescriptor{ "
                 + "id=" + getId()
                 + ", groupMemberIds=" + getGroupMemberIds()
                 + ", name=" + getName()
@@ -372,7 +372,6 @@ public final class MediaRouteDescriptor {
                 + ", minClientVersion=" + getMinClientVersion()
                 + ", maxClientVersion=" + getMaxClientVersion()
                 + " }";
-        return result;
     }
 
     /**

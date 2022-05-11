@@ -90,12 +90,11 @@ public final class MediaRouteProviderDescriptor {
     @NonNull
     @Override
     public String toString() {
-        String result = "MediaRouteProviderDescriptor{ "
+        return "MediaRouteProviderDescriptor{ "
                 + "routes="
                 + Arrays.toString(getRoutes().toArray())
                 + ", isValid=" + isValid()
                 + " }";
-        return result;
     }
 
     /**

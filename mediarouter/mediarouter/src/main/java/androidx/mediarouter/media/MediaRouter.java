@@ -1006,7 +1006,7 @@ public final class MediaRouter {
      */
     static boolean isTransferToLocalEnabled() {
         GlobalMediaRouter globalMediaRouter = getGlobalRouter();
-        return globalMediaRouter == null ? false : globalMediaRouter.isTransferToLocalEnabled();
+        return globalMediaRouter != null && globalMediaRouter.isTransferToLocalEnabled();
     }
 
     /**
@@ -2660,10 +2660,10 @@ public final class MediaRouter {
                     mRegisteredProviderWatcher.rescan();
                 }
 
-                boolean oldTransferToLocalEnabled = oldParams == null ? false :
-                        oldParams.isTransferToLocalEnabled();
-                boolean newTransferToLocalEnabled = params == null ? false :
-                        params.isTransferToLocalEnabled();
+                boolean oldTransferToLocalEnabled =
+                        oldParams != null && oldParams.isTransferToLocalEnabled();
+                boolean newTransferToLocalEnabled =
+                        params != null && params.isTransferToLocalEnabled();
 
                 if (oldTransferToLocalEnabled != newTransferToLocalEnabled) {
                     // Since the discovery request itself is not changed,
@@ -3305,10 +3305,10 @@ public final class MediaRouter {
                 }
                 if (sGlobal == null) {
                     Log.w(TAG, "setSelectedRouteInternal is called while sGlobal is null: pkgName="
-                            + mApplicationContext.getPackageName() + ", callers=" + sb.toString());
+                            + mApplicationContext.getPackageName() + ", callers=" + sb);
                 } else {
                     Log.w(TAG, "Default route is selected while a BT route is available: pkgName="
-                            + mApplicationContext.getPackageName() + ", callers=" + sb.toString());
+                            + mApplicationContext.getPackageName() + ", callers=" + sb);
                 }
             }
 
