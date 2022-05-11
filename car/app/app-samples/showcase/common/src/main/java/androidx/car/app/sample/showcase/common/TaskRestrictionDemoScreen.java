@@ -16,10 +16,12 @@
 
 package androidx.car.app.sample.showcase.common;
 
+import static androidx.car.app.CarToast.LENGTH_LONG;
 import static androidx.car.app.model.Action.BACK;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
+import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
@@ -40,7 +42,9 @@ public final class TaskRestrictionDemoScreen extends Screen {
 
     private final int mStep;
     private boolean mIsBackOperation = false;
-    private boolean mToggleState = false;
+    private boolean mFirstToggleState = false;
+    private boolean mSecondToggleState = false;
+    private boolean mSecondToggleEnabled = true;
     private int mImageType = Row.IMAGE_TYPE_ICON;
 
     public TaskRestrictionDemoScreen(int step, @NonNull CarContext carContext) {
@@ -75,6 +79,24 @@ public final class TaskRestrictionDemoScreen extends Screen {
                     .build();
         }
 
+        Toggle mFirstToggle = new Toggle.Builder((checked) -> {
+            mSecondToggleEnabled = checked;
+            if (checked) {
+                CarToast.makeText(getCarContext(), R.string.toggle_test_enabled,
+                        LENGTH_LONG).show();
+            } else {
+                CarToast.makeText(getCarContext(), R.string.toggle_test_disabled,
+                        LENGTH_LONG).show();
+            }
+            mFirstToggleState = !mFirstToggleState;
+            invalidate();
+        }).setChecked(mFirstToggleState).build();
+
+        Toggle mSecondToggle = new Toggle.Builder((checked) -> {
+            mSecondToggleState = !mSecondToggleState;
+            invalidate();
+        }).setChecked(mSecondToggleState).setEnabled(mSecondToggleEnabled).build();
+
         ItemList.Builder builder = new ItemList.Builder();
         builder.addItem(
                         new Row.Builder()
@@ -92,16 +114,19 @@ public final class TaskRestrictionDemoScreen extends Screen {
                                 .build())
                 .addItem(
                         new Row.Builder()
-                                .setTitle(getCarContext().getString(R.string.toggle_test_title))
-                                .addText(getCarContext().getString(R.string.toggle_test_text))
-                                .setToggle(
-                                        new Toggle.Builder(
-                                                checked -> {
-                                                    mToggleState = !mToggleState;
-                                                    invalidate();
-                                                })
-                                                .setChecked(mToggleState)
-                                                .build())
+                                .setTitle(getCarContext().getString(
+                                        R.string.toggle_test_first_toggle_title))
+                                .addText(getCarContext().getString(
+                                        R.string.toggle_test_first_toggle_text))
+                                .setToggle(mFirstToggle)
+                                .build())
+                .addItem(
+                        new Row.Builder()
+                                .setTitle(getCarContext().getString(
+                                        R.string.toggle_test_second_toggle_title))
+                                .addText(getCarContext().getString(
+                                        R.string.toggle_test_second_toggle_text))
+                                .setToggle(mSecondToggle)
                                 .build())
                 .addItem(
                         new Row.Builder()
