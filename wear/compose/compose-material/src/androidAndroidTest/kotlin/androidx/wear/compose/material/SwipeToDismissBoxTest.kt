@@ -44,8 +44,10 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipe
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
+import java.lang.Math.sin
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -360,6 +362,92 @@ class SwipeToDismissBoxTest {
         }
     }
 
+    @Test
+    fun edgeswipe_swipe_edge_content_right_then_left_no_scroll() {
+        testBothDirectionScroll(
+            initialTouch = 10,
+            duration = 2000,
+            amplitude = 100,
+            startLeft = false
+        ) { scrollState ->
+            assertEquals(scrollState.value, 200)
+        }
+    }
+
+    @Test
+    fun edgeswipe_fling_edge_content_right_then_left_no_scroll() {
+        testBothDirectionScroll(
+            initialTouch = 10,
+            duration = 100,
+            amplitude = 100,
+            startLeft = false
+        ) { scrollState ->
+            assertEquals(scrollState.value, 200)
+        }
+    }
+
+    @Test
+    fun edgeswipe_swipe_edge_content_left_then_right_with_scroll() {
+        testBothDirectionScroll(
+            initialTouch = 10,
+            duration = 2000,
+            amplitude = 100,
+            startLeft = true
+        ) { scrollState ->
+            // After scrolling to the left, successful scroll to the right
+            // reduced scrollState
+            assert(scrollState.value < 200)
+        }
+    }
+
+    @Test
+    fun edgeswipe_fling_edge_content_left_then_right_with_scroll() {
+        testBothDirectionScroll(
+            initialTouch = 10,
+            duration = 100,
+            amplitude = 100,
+            startLeft = true
+        ) { scrollState ->
+            // Fling right to the start (0)
+            assertEquals(scrollState.value, 0)
+        }
+    }
+
+    private fun testBothDirectionScroll(
+        initialTouch: Long,
+        duration: Long,
+        amplitude: Long,
+        startLeft: Boolean,
+        testScrollState: (ScrollState) -> Unit
+    ) {
+        val initialScrollState = 200
+        lateinit var horizontalScrollState: ScrollState
+        rule.setContentWithTheme {
+            val state = rememberSwipeToDismissBoxState()
+            horizontalScrollState = rememberScrollState(initialScrollState)
+
+            SwipeToDismissBox(
+                state = state,
+                modifier = Modifier.testTag(TEST_TAG),
+            ) {
+                nestedScrollContent(state, horizontalScrollState)
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG)
+            .performTouchInput {
+                swipeBothDirections(
+                    startLeft = startLeft,
+                    startX = initialTouch,
+                    amplitude = amplitude,
+                    duration = duration
+                )
+            }
+        rule.runOnIdle {
+            testScrollState(horizontalScrollState)
+        }
+    }
+
     private fun verifySwipe(gesture: TouchInjectionScope.() -> Unit, expectedToDismiss: Boolean) {
         var dismissed = false
         rule.setContentWithTheme {
@@ -461,6 +549,25 @@ class SwipeToDismissBoxTest {
                     "right from the left edge of the screen (called Edge Swiping)",
             )
         }
+    }
+
+    private fun TouchInjectionScope.swipeBothDirections(
+        startLeft: Boolean,
+        startX: Long,
+        amplitude: Long,
+        duration: Long = 200
+    ) {
+        val sign = if (startLeft) -1 else 1
+        // By using sin function for range 0.. 3pi/2 , we can achieve 0 -> 1 and 1 -> -1  values
+        swipe(curve = { time ->
+            val x =
+                startX + sign * sin(time.toFloat() / duration.toFloat() * 3 * Math.PI / 2)
+                    .toFloat() * amplitude
+            Offset(
+                x = x,
+                y = centerY
+            )
+        }, durationMillis = duration)
     }
 }
 

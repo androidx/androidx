@@ -313,9 +313,9 @@ public class SwipeToDismissBoxState(
         get() = swipeableState.isAnimationRunning
 
     internal fun edgeNestedScrollConnection(
-        edgeTouched: State<Boolean>
+        swipeState: State<SwipeState>
     ): NestedScrollConnection =
-        swipeableState.edgeNestedScrollConnection(edgeTouched)
+        swipeableState.edgeNestedScrollConnection(swipeState)
 
     /**
      * Set the state without any animation and suspend until it's set
@@ -326,22 +326,20 @@ public class SwipeToDismissBoxState(
 
     private companion object {
         private fun <T> SwipeableState<T>.edgeNestedScrollConnection(
-            edgeTouched: State<Boolean>
+            swipeState: State<SwipeState>
         ): NestedScrollConnection =
             object : NestedScrollConnection {
                 override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                     val delta = available.x
-                    // If edge was clicked - perform swipe drag and consume everything
-                    if (edgeTouched.value && delta > 0 && source == NestedScrollSource.Drag) {
+                    // If swipeState = SwipeState.SWIPING_TO_DISMISS - perform swipeToDismiss
+                    // drag and consume everything
+                    return if (swipeState.value == SwipeState.SwipingToDismiss &&
+                        source == NestedScrollSource.Drag
+                    ) {
                         performDrag(delta)
-                        return available
+                        available
                     } else {
-                        // Swipe back if drag has started but swiped in a different direction
-                        return if (delta < 0 && source == NestedScrollSource.Drag) {
-                            performDrag(delta).toOffsetX()
-                        } else {
-                            Offset.Zero
-                        }
+                        Offset.Zero
                     }
                 }
 
@@ -354,8 +352,8 @@ public class SwipeToDismissBoxState(
                 override suspend fun onPreFling(available: Velocity): Velocity {
                     val toFling = available.x
                     // Consumes fling by SwipeToDismiss
-                    return if (edgeTouched.value && toFling > 0 ||
-                        toFling < 0 && offset.value > minBound
+                    return if (swipeState.value == SwipeState.SwipingToDismiss ||
+                        swipeState.value == SwipeState.SwipeToDismissInProgress
                     ) {
                         performFling(velocity = toFling)
                         available
@@ -370,8 +368,6 @@ public class SwipeToDismissBoxState(
                     performFling(velocity = available.x)
                     return available
                 }
-
-                private fun Float.toOffsetX(): Offset = Offset(this, 0f)
             }
     }
 
@@ -477,41 +473,82 @@ public fun Modifier.edgeSwipeToDismiss(
             properties["edgeWidth"] = edgeWidth
         }
     ) {
-        // Tracks whether a touch has landed on the edge area. Becomes false after finger
-        // touches a non-edge area after it was raised
-        val edgeTouched = remember { mutableStateOf(false) }
+        // Tracks the current swipe status
+        val swipeState = remember { mutableStateOf(SwipeState.WaitingForTouch) }
         val nestedScrollConnection =
             remember(swipeToDismissBoxState) {
-                swipeToDismissBoxState.edgeNestedScrollConnection(edgeTouched)
+                swipeToDismissBoxState.edgeNestedScrollConnection(swipeState)
             }
 
         val nestedPointerInput: suspend PointerInputScope.() -> Unit = {
             coroutineScope {
                 awaitPointerEventScope {
-                    var trackFirstTouch = true
                     while (isActive) {
                         awaitPointerEvent(PointerEventPass.Initial).changes.forEach { change ->
-                            // If it was a first touch and it hit an edge area, we
-                            // set edgeTouched to true.
-                            // trackFirstTouch is set to false as we don't handle
-                            // any other touches before the finger is lifted up
-                            if (trackFirstTouch) {
-                                edgeTouched.value = change.position.x < edgeWidth.toPx()
-                                trackFirstTouch = false
+                            // By default swipeState is WaitingForTouch.
+                            // If it is in this state and a first touch hit an edge area, we
+                            // set swipeState to EdgeClickedWaitingForDirection.
+                            // After that to track which direction the swipe will go, we check
+                            // the next touch. If it lands to the left of the first, we consider
+                            // it as a swipe left and set the state to SwipingToPage. Otherwise,
+                            // set the state to SwipingToDismiss
+                            when (swipeState.value) {
+                                SwipeState.SwipeToDismissInProgress,
+                                SwipeState.WaitingForTouch -> {
+                                    swipeState.value =
+                                        if (change.position.x < edgeWidth.toPx())
+                                            SwipeState.EdgeClickedWaitingForDirection
+                                        else
+                                            SwipeState.SwipingToPage
+                                }
+                                SwipeState.EdgeClickedWaitingForDirection -> {
+                                    swipeState.value =
+                                        if (change.position.x < change.previousPosition.x)
+                                            SwipeState.SwipingToPage
+                                        else
+                                            SwipeState.SwipingToDismiss
+                                }
+                                else -> {} // Do nothing
                             }
-                            // When finger is up - reset trackFirstTouch to true
+                            // When finger is up - reset swipeState to WaitingForTouch
+                            // or to SwipeToDismissInProgress if current
+                            // state is SwipingToDismiss
                             if (change.changedToUp()) {
-                                trackFirstTouch = true
+                                swipeState.value =
+                                    if (swipeState.value == SwipeState.SwipingToDismiss)
+                                        SwipeState.SwipeToDismissInProgress
+                                    else
+                                        SwipeState.WaitingForTouch
                             }
                         }
                     }
                 }
             }
         }
-
         pointerInput(edgeWidth, nestedPointerInput)
             .nestedScroll(nestedScrollConnection)
     }
+
+/**
+ * An enum which represents a current state of swipe action.
+ */
+internal enum class SwipeState {
+    // Waiting for touch, edge was not touched before.
+    WaitingForTouch,
+
+    // Edge was touched, now waiting for the second touch
+    // to determine whether we swipe left or right.
+    EdgeClickedWaitingForDirection,
+
+    // Direction was determined, swiping to dismiss.
+    SwipingToDismiss,
+
+    // Direction was determined, all gestures are handled by the page itself.
+    SwipingToPage,
+
+    // Swipe was finished, used to handle fling.
+    SwipeToDismissInProgress
+}
 
 /**
  * A class which is responsible for squeezing animation and all computations related to it
