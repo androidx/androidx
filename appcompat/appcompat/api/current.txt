@@ -915,6 +915,7 @@ package androidx.appcompat.widget {
     method public boolean isEmojiCompatEnabled();
     method public void onMeasure(int, int);
     method public void setEmojiCompatEnabled(boolean);
+    method protected final void setEnforceSwitchWidth(boolean);
     method public void setShowText(boolean);
     method public void setSplitTrack(boolean);
     method public void setSwitchMinWidth(int);
