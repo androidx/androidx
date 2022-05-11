@@ -37,6 +37,7 @@ import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.CrashInfoParcel
 import androidx.wear.watchface.control.data.DefaultProviderPoliciesParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
+import androidx.wear.watchface.control.data.InstanceDeletedParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
@@ -247,6 +248,23 @@ public interface WatchFaceControlClient : AutoCloseable {
      * complications before fetching the real ones is not necessary.
      */
     public fun hasComplicationDataCache(): Boolean = false
+
+    /**
+     * Sends a notification to the WatchFaceService that [instanceId] has been deleted.
+     *
+     * Note this silently does nothing for old watch faces that don't support this notification.
+     *
+     * @param [componentName] The [ComponentName] of the WatchFaceService corresponding to the
+     * deleted instance.
+     * @param [instanceId] The ID of the deleted instance.
+     */
+    @Throws(RemoteException::class)
+    public fun notifyWatchFaceInstanceDeleted(
+        componentName: ComponentName,
+        instanceId: String
+    ) {
+        // Deliberately empty.
+    }
 }
 
 /**
@@ -492,6 +510,15 @@ internal class WatchFaceControlClientImpl internal constructor(
             } finally {
                 headlessClient.close()
             }
+        }
+    }
+
+    override fun notifyWatchFaceInstanceDeleted(
+        componentName: ComponentName,
+        instanceId: String
+    ) {
+        if (service.apiVersion >= 6) {
+            service.onInstanceDeleted(InstanceDeletedParams(componentName, instanceId))
         }
     }
 
