@@ -925,8 +925,17 @@ encourages them -- through Lint warnings -- to migrate elsewhere. This is
 accomplished by adding a `@Deprecated` and `@deprecated` (with migration
 comment) annotation pair to *every* class and interface in the artifact.
 
-Entire packages (including Kotlin) can be deprecated by using a
-`package-info.java` file and applying the `@Deprecated` annotation there.
+To deprecate an entire artifact:
+
+1.  Mark every top-level API (class, interface, extension function, etc.) in the
+    artifact as `@Deprecated` and update the API files
+    ([example CL](https://android-review.googlesource.com/c/platform/frameworks/support/+/1938773))
+1.  Schedule a release of the artifact as a new minor version. When you populate
+    the release notes, explain that the entire artifact has been deprecated.
+    Include the reason for deprecation and the migration strategy.
+1.  After the artifact has been released, remove the artifact from the source
+    tree, versions file, and tip-of-tree docs configuration
+    ([example CL](https://android-review.googlesource.com/c/platform/frameworks/support/+/2061731/))
 
 The fully-deprecated artifact will be released as a deprecation release -- it
 will ship normally with accompanying release notes indicating the reason for
@@ -1350,7 +1359,7 @@ including:
 
 Primary artifacts, e.g. `workmanager`, **must not** depend on closed-source
 components including libraries and hard-coded references to packages,
-permissions, or IPC mechanisms that may only be fulfulled by closed-source
+permissions, or IPC mechanisms that may only be fulfilled by closed-source
 components.
 
 Optional artifacts, e.g. `workmanager-gcm`, *may* depend on closed-source
@@ -1360,7 +1369,7 @@ component via service discovery or initialization.
 Some examples of safely depending on closed-source components include:
 
 -   WorkManager's GCM Network Manager integration, which uses
-    [manifest metadata](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:work/workmanager-gcm/src/main/AndroidManifest.xml)
+    [manifest metadata](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:work/workmanager-gcm/src/main/AndroidManifest.xml)
     for service discovery and provides an optional artifact exposing the
     service.
 -   Ads Identifier's Play Services integration, which provides a default backend
@@ -1368,7 +1377,7 @@ Some examples of safely depending on closed-source components include:
     [`Intent` handling](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:ads/ads-identifier-provider/src/main/java/androidx/ads/identifier/provider/AdvertisingIdProviderManager.java;l=108)
     as a service discovery mechanism for Play Services.
 -   Downloadable Fonts integration with Play Services, which plugs in via a
-    [`ContentProvider`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:core/core/src/androidTest/java/androidx/core/provider/MockFontProvider.java)
+    [`ContentProvider`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:core/core/src/androidTest/java/androidx/core/provider/MockFontProvider.java)
     as a service discovery mechanism with developer-specified
     [signature verification](https://developer.android.com/guide/topics/ui/look-and-feel/downloadable-fonts#adding-certificates)
     for additional security.
@@ -1763,7 +1772,7 @@ that are more lightweight, depending on your use case:
 *   Update a value from multiple threads atomically
 *   Maintain granular control of your concurrency invariants
 
-### Kotlin {#kotlin}
+### Kotlin-specific guidelines {#kotlin}
 
 #### Nullability from Java (new APIs)
 
