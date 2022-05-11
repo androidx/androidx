@@ -406,7 +406,7 @@ public class WebViewFeatureInternal {
      * {@link androidx.webkit.WebSettingsCompat#setForceDark(WebSettings, int)} and
      * {@link androidx.webkit.WebSettingsCompat#getForceDark(WebSettings)}.
      */
-    public static final ApiFeature.Q FORCE_DARK = new ApiFeature.Q(
+    public static final ApiFeature.NoFramework FORCE_DARK = new ApiFeature.NoFramework(
             WebViewFeature.FORCE_DARK, Features.FORCE_DARK);
 
     /**
