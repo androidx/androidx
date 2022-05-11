@@ -38,6 +38,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.AnyThread;
 import androidx.annotation.CallSuper;
@@ -546,6 +547,22 @@ public abstract class AppCompatDelegate {
      * @return true if the night mode was applied, false if not
      */
     public abstract boolean applyDayNight();
+
+    /**
+     * Sets the {@link OnBackInvokedDispatcher} for handling system back for Android SDK 33 and
+     * above.
+     * <p>
+     * If the delegate is hosted by an {@link Activity}, the default dispatcher is obtained via
+     * {@link Activity#getOnBackInvokedDispatcher()}.
+     *
+     * @param dispatcher the OnBackInvokedDispatcher to be set on this delegate, or {@code null}
+     *                   to use the default dispatcher
+     */
+    @CallSuper
+    @RequiresApi(33)
+    public void setOnBackInvokedDispatcher(@Nullable OnBackInvokedDispatcher dispatcher) {
+        // Stub.
+    }
 
     /**
      * Applies the current locales to this delegate's host component.
