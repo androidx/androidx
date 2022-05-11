@@ -42,7 +42,9 @@ public class SurfaceViewStretchedQuirk implements Quirk {
     private static final String OPPO_FIND_N = "OP4E75L1";
 
     static boolean load() {
-        return isSamsungFold2OrFold3() || isOppoFoldable();
+        // The surface view issue is fixed in Android T.
+        return  Build.VERSION.SDK_INT < 33
+                && (isSamsungFold2OrFold3() || isOppoFoldable());
     }
 
     private static boolean isSamsungFold2OrFold3() {
