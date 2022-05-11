@@ -106,12 +106,12 @@ public class LayoutsGoldenXLTest {
         Map<LayoutElement, String> testCases =
                 generateTestCases(context, deviceParameters, XXXL_SCALE_SUFFIX);
 
-        // Restore state before this method, so other test have correct context.
-        // This is needed here too, besides in restoreBefore and restoreAfter as the test cases
-        // builder uses the context to apply font scaling, so we need that display metrics passed
-        // in. However, after generating cases we need to restore the state as other data() methods
-        // in this package can work correctly with the default state, as when the tests are run,
-        // first all data() static methods are called, and then parameterized test cases.
+        // Restore state before this method, so other test have correct context. This is needed here
+        // too, besides in restoreBefore and restoreAfter as the test cases builder uses the context
+        // to apply font scaling, so we need that display metrics passed in. However, after
+        // generating cases we need to restore the state as other data() methods in this package can
+        // work correctly with the default state, as when the tests are run, first all data() static
+        // methods are called, and then parameterized test cases.
         InstrumentationRegistry.getInstrumentation()
                 .getContext()
                 .getResources()
