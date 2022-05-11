@@ -62,13 +62,16 @@ class MeteringRepeatingSession {
     private final SessionConfig mSessionConfig;
 
     @NonNull
+    private final MeteringRepeatingConfig mConfigWithDefaults;
+
+    @NonNull
     private final SupportedRepeatingSurfaceSize mSupportedRepeatingSurfaceSize =
             new SupportedRepeatingSurfaceSize();
 
     /** Creates a new instance of a {@link MeteringRepeatingSession}. */
     MeteringRepeatingSession(@NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
             @NonNull DisplayInfoManager displayInfoManager) {
-        MeteringRepeatingConfig configWithDefaults = new MeteringRepeatingConfig();
+        mConfigWithDefaults = new MeteringRepeatingConfig();
 
         // Create the metering DeferrableSurface
         SurfaceTexture surfaceTexture = new SurfaceTexture(0);
@@ -79,7 +82,7 @@ class MeteringRepeatingSession {
                 meteringSurfaceSize.getHeight());
         Surface surface = new Surface(surfaceTexture);
 
-        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(configWithDefaults);
+        SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfigWithDefaults);
         builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
 
         mDeferrableSurface = new ImmediateSurface(surface);
@@ -101,6 +104,11 @@ class MeteringRepeatingSession {
         builder.addSurface(mDeferrableSurface);
 
         mSessionConfig = builder.build();
+    }
+
+    @NonNull
+    UseCaseConfig<?> getUseCaseConfig() {
+        return mConfigWithDefaults;
     }
 
     @NonNull
