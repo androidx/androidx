@@ -118,9 +118,8 @@ public class MaterialGoldenXLTest {
                 .getDisplayMetrics()
                 .setTo(currentDisplayMetrics);
 
-        return testCases.entrySet()
-                .stream()
-                .map(test -> new Object[]{test.getKey(), test.getValue()})
+        return testCases.entrySet().stream()
+                .map(test -> new Object[] {test.getKey(), test.getValue()})
                 .collect(Collectors.toList());
     }
 

@@ -26,8 +26,12 @@ import static androidx.wear.tiles.material.ButtonDefaults.PRIMARY_BUTTON_COLORS;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.tiles.ActionBuilders.LaunchAction;
@@ -55,6 +59,21 @@ public class ButtonTest {
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private final LayoutElement mContent =
             new Text.Builder(mContext, "ABC").setColor(argb(0)).build();
+
+    @Test
+    public void testButtonEmpty() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new Button.Builder(mContext, CLICKABLE).build());
+    }
+
+    @Test
+    public void testButtonCustomAddedContentNoContentDesc() {
+        Button button = new Button.Builder(mContext, CLICKABLE).setContent(mContent).build();
+
+        assertButtonIsEqual(
+                button, mContent, DEFAULT_BUTTON_SIZE, new ButtonColors(Colors.PRIMARY, 0), null);
+    }
 
     @Test
     public void testButtonCustom() {
@@ -195,16 +214,20 @@ public class ButtonTest {
                         .build();
 
         assertButtonIsEqual(
-                button, content, EXTRA_LARGE_BUTTON_SIZE, PRIMARY_BUTTON_COLORS, CONTENT_DESCRIPTION
-        );
+                button,
+                content,
+                EXTRA_LARGE_BUTTON_SIZE,
+                PRIMARY_BUTTON_COLORS,
+                CONTENT_DESCRIPTION);
     }
 
     private void assertButtonIsEqual(
-            Button actualButton,
-            LayoutElement expectedContent,
-            DpProp expectedSize,
-            ButtonColors expectedButtonColors,
-            String expectedContentDescription) {
+            @NonNull Button actualButton,
+            @NonNull  LayoutElement expectedContent,
+            @NonNull DpProp expectedSize,
+            @NonNull  ButtonColors expectedButtonColors,
+            @Nullable String expectedContentDescription) {
+        // Mandatory
         assertThat(actualButton.getClickable().toProto()).isEqualTo(CLICKABLE.toProto());
         assertThat(actualButton.getSize().toContainerDimensionProto())
                 .isEqualTo(expectedSize.toContainerDimensionProto());
@@ -214,7 +237,13 @@ public class ButtonTest {
                 .isEqualTo(expectedButtonColors.getContentColor().getArgb());
         assertThat(actualButton.getContent().toLayoutElementProto())
                 .isEqualTo(expectedContent.toLayoutElementProto());
-        assertThat(actualButton.getContentDescription().toString())
-                .isEqualTo(expectedContentDescription);
+
+        // Nullable
+        if (expectedContentDescription == null) {
+            assertThat(actualButton.getContentDescription()).isNull();
+        } else {
+            assertThat(actualButton.getContentDescription().toString())
+                    .isEqualTo(expectedContentDescription);
+        }
     }
 }
