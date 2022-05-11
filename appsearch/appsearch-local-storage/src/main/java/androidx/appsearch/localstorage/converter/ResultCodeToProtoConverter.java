@@ -16,10 +16,11 @@
 
 package androidx.appsearch.localstorage.converter;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchResult;
-import androidx.appsearch.util.LogUtil;
 
 import com.google.android.icing.proto.StatusProto;
 
@@ -51,10 +52,8 @@ public final class ResultCodeToProtoConverter {
                 return AppSearchResult.RESULT_INVALID_ARGUMENT;
             default:
                 // Some unknown/unsupported error
-                LogUtil.e(
-                        TAG,
-                        "Cannot convert IcingSearchEngine status code: ", statusCode,
-                        " to AppSearchResultCode.");
+                Log.e(TAG, "Cannot convert IcingSearchEngine status code: "
+                        + statusCode + " to AppSearchResultCode.");
                 return AppSearchResult.RESULT_INTERNAL_ERROR;
         }
     }

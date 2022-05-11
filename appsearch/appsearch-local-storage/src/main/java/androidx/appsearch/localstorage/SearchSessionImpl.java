@@ -22,6 +22,7 @@ import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 
 import android.content.Context;
 import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,7 +53,6 @@ import androidx.appsearch.localstorage.stats.SchemaMigrationStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
 import androidx.appsearch.localstorage.util.FutureUtil;
 import androidx.appsearch.localstorage.visibilitystore.CallerAccess;
-import androidx.appsearch.util.LogUtil;
 import androidx.appsearch.util.SchemaMigrationUtil;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -560,7 +560,7 @@ class SearchSessionImpl implements AppSearchSession {
                 }
                 mAppSearchImpl.checkForOptimize(mutateBatchSize, builder);
             } catch (AppSearchException e) {
-                LogUtil.w(TAG, e, "Error occurred when check for optimize");
+                Log.w(TAG, "Error occurred when check for optimize", e);
             } finally {
                 if (builder != null) {
                     OptimizeStats oStats = builder
@@ -586,7 +586,7 @@ class SearchSessionImpl implements AppSearchSession {
                 }
                 mAppSearchImpl.checkForOptimize(builder);
             } catch (AppSearchException e) {
-                LogUtil.w(TAG, e, "Error occurred when check for optimize");
+                Log.w(TAG, "Error occurred when check for optimize", e);
             } finally {
                 if (builder != null) {
                     OptimizeStats oStats = builder
