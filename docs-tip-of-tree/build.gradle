@@ -31,6 +31,7 @@ dependencies {
     docs(project(":biometric:biometric"))
     docs(project(":biometric:biometric-ktx"))
     samples(project(":biometric:biometric-ktx-samples"))
+    docs(project(":bluetooth:bluetooth"))
     docs(project(":browser:browser"))
     docs(project(":camera:camera-camera2"))
     docs(project(":camera:camera-core"))

@@ -10,6 +10,7 @@ ASYNCLAYOUTINFLATER = "1.1.0-alpha01"
 AUTOFILL = "1.2.0-beta02"
 BENCHMARK = "1.2.0-alpha01"
 BIOMETRIC = "1.2.0-alpha05"
+BLUETOOTH = "1.0.0-alpha01"
 BROWSER = "1.5.0-alpha01"
 BUILDSRC_TESTS = "1.0.0-alpha01"
 CAMERA = "1.2.0-alpha01"
@@ -145,6 +146,7 @@ ASYNCLAYOUTINFLATER = { group = "androidx.asynclayoutinflater", atomicGroupVersi
 AUTOFILL = { group = "androidx.autofill", atomicGroupVersion = "versions.AUTOFILL" }
 BENCHMARK = { group = "androidx.benchmark", atomicGroupVersion = "versions.BENCHMARK" }
 BIOMETRIC = { group = "androidx.biometric", atomicGroupVersion = "versions.BIOMETRIC" }
+BLUETOOTH = { group = "androidx.bluetooth", atomicGroupVersion = "versions.BLUETOOTH" }
 BROWSER = { group = "androidx.browser", atomicGroupVersion = "versions.BROWSER" }
 BUILDSRC_TESTS = { group = "androidx.buildSrc-tests", atomicGroupVersion = "versions.BUILDSRC_TESTS" }
 CAMERA = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA" }
