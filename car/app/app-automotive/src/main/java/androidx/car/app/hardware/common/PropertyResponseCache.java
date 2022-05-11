@@ -74,7 +74,7 @@ final class PropertyResponseCache {
                 if (mPropertyIdToResponse.get(propertyId) == null) {
                     mPropertyIdToResponse.put(propertyId,
                             CarPropertyResponse.builder().setPropertyId(propertyId)
-                                    .setStatus(CarValue.STATUS_UNAVAILABLE).build());
+                                    .setStatus(CarValue.STATUS_UNKNOWN).build());
                 }
             }
         }
@@ -107,10 +107,10 @@ final class PropertyResponseCache {
                 return values;
             }
             for (int propertyId : propertyIds) {
-                // return a response with unavailable status if can not find in cache
+                // return a response with unknown status if can not find in cache
                 CarPropertyResponse<?> propertyResponse = mPropertyIdToResponse.get(propertyId,
                         CarPropertyResponse.builder().setPropertyId(propertyId)
-                                .setStatus(CarValue.STATUS_UNAVAILABLE).build());
+                                .setStatus(CarValue.STATUS_UNKNOWN).build());
                 values.add(propertyResponse);
             }
         }

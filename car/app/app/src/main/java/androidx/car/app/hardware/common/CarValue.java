@@ -105,21 +105,29 @@ public final class CarValue<T> {
         return new CarValue<>(null, 0, CarValue.STATUS_UNIMPLEMENTED);
     }
 
+    private static <T> CarValue<T> unknown() {
+        return new CarValue<>(null, 0, CarValue.STATUS_UNKNOWN);
+    }
+
     /** @hide */
     @RestrictTo(LIBRARY)
     public static final CarValue<Integer> UNIMPLEMENTED_INTEGER = unimplemented();
 
     /** @hide */
     @RestrictTo(LIBRARY)
-    public static final CarValue<Boolean> UNIMPLEMENTED_BOOLEAN = unimplemented();
+    public static final CarValue<Integer> UNKNOWN_INTEGER = unknown();
 
     /** @hide */
     @RestrictTo(LIBRARY)
-    public static final CarValue<Float> UNIMPLEMENTED_FLOAT = unimplemented();
+    public static final CarValue<Boolean> UNKNOWN_BOOLEAN = unknown();
 
     /** @hide */
     @RestrictTo(LIBRARY)
-    public static final CarValue<String> UNIMPLEMENTED_STRING = unimplemented();
+    public static final CarValue<Float> UNKNOWN_FLOAT = unknown();
+
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    public static final CarValue<String> UNKNOWN_STRING = unknown();
 
     /** @hide */
     @RestrictTo(LIBRARY)
@@ -127,7 +135,11 @@ public final class CarValue<T> {
 
     /** @hide */
     @RestrictTo(LIBRARY)
-    public static final CarValue<List<Integer>> UNIMPLEMENTED_INTEGER_LIST = unimplemented();
+    public static final CarValue<List<Float>> UNKNOWN_FLOAT_LIST = unknown();
+
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    public static final CarValue<List<Integer>> UNKNOWN_INTEGER_LIST = unknown();
 
     /**
      * Returns a the data value or {@code null} if the status is not successful.
