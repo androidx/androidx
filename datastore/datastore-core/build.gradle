@@ -29,7 +29,7 @@ kotlin {
         withJava()
     }
     macosX64()
-//    linuxArm64()
+    linuxArm64()
     macosArm64()
     mingwX64()
     sourceSets {
@@ -39,18 +39,10 @@ kotlin {
                 api(libs.kotlinCoroutinesCore)
             }
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTestCommon)
-                implementation(libs.kotlinTestAnnotationsCommon)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(project(":datastore:datastore-internal-test-utils"))
-            }
-        }
-
         nativeMain {
             dependsOn(commonMain)
             dependencies {
+                api(libs.kotlinCoroutinesCore)
                 implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
             }
         }
@@ -63,19 +55,9 @@ kotlin {
             }
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.kotlinTestJunit)
-                implementation(libs.truth)
-                implementation(project(":internal-testutils-truth"))
-            }
-        }
-
-        nativeTest {
-            dependsOn(commonTest)
-        }
+        commonTest
+        jvmTest
+        nativeTest
     }
     targets.withType(KotlinNativeTarget).configureEach {
         binaries.all {

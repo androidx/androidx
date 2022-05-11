@@ -16,12 +16,11 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
-import kotlin.jvm.JvmOverloads
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 
-expect object DataStoreFactory {
+actual object DataStoreFactory {
     /**
      * Create an instance of SingleProcessDataStore. Never create more than one instance of
      * DataStore for a given file; doing so can break all DataStore functionality. You should
@@ -45,11 +44,17 @@ expect object DataStoreFactory {
      *
      * @return a new DataStore instance with the provided configuration
      */
-    @JvmOverloads // Generate constructors for default params for java users.
-    public fun <T> create(
+    actual fun <T> create(
         storage: Storage<T>,
-        corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
-        migrations: List<DataMigration<T>> = listOf(),
-        scope: CoroutineScope = CoroutineScope(ioDispatcher() + SupervisorJob()),
-    ): DataStore<T>
+        corruptionHandler: ReplaceFileCorruptionHandler<T>?,
+        migrations: List<DataMigration<T>>,
+        scope: CoroutineScope
+    ): DataStore<T> = SingleProcessDataStore(
+        storage = storage,
+        initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
+        corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
+        scope = scope
+    )
+
+
 }
