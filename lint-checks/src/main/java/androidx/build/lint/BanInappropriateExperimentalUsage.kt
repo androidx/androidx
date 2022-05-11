@@ -197,14 +197,24 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         val isUsedInSameArtifact = usageCoordinates.artifactId == annotationCoordinates.artifactId
         val isAtomic = atomicGroupList.contains(usageGroupId)
 
+        val annotationQualifiedName = annotation.getQualifiedName()
+        val isAnnotationAllowed = if (annotationQualifiedName != null) {
+            isAnnotationAlwaysAllowed(annotationQualifiedName)
+        } else {
+            false
+        }
+
         /**
          * Usage of experimental APIs is allowed in either of the following conditions:
          *
          * - Both the group ID and artifact ID in `usageCoordinates` and
          *   `annotationCoordinates` match
          * - The group IDs match, and that group ID is atomic
+         * - The annotation being used is is an allowlist
          */
-        if ((isUsedInSameGroup && isUsedInSameArtifact) || (isUsedInSameGroup && isAtomic)) return
+        if ((isUsedInSameGroup && isUsedInSameArtifact) ||
+            (isUsedInSameGroup && isAtomic) ||
+            isAnnotationAllowed) return
 
         // Log inappropriate experimental usage
         if (DEBUG) {
@@ -233,7 +243,12 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                 return coord
             }
         }
-        return getLibrary(File(findJarPath(element)))
+        val findJarPath = findJarPath(element)
+        return if (findJarPath != null) {
+            getLibrary(File(findJarPath))
+        } else {
+            null
+        }
     }
 
     private fun UElement.getQualifiedName() = (this as UClass).qualifiedName
@@ -282,5 +297,19 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                 Scope.JAVA_FILE_SCOPE,
             ),
         )
+
+        /**
+         * Checks to see if the given annotation is always allowed for use in @OptIn.
+         * For now, allow Kotlin all stdlib experimental annotations.
+         */
+        internal fun isAnnotationAlwaysAllowed(annotation: String): Boolean {
+            val allowedExperimentalAnnotations = listOf(
+                Regex("kotlin\\..*"),
+                Regex("kotlinx\\..*"),
+            )
+            return allowedExperimentalAnnotations.any {
+                annotation.matches(it)
+            }
+        }
     }
 }
