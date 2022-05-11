@@ -372,6 +372,7 @@
 
   <!-- StartScreen -->
   <string name="misc_templates_demos_title">Misc Templates Demos</string>
+  <string name="cal_api_level_prefix">CAL API Level: %d</string>
   <string name="showcase_demos_title">Showcase Demos</string>
 
   <!-- Location Strings -->
