@@ -169,7 +169,7 @@ Execution optimizations have been disabled for [0-9]+ invalid unit\(s\) of work 
 Please consult deprecation warnings for more details\.
 BUILD SUCCESSFUL in .*
 Publishing build scan\.\.\.
-https://ge\.androidx\.dev/s/n[0-9]+wdd[0-9]+vkeetqk
+https://ge\.androidx\.dev/s/.*
 Configuration cache entry reused with [0-9]+ problem\.
 # > Task :doclava:compileJava
 Note\: Some input files use or override a deprecated API\.
