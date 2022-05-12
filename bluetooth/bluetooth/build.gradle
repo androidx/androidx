@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -22,10 +22,13 @@ plugins {
 }
 
 androidx {
-    name = "BluetoothX"
-    type = LibraryType.PUBLISHED_LIBRARY
+    name = "AndroidX Bluetooth"
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.BLUETOOTH
     inceptionYear = "2022"
-    description = "Library for wrapping Android Bluetooth APIs that makes the APIs much easier to use."
+    description = "AndroidX Bluetooth Library"
 }
 
+android {
+    namespace "androidx.bluetooth"
+}
