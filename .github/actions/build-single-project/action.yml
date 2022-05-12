@@ -33,6 +33,8 @@ runs:
       uses: actions/setup-java@v1
       with:
         java-version: "11"
+    # TODO b/216535050: Implement task to install the exact AndroidX ndk
+    # version in case it is not available.
     - name: "Install Cmake"
       shell: bash
       run: echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "cmake;3.22.1" --channel=3
@@ -41,9 +43,6 @@ runs:
       run: |
         set -x
         echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
-        # TODO b/216535050: Implement task to install the exact AndroidX ndk
-        # version in case it is not available.
-        echo "ANDROID_NDK_ROOT=$ANDROID_SDK_ROOT/ndk/23.1.7779620" >> $GITHUB_ENV
 
     - name: "Setup Gradle"
       uses: gradle/gradle-build-action@v2
