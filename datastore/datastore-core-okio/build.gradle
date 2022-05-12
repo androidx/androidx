@@ -1,0 +1,87 @@
+/*
+ * Copyright (C) 2020 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
+plugins {
+    id("AndroidXPlugin")
+    id("org.jetbrains.kotlin.multiplatform")
+}
+
+kotlin {
+    jvm {
+        withJava()
+    }
+    macosX64()
+    linuxArm64()
+    macosArm64()
+    mingwX64()
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(project(":datastore:datastore-core"))
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+                api("com.squareup.okio:okio:3.0.0")
+                implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+//                api(libs.kotlinCoroutines)
+            }
+        }
+        nativeMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation("org.jetbrains.kotlinx:atomicfu:0.17.2")
+            }
+        }
+    }
+    targets.forEach {target ->
+        if (target.platformType == KotlinPlatformType.native) {
+            target.compilations["main"].defaultSourceSet {
+                dependsOn(sourceSets["nativeMain"])
+            }
+        }
+    }
+    targets.withType(KotlinNativeTarget).configureEach {
+        binaries.all {
+            binaryOptions["memoryModel"] = "experimental"
+        }
+    }
+}
+
+androidx {
+    name = "Android DataStore Core Okio"
+    publish = Publish.NONE
+    mavenGroup = LibraryGroups.DATASTORE
+    inceptionYear = "2020"
+    description = "Android DataStore Core Okio- contains APIs to use datastore-core in multiplatform via okio"
+    legacyDisableKotlinStrictApiMode = true
+    publishPlatforms = ["jvm"]
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinNativeCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+    }
+}
