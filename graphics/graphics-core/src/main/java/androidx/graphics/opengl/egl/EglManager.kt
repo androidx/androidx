@@ -21,6 +21,7 @@ import android.opengl.EGLConfig
 import android.opengl.EGLContext
 import android.opengl.EGLSurface
 import android.opengl.GLES20
+import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_SURFACELESS_CONTEXT
 
 /**
  * Class responsible for configuration of EGL related resources. This includes
@@ -38,7 +39,7 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
     private var mEglContext: EGLContext = EGL14.EGL_NO_CONTEXT
     private var mWideColorGamutSupport = false
     private var mEglVersion = EglVersion.Unknown
-    private var mEglExtensions: EglExtensions? = null
+    private var mEglExtensions: Set<String>? = null
     private var mIsSingleBuffered: Boolean = false
     private var mQueryResult: IntArray? = null
 
@@ -50,7 +51,8 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
         mEglContext.let {
             if (it === EGL14.EGL_NO_CONTEXT) {
                 mEglVersion = eglSpec.eglInitialize()
-                mEglExtensions = EglExtensions.from(eglSpec.eglQueryString(EGL14.EGL_EXTENSIONS))
+                mEglExtensions =
+                    EGLExt.parseExtensions(eglSpec.eglQueryString(EGL14.EGL_EXTENSIONS))
             }
         }
     }
@@ -72,15 +74,16 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
     fun createContext(config: EGLConfig): EGLContext {
         val eglContext = eglSpec.eglCreateContext(config)
         if (eglContext !== EGL14.EGL_NO_CONTEXT) {
-            val pbBufferSurface: EGLSurface = if (isExtensionSupported(EglKhrSurfacelessContext)) {
-                EGL14.EGL_NO_SURFACE
-            } else {
-                val configAttrs = EglConfigAttributes {
-                    EGL14.EGL_WIDTH to 1
-                    EGL14.EGL_HEIGHT to 1
+            val pbBufferSurface: EGLSurface =
+                if (isExtensionSupported(EGL_KHR_SURFACELESS_CONTEXT)) {
+                    EGL14.EGL_NO_SURFACE
+                } else {
+                    val configAttrs = EglConfigAttributes {
+                        EGL14.EGL_WIDTH to 1
+                        EGL14.EGL_HEIGHT to 1
+                    }
+                    eglSpec.eglCreatePBufferSurface(config, configAttrs)
                 }
-                eglSpec.eglCreatePBufferSurface(config, configAttrs)
-            }
             if (!eglSpec.eglMakeCurrent(eglContext, pbBufferSurface, pbBufferSurface)) {
                 throw EglException(eglSpec.eglGetError(), "Unable to make default surface current")
             }
@@ -148,14 +151,14 @@ class EglManager(val eglSpec: EglSpec = EglSpec.Egl14) {
      * provided is expected to be one of the named extensions defined within the OpenGL
      * extension documentation.
      *
-     * See [EglExtensions] for additional documentation for given extension name constants
+     * See [EGLExt] for additional documentation for given extension name constants
      * and descriptions.
      *
      * The set of supported extensions is configured after [initialize] is invoked.
      * Attempts to query support for any extension beforehand will return false.
      */
     fun isExtensionSupported(extensionName: String): Boolean =
-        mEglExtensions?.isExtensionSupported(extensionName) ?: false
+        mEglExtensions?.contains(extensionName) ?: false
 
     /**
      * Binds the current context to the given draw and read surfaces.
