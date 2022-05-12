@@ -34,9 +34,10 @@ dependencies {
     androidTestImplementation("androidx.concurrent:concurrent-futures:1.0.0")
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.multidex)
 
     // Hamcrest matchers:
-    androidTestImplementation(libs.espressoContrib, excludes.espresso)
+    androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
 }
 
 ext {
@@ -53,7 +54,9 @@ android {
         // Allow compiling the WebView support library boundary interfaces from this project.
         main.java.srcDirs += new File(webviewBoundaryInterfacesDir, "src").getCanonicalPath()
     }
-
+    defaultConfig {
+        multiDexEnabled = true
+    }
     buildTypes.all {
         consumerProguardFiles(
                 new File(webviewBoundaryInterfacesDir, "proguard.flags"),
