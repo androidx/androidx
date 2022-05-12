@@ -29,6 +29,11 @@ import androidx.annotation.Size;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class LogUtil {
+    /** Whether to log {@link Log#VERBOSE} and {@link Log#DEBUG} logs. */
+    // TODO(b/232285376): If it becomes possible to detect an eng build, turn this on by default
+    //  for eng builds.
+    public static final boolean DEBUG = false;
+
     /**
      * The {@link #piiTrace} logs are intended for sensitive data that can't be enabled in
      * production, so they are build-gated by this constant.
