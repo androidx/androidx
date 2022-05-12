@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.graphics.opengl.egl
+package androidx.opengl
 
 /**
- * EGLHandle to wrap native EGLSync objects.
- * This is similar to EGL's EGLSync API except the KHR suffix indicates it is generated
- * as part of the extension APIs namely through [EGLExt.eglCreateSyncKHR].
+ * EGLImageKHR is an object which can be used to create EGLImage
+ * target resources (inside client APIs).
+ * This is similar to EGL's EGLImage API except the KHR suffix indicates it is generated
+ * as part of the extension APIs namely through [EGLExt.eglCreateImageFromHardwareBuffer]
  */
 @Suppress("AcronymName")
-class EGLSyncKHR(override val nativeHandle: Long) : EGLHandle {
+class EGLImageKHR(override val nativeHandle: Long) : EGLHandle {
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is EGLSyncKHR) return false
+        if (other !is EGLImageKHR) return false
 
         if (nativeHandle != other.nativeHandle) return false
 
@@ -37,6 +39,6 @@ class EGLSyncKHR(override val nativeHandle: Long) : EGLHandle {
     }
 
     override fun toString(): String {
-        return "EGLSyncKHR(nativeHandle=$nativeHandle)"
+        return "EGLImageKHR(nativeHandle=$nativeHandle)"
     }
 }

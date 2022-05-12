@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package androidx.graphics.opengl.egl
+package androidx.opengl
 
 import android.hardware.HardwareBuffer
 import android.opengl.EGLDisplay
 import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
+import androidx.graphics.opengl.egl.EglConfigAttributes
 import androidx.hardware.SyncFenceCompat
-import androidx.graphics.opengl.egl.EGLExt.Companion.eglCreateSyncKHR
+import androidx.opengl.EGLExt.Companion.eglCreateSyncKHR
 
 /**
  * Utility class that provides some helper methods for interacting EGL Extension APIs
@@ -358,7 +358,8 @@ class EGLExt private constructor() {
             hardwareBuffer: HardwareBuffer
         ): EGLImageKHR? {
             val handle = EGLBindings.nCreateImageFromHardwareBuffer(
-                eglDisplay.obtainNativeHandle(), hardwareBuffer)
+                eglDisplay.obtainNativeHandle(), hardwareBuffer
+            )
             return if (handle == 0L) {
                 null
             } else {
@@ -430,7 +431,8 @@ class EGLExt private constructor() {
             attributes: EglConfigAttributes?
         ): EGLSyncKHR? {
             val handle = EGLBindings.nCreateSyncKHR(
-                eglDisplay.obtainNativeHandle(), type, attributes?.attrs)
+                eglDisplay.obtainNativeHandle(), type, attributes?.attrs
+            )
             return if (handle == 0L) {
                 null
             } else {

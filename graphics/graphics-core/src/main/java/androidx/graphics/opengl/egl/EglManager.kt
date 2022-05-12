@@ -21,7 +21,8 @@ import android.opengl.EGLConfig
 import android.opengl.EGLContext
 import android.opengl.EGLSurface
 import android.opengl.GLES20
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_SURFACELESS_CONTEXT
+import androidx.opengl.EGLExt
+import androidx.opengl.EGLExt.Companion.EGL_KHR_SURFACELESS_CONTEXT
 
 /**
  * Class responsible for configuration of EGL related resources. This includes

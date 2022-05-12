@@ -16,20 +16,21 @@
 
 package androidx.graphics.opengl.egl
 
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_ANDROID_NATIVE_FENCE_SYNC
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_EXT_BUFFER_AGE
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_EXT_GL_COLORSPACE_BT2020_PQ
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_EXT_GL_COLORSPACE_DISPLAY_P3_PASSTHROUGH
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_EXT_GL_COLORSPACE_SCRGB
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_EXT_PIXEL_FORMAT_FLOAT
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_IMG_CONTEXT_PRIORITY
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_GL_COLORSPACE
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_NO_CONFIG_CONTEXT
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_PARTIAL_UPDATE
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_SURFACELESS_CONTEXT
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE
-import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_WAIT_SYNC
+import androidx.opengl.EGLExt
+import androidx.opengl.EGLExt.Companion.EGL_ANDROID_NATIVE_FENCE_SYNC
+import androidx.opengl.EGLExt.Companion.EGL_EXT_BUFFER_AGE
+import androidx.opengl.EGLExt.Companion.EGL_EXT_GL_COLORSPACE_BT2020_PQ
+import androidx.opengl.EGLExt.Companion.EGL_EXT_GL_COLORSPACE_DISPLAY_P3_PASSTHROUGH
+import androidx.opengl.EGLExt.Companion.EGL_EXT_GL_COLORSPACE_SCRGB
+import androidx.opengl.EGLExt.Companion.EGL_EXT_PIXEL_FORMAT_FLOAT
+import androidx.opengl.EGLExt.Companion.EGL_IMG_CONTEXT_PRIORITY
+import androidx.opengl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
+import androidx.opengl.EGLExt.Companion.EGL_KHR_GL_COLORSPACE
+import androidx.opengl.EGLExt.Companion.EGL_KHR_NO_CONFIG_CONTEXT
+import androidx.opengl.EGLExt.Companion.EGL_KHR_PARTIAL_UPDATE
+import androidx.opengl.EGLExt.Companion.EGL_KHR_SURFACELESS_CONTEXT
+import androidx.opengl.EGLExt.Companion.EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE
+import androidx.opengl.EGLExt.Companion.EGL_KHR_WAIT_SYNC
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertTrue
@@ -143,7 +144,8 @@ class EGLExtensionsTest {
 
     @Test
     fun testWaitSync() {
-        assertTrue(EGLExt.parseExtensions("EGL_KHR_wait_sync")
+        assertTrue(
+            EGLExt.parseExtensions("EGL_KHR_wait_sync")
             .contains(EGL_KHR_WAIT_SYNC))
     }
 
