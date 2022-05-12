@@ -61,8 +61,9 @@ import kotlinx.coroutines.flow.StateFlow
  * limitations.
  * @param isHeadless Whether or not this is a headless watchface.
  * @param watchFaceInstanceId The ID associated with the watch face instance. Note there may be
- * more than one instance associated with a [WatchFaceService]. See
- * [androidx.wear.watchface.client.WatchFaceId] for more details.
+ * more than one instance associated with a [WatchFaceService]. Note if the user removes this
+ * instance then [WatchFaceService.onWatchFaceInstanceDeleted] will be called. See also
+ * [androidx.wear.watchface.client.WatchFaceId].
  */
 public class WatchState(
     public val interruptionFilter: StateFlow<Int?>,

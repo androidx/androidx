@@ -37,6 +37,7 @@ import androidx.wear.watchface.control.data.GetUserStyleFlavorsParams
 import androidx.wear.watchface.control.data.GetUserStyleSchemaParams
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat
+import androidx.wear.watchface.control.data.InstanceDeletedParams
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams
 import androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat
 import androidx.wear.watchface.editor.EditorService
@@ -280,6 +281,30 @@ public open class IWatchFaceInstanceServiceStub(
                     throw e
                 }
             }
+        }
+    }
+
+    override fun onInstanceDeleted(params: InstanceDeletedParams): Unit = TraceEvent(
+        "IWatchFaceInstanceServiceStub.onInstanceDeleted"
+    ).use {
+        try {
+            val watchFaceServiceClass = Class.forName(params.watchFaceName.className)
+            if (!WatchFaceService::class.java.isAssignableFrom(WatchFaceService::class.java)) {
+                Log.e(
+                    TAG,
+                    "onInstanceDeleted failed, ${params.watchFaceName.className} is not an " +
+                        "instance of WatchFaceService"
+                )
+            } else {
+                val watchFaceService =
+                    watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
+                watchFaceService.setContext(context)
+                watchFaceService.getUiThreadHandler().post {
+                    watchFaceService.onWatchFaceInstanceDeleted(params.instanceId)
+                }
+            }
+        } catch (e: ClassNotFoundException) {
+            Log.e(TAG, "onInstanceDeleted failed", e)
         }
     }
 }
