@@ -33,6 +33,167 @@ class EGLExt private constructor() {
     companion object {
 
         /**
+         * Determines if applications can query the age of the back buffer contents for an
+         * EGL surface as the number of frames elapsed since the contents were recently defined
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_buffer_age.txt
+         */
+        const val EGL_EXT_BUFFER_AGE = "EGL_EXT_buffer_age"
+
+        /**
+         * Allows for efficient partial updates to an area of a **buffer** that has changed since
+         * the last time the buffer was used
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_partial_update.txt
+         */
+        const val EGL_KHR_PARTIAL_UPDATE = "EGL_KHR_partial_update"
+
+        /**
+         * Allows for efficient partial updates to an area of a **surface** that changes between
+         * frames for the surface. This relates to the differences between two buffers, the current
+         * back buffer and the current front buffer.
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_swap_buffers_with_damage.txt
+         */
+        const val EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE = "EGL_KHR_swap_buffers_with_damage"
+
+        /**
+         * Determines whether to use sRGB format default framebuffers to render sRGB
+         * content to display devices. Supports creation of EGLSurfaces which will be rendered to in
+         * sRGB by OpenGL contexts supporting that capability.
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_gl_colorspace.txt
+         */
+        const val EGL_KHR_GL_COLORSPACE = "EGL_KHR_gl_colorspace"
+
+        /**
+         * Determines whether creation of GL and ES contexts without an EGLConfig is allowed
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_no_config_context.txt
+         */
+        const val EGL_KHR_NO_CONFIG_CONTEXT = "EGL_KHR_no_config_context"
+
+        /**
+         * Determines whether floating point RGBA components are supported
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_pixel_format_float.txt
+         */
+        const val EGL_EXT_PIXEL_FORMAT_FLOAT = "EGL_EXT_pixel_format_float"
+
+        /**
+         * Determines whether extended sRGB color spaces are supported options for EGL Surfaces
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_scrgb.txt
+         */
+        const val EGL_EXT_GL_COLORSPACE_SCRGB = "EGL_EXT_gl_colorspace_scrgb"
+
+        /**
+         * Determines whether the underlying platform can support rendering framebuffers in the
+         * non-linear Display-P3 color space
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_display_p3_passthrough.txt
+         */
+        const val EGL_EXT_GL_COLORSPACE_DISPLAY_P3_PASSTHROUGH =
+            "EGL_EXT_gl_colorspace_display_p3_passthrough"
+
+        /**
+         * Determines whether the platform framebuffers support rendering in a larger color gamut
+         * specified in the BT.2020 color space
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/EXT/EGL_EXT_gl_colorspace_bt2020_linear.txt
+         */
+        const val EGL_EXT_GL_COLORSPACE_BT2020_PQ = "EGL_EXT_gl_colorspace_bt2020_pq"
+
+        /**
+         * Determines whether an EGLContext can be created with a priority hint. Not all
+         * implementations are guaranteed to honor the hint.
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/IMG/EGL_IMG_context_priority.txt
+         */
+        const val EGL_IMG_CONTEXT_PRIORITY = "EGL_IMG_context_priority"
+
+        /**
+         * Determines whether creation of an EGL Context without a surface is supported.
+         * This is useful for applications that only want to render to client API targets (such as
+         * OpenGL framebuffer objects) and avoid the need to a throw-away EGL surface just to get
+         * a current context.
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_surfaceless_context.txt
+         */
+        const val EGL_KHR_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context"
+
+        /**
+         * Determines whether sync objects are supported. Sync objects are synchronization
+         * primitives that represent events whose completion can be tested or waited upon.
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
+         */
+        const val EGL_KHR_FENCE_SYNC = "EGL_KHR_fence_sync"
+
+        /**
+         * Determines whether waiting for signaling of sync objects is supported. This form of wait
+         * does not necessarily block the application thread which issued the wait. Therefore
+         * applications may continue to issue commands to the client API or perform other work
+         * in parallel leading to increased performance.
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_wait_sync.txt
+         */
+        const val EGL_KHR_WAIT_SYNC = "EGL_KHR_wait_sync"
+
+        /**
+         * Determines whether creation of platform specific sync objects are supported. These
+         * objects that are associated with a native synchronization fence object using a file
+         * descriptor.
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_native_fence_sync.txt
+         */
+        const val EGL_ANDROID_NATIVE_FENCE_SYNC = "EGL_ANDROID_native_fence_sync"
+
+        /**
+         * Enables using an Android window buffer (struct ANativeWindowBuffer) as an EGLImage source
+         *
+         * See: https://www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_image_native_buffer.txt
+         */
+        const val EGL_ANDROID_IMAGE_NATIVE_BUFFER = "EGL_ANDROID_image_native_buffer"
+
+        /**
+         * Extension for supporting a new EGL resource type that is suitable for
+         * sharing 2D arrays of image data between client APIs, the EGLImage.
+         * Although the intended purpose is sharing 2D image data, the
+         * underlying interface makes no assumptions about the format or
+         * purpose of the resource being shared, leaving those decisions to
+         * the application and associated client APIs.
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_image_base.txt
+         */
+        const val EGL_KHR_IMAGE_BASE = "EGL_KHR_image_base"
+
+        /**
+         * Extension that defines a new EGL resource type that is suitable for
+         * sharing 2D arrays of image data between client APIs, the EGLImage,
+         * and allows creating EGLImages from EGL native pixmaps.
+         *
+         * See:
+         * https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_image.txt
+         */
+        const val EGL_KHR_IMAGE = "EGL_KHR_image"
+
+        /**
          * Specifies the types of attributes that can be queried in [eglGetSyncAttribKHR]
          *
          * @hide
@@ -385,7 +546,7 @@ class EGLExt private constructor() {
          *  If the EGL_SYNC_NATIVE_FENCE_FD_ANDROID attribute of [sync] is
          *  EGL_NO_NATIVE_FENCE_FD_ANDROID, an invalid [SyncFenceCompat] is
          *  returned and an EGL_BAD_PARAMETER error is generated.
-         *  If [display] does not match the display passed to [eglCreateSync]
+         *  If [display] does not match the display passed to [eglCreateSyncKHR]
          *  when [sync] was created, the behavior is undefined.
          */
         @JvmStatic
@@ -427,6 +588,14 @@ class EGLExt private constructor() {
             eglDisplay.obtainNativeHandle(),
             eglSync.nativeHandle
         )
+
+        /**
+         * Returns a set of supported supported extensions from a space separated string
+         * that represents the set of OpenGL extensions supported
+         */
+        @JvmStatic
+        fun parseExtensions(queryString: String): Set<String> =
+            HashSet<String>().apply { addAll(queryString.split(' ')) }
 
         /**
          * Helper method to obtain the corresponding native handle. Newer versions of Android

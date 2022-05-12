@@ -33,6 +33,12 @@ import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_SYNC_FENCE_KHR
 import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_SYNC_NATIVE_FENCE_ANDROID
 import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR
 import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_SYNC_TYPE_KHR
+import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_ANDROID_IMAGE_NATIVE_BUFFER
+import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_ANDROID_NATIVE_FENCE_SYNC
+import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_FENCE_SYNC
+import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_IMAGE
+import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_IMAGE_BASE
+import androidx.graphics.opengl.egl.EGLExt.Companion.EGL_KHR_SURFACELESS_CONTEXT
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -124,7 +130,7 @@ class EglManagerTest {
 
             createContext(config!!)
 
-            if (isExtensionSupported(EglKhrSurfacelessContext)) {
+            if (isExtensionSupported(EGL_KHR_SURFACELESS_CONTEXT)) {
                 assertEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
             } else {
                 assertNotEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
@@ -157,7 +163,7 @@ class EglManagerTest {
                     }
                     // Remove EglKhrSurfacelessContext if it exists
                     // and repack the set into a space separated string
-                    set.remove(EglKhrSurfacelessContext)
+                    set.remove(EGL_KHR_SURFACELESS_CONTEXT)
                     StringBuilder().let {
                         for (entry in set) {
                             it.append(entry)
@@ -176,7 +182,7 @@ class EglManagerTest {
 
             // Verify that the wrapped EGL spec implementation in fact does not
             // advertise support for EglKhrSurfacelessContext
-            assertFalse(isExtensionSupported(EglKhrSurfacelessContext))
+            assertFalse(isExtensionSupported(EGL_KHR_SURFACELESS_CONTEXT))
 
             assertEquals(defaultSurface, EGL14.EGL_NO_SURFACE)
             assertEquals(currentDrawSurface, EGL14.EGL_NO_SURFACE)
@@ -387,9 +393,9 @@ class EglManagerTest {
         testEglManager {
             initializeWithDefaultConfig()
             val khrImageBaseSupported =
-                isExtensionSupported(EglKhrImageBase)
+                isExtensionSupported(EGL_KHR_IMAGE_BASE)
             val androidImageNativeBufferSupported =
-                isExtensionSupported(EglAndroidImageNativeBuffer)
+                isExtensionSupported(EGL_ANDROID_IMAGE_NATIVE_BUFFER)
             // According to EGL spec both these extensions are required in order to support
             // eglGetNativeClientBufferAndroid
             if (khrImageBaseSupported && androidImageNativeBufferSupported) {
@@ -402,7 +408,7 @@ class EglManagerTest {
     fun testEglFenceAPIsSupported() {
         testEglManager {
             initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrImageBase)) {
+            if (isExtensionSupported(EGL_KHR_IMAGE_BASE)) {
                 assertTrue(EGLBindings.nSupportsEglCreateImageKHR())
                 assertTrue(EGLBindings.nSupportsEglClientWaitSyncKHR())
                 assertTrue(EGLBindings.nSupportsEglGetSyncAttribKHR())
@@ -416,7 +422,7 @@ class EglManagerTest {
     fun testEglCreateAndDestroyImageKHR() {
         testEglManager {
             initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrImageBase)) {
+            if (isExtensionSupported(EGL_KHR_IMAGE_BASE)) {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
                 val hardwareBuffer = HardwareBuffer.create(
                     10,
@@ -438,7 +444,7 @@ class EglManagerTest {
             initializeWithDefaultConfig()
             // According to EGL spec *EITHER* EGL_KHR_image_base or EGL_KHR_image
             // indicate that the eglImageTargetTexture2DOES method is supported on this device
-            if (isExtensionSupported(EglKhrImageBase) || isExtensionSupported(EglKhrImage)) {
+            if (isExtensionSupported(EGL_KHR_IMAGE_BASE) || isExtensionSupported(EGL_KHR_IMAGE)) {
                 assertTrue(EGLBindings.nSupportsGlImageTargetTexture2DOES())
             }
         }
@@ -448,7 +454,7 @@ class EglManagerTest {
     fun testEglCreateAndDestroySyncKHRSupported() {
         testEglManager {
             initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrFenceSync)) {
+            if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
                 assertTrue(EGLBindings.nSupportsEglCreateSyncKHR())
                 assertTrue(EGLBindings.nSupportsEglDestroySyncKHR())
             }
@@ -460,7 +466,8 @@ class EglManagerTest {
      * along with Android platform specific EGLSync fence types
      */
     private fun EglManager.supportsNativeAndroidFence(): Boolean =
-        isExtensionSupported(EglKhrFenceSync) && isExtensionSupported(EglAndroidNativeFenceSync)
+        isExtensionSupported(EGL_KHR_FENCE_SYNC) &&
+            isExtensionSupported(EGL_ANDROID_NATIVE_FENCE_SYNC)
 
     @Test
     fun testEglCreateAndDestroyAndroidFenceSyncKHR() {
@@ -484,7 +491,7 @@ class EglManagerTest {
     fun testEglDupNativeFenceFDANDROIDSupported() {
         testEglManager {
             initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrFenceSync)) {
+            if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
                 assertTrue(EGLBindings.nSupportsDupNativeFenceFDANDROID())
             }
         }
@@ -494,7 +501,7 @@ class EglManagerTest {
     fun testEglCreateAndDestroyFenceSyncKHR() {
         testEglManager {
             initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrFenceSync)) {
+            if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
                 val sync = EGLExt.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
@@ -521,7 +528,7 @@ class EglManagerTest {
     fun testEglGetSyncAttribKHROutOfBounds() {
         testEglManager {
             initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrFenceSync)) {
+            if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
                 val sync = EGLExt.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
@@ -552,7 +559,7 @@ class EglManagerTest {
     fun testEglGetSyncAttribKHRNegativeOffset() {
         testEglManager {
             initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrFenceSync)) {
+            if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
                 val sync = EGLExt.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
@@ -583,7 +590,7 @@ class EglManagerTest {
     fun testEglClientWaitSyncKHR() {
         testEglManager {
             initializeWithDefaultConfig()
-            if (isExtensionSupported(EglKhrFenceSync)) {
+            if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
                 val sync = EGLExt.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
