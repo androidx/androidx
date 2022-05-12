@@ -25,6 +25,7 @@ import androidx.wear.watchface.control.data.GetUserStyleSchemaParams;
 import androidx.wear.watchface.control.data.GetUserStyleFlavorsParams;
 import androidx.wear.watchface.control.data.HeadlessWatchFaceInstanceParams;
 import androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat;
+import androidx.wear.watchface.control.data.InstanceDeletedParams;
 import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanceParams;
 import androidx.wear.watchface.data.ComplicationSlotMetadataWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
@@ -39,12 +40,12 @@ import androidx.wear.watchface.editor.IEditorService;
 interface IWatchFaceControlService {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 11
+    // Next Id: 12
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 5;
+    const int API_VERSION = 6;
 
     /**
      * Returns the version number for this API which the client can use to determine which methods
@@ -138,4 +139,11 @@ interface IWatchFaceControlService {
      * @since API version 5.
      */
     UserStyleFlavorsWireFormat getUserStyleFlavors(in GetUserStyleFlavorsParams params) = 10;
+
+    /**
+     * Notifys the WatchFaceService of the deletion of a favorite.
+     *
+     * @since API version 6.
+     */
+    void onInstanceDeleted(in InstanceDeletedParams params) = 11;
 }

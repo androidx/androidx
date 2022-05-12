@@ -45,6 +45,7 @@ import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.WindowInsets
 import android.view.accessibility.AccessibilityManager
+import androidx.annotation.MainThread
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -215,6 +216,8 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
  *      android:name="androidx.wear.watchface.MULTIPLE_INSTANCES_ALLOWED"
  *      android:value="true" />
  *
+ * If an instance is deleted by the user then [WatchFaceService.onWatchFaceInstanceDeleted] will
+ * get called, allowing the WatchFaceService to release resources.
  *
  * A watch face can declare the [UserStyleSchema], [ComplicationSlot]s and [UserStyleFlavors] in
  * XML. The main advantage is simplicity for the developer, however meta data queries (see
@@ -519,6 +522,18 @@ public abstract class WatchFaceService : WallpaperService() {
 
     /** This is open for testing. */
     internal open fun getUiThreadHandlerImpl(): Handler = Handler(Looper.getMainLooper())
+
+    /**
+     * Called when the user has removed an instance of this watchface. This allows the
+     * WatchFaceService to remove any local resources it might have that are tied to the instance.
+     *
+     * @param instanceId The ID of the watchface instance that has been removed. This will not
+     * correspond to an active watchface. See also [WatchState.watchFaceInstanceId].
+     */
+    @MainThread
+    public open fun onWatchFaceInstanceDeleted(instanceId: String) {
+        // Deliberately empty.
+    }
 
     /**
      * Override to force the watchface to be regarded as being visible. This must not be used in

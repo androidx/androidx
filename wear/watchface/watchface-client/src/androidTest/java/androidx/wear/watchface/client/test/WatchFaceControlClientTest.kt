@@ -1605,6 +1605,47 @@ class WatchFaceControlClientTest {
             interactiveInstance.close()
         }
     }
+
+    @Test
+    fun notifyWatchFaceInstanceDeleted() {
+        WatchfaceInstanceDeletedWatchFaceService.lastInstanceIdDeleted = null
+
+        service.notifyWatchFaceInstanceDeleted(
+            ComponentName(
+                "androidx.wear.watchface.client.test",
+                "androidx.wear.watchface.client.test.WatchfaceInstanceDeletedWatchFaceService"
+            ),
+            "wfId-123"
+        )
+
+        val latch = CountDownLatch(1)
+        handler.post {
+            latch.countDown()
+        }
+        latch.await(DESTROY_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)
+
+        assertThat(WatchfaceInstanceDeletedWatchFaceService.lastInstanceIdDeleted)
+            .isEqualTo("wfId-123")
+    }
+}
+
+public class WatchfaceInstanceDeletedWatchFaceService : ExampleCanvasAnalogWatchFaceService() {
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): WatchFace {
+        throw Exception("Not supported")
+    }
+
+    companion object {
+        var lastInstanceIdDeleted: String? = null
+    }
+
+    override fun onWatchFaceInstanceDeleted(instanceId: String) {
+        lastInstanceIdDeleted = instanceId
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
