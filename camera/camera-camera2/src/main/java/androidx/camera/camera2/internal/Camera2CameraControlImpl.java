@@ -139,7 +139,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     // Workarounds
     private final AeFpsRange mAeFpsRange;
-    private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler();
+    private final AutoFlashAEModeDisabler mAutoFlashAEModeDisabler;
 
     static final String TAG_SESSION_UPDATE_ID = "CameraControlSessionUpdateId";
     private final AtomicLong mNextSessionUpdateId = new AtomicLong(0);
@@ -206,6 +206,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
         // Workarounds
         mAeFpsRange = new AeFpsRange(cameraQuirks);
+        mAutoFlashAEModeDisabler = new AutoFlashAEModeDisabler(cameraQuirks);
         mCamera2CameraControl = new Camera2CameraControl(this, mExecutor);
         mCamera2CapturePipeline = new Camera2CapturePipeline(this, mCameraCharacteristics,
                 cameraQuirks, mExecutor);
@@ -378,6 +379,10 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         // update mFlashMode immediately so that following getFlashMode() returns correct value.
         mFlashMode = flashMode;
 
+        // Disable ZSL when flash mode is ON or AUTO.
+        mZslControl.setZslDisabledByFlashMode(mFlashMode == FLASH_MODE_ON
+                || mFlashMode == FLASH_MODE_AUTO);
+
         // On some devices, AE precapture may not work properly if the repeating request to change
         // the flash mode is not completed. We need to store the future so that AE precapture can
         // wait for it.
@@ -391,8 +396,13 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     }
 
     @Override
-    public void setZslDisabled(boolean disabled) {
-        mZslControl.setZslDisabled(disabled);
+    public void setZslDisabledByUserCaseConfig(boolean disabled) {
+        mZslControl.setZslDisabledByUserCaseConfig(disabled);
+    }
+
+    @Override
+    public boolean isZslDisabledByByUserCaseConfig() {
+        return mZslControl.isZslDisabledByUserCaseConfig();
     }
 
     /** {@inheritDoc} */

@@ -15,17 +15,29 @@
   -->
 
 <resources>
-    <!-- ComplicationSlotBounds may not have any child nodes. -->
+    <!-- ComplicationSlotBounds may not have any child nodes.
+    Either top, bottom, left, right or center_x, center_y, width, height should be specified.
+    The coordinates should be specified either in floating point form (0..1)
+    or as a reference to dimension resource. -->
     <declare-styleable name="ComplicationSlotBounds">
         <!-- The type of complication. Required if per-complication type bounds are used. -->
         <attr name="complicationType"/>
-        <!-- Required. Unit-square complication top bound coordinate. -->
-        <attr name="top" format="float" />
-        <!-- Required. Unit-square complication bottom bound coordinate. -->
-        <attr name="bottom" format="float" />
-        <!-- Required. Unit-square complication left bound coordinate. -->
-        <attr name="left" format="float" />
-        <!-- Required. Unit-square complication right bound coordinate. -->
-        <attr name="right" format="float" />
+        <!-- Complication top bound coordinate. -->
+        <attr name="top" format="float|reference" />
+        <!-- Complication bottom bound coordinate. -->
+        <attr name="bottom" format="float|reference" />
+        <!-- Complication left bound coordinate. -->
+        <attr name="left" format="float|reference" />
+        <!-- Complication right bound coordinate. -->
+        <attr name="right" format="float|reference" />
+
+        <!-- Complication center X position. -->
+        <attr name="center_x" format="float|reference" />
+        <!-- Complication center Y position. -->
+        <attr name="center_y" format="float|reference" />
+        <!-- Complication width. -->
+        <attr name="size_x" format="float|reference" />
+        <!-- Complication height. -->
+        <attr name="size_y" format="float|reference" />
     </declare-styleable>
 </resources>

@@ -46,9 +46,9 @@ class ComplicationSlotBoundsTest {
             nodeType = parser.next()
         } while (nodeType != XmlPullParser.END_DOCUMENT && nodeType != XmlPullParser.START_TAG)
 
-        val bounds = ComplicationSlotBounds.inflate(parser)!!
+        val bounds = ComplicationSlotBounds.inflate(context.resources, parser)!!
 
-        // SHORT_TEXT and LONG_TEXT should match the input
+        // SHORT_TEXT, LONG_TEXT and RANGED_VALUE should match the input
         assertThat(
             bounds.perComplicationTypeBounds[ComplicationType.SHORT_TEXT]
         ).isEqualTo(RectF(0.2f, 0.4f, 0.3f, 0.1f))
@@ -57,9 +57,26 @@ class ComplicationSlotBoundsTest {
             bounds.perComplicationTypeBounds[ComplicationType.LONG_TEXT]
         ).isEqualTo(RectF(0.6f, 0.8f, 0.7f, 0.5f))
 
+        assertThat(
+            bounds.perComplicationTypeBounds[ComplicationType.RANGED_VALUE]
+        ).isEqualTo(RectF(0.3f, 0.3f, 0.5f, 0.7f))
+
+        val widthPixels = context.resources.displayMetrics.widthPixels
+        val center = context.resources.getDimension(R.dimen.complication_center) / widthPixels
+        val halfSize =
+            context.resources.getDimension(R.dimen.complication_size) / widthPixels / 2.0f
+        assertThat(
+            bounds.perComplicationTypeBounds[ComplicationType.SMALL_IMAGE]
+        ).isEqualTo(RectF(
+            center - halfSize, center - halfSize, center + halfSize, center + halfSize
+        ))
+
         // All other types should have been backfilled with an empty rect.
         for (type in ComplicationType.values()) {
-            if (type != ComplicationType.SHORT_TEXT && type != ComplicationType.LONG_TEXT) {
+            if (type != ComplicationType.SHORT_TEXT &&
+                type != ComplicationType.LONG_TEXT &&
+                type != ComplicationType.RANGED_VALUE &&
+                type != ComplicationType.SMALL_IMAGE) {
                 assertThat(bounds.perComplicationTypeBounds[type]).isEqualTo(RectF())
             }
         }

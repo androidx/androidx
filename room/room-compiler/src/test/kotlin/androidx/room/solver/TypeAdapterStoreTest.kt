@@ -46,6 +46,7 @@ import androidx.room.processor.DaoProcessorTest
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
 import androidx.room.solver.binderprovider.DataSourceQueryResultBinderProvider
+import androidx.room.solver.binderprovider.ListenableFuturePagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
@@ -523,6 +524,29 @@ class TypeAdapterStoreTest {
     }
 
     @Test
+    fun testMissingRoomPagingGuava() {
+        runProcessorTest(
+            sources = listOf(COMMON.LISTENABLE_FUTURE_PAGING_SOURCE)
+        ) { invocation ->
+            val listenableFuturePagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE)
+            val intType = invocation.processingEnv.requireType(Integer::class)
+            val listenableFuturePagingSourceIntIntType = invocation.processingEnv
+                .getDeclaredType(listenableFuturePagingSourceElement, intType, intType)
+
+            assertThat(listenableFuturePagingSourceElement, notNullValue())
+            assertThat(
+                ListenableFuturePagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(listenableFuturePagingSourceIntIntType),
+                `is`(true)
+            )
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.MISSING_ROOM_PAGING_GUAVA_ARTIFACT)
+            }
+        }
+    }
+
+    @Test
     fun testFindPublisher() {
         listOf(
             COMMON.RX2_FLOWABLE to COMMON.RX2_ROOM,
@@ -862,6 +886,52 @@ class TypeAdapterStoreTest {
     }
 
     @Test
+    fun findListenableFuturePagingSourceJavaCollectionValue() {
+        runProcessorTest(
+            sources = listOf(COMMON.LISTENABLE_FUTURE_PAGING_SOURCE)
+        ) { invocation ->
+            val listenableFuturePagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE)
+            val intType = invocation.processingEnv.requireType(Integer::class)
+            val collectionType = invocation.processingEnv.requireType("java.util.Collection")
+            val listenableFuturePagingSourceIntCollectionType = invocation.processingEnv
+                .getDeclaredType(listenableFuturePagingSourceElement, intType, collectionType)
+
+            assertThat(listenableFuturePagingSourceIntCollectionType).isNotNull()
+            assertThat(
+                ListenableFuturePagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(listenableFuturePagingSourceIntCollectionType)
+            ).isTrue()
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE)
+            }
+        }
+    }
+
+    @Test
+    fun findListenableFutureKotlinCollectionValue() {
+        runProcessorTest(
+            sources = listOf(COMMON.LISTENABLE_FUTURE_PAGING_SOURCE)
+        ) { invocation ->
+            val listenableFuturePagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE)
+            val intType = invocation.processingEnv.requireType(Integer::class)
+            val kotlinCollectionType = invocation.processingEnv.requireType(Collection::class)
+            val listenableFuturePagingSourceIntCollectionType = invocation.processingEnv
+                .getDeclaredType(listenableFuturePagingSourceElement, intType, kotlinCollectionType)
+
+            assertThat(listenableFuturePagingSourceIntCollectionType).isNotNull()
+            assertThat(
+                ListenableFuturePagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(listenableFuturePagingSourceIntCollectionType)
+            ).isTrue()
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE)
+            }
+        }
+    }
+
+    @Test
     fun testPagingSourceBinder() {
         val inputSource =
             Source.java(
@@ -882,6 +952,7 @@ class TypeAdapterStoreTest {
                 COMMON.USER,
                 COMMON.PAGING_SOURCE,
                 COMMON.LIMIT_OFFSET_PAGING_SOURCE,
+                COMMON.LISTENABLE_FUTURE_PAGING_SOURCE,
             ),
         ) { invocation: XTestInvocation ->
             val dao = invocation.roundEnv
@@ -906,6 +977,63 @@ class TypeAdapterStoreTest {
                 .filterIsInstance<ReadQueryMethod>().first().returnType.rawType
             // make sure returned type is the original PagingSource
             assertThat(returnedXRawType).isEqualTo(pagingSourceXRawType)
+
+            val listenableFuturePagingSourceXRawType: XRawType? = invocation.context.processingEnv
+                .findType(PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE)?.rawType
+            assertThat(listenableFuturePagingSourceXRawType!!.isAssignableFrom(returnedXRawType))
+                .isFalse()
+        }
+    }
+
+    @Test
+    fun testListenableFuturePagingSourceBinder() {
+        val inputSource =
+            Source.java(
+                qName = "foo.bar.MyDao",
+                code =
+                """
+                ${DaoProcessorTest.DAO_PREFIX}
+
+                @Dao abstract class MyDao {
+                    @Query("SELECT uid FROM User")
+                    abstract androidx.paging.ListenableFuturePagingSource<Integer, User> getAllIds();
+                }
+                    """.trimIndent()
+            )
+        runProcessorTest(
+            sources = listOf(
+                inputSource,
+                COMMON.USER,
+                COMMON.LISTENABLE_FUTURE_PAGING_SOURCE,
+                COMMON.LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE,
+            ),
+        ) { invocation: XTestInvocation ->
+            val dao = invocation.roundEnv
+                .getElementsAnnotatedWith(
+                    Dao::class.qualifiedName!!
+                ).first()
+            check(dao.isTypeElement())
+            val dbType = invocation.context.processingEnv
+                .requireType(RoomTypeNames.ROOM_DB)
+            val parser = DaoProcessor(
+                invocation.context,
+                dao, dbType, null,
+            )
+            val parsedDao = parser.process()
+            val binder = parsedDao.queryMethods.filterIsInstance<ReadQueryMethod>()
+                .first().queryResultBinder
+
+            // assert that room correctly binds to ListenableFuturePagingSource instead of
+            // its supertype PagingSource. ListenableFuturePagingSourceBinderProvider
+            // must be added into list of binder providers in TypeAdapterStore before
+            // generic PagingSource.
+            assertThat(binder is MultiTypedPagingSourceQueryResultBinder).isTrue()
+            val listenableFuturePagingSourceXRawType: XRawType? = invocation.context.processingEnv
+                .findType(PagingTypeNames.LISTENABLE_FUTURE_PAGING_SOURCE)?.rawType
+            val returnedXRawType = parsedDao.queryMethods
+                .filterIsInstance<ReadQueryMethod>().first().returnType.rawType
+            // make sure the actual returned type from Provider is ListenableFuturePagingSource
+            assertThat(returnedXRawType).isEqualTo(listenableFuturePagingSourceXRawType)
         }
     }
 

@@ -36,13 +36,16 @@
     <string name="on_action_title" msgid="4129601573763429611">"অন আছে"</string>
     <string name="off_action_title" msgid="8669201170189204848">"অফ আছে"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"ছেটিং"</string>
-    <string name="accept_action_title" msgid="6172053420803596132">"ছেটিং"</string>
+    <!-- no translation found for accept_action_title (4899660585470647578) -->
+    <skip />
     <string name="reject_action_title" msgid="6730366705938402668">"প্ৰত্যাখ্যান কৰক"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"ঠিক আছে"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"দলিয়াওক"</string>
     <string name="commute_action_title" msgid="2585755255290185096">"নিত্য যাত্ৰা"</string>
     <string name="sign_out_action_title" msgid="1653943000866713010">"ছাইন আউট কৰক"</string>
     <string name="try_anyway_action_title" msgid="7384500054249311718">"যিকোনো উপায়েৰে চেষ্টা কৰক"</string>
+    <string name="yes_action_title" msgid="5507096013762092189">"হয়"</string>
+    <string name="no_action_title" msgid="1452124604210014010">"নহয়"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"বাগ ৰিপ’ৰ্ট কৰা হ’ল!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"জুম ইন কৰা হৈছে"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"জুম আউট কৰা হৈছে"</string>
@@ -66,6 +69,9 @@
     <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"বৰ্তমানৰ অৱস্থান চাবলৈ অৱস্থানৰ অনুমতি দিয়ক"</string>
     <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Googleৰ জৰিয়তে ছাইন ইন কৰাটো ইয়াত আৰম্ভ হয়"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"বাছনিটো সূচকলৈ সলনি হৈছে"</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"হয় বুটাম টিপা হৈছে!"</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"কোনো বুটাম টিপা হোৱা নাই!"</string>
+    <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"সতৰ্কবাৰ্তাৰ সময় উকলি গৈছে!"</string>
     <string name="first_row_title" msgid="219428344573165351">"এখন ডাঙৰ প্ৰতিচ্ছবি থকা শাৰী আৰু বহুত বেছি দীঘলীয়া পাঠ"</string>
     <string name="first_row_text" msgid="3887390298628338716">"পাঠ পাঠ পাঠ"</string>
     <string name="other_row_title_prefix" msgid="4702355788835253197">"শাৰীৰ শিৰোনাম"</string>
@@ -105,7 +111,7 @@
     <string name="content_limits_demo_title" msgid="3207211638386727610">"সমলৰ সীমাৰ ডেম’"</string>
     <string name="finish_app_msg" msgid="8354334557053141891">"এইটোৱে এপ্‌টো সমাপ্ত কৰিব আৰু আপুনি উভতি আহিলে ই এখন অনুমতিৰ স্ক্ৰীন প্ৰি-ছীড কৰিব"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"এপৰ ডেম’ সমাপ্ত কৰক"</string>
-    <string name="finish_app_demo_title" msgid="1190976061270691419">"পৰৱৰ্তী চলোৱাৰ ডেম’ত স্ক্ৰীনৰ বেকষ্টেক প্ৰি-ছীড কৰক"</string>
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"পৰৱৰ্তী সময়ত চলোৱা ডেম’ত অনুমতিৰ স্ক্ৰীনখন প্ৰি-ছীড কৰক"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"ডেম’ ল’ড কৰি থকা হৈছে"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"ল’ড হোৱা সম্পূৰ্ণ হৈছে!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"ৰুট কৰিবলৈ পপ কৰক"</string>
@@ -127,9 +133,6 @@
     <string name="not_started_for_result_msg" msgid="7498800528148447270">"এই এপ্‌টো ফলাফলৰ বাবে আৰম্ভ কৰা হোৱা নাছিল"</string>
     <string name="started_for_result_msg" msgid="4225260243713833974">"%sৰ ফলাফল দেখুৱাবলৈ এই এপ্‌টোৰ প্ৰয়োজন হৈছিল। কল কৰোঁতাগৰাকীলৈ উভতাই পঠিয়াবলৈ অনুগ্ৰহ কৰি ফলাফল বাছনি কৰক"</string>
     <string name="arrived_exclamation_msg" msgid="9132265698563096988">"আহি পালে!"</string>
-    <string name="arrived_address_msg" msgid="858838027855534700">"Google Bellevue Office\n1120 112th Ave NE"</string>
-    <string name="current_step_cue" msgid="2742662984538730379">"Roy st 520"</string>
-    <string name="next_step_cue" msgid="381579039472178611">"I5 Aurora Ave N"</string>
     <string name="travel_est_trip_text" msgid="5134365408383171144">"এলিচক পিক আপ কৰক"</string>
     <string name="send_notification_title" msgid="4731688444696028193">"এটা জাননী পঠিয়াওক"</string>
     <string name="start_notifications_title" msgid="8699668027543530460">"জাননী আৰম্ভ কৰক"</string>
@@ -138,6 +141,14 @@
     <string name="importance_title" msgid="9034862997821839831">"প্ৰাধান্য"</string>
     <string name="category_title" msgid="4783851267093259949">"শিতান"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"চলিত"</string>
+    <!-- no translation found for default_importance (6347996298832939989) -->
+    <skip />
+    <!-- no translation found for high_importance (5009120714837304882) -->
+    <skip />
+    <!-- no translation found for low_importance (4721161314404294033) -->
+    <skip />
+    <!-- no translation found for unknown_importance (909001735933359216) -->
+    <skip />
     <string name="notification_demo" msgid="1819496937832036387">"জাননীৰ ডেম’"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"সানমিহলি ডেম’"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"নেভিগেশ্বনৰ ডেম’"</string>
@@ -165,6 +176,8 @@
     <string name="notification_template_demo_title" msgid="5076051497316030274">"জাননীৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="nav_map_template_demo_title" msgid="344985380763975398">"কেৱল মেপ থকা ডেম’ৰ সৈতে নেভিগেশ্বন টেম্পলে’ট"</string>
     <string name="nav_demos_title" msgid="72781206086461004">"নেভিগেশ্বনৰ ডেম’"</string>
+    <string name="navigation_alert_title" msgid="8306554249264200848">"এতিয়াও গতিবেগ নিৰীক্ষক নেকি?"</string>
+    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"১০ মিনিট পূৰ্বে ৰিপ’ৰ্ট কৰা হৈছে"</string>
     <string name="no_toll_card_permission" msgid="6789073114449712090">"TollCardৰ অনুমতি নাই।"</string>
     <string name="no_energy_level_permission" msgid="1684773185095107825">"EnergyLevelৰ অনুমতি নাই।"</string>
     <string name="no_speed_permission" msgid="5812532480922675390">"গতিবেগৰ অনুমতি নাই।"</string>
@@ -213,7 +226,6 @@
     <string name="title_prefix" msgid="3991742709199357049">"শিৰোনাম"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"সূচীৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"দীঘলীয়া বাৰ্তাৰ টেম্পলে’টৰ ডেম’"</string>
-    <string name="long_msg_template_text" msgid="418743506180774764">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nAliquam laoreet ac metus eu commodo. Sed a congue diam, sed dictum lectus. Nam nec\ntristique dolor, quis sodales arcu. Etiam at metus eu nulla auctor varius. \nInteger dolor lorem, placerat sit amet lacus in, imperdiet semper dui. Vestibulum \nante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; \nQuisque gravida fermentum egestas.\n\n\n\nUt ut sodales mi. Aenean porta vel ipsum sed lacinia. Morbi odio ipsum, hendrerit \neu est et, sollicitudin finibus diam. Nunc sit amet felis elit. Orci varius \nnatoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed \nvestibulum, tellus a rutrum auctor, diam arcu vestibulum purus, nec mollis ligula \nnisi in nisi. Donec sem tortor, pharetra sed fermentum sit amet, ullamcorper nec \nsapien. Aliquam risus arcu, porttitor eu dui nec, vulputate tempus libero. \nCurabitur sit amet tristique orci. Suspendisse et odio tempus, tempus turpis quis,\n euismod est.\n\n\n\nVestibulum mauris ante, luctus viverra nisi eget, blandit facilisis nulla. \nPhasellus ex lorem, semper in vestibulum nec, aliquet vel elit. Aliquam vitae \nligula nec enim dictum lobortis. Sed varius turpis quis nisi tempus varius. Sed \nnon sollicitudin magna, at mattis tortor. Curabitur quis ligula eget lorem mattis \ntincidunt et in sapien. Curabitur a elit nisi. Aliquam ex arcu, hendrerit eget \nturpis vitae, bibendum vulputate nibh. Fusce vitae ex aliquet, tristique magna eu,\n vulputate dui. Aenean tempor viverra tortor non pharetra. Pellentesque convallis \nnec risus a auctor. Praesent non sem non eros tincidunt ullamcorper efficitur non \nlacus.\n\n\n\nSuspendisse accumsan ultricies egestas. Aenean leo ligula, congue ac erat eu, \nlobortis ultricies lorem. Nulla finibus, arcu sed tincidunt lobortis, magna justo \nrutrum ligula, et mattis felis turpis vel ex. Morbi ac auctor ex, at bibendum sem.\n Vestibulum a tortor iaculis, viverra felis vitae, lobortis est. Duis sit amet \ncondimentum sem. Ut molestie, dolor pretium imperdiet maximus, enim orci porta \nquam, id gravida enim nunc vitae lacus. Pellentesque habitant morbi tristique \nsenectus et netus et malesuada fames ac turpis egestas. Nullam vel justo eu risus \nlobortis dignissim sit amet ullamcorper nulla. Donec finibus cursus purus \nporttitor pellentesque.\n\n\n\nDonec at vehicula ante. Suspendisse rutrum nisl quis metus faucibus lacinia. \nVestibulum eros sapien, eleifend nec accumsan a, interdum sed nisi. Aenean posuere\n ultrices lorem non pharetra. Nulla non porta ligula. Maecenas at elit diam. \nNullam gravida augue et semper eleifend. Fusce venenatis ac arcu et luctus. Mauris\n ultricies urna non dui interdum, vel hendrerit est aliquam. Fusce id dictum leo, \nfringilla egestas ipsum."</string>
     <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"আপোনাৰ হ’ষ্টে দীঘলীয়া বাৰ্তাৰ টেম্পলে’ট সমৰ্থন নকৰে"</string>
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"অমিল হ’ষ্ট"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"বাৰ্তাৰ টেম্পলে’টৰ ডেম’"</string>
@@ -221,8 +233,7 @@
     <string name="pane_template_demo_title" msgid="7804292600060341608">"পে’নৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"ঠাইৰ সূচীৰ টেম্পলে’টৰ ডেম’"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"ঠাইসমূহ ব্ৰাউজ কৰক"</string>
-    <!-- no translation found for search_template_demo_title (1770474418958318114) -->
-    <skip />
+    <string name="search_template_demo_title" msgid="1770474418958318114">"সন্ধানৰ টেমপ্লে’টৰ ডেম’"</string>
     <string name="search_hint" msgid="978495498991026792">"ইয়াত সন্ধান কৰক"</string>
     <string name="additional_text" msgid="8410289578276941586">"অনুগ্ৰহ কৰি আমাৰ সেৱাৰ চৰ্তাৱলী পৰ্যালোচনা কৰক"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google ছাইন ইন"</string>
@@ -244,8 +255,7 @@
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"আপোনাৰ Googleৰ ছাইন ইন সম্পূৰ্ণ কৰিবলৈ এই বুটামটো ব্যৱহাৰ কৰক"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"আপুনি ছাইন ইন কৰিছে!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"ছাইন ইন কৰা সম্পূৰ্ণ হৈছে"</string>
-    <!-- no translation found for sign_in_template_demo_title (6052035424941410249) -->
-    <skip />
+    <string name="sign_in_template_demo_title" msgid="6052035424941410249">"ছাইন ইন টেমপ্লে’টৰ ডেম’"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"অজ্ঞাত হ’ষ্টৰ বাবে প্ৰতিচ্ছবি দেখুৱাব নোৱাৰি"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"চিহ্ন"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"সমল প্ৰদানকাৰীৰ চিহ্নৰ ডেম’"</string>
@@ -282,20 +292,13 @@
     <string name="image_test_title" msgid="8273863429801477547">"প্ৰতিচ্ছবিৰ পৰীক্ষা"</string>
     <string name="image_test_text" msgid="6264812093895530445">"প্ৰতিচ্ছবি সলনি কৰাৰ অনুমতি আছে"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"অতিৰিক্ত ডেটা"</string>
-    <string name="additional_data_text" msgid="5834065880156294730">"আপডে’টসমূহে নেপথ্যৰ কাৰ্যকলাপত অনুমতি দিয়ে।"</string>
+    <string name="additional_data_text" msgid="2846223398214158872">"নেপথ্যৰ কাৰ্যত আপডে’টৰ অনুমতি আছে।"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"সানমিহলি টেম্পলে’টৰ ডেম’"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"ডেম’ দেখুৱাওক"</string>
-    <string name="location_1_title" msgid="8811091210405812841">"Google Kirkland"</string>
+    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"ৰং কৰা উৎসৰ ভেক্টৰ"</string>
-    <string name="location_2_title" msgid="7852752167090941096">"Google Bellevue"</string>
     <string name="location_2_description" msgid="3331356135359047166">"প্ৰতিচ্ছবিৰ উৎসৰ বিটমেপ"</string>
-    <string name="location_3_title" msgid="169499850136279697">"Google ছাউথ লে’ক ইউনিয়ন"</string>
     <string name="location_3_description" msgid="3982142774088944850">"ৰং কৰা পাঠৰ চিহ্ন"</string>
-    <string name="location_4_title" msgid="8258300653873954927">"Google Seattle"</string>
     <string name="location_4_description" msgid="6560365445044381911">"প্ৰতিচ্ছবিৰ বিটমেপ"</string>
-    <string name="location_6_title" msgid="6221666052536309889">"Google Bothell"</string>
-    <string name="location_7_title" msgid="3384783200675804248">"ছিৱাৰ্ড উদ্যান"</string>
-    <string name="location_8_title" msgid="733139775013673611">"লুথাৰ বাৰবেংক উদ্যান"</string>
-    <string name="location_9_title" msgid="2549666598000022389">"হেৰিটেজ উদ্যান"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"পাঠৰ লেবেল"</string>
 </resources>

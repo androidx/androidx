@@ -17,7 +17,7 @@
 <resources>
     <attr name="defaultOptionIndex" format="integer" />
     <attr name="displayName" format="string" />
-    <attr name="id" format="string" />
+    <attr name="id" format="reference|string" />
     <attr name="description" format="string" />
     <attr name="accessibilityTraversalIndex" format="integer" />
     <attr name="affectedWatchFaceLayers">
@@ -154,7 +154,9 @@
     <!-- A ComplicationSlotOverlay node may have a single ComplicationSlotBounds child node without
     a complicationType attribute, or one ComplicationSlotBounds per complicationType. -->
     <declare-styleable name="ComplicationSlotOverlay">
-        <attr name="complicationSlotId" format="integer" />
+        <!-- If specified as a resource reference, the string resource should be locale
+        independent.-->
+        <attr name="complicationSlotId" format="integer|reference" />
         <!-- Optional, specifies whether in this ComplicationSlotsOption the specified complication
         slot should be enabled or not. -->
         <attr name="enabled" format="boolean" />

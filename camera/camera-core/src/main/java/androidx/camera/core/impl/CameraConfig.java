@@ -79,14 +79,6 @@ public interface CameraConfig extends ReadableConfig {
     }
 
     /**
-     * Retrieves the status for zsl disabled or not.
-     */
-    @NonNull
-    default Boolean isZslDisabled() {
-        return retrieveOption(OPTION_ZSL_DISABLED, Boolean.FALSE);
-    }
-
-    /**
      * Retrieves the compatibility {@link Identifier}.
      *
      * <p>If camera configs have the same compatibility identifier, they will allow to bind a new

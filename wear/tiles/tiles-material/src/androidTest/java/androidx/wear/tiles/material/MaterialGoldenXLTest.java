@@ -40,7 +40,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RunWith(Parameterized.class)
@@ -103,7 +103,7 @@ public class MaterialGoldenXLTest {
                         .setScreenShape(DeviceParametersBuilders.SCREEN_SHAPE_RECT)
                         .build();
 
-        HashMap<LayoutElement, String> testCases =
+        Map<LayoutElement, String> testCases =
                 generateTestCases(context, deviceParameters, XXXL_SCALE_SUFFIX);
 
         // Restore state before this method, so other test have correct context.
@@ -118,9 +118,8 @@ public class MaterialGoldenXLTest {
                 .getDisplayMetrics()
                 .setTo(currentDisplayMetrics);
 
-        return testCases.entrySet()
-                .stream()
-                .map(test -> new Object[]{test.getKey(), test.getValue()})
+        return testCases.entrySet().stream()
+                .map(test -> new Object[] {test.getKey(), test.getValue()})
                 .collect(Collectors.toList());
     }
 

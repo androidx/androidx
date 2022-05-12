@@ -471,6 +471,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
     method public androidx.car.app.model.CarText? getTitle();
     method public int getType();
+    method @androidx.car.app.annotations.RequiresCarApi(5) public boolean isEnabled();
     method public boolean isStandard();
     method public static String typeToString(int);
     field public static final androidx.car.app.model.Action APP_ICON;
@@ -489,6 +490,7 @@ package androidx.car.app.model {
     ctor @androidx.car.app.annotations.RequiresCarApi(2) public Action.Builder(androidx.car.app.model.Action);
     method public androidx.car.app.model.Action build();
     method public androidx.car.app.model.Action.Builder setBackgroundColor(androidx.car.app.model.CarColor);
+    method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Action.Builder setEnabled(boolean);
     method @androidx.car.app.annotations.RequiresCarApi(4) public androidx.car.app.model.Action.Builder setFlags(int);
     method public androidx.car.app.model.Action.Builder setIcon(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Action.Builder setOnClickListener(androidx.car.app.model.OnClickListener);
@@ -962,6 +964,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.CarText? getTitle();
     method public androidx.car.app.model.Toggle? getToggle();
     method public boolean isBrowsable();
+    method @androidx.car.app.annotations.RequiresCarApi(5) public boolean isEnabled();
     method public androidx.car.app.model.Row row();
     method public CharSequence yourBoat();
     field public static final int IMAGE_TYPE_ICON = 4; // 0x4
@@ -975,6 +978,7 @@ package androidx.car.app.model {
     method public androidx.car.app.model.Row.Builder addText(androidx.car.app.model.CarText);
     method public androidx.car.app.model.Row build();
     method public androidx.car.app.model.Row.Builder setBrowsable(boolean);
+    method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Row.Builder setEnabled(boolean);
     method public androidx.car.app.model.Row.Builder setImage(androidx.car.app.model.CarIcon);
     method public androidx.car.app.model.Row.Builder setImage(androidx.car.app.model.CarIcon, int);
     method public androidx.car.app.model.Row.Builder setMetadata(androidx.car.app.model.Metadata);
@@ -1050,12 +1054,14 @@ package androidx.car.app.model {
   @androidx.car.app.annotations.CarProtocol public final class Toggle {
     method public androidx.car.app.model.OnCheckedChangeDelegate getOnCheckedChangeDelegate();
     method public boolean isChecked();
+    method @androidx.car.app.annotations.RequiresCarApi(5) public boolean isEnabled();
   }
 
   public static final class Toggle.Builder {
     ctor public Toggle.Builder(androidx.car.app.model.Toggle.OnCheckedChangeListener);
     method public androidx.car.app.model.Toggle build();
     method public androidx.car.app.model.Toggle.Builder setChecked(boolean);
+    method @androidx.car.app.annotations.RequiresCarApi(5) public androidx.car.app.model.Toggle.Builder setEnabled(boolean);
   }
 
   public static interface Toggle.OnCheckedChangeListener {

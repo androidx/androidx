@@ -36,6 +36,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -170,7 +171,6 @@ public final class CameraUseCaseAdapter implements Camera {
     public void addUseCases(@NonNull Collection<UseCase> useCases) throws CameraException {
         synchronized (mLock) {
             List<UseCase> newUseCases = new ArrayList<>();
-
             for (UseCase useCase : useCases) {
                 if (mUseCases.contains(useCase)) {
                     Logger.d(TAG, "Attempting to attach already attached UseCase");
@@ -229,6 +229,20 @@ public final class CameraUseCaseAdapter implements Camera {
 
             // Detaches the unnecessary existing extra use cases
             detachUnnecessaryUseCases(removedExtraUseCases);
+
+            // TODO(b/231905455): move to attachUseCase and reset in detachUseCase to handle use
+            //  case bind/rebind.
+            boolean isZslDisabledByCameraConfig = false;
+            boolean isZslDisabledByExtendedConfig = false;
+            for (UseCase useCase : newUseCases) {
+                ConfigPair configPair = configs.get(useCase);
+                isZslDisabledByCameraConfig = configPair.mCameraConfig != null
+                        && configPair.mCameraConfig.isZslDisabled(false);
+                isZslDisabledByExtendedConfig = configPair.mExtendedConfig != null
+                        && configPair.mExtendedConfig.isZslDisabled(false);
+            }
+            mCameraInternal.getCameraControlInternal().setZslDisabledByUserCaseConfig(
+                    isZslDisabledByCameraConfig || isZslDisabledByExtendedConfig);
 
             // At this point the binding will succeed since all the calculations are done
             // Do all attaching related work
@@ -320,7 +334,6 @@ public final class CameraUseCaseAdapter implements Camera {
         }
     }
 
-
     /**
      * When in active resuming mode, it will actively retry opening the camera periodically to
      * resume regardless of the camera availability if the camera is interrupted in
@@ -378,7 +391,7 @@ public final class CameraUseCaseAdapter implements Camera {
             @NonNull List<UseCase> newUseCases,
             @NonNull List<UseCase> currentUseCases,
             @NonNull Map<UseCase, ConfigPair> configPairMap) {
-        List<SurfaceConfig> existingSurfaces = new ArrayList<>();
+        List<AttachedSurfaceInfo> existingSurfaces = new ArrayList<>();
         String cameraId = cameraInfoInternal.getCameraId();
         Map<UseCase, Size> suggestedResolutions = new HashMap<>();
 
@@ -388,7 +401,9 @@ public final class CameraUseCaseAdapter implements Camera {
                     mCameraDeviceSurfaceManager.transformSurfaceConfig(cameraId,
                             useCase.getImageFormat(),
                             useCase.getAttachedSurfaceResolution());
-            existingSurfaces.add(surfaceConfig);
+            existingSurfaces.add(AttachedSurfaceInfo.create(surfaceConfig,
+                    useCase.getImageFormat(), useCase.getAttachedSurfaceResolution(),
+                    useCase.getCurrentConfig().getTargetFramerate(null)));
             suggestedResolutions.put(useCase, useCase.getAttachedSurfaceResolution());
         }
 

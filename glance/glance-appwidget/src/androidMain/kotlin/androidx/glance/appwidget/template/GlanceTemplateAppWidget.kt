@@ -19,6 +19,7 @@ package androidx.glance.appwidget.template
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.unit.Dp
+import androidx.glance.GlanceComposable
 import androidx.glance.LocalSize
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
@@ -46,6 +47,7 @@ public abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
     }
 
     @Composable
+    @GlanceComposable
     abstract fun TemplateContent()
 
     /** Resolves the current display mode */

@@ -22,10 +22,5 @@ import kotlin.contracts.contract
 internal inline fun <T> Lock.synchronized(block: () -> T): T {
     contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
 
-    lock()
-    try {
-        return block()
-    } finally {
-        unlock()
-    }
+    return synchronizedImpl(block)
 }

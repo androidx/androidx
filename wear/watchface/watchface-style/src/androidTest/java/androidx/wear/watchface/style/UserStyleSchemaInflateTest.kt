@@ -165,6 +165,9 @@ class UserStyleSchemaInflateTest {
         val overlays10 = option10.complicationSlotOverlays.toTypedArray()
         assertThat(overlays10.size).isEqualTo(3)
         assertThat(overlays10[0].complicationSlotId).isEqualTo(1)
+        assertThat(overlays10[0].complicationSlotId).isEqualTo(context.resources.getInteger(
+            R.integer.complication_slot_id1
+        ))
         assertThat(overlays10[0].enabled).isFalse()
         assertThat(overlays10[0].accessibilityTraversalIndex).isNull()
         assertThat(overlays10[0].complicationSlotBounds).isNull()
@@ -267,6 +270,15 @@ class UserStyleSchemaInflateTest {
         )
 
         assertThat(simpleListWithParent1).isEqualTo(simpleListSetting)
+        assertThat(simpleListSetting.id.value).isEqualTo(
+            context.resources.getString(R.string.list_setting_common_id)
+        )
+        assertThat(simpleListSetting.options[0].id.toString()).isEqualTo(
+            context.resources.getString(R.string.list_setting_common_option_red_id)
+        )
+        assertThat(simpleListSetting.options[1].id.toString()).isEqualTo(
+            context.resources.getString(R.string.list_setting_common_option_green_id)
+        )
 
         // Check override
         val listSetting1 = schema1.userStyleSettings[1] as UserStyleSetting.ListUserStyleSetting

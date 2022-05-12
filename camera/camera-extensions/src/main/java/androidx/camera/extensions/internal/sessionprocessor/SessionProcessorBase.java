@@ -56,6 +56,9 @@ abstract class SessionProcessorBase implements SessionProcessor {
     @NonNull
     @GuardedBy("mLock")
     private Map<Integer, ImageReader> mImageReaderMap = new HashMap<>();
+    @GuardedBy("mLock")
+    private Map<Integer, Camera2OutputConfig> mOutputConfigMap = new HashMap<>();
+
     @Nullable
     private HandlerThread mImageReaderHandlerThread;
     @GuardedBy("mLock")
@@ -64,6 +67,37 @@ abstract class SessionProcessorBase implements SessionProcessor {
     private String mCameraId;
 
     @NonNull
+    private static SessionProcessorSurface createOutputConfigSurface(
+            @NonNull Camera2OutputConfig outputConfig, Map<Integer, ImageReader> imageReaderMap) {
+        if (outputConfig instanceof SurfaceOutputConfig) {
+            SurfaceOutputConfig surfaceOutputConfig = (SurfaceOutputConfig) outputConfig;
+            SessionProcessorSurface surface =
+                    new SessionProcessorSurface(surfaceOutputConfig.getSurface(),
+                            outputConfig.getId());
+            return surface;
+        } else if (outputConfig instanceof ImageReaderOutputConfig) {
+            ImageReaderOutputConfig imageReaderOutputConfig =
+                    (ImageReaderOutputConfig) outputConfig;
+
+            ImageReader imageReader =
+                    ImageReader.newInstance(imageReaderOutputConfig.getSize().getWidth(),
+                            imageReaderOutputConfig.getSize().getHeight(),
+                            imageReaderOutputConfig.getImageFormat(),
+                            imageReaderOutputConfig.getMaxImages());
+            imageReaderMap.put(outputConfig.getId(), imageReader);
+            SessionProcessorSurface surface =
+                    new SessionProcessorSurface(imageReader.getSurface(),
+                            outputConfig.getId());
+            surface.getTerminationFuture().addListener(() -> {
+                imageReader.close();
+            }, CameraXExecutors.directExecutor());
+            return surface;
+        } else if (outputConfig instanceof MultiResolutionImageReaderOutputConfig) {
+            throw new UnsupportedOperationException("MultiResolutionImageReader not supported yet");
+        }
+        throw new UnsupportedOperationException("Unsupported Camera2OutputConfig:" + outputConfig);
+    }
+    @NonNull
     @Override
     @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public final SessionConfig initSession(@NonNull CameraInfo cameraInfo,
@@ -71,52 +105,41 @@ abstract class SessionProcessorBase implements SessionProcessor {
             @NonNull OutputSurface imageCaptureSurfaceConfig,
             @Nullable OutputSurface imageAnalysisSurfaceConfig) {
         Camera2CameraInfo camera2CameraInfo = Camera2CameraInfo.from(cameraInfo);
+        Map<String, CameraCharacteristics> characteristicsMap =
+                camera2CameraInfo.getCameraCharacteristicsMap();
         Camera2SessionConfig camera2SessionConfig = initSessionInternal(
                 camera2CameraInfo.getCameraId(),
-                camera2CameraInfo.getCameraCharacteristicsMap(),
+                characteristicsMap,
                 previewSurfaceConfig,
                 imageCaptureSurfaceConfig,
                 imageAnalysisSurfaceConfig
         );
 
-        // TODO: Adding support for group id, surface sharing and physicalCameraId in SessionConfig
-        synchronized (mLock) {
-            for (Camera2OutputConfig outputConfig : camera2SessionConfig.getOutputConfigs()) {
-                if (outputConfig instanceof SurfaceOutputConfig) {
-                    SurfaceOutputConfig surfaceOutputConfig = (SurfaceOutputConfig) outputConfig;
-                    SessionProcessorSurface surface =
-                            new SessionProcessorSurface(surfaceOutputConfig.getSurface(),
-                                    outputConfig.getId());
-                    mSurfacesList.add(surface);
-                } else if (outputConfig instanceof ImageReaderOutputConfig) {
-                    ImageReaderOutputConfig imageReaderOutputConfig =
-                            (ImageReaderOutputConfig) outputConfig;
-
-                    ImageReader imageReader =
-                            ImageReader.newInstance(imageReaderOutputConfig.getSize().getWidth(),
-                                    imageReaderOutputConfig.getSize().getHeight(),
-                                    imageReaderOutputConfig.getImageFormat(),
-                                    imageReaderOutputConfig.getMaxImages());
-                    mImageReaderMap.put(outputConfig.getId(), imageReader);
-                    SessionProcessorSurface surface =
-                            new SessionProcessorSurface(imageReader.getSurface(),
-                                    outputConfig.getId());
-                    surface.getTerminationFuture().addListener(() -> {
-                        imageReader.close();
-                    }, CameraXExecutors.directExecutor());
-                    mSurfacesList.add(surface);
-                } else if (outputConfig instanceof MultiResolutionImageReaderOutputConfig) {
-                    // TODO: Support MultiResolutionImageReader
-                    throw new UnsupportedOperationException(
-                            "MultiResolutionImageReader not supported");
-                }
-            }
-        }
-
         SessionConfig.Builder sessionConfigBuilder = new SessionConfig.Builder();
         synchronized (mLock) {
-            for (DeferrableSurface surface : mSurfacesList) {
-                sessionConfigBuilder.addSurface(surface);
+            for (Camera2OutputConfig outputConfig : camera2SessionConfig.getOutputConfigs()) {
+                SessionProcessorSurface sessionProcessorSurface =
+                        createOutputConfigSurface(outputConfig, mImageReaderMap);
+                mSurfacesList.add(sessionProcessorSurface);
+                mOutputConfigMap.put(outputConfig.getId(), outputConfig);
+
+                SessionConfig.OutputConfig.Builder outputConfigBuilder =
+                        SessionConfig.OutputConfig.builder(sessionProcessorSurface)
+                                .setPhysicalCameraId(outputConfig.getPhysicalCameraId())
+                                .setSurfaceGroupId(outputConfig.getSurfaceGroupId());
+
+                List<Camera2OutputConfig> sharedOutputs =
+                        outputConfig.getSurfaceSharingOutputConfigs();
+                if (sharedOutputs != null && !sharedOutputs.isEmpty()) {
+                    List<DeferrableSurface> sharedSurfaces = new ArrayList<>();
+                    for (Camera2OutputConfig sharedOutput : sharedOutputs) {
+                        mOutputConfigMap.put(sharedOutput.getId(), sharedOutput);
+                        sharedSurfaces.add(createOutputConfigSurface(sharedOutput,
+                                mImageReaderMap));
+                    }
+                    outputConfigBuilder.setSharedSurfaces(sharedSurfaces);
+                }
+                sessionConfigBuilder.addOutputConfig(outputConfigBuilder.build());
             }
         }
 
@@ -151,8 +174,11 @@ abstract class SessionProcessorBase implements SessionProcessor {
     protected void setImageProcessor(int outputConfigId,
             @NonNull ImageProcessor imageProcessor) {
         ImageReader imageReader;
+        String physicalCameraId;
         synchronized (mLock) {
             imageReader = mImageReaderMap.get(outputConfigId);
+            Camera2OutputConfig outputConfig = mOutputConfigMap.get(outputConfigId);
+            physicalCameraId = (outputConfig == null ? null : outputConfig.getPhysicalCameraId());
         }
 
         if (imageReader != null) {
@@ -161,7 +187,7 @@ abstract class SessionProcessorBase implements SessionProcessor {
                     Image image = reader.acquireNextImage();
                     ImageReference imageReference = new ImageRefHolder(image);
                     imageProcessor.onNextImageAvailable(outputConfigId, image.getTimestamp(),
-                            imageReference, null);
+                            imageReference, physicalCameraId);
                 } catch (IllegalStateException e) {
                     Logger.e(TAG, "Failed to acquire next image.", e);
                 }
@@ -180,8 +206,8 @@ abstract class SessionProcessorBase implements SessionProcessor {
                 deferrableSurface.close();
             }
             mSurfacesList.clear();
-
             mImageReaderMap.clear();
+            mOutputConfigMap.clear();
         }
 
         if (mImageReaderHandlerThread != null) {

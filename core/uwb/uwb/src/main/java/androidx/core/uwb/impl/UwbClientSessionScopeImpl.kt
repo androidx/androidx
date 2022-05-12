@@ -20,11 +20,10 @@ import android.util.Log
 import androidx.core.uwb.RangingCapabilities
 import androidx.core.uwb.RangingMeasurement
 import androidx.core.uwb.RangingParameters
-import androidx.core.uwb.RangingResultPeerDisconnected
-import androidx.core.uwb.RangingResultPosition
+import androidx.core.uwb.RangingResult.RangingResultPosition
+import androidx.core.uwb.RangingResult.RangingResultPeerDisconnected
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbControleeSessionScope
-import androidx.core.uwb.exceptions.UwbRangingAlreadyStartedException
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.nearby.uwb.RangingPosition
 import com.google.android.gms.nearby.uwb.RangingSessionCallback
@@ -45,13 +44,13 @@ internal class UwbClientSessionScopeImpl(
     }
     private var sessionStarted = false
 
-    override fun initSession(parameters: RangingParameters) = callbackFlow {
+    override fun prepareSession(parameters: RangingParameters) = callbackFlow {
         if (sessionStarted) {
-            throw UwbRangingAlreadyStartedException("Ranging has already started. To initiate " +
+            throw IllegalStateException("Ranging has already started. To initiate " +
                 "a new ranging session, create a new client session scope.")
         }
 
-        val configId = when (parameters.uwbConfigId) {
+        val configId = when (parameters.uwbConfigType) {
             RangingParameters.UWB_CONFIG_ID_1 ->
                 com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_1
             RangingParameters.UWB_CONFIG_ID_3 ->
@@ -59,7 +58,7 @@ internal class UwbClientSessionScopeImpl(
             else ->
                 com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.UNKNOWN
         }
-        val updateRate = when (parameters.updateRate) {
+        val updateRate = when (parameters.updateRateType) {
             RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC ->
                 com.google.android.gms.nearby.uwb.RangingParameters.RangingUpdateRate.AUTOMATIC
             RangingParameters.RANGING_UPDATE_RATE_FREQUENT ->
@@ -74,7 +73,7 @@ internal class UwbClientSessionScopeImpl(
             .setUwbConfigId(configId)
             .setRangingUpdateRate(updateRate)
             .setSessionKeyInfo(parameters.sessionKeyInfo)
-            .setUwbConfigId(parameters.uwbConfigId)
+            .setUwbConfigId(parameters.uwbConfigType)
             .setComplexChannel(
                 parameters.complexChannel?.let {
                     UwbComplexChannel.Builder()

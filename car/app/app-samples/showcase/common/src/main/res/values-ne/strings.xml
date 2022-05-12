@@ -17,560 +17,288 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- no translation found for back_caps_action_title (6392829425035919422) -->
-    <skip />
-    <!-- no translation found for home_caps_action_title (4853167242566949502) -->
-    <skip />
-    <!-- no translation found for exit_action_title (9086586388884500731) -->
-    <skip />
-    <!-- no translation found for refresh_action_title (3674260822403151377) -->
-    <skip />
-    <!-- no translation found for close_action_title (2661907510124308560) -->
-    <skip />
-    <!-- no translation found for grant_access_action_title (4033140828804350723) -->
-    <skip />
-    <!-- no translation found for enable_location_action_title (8181862247222797044) -->
-    <skip />
-    <!-- no translation found for cancel_action_title (1149738685397349236) -->
-    <skip />
-    <!-- no translation found for stop_action_title (1187619482795416314) -->
-    <skip />
-    <!-- no translation found for more_action_title (1039516575011403837) -->
-    <skip />
-    <!-- no translation found for call_action_title (6218977436905001611) -->
-    <skip />
-    <!-- no translation found for primary_action_title (7042003552215710683) -->
-    <skip />
-    <!-- no translation found for options_action_title (1168121856107932984) -->
-    <skip />
-    <!-- no translation found for search_action_title (3483459674263446335) -->
-    <skip />
-    <!-- no translation found for checked_action_title (906023941445896399) -->
-    <skip />
-    <!-- no translation found for unchecked_action_title (802503415474307811) -->
-    <skip />
-    <!-- no translation found for on_action_title (4129601573763429611) -->
-    <skip />
-    <!-- no translation found for off_action_title (8669201170189204848) -->
-    <skip />
-    <!-- no translation found for settings_action_title (8616900063253887861) -->
-    <skip />
-    <!-- no translation found for accept_action_title (6172053420803596132) -->
-    <skip />
-    <!-- no translation found for reject_action_title (6730366705938402668) -->
-    <skip />
-    <!-- no translation found for ok_action_title (7128494973966098611) -->
-    <skip />
-    <!-- no translation found for throw_action_title (7163710562670220163) -->
-    <skip />
-    <!-- no translation found for commute_action_title (2585755255290185096) -->
-    <skip />
-    <!-- no translation found for sign_out_action_title (1653943000866713010) -->
-    <skip />
-    <!-- no translation found for try_anyway_action_title (7384500054249311718) -->
-    <skip />
-    <!-- no translation found for bug_reported_toast_msg (2487119172744644317) -->
-    <skip />
-    <!-- no translation found for zoomed_in_toast_msg (8915301497303842649) -->
-    <skip />
-    <!-- no translation found for zoomed_out_toast_msg (6260981223227212493) -->
-    <skip />
-    <!-- no translation found for triggered_toast_msg (3396166539208366382) -->
-    <skip />
-    <!-- no translation found for primary_toast_msg (7153771322662005447) -->
-    <skip />
-    <!-- no translation found for search_toast_msg (7826530065407699347) -->
-    <skip />
-    <!-- no translation found for options_toast_msg (2146223786877557730) -->
-    <skip />
-    <!-- no translation found for favorite_toast_msg (522064494016370117) -->
-    <skip />
-    <!-- no translation found for not_favorite_toast_msg (6831181108681007428) -->
-    <skip />
-    <!-- no translation found for nav_requested_toast_msg (6696525973145493908) -->
-    <skip />
-    <!-- no translation found for selected_route_toast_msg (3149189677200086656) -->
-    <skip />
-    <!-- no translation found for visible_routes_toast_msg (7065558153736024203) -->
-    <skip />
-    <!-- no translation found for second_item_toast_msg (7210054709419608215) -->
-    <skip />
-    <!-- no translation found for third_item_checked_toast_msg (3022450599567347361) -->
-    <skip />
-    <!-- no translation found for fifth_item_checked_toast_msg (1627599668504718594) -->
-    <skip />
-    <!-- no translation found for sixth_item_toast_msg (6117028866385793707) -->
-    <skip />
-    <!-- no translation found for settings_toast_msg (7697794473002342727) -->
-    <skip />
-    <!-- no translation found for parked_toast_msg (2532422265890824446) -->
-    <skip />
-    <!-- no translation found for more_toast_msg (5938288138225509885) -->
-    <skip />
-    <!-- no translation found for commute_toast_msg (4112684360647638688) -->
-    <skip />
-    <!-- no translation found for grant_location_permission_toast_msg (268046297444808010) -->
-    <skip />
-    <!-- no translation found for sign_in_with_google_toast_msg (5720947549233124775) -->
-    <skip />
-    <!-- no translation found for changes_selection_to_index_toast_msg_prefix (957766225794389167) -->
-    <skip />
-    <!-- no translation found for first_row_title (219428344573165351) -->
-    <skip />
-    <!-- no translation found for first_row_text (3887390298628338716) -->
-    <skip />
-    <!-- no translation found for other_row_title_prefix (4702355788835253197) -->
-    <skip />
-    <!-- no translation found for other_row_text (7510279447493169945) -->
-    <skip />
-    <!-- no translation found for navigate (2713090390373996139) -->
-    <skip />
-    <!-- no translation found for dial (3145707439707628311) -->
-    <skip />
-    <!-- no translation found for address (9010635942573581302) -->
-    <skip />
-    <!-- no translation found for phone (2504766809811627577) -->
-    <skip />
-    <!-- no translation found for fail_start_nav (6921321606009212189) -->
-    <skip />
-    <!-- no translation found for fail_start_dialer (1471602619507306261) -->
-    <skip />
-    <!-- no translation found for car_hardware_demo_title (3679106197233262689) -->
-    <skip />
-    <!-- no translation found for car_hardware_info (1244783247616395012) -->
-    <skip />
-    <!-- no translation found for model_info (494224423025683030) -->
-    <skip />
-    <!-- no translation found for no_model_permission (5333629877014978947) -->
-    <skip />
-    <!-- no translation found for manufacturer_unavailable (4978995415869838056) -->
-    <skip />
-    <!-- no translation found for model_unavailable (4075463010215406573) -->
-    <skip />
-    <!-- no translation found for year_unavailable (994338773299644607) -->
-    <skip />
-    <!-- no translation found for energy_profile (81415433590192158) -->
-    <skip />
-    <!-- no translation found for no_energy_profile_permission (4662285713731308888) -->
-    <skip />
-    <!-- no translation found for fuel_types (6811375173343218212) -->
-    <skip />
-    <!-- no translation found for unavailable (3636401138255192934) -->
-    <skip />
-    <!-- no translation found for ev_connector_types (735458637011996125) -->
-    <skip />
-    <!-- no translation found for example_title (530257630320010494) -->
-    <skip />
-    <!-- no translation found for example_1_text (8456567953748293512) -->
-    <skip />
-    <!-- no translation found for example_2_text (718820705318661440) -->
-    <skip />
-    <!-- no translation found for example_3_text (977269832109695627) -->
-    <skip />
-    <!-- no translation found for example_4_text (2043547015979437373) -->
-    <skip />
-    <!-- no translation found for example_5_text (4387859825054561488) -->
-    <skip />
-    <!-- no translation found for example_6_text (7991523168517599600) -->
-    <skip />
-    <!-- no translation found for color_demo (1822427636476178993) -->
-    <skip />
-    <!-- no translation found for list_limit (3023536401535417286) -->
-    <skip />
-    <!-- no translation found for grid_limit (1350116012893549206) -->
-    <skip />
-    <!-- no translation found for pane_limit (981518409516855230) -->
-    <skip />
-    <!-- no translation found for place_list_limit (6785181191763056582) -->
-    <skip />
-    <!-- no translation found for route_list_limit (505793441615134116) -->
-    <skip />
-    <!-- no translation found for content_limits (5726880972110281095) -->
-    <skip />
-    <!-- no translation found for content_limits_demo_title (3207211638386727610) -->
-    <skip />
-    <!-- no translation found for finish_app_msg (8354334557053141891) -->
-    <skip />
-    <!-- no translation found for finish_app_title (9013328479438745074) -->
-    <skip />
-    <!-- no translation found for finish_app_demo_title (1190976061270691419) -->
-    <skip />
-    <!-- no translation found for loading_demo_title (1086529475809143517) -->
-    <skip />
-    <!-- no translation found for loading_demo_row_title (8933049915126088142) -->
-    <skip />
-    <!-- no translation found for pop_to_root (2078277386355064198) -->
-    <skip />
-    <!-- no translation found for pop_to_marker (5007078308762725207) -->
-    <skip />
-    <!-- no translation found for push_stack (2433062141810168976) -->
-    <skip />
-    <!-- no translation found for pop_to_prefix (4288884615669751608) -->
-    <skip />
-    <!-- no translation found for pop_to_title (3924696281273379455) -->
-    <skip />
-    <!-- no translation found for package_not_found_error_msg (7525619456883627939) -->
-    <skip />
-    <!-- no translation found for permissions_granted_msg (2348556088141992714) -->
-    <skip />
-    <!-- no translation found for needs_access_msg_prefix (2204136858798832382) -->
-    <skip />
-    <!-- no translation found for phone_screen_permission_msg (3599815596923367256) -->
-    <skip />
-    <!-- no translation found for enable_location_permission_on_device_msg (472752487966156897) -->
-    <skip />
-    <!-- no translation found for enable_location_permission_on_phone_msg (5082615523959139121) -->
-    <skip />
-    <!-- no translation found for required_permissions_title (5351791879153568211) -->
-    <skip />
-    <!-- no translation found for request_permissions_title (7456426341142412300) -->
-    <skip />
-    <!-- no translation found for cancel_reservation_title (1374986823057959608) -->
-    <skip />
-    <!-- no translation found for reservation_cancelled_msg (6334213670275547875) -->
-    <skip />
-    <!-- no translation found for result_demo_title (3900525190662148290) -->
-    <skip />
-    <!-- no translation found for not_started_for_result_msg (7498800528148447270) -->
-    <skip />
-    <!-- no translation found for started_for_result_msg (4225260243713833974) -->
-    <skip />
-    <!-- no translation found for arrived_exclamation_msg (9132265698563096988) -->
-    <skip />
-    <!-- no translation found for arrived_address_msg (858838027855534700) -->
-    <skip />
-    <!-- no translation found for current_step_cue (2742662984538730379) -->
-    <skip />
-    <!-- no translation found for next_step_cue (381579039472178611) -->
-    <skip />
-    <!-- no translation found for travel_est_trip_text (5134365408383171144) -->
-    <skip />
-    <!-- no translation found for send_notification_title (4731688444696028193) -->
-    <skip />
-    <!-- no translation found for start_notifications_title (8699668027543530460) -->
-    <skip />
-    <!-- no translation found for stop_notifications_title (3703892710275206239) -->
-    <skip />
-    <!-- no translation found for notification_title (5507590705935298176) -->
-    <skip />
-    <!-- no translation found for importance_title (9034862997821839831) -->
-    <skip />
-    <!-- no translation found for category_title (4783851267093259949) -->
-    <skip />
-    <!-- no translation found for ongoing_title (4957996003270280496) -->
-    <skip />
-    <!-- no translation found for notification_demo (1819496937832036387) -->
-    <skip />
-    <!-- no translation found for misc_demo_title (7399959062407349380) -->
-    <skip />
-    <!-- no translation found for navigating_demo_title (7454579665387386476) -->
-    <skip />
-    <!-- no translation found for arrived_demo_title (6708013121387053838) -->
-    <skip />
-    <!-- no translation found for junction_image_demo_title (3302979708776502314) -->
-    <skip />
-    <!-- no translation found for nav_template_demos_title (8215835368932160866) -->
-    <skip />
-    <!-- no translation found for map_template_pane_demo_title (4849450903277412004) -->
-    <skip />
-    <!-- no translation found for map_template_list_demo_title (1473810899303903185) -->
-    <skip />
-    <!-- no translation found for start_notification_title (2208831088632818681) -->
-    <skip />
-    <!-- no translation found for stop_notification_title (3709643750540881176) -->
-    <skip />
-    <!-- no translation found for nav_notification_demo_title (4448683262984308442) -->
-    <skip />
-    <!-- no translation found for go_straight (2301747728609198718) -->
-    <skip />
-    <!-- no translation found for turn_right (4710562732720109969) -->
-    <skip />
-    <!-- no translation found for take_520 (3804796387195842741) -->
-    <skip />
-    <!-- no translation found for gas_station (1203313937444666161) -->
-    <skip />
-    <!-- no translation found for short_route (4831864276538141265) -->
-    <skip />
-    <!-- no translation found for less_busy (310625272281710983) -->
-    <skip />
-    <!-- no translation found for hov_friendly (6956152104754594971) -->
-    <skip />
-    <!-- no translation found for long_route (4737969235741057506) -->
-    <skip />
-    <!-- no translation found for continue_start_nav (6231797535084469163) -->
-    <skip />
-    <!-- no translation found for continue_route (5172258139245088080) -->
-    <skip />
-    <!-- no translation found for routes_title (7799772149932075357) -->
-    <skip />
-    <!-- no translation found for place_list_nav_template_demo_title (8019588508812955290) -->
-    <skip />
-    <!-- no translation found for route_preview_template_demo_title (7878704357953167555) -->
-    <skip />
-    <!-- no translation found for notification_template_demo_title (5076051497316030274) -->
-    <skip />
-    <!-- no translation found for nav_map_template_demo_title (344985380763975398) -->
-    <skip />
-    <!-- no translation found for nav_demos_title (72781206086461004) -->
-    <skip />
-    <!-- no translation found for no_toll_card_permission (6789073114449712090) -->
-    <skip />
-    <!-- no translation found for no_energy_level_permission (1684773185095107825) -->
-    <skip />
-    <!-- no translation found for no_speed_permission (5812532480922675390) -->
-    <skip />
-    <!-- no translation found for no_mileage_permission (4074779840599589847) -->
-    <skip />
-    <!-- no translation found for no_ev_status_permission (933075402821938973) -->
-    <skip />
-    <!-- no translation found for no_accelerometer_permission (896914448469117234) -->
-    <skip />
-    <!-- no translation found for no_gyroscope_permission (665293140266771569) -->
-    <skip />
-    <!-- no translation found for no_compass_permission (5162304489577567125) -->
-    <skip />
-    <!-- no translation found for no_car_hardware_location (3505517472938045093) -->
-    <skip />
-    <!-- no translation found for fetch_toll_info (6864627977128179834) -->
-    <skip />
-    <!-- no translation found for fetch_energy_level (1773415471137542832) -->
-    <skip />
-    <!-- no translation found for fetch_speed (7333830984597189627) -->
-    <skip />
-    <!-- no translation found for fetch_mileage (7490131687788025123) -->
-    <skip />
-    <!-- no translation found for fetch_ev_status (2798910410830567052) -->
-    <skip />
-    <!-- no translation found for fetch_accelerometer (697750041126810911) -->
-    <skip />
-    <!-- no translation found for fetch_gyroscope (7153155318827188539) -->
-    <skip />
-    <!-- no translation found for fetch_compass (7316188117590056717) -->
-    <skip />
-    <!-- no translation found for fetch_location (5015066922035852615) -->
-    <skip />
-    <!-- no translation found for toll_card_state (4430544885695162226) -->
-    <skip />
-    <!-- no translation found for low_energy (3462774027012877028) -->
-    <skip />
-    <!-- no translation found for range (8744960568263400641) -->
-    <skip />
-    <!-- no translation found for fuel (4253578650127250651) -->
-    <skip />
-    <!-- no translation found for battery (2183623637331546820) -->
-    <skip />
-    <!-- no translation found for display_speed (9161318805331348165) -->
-    <skip />
-    <!-- no translation found for raw_speed (7295910214088983967) -->
-    <skip />
-    <!-- no translation found for unit (7697521583928135171) -->
-    <skip />
-    <!-- no translation found for odometer (3925174645651546591) -->
-    <skip />
-    <!-- no translation found for ev_connected (2277845607662494696) -->
-    <skip />
-    <!-- no translation found for ev_open (4916704450914519643) -->
-    <skip />
-    <!-- no translation found for accelerometer (2084026313768299185) -->
-    <skip />
-    <!-- no translation found for gyroscope (3428075828014504651) -->
-    <skip />
-    <!-- no translation found for compass (7037367764762441245) -->
-    <skip />
-    <!-- no translation found for car_hardware_location (5826128477363068617) -->
-    <skip />
-    <!-- no translation found for non_actionable (8999757911111188784) -->
-    <skip />
-    <!-- no translation found for second_item (5245792503030812493) -->
-    <skip />
-    <!-- no translation found for third_item (334088179008716411) -->
-    <skip />
-    <!-- no translation found for fourth_item (1153409687260543158) -->
-    <skip />
-    <!-- no translation found for fifth_item (295284272719956932) -->
-    <skip />
-    <!-- no translation found for sixth_item (3880321601391343607) -->
-    <skip />
-    <!-- no translation found for grid_template_demo_title (6159115661928982245) -->
-    <skip />
-    <!-- no translation found for parked_only_title (3190603222397552672) -->
-    <skip />
-    <!-- no translation found for parked_only_text (8720610556452272916) -->
-    <skip />
-    <!-- no translation found for clicked_row_prefix (9068303427922069941) -->
-    <skip />
-    <!-- no translation found for first_line_text (6648055806656590336) -->
-    <skip />
-    <!-- no translation found for second_line_text (38664490158836864) -->
-    <skip />
-    <!-- no translation found for title_prefix (3991742709199357049) -->
-    <skip />
-    <!-- no translation found for list_template_demo_title (1740208242737246151) -->
-    <skip />
-    <!-- no translation found for long_msg_template_demo_title (1793748562161438131) -->
-    <skip />
-    <!-- no translation found for long_msg_template_text (418743506180774764) -->
-    <skip />
-    <!-- no translation found for long_msg_template_not_supported_text (3641559637317672505) -->
-    <skip />
-    <!-- no translation found for long_msg_template_not_supported_title (8600719470226274925) -->
-    <skip />
-    <!-- no translation found for msg_template_demo_title (3895210951340409473) -->
-    <skip />
-    <!-- no translation found for msg_template_demo_text (2275291617716161409) -->
-    <skip />
-    <!-- no translation found for pane_template_demo_title (7804292600060341608) -->
-    <skip />
-    <!-- no translation found for place_list_template_demo_title (2054022985455460469) -->
-    <skip />
-    <!-- no translation found for browse_places_title (7246005909846715898) -->
-    <skip />
+    <string name="back_caps_action_title" msgid="6392829425035919422">"पछाडि"</string>
+    <string name="home_caps_action_title" msgid="4853167242566949502">"होम"</string>
+    <string name="exit_action_title" msgid="9086586388884500731">"बाहिरिनुहोस्"</string>
+    <string name="refresh_action_title" msgid="3674260822403151377">"रिफ्रेस गर्नुहोस्"</string>
+    <string name="close_action_title" msgid="2661907510124308560">"बन्द गर्नुहोस्"</string>
+    <string name="grant_access_action_title" msgid="4033140828804350723">"अनुमति दिनुहोस्"</string>
+    <string name="enable_location_action_title" msgid="8181862247222797044">"लोकेसन अन गर्नुहोस्"</string>
+    <string name="cancel_action_title" msgid="1149738685397349236">"रद्द गर्नुहोस्"</string>
+    <string name="stop_action_title" msgid="1187619482795416314">"रोक्नुहोस्"</string>
+    <string name="more_action_title" msgid="1039516575011403837">"थप"</string>
+    <string name="call_action_title" msgid="6218977436905001611">"कल गर्नुहोस्"</string>
+    <string name="primary_action_title" msgid="7042003552215710683">"प्राइमरी"</string>
+    <string name="options_action_title" msgid="1168121856107932984">"विकल्पहरू"</string>
+    <string name="search_action_title" msgid="3483459674263446335">"खोज्नुहोस्"</string>
+    <string name="checked_action_title" msgid="906023941445896399">"चिन्ह लगाइयो"</string>
+    <string name="unchecked_action_title" msgid="802503415474307811">"चिन्ह नलगाइएको"</string>
+    <string name="on_action_title" msgid="4129601573763429611">"अन छ"</string>
+    <string name="off_action_title" msgid="8669201170189204848">"अफ छ"</string>
+    <string name="settings_action_title" msgid="8616900063253887861">"सेटिङ"</string>
+    <!-- no translation found for accept_action_title (4899660585470647578) -->
+    <skip />
+    <string name="reject_action_title" msgid="6730366705938402668">"अस्वीकार गर्नुहोस्"</string>
+    <string name="ok_action_title" msgid="7128494973966098611">"ठिक छ"</string>
+    <string name="throw_action_title" msgid="7163710562670220163">"थ्रो"</string>
+    <string name="commute_action_title" msgid="2585755255290185096">"यात्रा"</string>
+    <string name="sign_out_action_title" msgid="1653943000866713010">"साइन आउट गर्नुहोस्"</string>
+    <string name="try_anyway_action_title" msgid="7384500054249311718">"जे भए पनि प्रयास गर्नुहोस्"</string>
+    <string name="yes_action_title" msgid="5507096013762092189">"अँ"</string>
+    <string name="no_action_title" msgid="1452124604210014010">"अहँ"</string>
+    <string name="bug_reported_toast_msg" msgid="2487119172744644317">"त्रुटिको रिपोर्ट गरियो!"</string>
+    <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"जुम इन गरियो"</string>
+    <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"जुम आउट गरियो"</string>
+    <string name="triggered_toast_msg" msgid="3396166539208366382">"सुरु भएको छ"</string>
+    <string name="primary_toast_msg" msgid="7153771322662005447">"प्राइमरी बटन थिचियो"</string>
+    <string name="search_toast_msg" msgid="7826530065407699347">"\"खोज्नुहोस्\" बटन थिचियो"</string>
+    <string name="options_toast_msg" msgid="2146223786877557730">"\"विकल्पहरू\" बटन थिचियो"</string>
+    <string name="favorite_toast_msg" msgid="522064494016370117">"मन पर्ने कुराहरू!"</string>
+    <string name="not_favorite_toast_msg" msgid="6831181108681007428">"मन नपर्ने कुराहरू!"</string>
+    <string name="nav_requested_toast_msg" msgid="6696525973145493908">"नेभिगेट गर्ने अनुरोध गरियो"</string>
+    <string name="selected_route_toast_msg" msgid="3149189677200086656">"चयन गरिएको मार्ग"</string>
+    <string name="visible_routes_toast_msg" msgid="7065558153736024203">"देखिने मार्गहरू"</string>
+    <string name="second_item_toast_msg" msgid="7210054709419608215">"दोस्रो वस्तुमा क्लिक गरियो"</string>
+    <string name="third_item_checked_toast_msg" msgid="3022450599567347361">"तेस्रो वस्तु चयन गरियो"</string>
+    <string name="fifth_item_checked_toast_msg" msgid="1627599668504718594">"पाँचौँ वस्तुमा चिन्ह लगाइयो"</string>
+    <string name="sixth_item_toast_msg" msgid="6117028866385793707">"छैठौँ वस्तुमा क्लिक गरियो"</string>
+    <string name="settings_toast_msg" msgid="7697794473002342727">"क्लिक गरिएको सेटिङ"</string>
+    <string name="parked_toast_msg" msgid="2532422265890824446">"पार्क गरिने कार्य"</string>
+    <string name="more_toast_msg" msgid="5938288138225509885">"\"थप\" मा क्लिक गरियो"</string>
+    <string name="commute_toast_msg" msgid="4112684360647638688">"यात्राको बटन थिचियो"</string>
+    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"हालको लोकेसन हेर्न लोकेसनसम्बन्धी अनुमति दिनुहोस्"</string>
+    <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Google प्रयोग गरी साइन इन गर्ने कार्य सुरु भयो"</string>
+    <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"चयन गरिएको मान परिवर्तन गरेर इन्डेक्स बनाइयो"</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"अँ, बटन थिचियो!"</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"कुनै पनि बटन थिचिएको छैन!"</string>
+    <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"अलर्टको टाइम आउट भयो!"</string>
+    <string name="first_row_title" msgid="219428344573165351">"ठुलो फोटो भएको रो र लामो टेक्स्ट लामो टेक्स्ट लामो टेक्स्ट लामो टेक्स्ट लामो टेक्स्ट"</string>
+    <string name="first_row_text" msgid="3887390298628338716">"टेक्स्ट टेक्स्ट टेक्स्ट"</string>
+    <string name="other_row_title_prefix" msgid="4702355788835253197">"रोको शीर्षक"</string>
+    <string name="other_row_text" msgid="7510279447493169945">"रोको टेक्स्ट"</string>
+    <string name="navigate" msgid="2713090390373996139">"नेभिगेट गर्नुहोस्"</string>
+    <string name="dial" msgid="3145707439707628311">"डायल गर्नुहोस्"</string>
+    <string name="address" msgid="9010635942573581302">"ठेगाना"</string>
+    <string name="phone" msgid="2504766809811627577">"फोन"</string>
+    <string name="fail_start_nav" msgid="6921321606009212189">"नेभिगेसन सुरु गर्न सकिएन"</string>
+    <string name="fail_start_dialer" msgid="1471602619507306261">"डायलर सुरु गर्न सकिएन"</string>
+    <string name="car_hardware_demo_title" msgid="3679106197233262689">"कारको हार्डवेयरको डेमो"</string>
+    <string name="car_hardware_info" msgid="1244783247616395012">"कारको हार्डवेयरसम्बन्धी जानकारी"</string>
+    <string name="model_info" msgid="494224423025683030">"मोडेलसम्बन्धी जानकारी"</string>
+    <string name="no_model_permission" msgid="5333629877014978947">"मोडेलसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन"</string>
+    <string name="manufacturer_unavailable" msgid="4978995415869838056">"उत्पादक उपलब्ध हुनुहुन्न"</string>
+    <string name="model_unavailable" msgid="4075463010215406573">"मोडेल उपलब्ध छैन"</string>
+    <string name="year_unavailable" msgid="994338773299644607">"वर्ष उपलब्ध छैन"</string>
+    <string name="energy_profile" msgid="81415433590192158">"इनर्जी प्रोफाइल"</string>
+    <string name="no_energy_profile_permission" msgid="4662285713731308888">"इनर्जी प्रोफाइलसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन"</string>
+    <string name="fuel_types" msgid="6811375173343218212">"इन्धनका प्रकारहरू"</string>
+    <string name="unavailable" msgid="3636401138255192934">"उपलब्ध छैन"</string>
+    <string name="ev_connector_types" msgid="735458637011996125">"EV कनेक्टरका प्रकारहरू"</string>
+    <string name="example_title" msgid="530257630320010494">"उदाहरण %d"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"यो टेक्स्ट रातो रङको हो"</string>
+    <string name="example_2_text" msgid="718820705318661440">"यो टेक्स्ट हरियो रङको हो"</string>
+    <string name="example_3_text" msgid="977269832109695627">"यो टेक्स्ट निलो रङको हो"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"यो टेक्स्ट पहेँलो रङको हो"</string>
+    <string name="example_5_text" msgid="4387859825054561488">"यो टेक्स्टले मुख्य रङ प्रयोग गर्छ"</string>
+    <string name="example_6_text" msgid="7991523168517599600">"यो टेक्स्टले सहायक रङ प्रयोग गर्छ"</string>
+    <string name="color_demo" msgid="1822427636476178993">"रङको डेमो"</string>
+    <string name="list_limit" msgid="3023536401535417286">"सूचीको सीमा"</string>
+    <string name="grid_limit" msgid="1350116012893549206">"ग्रिडको सीमा"</string>
+    <string name="pane_limit" msgid="981518409516855230">"पेनको सीमा"</string>
+    <string name="place_list_limit" msgid="6785181191763056582">"ठाउँको सूचीको सीमा"</string>
+    <string name="route_list_limit" msgid="505793441615134116">"मार्गको सूचीको सीमा"</string>
+    <string name="content_limits" msgid="5726880972110281095">"सामग्रीको सीमा"</string>
+    <string name="content_limits_demo_title" msgid="3207211638386727610">"सामग्रीको सीमाको डेमो"</string>
+    <string name="finish_app_msg" msgid="8354334557053141891">"यस कार्यले एप बन्द हुने छ र तपाईंले एप पुनः सुरु गर्नुभयो भने अनुमतिका लागि अनुरोध गर्ने स्क्रिन देखिने छ"</string>
+    <string name="finish_app_title" msgid="9013328479438745074">"एपको डेमो बन्द गर्नुहोस्"</string>
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"तपाईंले अर्को पटक डेमो सुरु गर्दा अनुमति माग्न अनुरोध गर्ने स्क्रिन थपिने छ"</string>
+    <string name="loading_demo_title" msgid="1086529475809143517">"डेमो लोड हुँदै छ"</string>
+    <string name="loading_demo_row_title" msgid="8933049915126088142">"लोड गर्ने कार्य पूरा भयो!"</string>
+    <string name="pop_to_root" msgid="2078277386355064198">"पहिलो स्क्रिनमा जानुहोस्"</string>
+    <string name="pop_to_marker" msgid="5007078308762725207">"विविध डेमोको मार्करमा जानुहोस्"</string>
+    <string name="push_stack" msgid="2433062141810168976">"स्ट्याकको अगाडि हाल्नुहोस्"</string>
+    <string name="pop_to_prefix" msgid="4288884615669751608">"जानुहोस्"</string>
+    <string name="pop_to_title" msgid="3924696281273379455">"डेमोमा जानुहोस्"</string>
+    <string name="package_not_found_error_msg" msgid="7525619456883627939">"प्याकेज भेट्टिएन।"</string>
+    <string name="permissions_granted_msg" msgid="2348556088141992714">"सबै अनुमतिहरू दिइएका छन्। कृपया सेटिङमा गई तपाईंले दिनुभएका अनुमतिहरू खारेज गर्नुहोस्।"</string>
+    <string name="needs_access_msg_prefix" msgid="2204136858798832382">"यो एपलाई निम्न अनुमति चाहिन्छ:\n"</string>
+    <string name="phone_screen_permission_msg" msgid="3599815596923367256">"फोनको स्क्रिनमा अनुमति दिनुहोस्"</string>
+    <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"डिभाइसमा लोकेसनसम्बन्धी अनुमतिहरू अन गर्नुहोस्"</string>
+    <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"फोनको स्क्रिनमा लोकेसन अन गर्नुहोस्"</string>
+    <string name="required_permissions_title" msgid="5351791879153568211">"आवश्यक अनुमतिहरू"</string>
+    <string name="request_permissions_title" msgid="7456426341142412300">"अनुमतिसम्बन्धी अनुरोधको डेमो"</string>
+    <string name="cancel_reservation_title" msgid="1374986823057959608">"रिजर्भेसन रद्द गरेको देखाउने स्क्रिन"</string>
+    <string name="reservation_cancelled_msg" msgid="6334213670275547875">"रिजर्भेसन रद्द गरियो"</string>
+    <string name="result_demo_title" msgid="3900525190662148290">"परिणामको डेमो"</string>
+    <string name="not_started_for_result_msg" msgid="7498800528148447270">"यो एप परिणाम प्राप्त गर्नका लागि सुरु गरिएको होइन"</string>
+    <string name="started_for_result_msg" msgid="4225260243713833974">"%s ले यो एपबाट परिणाम माग्नुभयो। कल गर्ने व्यक्तिलाई पठाउने परिणाम चयन गर्नुहोस्"</string>
+    <string name="arrived_exclamation_msg" msgid="9132265698563096988">"आइपुग्यो!"</string>
+    <string name="travel_est_trip_text" msgid="5134365408383171144">"पिक अप Alice"</string>
+    <string name="send_notification_title" msgid="4731688444696028193">"सूचना पठाउनुहोस्"</string>
+    <string name="start_notifications_title" msgid="8699668027543530460">"सूचनाहरू प्राप्त गर्ने सुविधा अन गर्नुहोस्"</string>
+    <string name="stop_notifications_title" msgid="3703892710275206239">"सूचनाहरू प्राप्त गर्ने सुविधा अफ गर्नुहोस्"</string>
+    <string name="notification_title" msgid="5507590705935298176">"सूचना"</string>
+    <string name="importance_title" msgid="9034862997821839831">"महत्त्व"</string>
+    <string name="category_title" msgid="4783851267093259949">"कोटी"</string>
+    <string name="ongoing_title" msgid="4957996003270280496">"चलिरहेको छ"</string>
+    <!-- no translation found for default_importance (6347996298832939989) -->
+    <skip />
+    <!-- no translation found for high_importance (5009120714837304882) -->
+    <skip />
+    <!-- no translation found for low_importance (4721161314404294033) -->
+    <skip />
+    <!-- no translation found for unknown_importance (909001735933359216) -->
+    <skip />
+    <string name="notification_demo" msgid="1819496937832036387">"सूचनाको डेमो"</string>
+    <string name="misc_demo_title" msgid="7399959062407349380">"विविध डेमोहरू"</string>
+    <string name="navigating_demo_title" msgid="7454579665387386476">"डेमो नेभिगेट गरिँदै छ"</string>
+    <string name="arrived_demo_title" msgid="6708013121387053838">"\"आइपुग्यो\" डेमो"</string>
+    <string name="junction_image_demo_title" msgid="3302979708776502314">"जङ्क्सन फोटोको डेमो"</string>
+    <string name="nav_template_demos_title" msgid="8215835368932160866">"नेभिगेसन टेम्प्लेटका डेमोहरू"</string>
+    <string name="map_template_pane_demo_title" msgid="4849450903277412004">"पेन डेमो भएको नक्साको टेम्प्लेट"</string>
+    <string name="map_template_list_demo_title" msgid="1473810899303903185">"सूचीको डेमो भएको नक्साको टेम्प्लेट"</string>
+    <string name="start_notification_title" msgid="2208831088632818681">"सूचना प्राप्त गर्ने सुविधा अन गर्नुहोस्"</string>
+    <string name="stop_notification_title" msgid="3709643750540881176">"सूचना प्राप्त गर्ने सुविधा अफ गर्नुहोस्"</string>
+    <string name="nav_notification_demo_title" msgid="4448683262984308442">"नेभिगेसनसम्बन्धी सूचनाको डेमो"</string>
+    <string name="go_straight" msgid="2301747728609198718">"सीधा जानुहोस्"</string>
+    <string name="turn_right" msgid="4710562732720109969">"दायाँ घुम्नुहोस्"</string>
+    <string name="take_520" msgid="3804796387195842741">"520 मार्गबाट जानुहोस्"</string>
+    <string name="gas_station" msgid="1203313937444666161">"पेट्रोल पम्प"</string>
+    <string name="short_route" msgid="4831864276538141265">"छोटो मार्ग"</string>
+    <string name="less_busy" msgid="310625272281710983">"कम व्यस्त"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"HOV मैत्री"</string>
+    <string name="long_route" msgid="4737969235741057506">"लामो मार्ग"</string>
+    <string name="continue_start_nav" msgid="6231797535084469163">"नेभिगेट गर्न थाल्ने कार्य जारी राख्नुहोस्"</string>
+    <string name="continue_route" msgid="5172258139245088080">"यो मार्गमा जारी राख्नुहोस्"</string>
+    <string name="routes_title" msgid="7799772149932075357">"मार्गहरू"</string>
+    <string name="place_list_nav_template_demo_title" msgid="8019588508812955290">"ठाउँको सूचीका लागि नेभिगेसनको टेम्प्लेटको डेमो"</string>
+    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"मार्ग प्रिभ्यू गर्ने टेम्प्लेटको डेमो"</string>
+    <string name="notification_template_demo_title" msgid="5076051497316030274">"सूचनाको टेम्प्लेटको डेमो"</string>
+    <string name="nav_map_template_demo_title" msgid="344985380763975398">"नक्सा नेभिगेसनको टेम्प्लेटको डेमो मात्र"</string>
+    <string name="nav_demos_title" msgid="72781206086461004">"नेभिगेसनका डेमोहरू"</string>
+    <string name="navigation_alert_title" msgid="8306554249264200848">"अझै पनि गतिको मापन गर्ने डिभाइस चलाइरहनुभएको छ?"</string>
+    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"१० मिनेटअघि रिपोर्ट गरिएको"</string>
+    <string name="no_toll_card_permission" msgid="6789073114449712090">"टोल कार्डसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
+    <string name="no_energy_level_permission" msgid="1684773185095107825">"इनर्जी लेभलसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
+    <string name="no_speed_permission" msgid="5812532480922675390">"गतिसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
+    <string name="no_mileage_permission" msgid="4074779840599589847">"माइलेजसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
+    <string name="no_ev_status_permission" msgid="933075402821938973">"EV को स्थितिसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
+    <string name="no_accelerometer_permission" msgid="896914448469117234">"प्रवेगमिटरसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
+    <string name="no_gyroscope_permission" msgid="665293140266771569">"जाइरोस्कपसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
+    <string name="no_compass_permission" msgid="5162304489577567125">"कम्पाससम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
+    <string name="no_car_hardware_location" msgid="3505517472938045093">"कारको हार्डवेयरको लोकेसनसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
+    <string name="fetch_toll_info" msgid="6864627977128179834">"टोलसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
+    <string name="fetch_energy_level" msgid="1773415471137542832">"इनर्जी लेभलसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
+    <string name="fetch_speed" msgid="7333830984597189627">"गतिसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
+    <string name="fetch_mileage" msgid="7490131687788025123">"माइलेजसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
+    <string name="fetch_ev_status" msgid="2798910410830567052">"EV को स्थितिसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
+    <string name="fetch_accelerometer" msgid="697750041126810911">"प्रवेगमिटरसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
+    <string name="fetch_gyroscope" msgid="7153155318827188539">"जाइरोस्कपसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
+    <string name="fetch_compass" msgid="7316188117590056717">"कम्पाससम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
+    <string name="fetch_location" msgid="5015066922035852615">"लोकेसनसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
+    <string name="toll_card_state" msgid="4430544885695162226">"टोल कार्डको स्थिति"</string>
+    <string name="low_energy" msgid="3462774027012877028">"कम इनर्जी"</string>
+    <string name="range" msgid="8744960568263400641">"दायरा"</string>
+    <string name="fuel" msgid="4253578650127250651">"इन्धन"</string>
+    <string name="battery" msgid="2183623637331546820">"ब्याट्री"</string>
+    <string name="display_speed" msgid="9161318805331348165">"गति देखाउनुहोस्"</string>
+    <string name="raw_speed" msgid="7295910214088983967">"र स्पिड"</string>
+    <string name="unit" msgid="7697521583928135171">"एकाइ"</string>
+    <string name="odometer" msgid="3925174645651546591">"ओडोमिटर"</string>
+    <string name="ev_connected" msgid="2277845607662494696">"Ev चार्जिङ पोर्ट कनेक्ट गरियो"</string>
+    <string name="ev_open" msgid="4916704450914519643">"Ev चार्जिङ पोर्ट खुला छ"</string>
+    <string name="accelerometer" msgid="2084026313768299185">"प्रवेगमिटर"</string>
+    <string name="gyroscope" msgid="3428075828014504651">"जाइरोस्कप"</string>
+    <string name="compass" msgid="7037367764762441245">"कम्पास"</string>
+    <string name="car_hardware_location" msgid="5826128477363068617">"कारको हार्डवेयरको लोकेसन"</string>
+    <string name="non_actionable" msgid="8999757911111188784">"कारबाही गर्न नमिल्ने"</string>
+    <string name="second_item" msgid="5245792503030812493">"दोस्रो वस्तु"</string>
+    <string name="third_item" msgid="334088179008716411">"तेस्रो वस्तु"</string>
+    <string name="fourth_item" msgid="1153409687260543158">"चौथो वस्तु"</string>
+    <string name="fifth_item" msgid="295284272719956932">"पाँचौँ वस्तुको शीर्षक लामो छ"</string>
+    <string name="sixth_item" msgid="3880321601391343607">"छैठौँ वस्तुको शीर्षक लामो छ"</string>
+    <string name="grid_template_demo_title" msgid="6159115661928982245">"ग्रिड टेम्प्लेटको डेमो"</string>
+    <string name="parked_only_title" msgid="3190603222397552672">"\"पार्क मात्र गरियो\" को शीर्षक"</string>
+    <string name="parked_only_text" msgid="8720610556452272916">"\"पार्क मात्र गरियो\" मा दिइएको थप टेक्स्ट।"</string>
+    <string name="clicked_row_prefix" msgid="9068303427922069941">"क्लिक गरिएको रो"</string>
+    <string name="first_line_text" msgid="6648055806656590336">"टेक्स्टको पहिलो हरफ"</string>
+    <string name="second_line_text" msgid="38664490158836864">"टेक्स्टको दोस्रो हरफ"</string>
+    <string name="title_prefix" msgid="3991742709199357049">"शीर्षक"</string>
+    <string name="list_template_demo_title" msgid="1740208242737246151">"सूचीको टेम्प्लेटको डेमो"</string>
+    <string name="long_msg_template_demo_title" msgid="1793748562161438131">"लामो म्यासेजको टेम्प्लेटको डेमो"</string>
+    <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"तपाईंको होस्टमा लामो म्यासेजको टेम्प्लेट प्रयोग गर्न मिल्दैन"</string>
+    <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"अमिल्दो होस्ट"</string>
+    <string name="msg_template_demo_title" msgid="3895210951340409473">"म्यासेजको टेम्प्लेटको डेमो"</string>
+    <string name="msg_template_demo_text" msgid="2275291617716161409">"म्यासेज यहाँ लेखिने छ।\nथप टेक्स्ट लेख्न दोस्रो हरफमा जानुहोस्।"</string>
+    <string name="pane_template_demo_title" msgid="7804292600060341608">"पेनको टम्प्लेटको डेमो"</string>
+    <string name="place_list_template_demo_title" msgid="2054022985455460469">"ठाउँको सूचीको टेम्प्लेटको डेमो"</string>
+    <string name="browse_places_title" msgid="7246005909846715898">"ठाउँहरू ब्राउज गर्नुहोस्"</string>
     <string name="search_template_demo_title" msgid="1770474418958318114">"खोज टेम्प्लेटको डेमो"</string>
-    <!-- no translation found for search_hint (978495498991026792) -->
-    <skip />
-    <!-- no translation found for additional_text (8410289578276941586) -->
-    <skip />
-    <!-- no translation found for google_sign_in (6556259799319701727) -->
-    <skip />
-    <!-- no translation found for use_pin (7850893299484337431) -->
-    <skip />
-    <!-- no translation found for qr_code (5487041647280777397) -->
-    <skip />
-    <!-- no translation found for sign_in_template_not_supported_text (7184733753948837646) -->
-    <skip />
-    <!-- no translation found for sign_in_template_not_supported_title (4892883228898541764) -->
-    <skip />
-    <!-- no translation found for email_hint (7205549445477319606) -->
-    <skip />
-    <!-- no translation found for sign_in_title (4551967308262681703) -->
-    <skip />
-    <!-- no translation found for sign_in_instructions (9044850228284294762) -->
-    <skip />
-    <!-- no translation found for invalid_email_error_msg (5261362663718987167) -->
-    <skip />
-    <!-- no translation found for invalid_length_error_msg (8238905276326976425) -->
-    <skip />
-    <!-- no translation found for invalid_password_error_msg (1090359893902674610) -->
-    <skip />
-    <!-- no translation found for password_hint (2869107073860012864) -->
-    <skip />
-    <!-- no translation found for password_sign_in_instruction_prefix (9105788349198243508) -->
-    <skip />
-    <!-- no translation found for pin_sign_in_instruction (2288691296234360441) -->
-    <skip />
-    <!-- no translation found for qr_code_sign_in_title (8137070561006464518) -->
-    <skip />
-    <!-- no translation found for sign_in_with_google_title (8043752000786977249) -->
-    <skip />
-    <!-- no translation found for provider_sign_in_instruction (7586815688292506743) -->
-    <skip />
-    <!-- no translation found for sign_in_complete_text (8423984266325680606) -->
-    <skip />
-    <!-- no translation found for sign_in_complete_title (8919868148773983428) -->
-    <skip />
+    <string name="search_hint" msgid="978495498991026792">"यहाँ खोज्नुहोस्"</string>
+    <string name="additional_text" msgid="8410289578276941586">"कृपया हाम्रा सेवाका सर्तहरूको समीक्षा गर्नुहोस्"</string>
+    <string name="google_sign_in" msgid="6556259799319701727">"Google साइन इन"</string>
+    <string name="use_pin" msgid="7850893299484337431">"PIN प्रयोग गर्नुहोस्"</string>
+    <string name="qr_code" msgid="5487041647280777397">"QR कोड"</string>
+    <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"तपाईंको होस्टमा साइन इनको टेम्प्लेटले काम गर्दैन"</string>
+    <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"अमिल्दो होस्ट"</string>
+    <string name="email_hint" msgid="7205549445477319606">"इमेल"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"साइन इन गर्नुहोस्"</string>
+    <string name="sign_in_instructions" msgid="9044850228284294762">"आफ्ना युजरनेम तथा पासवर्ड हाल्नुहोस्"</string>
+    <string name="invalid_email_error_msg" msgid="5261362663718987167">"युजरनेम अनिवार्य रूपमा वैध इमेल ठेगाना हुनु पर्छ"</string>
+    <string name="invalid_length_error_msg" msgid="8238905276326976425">"युजरनेम कम्तीमा %s वर्णको हुनु पर्छ"</string>
+    <string name="invalid_password_error_msg" msgid="1090359893902674610">"अवैध पासवर्ड"</string>
+    <string name="password_hint" msgid="2869107073860012864">"पासवर्ड"</string>
+    <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"युजरनेम"</string>
+    <string name="pin_sign_in_instruction" msgid="2288691296234360441">"तपाईंको फोनमा यो PIN टाइप गर्नुहोस्"</string>
+    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"साइन इन गर्न QR कोड स्क्यान गर्नुहोस्"</string>
+    <string name="sign_in_with_google_title" msgid="8043752000786977249">"Google प्रयोग गरी साइन इन गर्नुहोस्"</string>
+    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Google मा साइन इन गर्न यो बटन प्रयोग गर्नुहोस्"</string>
+    <string name="sign_in_complete_text" msgid="8423984266325680606">"तपाईं साइन इन हुनुहुन्छ!"</string>
+    <string name="sign_in_complete_title" msgid="8919868148773983428">"साइन इन गरियो"</string>
     <string name="sign_in_template_demo_title" msgid="6052035424941410249">"साइन इन टेम्प्लेटको डेमो"</string>
-    <!-- no translation found for images_unknown_host_error (3180661817432720076) -->
-    <skip />
-    <!-- no translation found for icon_title_prefix (8487026131229541244) -->
-    <skip />
-    <!-- no translation found for content_provider_icons_demo_title (5708602618664311097) -->
-    <skip />
-    <!-- no translation found for icons_demo_title (4082976685262307357) -->
-    <skip />
-    <!-- no translation found for app_icon_title (7534936683349723423) -->
-    <skip />
-    <!-- no translation found for vector_no_tint_title (874591632279039146) -->
-    <skip />
-    <!-- no translation found for vector_with_tint_title (1022346419829696827) -->
-    <skip />
-    <!-- no translation found for vector_with_app_theme_attr_title (4890094482708376219) -->
-    <skip />
-    <!-- no translation found for png_res_title (7437083018336747544) -->
-    <skip />
-    <!-- no translation found for png_bitmap_title (120790220238335267) -->
-    <skip />
-    <!-- no translation found for just_row_title (965700021568970725) -->
-    <skip />
-    <!-- no translation found for title_with_app_icon_row_title (6294250714820740520) -->
-    <skip />
-    <!-- no translation found for title_with_res_id_image_row_title (3813134904602875778) -->
-    <skip />
-    <!-- no translation found for title_with_svg_image_row_title (6109092343637263755) -->
-    <skip />
-    <!-- no translation found for colored_secondary_row_title (5173288934252528929) -->
-    <skip />
-    <!-- no translation found for title_with_secondary_lines_row_title (7769408881272549837) -->
-    <skip />
-    <!-- no translation found for title_with_secondary_lines_row_text_1 (8945114692653524102) -->
-    <skip />
-    <!-- no translation found for title_with_secondary_lines_row_text_2 (1017734603405251531) -->
-    <skip />
-    <!-- no translation found for rows_demo_title (3198566660454251007) -->
-    <skip />
-    <!-- no translation found for text_icons_demo_title (8732943920672143201) -->
-    <skip />
-    <!-- no translation found for row_text_icons_demo_title (135167694047524905) -->
-    <skip />
-    <!-- no translation found for selectable_lists_demo_title (5492658731113129386) -->
-    <skip />
-    <!-- no translation found for option_1_title (7221252541651471199) -->
-    <skip />
-    <!-- no translation found for option_2_title (1905146448697963818) -->
-    <skip />
-    <!-- no translation found for option_3_title (6319268250436119258) -->
-    <skip />
-    <!-- no translation found for some_additional_text (4009872495806318260) -->
-    <skip />
-    <!-- no translation found for sample_additional_list (5085372891301576306) -->
-    <skip />
-    <!-- no translation found for task_restriction_demo_title (2212084350718766941) -->
-    <skip />
-    <!-- no translation found for task_limit_reached_msg (6038763366777119364) -->
-    <skip />
-    <!-- no translation found for task_step_of_title (2791717962535723839) -->
-    <skip />
-    <!-- no translation found for task_step_of_text (4646729781462227219) -->
-    <skip />
-    <!-- no translation found for toggle_test_title (924485265152862631) -->
-    <skip />
-    <!-- no translation found for toggle_test_text (8107217216013312857) -->
-    <skip />
-    <!-- no translation found for image_test_title (8273863429801477547) -->
-    <skip />
-    <!-- no translation found for image_test_text (6264812093895530445) -->
-    <skip />
-    <!-- no translation found for additional_data_title (3546689652240300617) -->
-    <skip />
-    <!-- no translation found for additional_data_text (5834065880156294730) -->
-    <skip />
-    <!-- no translation found for misc_templates_demos_title (6077169010255928114) -->
-    <skip />
-    <!-- no translation found for showcase_demos_title (1542092687878113304) -->
-    <skip />
-    <!-- no translation found for location_1_title (8811091210405812841) -->
-    <skip />
-    <!-- no translation found for location_1_description (4801052291684791371) -->
-    <skip />
-    <!-- no translation found for location_2_title (7852752167090941096) -->
-    <skip />
-    <!-- no translation found for location_2_description (3331356135359047166) -->
-    <skip />
-    <!-- no translation found for location_3_title (169499850136279697) -->
-    <skip />
-    <!-- no translation found for location_3_description (3982142774088944850) -->
-    <skip />
-    <!-- no translation found for location_4_title (8258300653873954927) -->
-    <skip />
-    <!-- no translation found for location_4_description (6560365445044381911) -->
-    <skip />
-    <!-- no translation found for location_6_title (6221666052536309889) -->
-    <skip />
-    <!-- no translation found for location_7_title (3384783200675804248) -->
-    <skip />
-    <!-- no translation found for location_8_title (733139775013673611) -->
-    <skip />
-    <!-- no translation found for location_9_title (2549666598000022389) -->
-    <skip />
-    <!-- no translation found for location_description_text_label (2779911545316756419) -->
-    <skip />
+    <string name="images_unknown_host_error" msgid="3180661817432720076">"अज्ञात होस्टका हकमा फोटोहरू देखाउन मिल्दैन"</string>
+    <string name="icon_title_prefix" msgid="8487026131229541244">"आइकन"</string>
+    <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"सामग्री प्रदायकको आइकनहरूको डेमो"</string>
+    <string name="icons_demo_title" msgid="4082976685262307357">"आइकनहरूको डेमो"</string>
+    <string name="app_icon_title" msgid="7534936683349723423">"एपको आइकन"</string>
+    <string name="vector_no_tint_title" msgid="874591632279039146">"रङ नभएको चित्र बनाउन मिल्ने भेक्टर"</string>
+    <string name="vector_with_tint_title" msgid="1022346419829696827">"रङ भएको चित्र बनाउन मिल्ने भेक्टर"</string>
+    <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"एपको थिमको विशेषता भएको रङमा चित्र बनाउन मिल्ने भेक्टर"</string>
+    <string name="png_res_title" msgid="7437083018336747544">"स्रोतका रूपमा पठाइएको एउटा PNG फाइल"</string>
+    <string name="png_bitmap_title" msgid="120790220238335267">"स्रोतका रूपमा पठाइएको एउटा PNG फाइल"</string>
+    <string name="just_row_title" msgid="965700021568970725">"शीर्षक मात्र हो"</string>
+    <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"एपको आइकन भएको शीर्षक"</string>
+    <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"स्रोत ID को फोटो भएको शीर्षक"</string>
+    <string name="title_with_svg_image_row_title" msgid="6109092343637263755">"SVG को फोटो भएको शीर्षक"</string>
+    <string name="colored_secondary_row_title" msgid="5173288934252528929">"रङ्गीन सहायक टेक्स्ट"</string>
+    <string name="title_with_secondary_lines_row_title" msgid="7769408881272549837">"एकभन्दा बढी टेक्स्टका पङ्क्तिहरू भएको शीर्षक"</string>
+    <string name="title_with_secondary_lines_row_text_1" msgid="8945114692653524102">"पटक पटक त्रुटि दोहोर्‍याउनुहोस् तर हरेक पटक त्रुटि कम गर्दै जानुहोस्।"</string>
+    <string name="title_with_secondary_lines_row_text_2" msgid="1017734603405251531">"- Piet Hein"</string>
+    <string name="rows_demo_title" msgid="3198566660454251007">"रोहरूको डेमो"</string>
+    <string name="text_icons_demo_title" msgid="8732943920672143201">"टेक्स्ट र आइकनहरूको डेमो"</string>
+    <string name="row_text_icons_demo_title" msgid="135167694047524905">"टेक्स्ट र आइकनहरू भएका रोहरूको डेमो"</string>
+    <string name="selectable_lists_demo_title" msgid="5492658731113129386">"चयन गर्न मिल्ने सूचीहरूको डेमो"</string>
+    <string name="option_1_title" msgid="7221252541651471199">"विकल्प १"</string>
+    <string name="option_2_title" msgid="1905146448697963818">"विकल्प २"</string>
+    <string name="option_3_title" msgid="6319268250436119258">"विकल्प ३"</string>
+    <string name="some_additional_text" msgid="4009872495806318260">"केही अतिरिक्त टेक्स्ट"</string>
+    <string name="sample_additional_list" msgid="5085372891301576306">"चयन गर्न मिल्ने सूचीको नमुना"</string>
+    <string name="task_restriction_demo_title" msgid="2212084350718766941">"कार्यमा लगाइने प्रतिबन्धको डेमो"</string>
+    <string name="task_limit_reached_msg" msgid="6038763366777119364">"कार्यको सीमा सकियो\nतपाईं अगाडि बढ्नुभयो भने एप जबरजस्ती रोकिने छ"</string>
+    <string name="task_step_of_title" msgid="2791717962535723839">"%2$d कार्यको %1$d औँ चरण"</string>
+    <string name="task_step_of_text" msgid="4646729781462227219">"अगाडि बढ्न क्लिक गर्नुहोस्"</string>
+    <string name="toggle_test_title" msgid="924485265152862631">"टगल टेस्ट"</string>
+    <string name="toggle_test_text" msgid="8107217216013312857">"स्टेटफुल परिवर्तन गर्ने अनुमति छ"</string>
+    <string name="image_test_title" msgid="8273863429801477547">"फोटोको जाँच"</string>
+    <string name="image_test_text" msgid="6264812093895530445">"फोटोहरू बदल्न मिल्छ"</string>
+    <string name="additional_data_title" msgid="3546689652240300617">"अतिरिक्त डेटा"</string>
+    <string name="additional_data_text" msgid="2846223398214158872">"अघिल्लो पेजमा गई परिवर्तन गर्न सकिन्छ।"</string>
+    <string name="misc_templates_demos_title" msgid="6077169010255928114">"टेम्प्लेटका विविध डेमोहरू"</string>
+    <string name="showcase_demos_title" msgid="1542092687878113304">"सोकेसहरूको डेमो"</string>
+    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
+    <string name="location_1_description" msgid="4801052291684791371">"रङ्गीन स्रोतको भेक्टर"</string>
+    <string name="location_2_description" msgid="3331356135359047166">"फोटो स्रोतको बिटम्याप"</string>
+    <string name="location_3_description" msgid="3982142774088944850">"रङ्गीन टेक्स्ट मार्कर"</string>
+    <string name="location_4_description" msgid="6560365445044381911">"फोटोको बिटम्याप"</string>
+    <string name="location_description_text_label" msgid="2779911545316756419">"टेक्स्टको लेबल"</string>
 </resources>

@@ -17,11 +17,11 @@
 package androidx.room.writer
 
 import COMMON
-import androidx.room.DatabaseProcessingStep
+import androidx.room.RoomKspProcessor
+import androidx.room.RoomProcessor
+import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.testing.asTestInvocationHandler
 import androidx.testutils.generateAllEnumerations
 import loadTestSource
 import org.junit.Test
@@ -46,14 +46,12 @@ class DatabaseWriterTest {
                     qName = "foo.bar.ComplexDao"
                 )
             ) {
-                it.assertCompilationResult {
-                    generatedSource(
-                        loadTestSource(
-                            fileName = "databasewriter/output/ComplexDatabase.java",
-                            qName = "foo.bar.ComplexDatabase_Impl"
-                        )
+                it.generatedSource(
+                    loadTestSource(
+                        fileName = "databasewriter/output/ComplexDatabase.java",
+                        qName = "foo.bar.ComplexDatabase_Impl"
                     )
-                }
+                )
             }
         }
     }
@@ -134,7 +132,7 @@ class DatabaseWriterTest {
 
 private fun singleDb(
     vararg inputs: Source,
-    handler: (XTestInvocation) -> Unit
+    onCompilationResult: (CompilationResultSubject) -> Unit
 ) {
     val sources = listOf(
         COMMON.USER, COMMON.USER_SUMMARY, COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA,
@@ -143,6 +141,8 @@ private fun singleDb(
     ) + inputs
     runProcessorTest(
         sources = sources,
-        handler = DatabaseProcessingStep().asTestInvocationHandler(handler)
+        javacProcessors = listOf(RoomProcessor()),
+        symbolProcessorProviders = listOf(RoomKspProcessor.Provider()),
+        onCompilationResult = onCompilationResult
     )
 }

@@ -51,6 +51,7 @@ public class RowTest {
         assertThat(row.isBrowsable()).isFalse();
         assertThat(row.getMetadata()).isEqualTo(Metadata.EMPTY_METADATA);
         assertThat(row.getRowImageType()).isEqualTo(Row.IMAGE_TYPE_SMALL);
+        assertThat(row.isEnabled()).isTrue();
     }
 
     @Test
@@ -173,6 +174,12 @@ public class RowTest {
     }
 
     @Test
+    public void setEnabledState() {
+        Row row = new Row.Builder().setTitle("Title").setEnabled(false).build();
+        assertThat(row.isEnabled()).isFalse();
+    }
+
+    @Test
     public void setIsBrowsable_noListener_throws() {
         assertThrows(
                 IllegalStateException.class,
@@ -218,6 +225,7 @@ public class RowTest {
                         })
                         .setBrowsable(false)
                         .setMetadata(Metadata.EMPTY_METADATA)
+                        .setEnabled(true)
                         .addText(title)
                         .build();
 
@@ -229,6 +237,7 @@ public class RowTest {
                         })
                         .setBrowsable(false)
                         .setMetadata(Metadata.EMPTY_METADATA)
+                        .setEnabled(true)
                         .addText(title)
                         .build())
                 .isEqualTo(row);
@@ -248,6 +257,13 @@ public class RowTest {
         Row row = new Row.Builder().setTitle("Title").setImage(BACK).build();
 
         assertThat(new Row.Builder().setTitle("Title").setImage(ALERT).build()).isNotEqualTo(row);
+    }
+
+    @Test
+    public void notEquals_differentEnabledState() {
+        Row row = new Row.Builder().setTitle("Title").setEnabled(true).build();
+
+        assertThat(new Row.Builder().setTitle("Title").setEnabled(false).build()).isNotEqualTo(row);
     }
 
     @Test

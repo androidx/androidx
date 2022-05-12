@@ -44,14 +44,6 @@ class AndroidXRootPluginTest {
                   pluginManagement {
                     ${setup.repositories}
                   }
-
-                  dependencyResolutionManagement {
-                    versionCatalogs {
-                      libs {
-                        from(files("${props.rootProjectPath}/gradle/libs.versions.toml"))
-                      }
-                    }
-                  }
                 """.trimIndent()
 
                 File(setup.rootDir, "settings.gradle").writeText(settingsGradleText)

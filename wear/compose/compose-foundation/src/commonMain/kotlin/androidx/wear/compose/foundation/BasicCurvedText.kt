@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 
 /**
@@ -88,17 +89,22 @@ internal class CurvedTextChild(
     private val delegate: CurvedTextDelegate = CurvedTextDelegate()
     private lateinit var actualStyle: CurvedTextStyle
 
+    @Composable
+    override fun SubComposition() {
+        actualStyle = DefaultCurvedTextStyles + style()
+    }
+
     override fun CurvedMeasureScope.initializeMeasure(
         measurables: List<Measurable>,
         index: Int
     ): Int {
-        delegate.updateIfNeeded(text, clockwise, actualStyle.fontSize.toPx())
+        delegate.updateIfNeeded(
+            text,
+            clockwise,
+            actualStyle.fontSize.toPx(),
+            actualStyle.fontWeight
+        )
         return index // No measurables where mapped.
-    }
-
-    @Composable
-    override fun SubComposition() {
-        actualStyle = DefaultCurvedTextStyles + style()
     }
 
     override fun doEstimateThickness(maxRadius: Float): Float = delegate.textHeight
@@ -148,7 +154,8 @@ internal expect class CurvedTextDelegate() {
     fun updateIfNeeded(
         text: String,
         clockwise: Boolean,
-        fontSizePx: Float
+        fontSizePx: Float,
+        fontWeight: FontWeight?
     )
 
     fun DrawScope.doDraw(

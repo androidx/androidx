@@ -32,6 +32,7 @@ import androidx.annotation.RequiresApi;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 
@@ -160,6 +161,12 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
         }
 
         @Override
+        public void process(Image image, TotalCaptureResult result,
+                ProcessResultImpl resultCallback, Executor executor) {
+
+        }
+
+        @Override
         public void onResolutionUpdate(Size size) {
             mSize = size;
             setWindowSurface();
@@ -206,6 +213,5 @@ public final class HdrPreviewExtenderImpl implements PreviewExtenderImpl {
                 // handle exception
             }
         }
-
     }
 }

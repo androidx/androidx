@@ -34,8 +34,8 @@ dependencies {
     implementation(projectOrArtifact(":navigation:navigation-compose"))
     implementation("androidx.compose.material:material:1.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
-    implementation(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
-    implementation(projectOrArtifact(":savedstate:savedstate-ktx"))
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0-rc01")
+    implementation("androidx.savedstate:savedstate-ktx:1.2.0-rc01")
 }
 
 androidx {

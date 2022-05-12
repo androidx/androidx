@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraUnavailableException;
+import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -181,7 +182,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
     @Override
     public Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
             @NonNull String cameraId,
-            @NonNull List<SurfaceConfig> existingSurfaces,
+            @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
         Preconditions.checkArgument(!newUseCaseConfigs.isEmpty(), "No new use cases to be bound.");
 

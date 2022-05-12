@@ -37,7 +37,8 @@ public class RunnerUtils {
 
     private RunnerUtils() {}
 
-    static void runSingleScreenshotTest(@NonNull AndroidXScreenshotTestRule rule,
+    public static void runSingleScreenshotTest(
+            @NonNull AndroidXScreenshotTestRule rule,
             @NonNull LayoutElementBuilders.LayoutElement layoutElement,
             @NonNull String expected) {
         byte[] layoutElementPayload = layoutElement.toLayoutElementProto().toByteArray();
@@ -62,10 +63,15 @@ public class RunnerUtils {
             Log.e("MaterialGoldenTest", "Error sleeping", ex);
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(
-                InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot(),
-                0, 0, SCREEN_WIDTH, SCREEN_HEIGHT
-        );
+        Bitmap bitmap =
+                Bitmap.createBitmap(
+                        InstrumentationRegistry.getInstrumentation()
+                                .getUiAutomation()
+                                .takeScreenshot(),
+                        0,
+                        0,
+                        SCREEN_WIDTH,
+                        SCREEN_HEIGHT);
         rule.assertBitmapAgainstGolden(bitmap, expected, new MSSIMMatcher());
 
         // There's a weird bug (related to b/159805732) where, when calling .close() on

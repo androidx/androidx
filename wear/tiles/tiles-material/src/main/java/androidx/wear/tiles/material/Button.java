@@ -48,6 +48,7 @@ import androidx.wear.tiles.ModifiersBuilders.Background;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
 import androidx.wear.tiles.ModifiersBuilders.Corner;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
+import androidx.wear.tiles.ModifiersBuilders.Semantics;
 import androidx.wear.tiles.material.Typography.TypographyName;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
@@ -294,9 +295,8 @@ public class Button implements LayoutElement {
                             .setWidth(mSize)
                             .setModifiers(modifiers.build());
 
-            if (mType != NOT_SET) {
-                element.addContent(getCorrectContent());
-            }
+            element.addContent(getCorrectContent());
+
             return new Button(element.build());
         }
 
@@ -374,7 +374,7 @@ public class Button implements LayoutElement {
             if (mCustomContent != null) {
                 numOfNonNull++;
             }
-            if (numOfNonNull == 0) {
+            if (numOfNonNull == 0 || mType == NOT_SET) {
                 throw new IllegalArgumentException("Content is not set.");
             }
             if (numOfNonNull > 1) {
@@ -409,11 +409,13 @@ public class Button implements LayoutElement {
     }
 
     /** Returns content description for this Button. */
-    @NonNull
+    @Nullable
     public CharSequence getContentDescription() {
-        return checkNotNull(
-                checkNotNull(checkNotNull(mElement.getModifiers()).getSemantics())
-                        .getContentDescription());
+        Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
+        if (semantics == null) {
+            return null;
+        }
+        return semantics.getContentDescription();
     }
 
     /** Returns size for this Button. */
@@ -431,32 +433,38 @@ public class Button implements LayoutElement {
     @NonNull
     public ButtonColors getButtonColors() {
         ColorProp backgroundColor = getBackgroundColor();
-        LayoutElement mainElement = checkNotNull(mElement.getContents().get(0));
-        int type = getType(mainElement);
         ColorProp contentColor;
-        switch (type) {
-            case Builder.ICON:
-                contentColor =
-                        checkNotNull(
-                                checkNotNull(((Image) mainElement).getColorFilter()).getTint());
-                break;
-            case Builder.TEXT:
-                contentColor =
-                        checkNotNull(
-                                checkNotNull(
-                                                ((LayoutElementBuilders.Text) mainElement)
-                                                        .getFontStyle())
-                                        .getColor());
-                break;
-            case Builder.IMAGE:
-            case Builder.CUSTOM_CONTENT:
-            case Builder.NOT_SET:
-            default:
-                // Default color so we can construct ButtonColors object in case where content color
-                // is not set (i.e. button with an actual image doesn't use content color, or
-                // content is set to custom one by the user.
-                contentColor = new ColorProp.Builder().build();
-                break;
+
+        if (mElement.getContents().size() > 0) {
+            LayoutElement mainElement = mElement.getContents().get(0);
+            int type = getType(mainElement);
+            // Default color so we can construct ButtonColors object in case where content color is
+            // not set (i.e. button with an actual image doesn't use content color, or content is
+            // set to custom one by the user.
+            switch (type) {
+                case Builder.ICON:
+                    contentColor =
+                            checkNotNull(
+                                    checkNotNull(((Image) mainElement).getColorFilter()).getTint());
+                    break;
+                case Builder.TEXT:
+                    contentColor =
+                            checkNotNull(
+                                    checkNotNull(
+                                                    ((LayoutElementBuilders.Text) mainElement)
+                                                            .getFontStyle())
+                                            .getColor());
+                    break;
+                case Builder.IMAGE:
+                case Builder.CUSTOM_CONTENT:
+                case Builder.NOT_SET:
+                default:
+                    // No content color.
+                    contentColor = new ColorProp.Builder().build();
+                    break;
+            }
+        } else {
+            contentColor = new ColorProp.Builder().build();
         }
 
         return new ButtonColors(backgroundColor, contentColor);

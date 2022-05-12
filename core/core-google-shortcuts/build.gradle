@@ -26,6 +26,11 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+
     namespace "androidx.core.google.shortcuts"
 }
 

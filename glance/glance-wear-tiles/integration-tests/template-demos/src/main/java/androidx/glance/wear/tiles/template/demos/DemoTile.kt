@@ -38,6 +38,7 @@ class DemoTile : GlanceTileService() {
                 ),
                 text1 = TemplateText("Title", TemplateText.Type.Title),
                 text2 = TemplateText("Subtitle", TemplateText.Type.Label),
+                text3 = TemplateText("Here's the body", TemplateText.Type.Body),
                 image = TemplateImageWithDescription(ImageProvider(R.drawable.compose), "image"),
             )
         )

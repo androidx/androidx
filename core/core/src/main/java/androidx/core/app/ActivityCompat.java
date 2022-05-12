@@ -672,7 +672,7 @@ public class ActivityCompat extends ContextCompat {
     }
 
     @RequiresApi(21)
-    private static class SharedElementCallback21Impl extends android.app.SharedElementCallback {
+    static class SharedElementCallback21Impl extends android.app.SharedElementCallback {
         private final SharedElementCallback mCallback;
 
         SharedElementCallback21Impl(SharedElementCallback callback) {
@@ -857,8 +857,8 @@ public class ActivityCompat extends ContextCompat {
 
         @DoNotInline
         static void onSharedElementsReady(Object onSharedElementsReadyListener) {
-            ((SharedElementCallback.OnSharedElementsReadyListener) onSharedElementsReadyListener)
-                    .onSharedElementsReady();
+            ((android.app.SharedElementCallback.OnSharedElementsReadyListener)
+                    onSharedElementsReadyListener).onSharedElementsReady();
         }
     }
 }

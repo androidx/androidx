@@ -25,6 +25,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.CameraAppComponent
+import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraDeviceSurfaceManager
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize
@@ -77,7 +78,7 @@ class CameraSurfaceAdapter(
 
     override fun getSuggestedResolutions(
         cameraId: String,
-        existingSurfaces: List<SurfaceConfig>,
+        existingSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigs: List<UseCaseConfig<*>?>
     ): Map<UseCaseConfig<*>, Size> {
         // TODO: Many of the "find a stream combination that will work" is already provided by the

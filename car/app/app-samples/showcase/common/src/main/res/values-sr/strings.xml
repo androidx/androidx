@@ -36,13 +36,16 @@
     <string name="on_action_title" msgid="4129601573763429611">"Укључено"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Искључено"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Подешавања"</string>
-    <string name="accept_action_title" msgid="6172053420803596132">"Подешавања"</string>
+    <!-- no translation found for accept_action_title (4899660585470647578) -->
+    <skip />
     <string name="reject_action_title" msgid="6730366705938402668">"Одбиј"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"Потврди"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Баци"</string>
     <string name="commute_action_title" msgid="2585755255290185096">"Редовно путовање"</string>
     <string name="sign_out_action_title" msgid="1653943000866713010">"Одјавите се"</string>
     <string name="try_anyway_action_title" msgid="7384500054249311718">"Ипак покушај"</string>
+    <string name="yes_action_title" msgid="5507096013762092189">"Да"</string>
+    <string name="no_action_title" msgid="1452124604210014010">"Не"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"Пријављена је грешка!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"Увећано је"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"Умањено је"</string>
@@ -66,6 +69,9 @@
     <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Одобрите дозволу за локацију да бисте видели актуелну локацију"</string>
     <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Пријављивање помоћу Google-а почиње овде"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"Избор је промењен у индекс"</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"Притиснуто је дугме Да."</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"Притиснуто је дугме Не."</string>
+    <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"Обавештење је истекло."</string>
     <string name="first_row_title" msgid="219428344573165351">"Ред са великом сликом и дугим текстом дугим текстом дугим текстом дугим текстом дугим текстом"</string>
     <string name="first_row_text" msgid="3887390298628338716">"Текст текст текст"</string>
     <string name="other_row_title_prefix" msgid="4702355788835253197">"Наслов реда"</string>
@@ -105,7 +111,7 @@
     <string name="content_limits_demo_title" msgid="3207211638386727610">"Демонстрација ограничења садржаја"</string>
     <string name="finish_app_msg" msgid="8354334557053141891">"Тиме ће се апликација завршити, а када је вратите, предучитаће екран са дозволама"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Демонстрација завршетка апликације"</string>
-    <string name="finish_app_demo_title" msgid="1190976061270691419">"Демонстрација предучитавања вредности предстека екрана при следећем покретању"</string>
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"Демонстрација предучитавања екрана са дозволама при следећем покретању"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"Учитава се демонстрација"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Учитавање је довршено!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Пређи на основни ниво"</string>
@@ -127,9 +133,6 @@
     <string name="not_started_for_result_msg" msgid="7498800528148447270">"Ова апликација није покренута ради резултата"</string>
     <string name="started_for_result_msg" msgid="4225260243713833974">"Ова апликација је позвана за резултат из: %s. Изаберите резултат који ћете послати позиваоцу"</string>
     <string name="arrived_exclamation_msg" msgid="9132265698563096988">"Дошао је!"</string>
-    <string name="arrived_address_msg" msgid="858838027855534700">"Google Bellevue Office\n1120 112th Ave NE"</string>
-    <string name="current_step_cue" msgid="2742662984538730379">"Roy st 520"</string>
-    <string name="next_step_cue" msgid="381579039472178611">"I5 Aurora Ave N"</string>
     <string name="travel_est_trip_text" msgid="5134365408383171144">"Покупи Ану"</string>
     <string name="send_notification_title" msgid="4731688444696028193">"Пошаљи обавештење"</string>
     <string name="start_notifications_title" msgid="8699668027543530460">"Покрени обавештења"</string>
@@ -138,6 +141,14 @@
     <string name="importance_title" msgid="9034862997821839831">"Важност"</string>
     <string name="category_title" msgid="4783851267093259949">"Категорија"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"Активно"</string>
+    <!-- no translation found for default_importance (6347996298832939989) -->
+    <skip />
+    <!-- no translation found for high_importance (5009120714837304882) -->
+    <skip />
+    <!-- no translation found for low_importance (4721161314404294033) -->
+    <skip />
+    <!-- no translation found for unknown_importance (909001735933359216) -->
+    <skip />
     <string name="notification_demo" msgid="1819496937832036387">"Демонстрација обавештења"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"Различите демонстрације"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"Демонстрација навигације"</string>
@@ -165,6 +176,8 @@
     <string name="notification_template_demo_title" msgid="5076051497316030274">"Демонстрација шаблона обавештења"</string>
     <string name="nav_map_template_demo_title" msgid="344985380763975398">"Демонстрација шаблона навигације само са мапом"</string>
     <string name="nav_demos_title" msgid="72781206086461004">"Демонстрације навигације"</string>
+    <string name="navigation_alert_title" msgid="8306554249264200848">"Да ли се и даље мери брзина?"</string>
+    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"Пријављено пре 10 мин"</string>
     <string name="no_toll_card_permission" msgid="6789073114449712090">"Нема дозволе за картицу за путарину."</string>
     <string name="no_energy_level_permission" msgid="1684773185095107825">"Нема дозволе за ниво енергије."</string>
     <string name="no_speed_permission" msgid="5812532480922675390">"Нема дозволе за брзину."</string>
@@ -213,7 +226,6 @@
     <string name="title_prefix" msgid="3991742709199357049">"Наслов"</string>
     <string name="list_template_demo_title" msgid="1740208242737246151">"Демонстрација шаблона листе"</string>
     <string name="long_msg_template_demo_title" msgid="1793748562161438131">"Демонстрација шаблона дуге поруке"</string>
-    <string name="long_msg_template_text" msgid="418743506180774764">"Lorem ipsum dolor sit amet, consectetur adipiscing elit. \nAliquam laoreet ac metus eu commodo. Sed a congue diam, sed dictum lectus. Nam nec\ntristique dolor, quis sodales arcu. Etiam at metus eu nulla auctor varius. \nInteger dolor lorem, placerat sit amet lacus in, imperdiet semper dui. Vestibulum \nante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; \nQuisque gravida fermentum egestas.\n\n\n\nUt ut sodales mi. Aenean porta vel ipsum sed lacinia. Morbi odio ipsum, hendrerit \neu est et, sollicitudin finibus diam. Nunc sit amet felis elit. Orci varius \nnatoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed \nvestibulum, tellus a rutrum auctor, diam arcu vestibulum purus, nec mollis ligula \nnisi in nisi. Donec sem tortor, pharetra sed fermentum sit amet, ullamcorper nec \nsapien. Aliquam risus arcu, porttitor eu dui nec, vulputate tempus libero. \nCurabitur sit amet tristique orci. Suspendisse et odio tempus, tempus turpis quis,\n euismod est.\n\n\n\nVestibulum mauris ante, luctus viverra nisi eget, blandit facilisis nulla. \nPhasellus ex lorem, semper in vestibulum nec, aliquet vel elit. Aliquam vitae \nligula nec enim dictum lobortis. Sed varius turpis quis nisi tempus varius. Sed \nnon sollicitudin magna, at mattis tortor. Curabitur quis ligula eget lorem mattis \ntincidunt et in sapien. Curabitur a elit nisi. Aliquam ex arcu, hendrerit eget \nturpis vitae, bibendum vulputate nibh. Fusce vitae ex aliquet, tristique magna eu,\n vulputate dui. Aenean tempor viverra tortor non pharetra. Pellentesque convallis \nnec risus a auctor. Praesent non sem non eros tincidunt ullamcorper efficitur non \nlacus.\n\n\n\nSuspendisse accumsan ultricies egestas. Aenean leo ligula, congue ac erat eu, \nlobortis ultricies lorem. Nulla finibus, arcu sed tincidunt lobortis, magna justo \nrutrum ligula, et mattis felis turpis vel ex. Morbi ac auctor ex, at bibendum sem.\n Vestibulum a tortor iaculis, viverra felis vitae, lobortis est. Duis sit amet \ncondimentum sem. Ut molestie, dolor pretium imperdiet maximus, enim orci porta \nquam, id gravida enim nunc vitae lacus. Pellentesque habitant morbi tristique \nsenectus et netus et malesuada fames ac turpis egestas. Nullam vel justo eu risus \nlobortis dignissim sit amet ullamcorper nulla. Donec finibus cursus purus \nporttitor pellentesque.\n\n\n\nDonec at vehicula ante. Suspendisse rutrum nisl quis metus faucibus lacinia. \nVestibulum eros sapien, eleifend nec accumsan a, interdum sed nisi. Aenean posuere\n ultrices lorem non pharetra. Nulla non porta ligula. Maecenas at elit diam. \nNullam gravida augue et semper eleifend. Fusce venenatis ac arcu et luctus. Mauris\n ultricies urna non dui interdum, vel hendrerit est aliquam. Fusce id dictum leo, \nfringilla egestas ipsum."</string>
     <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"Хост не подржава шаблон дуге поруке"</string>
     <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"Некомпатибилан хост"</string>
     <string name="msg_template_demo_title" msgid="3895210951340409473">"Демонстрација шаблона поруке"</string>
@@ -221,8 +233,7 @@
     <string name="pane_template_demo_title" msgid="7804292600060341608">"Демонстрација шаблона окна"</string>
     <string name="place_list_template_demo_title" msgid="2054022985455460469">"Демонстрација шаблона листе места"</string>
     <string name="browse_places_title" msgid="7246005909846715898">"Прегледајте места"</string>
-    <!-- no translation found for search_template_demo_title (1770474418958318114) -->
-    <skip />
+    <string name="search_template_demo_title" msgid="1770474418958318114">"Демонстрација шаблона претраге"</string>
     <string name="search_hint" msgid="978495498991026792">"Претражујте овде"</string>
     <string name="additional_text" msgid="8410289578276941586">"Прегледајте услове коришћења услуге"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Пријављивање на Google"</string>
@@ -244,8 +255,7 @@
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Користите ово дугме да бисте довршили пријављивање преко Google-а"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Пријављени сте!"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"Пријављивање је завршено"</string>
-    <!-- no translation found for sign_in_template_demo_title (6052035424941410249) -->
-    <skip />
+    <string name="sign_in_template_demo_title" msgid="6052035424941410249">"Демонстрација шаблона пријављивања"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Слике не могу да се приказују за непознат хост"</string>
     <string name="icon_title_prefix" msgid="8487026131229541244">"Икона"</string>
     <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"Демонстрација икона добављача садржаја"</string>
@@ -282,20 +292,13 @@
     <string name="image_test_title" msgid="8273863429801477547">"Тест слике"</string>
     <string name="image_test_text" msgid="6264812093895530445">"Промене слика су дозвољене"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Додатни подаци"</string>
-    <string name="additional_data_text" msgid="5834065880156294730">"Ажурирања су дозвољена за операције у позадини."</string>
+    <string name="additional_data_text" msgid="2846223398214158872">"Ажурирања су дозвољена за операције у позадини."</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Демонстрације различитих шаблона"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Демонстрације приказивања"</string>
-    <string name="location_1_title" msgid="8811091210405812841">"Google Kirkland"</string>
+    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Вектор ресурса са тоналитетом"</string>
-    <string name="location_2_title" msgid="7852752167090941096">"Google Bellevue"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Бит мапа ресурса слике"</string>
-    <string name="location_3_title" msgid="169499850136279697">"Google South Lake Union"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Маркер текста у боји"</string>
-    <string name="location_4_title" msgid="8258300653873954927">"Google Seattle"</string>
     <string name="location_4_description" msgid="6560365445044381911">"Бит мапа слике"</string>
-    <string name="location_6_title" msgid="6221666052536309889">"Google Bothell"</string>
-    <string name="location_7_title" msgid="3384783200675804248">"Seward Park"</string>
-    <string name="location_8_title" msgid="733139775013673611">"Luther Burbank Park"</string>
-    <string name="location_9_title" msgid="2549666598000022389">"Heritage Park"</string>
     <string name="location_description_text_label" msgid="2779911545316756419">"Ознака текста"</string>
 </resources>

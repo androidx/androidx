@@ -32,8 +32,8 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.TokenLockImpl
 import androidx.camera.camera2.pipe.core.acquire
 import androidx.camera.camera2.pipe.core.acquireOrNull
-import kotlinx.atomicfu.atomic
 import javax.inject.Inject
+import kotlinx.atomicfu.atomic
 
 internal val cameraGraphIds = atomic(0)
 
@@ -96,6 +96,9 @@ internal class CameraGraphImpl @Inject constructor(
 
     override fun setSurface(stream: StreamId, surface: Surface?) {
         Debug.traceStart { "$stream#setSurface" }
+        check(surface == null || surface.isValid) {
+            "Failed to set $surface to $stream: The surface was not valid."
+        }
         streamGraph[stream] = surface
         Debug.traceStop()
     }

@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ Copyright (C) 2021 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="back_caps_action_title" msgid="6392829425035919422">"رجوع"</string>
+    <string name="home_caps_action_title" msgid="4853167242566949502">"الصفحة الرئيسية"</string>
+    <string name="exit_action_title" msgid="9086586388884500731">"خروج"</string>
+    <string name="refresh_action_title" msgid="3674260822403151377">"إعادة تحميل"</string>
+    <string name="close_action_title" msgid="2661907510124308560">"إغلاق"</string>
+    <string name="grant_access_action_title" msgid="4033140828804350723">"منح إمكانية الوصول"</string>
+    <string name="enable_location_action_title" msgid="8181862247222797044">"تفعيل الموقع الجغرافي"</string>
+    <string name="cancel_action_title" msgid="1149738685397349236">"إلغاء"</string>
+    <string name="stop_action_title" msgid="1187619482795416314">"إيقاف"</string>
+    <string name="more_action_title" msgid="1039516575011403837">"المزيد"</string>
+    <string name="call_action_title" msgid="6218977436905001611">"الاتصال"</string>
+    <string name="primary_action_title" msgid="7042003552215710683">"أساسي"</string>
+    <string name="options_action_title" msgid="1168121856107932984">"الخيارات"</string>
+    <string name="search_action_title" msgid="3483459674263446335">"بحث"</string>
+    <string name="checked_action_title" msgid="906023941445896399">"وضع علامة في المربّع."</string>
+    <string name="unchecked_action_title" msgid="802503415474307811">"إزالة العلامة (من المربّع)"</string>
+    <string name="on_action_title" msgid="4129601573763429611">"مُفعّل"</string>
+    <string name="off_action_title" msgid="8669201170189204848">"إيقاف"</string>
+    <string name="settings_action_title" msgid="8616900063253887861">"الإعدادات"</string>
+    <!-- no translation found for accept_action_title (4899660585470647578) -->
+    <skip />
+    <string name="reject_action_title" msgid="6730366705938402668">"رفض"</string>
+    <string name="ok_action_title" msgid="7128494973966098611">"حسنًا"</string>
+    <string name="throw_action_title" msgid="7163710562670220163">"طرح"</string>
+    <string name="commute_action_title" msgid="2585755255290185096">"تنقُّل"</string>
+    <string name="sign_out_action_title" msgid="1653943000866713010">"تسجيل الخروج"</string>
+    <string name="try_anyway_action_title" msgid="7384500054249311718">"المحاولة على أيّ حال"</string>
+    <string name="yes_action_title" msgid="5507096013762092189">"نعم"</string>
+    <string name="no_action_title" msgid="1452124604210014010">"لا"</string>
+    <string name="bug_reported_toast_msg" msgid="2487119172744644317">"تم الإبلاغ عن الخطأ."</string>
+    <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"تم التكبير"</string>
+    <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"تم التصغير"</string>
+    <string name="triggered_toast_msg" msgid="3396166539208366382">"تم التفعيل"</string>
+    <string name="primary_toast_msg" msgid="7153771322662005447">"تم الضغط على الزر أساسي."</string>
+    <string name="search_toast_msg" msgid="7826530065407699347">"تم النقر على زر البحث"</string>
+    <string name="options_toast_msg" msgid="2146223786877557730">"تم النقر على الزر خيارات"</string>
+    <string name="favorite_toast_msg" msgid="522064494016370117">"المفضّلة"</string>
+    <string name="not_favorite_toast_msg" msgid="6831181108681007428">"ليس عنصرًا مفضّلاً."</string>
+    <string name="nav_requested_toast_msg" msgid="6696525973145493908">"تم طلب إجراء تنقّل"</string>
+    <string name="selected_route_toast_msg" msgid="3149189677200086656">"مسار الرحلة المحدد"</string>
+    <string name="visible_routes_toast_msg" msgid="7065558153736024203">"مسارات الطرق المرئية"</string>
+    <string name="second_item_toast_msg" msgid="7210054709419608215">"تم النقر على العنصر الثاني"</string>
+    <string name="third_item_checked_toast_msg" msgid="3022450599567347361">"تم التحقق من العنصر الثالث"</string>
+    <string name="fifth_item_checked_toast_msg" msgid="1627599668504718594">"تم فحص العنصر الخامس."</string>
+    <string name="sixth_item_toast_msg" msgid="6117028866385793707">"تم النقر على العنصر السادس."</string>
+    <string name="settings_toast_msg" msgid="7697794473002342727">"تم النقر على الإعدادات"</string>
+    <string name="parked_toast_msg" msgid="2532422265890824446">"‏إجراء في Parked"</string>
+    <string name="more_toast_msg" msgid="5938288138225509885">"تم النقر على المزيد"</string>
+    <string name="commute_toast_msg" msgid="4112684360647638688">"تم الضغط على الزر \"تنقُّل\""</string>
+    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"منح إذن تحديد الموقع الجغرافي لرؤية الموقع الجغرافي الحالي"</string>
+    <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"‏يبدأ تسجيل الدخول باستخدام حساب Google هنا."</string>
+    <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"تغيير الاختيار إلى فهرس"</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"تم النقر على الزر \"نعم\"."</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"تم النقر على الزر \"لا\"."</string>
+    <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"انتهت مهلة التنبيه."</string>
+    <string name="first_row_title" msgid="219428344573165351">"صف يتضمن صورة كبيرة ونص طويل ونص طويل ونص طويل ونص ونص طويل"</string>
+    <string name="first_row_text" msgid="3887390298628338716">"نص نص نص"</string>
+    <string name="other_row_title_prefix" msgid="4702355788835253197">"عنوان الصف"</string>
+    <string name="other_row_text" msgid="7510279447493169945">"نص الصف"</string>
+    <string name="navigate" msgid="2713090390373996139">"انتقال"</string>
+    <string name="dial" msgid="3145707439707628311">"طلب"</string>
+    <string name="address" msgid="9010635942573581302">"العنوان"</string>
+    <string name="phone" msgid="2504766809811627577">"الهاتف"</string>
+    <string name="fail_start_nav" msgid="6921321606009212189">"تعذّر بدء التنقّل."</string>
+    <string name="fail_start_dialer" msgid="1471602619507306261">"تعذّر تشغيل برنامج الاتصال."</string>
+    <string name="car_hardware_demo_title" msgid="3679106197233262689">"إصدار تجريبي لأجهزة السيارة"</string>
+    <string name="car_hardware_info" msgid="1244783247616395012">"معلومات حول أجهزة السيارة"</string>
+    <string name="model_info" msgid="494224423025683030">"معلومات حول الطراز"</string>
+    <string name="no_model_permission" msgid="5333629877014978947">"إذن الوصول إلى بيانات الطراز غير متوفّر."</string>
+    <string name="manufacturer_unavailable" msgid="4978995415869838056">"الشركة المصنّعة غير متوفّرة"</string>
+    <string name="model_unavailable" msgid="4075463010215406573">"الطراز غير متوفّر"</string>
+    <string name="year_unavailable" msgid="994338773299644607">"العام غير متوفّر"</string>
+    <string name="energy_profile" msgid="81415433590192158">"الملف الشخصي للطاقة"</string>
+    <string name="no_energy_profile_permission" msgid="4662285713731308888">"إذن الوصول إلى الملف الشخصي لبيانات الطاقة غير متوفّر."</string>
+    <string name="fuel_types" msgid="6811375173343218212">"أنواع الوقود"</string>
+    <string name="unavailable" msgid="3636401138255192934">"غير متوفّر"</string>
+    <string name="ev_connector_types" msgid="735458637011996125">"أنواع وصلات المركبات الكهربائية"</string>
+    <string name="example_title" msgid="530257630320010494">"‏مثال على %d"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"يحتوي هذا النص على محتوى باللون الأحمر."</string>
+    <string name="example_2_text" msgid="718820705318661440">"يحتوي هذا النص على محتوى باللون الأخضر."</string>
+    <string name="example_3_text" msgid="977269832109695627">"يحتوي هذا النص على محتوى باللون الأزرق."</string>
+    <string name="example_4_text" msgid="2043547015979437373">"يحتوي هذا النص على محتوى باللون الأصفر."</string>
+    <string name="example_5_text" msgid="4387859825054561488">"يستخدم هذا النص اللون الأساسي."</string>
+    <string name="example_6_text" msgid="7991523168517599600">"يستخدم هذا النص اللون الثانوي."</string>
+    <string name="color_demo" msgid="1822427636476178993">"إصدار تجريبي للألوان"</string>
+    <string name="list_limit" msgid="3023536401535417286">"حد القائمة"</string>
+    <string name="grid_limit" msgid="1350116012893549206">"حد الشبكة"</string>
+    <string name="pane_limit" msgid="981518409516855230">"حد اللوحة"</string>
+    <string name="place_list_limit" msgid="6785181191763056582">"ضع حدًا للقائمة"</string>
+    <string name="route_list_limit" msgid="505793441615134116">"حد قائمة الطرق"</string>
+    <string name="content_limits" msgid="5726880972110281095">"قيود على المحتوى"</string>
+    <string name="content_limits_demo_title" msgid="3207211638386727610">"إصدار تجريبي للقيود على المحتوى"</string>
+    <string name="finish_app_msg" msgid="8354334557053141891">"سيؤدي هذا إلى إنهاء التطبيق. وعند إرجاعه سيتم إجراء إعدادات مُسبَقة لشاشة الإذن."</string>
+    <string name="finish_app_title" msgid="9013328479438745074">"إصدار تجريبي لإنهاء التطبيق"</string>
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"إصدار تجريبي للإعدادات المُسبَقة لشاشة الأذونات عند عملية التشغيل التالية"</string>
+    <string name="loading_demo_title" msgid="1086529475809143517">"جارٍ تحميل الإصدار التجريبي."</string>
+    <string name="loading_demo_row_title" msgid="8933049915126088142">"اكتملت عملية التحميل."</string>
+    <string name="pop_to_root" msgid="2078277386355064198">"الانتقال إلى الجذر"</string>
+    <string name="pop_to_marker" msgid="5007078308762725207">"علامة الإصدار التجريبي للانتقال إلى الميزات المتنوّعة"</string>
+    <string name="push_stack" msgid="2433062141810168976">"إضافة المزيد من العناصر في الحزمة"</string>
+    <string name="pop_to_prefix" msgid="4288884615669751608">"الانتقال إلى"</string>
+    <string name="pop_to_title" msgid="3924696281273379455">"الانتقال إلى الإصدار التجريبي"</string>
+    <string name="package_not_found_error_msg" msgid="7525619456883627939">"لم يتم العثور على الحزمة."</string>
+    <string name="permissions_granted_msg" msgid="2348556088141992714">"تم منح جميع الأذونات. يُرجى إبطال الأذونات من الإعدادات."</string>
+    <string name="needs_access_msg_prefix" msgid="2204136858798832382">"يحتاج التطبيق إلى الوصول إلى الأذونات التالية:\n"</string>
+    <string name="phone_screen_permission_msg" msgid="3599815596923367256">"منح الإذن على شاشة الهاتف"</string>
+    <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"تفعيل أذونات تحديد الموقع الجغرافي على الجهاز"</string>
+    <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"تفعيل ميزة الموقع الجغرافي على شاشة الهاتف"</string>
+    <string name="required_permissions_title" msgid="5351791879153568211">"الأذونات المطلوبة"</string>
+    <string name="request_permissions_title" msgid="7456426341142412300">"إصدار تجريبي لطلب الحصول على إذن"</string>
+    <string name="cancel_reservation_title" msgid="1374986823057959608">"شاشة إلغاء الحجز"</string>
+    <string name="reservation_cancelled_msg" msgid="6334213670275547875">"تم إلغاء الحجز."</string>
+    <string name="result_demo_title" msgid="3900525190662148290">"إصدار تجريبي للنتيجة"</string>
+    <string name="not_started_for_result_msg" msgid="7498800528148447270">"لم يتم بدء هذا التطبيق لعرض النتائج."</string>
+    <string name="started_for_result_msg" msgid="4225260243713833974">"‏تم استدعاء هذا التطبيق لعرض نتائج من %s. يُرجى اختيار النتيجة لإرسالها مرة أخرى إلى الطالب."</string>
+    <string name="arrived_exclamation_msg" msgid="9132265698563096988">"الإصدار التجريبي أصبح متاحًا"</string>
+    <string name="travel_est_trip_text" msgid="5134365408383171144">"‏اختيار Alice"</string>
+    <string name="send_notification_title" msgid="4731688444696028193">"إرسال إشعار"</string>
+    <string name="start_notifications_title" msgid="8699668027543530460">"تفعيل الإشعارات"</string>
+    <string name="stop_notifications_title" msgid="3703892710275206239">"إيقاف الإشعارات"</string>
+    <string name="notification_title" msgid="5507590705935298176">"الإشعار"</string>
+    <string name="importance_title" msgid="9034862997821839831">"مدى الأهمية"</string>
+    <string name="category_title" msgid="4783851267093259949">"الفئة"</string>
+    <string name="ongoing_title" msgid="4957996003270280496">"مستمر"</string>
+    <!-- no translation found for default_importance (6347996298832939989) -->
+    <skip />
+    <!-- no translation found for high_importance (5009120714837304882) -->
+    <skip />
+    <!-- no translation found for low_importance (4721161314404294033) -->
+    <skip />
+    <!-- no translation found for unknown_importance (909001735933359216) -->
+    <skip />
+    <string name="notification_demo" msgid="1819496937832036387">"إصدار تجريبي للإشعارات"</string>
+    <string name="misc_demo_title" msgid="7399959062407349380">"إصدارات تجريبية لميزات متنوعة"</string>
+    <string name="navigating_demo_title" msgid="7454579665387386476">"إصدار تجريبي حول التنقّل"</string>
+    <string name="arrived_demo_title" msgid="6708013121387053838">"الإصدار التجريبي متاح"</string>
+    <string name="junction_image_demo_title" msgid="3302979708776502314">"إصدار تجريبي لصورة الوصلة"</string>
+    <string name="nav_template_demos_title" msgid="8215835368932160866">"إصدارات تجريبية لنموذج عمليات التنقّل"</string>
+    <string name="map_template_pane_demo_title" msgid="4849450903277412004">"إصدار تجريبي لنموذج خريطة مع لوحة"</string>
+    <string name="map_template_list_demo_title" msgid="1473810899303903185">"إصدار تجريبي لنموذج خريطة مع قائمة"</string>
+    <string name="start_notification_title" msgid="2208831088632818681">"تفعيل الإشعار"</string>
+    <string name="stop_notification_title" msgid="3709643750540881176">"إيقاف الإشعار"</string>
+    <string name="nav_notification_demo_title" msgid="4448683262984308442">"إصدار تجريبي لإشعار بشأن التنقّل"</string>
+    <string name="go_straight" msgid="2301747728609198718">"الانتقال مباشرةً"</string>
+    <string name="turn_right" msgid="4710562732720109969">"الانعطاف لليمين"</string>
+    <string name="take_520" msgid="3804796387195842741">"اُسلُك الطريق 520"</string>
+    <string name="gas_station" msgid="1203313937444666161">"محطة وقود"</string>
+    <string name="short_route" msgid="4831864276538141265">"مسار طريق قصير"</string>
+    <string name="less_busy" msgid="310625272281710983">"أقل انشغالاً"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"المركبات الملائمة التي تشغل حيزًا كبيرًا"</string>
+    <string name="long_route" msgid="4737969235741057506">"مسار الرحلة طويل"</string>
+    <string name="continue_start_nav" msgid="6231797535084469163">"المتابعة لبدء التنقّل"</string>
+    <string name="continue_route" msgid="5172258139245088080">"المتابعة إلى مسار الرحلة"</string>
+    <string name="routes_title" msgid="7799772149932075357">"مسارات الرحلة"</string>
+    <string name="place_list_nav_template_demo_title" msgid="8019588508812955290">"إصدار تجريبي لنموذج التنقّل في قائمة الأماكن"</string>
+    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"إصدار تجريبي لنموذج معاينة الطريق"</string>
+    <string name="notification_template_demo_title" msgid="5076051497316030274">"إصدار تجريبي لنموذج الإشعار"</string>
+    <string name="nav_map_template_demo_title" msgid="344985380763975398">"إصدار تجريبي لنموذج عمليات التنقّل مع خريطة فقط"</string>
+    <string name="nav_demos_title" msgid="72781206086461004">"الإصدارات التجريبية لعمليات التنقّل"</string>
+    <string name="navigation_alert_title" msgid="8306554249264200848">"هل لا يزال هناك رادار سرعة متنقّل؟"</string>
+    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"تم الإبلاغ منذ 10 دقائق."</string>
+    <string name="no_toll_card_permission" msgid="6789073114449712090">"‏إذن الوصول إلى بيانات TollCard غير متوفّر."</string>
+    <string name="no_energy_level_permission" msgid="1684773185095107825">"‏إذن الوصول إلى EnergyLevel غير متوفّر."</string>
+    <string name="no_speed_permission" msgid="5812532480922675390">"إذن الوصول إلى بيانات السرعة غير متوفّر."</string>
+    <string name="no_mileage_permission" msgid="4074779840599589847">"إذن الوصول إلى بيانات المسافة المقطوعة غير متوفّر."</string>
+    <string name="no_ev_status_permission" msgid="933075402821938973">"إذن الوصول إلى حالة المركبة الكهربائية غير متوفّر."</string>
+    <string name="no_accelerometer_permission" msgid="896914448469117234">"إذن الوصول إلى مقياس التسارع غير متوفّر."</string>
+    <string name="no_gyroscope_permission" msgid="665293140266771569">"إذن الوصول إلى أداة جيروسكوب غير متوفّر."</string>
+    <string name="no_compass_permission" msgid="5162304489577567125">"إذن الوصول إلى أداة البوصلة غير متوفّر."</string>
+    <string name="no_car_hardware_location" msgid="3505517472938045093">"‏إذن الوصول إلى CarHardwareLocation غير متوفّر."</string>
+    <string name="fetch_toll_info" msgid="6864627977128179834">"جارٍ استرجاع معلومات بشأن رسوم المرور."</string>
+    <string name="fetch_energy_level" msgid="1773415471137542832">"جارٍ استرجاع بيانات مستوى الطاقة."</string>
+    <string name="fetch_speed" msgid="7333830984597189627">"جارٍ استرجاع بيانات السرعة."</string>
+    <string name="fetch_mileage" msgid="7490131687788025123">"جارٍ استرجاع بيانات المسافة المقطوعة."</string>
+    <string name="fetch_ev_status" msgid="2798910410830567052">"جارٍ استرجاع حالة المركبة الكهربائية."</string>
+    <string name="fetch_accelerometer" msgid="697750041126810911">"جارٍ استرجاع بيانات مقياس التسارع."</string>
+    <string name="fetch_gyroscope" msgid="7153155318827188539">"جارٍ استرجاع بيانات الجيروسكوب."</string>
+    <string name="fetch_compass" msgid="7316188117590056717">"جارٍ استرجاع بيانات البوصلة."</string>
+    <string name="fetch_location" msgid="5015066922035852615">"جارٍ استرجاع بيانات الموقع الجغرافي."</string>
+    <string name="toll_card_state" msgid="4430544885695162226">"حالة بطاقة تحصيل رسوم العبور"</string>
+    <string name="low_energy" msgid="3462774027012877028">"مستوى الطاقة منخفض"</string>
+    <string name="range" msgid="8744960568263400641">"النطاق"</string>
+    <string name="fuel" msgid="4253578650127250651">"وقود"</string>
+    <string name="battery" msgid="2183623637331546820">"البطارية"</string>
+    <string name="display_speed" msgid="9161318805331348165">"عرض بيانات السرعة"</string>
+    <string name="raw_speed" msgid="7295910214088983967">"بيانات السرعة الأولية"</string>
+    <string name="unit" msgid="7697521583928135171">"الوحدة"</string>
+    <string name="odometer" msgid="3925174645651546591">"عدّاد المسافات"</string>
+    <string name="ev_connected" msgid="2277845607662494696">"تم توصيل منفذ الشحن الخاص بالمركبة الكهربائية."</string>
+    <string name="ev_open" msgid="4916704450914519643">"منفذ الشحن الخاص بالمركبة الكهربائية مفتوح"</string>
+    <string name="accelerometer" msgid="2084026313768299185">"مقياس التسارع"</string>
+    <string name="gyroscope" msgid="3428075828014504651">"الجيروسكوب"</string>
+    <string name="compass" msgid="7037367764762441245">"بوصلة"</string>
+    <string name="car_hardware_location" msgid="5826128477363068617">"الموقع الجغرافي لأجهزة السيارة"</string>
+    <string name="non_actionable" msgid="8999757911111188784">"غير قابل للاستخدام"</string>
+    <string name="second_item" msgid="5245792503030812493">"العنصر الثاني"</string>
+    <string name="third_item" msgid="334088179008716411">"العنصر الثالث"</string>
+    <string name="fourth_item" msgid="1153409687260543158">"العنصر الرابع"</string>
+    <string name="fifth_item" msgid="295284272719956932">"يتضمن العنصر الخامس مجموعة طويلة من العناوين."</string>
+    <string name="sixth_item" msgid="3880321601391343607">"يتضمن العنصر السادس مجموعة طويلة من العناوين."</string>
+    <string name="grid_template_demo_title" msgid="6159115661928982245">"إصدار تجريبي لنموذج الشبكة"</string>
+    <string name="parked_only_title" msgid="3190603222397552672">"‏عنوان في Parked فقط"</string>
+    <string name="parked_only_text" msgid="8720610556452272916">"‏مزيد من النصوص في Parked فقط"</string>
+    <string name="clicked_row_prefix" msgid="9068303427922069941">"الصف الذي تم النقر عليه"</string>
+    <string name="first_line_text" msgid="6648055806656590336">"السطر الأول من النص"</string>
+    <string name="second_line_text" msgid="38664490158836864">"السطر الثاني من النص"</string>
+    <string name="title_prefix" msgid="3991742709199357049">"العنوان"</string>
+    <string name="list_template_demo_title" msgid="1740208242737246151">"عرض تجريبي لقالب القائمة"</string>
+    <string name="long_msg_template_demo_title" msgid="1793748562161438131">"إصدار تجريبي لنموذج الرسالة الطويلة"</string>
+    <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"لا يتوفّر نموذج الرسالة الطويلة بواسطة المضيف."</string>
+    <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"مضيف غير متوافق"</string>
+    <string name="msg_template_demo_title" msgid="3895210951340409473">"إصدار تجريبي لنموذج الرسالة"</string>
+    <string name="msg_template_demo_text" msgid="2275291617716161409">"تظهر الرسالة هنا.\nالمزيد من النص في السطر الثاني."</string>
+    <string name="pane_template_demo_title" msgid="7804292600060341608">"إصدار تجريبي لنموذج اللوحة"</string>
+    <string name="place_list_template_demo_title" msgid="2054022985455460469">"إصدار تجريبي لنموذج قائمة الأماكن"</string>
+    <string name="browse_places_title" msgid="7246005909846715898">"تصفُّح الأماكن"</string>
+    <string name="search_template_demo_title" msgid="1770474418958318114">"إصدار تجريبي من نموذج البحث"</string>
+    <string name="search_hint" msgid="978495498991026792">"البحث هنا"</string>
+    <string name="additional_text" msgid="8410289578276941586">"يُرجى مراجعة بنود الخدمة التي نتّبعها."</string>
+    <string name="google_sign_in" msgid="6556259799319701727">"‏تسجيل الدخول بحساب Google"</string>
+    <string name="use_pin" msgid="7850893299484337431">"استخدام رقم تعريف شخصي"</string>
+    <string name="qr_code" msgid="5487041647280777397">"رمز الاستجابة السريعة"</string>
+    <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"لا يوفّر لك المضيف نموذج تسجيل دخول."</string>
+    <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"مضيف غير متوافق"</string>
+    <string name="email_hint" msgid="7205549445477319606">"عنوان البريد الإلكتروني"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"تسجيل الدخول"</string>
+    <string name="sign_in_instructions" msgid="9044850228284294762">"أدخِل بيانات الاعتماد."</string>
+    <string name="invalid_email_error_msg" msgid="5261362663718987167">"يجب أن يكون اسم المستخدم عنوان بريد إلكتروني صالح."</string>
+    <string name="invalid_length_error_msg" msgid="8238905276326976425">"‏يجب أن يتألف اسم المستخدم من %s حرف على الأقل."</string>
+    <string name="invalid_password_error_msg" msgid="1090359893902674610">"كلمة المرور غير صالحة"</string>
+    <string name="password_hint" msgid="2869107073860012864">"كلمة مرور"</string>
+    <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"اسم المستخدم"</string>
+    <string name="pin_sign_in_instruction" msgid="2288691296234360441">"اكتب رقم التعريف الشخصي هذا في هاتفك."</string>
+    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"إجراء مسح ضوئي لرمز الاستجابة السريعة لتسجيل الدخول"</string>
+    <string name="sign_in_with_google_title" msgid="8043752000786977249">"‏تسجيل الدخول باستخدام حساب Google"</string>
+    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"‏استخدم هذا الزر لإكمال عملية تسجيل الدخول بحساب Google."</string>
+    <string name="sign_in_complete_text" msgid="8423984266325680606">"لقد سجّلت دخولك."</string>
+    <string name="sign_in_complete_title" msgid="8919868148773983428">"تم إتمام عملية تسجيل الدخول."</string>
+    <string name="sign_in_template_demo_title" msgid="6052035424941410249">"إصدار تجريبي من نموذج تسجيل الدخول"</string>
+    <string name="images_unknown_host_error" msgid="3180661817432720076">"يتعذّر عرض الصور لمضيف غير معروف."</string>
+    <string name="icon_title_prefix" msgid="8487026131229541244">"الرمز"</string>
+    <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"إصدار تجريبي لرموز أداة توفير المحتوى"</string>
+    <string name="icons_demo_title" msgid="4082976685262307357">"إصدار تجريبي للرمز"</string>
+    <string name="app_icon_title" msgid="7534936683349723423">"رمز التطبيق"</string>
+    <string name="vector_no_tint_title" msgid="874591632279039146">"متّجه قابل للرسم بدون درجات ألوان"</string>
+    <string name="vector_with_tint_title" msgid="1022346419829696827">"متّجه قابل للرسم مع درجات ألوان"</string>
+    <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"متّجه قابل للرسم مع سمة لمظهر التطبيق خاصة بلونه"</string>
+    <string name="png_res_title" msgid="7437083018336747544">"‏تم إرسال صورة بتنسيق PNG كأحد الموارد"</string>
+    <string name="png_bitmap_title" msgid="120790220238335267">"‏تم إرسال صورة بتنسيق PNG كأحد الموارد"</string>
+    <string name="just_row_title" msgid="965700021568970725">"مجرد عنوان"</string>
+    <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"عنوان مع رمز تطبيق"</string>
+    <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"عنوان مع صورة معرف المورد"</string>
+    <string name="title_with_svg_image_row_title" msgid="6109092343637263755">"‏عنوان مع رسومات موجّهة يمكن تغيير حجمها (SVG)"</string>
+    <string name="colored_secondary_row_title" msgid="5173288934252528929">"نص ثانوي ملوّن"</string>
+    <string name="title_with_secondary_lines_row_title" msgid="7769408881272549837">"عنوان يتضمن سطور نص ثانوية متعددة"</string>
+    <string name="title_with_secondary_lines_row_text_1" msgid="8945114692653524102">"Err and err and err again, but less and less and less."</string>
+    <string name="title_with_secondary_lines_row_text_2" msgid="1017734603405251531">"- بييت هاين"</string>
+    <string name="rows_demo_title" msgid="3198566660454251007">"إصدار تجريبي للصفوف"</string>
+    <string name="text_icons_demo_title" msgid="8732943920672143201">"الإصدارات التجريبية للنصوص والرموز"</string>
+    <string name="row_text_icons_demo_title" msgid="135167694047524905">"إصدار تجريبي للصفوف التي تتضمن نصوصًا ورموزًا"</string>
+    <string name="selectable_lists_demo_title" msgid="5492658731113129386">"إصدار تجريبي للقوائم القابلة للاختيار"</string>
+    <string name="option_1_title" msgid="7221252541651471199">"الخيار الأول"</string>
+    <string name="option_2_title" msgid="1905146448697963818">"الخيار الثاني"</string>
+    <string name="option_3_title" msgid="6319268250436119258">"الخيار الثالث"</string>
+    <string name="some_additional_text" msgid="4009872495806318260">"بعض النصوص الإضافية"</string>
+    <string name="sample_additional_list" msgid="5085372891301576306">"نموذج لقائمة قابلة للاختيار"</string>
+    <string name="task_restriction_demo_title" msgid="2212084350718766941">"إصدار تجريبي لتقييد المهمّة"</string>
+    <string name="task_limit_reached_msg" msgid="6038763366777119364">"تم الوصول إلى حد المهمّة.\nسيؤدي التقدم إلى فرض إيقاف التطبيق."</string>
+    <string name="task_step_of_title" msgid="2791717962535723839">"‏خطوة المهمة: %1$d من %2$d"</string>
+    <string name="task_step_of_text" msgid="4646729781462227219">"انقر للتقدم إلى الأمام."</string>
+    <string name="toggle_test_title" msgid="924485265152862631">"إيقاف/تفعيل الاختبار"</string>
+    <string name="toggle_test_text" msgid="8107217216013312857">"يُسمَح بتغيير الحالة."</string>
+    <string name="image_test_title" msgid="8273863429801477547">"اختبار الصورة"</string>
+    <string name="image_test_text" msgid="6264812093895530445">"يُسمَح بإجراء تغييرات على الصورة."</string>
+    <string name="additional_data_title" msgid="3546689652240300617">"البيانات الإضافية"</string>
+    <string name="additional_data_text" msgid="2846223398214158872">"التحديثات المسموح بها على العمليات التي تتم بالخلفية"</string>
+    <string name="misc_templates_demos_title" msgid="6077169010255928114">"إصدارات تجريبية لنموذج ميزات متنوّعة"</string>
+    <string name="showcase_demos_title" msgid="1542092687878113304">"عرض الإصدارات التجريبية"</string>
+    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
+    <string name="location_1_description" msgid="4801052291684791371">"متّجه مورد بدرجات ألوان"</string>
+    <string name="location_2_description" msgid="3331356135359047166">"صورة نقطية لمصدر الصورة"</string>
+    <string name="location_3_description" msgid="3982142774088944850">"علامة النص الملوّن"</string>
+    <string name="location_4_description" msgid="6560365445044381911">"صورة نقطية"</string>
+    <string name="location_description_text_label" msgid="2779911545316756419">"تصنيف النص"</string>
+</resources>

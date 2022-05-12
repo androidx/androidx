@@ -97,6 +97,12 @@ class ScalingLazyListState constructor(
     internal val autoCentering = mutableStateOf<AutoCenteringParams?>(null)
     internal val initialized = mutableStateOf<Boolean>(false)
 
+    // The following three are used together when there is a post-initialization incomplete scroll
+    // to finish next time the ScalingLazyColumn is visible
+    private val incompleteScrollItem = mutableStateOf<Int?>(null)
+    private val incompleteScrollOffset = mutableStateOf<Int?>(null)
+    private val incompleteScrollAnimated = mutableStateOf(false)
+
     /**
      * The index of the item positioned closest to the viewport center
      */
@@ -279,15 +285,15 @@ class ScalingLazyListState constructor(
                 }
 
             // Decide if we are ready for the 2nd stage of initialization
-            // 1. autoCentering is off or
-            // 2. The list has no items or
-            // 3. the before content autoCentering Spacer has been sized.
-            // NOTE: 3a. It is possible, if the first real item in the list is large, that the size
-            // of the Spacer is 0.
-            val readyForInitialization =
-                // Not already initialized
-                !initialized.value && (
-                    // Not autoCentering
+            // 1. We are not yet initialized and
+
+            val readyForInitialScroll =
+                if (! initialized.value) {
+                    // 1. autoCentering is off or
+                    // 2. The list has no items or
+                    // 3. the before content autoCentering Spacer has been sized.
+                    // NOTE: It is possible, if the first real item in the list is large, that the size
+                    // of the Spacer is 0.
                     autoCentering.value == null || (
                         lazyListState.layoutInfo.visibleItemsInfo.size >= 2 && (
                             // or Empty list (other than the 2 spacers)
@@ -301,7 +307,10 @@ class ScalingLazyListState constructor(
                                 ) == 0
                             )
                         )
-                    )
+                } else {
+                    // We are already initialized and have an incomplete scroll to finish
+                    incompleteScrollItem.value != null
+                }
 
             DefaultScalingLazyListLayoutInfo(
                 visibleItemsInfo = visibleItemsInfo,
@@ -325,7 +334,7 @@ class ScalingLazyListState constructor(
                     totalItemsCount),
                 afterAutoCenteringPadding = calculateBottomAutoCenteringPaddingPx(visibleItemsInfo,
                     totalItemsCount),
-                readyForInitialization = readyForInitialization,
+                readyForInitialScroll = readyForInitialScroll,
                 initialized = initialized.value
             )
         }
@@ -401,43 +410,90 @@ class ScalingLazyListState constructor(
         /*@IntRange(from = 0)*/
         scrollOffset: Int = 0
     ) {
-        // Convert the index to take into account the Spacer added to the underlying LazyList before
-        // the first ScalingLazyColumn list item
+        return scrollToItem(false, index, scrollOffset)
+    }
+
+    /**
+     * Brings the item at [index] to the center of the viewport and positions it based on
+     * the [anchorType] and applies the [scrollOffset] pixels.
+     *
+     * @param animated whether to animate the scroll
+     * @param index the index to which to scroll. Must be non-negative.
+     * @param scrollOffset the offset that the item should end up after the scroll. Note that
+     * positive offset refers to forward scroll, so in a top-to-bottom list, positive offset will
+     * scroll the item further upward (taking it partly offscreen).
+     */
+    internal suspend fun scrollToItem(
+        animated: Boolean,
+        /*@IntRange(from = 0)*/
+        index: Int,
+        /*@IntRange(from = 0)*/
+        scrollOffset: Int,
+    ) {
         if (!initialized.value) {
             // We can't scroll yet, save to do it when we can (on the first composition).
             initialCenterItemIndex = index
             initialCenterItemScrollOffset = scrollOffset
             return
         }
-        val lazyListStateIndex = if (autoCentering.value != null) index + 1 else index
+
+        // Find the underlying LazyList index taking into account the Spacer added before
+        // the first ScalingLazyColumn list item when autoCentering
+        val targetIndex = index.coerceAtMost(layoutInfo.totalItemsCount)
+        val lazyListStateIndex = targetIndex + if (autoCentering.value != null) 1 else 0
+
         val offsetToCenterOfViewport =
             beforeContentPaddingPx.value!! - (viewportHeightPx.value!! / 2)
         if (anchorType.value == ScalingLazyListAnchorType.ItemStart) {
             val offset = offsetToCenterOfViewport + scrollOffset
-            return lazyListState.scrollToItem(lazyListStateIndex, offset)
+            return lazyListState.scrollToItem(animated, lazyListStateIndex, offset)
         } else {
             var item = lazyListState.layoutInfo.findItemInfoWithIndex(lazyListStateIndex)
             if (item == null) {
+                val estimatedUnadjustedHeight = layoutInfo.averageUnadjustedItemSize()
+                val estimatedOffset =
+                    offsetToCenterOfViewport + (estimatedUnadjustedHeight / 2) + scrollOffset
+
                 // Scroll the item into the middle of the viewport so that we know it is visible
-                lazyListState.scrollToItem(
-                    lazyListStateIndex,
-                    offsetToCenterOfViewport
-                )
+                lazyListState.scrollToItem(animated, lazyListStateIndex, estimatedOffset)
                 // Now we know that the item is visible find it and fine tune our position
                 item = lazyListState.layoutInfo.findItemInfoWithIndex(lazyListStateIndex)
             }
             if (item != null) {
-                val offset = offsetToCenterOfViewport + (item.size / 2) + scrollOffset
-                return lazyListState.scrollToItem(lazyListStateIndex, offset)
+                // Decide if the item is in the right place
+                if (centerItemIndex != index || centerItemScrollOffset != scrollOffset) {
+                    val offset = offsetToCenterOfViewport + (item.size / 2) + scrollOffset
+                    return lazyListState.scrollToItem(animated, lazyListStateIndex, offset)
+                }
+            } else {
+                // The scroll has failed - this should only happen if the list is not currently
+                // visible
+                incompleteScrollItem.value = targetIndex
+                incompleteScrollOffset.value = scrollOffset
+                incompleteScrollAnimated.value = animated
             }
         }
         return
     }
 
     internal suspend fun scrollToInitialItem() {
+        require(!initialized.value xor (incompleteScrollItem.value != null)) {
+            "Must be either initializing or handling an incomplete scroll"
+        }
+
+        // First time initialization
         if (!initialized.value) {
             initialized.value = true
             scrollToItem(initialCenterItemIndex, initialCenterItemScrollOffset)
+        }
+        // Check whether we are becoming visible after an incomplete scrollTo/animatedScrollTo
+        if (incompleteScrollItem.value != null) {
+            val animated = incompleteScrollAnimated.value
+            val targetIndex = incompleteScrollItem.value!!
+            val targetOffset = incompleteScrollOffset.value!!
+            // Reset the incomplete scroll indicator
+            incompleteScrollItem.value = null
+            scrollToItem(animated, targetIndex, targetOffset)
         }
         return
     }
@@ -458,35 +514,7 @@ class ScalingLazyListState constructor(
         /*@IntRange(from = 0)*/
         scrollOffset: Int = 0
     ) {
-        // Convert the index to take into account the Spacer added to the underlying LazyList before
-        // the first ScalingLazyColumn list item
-        val lazyListStateIndex = if (autoCentering.value != null) index + 1 else index
-        val offsetToCenterOfViewport =
-            beforeContentPaddingPx.value!! - (viewportHeightPx.value!! / 2)
-        if (anchorType.value == ScalingLazyListAnchorType.ItemStart) {
-            val offset = offsetToCenterOfViewport + scrollOffset
-            return lazyListState.animateScrollToItem(lazyListStateIndex, offset)
-        } else {
-            var item = lazyListState.layoutInfo.findItemInfoWithIndex(lazyListStateIndex)
-            var sizeEstimate = 0
-            if (item == null) {
-                // Guess the size of the item so that we can try and position it correctly
-                sizeEstimate = lazyListState.layoutInfo.averageItemSize()
-                // Scroll the item towards the middle of the viewport so that we know it is visible
-                lazyListState.animateScrollToItem(
-                    lazyListStateIndex,
-                    offsetToCenterOfViewport + (sizeEstimate / 2) + scrollOffset
-                )
-                // Now we know that the item is visible find it and fine tune our position
-                item = lazyListState.layoutInfo.findItemInfoWithIndex(lazyListStateIndex)
-            }
-            // Determine if a second adjustment is needed
-            if (item != null && item.size != sizeEstimate) {
-                val offset = offsetToCenterOfViewport + (item.size / 2) + scrollOffset
-                return lazyListState.animateScrollToItem(lazyListStateIndex, offset)
-            }
-        }
-        return
+        return scrollToItem(true, index, scrollOffset)
     }
 
     private fun discardAutoCenteringListItem(item: LazyListItemInfo): Boolean =
@@ -599,9 +627,13 @@ private fun LazyListLayoutInfo.findItemInfoWithIndex(index: Int): LazyListItemIn
     return this.visibleItemsInfo.find { it.index == index }
 }
 
-private fun LazyListLayoutInfo.averageItemSize(): Int {
+private suspend fun LazyListState.scrollToItem(animated: Boolean, index: Int, offset: Int) {
+    if (animated) animateScrollToItem(index, offset) else scrollToItem(index, offset)
+}
+
+private fun ScalingLazyListLayoutInfo.averageUnadjustedItemSize(): Int {
     var totalSize = 0
-    visibleItemsInfo.forEach { totalSize += it.size }
+    visibleItemsInfo.forEach { totalSize += it.unadjustedSize }
     return if (visibleItemsInfo.isNotEmpty())
         (totalSize.toFloat() / visibleItemsInfo.size).roundToInt()
     else 0

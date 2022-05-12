@@ -22,6 +22,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -29,7 +30,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -59,6 +59,7 @@ import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
@@ -140,7 +141,11 @@ public fun ToggleChip(
         modifier = modifier
             .height(ToggleChipDefaults.Height)
             .clip(shape = shape)
-            .paint(painter = colors.background(enabled = enabled, checked = checked).value)
+            .width(IntrinsicSize.Max)
+            .paint(
+                painter = colors.background(enabled = enabled, checked = checked).value,
+                contentScale = ContentScale.Crop
+            )
             .toggleable(
                 enabled = enabled,
                 value = checked,
@@ -149,11 +154,10 @@ public fun ToggleChip(
                 indication = rememberRipple(),
                 interactionSource = interactionSource
             )
-            .fillMaxSize()
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxHeight()
                 .padding(contentPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -301,12 +305,13 @@ public fun SplitToggleChip(
     Box(
         modifier = modifier
             .height(ToggleChipDefaults.Height)
+            .width(IntrinsicSize.Max)
             .clip(shape = shape)
             .background(colors.backgroundColor(enabled = enabled).value)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxHeight()
         ) {
             Row(
                 modifier = Modifier
@@ -317,7 +322,7 @@ public fun SplitToggleChip(
                         indication = rememberRipple(),
                         interactionSource = clickInteractionSource,
                     )
-                    .fillMaxSize()
+                    .fillMaxHeight()
                     .padding(
                         start = contentPadding
                             .calculateStartPadding(LocalLayoutDirection.current),

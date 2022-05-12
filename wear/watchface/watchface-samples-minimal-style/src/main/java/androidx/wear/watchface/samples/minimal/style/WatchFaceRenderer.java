@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.samples.minimal.style;
 
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -59,20 +60,24 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
     private final TimeRenderer mSecondsRenderer;
     private final Paint mHighlightPaint;
     private final CurrentUserStyleRepository mCurrentUserStyleRepository;
-    private final UserStyleSetting.Id mTimeStyleId = new UserStyleSetting.Id("TimeStyle");
+    private final UserStyleSetting.Id mTimeStyleId;
+    private final Resources mResources;
 
     private TimeRenderer mTimeRenderer;
 
     public WatchFaceRenderer(
             @NotNull SurfaceHolder surfaceHolder,
             @NotNull CurrentUserStyleRepository currentUserStyleRepository,
-            @NotNull WatchState watchState) {
+            @NotNull WatchState watchState,
+            @NotNull Resources resources) {
         super(surfaceHolder, currentUserStyleRepository, watchState, CanvasType.HARDWARE,
                 UPDATE_DELAY_MILLIS);
         mMinimalRenderer = new MinimalRenderer(watchState);
         mSecondsRenderer = new SecondsRenderer(watchState);
         mHighlightPaint = new Paint();
         mCurrentUserStyleRepository = currentUserStyleRepository;
+        mTimeStyleId = new UserStyleSetting.Id(resources.getString(R.string.setting_id_time_style));
+        mResources = resources;
     }
 
     @UiThread
@@ -104,13 +109,11 @@ public class WatchFaceRenderer extends ListenableCanvasRenderer {
     }
 
     private void updateTimeStyle(UserStyle userStyle) {
-        switch (userStyle.get(mTimeStyleId).getId().toString()) {
-            case "minimal":
-                mTimeRenderer = mMinimalRenderer;
-                break;
-            case "seconds":
-                mTimeRenderer = mSecondsRenderer;
-                break;
+        String option = userStyle.get(mTimeStyleId).getId().toString();
+        if (option.equals(mResources.getString(R.string.option_id_time_style_minimal))) {
+            mTimeRenderer = mMinimalRenderer;
+        } else if (option.equals(mResources.getString(R.string.option_id_time_style_seconds))) {
+            mTimeRenderer = mSecondsRenderer;
         }
     }
 

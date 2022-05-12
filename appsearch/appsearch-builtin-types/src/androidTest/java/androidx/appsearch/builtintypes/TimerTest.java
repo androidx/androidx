@@ -32,7 +32,7 @@ public class TimerTest {
                 .setName("my timer")
                 .setDurationMillis(1000)
                 .setOriginalDurationMillis(800)
-                .setRemainingTimeMillis(500)
+                .setRemainingDurationMillis(500)
                 .setRingtone("clock://ringtone/1")
                 .setStatus(Timer.STATUS_STARTED)
                 .setShouldVibrate(true)
@@ -51,7 +51,7 @@ public class TimerTest {
         assertThat(timer.getName()).isEqualTo("my timer");
         assertThat(timer.getDurationMillis()).isEqualTo(1000);
         assertThat(timer.getOriginalDurationMillis()).isEqualTo(800);
-        assertThat(timer.getRemainingTimeMillis()).isEqualTo(500);
+        assertThat(timer.getRemainingDurationMillis()).isEqualTo(500);
         assertThat(timer.getRingtone()).isEqualTo("clock://ringtone/1");
         assertThat(timer.getStatus()).isEqualTo(Timer.STATUS_STARTED);
         assertThat(timer.shouldVibrate()).isEqualTo(true);
@@ -70,7 +70,7 @@ public class TimerTest {
                 .setName("my timer")
                 .setDurationMillis(1000)
                 .setOriginalDurationMillis(800)
-                .setRemainingTimeMillis(500)
+                .setRemainingDurationMillis(500)
                 .setRingtone("clock://ringtone/1")
                 .setStatus(Timer.STATUS_STARTED)
                 .setShouldVibrate(true)
@@ -92,7 +92,8 @@ public class TimerTest {
         assertThat(timer1.getDurationMillis()).isEqualTo(timer2.getDurationMillis());
         assertThat(timer1.getOriginalDurationMillis())
                 .isEqualTo(timer2.getOriginalDurationMillis());
-        assertThat(timer1.getRemainingTimeMillis()).isEqualTo(timer2.getRemainingTimeMillis());
+        assertThat(timer1.getRemainingDurationMillis())
+                .isEqualTo(timer2.getRemainingDurationMillis());
         assertThat(timer1.getRingtone()).isEqualTo(timer2.getRingtone());
         assertThat(timer1.getStatus()).isEqualTo(timer2.getStatus());
         assertThat(timer1.shouldVibrate()).isEqualTo(timer2.shouldVibrate());
@@ -112,7 +113,7 @@ public class TimerTest {
                 .setName("my timer")
                 .setDurationMillis(1000)
                 .setOriginalDurationMillis(800)
-                .setRemainingTimeMillis(500)
+                .setRemainingDurationMillis(500)
                 .setRingtone("clock://ringtone/1")
                 .setStatus(Timer.STATUS_STARTED)
                 .setShouldVibrate(true)
@@ -134,7 +135,7 @@ public class TimerTest {
         assertThat(genericDocument.getPropertyLong("durationMillis")).isEqualTo(1000);
         assertThat(genericDocument.getPropertyLong("originalDurationMillis"))
                 .isEqualTo(800);
-        assertThat(genericDocument.getPropertyLong("remainingTimeMillis"))
+        assertThat(genericDocument.getPropertyLong("remainingDurationMillis"))
                 .isEqualTo(500);
         assertThat(genericDocument.getPropertyString("ringtone")).isEqualTo("clock://ringtone/1");
         assertThat(genericDocument.getPropertyLong("status")).isEqualTo(1);

@@ -55,7 +55,7 @@ public class JavaScriptReplyProxyImpl extends JavaScriptReplyProxy {
 
     @Override
     public void postMessage(@NonNull final String message) {
-        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_MESSAGE_LISTENER;
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.WEB_MESSAGE_LISTENER;
         if (feature.isSupportedByWebView()) {
             mBoundaryInterface.postMessage(message);
         } else {
