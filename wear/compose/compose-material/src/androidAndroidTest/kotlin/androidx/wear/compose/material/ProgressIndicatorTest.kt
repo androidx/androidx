@@ -164,9 +164,9 @@ class CircularDeterminateProgressIndicatorTest {
         // Color should take approximately a quarter of what it normally takes
         // (a little bit less), eg 25% / 4 ≈ 6%
         rule.onNodeWithTag(TEST_TAG).captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 5f..7f)
+            .assertColorInPercentageRange(Color.Yellow, 5f..8f)
         rule.onNodeWithTag(TEST_TAG).captureToImage()
-            .assertColorInPercentageRange(Color.Red, 5f..7f)
+            .assertColorInPercentageRange(Color.Red, 5f..8f)
     }
 
     @Test

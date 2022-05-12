@@ -25,6 +25,7 @@ import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_RECORDER_ERR
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE;
 import static androidx.camera.video.VideoRecordEvent.Finalize.ERROR_UNKNOWN;
 import static androidx.camera.video.VideoRecordEvent.Finalize.VideoRecordError;
+import static androidx.camera.video.internal.DebugUtils.readableUs;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -75,6 +76,7 @@ import androidx.camera.video.internal.config.MimeInfo;
 import androidx.camera.video.internal.config.VideoEncoderConfigCamcorderProfileResolver;
 import androidx.camera.video.internal.config.VideoEncoderConfigDefaultResolver;
 import androidx.camera.video.internal.encoder.AudioEncoderConfig;
+import androidx.camera.video.internal.encoder.BufferCopiedEncodedData;
 import androidx.camera.video.internal.encoder.EncodeException;
 import androidx.camera.video.internal.encoder.EncodedData;
 import androidx.camera.video.internal.encoder.Encoder;
@@ -84,7 +86,9 @@ import androidx.camera.video.internal.encoder.EncoderImpl;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.OutputConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
+import androidx.camera.video.internal.utils.ArrayDequeRingBuffer;
 import androidx.camera.video.internal.utils.OutputUtil;
+import androidx.camera.video.internal.utils.RingBuffer;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
@@ -274,6 +278,9 @@ public final class Recorder implements VideoOutput {
     private static final int PENDING = 1;
     private static final int NOT_PENDING = 0;
     private static final long SOURCE_NON_STREAMING_TIMEOUT_MS = 1000L;
+    // The audio data is expected to be less than 1 kB, the value of the cache size is used to limit
+    // the memory used within an acceptable range.
+    private static final int AUDIO_CACHE_SIZE = 60;
     @VisibleForTesting
     static final EncoderFactory DEFAULT_ENCODER_FACTORY = EncoderImpl::new;
 
@@ -357,8 +364,12 @@ public final class Recorder implements VideoOutput {
     long mRecordingBytes = 0L;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mRecordingDurationNs = 0L;
+    @VisibleForTesting
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mFirstRecordingVideoDataTimeUs = 0L;
+    @VisibleForTesting
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    long mFirstRecordingAudioDataTimeUs = 0L;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mFileSizeLimitInBytes = OutputOptions.FILE_SIZE_UNLIMITED;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -368,8 +379,12 @@ public final class Recorder implements VideoOutput {
     Throwable mRecordingStopErrorCause = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     EncodedData mPendingFirstVideoData = null;
+    // A cache that hold audio data created before the muxer starts to prevent A/V out of sync in
+    // the beginning of the recording.
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    EncodedData mPendingFirstAudioData = null;
+    @NonNull
+    final RingBuffer<EncodedData> mPendingAudioRingBuffer = new ArrayDequeRingBuffer<>(
+            AUDIO_CACHE_SIZE);
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Throwable mAudioErrorCause = null;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -1461,7 +1476,7 @@ public final class Recorder implements VideoOutput {
             throw new AssertionError("Unable to set up media muxer when one already exists.");
         }
 
-        if (isAudioEnabled() && mPendingFirstAudioData == null) {
+        if (isAudioEnabled() && mPendingAudioRingBuffer.isEmpty()) {
             throw new AssertionError("Audio is enabled but no audio sample is ready. Cannot start"
                     + " media muxer.");
         }
@@ -1471,15 +1486,16 @@ public final class Recorder implements VideoOutput {
                     + "frame.");
         }
 
-        try (EncodedData videoDataToWrite = mPendingFirstVideoData; EncodedData audioDataToWrite =
-                mPendingFirstAudioData) {
+        try (EncodedData videoDataToWrite = mPendingFirstVideoData) {
             mPendingFirstVideoData = null;
-            mPendingFirstAudioData = null;
+            List<EncodedData> audioDataToWrite = getAudioDataToWriteAndClearCache(
+                    videoDataToWrite.getPresentationTimeUs()
+            );
             // Make sure we can write the first audio and video data without hitting the file size
             // limit. Otherwise we will be left with a malformed (empty) track on stop.
             long firstDataSize = videoDataToWrite.size();
-            if (audioDataToWrite != null) {
-                firstDataSize += audioDataToWrite.size();
+            for (EncodedData data : audioDataToWrite) {
+                firstDataSize += data.size();
             }
             if (mFileSizeLimitInBytes != OutputOptions.FILE_SIZE_UNLIMITED
                     && firstDataSize > mFileSizeLimitInBytes) {
@@ -1520,10 +1536,27 @@ public final class Recorder implements VideoOutput {
 
             // Write first data to ensure tracks are not empty
             writeVideoData(videoDataToWrite, recordingToStart);
-            if (audioDataToWrite != null) {
-                writeAudioData(audioDataToWrite, recordingToStart);
+            for (EncodedData data : audioDataToWrite) {
+                writeAudioData(data, recordingToStart);
             }
         }
+    }
+
+    @ExecutedBy("mSequentialExecutor")
+    @NonNull
+    private List<EncodedData> getAudioDataToWriteAndClearCache(long firstVideoDataTimeUs) {
+        List<EncodedData> res = new ArrayList<>();
+
+        EncodedData data;
+        while ((data = mPendingAudioRingBuffer.poll()) != null) {
+            // Add all audio data that has timestamp greater than or equal to the first video data
+            // timestamp.
+            if (data.getPresentationTimeUs() >= firstVideoDataTimeUs) {
+                res.add(data);
+            }
+        }
+
+        return res;
     }
 
     @SuppressLint("MissingPermission")
@@ -1634,7 +1667,8 @@ public final class Recorder implements VideoOutput {
                                         mPendingFirstVideoData = encodedData;
                                         // If first pending audio data exists or audio is
                                         // disabled, we can start the muxer.
-                                        if (!isAudioEnabled() || mPendingFirstAudioData != null) {
+                                        if (!isAudioEnabled()
+                                                || !mPendingAudioRingBuffer.isEmpty()) {
                                             Logger.d(TAG, "Received video keyframe. Starting "
                                                     + "muxer...");
                                             setupAndStartMediaMuxer(recordingToStart);
@@ -1725,33 +1759,29 @@ public final class Recorder implements VideoOutput {
                                 // start it. Otherwise we can write the data.
                                 if (mMediaMuxer == null) {
                                     if (!mInProgressRecordingStopping) {
-                                        boolean cachedDataDropped = false;
-                                        if (mPendingFirstAudioData != null) {
-                                            cachedDataDropped = true;
-                                            mPendingFirstAudioData.close();
-                                            mPendingFirstAudioData = null;
-                                        }
+                                        // BufferCopiedEncodedData is used to copy the content of
+                                        // the encoded data, preventing byte buffers of the media
+                                        // codec from being occupied. Also, since the resources of
+                                        // BufferCopiedEncodedData will be automatically released
+                                        // by garbage collection, there is no need to call its
+                                        // close() function.
+                                        mPendingAudioRingBuffer.offer(
+                                                new BufferCopiedEncodedData(encodedData));
 
-                                        mPendingFirstAudioData = encodedData;
                                         if (mPendingFirstVideoData != null) {
                                             // Both audio and data are ready. Start the muxer.
                                             Logger.d(TAG, "Received audio data. Starting muxer...");
                                             setupAndStartMediaMuxer(recordingToStart);
                                         } else {
-                                            if (cachedDataDropped) {
-                                                Logger.d(TAG, "Replaced cached audio data with "
-                                                        + "newer data.");
-                                            } else {
-                                                Logger.d(TAG, "Cached audio data while we wait for "
-                                                        + "video keyframe before starting muxer.");
-                                            }
+                                            Logger.d(TAG, "Cached audio data while we wait"
+                                                    + " for video keyframe before starting muxer.");
                                         }
                                     } else {
                                         // Recording is stopping before muxer has been started.
                                         Logger.d(TAG,
                                                 "Drop audio data since recording is stopping.");
-                                        encodedData.close();
                                     }
+                                    encodedData.close();
                                 } else {
                                     try (EncodedData audioDataToWrite = encodedData) {
                                         writeAudioData(audioDataToWrite, recordingToStart);
@@ -1814,6 +1844,8 @@ public final class Recorder implements VideoOutput {
 
         if (mFirstRecordingVideoDataTimeUs == 0L) {
             mFirstRecordingVideoDataTimeUs = encodedData.getPresentationTimeUs();
+            Logger.d(TAG, String.format("First video time: %d (%s)", mFirstRecordingVideoDataTimeUs,
+                    readableUs(mFirstRecordingVideoDataTimeUs)));
         }
         mRecordingDurationNs = TimeUnit.MICROSECONDS.toNanos(
                 encodedData.getPresentationTimeUs() - mFirstRecordingVideoDataTimeUs);
@@ -1841,6 +1873,12 @@ public final class Recorder implements VideoOutput {
                 encodedData.getBufferInfo());
 
         mRecordingBytes = newRecordingBytes;
+
+        if (mFirstRecordingAudioDataTimeUs == 0L) {
+            mFirstRecordingAudioDataTimeUs = encodedData.getPresentationTimeUs();
+            Logger.d(TAG, String.format("First audio time: %d (%s)", mFirstRecordingAudioDataTimeUs,
+                    readableUs(mFirstRecordingAudioDataTimeUs)));
+        }
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -1886,10 +1924,7 @@ public final class Recorder implements VideoOutput {
             mRecordingStopError = stopError;
             mRecordingStopErrorCause = errorCause;
             if (isAudioEnabled()) {
-                if (mPendingFirstAudioData != null) {
-                    mPendingFirstAudioData.close();
-                    mPendingFirstAudioData = null;
-                }
+                mPendingAudioRingBuffer.clear();
                 if (explicitlyStopTime == null) {
                     mAudioEncoder.stop();
                 } else {
@@ -2062,9 +2097,11 @@ public final class Recorder implements VideoOutput {
         mRecordingBytes = 0L;
         mRecordingDurationNs = 0L;
         mFirstRecordingVideoDataTimeUs = 0L;
+        mFirstRecordingAudioDataTimeUs = 0L;
         mRecordingStopError = ERROR_UNKNOWN;
         mRecordingStopErrorCause = null;
         mAudioErrorCause = null;
+        mPendingAudioRingBuffer.clear();
 
         switch (mAudioState) {
             case IDLING:

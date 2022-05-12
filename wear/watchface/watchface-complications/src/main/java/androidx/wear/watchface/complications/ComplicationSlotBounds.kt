@@ -19,6 +19,7 @@
 
 package androidx.wear.watchface.complications
 
+import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.RectF
 import androidx.annotation.RestrictTo
@@ -87,6 +88,8 @@ public class ComplicationSlotBounds(
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
+        internal const val NODE_NAME = "ComplicationSlotBounds"
+
         /**
          * Constructs a [ComplicationSlotBounds] from a potentially incomplete
          * Map<ComplicationType, RectF>, backfilling with empty [RectF]s. This method is necessary
@@ -112,28 +115,40 @@ public class ComplicationSlotBounds(
          * The [parser] should be inside a node with any number of ComplicationSlotBounds child
          * nodes. No other child nodes are expected.
          */
-        fun inflate(parser: XmlResourceParser): ComplicationSlotBounds? {
+        fun inflate(
+            resources: Resources,
+            parser: XmlResourceParser
+        ): ComplicationSlotBounds? {
             var type = 0
             val outerDepth = parser.depth
             val perComplicationTypeBounds by lazy { HashMap<ComplicationType, RectF>() }
             do {
                 if (type == XmlPullParser.START_TAG) {
                     when (parser.name) {
-                        "ComplicationSlotBounds" -> {
-                            val rect = RectF(
-                                parser.requireAndGet("left") {
-                                    "ComplicationSlotBounds must define 'left'"
-                                },
-                                parser.requireAndGet("top") {
-                                    "ComplicationSlotBounds must define 'top'"
-                                },
-                                parser.requireAndGet("right") {
-                                    "ComplicationSlotBounds must define 'right'"
-                                },
-                                parser.requireAndGet("bottom") {
-                                    "ComplicationSlotBounds must define 'bottom'"
-                                }
-                            )
+                        NODE_NAME -> {
+                            val rect = if (parser.hasValue("left"))
+                                RectF(
+                                    parser.requireAndGet("left", resources),
+                                    parser.requireAndGet("top", resources),
+                                    parser.requireAndGet("right", resources),
+                                    parser.requireAndGet("bottom", resources)
+                                )
+                            else if (parser.hasValue("center_x")) {
+                                val halfWidth = parser.requireAndGet("size_x", resources) / 2.0f
+                                val halfHeight = parser.requireAndGet("size_y", resources) / 2.0f
+                                val centerX = parser.requireAndGet("center_x", resources)
+                                val centerY = parser.requireAndGet("center_y", resources)
+                                RectF(
+                                    centerX - halfWidth,
+                                    centerY - halfHeight,
+                                    centerX + halfWidth,
+                                    centerY + halfHeight
+                                )
+                            } else {
+                                throw IllegalArgumentException("$NODE_NAME must " +
+                                    "either define top, bottom, left, right" +
+                                    "or center_x, center_y, size_x, size_y should be specified")
+                            }
                             if (null != parser.getAttributeValue(
                                     NAMESPACE_APP,
                                     "complicationType"
@@ -182,8 +197,19 @@ public class ComplicationSlotBounds(
     }
 }
 
-internal fun XmlResourceParser.requireAndGet(id: String, produceError: () -> String): Float {
-    require(null != getAttributeValue(NAMESPACE_APP, id), produceError)
+internal fun XmlResourceParser.requireAndGet(
+    id: String,
+    resources: Resources
+): Float {
+    require(null != getAttributeValue(NAMESPACE_APP, id)) {
+        "${ComplicationSlotBounds.NODE_NAME} must define '$id'"
+    }
+
+    val resId = getAttributeResourceValue(NAMESPACE_APP, id, 0)
+    if (resId != 0) {
+        return resources.getDimension(resId) / resources.displayMetrics.widthPixels
+    }
+
     return getAttributeFloatValue(NAMESPACE_APP, id, 0f)
 }
 

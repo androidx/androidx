@@ -18,10 +18,13 @@ package androidx.webkit;
 
 import static androidx.webkit.WebViewFeature.isFeatureSupported;
 
+import android.os.Build;
+import android.os.SystemClock;
 import android.webkit.WebSettings;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -39,34 +42,54 @@ import okhttp3.mockwebserver.RecordedRequest;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 public class ServiceWorkerWebSettingsCompatTest {
+
+    private static final long POLL_TIMEOUT_DURATION_MS = 5000;
+    private static final long POLL_INTERVAL_MS = 10;
+
     private ServiceWorkerWebSettingsCompat mSettings;
 
     private static final String INDEX_HTML_PATH = "/";
     // Website which installs a service worker and sends an empty message to it once it's ready.
+    // Once the serviceworker responds to the message, the website then unregisters any installed
+    // serviceworkers again to clean up.
     private static final String INDEX_HTML_DOCUMENT = "<!DOCTYPE html>\n"
             + "<link rel=\"icon\" href=\"data:;base64,=\">\n"
             + "<script>\n"
-            + "    function swReady(sw) {\n"
-            + "        sw.postMessage({});\n"
-            + "    }\n"
-            + "    navigator.serviceWorker.register('sw.js')\n"
-            + "        .then(sw_reg => {\n"
-            + "            let sw = sw_reg.installing || sw_reg.waiting || sw_reg.active;\n"
-            + "            if (sw.state == 'activated') {\n"
-            + "                swReady(sw);\n"
-            + "            } else {\n"
-            + "                sw.addEventListener('statechange', e => {\n"
-            + "                    if(e.target.state == 'activated') swReady(e.target); \n"
-            + "                });\n"
-            + "            }\n"
-            + "        });\n"
-            + "</script>\n";
+            + "window.done=false;\n"
+            + "function swReady(sw) {\n"
+            + "   sw.postMessage({});\n"
+            + "}\n"
+            + "navigator.serviceWorker.register('sw.js')\n"
+            + "    .then(sw_reg => {\n"
+            + "        let sw = sw_reg.installing || sw_reg.waiting || sw_reg.active;\n"
+            + "        if (sw.state == 'activated') {\n"
+            + "            swReady(sw);\n"
+            + "        } else {\n"
+            + "            sw.addEventListener('statechange', e => {\n"
+            + "                if(e.target.state == 'activated') swReady(e.target); \n"
+            + "            });\n"
+            + "        }\n"
+            + "    });\n"
+            + "navigator.serviceWorker.addEventListener('message', _ => {\n"
+            + "    navigator.serviceWorker.getRegistrations()\n"
+            + "        .then(registrations => {\n"
+            + "            registrations.forEach(reg => reg.unregister());\n"
+            + "            window.done=true;\n"
+            + "        }\n"
+            + "    );\n"
+            + "});\n"
+            + "</script>";
 
     private static final String SERVICE_WORKER_PATH = "/sw.js";
-    // ServiceWorker which registers a message event listener that fetches a file.
+    // ServiceWorker which registers a message event listener that fetches a file and then sends
+    // an empty response back to the requester.
     private static final String SERVICE_WORKER_JAVASCRIPT =
-            "self.addEventListener('message', async event => await fetch('content.txt') );\n";
+            "self.addEventListener('message', async event => {\n"
+                    + "    await fetch('content.txt');\n"
+                    + "    event.source.postMessage({});\n"
+                    + "});\n";
 
     private static final String TEXT_CONTENT_PATH = "/content.txt";
     private static final String TEXT_CONTENT = "fetch_ok";
@@ -268,6 +291,7 @@ public class ServiceWorkerWebSettingsCompatTest {
             Assert.assertNotNull("Test timed out while waiting for expected request", request);
             Assert.assertNull("No X-Requested-With header is expected",
                     request.getHeader("X-Requested-With"));
+            webViewOnUiThread.setCleanupTask(() -> waitForServiceWorkerDone(webViewOnUiThread));
         }
     }
 
@@ -295,6 +319,28 @@ public class ServiceWorkerWebSettingsCompatTest {
             } while (request != null && !TEXT_CONTENT_PATH.equals(request.getPath()));
             Assert.assertNotNull("Test timed out while waiting for expected request", request);
             Assert.assertEquals("androidx.webkit.test", request.getHeader("X-Requested-With"));
+            webViewOnUiThread.setCleanupTask(() -> waitForServiceWorkerDone(webViewOnUiThread));
         }
     }
+
+    /**
+     * Wait for the done boolean to be set, to indicate that serviceworkers have been unregistered.
+     * This is crucial to clean up any remaining renderer processes that otherwise cause problems
+     * for other tests.
+     * See b/230078824.
+     */
+    private void waitForServiceWorkerDone(final WebViewOnUiThread webViewOnUiThread) {
+        long timeout = SystemClock.uptimeMillis() + POLL_TIMEOUT_DURATION_MS;
+        while (SystemClock.uptimeMillis() < timeout
+                && !"true".equals(webViewOnUiThread.evaluateJavascriptSync("window.done"))) {
+            try {
+                //noinspection BusyWait We want to wait, to let the WebView finish the test
+                Thread.sleep(POLL_INTERVAL_MS);
+            } catch (InterruptedException e) {
+                // If we haven't reached our timeout yet, keep waiting
+            }
+        }
+        Assert.assertEquals("true", webViewOnUiThread.evaluateJavascriptSync("window.done"));
+    }
 }
+

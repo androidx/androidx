@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface
 
+import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
@@ -27,6 +28,8 @@ import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleFlavorWireFormat
 import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat
+import androidx.wear.watchface.style.getIntRefAttribute
+import androidx.wear.watchface.style.getStringRefAttribute
 import java.io.IOException
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
@@ -104,6 +107,7 @@ public class UserStyleFlavor(
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Throws(IOException::class, XmlPullParserException::class)
         fun inflate(
+            resources: Resources,
             parser: XmlResourceParser,
             schema: UserStyleSchema
         ): UserStyleFlavor {
@@ -111,7 +115,7 @@ public class UserStyleFlavor(
                 "Expected a UserStyleFlavor node"
             }
 
-            val flavorId = parser.getAttributeValue(NAMESPACE_APP, "id")
+            val flavorId = getStringRefAttribute(resources, parser, "id")
             require(flavorId != null) { "UserStyleFlavor must have an id" }
 
             val userStyle = schema.getDefaultUserStyle().toMutableUserStyle()
@@ -124,13 +128,13 @@ public class UserStyleFlavor(
                 if (type == XmlPullParser.START_TAG) {
                     when (parser.name) {
                         "StyleOption" -> {
-                            val id = parser.getAttributeValue(NAMESPACE_APP, "id")
+                            val id = getStringRefAttribute(resources, parser, "id")
                             require(id != null) { "StyleOption must have an id" }
 
                             require(parser.hasValue("value")) {
                                 "value is required for BooleanOption"
                             }
-                            val value = parser.getAttributeValue(NAMESPACE_APP, "value")
+                            val value = getStringRefAttribute(resources, parser, "value")
 
                             val setting = schema[UserStyleSetting.Id(id)]
                             require(setting != null) { "no setting found for id $id" }
@@ -163,10 +167,10 @@ public class UserStyleFlavor(
                             }
                         }
                         "ComplicationPolicy" -> {
-                            require(parser.hasValue("slotId")) {
+                            val id = getIntRefAttribute(resources, parser, "slotId")
+                            require(id != null) {
                                 "slotId is required for ComplicationPolicy"
                             }
-                            val id = parser.getAttributeIntValue(NAMESPACE_APP, "slotId", 0)
 
                             val policy =
                                 XmlSchemaAndComplicationSlotsDefinition.ComplicationSlotStaticData
@@ -241,6 +245,7 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
     companion object {
         @Throws(IOException::class, XmlPullParserException::class)
         fun inflate(
+            resources: Resources,
             parser: XmlResourceParser,
             schema: UserStyleSchema
         ): UserStyleFlavors {
@@ -257,7 +262,7 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
                 if (type == XmlPullParser.START_TAG) {
                     when (parser.name) {
                         "UserStyleFlavor" -> flavors.add(
-                            UserStyleFlavor.inflate(parser, schema)
+                            UserStyleFlavor.inflate(resources, parser, schema)
                         )
 
                         else -> throw IllegalArgumentException(

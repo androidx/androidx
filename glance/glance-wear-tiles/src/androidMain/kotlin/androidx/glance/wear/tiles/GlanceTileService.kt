@@ -29,18 +29,19 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.Applier
-import androidx.glance.GlanceModifier
+import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
-import androidx.glance.layout.EmittableBox
+import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
 import androidx.glance.LocalGlanceId
 import androidx.glance.LocalSize
 import androidx.glance.LocalState
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.fillMaxSize
-import androidx.glance.wear.tiles.action.RunCallbackAction
 import androidx.glance.state.GlanceState
 import androidx.glance.state.GlanceStateDefinition
+import androidx.glance.wear.tiles.action.RunCallbackAction
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
@@ -55,13 +56,13 @@ import androidx.wear.tiles.TileService
 import androidx.wear.tiles.TimelineBuilders
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.Arrays
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.guava.future
 import kotlinx.coroutines.launch
-import java.util.Arrays
 
 /**
  * [TileService] which can consume a Glance composition, convert it to a Wear Tile, and
@@ -71,6 +72,7 @@ import java.util.Arrays
  * ```
  * class MyTile: GlanceTileService() {
  *   @Composable
+ *   @GlanceComposable
  *   override fun Content {
  *     Text("Hello World!")
  *   }
@@ -302,6 +304,7 @@ public abstract class GlanceTileService(
 
     /** Override this method to set the layout to use in your Tile. */
     @Composable
+    @GlanceComposable
     public abstract fun Content()
 
     /**

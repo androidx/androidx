@@ -175,6 +175,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         disconnect();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Service connection " + mComponentName.flattenToShortString();
@@ -548,7 +549,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
 
         @Override
-        public boolean onControlRequest(Intent intent, ControlRequestCallback callback) {
+        public boolean onControlRequest(@NonNull Intent intent, ControlRequestCallback callback) {
             if (mConnection != null) {
                 return mConnection.sendControlRequest(mControllerId, intent, callback);
             }
@@ -692,7 +693,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
 
         @Override
-        public boolean onControlRequest(Intent intent, ControlRequestCallback callback) {
+        public boolean onControlRequest(@NonNull Intent intent, ControlRequestCallback callback) {
             if (mConnection != null) {
                 return mConnection.sendControlRequest(mControllerId, intent, callback);
             }
@@ -798,7 +799,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             return false;
         }
 
-        @SuppressWarnings("deprecation")
         public boolean onDynamicRouteDescriptorsChanged(
                 int controllerId, Bundle descriptorsBundle) {
             if (mServiceVersion != 0) {

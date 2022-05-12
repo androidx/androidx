@@ -175,6 +175,8 @@ public final class Action {
     public static final Action PAN = new Action(TYPE_PAN);
 
     @Keep
+    private final boolean mIsEnabled;
+    @Keep
     @Nullable
     private final CarText mTitle;
     @Keep
@@ -250,11 +252,19 @@ public final class Action {
         return mOnClickDelegate;
     }
 
+    /**
+     * Returns {@code true} if the action is enabled.
+     */
+    @RequiresCarApi(5)
+    public boolean isEnabled() {
+        return mIsEnabled;
+    }
+
     @Override
     @NonNull
     public String toString() {
-        return "[type: " + typeToString(mType) + ", icon: " + mIcon + ", bkg: " + mBackgroundColor
-                + "]";
+        return "[type: " + typeToString(mType) + ", icon: " + mIcon
+                + ", bkg: " + mBackgroundColor + ", isEnabled: " + mIsEnabled + "]";
     }
 
     /**
@@ -289,6 +299,7 @@ public final class Action {
         mOnClickDelegate = null;
         mType = type;
         mFlags = 0;
+        mIsEnabled = true;
     }
 
     Action(Builder builder) {
@@ -298,6 +309,7 @@ public final class Action {
         mOnClickDelegate = builder.mOnClickDelegate;
         mType = builder.mType;
         mFlags = builder.mFlags;
+        mIsEnabled = builder.mIsEnabled;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -308,11 +320,12 @@ public final class Action {
         mOnClickDelegate = null;
         mType = TYPE_CUSTOM;
         mFlags = 0;
+        mIsEnabled = true;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mTitle, mType, mOnClickDelegate == null, mIcon == null);
+        return Objects.hash(mTitle, mType, mOnClickDelegate == null, mIcon == null, mIsEnabled);
     }
 
     @Override
@@ -331,7 +344,8 @@ public final class Action {
                 && mType == otherAction.mType
                 && Objects.equals(mIcon, otherAction.mIcon)
                 && Objects.equals(mOnClickDelegate == null, otherAction.mOnClickDelegate == null)
-                && Objects.equals(mFlags, otherAction.mFlags);
+                && Objects.equals(mFlags, otherAction.mFlags)
+                && mIsEnabled == otherAction.mIsEnabled;
     }
 
     static boolean isStandardActionType(@ActionType int type) {
@@ -340,6 +354,7 @@ public final class Action {
 
     /** A builder of {@link Action}. */
     public static final class Builder {
+        boolean mIsEnabled = true;
         @Nullable
         CarText mTitle;
         @Nullable
@@ -444,6 +459,18 @@ public final class Action {
             return this;
         }
 
+        /**
+         * Sets the initial enabled state for {@link Action}.
+         *
+         * <p>The default state of a {@link Action} is enabled.
+         */
+        @NonNull
+        @RequiresCarApi(5)
+        public Builder setEnabled(boolean enabled) {
+            mIsEnabled = enabled;
+            return this;
+        }
+
         /** Sets flags affecting how this action should be treated. */
         @NonNull
         @RequiresCarApi(4)
@@ -512,6 +539,7 @@ public final class Action {
             CarColor backgroundColor = action.getBackgroundColor();
             mBackgroundColor = backgroundColor == null ? DEFAULT : backgroundColor;
             mFlags = action.getFlags();
+            mIsEnabled = action.isEnabled();
         }
     }
 }

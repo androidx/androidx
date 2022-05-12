@@ -1,1 +1,1 @@
-./../playground-common/gradlew.bat
+../playground-common/gradlew.bat

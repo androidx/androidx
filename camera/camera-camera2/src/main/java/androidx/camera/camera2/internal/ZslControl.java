@@ -40,14 +40,46 @@ interface ZslControl {
             @NonNull SessionConfig.Builder sessionConfigBuilder);
 
     /**
-     * Sets zsl disabled or not.
+     * Sets the flag if zero-shutter lag needs to be disabled by user case config.
+     *
+     * <p> Zero-shutter lag will be disabled when any of the following conditions:
+     * <ul>
+     *     <li> Extension is ON
+     *     <li> VideoCapture is ON
+     * </ul>
      *
      * @param disabled True if zero-shutter lag should be disabled. Otherwise, should not be
      *                 disabled. However, enabling zero-shutter lag needs other conditions e.g.
      *                 flash mode OFF, so setting to false doesn't guarantee zero-shutter lag to
      *                 be always ON.
      */
-    void setZslDisabled(boolean disabled);
+    void setZslDisabledByUserCaseConfig(boolean disabled);
+
+    /**
+     * Checks if zero-shutter lag is disabled by user case config.
+     *
+     * @return True if zero-shutter lag should be disabled. Otherwise, returns false.
+     */
+    boolean isZslDisabledByUserCaseConfig();
+
+    /**
+     * Sets the flag if zero-shutter lag needs to be disabled by flash mode.
+     *
+     * <p> Zero-shutter lag will be disabled when flash mode is not OFF.
+     *
+     * @param disabled True if zero-shutter lag should be disabled. Otherwise, should not be
+     *                 disabled. However, enabling zero-shutter lag needs other conditions e.g.
+     *                 Extension is OFF and VideoCapture is OFF, so setting to false doesn't
+     *                 guarantee zero-shutter lag to be always ON.
+     */
+    void setZslDisabledByFlashMode(boolean disabled);
+
+    /**
+     * Checks if zero-shutter lag is disabled by flash mode.
+     *
+     * @return True if zero-shutter lag should be disabled. Otherwise, returns false.
+     */
+    boolean isZslDisabledByFlashMode();
 
     /**
      * Dequeues {@link ImageProxy} from ring buffer.

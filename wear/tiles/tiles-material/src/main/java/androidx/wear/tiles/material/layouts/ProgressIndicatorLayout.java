@@ -38,6 +38,8 @@ import androidx.wear.tiles.ModifiersBuilders.Padding;
 import androidx.wear.tiles.material.CircularProgressIndicator;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
+import java.util.List;
+
 /**
  * Tiles layout that represents the suggested layout style for Material Tiles with the progress
  * indicator around the edges of the screen and the given content inside of it and the recommended
@@ -45,9 +47,9 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  */
 // TODO(b/215323986): Link visuals.
 public class ProgressIndicatorLayout implements LayoutElement {
-    @NonNull private final LayoutElement mElement;
+    @NonNull private final Box mElement;
 
-    ProgressIndicatorLayout(@NonNull LayoutElement layoutElement) {
+    ProgressIndicatorLayout(@NonNull Box layoutElement) {
         this.mElement = layoutElement;
     }
 
@@ -67,10 +69,6 @@ public class ProgressIndicatorLayout implements LayoutElement {
 
         /** Sets the progress indicator which will be around the edges. */
         @NonNull
-        // There is no direct matching getter for this setter as the serialized format of the
-        // Tiles do not allow for a direct reconstruction of the arguments. Instead there are
-        // methods to get the contents a whole for rendering.
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setProgressIndicatorContent(@NonNull LayoutElement progressIndicator) {
             this.mProgressIndicator = progressIndicator;
             return this;
@@ -144,10 +142,35 @@ public class ProgressIndicatorLayout implements LayoutElement {
         }
     }
 
-    /** Get the inner content from this layout. */
-    @NonNull
+    /** Returns the inner content from this layout. */
+    @Nullable
     public LayoutElement getContent() {
-        return checkNotNull(((Box) ((Box) mElement).getContents().get(0)).getContents().get(0));
+        List<LayoutElement> contents = mElement.getContents();
+        if (contents.size() > 0) {
+            // If content exists, it will always be the first one in the list. If that element is
+            // not Box, than this layout only has indicator, so we'll return null.
+            LayoutElement element = contents.get(0);
+            if (element instanceof Box) {
+                return checkNotNull(((Box) element).getContents().get(0));
+            }
+        }
+        return null;
+    }
+
+    /** Returns the progress indicator content from this layout. */
+    @Nullable
+    public LayoutElement getProgressIndicatorContent() {
+        List<LayoutElement> contents = mElement.getContents();
+        int size = contents.size();
+        if (size > 0) {
+            // If progress indicator exists, it will always be the last one in the list and not
+            // wrapped in the Box.
+            LayoutElement element = contents.get(size - 1);
+            if (!(element instanceof Box)) {
+                return element;
+            }
+        }
+        return null;
     }
 
     /** @hide */

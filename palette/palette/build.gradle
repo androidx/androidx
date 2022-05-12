@@ -6,6 +6,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":palette:palette-ktx"))
+    }
+
     api("androidx.core:core:1.1.0")
     implementation("androidx.collection:collection:1.1.0")
 

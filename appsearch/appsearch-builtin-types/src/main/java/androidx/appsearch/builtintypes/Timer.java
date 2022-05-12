@@ -95,7 +95,7 @@ public final class Timer {
     private final int mBootCount;
 
     @Document.LongProperty
-    private final long mRemainingTimeMillis;
+    private final long mRemainingDurationMillis;
 
     @Document.StringProperty
     private final String mRingtone;
@@ -110,7 +110,7 @@ public final class Timer {
             long creationTimestampMillis, long documentTtlMillis, @Nullable String name,
             long durationMillis, long originalDurationMillis, long startTimeMillis,
             long baseTimeMillis, long baseTimeMillisInElapsedRealtime, int bootCount,
-            long remainingTimeMillis, @Nullable String ringtone, int status,
+            long remainingDurationMillis, @Nullable String ringtone, int status,
             boolean shouldVibrate) {
         mNamespace = Preconditions.checkNotNull(namespace);
         mId = Preconditions.checkNotNull(id);
@@ -124,7 +124,7 @@ public final class Timer {
         mBaseTimeMillis = baseTimeMillis;
         mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
         mBootCount = bootCount;
-        mRemainingTimeMillis = remainingTimeMillis;
+        mRemainingDurationMillis = remainingDurationMillis;
         mRingtone = ringtone;
         mStatus = status;
         mShouldVibrate = shouldVibrate;
@@ -221,7 +221,7 @@ public final class Timer {
 
     /**
      * Returns the point in time that the {@link Timer} counts down from, relative to its
-     * {@link #getRemainingTimeMillis()}. In milliseconds using the
+     * {@link #getRemainingDurationMillis()}. In milliseconds using the
      * {@link System#currentTimeMillis()} time base.
      *
      * <p>The expire time of the Timer can be calculated using the sum of its base time and
@@ -236,7 +236,7 @@ public final class Timer {
 
     /**
      * Returns the point in time that the {@link Timer} counts down from, relative to its
-     * {@link #getRemainingTimeMillis()}. In milliseconds using the
+     * {@link #getRemainingDurationMillis()}. In milliseconds using the
      * {@link android.os.SystemClock#elapsedRealtime()} time base.
      *
      * <p>ElapsedRealtime should only be used if the {@link #getBootCount()} matches the
@@ -273,11 +273,11 @@ public final class Timer {
      * remaining time.
      *
      * <p>Use this method to get the static remaining time stored in the document. Use
-     * {@link #calculateCurrentRemainingTimeMillis(Context)} to calculate the remaining time at
+     * {@link #calculateCurrentRemainingDurationMillis(Context)} to calculate the remaining time at
      * runtime.
      */
-    public long getRemainingTimeMillis() {
-        return mRemainingTimeMillis;
+    public long getRemainingDurationMillis() {
+        return mRemainingDurationMillis;
     }
 
     /**
@@ -347,7 +347,7 @@ public final class Timer {
             return Long.MAX_VALUE;
         }
 
-        return calculateBaseTimeMillis(context) + mRemainingTimeMillis;
+        return calculateBaseTimeMillis(context) + mRemainingDurationMillis;
     }
 
     /**
@@ -357,19 +357,19 @@ public final class Timer {
      * {@link #STATUS_EXPIRED} to indicate it has already fired.
      *
      * <p>Use this method to calculate the remaining time at runtime. Use
-     * {@link #getRemainingTimeMillis()} to get the static remaining time stored in the document.
+     * {@link #getRemainingDurationMillis()} to get the static remaining time stored in the document.
      *
      * @param context The app context
      */
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
-    public long calculateCurrentRemainingTimeMillis(@NonNull Context context) {
+    public long calculateCurrentRemainingDurationMillis(@NonNull Context context) {
         if (mStatus == STATUS_PAUSED || mStatus == STATUS_RESET) {
             // The timer has not started, so the remaining time is the same as the last updated one.
-            return mRemainingTimeMillis;
+            return mRemainingDurationMillis;
         }
 
         long elapsedTime = System.currentTimeMillis() - calculateBaseTimeMillis(context);
-        return mRemainingTimeMillis - elapsedTime;
+        return mRemainingDurationMillis - elapsedTime;
     }
 
     /** Builder for {@link Timer}. */
@@ -381,7 +381,7 @@ public final class Timer {
         private long mBaseTimeMillis;
         private long mBaseTimeMillisInElapsedRealtime;
         private int mBootCount;
-        private long mRemainingTimeMillis;
+        private long mRemainingDurationMillis;
         private String mRingtone;
         private int mStatus;
         private boolean mShouldVibrate;
@@ -411,7 +411,7 @@ public final class Timer {
             mBaseTimeMillis = timer.getBaseTimeMillis();
             mBaseTimeMillisInElapsedRealtime = timer.getBaseTimeMillisInElapsedRealtime();
             mBootCount = timer.getBootCount();
-            mRemainingTimeMillis = timer.getRemainingTimeMillis();
+            mRemainingDurationMillis = timer.getRemainingDurationMillis();
             mRingtone = timer.getRingtone();
             mStatus = timer.getStatus();
             mShouldVibrate = timer.shouldVibrate();
@@ -457,7 +457,7 @@ public final class Timer {
 
         /**
          * Sets the point in time that the {@link Timer} counts down from, relative to its
-         * {@link #setRemainingTimeMillis(long)}.
+         * {@link #setRemainingDurationMillis(long)}.
          *
          * <p>The expire time of the Timer can be calculated using the sum of its base time and
          * remaining time.
@@ -485,7 +485,7 @@ public final class Timer {
 
         /**
          * Sets the point in time that the {@link Timer} counts down from, relative to its
-         * {@link #setRemainingTimeMillis(long)}.
+         * {@link #setRemainingDurationMillis(long)}.
          *
          * <p>The expire time of the Timer can be calculated using the sum of its base time and
          * remaining time.
@@ -514,8 +514,8 @@ public final class Timer {
          * remaining time.
          */
         @NonNull
-        public Builder setRemainingTimeMillis(long remainingTimeMillis) {
-            mRemainingTimeMillis = remainingTimeMillis;
+        public Builder setRemainingDurationMillis(long remainingDurationMillis) {
+            mRemainingDurationMillis = remainingDurationMillis;
             return this;
         }
 
@@ -556,7 +556,7 @@ public final class Timer {
                     mCreationTimestampMillis, mDocumentTtlMillis, mName, mDurationMillis,
                     mOriginalDurationMillis, mStartTimeMillis,
                     mBaseTimeMillis, mBaseTimeMillisInElapsedRealtime, mBootCount,
-                    mRemainingTimeMillis, mRingtone, mStatus, mShouldVibrate);
+                    mRemainingDurationMillis, mRingtone, mStatus, mShouldVibrate);
         }
     }
 }

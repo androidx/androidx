@@ -43,7 +43,7 @@ import java.lang.reflect.InvocationHandler;
 public class WebkitToCompatConverter {
     private final WebkitToCompatConverterBoundaryInterface mImpl;
 
-    public WebkitToCompatConverter(WebkitToCompatConverterBoundaryInterface impl) {
+    public WebkitToCompatConverter(@NonNull WebkitToCompatConverterBoundaryInterface impl) {
         mImpl = impl;
     }
 
@@ -53,7 +53,7 @@ public class WebkitToCompatConverter {
      * {@link androidx.webkit.WebSettingsCompat}.
      */
     @NonNull
-    public WebSettingsAdapter convertSettings(WebSettings webSettings) {
+    public WebSettingsAdapter convertSettings(@NonNull WebSettings webSettings) {
         return new WebSettingsAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebSettingsBoundaryInterface.class, mImpl.convertSettings(webSettings)));
     }
@@ -63,7 +63,8 @@ public class WebkitToCompatConverter {
      * that calls on either of those objects affect the other object.
      */
     @NonNull
-    public WebResourceRequestAdapter convertWebResourceRequest(WebResourceRequest request) {
+    public WebResourceRequestAdapter convertWebResourceRequest(
+            @NonNull WebResourceRequest request) {
         return new WebResourceRequestAdapter(BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebResourceRequestBoundaryInterface.class,
                 mImpl.convertWebResourceRequest(request)));

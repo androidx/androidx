@@ -51,14 +51,21 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
         if (workSpecs.isEmpty()) {
             return
         }
-        val toSchedule = mutableMapOf<String, InternalWorkState>()
+        val toSchedule = mutableMapOf<WorkSpec, InternalWorkState>()
         synchronized(lock) {
             workSpecs.forEach {
                 val state = pendingWorkStates.getOrPut(it.id) { InternalWorkState(it) }
-                toSchedule[it.id] = state
+                toSchedule[it] = state
             }
         }
-        toSchedule.forEach { (id, state) -> scheduleInternal(id, state) }
+        toSchedule.forEach { (spec, state) ->
+            // this spec is attempted to run for the first time
+            // so we have to rewind the time, because we have to override flex.
+            if (spec.isPeriodic && state.periodDelayMet) {
+                WorkManagerImpl.getInstance(context).rewindLastEnqueueTime(spec.id)
+            }
+            scheduleInternal(spec.id, state)
+        }
     }
 
     override fun cancel(workSpecId: String) {
@@ -118,6 +125,7 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
             state = oldState.copy(initialDelayMet = true)
             pendingWorkStates[id] = state
         }
+        WorkManagerImpl.getInstance(context).rewindLastEnqueueTime(id)
         scheduleInternal(id, state)
     }
 
@@ -137,6 +145,7 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
             state = oldState.copy(periodDelayMet = true)
             pendingWorkStates[id] = state
         }
+        WorkManagerImpl.getInstance(context).rewindLastEnqueueTime(id)
         scheduleInternal(id, state)
     }
 
@@ -159,7 +168,6 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
     private fun scheduleInternal(workId: String, state: InternalWorkState) {
         if (state.isRunnable) {
             val wm = WorkManagerImpl.getInstance(context)
-            wm.rewindLastEnqueueTime(workId)
             wm.startWork(workRunIds.workRunIdFor(workId))
         }
     }

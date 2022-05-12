@@ -164,7 +164,7 @@ class FakeSessionProcessor(
         )
         sessionBuilder.addSurface(captureProcessorSurface)
 
-        sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG)
+        sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
         val sessionConfig = sessionBuilder.build()
         blockRunAfterInitSession()
         return sessionConfig

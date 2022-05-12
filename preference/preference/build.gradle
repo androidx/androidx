@@ -23,6 +23,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":preference:preference-ktx"))
+    }
+
     api("androidx.annotation:annotation:1.2.0")
     api("androidx.appcompat:appcompat:1.1.0")
     // Use the latest version of core library for verifying insets visibility

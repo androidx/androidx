@@ -29,7 +29,9 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import java.io.File
 
 @ExperimentalProcessingApi
-internal object KspCompilationTestRunner : CompilationTestRunner {
+internal class KspCompilationTestRunner(
+    private val testProcessorProviders: List<SymbolProcessorProvider> = emptyList()
+) : CompilationTestRunner {
     override val name: String = "ksp"
 
     override fun canRun(params: TestCompilationParameters): Boolean {
@@ -51,7 +53,7 @@ internal object KspCompilationTestRunner : CompilationTestRunner {
         val args = TestCompilationArguments(
             sources = params.sources,
             classpath = params.classpath,
-            symbolProcessorProviders = listOf(processorProvider),
+            symbolProcessorProviders = testProcessorProviders + processorProvider,
             processorOptions = params.options,
             javacArguments = params.javacArguments,
             kotlincArguments = params.kotlincArguments,

@@ -271,6 +271,7 @@ public final class Camera2CameraControlImplDeviceTest {
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_AUTO_FLASH);
         assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(
                 ImageCapture.FLASH_MODE_AUTO);
+        assertThat(mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isTrue();
     }
 
     @Test
@@ -287,6 +288,7 @@ public final class Camera2CameraControlImplDeviceTest {
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON);
 
         assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_OFF);
+        assertThat(mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isFalse();
     }
 
     @Test
@@ -303,6 +305,7 @@ public final class Camera2CameraControlImplDeviceTest {
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_ALWAYS_FLASH);
 
         assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
+        assertThat(mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isTrue();
     }
 
     @Test

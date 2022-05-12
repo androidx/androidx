@@ -102,6 +102,8 @@ android {
     }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    sourceSets.androidTest.assets.srcDirs +=
+            project.rootDir.absolutePath + "/../../golden/wear/compose/foundation"
     namespace "androidx.wear.compose.foundation"
 }
 

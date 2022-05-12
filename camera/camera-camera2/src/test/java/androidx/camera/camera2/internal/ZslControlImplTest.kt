@@ -22,6 +22,8 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.util.Size
+import androidx.camera.camera2.internal.ZslControlImpl.MAX_IMAGES
+import androidx.camera.camera2.internal.ZslControlImpl.RING_BUFFER_CAPACITY
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.core.impl.SessionConfig
 import com.google.common.truth.Truth.assertThat
@@ -67,6 +69,10 @@ public class ZslControlImplTest {
         assertThat(zslControl.mReprocessingImageReader).isNotNull()
         assertThat(zslControl.mReprocessingImageWriter).isNull()
         assertThat(zslControl.mReprocessingImageReader.imageFormat).isEqualTo(YUV_420_888)
+        assertThat(zslControl.mReprocessingImageReader.maxImages).isEqualTo(
+            MAX_IMAGES)
+        assertThat(zslControl.mImageRingBuffer.maxCapacity).isEqualTo(
+            RING_BUFFER_CAPACITY)
     }
 
     @Test
@@ -82,6 +88,10 @@ public class ZslControlImplTest {
         assertThat(zslControl.mReprocessingImageReader).isNotNull()
         assertThat(zslControl.mReprocessingImageWriter).isNull()
         assertThat(zslControl.mReprocessingImageReader.imageFormat).isEqualTo(PRIVATE)
+        assertThat(zslControl.mReprocessingImageReader.maxImages).isEqualTo(
+            MAX_IMAGES)
+        assertThat(zslControl.mImageRingBuffer.maxCapacity).isEqualTo(
+            RING_BUFFER_CAPACITY)
     }
 
     @Test
@@ -92,6 +102,53 @@ public class ZslControlImplTest {
             isPrivateReprocessingSupported = false
         ))
 
+        zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
+
+        assertThat(zslControl.mReprocessingImageReader).isNull()
+        assertThat(zslControl.mReprocessingImageWriter).isNull()
+    }
+
+    @Test
+    public fun isZslDisabledByUserCaseConfig_NotAddZslConfig() {
+        zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = false,
+            isPrivateReprocessingSupported = true
+        ))
+        zslControl.isZslDisabledByUserCaseConfig = true
+
+        zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
+
+        assertThat(zslControl.mReprocessingImageReader).isNull()
+        assertThat(zslControl.mReprocessingImageWriter).isNull()
+    }
+
+    @Test
+    public fun isZslDisabledByFlashMode_NotAddZslConfig() {
+        zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = false,
+            isPrivateReprocessingSupported = false
+        ))
+        zslControl.isZslDisabledByFlashMode = true
+
+        zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
+
+        assertThat(zslControl.mReprocessingImageReader).isNull()
+        assertThat(zslControl.mReprocessingImageWriter).isNull()
+    }
+
+    @Test
+    public fun isZslDisabled_clearZslConfig() {
+        zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = false,
+            isPrivateReprocessingSupported = true
+        ))
+
+        zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
+
+        zslControl.isZslDisabledByFlashMode = true
         zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
 
         assertThat(zslControl.mReprocessingImageReader).isNull()

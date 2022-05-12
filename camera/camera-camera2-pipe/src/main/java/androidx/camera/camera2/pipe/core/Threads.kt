@@ -18,9 +18,9 @@ package androidx.camera.camera2.pipe.core
 
 import android.os.Handler
 import androidx.annotation.RequiresApi
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import java.util.concurrent.Executor
 
 /**
  * This collection pre-configured executors, dispatchers, and scopes that are used throughout this

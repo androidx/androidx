@@ -16,6 +16,8 @@
 
 package androidx.camera.extensions.internal;
 
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -72,6 +74,9 @@ public final class ExtensionsUseCaseConfigFactory implements UseCaseConfigFactor
             default:
                 return null;
         }
+
+        // Disable ZSL when Extension is ON.
+        mutableOptionsBundle.insertOption(OPTION_ZSL_DISABLED, true);
 
         return OptionsBundle.from(mutableOptionsBundle);
     }

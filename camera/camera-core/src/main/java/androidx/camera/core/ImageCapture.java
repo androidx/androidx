@@ -31,7 +31,6 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_JPEG_COMPRESSI
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_CAPTURE_STAGES;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SESSION_CONFIG_UNPACKER;
-import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SESSION_PROCESSOR_ENABLED;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ASPECT_RATIO;
@@ -43,6 +42,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
@@ -75,6 +75,7 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.impl.CameraCaptureCallback;
+import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureBundle;
@@ -312,11 +313,6 @@ public final class ImageCapture extends UseCase {
      */
     private boolean mUseSoftwareJpeg = false;
 
-    /**
-     * Whether SessionProcessor is enabled.
-     */
-    private boolean mIsSessionProcessorEnabled = true;
-
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -390,7 +386,7 @@ public final class ImageCapture extends UseCase {
                                     resolution.getHeight(), getImageFormat(), MAX_IMAGES, 0));
             mMetadataMatchingCaptureCallback = new CameraCaptureCallback() {
             };
-        } else if (mIsSessionProcessorEnabled) {
+        } else if (isSessionProcessorEnabledInCurrentCamera()) {
             ImageReaderProxy imageReader;
             if (getImageFormat() == ImageFormat.JPEG) {
                 imageReader =
@@ -520,8 +516,11 @@ public final class ImageCapture extends UseCase {
         }
 
         mDeferrableSurface = new ImmediateSurface(
-                mImageReader.getSurface(), new Size(mImageReader.getWidth(),
-                mImageReader.getHeight()), mImageReader.getImageFormat());
+                mImageReader.getSurface(),
+                new Size(mImageReader.getWidth(),
+                mImageReader.getHeight()),
+                /* get the surface image format using getImageFormat */
+                getImageFormat());
 
         mImageReaderCloseFuture =
                 mProcessingImageReader != null ? mProcessingImageReader.getCloseFuture()
@@ -547,6 +546,14 @@ public final class ImageCapture extends UseCase {
         return sessionConfigBuilder;
     }
 
+    private boolean isSessionProcessorEnabledInCurrentCamera() {
+        if (getCamera() == null) {
+            return false;
+        }
+
+        CameraConfig cameraConfig = getCamera().getExtendedConfig();
+        return cameraConfig == null ? false : cameraConfig.getSessionProcessor(null) != null;
+    }
     /**
      * Clear the internal pipeline so that the pipeline can be set up again.
      */
@@ -975,11 +982,7 @@ public final class ImageCapture extends UseCase {
             return;
         }
 
-        // The captured image will be directly provided to the app via the OnImageCapturedCallback
-        // callback. It won't be uncompressed and compressed again after the image is captured.
-        // The JPEG quality setting will be directly provided to the HAL to compress the output
-        // JPEG image.
-        sendImageCaptureRequest(executor, callback, getJpegQualityInternal());
+        sendImageCaptureRequest(executor, callback, /*saveImage=*/false);
     }
 
     /**
@@ -1077,38 +1080,10 @@ public final class ImageCapture extends UseCase {
                     }
                 };
 
-        int rotationDegrees = getRelativeRotation(getCamera());
-        Size dispatchResolution = getAttachedSurfaceResolution();
-        // At this point, we can't know whether HAL will rotate the captured image or not. No
-        // matter HAL will rotate the image byte array or not, it won't affect whether the final
-        // image needs cropping or not. Therefore, we can still use the attached surface
-        // resolution and its relative rotation degrees against to the target rotation setting to
-        // calculate the possible crop rectangle and then use it to determine whether the final
-        // image will need cropping or not.
-        Rect cropRect = computeDispatchCropRect(getViewPortCropRect(), mCropAspectRatio,
-                rotationDegrees, dispatchResolution, rotationDegrees);
-        boolean shouldCropImage = ImageUtil.shouldCropImage(dispatchResolution.getWidth(),
-                dispatchResolution.getHeight(), cropRect.width(), cropRect.height());
-        int capturingJpegQuality;
-        if (shouldCropImage) {
-            // When cropping is required, jpeg compression will occur twice:
-            // 1. Jpeg quality set to camera HAL by camera capture request.
-            // 2. Bitmap compression during cropping process in ImageSaver.
-            // Here we need to define the first compression value and be careful to lose too much
-            // quality due to double compression.
-            // Setting 100 for the first compression can minimize quality loss, but will result
-            // in poor performance during cropping than setting 95 (see b/206348741 for more
-            // detail). As a trade-off, max quality mode is set to 100, and the others are set
-            // to 95.
-            capturingJpegQuality = mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY ? 100 : 95;
-        } else {
-            capturingJpegQuality = outputJpegQuality;
-        }
-
         // Always use the mainThreadExecutor for the initial callback so we don't need to double
         // post to another thread
         sendImageCaptureRequest(CameraXExecutors.mainThreadExecutor(),
-                imageCaptureCallbackWrapper, capturingJpegQuality);
+                imageCaptureCallbackWrapper, /*saveImage=*/true);
     }
 
     @NonNull
@@ -1157,8 +1132,7 @@ public final class ImageCapture extends UseCase {
 
     @UiThread
     private void sendImageCaptureRequest(@NonNull Executor callbackExecutor,
-            @NonNull OnImageCapturedCallback callback,
-            @IntRange(from = 1, to = 100) int jpegQuality) {
+            @NonNull OnImageCapturedCallback callback, boolean saveImage) {
 
         // TODO(b/143734846): From here on, the image capture request should be
         //  self-contained and use this camera for everything. Currently the pre-capture
@@ -1181,9 +1155,54 @@ public final class ImageCapture extends UseCase {
         }
 
         mImageCaptureRequestProcessor.sendRequest(new ImageCaptureRequest(
-                getRelativeRotation(attachedCamera), jpegQuality, mCropAspectRatio,
-                getViewPortCropRect(), mSensorToBufferTransformMatrix, callbackExecutor,
+                getRelativeRotation(attachedCamera),
+                getJpegQualityForImageCaptureRequest(attachedCamera, saveImage),
+                mCropAspectRatio,
+                getViewPortCropRect(),
+                mSensorToBufferTransformMatrix,
+                callbackExecutor,
                 callback));
+    }
+
+    @UiThread
+    private int getJpegQualityForImageCaptureRequest(@NonNull CameraInternal cameraInternal,
+            boolean saveImage) {
+        int jpegQuality;
+        if (saveImage) {
+            int rotationDegrees = getRelativeRotation(cameraInternal);
+            Size dispatchResolution = getAttachedSurfaceResolution();
+            // At this point, we can't know whether HAL will rotate the captured image or not. No
+            // matter HAL will rotate the image byte array or not, it won't affect whether the final
+            // image needs cropping or not. Therefore, we can still use the attached surface
+            // resolution and its relative rotation degrees against to the target rotation
+            // setting to calculate the possible crop rectangle and then use it to determine
+            // whether the final image will need cropping or not.
+            Rect cropRect = computeDispatchCropRect(getViewPortCropRect(), mCropAspectRatio,
+                    rotationDegrees, dispatchResolution, rotationDegrees);
+            boolean shouldCropImage = ImageUtil.shouldCropImage(dispatchResolution.getWidth(),
+                    dispatchResolution.getHeight(), cropRect.width(), cropRect.height());
+            if (shouldCropImage) {
+                // When cropping is required, jpeg compression will occur twice:
+                // 1. Jpeg quality set to camera HAL by camera capture request.
+                // 2. Bitmap compression during cropping process in ImageSaver.
+                // Here we need to define the first compression value and be careful to lose too
+                // much quality due to double compression.
+                // Setting 100 for the first compression can minimize quality loss, but will result
+                // in poor performance during cropping than setting 95 (see b/206348741 for more
+                // detail). As a trade-off, max quality mode is set to 100, and the others are set
+                // to 95.
+                jpegQuality = mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY ? 100 : 95;
+            } else {
+                jpegQuality = getJpegQualityInternal();
+            }
+        } else {
+            // The captured image will be directly provided to the app via the
+            // OnImageCapturedCallback callback. It won't be uncompressed and compressed again
+            // after the image is captured. The JPEG quality setting will be directly provided to
+            // the HAL to compress the output JPEG image.
+            jpegQuality = getJpegQualityInternal();
+        }
+        return jpegQuality;
     }
 
     private void lockFlashMode() {
@@ -1581,7 +1600,6 @@ public final class ImageCapture extends UseCase {
         // This will only be set to true if software JPEG was requested and
         // enforceSoftwareJpegConstraints() hasn't removed the request.
         mUseSoftwareJpeg = useCaseConfig.isSoftwareJpegEncoderRequested();
-        mIsSessionProcessorEnabled = useCaseConfig.isSessionProcessorEnabled();
 
         CameraInternal camera = getCamera();
         Preconditions.checkNotNull(camera, "Attached camera cannot be null");
@@ -2541,17 +2559,6 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * Set the flag to indicate whether SessionProcessor is enabled.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        public Builder setSessionProcessorEnabled(boolean enabled) {
-            getMutableConfig().insertOption(OPTION_SESSION_PROCESSOR_ENABLED, enabled);
-            return this;
-        }
-
-        /**
          * Sets the max number of {@link CaptureStage}.
          *
          * @param maxCaptureStages The max CaptureStage number.
@@ -2893,6 +2900,18 @@ public final class ImageCapture extends UseCase {
         public Builder setUseCaseEventCallback(
                 @NonNull UseCase.EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
+            return this;
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setZslDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_ZSL_DISABLED, disabled);
             return this;
         }
     }

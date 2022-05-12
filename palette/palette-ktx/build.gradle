@@ -23,6 +23,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":palette:palette"))
+    }
+
     api(project(":palette:palette"))
     api(libs.kotlinStdlib)
     androidTestImplementation(libs.junit)

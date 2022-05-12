@@ -619,6 +619,10 @@ object ProcessorErrors {
     val MISSING_ROOM_PAGING_ARTIFACT = "To use PagingSource, you must add `room-paging`" +
         " artifact from Room as a dependency. androidx.room:room-paging:<version>"
 
+    val MISSING_ROOM_PAGING_GUAVA_ARTIFACT = "To use ListenableFuturePagingSource, you must " +
+        "add `room-paging-guava` artifact from Room as a dependency. " +
+        "androidx.room:room-paging-guava:<version>"
+
     val MISSING_ROOM_COROUTINE_ARTIFACT = "To use Coroutine features, you must add `ktx`" +
         " artifact from Room as a dependency. androidx.room:room-ktx:<version>"
 

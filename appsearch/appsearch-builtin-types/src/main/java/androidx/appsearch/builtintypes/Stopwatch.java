@@ -88,7 +88,7 @@ public final class Stopwatch {
     private final int mStatus;
 
     @Document.LongProperty
-    private final long mAccumulatedTimeMillis;
+    private final long mAccumulatedDurationMillis;
 
     @Document.DocumentProperty
     private final List<StopwatchLap> mLaps;
@@ -97,7 +97,7 @@ public final class Stopwatch {
             long creationTimestampMillis,
             long documentTtlMillis, @Nullable String name, long baseTimeMillis,
             long baseTimeMillisInElapsedRealtime, int bootCount, int status,
-            long accumulatedTimeMillis, @NonNull List<StopwatchLap> laps) {
+            long accumulatedDurationMillis, @NonNull List<StopwatchLap> laps) {
         mNamespace = Preconditions.checkNotNull(namespace);
         mId = Preconditions.checkNotNull(id);
         mDocumentScore = documentScore;
@@ -108,7 +108,7 @@ public final class Stopwatch {
         mBaseTimeMillisInElapsedRealtime = baseTimeMillisInElapsedRealtime;
         mBootCount = bootCount;
         mStatus = status;
-        mAccumulatedTimeMillis = accumulatedTimeMillis;
+        mAccumulatedDurationMillis = accumulatedDurationMillis;
         mLaps = Preconditions.checkNotNull(laps);
     }
 
@@ -218,11 +218,11 @@ public final class Stopwatch {
      * Returns the total duration in milliseconds accumulated by the {@link Stopwatch}.
      *
      * <p>Use this method to get the static accumulated time stored in the document. Use
-     * {@link #calculateCurrentAccumulatedTimeMillis(Context)} to calculate the accumulated time
+     * {@link #calculateCurrentAccumulatedDurationMillis(Context)} to calculate the accumulated time
      * in real time.
      */
-    public long getAccumulatedTimeMillis() {
-        return mAccumulatedTimeMillis;
+    public long getAccumulatedDurationMillis() {
+        return mAccumulatedDurationMillis;
     }
 
     /** Returns all the {@link StopwatchLap} instances. */
@@ -259,17 +259,17 @@ public final class Stopwatch {
      * Calculates the current accumulated time in milliseconds.
      *
      * <p>Use this method to calculate the accumulated time in real time. Use
-     * {@link #getAccumulatedTimeMillis()} to get the static accumulated time stored in the
+     * {@link #getAccumulatedDurationMillis()} to get the static accumulated time stored in the
      * document.
      */
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
-    public long calculateCurrentAccumulatedTimeMillis(@NonNull Context context) {
+    public long calculateCurrentAccumulatedDurationMillis(@NonNull Context context) {
         if (mStatus == STATUS_PAUSED || mStatus == STATUS_RESET) {
-            return mAccumulatedTimeMillis;
+            return mAccumulatedDurationMillis;
         }
 
         return System.currentTimeMillis() - calculateBaseTimeMillis(context)
-                + mAccumulatedTimeMillis;
+                + mAccumulatedDurationMillis;
     }
 
     /** Builder for {@link Stopwatch}. */
@@ -279,7 +279,7 @@ public final class Stopwatch {
         private long mBaseTimeMillisInElapsedRealtime;
         private int mBootCount;
         private int mStatus;
-        private long mAccumulatedTimeMillis;
+        private long mAccumulatedDurationMillis;
         private List<StopwatchLap> mLaps;
 
         /**
@@ -310,7 +310,7 @@ public final class Stopwatch {
                     stopwatch.getBaseTimeMillisInElapsedRealtime();
             mBootCount = stopwatch.getBootCount();
             mStatus = stopwatch.getStatus();
-            mAccumulatedTimeMillis = stopwatch.getAccumulatedTimeMillis();
+            mAccumulatedDurationMillis = stopwatch.getAccumulatedDurationMillis();
             mLaps = stopwatch.getLaps();
         }
 
@@ -381,8 +381,8 @@ public final class Stopwatch {
          * Sets the total duration in milliseconds accumulated by the {@link Stopwatch}.
          */
         @NonNull
-        public Builder setAccumulatedTimeMillis(long accumulatedTimeMillis) {
-            mAccumulatedTimeMillis = accumulatedTimeMillis;
+        public Builder setAccumulatedDurationMillis(long accumulatedDurationMillis) {
+            mAccumulatedDurationMillis = accumulatedDurationMillis;
             return this;
         }
 
@@ -399,7 +399,7 @@ public final class Stopwatch {
             return new Stopwatch(mNamespace, mId, mDocumentScore,
                     mCreationTimestampMillis, mDocumentTtlMillis, mName, mBaseTimeMillis,
                     mBaseTimeMillisInElapsedRealtime, mBootCount, mStatus,
-                    mAccumulatedTimeMillis, mLaps);
+                    mAccumulatedDurationMillis, mLaps);
         }
     }
 }

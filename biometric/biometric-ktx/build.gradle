@@ -23,6 +23,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":biometric:biometric-ktx"))
+    }
+
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     api(project(":biometric:biometric"))

@@ -28,7 +28,7 @@ interface UwbManager {
 
         /** Creates a new UwbManager that is used for creating controlee client sessions. */
         @JvmStatic
-        fun getInstance(context: Context): UwbManager {
+        fun createInstance(context: Context): UwbManager {
             return UwbManagerImpl(context)
         }
     }

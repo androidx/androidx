@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ Copyright (C) 2021 The Android Open Source Project
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="back_caps_action_title" msgid="6392829425035919422">"戻る"</string>
+    <string name="home_caps_action_title" msgid="4853167242566949502">"ホーム"</string>
+    <string name="exit_action_title" msgid="9086586388884500731">"終了"</string>
+    <string name="refresh_action_title" msgid="3674260822403151377">"更新"</string>
+    <string name="close_action_title" msgid="2661907510124308560">"閉じる"</string>
+    <string name="grant_access_action_title" msgid="4033140828804350723">"アクセスを許可"</string>
+    <string name="enable_location_action_title" msgid="8181862247222797044">"位置情報を有効にする"</string>
+    <string name="cancel_action_title" msgid="1149738685397349236">"キャンセル"</string>
+    <string name="stop_action_title" msgid="1187619482795416314">"停止"</string>
+    <string name="more_action_title" msgid="1039516575011403837">"その他"</string>
+    <string name="call_action_title" msgid="6218977436905001611">"通話する"</string>
+    <string name="primary_action_title" msgid="7042003552215710683">"メイン"</string>
+    <string name="options_action_title" msgid="1168121856107932984">"オプション"</string>
+    <string name="search_action_title" msgid="3483459674263446335">"検索"</string>
+    <string name="checked_action_title" msgid="906023941445896399">"選択しました"</string>
+    <string name="unchecked_action_title" msgid="802503415474307811">"選択解除しました"</string>
+    <string name="on_action_title" msgid="4129601573763429611">"ON"</string>
+    <string name="off_action_title" msgid="8669201170189204848">"OFF"</string>
+    <string name="settings_action_title" msgid="8616900063253887861">"設定"</string>
+    <!-- no translation found for accept_action_title (4899660585470647578) -->
+    <skip />
+    <string name="reject_action_title" msgid="6730366705938402668">"拒否"</string>
+    <string name="ok_action_title" msgid="7128494973966098611">"OK"</string>
+    <string name="throw_action_title" msgid="7163710562670220163">"スローする"</string>
+    <string name="commute_action_title" msgid="2585755255290185096">"通勤"</string>
+    <string name="sign_out_action_title" msgid="1653943000866713010">"ログアウト"</string>
+    <string name="try_anyway_action_title" msgid="7384500054249311718">"試してみる"</string>
+    <string name="yes_action_title" msgid="5507096013762092189">"はい"</string>
+    <string name="no_action_title" msgid="1452124604210014010">"いいえ"</string>
+    <string name="bug_reported_toast_msg" msgid="2487119172744644317">"バグを報告しました！"</string>
+    <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"拡大しました"</string>
+    <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"縮小しました"</string>
+    <string name="triggered_toast_msg" msgid="3396166539208366382">"トリガーしました"</string>
+    <string name="primary_toast_msg" msgid="7153771322662005447">"[メイン] ボタンが押されました"</string>
+    <string name="search_toast_msg" msgid="7826530065407699347">"[検索] ボタンが押されました"</string>
+    <string name="options_toast_msg" msgid="2146223786877557730">"[オプション] ボタンが押されました"</string>
+    <string name="favorite_toast_msg" msgid="522064494016370117">"お気に入りに追加しました！"</string>
+    <string name="not_favorite_toast_msg" msgid="6831181108681007428">"お気に入りに追加されていません！"</string>
+    <string name="nav_requested_toast_msg" msgid="6696525973145493908">"ナビゲーションがリクエストされました"</string>
+    <string name="selected_route_toast_msg" msgid="3149189677200086656">"ルートを選択しました"</string>
+    <string name="visible_routes_toast_msg" msgid="7065558153736024203">"表示可能なルート"</string>
+    <string name="second_item_toast_msg" msgid="7210054709419608215">"2 番目のアイテムをクリックしました"</string>
+    <string name="third_item_checked_toast_msg" msgid="3022450599567347361">"3 番目のアイテムを選択しました"</string>
+    <string name="fifth_item_checked_toast_msg" msgid="1627599668504718594">"5 番目のアイテムを選択しました"</string>
+    <string name="sixth_item_toast_msg" msgid="6117028866385793707">"6 番目のアイテムをクリックしました"</string>
+    <string name="settings_toast_msg" msgid="7697794473002342727">"[設定] をクリックしました"</string>
+    <string name="parked_toast_msg" msgid="2532422265890824446">"駐車中の操作"</string>
+    <string name="more_toast_msg" msgid="5938288138225509885">"[その他] をクリックしました"</string>
+    <string name="commute_toast_msg" msgid="4112684360647638688">"[通勤] ボタンが押されました"</string>
+    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"現在地を表示するために位置情報の利用を許可"</string>
+    <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"[Google でログイン] はここで始めます"</string>
+    <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"選択がインデックスに変更されました"</string>
+    <string name="yes_action_toast_msg" msgid="6216215197177241247">"[はい] ボタンを押しました"</string>
+    <string name="no_action_toast_msg" msgid="6165492423831023809">"[いいえ] ボタンを押しました"</string>
+    <string name="alert_timeout_toast_msg" msgid="5568380708832805374">"アラートがタイムアウトしました"</string>
+    <string name="first_row_title" msgid="219428344573165351">"大きい画像と長いテキストが含まれる行 長いテキスト 長いテキスト 長いテキスト 長いテキスト"</string>
+    <string name="first_row_text" msgid="3887390298628338716">"テキスト テキスト テキスト"</string>
+    <string name="other_row_title_prefix" msgid="4702355788835253197">"行のタイトル"</string>
+    <string name="other_row_text" msgid="7510279447493169945">"行のテキスト"</string>
+    <string name="navigate" msgid="2713090390373996139">"ナビゲーション"</string>
+    <string name="dial" msgid="3145707439707628311">"発信"</string>
+    <string name="address" msgid="9010635942573581302">"住所"</string>
+    <string name="phone" msgid="2504766809811627577">"スマートフォン"</string>
+    <string name="fail_start_nav" msgid="6921321606009212189">"ナビゲーション開始エラー"</string>
+    <string name="fail_start_dialer" msgid="1471602619507306261">"電話アプリ開始エラー"</string>
+    <string name="car_hardware_demo_title" msgid="3679106197233262689">"車載ハードウェアのデモ"</string>
+    <string name="car_hardware_info" msgid="1244783247616395012">"車載ハードウェア情報"</string>
+    <string name="model_info" msgid="494224423025683030">"モデル情報"</string>
+    <string name="no_model_permission" msgid="5333629877014978947">"モデルの権限がありません。"</string>
+    <string name="manufacturer_unavailable" msgid="4978995415869838056">"メーカーは利用できません"</string>
+    <string name="model_unavailable" msgid="4075463010215406573">"モデルは利用できません"</string>
+    <string name="year_unavailable" msgid="994338773299644607">"年は利用できません"</string>
+    <string name="energy_profile" msgid="81415433590192158">"エネルギー プロファイル"</string>
+    <string name="no_energy_profile_permission" msgid="4662285713731308888">"エネルギー プロファイルの権限がありません。"</string>
+    <string name="fuel_types" msgid="6811375173343218212">"燃料の種類"</string>
+    <string name="unavailable" msgid="3636401138255192934">"使用不可"</string>
+    <string name="ev_connector_types" msgid="735458637011996125">"EV のコネクタのタイプ"</string>
+    <string name="example_title" msgid="530257630320010494">"例 %d"</string>
+    <string name="example_1_text" msgid="8456567953748293512">"このテキストの色は赤です"</string>
+    <string name="example_2_text" msgid="718820705318661440">"このテキストの色は緑です"</string>
+    <string name="example_3_text" msgid="977269832109695627">"このテキストの色は青です"</string>
+    <string name="example_4_text" msgid="2043547015979437373">"このテキストの色は黄色です"</string>
+    <string name="example_5_text" msgid="4387859825054561488">"このテキストはプライマリ カラーを使用しています"</string>
+    <string name="example_6_text" msgid="7991523168517599600">"このテキストはセカンダリ カラーを使用しています"</string>
+    <string name="color_demo" msgid="1822427636476178993">"色のデモ"</string>
+    <string name="list_limit" msgid="3023536401535417286">"リストの上限"</string>
+    <string name="grid_limit" msgid="1350116012893549206">"グリッドの上限"</string>
+    <string name="pane_limit" msgid="981518409516855230">"ペインの上限"</string>
+    <string name="place_list_limit" msgid="6785181191763056582">"場所リストの上限"</string>
+    <string name="route_list_limit" msgid="505793441615134116">"ルートリストの上限"</string>
+    <string name="content_limits" msgid="5726880972110281095">"コンテンツの上限"</string>
+    <string name="content_limits_demo_title" msgid="3207211638386727610">"コンテンツの上限のデモ"</string>
+    <string name="finish_app_msg" msgid="8354334557053141891">"これによりアプリが終了し、戻ったときに権限の画面が事前に埋め込まれます"</string>
+    <string name="finish_app_title" msgid="9013328479438745074">"アプリのデモを終了"</string>
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"次回実行時に権限画面を事前に埋め込むデモ"</string>
+    <string name="loading_demo_title" msgid="1086529475809143517">"デモを読み込んでいます"</string>
+    <string name="loading_demo_row_title" msgid="8933049915126088142">"読み込みが完了しました！"</string>
+    <string name="pop_to_root" msgid="2078277386355064198">"root に移動"</string>
+    <string name="pop_to_marker" msgid="5007078308762725207">"その他のデモのマーカーに移動"</string>
+    <string name="push_stack" msgid="2433062141810168976">"スタックでさらにプッシュする"</string>
+    <string name="pop_to_prefix" msgid="4288884615669751608">"移動先"</string>
+    <string name="pop_to_title" msgid="3924696281273379455">"移動先のデモ"</string>
+    <string name="package_not_found_error_msg" msgid="7525619456883627939">"パッケージが見つかりません。"</string>
+    <string name="permissions_granted_msg" msgid="2348556088141992714">"すべての権限が付与されています。権限は設定から取り消してください。"</string>
+    <string name="needs_access_msg_prefix" msgid="2204136858798832382">"このアプリは次の権限にアクセスする必要があります。\n"</string>
+    <string name="phone_screen_permission_msg" msgid="3599815596923367256">"スマートフォンの画面で権限を付与してください"</string>
+    <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"デバイスで位置情報の利用許可を有効にする"</string>
+    <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"スマートフォンの画面で位置情報を有効にする"</string>
+    <string name="required_permissions_title" msgid="5351791879153568211">"必要な権限"</string>
+    <string name="request_permissions_title" msgid="7456426341142412300">"権限リクエストのデモ"</string>
+    <string name="cancel_reservation_title" msgid="1374986823057959608">"予約キャンセル画面"</string>
+    <string name="reservation_cancelled_msg" msgid="6334213670275547875">"予約はキャンセルされました"</string>
+    <string name="result_demo_title" msgid="3900525190662148290">"結果のデモ"</string>
+    <string name="not_started_for_result_msg" msgid="7498800528148447270">"このアプリは結果向けに開始されませんでした"</string>
+    <string name="started_for_result_msg" msgid="4225260243713833974">"このアプリは %s から結果について呼び出されました。結果を選択して呼び出し元に返送してください。"</string>
+    <string name="arrived_exclamation_msg" msgid="9132265698563096988">"到着しました！"</string>
+    <string name="travel_est_trip_text" msgid="5134365408383171144">"アリスを迎えに行く"</string>
+    <string name="send_notification_title" msgid="4731688444696028193">"通知を送信する"</string>
+    <string name="start_notifications_title" msgid="8699668027543530460">"通知を開始する"</string>
+    <string name="stop_notifications_title" msgid="3703892710275206239">"通知を停止する"</string>
+    <string name="notification_title" msgid="5507590705935298176">"通知"</string>
+    <string name="importance_title" msgid="9034862997821839831">"重要度"</string>
+    <string name="category_title" msgid="4783851267093259949">"カテゴリ"</string>
+    <string name="ongoing_title" msgid="4957996003270280496">"実行中"</string>
+    <!-- no translation found for default_importance (6347996298832939989) -->
+    <skip />
+    <!-- no translation found for high_importance (5009120714837304882) -->
+    <skip />
+    <!-- no translation found for low_importance (4721161314404294033) -->
+    <skip />
+    <!-- no translation found for unknown_importance (909001735933359216) -->
+    <skip />
+    <string name="notification_demo" msgid="1819496937832036387">"通知のデモ"</string>
+    <string name="misc_demo_title" msgid="7399959062407349380">"その他のデモ"</string>
+    <string name="navigating_demo_title" msgid="7454579665387386476">"ナビゲーションのデモ"</string>
+    <string name="arrived_demo_title" msgid="6708013121387053838">"到着時のデモ"</string>
+    <string name="junction_image_demo_title" msgid="3302979708776502314">"ジャンクション画像のデモ"</string>
+    <string name="nav_template_demos_title" msgid="8215835368932160866">"ナビゲーション テンプレートのデモ"</string>
+    <string name="map_template_pane_demo_title" msgid="4849450903277412004">"ペイン付き地図テンプレートのデモ"</string>
+    <string name="map_template_list_demo_title" msgid="1473810899303903185">"リスト付き地図テンプレートのデモ"</string>
+    <string name="start_notification_title" msgid="2208831088632818681">"通知を開始する"</string>
+    <string name="stop_notification_title" msgid="3709643750540881176">"通知を停止する"</string>
+    <string name="nav_notification_demo_title" msgid="4448683262984308442">"ナビゲーション通知のデモ"</string>
+    <string name="go_straight" msgid="2301747728609198718">"直進"</string>
+    <string name="turn_right" msgid="4710562732720109969">"右折する"</string>
+    <string name="take_520" msgid="3804796387195842741">"520 を選ぶ"</string>
+    <string name="gas_station" msgid="1203313937444666161">"ガソリン スタンド"</string>
+    <string name="short_route" msgid="4831864276538141265">"短いルート"</string>
+    <string name="less_busy" msgid="310625272281710983">"交通量が少ない"</string>
+    <string name="hov_friendly" msgid="6956152104754594971">"HOV 対応"</string>
+    <string name="long_route" msgid="4737969235741057506">"長いルート"</string>
+    <string name="continue_start_nav" msgid="6231797535084469163">"ナビゲーション開始に進む"</string>
+    <string name="continue_route" msgid="5172258139245088080">"ルートに進む"</string>
+    <string name="routes_title" msgid="7799772149932075357">"ルート"</string>
+    <string name="place_list_nav_template_demo_title" msgid="8019588508812955290">"場所リスト ナビゲーション テンプレートのデモ"</string>
+    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"ルート プレビュー テンプレートのデモ"</string>
+    <string name="notification_template_demo_title" msgid="5076051497316030274">"通知テンプレートのデモ"</string>
+    <string name="nav_map_template_demo_title" msgid="344985380763975398">"地図のみのナビゲーション テンプレートのデモ"</string>
+    <string name="nav_demos_title" msgid="72781206086461004">"ナビゲーションのデモ"</string>
+    <string name="navigation_alert_title" msgid="8306554249264200848">"まだスピード違反取締はありますか？"</string>
+    <string name="navigation_alert_subtitle" msgid="3331130131492672264">"10 分前に報告しました"</string>
+    <string name="no_toll_card_permission" msgid="6789073114449712090">"通行料金カードの権限がありません。"</string>
+    <string name="no_energy_level_permission" msgid="1684773185095107825">"エネルギー レベルの権限がありません。"</string>
+    <string name="no_speed_permission" msgid="5812532480922675390">"速度の権限がありません。"</string>
+    <string name="no_mileage_permission" msgid="4074779840599589847">"走行距離の権限がありません。"</string>
+    <string name="no_ev_status_permission" msgid="933075402821938973">"EV ステータスの権限がありません。"</string>
+    <string name="no_accelerometer_permission" msgid="896914448469117234">"加速度計の権限がありません。"</string>
+    <string name="no_gyroscope_permission" msgid="665293140266771569">"ジャイロスコープの権限がありません。"</string>
+    <string name="no_compass_permission" msgid="5162304489577567125">"コンパスの権限がありません。"</string>
+    <string name="no_car_hardware_location" msgid="3505517472938045093">"車載ハードウェア位置情報の権限がありません。"</string>
+    <string name="fetch_toll_info" msgid="6864627977128179834">"通行料金情報をフェッチしています。"</string>
+    <string name="fetch_energy_level" msgid="1773415471137542832">"エネルギー レベルをフェッチしています。"</string>
+    <string name="fetch_speed" msgid="7333830984597189627">"速度をフェッチしています。"</string>
+    <string name="fetch_mileage" msgid="7490131687788025123">"走行距離をフェッチしています。"</string>
+    <string name="fetch_ev_status" msgid="2798910410830567052">"EV ステータスをフェッチしています。"</string>
+    <string name="fetch_accelerometer" msgid="697750041126810911">"加速度計をフェッチしています。"</string>
+    <string name="fetch_gyroscope" msgid="7153155318827188539">"ジャイロスコープをフェッチしています。"</string>
+    <string name="fetch_compass" msgid="7316188117590056717">"コンパスをフェッチしています。"</string>
+    <string name="fetch_location" msgid="5015066922035852615">"位置情報をフェッチしています。"</string>
+    <string name="toll_card_state" msgid="4430544885695162226">"通行料金カードの状態"</string>
+    <string name="low_energy" msgid="3462774027012877028">"低エネルギー"</string>
+    <string name="range" msgid="8744960568263400641">"範囲"</string>
+    <string name="fuel" msgid="4253578650127250651">"燃料"</string>
+    <string name="battery" msgid="2183623637331546820">"バッテリー"</string>
+    <string name="display_speed" msgid="9161318805331348165">"速度を表示"</string>
+    <string name="raw_speed" msgid="7295910214088983967">"理論速度"</string>
+    <string name="unit" msgid="7697521583928135171">"単位"</string>
+    <string name="odometer" msgid="3925174645651546591">"走行距離計"</string>
+    <string name="ev_connected" msgid="2277845607662494696">"接続されている EV 充電ポート"</string>
+    <string name="ev_open" msgid="4916704450914519643">"開いている EV 充電ポート"</string>
+    <string name="accelerometer" msgid="2084026313768299185">"加速度計"</string>
+    <string name="gyroscope" msgid="3428075828014504651">"ジャイロスコープ"</string>
+    <string name="compass" msgid="7037367764762441245">"コンパス"</string>
+    <string name="car_hardware_location" msgid="5826128477363068617">"車載ハードウェア位置情報"</string>
+    <string name="non_actionable" msgid="8999757911111188784">"対応手順はありません"</string>
+    <string name="second_item" msgid="5245792503030812493">"2 番目のアイテム"</string>
+    <string name="third_item" msgid="334088179008716411">"3 番目のアイテム"</string>
+    <string name="fourth_item" msgid="1153409687260543158">"4 番目のアイテム"</string>
+    <string name="fifth_item" msgid="295284272719956932">"5 番目のアイテムに長いタイトルセットがあります"</string>
+    <string name="sixth_item" msgid="3880321601391343607">"6 番目のアイテムに長いタイトルセットがあります"</string>
+    <string name="grid_template_demo_title" msgid="6159115661928982245">"グリッド テンプレートのデモ"</string>
+    <string name="parked_only_title" msgid="3190603222397552672">"「駐車中のみ」のタイトル"</string>
+    <string name="parked_only_text" msgid="8720610556452272916">"「駐車中のみ」のその他のテキスト。"</string>
+    <string name="clicked_row_prefix" msgid="9068303427922069941">"クリックされた行"</string>
+    <string name="first_line_text" msgid="6648055806656590336">"テキストの 1 行目"</string>
+    <string name="second_line_text" msgid="38664490158836864">"テキストの 2 行目"</string>
+    <string name="title_prefix" msgid="3991742709199357049">"タイトル"</string>
+    <string name="list_template_demo_title" msgid="1740208242737246151">"リスト テンプレートのデモ"</string>
+    <string name="long_msg_template_demo_title" msgid="1793748562161438131">"長文メッセージ テンプレートのデモ"</string>
+    <string name="long_msg_template_not_supported_text" msgid="3641559637317672505">"このホストは長文メッセージ テンプレートに対応していません"</string>
+    <string name="long_msg_template_not_supported_title" msgid="8600719470226274925">"非対応のホスト"</string>
+    <string name="msg_template_demo_title" msgid="3895210951340409473">"メッセージ テンプレートのデモ"</string>
+    <string name="msg_template_demo_text" msgid="2275291617716161409">"メッセージはここに表示されます。\nその他のテキストは 2 行目に表示されます。"</string>
+    <string name="pane_template_demo_title" msgid="7804292600060341608">"ペイン テンプレートのデモ"</string>
+    <string name="place_list_template_demo_title" msgid="2054022985455460469">"場所リスト テンプレートのデモ"</string>
+    <string name="browse_places_title" msgid="7246005909846715898">"場所を見る"</string>
+    <string name="search_template_demo_title" msgid="1770474418958318114">"テンプレート デモの検索"</string>
+    <string name="search_hint" msgid="978495498991026792">"ここで検索"</string>
+    <string name="additional_text" msgid="8410289578276941586">"利用規約をご確認ください"</string>
+    <string name="google_sign_in" msgid="6556259799319701727">"Google ログイン"</string>
+    <string name="use_pin" msgid="7850893299484337431">"PIN を使用"</string>
+    <string name="qr_code" msgid="5487041647280777397">"QR コード"</string>
+    <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"このホストはログイン テンプレートに対応していません"</string>
+    <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"非対応のホスト"</string>
+    <string name="email_hint" msgid="7205549445477319606">"メール"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"ログイン"</string>
+    <string name="sign_in_instructions" msgid="9044850228284294762">"認証情報を入力します"</string>
+    <string name="invalid_email_error_msg" msgid="5261362663718987167">"ユーザー名には有効なメールアドレスを指定する必要があります"</string>
+    <string name="invalid_length_error_msg" msgid="8238905276326976425">"ユーザー名は %s 文字以上である必要があります"</string>
+    <string name="invalid_password_error_msg" msgid="1090359893902674610">"パスワードが無効です"</string>
+    <string name="password_hint" msgid="2869107073860012864">"パスワード"</string>
+    <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"ユーザー名"</string>
+    <string name="pin_sign_in_instruction" msgid="2288691296234360441">"この PIN をスマートフォンで入力します"</string>
+    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"QR コードをスキャンしてログイン"</string>
+    <string name="sign_in_with_google_title" msgid="8043752000786977249">"Google でログイン"</string>
+    <string name="provider_sign_in_instruction" msgid="7586815688292506743">"このボタンを使用して Google ログインを完了します"</string>
+    <string name="sign_in_complete_text" msgid="8423984266325680606">"ログインが完了しました！"</string>
+    <string name="sign_in_complete_title" msgid="8919868148773983428">"ログイン完了"</string>
+    <string name="sign_in_template_demo_title" msgid="6052035424941410249">"テンプレート デモへのログイン"</string>
+    <string name="images_unknown_host_error" msgid="3180661817432720076">"不明なホストでは画像を表示できません"</string>
+    <string name="icon_title_prefix" msgid="8487026131229541244">"アイコン"</string>
+    <string name="content_provider_icons_demo_title" msgid="5708602618664311097">"コンテンツ プロバイダ アイコンのデモ"</string>
+    <string name="icons_demo_title" msgid="4082976685262307357">"アイコンのデモ"</string>
+    <string name="app_icon_title" msgid="7534936683349723423">"アプリアイコン"</string>
+    <string name="vector_no_tint_title" msgid="874591632279039146">"ベクター型ドローアブル、色合い調整なし"</string>
+    <string name="vector_with_tint_title" msgid="1022346419829696827">"ベクター型ドローアブル、色合い調整あり"</string>
+    <string name="vector_with_app_theme_attr_title" msgid="4890094482708376219">"ベクター型ドローアブル、色に対するアプリのテーマ属性あり"</string>
+    <string name="png_res_title" msgid="7437083018336747544">"PNG、リソースとして送信済み"</string>
+    <string name="png_bitmap_title" msgid="120790220238335267">"PNG、リソースとして送信済み"</string>
+    <string name="just_row_title" msgid="965700021568970725">"タイトルのみ"</string>
+    <string name="title_with_app_icon_row_title" msgid="6294250714820740520">"アプリアイコン付きタイトル"</string>
+    <string name="title_with_res_id_image_row_title" msgid="3813134904602875778">"リソース ID 画像付きタイトル"</string>
+    <string name="title_with_svg_image_row_title" msgid="6109092343637263755">"SVG 画像付きタイトル"</string>
+    <string name="colored_secondary_row_title" msgid="5173288934252528929">"色付きのサブテキスト"</string>
+    <string name="title_with_secondary_lines_row_title" msgid="7769408881272549837">"サブテキストの行が複数あるタイトル"</string>
+    <string name="title_with_secondary_lines_row_text_1" msgid="8945114692653524102">"Err and err and err again, but less and less and less."</string>
+    <string name="title_with_secondary_lines_row_text_2" msgid="1017734603405251531">"- Piet Hein"</string>
+    <string name="rows_demo_title" msgid="3198566660454251007">"行のデモ"</string>
+    <string name="text_icons_demo_title" msgid="8732943920672143201">"テキストとアイコンのデモ"</string>
+    <string name="row_text_icons_demo_title" msgid="135167694047524905">"テキストとアイコンが含まれる行のデモ"</string>
+    <string name="selectable_lists_demo_title" msgid="5492658731113129386">"選択可能リストのデモ"</string>
+    <string name="option_1_title" msgid="7221252541651471199">"オプション 1"</string>
+    <string name="option_2_title" msgid="1905146448697963818">"オプション 2"</string>
+    <string name="option_3_title" msgid="6319268250436119258">"オプション 3"</string>
+    <string name="some_additional_text" msgid="4009872495806318260">"追加のテキスト"</string>
+    <string name="sample_additional_list" msgid="5085372891301576306">"選択可能リストの例"</string>
+    <string name="task_restriction_demo_title" msgid="2212084350718766941">"タスク制限のデモ"</string>
+    <string name="task_limit_reached_msg" msgid="6038763366777119364">"タスクの上限に達しました\n続行するとアプリが強制停止されます"</string>
+    <string name="task_step_of_title" msgid="2791717962535723839">"タスクのステップ %1$d / %2$d"</string>
+    <string name="task_step_of_text" msgid="4646729781462227219">"クリックして続行"</string>
+    <string name="toggle_test_title" msgid="924485265152862631">"切り替えのテスト"</string>
+    <string name="toggle_test_text" msgid="8107217216013312857">"ステートフルな変更が許可されています"</string>
+    <string name="image_test_title" msgid="8273863429801477547">"画像テスト"</string>
+    <string name="image_test_text" msgid="6264812093895530445">"画像の変更が許可されています"</string>
+    <string name="additional_data_title" msgid="3546689652240300617">"追加データ"</string>
+    <string name="additional_data_text" msgid="2846223398214158872">"アップデートにより「戻る」操作ができるようになりました。"</string>
+    <string name="misc_templates_demos_title" msgid="6077169010255928114">"その他のテンプレートのデモ"</string>
+    <string name="showcase_demos_title" msgid="1542092687878113304">"デモを表示"</string>
+    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
+    <string name="location_1_description" msgid="4801052291684791371">"色合い調整されたリソース ベクター"</string>
+    <string name="location_2_description" msgid="3331356135359047166">"画像リソースのビットマップ"</string>
+    <string name="location_3_description" msgid="3982142774088944850">"色付きのテキスト マーカー"</string>
+    <string name="location_4_description" msgid="6560365445044381911">"画像のビットマップ"</string>
+    <string name="location_description_text_label" msgid="2779911545316756419">"テキストラベル"</string>
+</resources>

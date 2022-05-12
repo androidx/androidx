@@ -68,11 +68,11 @@ import org.junit.AssumptionViolatedException
 sealed class CompilationMode {
     internal fun resetAndCompile(packageName: String, warmupBlock: () -> Unit) {
         if (Build.VERSION.SDK_INT >= 24) {
-            // Write skip file to stop profile installer from interfering with the benchmark
-            writeProfileInstallerSkipFile(packageName)
             if (Arguments.enableCompilation) {
                 Log.d(TAG, "Resetting $packageName")
                 reinstallPackage(packageName)
+                // Write skip file to stop profile installer from interfering with the benchmark
+                writeProfileInstallerSkipFile(packageName)
                 compileImpl(packageName, warmupBlock)
             } else {
                 Log.d(TAG, "Compilation is disabled, skipping compilation of $packageName")
@@ -100,13 +100,15 @@ sealed class CompilationMode {
                     // This is what effectively clears the ART profiles
                     Log.d(TAG, "Uninstalling $packageName")
                     var output = Shell.executeScriptWithStderr("pm uninstall $packageName")
-                    check(output.stderr.isBlank()) {
+                    check(output.stdout.trim() == "Success") {
                         "Unable to uninstall $packageName ($result)"
                     }
                     // Install the APK from /data/local/tmp
                     Log.d(TAG, "Installing $packageName")
-                    output = Shell.executeScriptWithStderr("pm install $tempApkPath")
-                    check(output.stderr.isBlank()) {
+                    // Provide a `-t` argument to `pm install` to ensure test packages are
+                    // correctly installed. (b/231294733)
+                    output = Shell.executeScriptWithStderr("pm install -t $tempApkPath")
+                    check(output.stdout.trim() == "Success") {
                         "Unable to install $packageName ($result)"
                     }
                 } finally {

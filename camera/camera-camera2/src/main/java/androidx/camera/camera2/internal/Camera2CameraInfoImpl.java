@@ -23,6 +23,7 @@ import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
+import android.os.Build;
 import android.util.Pair;
 import android.view.Surface;
 
@@ -351,6 +352,12 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
             return mCamera2CameraControlImpl.getFocusMeteringControl().isFocusMeteringSupported(
                     action);
         }
+    }
+
+    @Override
+    public boolean isZslSupported() {
+        return Build.VERSION.SDK_INT >= 23
+                && (isYuvReprocessingSupported() || isPrivateReprocessingSupported());
     }
 
     @Override

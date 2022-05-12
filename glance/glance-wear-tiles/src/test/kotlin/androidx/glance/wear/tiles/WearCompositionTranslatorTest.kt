@@ -45,6 +45,8 @@ import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -60,6 +62,7 @@ import androidx.glance.wear.tiles.curved.CurvedTextStyle
 import androidx.glance.wear.tiles.curved.GlanceCurvedModifier
 import androidx.glance.wear.tiles.curved.RadialAlignment
 import androidx.glance.wear.tiles.curved.clickable
+import androidx.glance.wear.tiles.curved.semantics
 import androidx.glance.wear.tiles.curved.sweepAngleDegrees
 import androidx.glance.wear.tiles.curved.thickness
 import androidx.glance.wear.tiles.test.R
@@ -221,6 +224,37 @@ class WearCompositionTranslatorTest {
 
         assertThat(background.color!!.argb)
             .isEqualTo(android.graphics.Color.rgb(0xC0, 0xFF, 0xEE))
+    }
+
+    @Test
+    fun canTranslateSemanticsModifier() = fakeCoroutineScope.runTest {
+        val content = runAndTranslate {
+            Box(modifier = GlanceModifier.semantics({ contentDescription = "test_description" })) {}
+        }.layout
+
+        val innerBox =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
+        val semantics = requireNotNull(innerBox.modifiers!!.semantics)
+        assertThat(semantics.contentDescription).isEqualTo("test_description")
+    }
+
+    @Test
+    fun canTranslateSemanticsCurvedModifier() = fakeCoroutineScope.runTest {
+        val content = runAndTranslate {
+            CurvedRow {
+                curvedText(
+                    text = "Hello World",
+                    curvedModifier =
+                    GlanceCurvedModifier.semantics({ contentDescription = "test_description" })
+                )
+            }
+        }.layout
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+        val innerArcText = innerArc.contents[0] as LayoutElementBuilders.ArcText
+        val semantics = requireNotNull(innerArcText.modifiers!!.semantics)
+        assertThat(semantics.contentDescription).isEqualTo("test_description")
     }
 
     @Test

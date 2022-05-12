@@ -20,7 +20,7 @@ package androidx.glance.wear.tiles {
 
   public abstract class GlanceTileService extends androidx.wear.tiles.TileService {
     ctor public GlanceTileService(optional androidx.wear.tiles.LayoutElementBuilders.LayoutElement? errorUiLayout);
-    method @androidx.compose.runtime.Composable public abstract void Content();
+    method @androidx.compose.runtime.Composable @androidx.glance.GlanceComposable public abstract void Content();
     method public androidx.glance.state.GlanceStateDefinition<?>? getStateDefinition();
     method public final suspend <T> Object? getTileState(kotlin.coroutines.Continuation<? super T>);
     method public androidx.glance.wear.tiles.TimelineMode getTimelineMode();
@@ -154,6 +154,7 @@ package androidx.glance.wear.tiles.curved {
 
   public final class GlanceCurvedModifierKt {
     method public static androidx.glance.wear.tiles.curved.GlanceCurvedModifier clickable(androidx.glance.wear.tiles.curved.GlanceCurvedModifier, androidx.glance.action.Action onClick);
+    method public static androidx.glance.wear.tiles.curved.GlanceCurvedModifier semantics(androidx.glance.wear.tiles.curved.GlanceCurvedModifier, kotlin.jvm.functions.Function1<? super androidx.glance.semantics.SemanticsPropertyReceiver,kotlin.Unit> properties);
     method public static androidx.glance.wear.tiles.curved.GlanceCurvedModifier sweepAngleDegrees(androidx.glance.wear.tiles.curved.GlanceCurvedModifier, float degrees);
     method public static androidx.glance.wear.tiles.curved.GlanceCurvedModifier thickness(androidx.glance.wear.tiles.curved.GlanceCurvedModifier, float thickness);
   }

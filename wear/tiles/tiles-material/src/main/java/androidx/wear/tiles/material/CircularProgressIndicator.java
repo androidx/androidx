@@ -29,6 +29,7 @@ import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_STR
 import androidx.annotation.Dimension;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DimensionBuilders.DegreesProp;
@@ -38,6 +39,7 @@ import androidx.wear.tiles.LayoutElementBuilders.Arc;
 import androidx.wear.tiles.LayoutElementBuilders.ArcLine;
 import androidx.wear.tiles.LayoutElementBuilders.ArcSpacer;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
+import androidx.wear.tiles.ModifiersBuilders;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
 import androidx.wear.tiles.ModifiersBuilders.Semantics;
@@ -170,22 +172,22 @@ public class CircularProgressIndicator implements LayoutElement {
             checkAngles();
 
             DegreesProp length = getLength();
+            Modifiers.Builder modifiers =
+                    new Modifiers.Builder()
+                            .setPadding(new Padding.Builder().setAll(DEFAULT_PADDING).build());
+
+            if (mContentDescription.length() > 0) {
+                modifiers.setSemantics(
+                        new ModifiersBuilders.Semantics.Builder()
+                                .setContentDescription(mContentDescription.toString())
+                                .build());
+            }
+
             Arc.Builder element =
                     new Arc.Builder()
                             .setAnchorType(LayoutElementBuilders.ARC_ANCHOR_START)
                             .setAnchorAngle(mStartAngle)
-                            .setModifiers(
-                                    new Modifiers.Builder()
-                                            .setSemantics(
-                                                    new Semantics.Builder()
-                                                            .setContentDescription(
-                                                                    mContentDescription.toString())
-                                                            .build())
-                                            .setPadding(
-                                                    new Padding.Builder()
-                                                            .setAll(DEFAULT_PADDING)
-                                                            .build())
-                                            .build())
+                            .setModifiers(modifiers.build())
                             .addContent(
                                     new ArcLine.Builder()
                                             .setColor(
@@ -261,10 +263,13 @@ public class CircularProgressIndicator implements LayoutElement {
     }
 
     /** Returns content description of this CircularProgressIndicator. */
-    @NonNull
-    public String getContentDescription() {
-        return checkNotNull(checkNotNull(mElement.getModifiers()).getSemantics())
-                .getContentDescription();
+    @Nullable
+    public CharSequence getContentDescription() {
+        Semantics semantics = checkNotNull(mElement.getModifiers()).getSemantics();
+        if (semantics == null) {
+            return null;
+        }
+        return semantics.getContentDescription();
     }
 
     /** @hide */

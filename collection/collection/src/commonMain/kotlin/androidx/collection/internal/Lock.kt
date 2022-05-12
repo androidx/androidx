@@ -18,12 +18,17 @@ package androidx.collection.internal
 
 /**
  * A simple reentrant lock.
- * On JVM the implementation is typealiased to `java.util.concurrent.locks.ReentrantLock`.
+ * On JVM it is implemented via `synchronized {}`,
+ * `ReentrantLock` is avoided for performance reasons.
  * On Native it is implemented via POSIX mutex with PTHREAD_MUTEX_RECURSIVE flag.
  */
 internal expect class Lock() {
 
-    fun lock()
-
-    fun unlock()
+    /**
+     * It's not possible to specify a `contract` for an expect function,
+     * see https://youtrack.jetbrains.com/issue/KT-29963.
+     *
+     * Please use [Lock.synchronized] function, where the `contract` is actually specified.
+     */
+    inline fun <T> synchronizedImpl(block: () -> T): T
 }

@@ -663,7 +663,10 @@ class FragmentStateManager {
         } else {
             fs.mSavedFragmentState = mFragment.mSavedFragmentState;
         }
-        mFragmentStore.setSavedState(mFragment.mWho, fs);
+
+        Bundle stateBundle = new Bundle();
+        stateBundle.putParcelable(FragmentManager.FRAGMENT_STATE_TAG, fs);
+        mFragmentStore.setSavedState(mFragment.mWho, stateBundle);
     }
 
     @Nullable

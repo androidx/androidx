@@ -100,13 +100,16 @@ dependencies {
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(project(":room:room-guava"))
     androidTestImplementation(project(":room:room-testing"))
+    androidTestImplementation(project(":room:room-paging-guava"))
+    // we need latest guava android because room-paging-guava's guava-android gets override by
+    // its kotlinx-coroutines-guava dependency's guava-jre version
+    androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation(project(":room:room-rxjava3"))
     androidTestImplementation(project(":room:room-ktx"))
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation("androidx.paging:paging-runtime:3.1.1")
-    androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation(libs.rxjava2)
     testImplementation(libs.mockitoCore)
 }

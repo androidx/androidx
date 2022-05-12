@@ -16,6 +16,7 @@
 
 package androidx.camera.core.internal.utils;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -28,8 +29,15 @@ import java.util.ArrayDeque;
  */
 public class ArrayRingBuffer<T> implements RingBuffer<T> {
 
+    private static final String TAG = "ZslRingBuffer";
+
     private final int mRingBufferCapacity;
+
+    @GuardedBy("mLock")
     private final ArrayDeque<T> mBuffer;
+
+    private final Object mLock = new Object();
+
     @Nullable final OnRemoveCallback<T> mOnRemoveCallback;
 
     public ArrayRingBuffer(int ringBufferCapacity) {
@@ -44,19 +52,24 @@ public class ArrayRingBuffer<T> implements RingBuffer<T> {
 
     @Override
     public void enqueue(@NonNull T element) {
-        if (mBuffer.size() >= mRingBufferCapacity) {
-            T removedItem = this.dequeue();
-            if (mOnRemoveCallback != null) {
-                mOnRemoveCallback.onRemove(removedItem);
+        T removedItem = null;
+        synchronized (mLock) {
+            if (mBuffer.size() >= mRingBufferCapacity) {
+                removedItem = this.dequeue();
             }
+            mBuffer.addFirst(element);
         }
-        mBuffer.addFirst(element);
+
+        if (mOnRemoveCallback != null && removedItem != null) {
+            mOnRemoveCallback.onRemove(removedItem);
+        }
     }
 
     @Override
     public @NonNull T dequeue() {
-        T removedElement = mBuffer.removeLast();
-        return removedElement;
+        synchronized (mLock) {
+            return mBuffer.removeLast();
+        }
     }
 
     @Override
@@ -66,6 +79,8 @@ public class ArrayRingBuffer<T> implements RingBuffer<T> {
 
     @Override
     public boolean isEmpty() {
-        return mBuffer.isEmpty();
+        synchronized (mLock) {
+            return mBuffer.isEmpty();
+        }
     }
 }

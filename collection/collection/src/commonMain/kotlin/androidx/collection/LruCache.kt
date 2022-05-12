@@ -289,17 +289,20 @@ public constructor(@IntRangeKmp(from = 1, to = MAX_VALUE) private var maxSize: I
     public fun evictionCount(): Int = lock.synchronized { evictionCount }
 
     /**
-     * Returns a copy of the current contents of the cache, ordered from least
+     * Returns a mutable copy of the current contents of the cache, ordered from least
      * recently accessed to most recently accessed.
      */
-    public fun snapshot(): Map<K, V> =
+    public fun snapshot(): MutableMap<K, V> {
+        // order and mutability is important for backwards compatibility so we intentionally use
+        // a LinkedHashMap here.
+        val copy = LinkedHashMap<K, V>()
         lock.synchronized {
-            buildMap {
-                map.entries.forEach { (key, value) ->
-                    put(key, value)
-                }
+            map.entries.forEach { (key, value) ->
+                copy[key] = value
             }
         }
+        return copy
+    }
 
     override fun toString(): String {
         lock.synchronized {

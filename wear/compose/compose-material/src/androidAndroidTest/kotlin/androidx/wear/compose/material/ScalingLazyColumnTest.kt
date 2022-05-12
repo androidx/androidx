@@ -25,8 +25,10 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
@@ -34,6 +36,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -52,6 +55,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
+import kotlinx.coroutines.runBlocking
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -304,6 +308,7 @@ public class ScalingLazyColumnTest {
         // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
         rule.waitUntil { state.initialized.value }
         rule.waitForIdle()
+
         state.layoutInfo.assertVisibleItems(count = 3, startIndex = 0)
 
         rule.waitForIdle()
@@ -773,6 +778,90 @@ public class ScalingLazyColumnTest {
         }
 
         assertThat(state.centerItemScrollOffset).isEqualTo(startScrollValue)
+    }
+
+    @Test
+    fun scrollToNotVisibleListWorks() {
+        lateinit var state: ScalingLazyListState
+        lateinit var showList: MutableState<Boolean>
+        rule.setContent {
+            showList = remember { mutableStateOf(true) }
+            state = rememberScalingLazyListState()
+            if (showList.value) {
+                ScalingLazyColumn(
+                    state = state,
+                    modifier = Modifier.testTag(TEST_TAG).requiredSize(
+                        itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                    ),
+                    autoCentering = AutoCenteringParams()
+                ) {
+                    items(25) {
+                        Box(Modifier.requiredSize(itemSizeDp))
+                    }
+                }
+            } else {
+                Box(modifier = Modifier.requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ))
+            }
+        }
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+
+        rule.onNodeWithTag(TEST_TAG).assertExists()
+        rule.onNodeWithTag(TEST_TAG).assertIsDisplayed()
+
+        showList.value = false
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollToItem(10)
+            }
+        }
+
+        rule.waitForIdle()
+        showList.value = true
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(TEST_TAG).assertExists()
+
+        state.layoutInfo.assertVisibleItems(count = 5, startIndex = 8)
+        assertThat(state.centerItemIndex).isEqualTo(10)
+        assertThat(state.centerItemScrollOffset).isEqualTo(0)
+    }
+
+    @Test
+    fun scrollToNonExistentItemWorks() {
+        lateinit var state: ScalingLazyListState
+        rule.setContent {
+            state = rememberScalingLazyListState()
+            ScalingLazyColumn(
+                state = state,
+                modifier = Modifier.testTag(TEST_TAG).requiredSize(
+                    itemSizeDp * 3.5f + defaultItemSpacingDp * 2.5f
+                ),
+                autoCentering = AutoCenteringParams()
+            ) {
+                items(25) {
+                    Box(Modifier.requiredSize(itemSizeDp))
+                }
+            }
+        }
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.scrollToItem(50)
+            }
+        }
+
+        state.layoutInfo.assertVisibleItems(count = 3, startIndex = 22)
+        assertThat(state.centerItemIndex).isEqualTo(24)
+        assertThat(state.centerItemScrollOffset).isEqualTo(0)
     }
 }
 

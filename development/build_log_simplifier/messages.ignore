@@ -321,8 +321,8 @@ Set 'kapt\.include\.compile\.classpath=false' to disable discovery\.
 Set 'kapt\.includeCompileClasspath = false' to disable discovery\.
 Run the build with '\-\-info' for more details\.
 # > Task :room:room-compiler:test
-WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/(classes/kotlin/main/|libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar)\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
-WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/(classes/kotlin/main/|libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar)\) to field com\.sun\.tools\.javac\.code\.Symbol\.owner
+(WARNING: All illegal access operations will be denied in a future release)?WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/(classes/kotlin/main/|libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar)\) to field com\.sun\.tools\.javac\.code\.Symbol\$ClassSymbol\.classfile
+(WARNING: All illegal access operations will be denied in a future release)?WARNING: Illegal reflective access by androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion \(file:\$OUT_DIR/androidx/room/room\-compiler\-processing/build/(classes/kotlin/main/|libs/room\-compiler\-processing\-[0-9]+\.[0-9]+\.[0-9]+(\-(alpha|beta|rc)[0-9]+)?\.jar)\) to field com\.sun\.tools\.javac\.code\.Symbol\.owner
 WARNING: Please consider reporting this to the maintainers of androidx\.room\.compiler\.processing\.javac\.JavacProcessingEnvMessager\$Companion
 # > Task :docs-runner:dokkaJavaTipOfTreeDocs
 \$CHECKOUT/prebuilts/androidx/external/org/jetbrains/kotlin/kotlin\-stdlib\-jdk[0-9]+/[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*/kotlin\-stdlib\-jdk[0-9]+\-[0-9]+\.[0-9]+\.[0-9]+-?[\-A-Z0-9]*\.jar \(version [0-9]+\.[0-9]+-?[\-A-Z0-9]*\)
@@ -616,8 +616,9 @@ C/C\+\+: Compiling for ARM
 # > Task :glance:glance:reportLibraryMetrics
 Info: Stripped invalid locals information from [0-9]+ method\.
 Info: Methods with invalid locals information:
+long androidx\.compose\.ui\.input\.pointer\.util\.VelocityTracker\.getImpulseVelocity.*
 java\.lang\.Object androidx\.glance\.state\.GlanceState\.getDataStore\(android\.content\.Context, androidx\.glance\.state\.GlanceStateDefinition, java\.lang\.String, kotlin\.coroutines\.Continuation\)
-Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint OBJECT\.
+Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint [\-A-Z]*\.
 Info: Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
 # > Task :compose:ui:ui-inspection:buildCMakeRelWithDebInfo[arm64-v8a]
 C/C\+\+: ninja: warning: bad deps log signature or version; starting over

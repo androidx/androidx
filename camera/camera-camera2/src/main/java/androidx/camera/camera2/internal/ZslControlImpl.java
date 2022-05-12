@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageProxy;
@@ -58,14 +59,19 @@ final class ZslControlImpl implements ZslControl {
 
     private static final String TAG = "ZslControlImpl";
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    private static final int RING_BUFFER_CAPACITY = 10;
+    @VisibleForTesting
+    static final int RING_BUFFER_CAPACITY = 3;
 
+    @VisibleForTesting
+    static final int MAX_IMAGES = RING_BUFFER_CAPACITY * 3;
+
+    @VisibleForTesting
     @SuppressWarnings("WeakerAccess")
     @NonNull
     final ZslRingBuffer mImageRingBuffer;
 
-    private boolean mIsZslDisabled = false;
+    private boolean mIsZslDisabledByUseCaseConfig = false;
+    private boolean mIsZslDisabledByFlashMode = false;
     private boolean mIsYuvReprocessingSupported = false;
     private boolean mIsPrivateReprocessingSupported = false;
 
@@ -91,15 +97,34 @@ final class ZslControlImpl implements ZslControl {
     }
 
     @Override
-    public void setZslDisabled(boolean disabled) {
-        mIsZslDisabled = disabled;
+    public void setZslDisabledByUserCaseConfig(boolean disabled) {
+        mIsZslDisabledByUseCaseConfig = disabled;
+    }
+
+    @Override
+    public boolean isZslDisabledByUserCaseConfig() {
+        return mIsZslDisabledByUseCaseConfig;
+    }
+
+    @Override
+    public void setZslDisabledByFlashMode(boolean disabled) {
+        mIsZslDisabledByFlashMode = disabled;
+    }
+
+    @Override
+    public boolean isZslDisabledByFlashMode() {
+        return mIsZslDisabledByFlashMode;
     }
 
     @Override
     public void addZslConfig(
             @NonNull Size resolution,
             @NonNull SessionConfig.Builder sessionConfigBuilder) {
-        if (mIsZslDisabled) {
+        cleanup();
+
+        // TODO(b/231160628): need to handle flash mode disabling separately to achieve zsl
+        //  on/off seamlessly switching as flash mode changes.
+        if (mIsZslDisabledByUseCaseConfig || mIsZslDisabledByFlashMode) {
             return;
         }
 
@@ -107,26 +132,30 @@ final class ZslControlImpl implements ZslControl {
             return;
         }
 
-        cleanup();
-
         // Init the reprocessing image reader and enqueue available images into the ring buffer.
         // TODO(b/226683183): Decide whether YUV or PRIVATE reprocessing should be the default.
-        int reprocessingImageFormat = mIsYuvReprocessingSupported
-                ? ImageFormat.YUV_420_888 : ImageFormat.PRIVATE;
+        int reprocessingImageFormat = mIsPrivateReprocessingSupported
+                ? ImageFormat.PRIVATE : ImageFormat.YUV_420_888;
 
         MetadataImageReader metadataImageReader = new MetadataImageReader(
                 resolution.getWidth(),
                 resolution.getHeight(),
                 reprocessingImageFormat,
-                RING_BUFFER_CAPACITY * 2);
+                MAX_IMAGES);
         mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
         mReprocessingImageReader = new SafeCloseImageReaderProxy(metadataImageReader);
         metadataImageReader.setOnImageAvailableListener(
                 imageReader -> {
-                    ImageProxy imageProxy = imageReader.acquireLatestImage();
-                    if (imageProxy != null) {
-                        mImageRingBuffer.enqueue(imageProxy);
+                    try {
+                        ImageProxy imageProxy = imageReader.acquireLatestImage();
+                        if (imageProxy != null) {
+                            mImageRingBuffer.enqueue(imageProxy);
+                        }
+                    } catch (IllegalStateException e) {
+                        Logger.e(TAG, "Failed to acquire latest image IllegalStateException = "
+                                + e.getMessage());
                     }
+
                 }, CameraXExecutors.ioExecutor());
 
         // Init the reprocessing image reader surface and add into the target surfaces of capture
@@ -187,7 +216,13 @@ final class ZslControlImpl implements ZslControl {
         Image image = imageProxy.getImage();
 
         if (Build.VERSION.SDK_INT >= 23 && mReprocessingImageWriter != null && image != null) {
-            ImageWriterCompat.queueInputImage(mReprocessingImageWriter, image);
+            try {
+                ImageWriterCompat.queueInputImage(mReprocessingImageWriter, image);
+            } catch (IllegalStateException e) {
+                Logger.e(TAG, "enqueueImageToImageWriter throws IllegalStateException = "
+                        + e.getMessage());
+                return false;
+            }
             return true;
         }
         return false;
@@ -209,8 +244,10 @@ final class ZslControlImpl implements ZslControl {
                 reprocessingImageDeferrableSurface.getTerminationFuture().addListener(
                         reprocessingImageReaderProxy::safeClose,
                         CameraXExecutors.mainThreadExecutor());
+                mReprocessingImageReader = null;
             }
             reprocessingImageDeferrableSurface.close();
+            mReprocessingImageDeferrableSurface = null;
         }
 
         ImageWriter reprocessingImageWriter = mReprocessingImageWriter;

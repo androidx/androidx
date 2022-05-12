@@ -1,12 +1,5 @@
 # Integrating proprietary components
 
-go/androidx/open_source
-
-<!--*
-# Document freshness: For more information, see go/fresh-source.
-freshness: { owner: 'alanv' reviewed: '2022-01-14' }
-*-->
-
 [TOC]
 
 One of the core principles of Jetpack is "Developed as open-source and
@@ -23,13 +16,17 @@ library.
 
 ### Exceptions
 
-The only unconditional exception to this definition is the Android platform SDK,
-which does not release sources until well after its API surface has been
-finalized.
+#### Android Open Source Project
+
+The only unconditional exception to this definition is the Android Open Source
+Project itself, which does not release sources publicly until well after its API
+surface has been finalized.
 
 Libraries which are developed against the pre-release Android platform SDK _may_
 remain closed-source until the platform SDK's API surface is finalized, at which
 they **must** move to open-source.
+
+#### Closed-source dependencies
 
 In specific cases, libraries *may* include closed-source dependencies. See the
 [Open-source compatibility](api_guidelines.md#dependencies-aosp) section of the
