@@ -30,7 +30,6 @@ import androidx.wear.watchface.style.test.R
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.xmlpull.v1.XmlPullParser
 
 @RequiresApi(Build.VERSION_CODES.P)
 @RunWith(AndroidJUnit4::class)
@@ -44,9 +43,7 @@ class UserStyleSchemaInflateTest {
         val parser = context.resources.getXml(R.xml.list_schema)
 
         // Parse next until start tag is found
-        var type: Int
-        do { type = parser.next() }
-        while (type != XmlPullParser.END_DOCUMENT && type != XmlPullParser.START_TAG)
+        parser.moveToStart("UserStyleSchema")
 
         val schema = UserStyleSchema.inflate(context.resources, parser)
 
@@ -132,9 +129,7 @@ class UserStyleSchemaInflateTest {
         val parser = context.resources.getXml(R.xml.mixed_schema)
 
         // Parse next until start tag is found
-        var type: Int
-        do { type = parser.next() }
-        while (type != XmlPullParser.END_DOCUMENT && type != XmlPullParser.START_TAG)
+        parser.moveToStart("UserStyleSchema")
 
         val schema = UserStyleSchema.inflate(context.resources, parser)
 

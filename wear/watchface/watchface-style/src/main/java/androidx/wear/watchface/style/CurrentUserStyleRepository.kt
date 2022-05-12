@@ -20,6 +20,8 @@ import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.drawable.Icon
 import androidx.annotation.RestrictTo
+import androidx.wear.watchface.complications.IllegalNodeException
+import androidx.wear.watchface.complications.iterate
 import androidx.wear.watchface.style.UserStyleSetting.Option
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
@@ -33,7 +35,6 @@ import java.security.DigestOutputStream
 import java.security.MessageDigest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
 /**
@@ -447,48 +448,41 @@ public class UserStyleSchema constructor(
 
             val idToSetting = HashMap<String, UserStyleSetting>()
             val userStyleSettings = ArrayList<UserStyleSetting>()
-            val outerDepth = parser.depth
-            var type = parser.next()
 
             // Parse the UserStyle declaration.
-            do {
-                if (type == XmlPullParser.START_TAG) {
-                    when (parser.name) {
-                        "BooleanUserStyleSetting" -> userStyleSettings.add(
-                            UserStyleSetting.BooleanUserStyleSetting.inflate(resources, parser)
-                        )
+            parser.iterate {
+                when (parser.name) {
+                    "BooleanUserStyleSetting" -> userStyleSettings.add(
+                        UserStyleSetting.BooleanUserStyleSetting.inflate(resources, parser)
+                    )
 
-                        "ComplicationSlotsUserStyleSetting" -> userStyleSettings.add(
-                            UserStyleSetting.ComplicationSlotsUserStyleSetting.inflate(
-                                resources,
-                                parser
-                            )
+                    "ComplicationSlotsUserStyleSetting" -> userStyleSettings.add(
+                        UserStyleSetting.ComplicationSlotsUserStyleSetting.inflate(
+                            resources,
+                            parser
                         )
+                    )
 
-                        "DoubleRangeUserStyleSetting" -> userStyleSettings.add(
-                            UserStyleSetting.DoubleRangeUserStyleSetting.inflate(resources, parser)
-                        )
+                    "DoubleRangeUserStyleSetting" -> userStyleSettings.add(
+                        UserStyleSetting.DoubleRangeUserStyleSetting.inflate(resources, parser)
+                    )
 
-                        "ListUserStyleSetting" -> userStyleSettings.add(
-                            UserStyleSetting.ListUserStyleSetting.inflate(
-                                resources,
-                                parser,
-                                idToSetting
-                            )
+                    "ListUserStyleSetting" -> userStyleSettings.add(
+                        UserStyleSetting.ListUserStyleSetting.inflate(
+                            resources,
+                            parser,
+                            idToSetting
                         )
+                    )
 
-                        "LongRangeUserStyleSetting" -> userStyleSettings.add(
-                            UserStyleSetting.LongRangeUserStyleSetting.inflate(resources, parser)
-                        )
+                    "LongRangeUserStyleSetting" -> userStyleSettings.add(
+                        UserStyleSetting.LongRangeUserStyleSetting.inflate(resources, parser)
+                    )
 
-                        else -> throw IllegalArgumentException(
-                            "Unexpected node ${parser.name} at line ${parser.lineNumber}"
-                        )
-                    }
-                    idToSetting[userStyleSettings.last().id.value] = userStyleSettings.last()
+                    else -> throw IllegalNodeException(parser)
                 }
-                type = parser.next()
-            } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+                idToSetting[userStyleSettings.last().id.value] = userStyleSettings.last()
+            }
 
             return UserStyleSchema(userStyleSettings)
         }

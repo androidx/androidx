@@ -20,8 +20,10 @@ import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy
+import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.NAMESPACE_APP
 import androidx.wear.watchface.complications.hasValue
+import androidx.wear.watchface.complications.iterate
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.UserStyleSchema
@@ -31,7 +33,6 @@ import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat
 import androidx.wear.watchface.style.getIntRefAttribute
 import androidx.wear.watchface.style.getStringRefAttribute
 import java.io.IOException
-import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 
 /**
@@ -120,74 +121,67 @@ public class UserStyleFlavor(
 
             val userStyle = schema.getDefaultUserStyle().toMutableUserStyle()
             val complications = mutableMapOf<Int, DefaultComplicationDataSourcePolicy>()
-            val outerDepth = parser.depth
-            var type = parser.next()
+            parser.iterate {
+                when (parser.name) {
+                    "StyleOption" -> {
+                        val id = getStringRefAttribute(resources, parser, "id")
+                        require(id != null) { "StyleOption must have an id" }
 
-            // Parse the UserStyle declaration.
-            do {
-                if (type == XmlPullParser.START_TAG) {
-                    when (parser.name) {
-                        "StyleOption" -> {
-                            val id = getStringRefAttribute(resources, parser, "id")
-                            require(id != null) { "StyleOption must have an id" }
+                        require(parser.hasValue("value")) {
+                            "value is required for BooleanOption"
+                        }
+                        val value = getStringRefAttribute(resources, parser, "value")
 
-                            require(parser.hasValue("value")) {
-                                "value is required for BooleanOption"
+                        val setting = schema[UserStyleSetting.Id(id)]
+                        require(setting != null) { "no setting found for id $id" }
+                        when (setting) {
+                            is UserStyleSetting.BooleanUserStyleSetting -> {
+                                val booleanValue = parser.getAttributeBooleanValue(
+                                    NAMESPACE_APP,
+                                    "value",
+                                    true
+                                )
+
+                                userStyle[setting] =
+                                    UserStyleSetting.BooleanUserStyleSetting
+                                        .BooleanOption.from(booleanValue)
                             }
-                            val value = getStringRefAttribute(resources, parser, "value")
-
-                            val setting = schema[UserStyleSetting.Id(id)]
-                            require(setting != null) { "no setting found for id $id" }
-                            when (setting) {
-                                is UserStyleSetting.BooleanUserStyleSetting -> {
-                                    val booleanValue = parser.getAttributeBooleanValue(
-                                        NAMESPACE_APP,
-                                        "value",
-                                        true
-                                    )
-
-                                    userStyle[setting] =
-                                        UserStyleSetting.BooleanUserStyleSetting
-                                            .BooleanOption.from(booleanValue)
-                                }
-                                is UserStyleSetting.DoubleRangeUserStyleSetting -> {
-                                    userStyle[setting] =
-                                        UserStyleSetting.DoubleRangeUserStyleSetting
-                                            .DoubleRangeOption(value!!.toDouble())
-                                }
-                                is UserStyleSetting.LongRangeUserStyleSetting -> {
-                                    userStyle[setting] =
-                                        UserStyleSetting.LongRangeUserStyleSetting
-                                            .LongRangeOption(value!!.toLong())
-                                }
-                                else -> {
-                                    userStyle[setting] = setting.getOptionForId(
-                                        UserStyleSetting.Option.Id(value!!))
-                                }
+                            is UserStyleSetting.DoubleRangeUserStyleSetting -> {
+                                userStyle[setting] =
+                                    UserStyleSetting.DoubleRangeUserStyleSetting
+                                        .DoubleRangeOption(value!!.toDouble())
+                            }
+                            is UserStyleSetting.LongRangeUserStyleSetting -> {
+                                userStyle[setting] =
+                                    UserStyleSetting.LongRangeUserStyleSetting
+                                        .LongRangeOption(value!!.toLong())
+                            }
+                            else -> {
+                                userStyle[setting] = setting.getOptionForId(
+                                    UserStyleSetting.Option.Id(value!!)
+                                )
                             }
                         }
-                        "ComplicationPolicy" -> {
-                            val id = getIntRefAttribute(resources, parser, "slotId")
-                            require(id != null) {
-                                "slotId is required for ComplicationPolicy"
-                            }
+                    }
+                    "ComplicationPolicy" -> {
+                        val id = getIntRefAttribute(resources, parser, "slotId")
+                        require(id != null) {
+                            "slotId is required for ComplicationPolicy"
+                        }
 
-                            val policy =
-                                XmlSchemaAndComplicationSlotsDefinition.ComplicationSlotStaticData
+                        val policy =
+                            XmlSchemaAndComplicationSlotsDefinition.ComplicationSlotStaticData
                                 .inflateDefaultComplicationDataSourcePolicy(
                                     parser,
-                                    "ComplicationPolicy")
+                                    "ComplicationPolicy"
+                                )
 
-                            complications[id] = policy
-                        }
-
-                        else -> throw IllegalArgumentException(
-                            "Unexpected node ${parser.name} at line ${parser.lineNumber}"
-                        )
+                        complications[id] = policy
                     }
+
+                    else -> throw IllegalNodeException(parser)
                 }
-                type = parser.next()
-            } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+            }
 
             return UserStyleFlavor(
                 flavorId,
@@ -254,24 +248,15 @@ public class UserStyleFlavors(public val flavors: List<UserStyleFlavor>) {
             }
 
             val flavors = ArrayList<UserStyleFlavor>()
-            val outerDepth = parser.depth
-            var type = parser.next()
+            parser.iterate {
+                when (parser.name) {
+                    "UserStyleFlavor" -> flavors.add(
+                        UserStyleFlavor.inflate(resources, parser, schema)
+                    )
 
-            // Parse the UserStyle declaration.
-            do {
-                if (type == XmlPullParser.START_TAG) {
-                    when (parser.name) {
-                        "UserStyleFlavor" -> flavors.add(
-                            UserStyleFlavor.inflate(resources, parser, schema)
-                        )
-
-                        else -> throw IllegalArgumentException(
-                            "Unexpected node ${parser.name} at line ${parser.lineNumber}"
-                        )
-                    }
+                    else -> throw IllegalNodeException(parser)
                 }
-                type = parser.next()
-            } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+            }
 
             return UserStyleFlavors(flavors)
         }
