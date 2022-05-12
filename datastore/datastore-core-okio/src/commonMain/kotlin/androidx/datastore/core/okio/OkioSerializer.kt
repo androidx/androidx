@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package datastore.core.okio
+package androidx.datastore.core.okio
 
 import okio.BufferedSink
 import okio.BufferedSource

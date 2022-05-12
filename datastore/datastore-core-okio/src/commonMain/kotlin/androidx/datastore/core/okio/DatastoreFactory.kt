@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package datastore.core.okio
+package androidx.datastore.core.okio
 
 import androidx.datastore.core.DataMigration
 import androidx.datastore.core.DataStore
