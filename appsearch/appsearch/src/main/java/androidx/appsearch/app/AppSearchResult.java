@@ -15,12 +15,13 @@
  */
 package androidx.appsearch.app;
 
+import android.util.Log;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.util.LogUtil;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
@@ -221,9 +222,9 @@ public final class AppSearchResult<ValueType> {
         // the regular operation of the system (b/183550974). Everything else is logged at DEBUG.
         if (t instanceof AppSearchException
                 && ((AppSearchException) t).getResultCode() == RESULT_NOT_FOUND) {
-            LogUtil.v(TAG, "Converting throwable to failed result: ", t);
+            Log.v(TAG, "Converting throwable to failed result: " + t);
         } else {
-            LogUtil.d(TAG, t, "Converting throwable to failed result.");
+            Log.d(TAG, "Converting throwable to failed result.", t);
         }
 
         if (t instanceof AppSearchException) {

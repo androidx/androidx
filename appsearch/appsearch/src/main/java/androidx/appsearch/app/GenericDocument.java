@@ -19,6 +19,7 @@ package androidx.appsearch.app;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -28,7 +29,6 @@ import androidx.appsearch.annotation.Document;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.util.BundleUtil;
 import androidx.appsearch.util.IndentingStringBuilder;
-import androidx.appsearch.util.LogUtil;
 import androidx.core.util.Preconditions;
 
 import java.lang.reflect.Array;
@@ -315,12 +315,12 @@ public class GenericDocument {
             for (int i = 0; i < bundles.size(); i++) {
                 Bundle bundle = bundles.get(i);
                 if (bundle == null) {
-                    LogUtil.e(TAG, "The inner bundle is null at ", i, ", for path: ", path);
+                    Log.e(TAG, "The inner bundle is null at " + i + ", for path: " + path);
                     continue;
                 }
                 byte[] innerBytes = bundle.getByteArray(BYTE_ARRAY_FIELD);
                 if (innerBytes == null) {
-                    LogUtil.e(TAG, "The bundle at ", i, " contains a null byte[].");
+                    Log.e(TAG, "The bundle at " + i + " contains a null byte[].");
                     continue;
                 }
                 bytes[i] = innerBytes;
@@ -335,14 +335,12 @@ public class GenericDocument {
             GenericDocument[] documents = new GenericDocument[bundles.length];
             for (int i = 0; i < bundles.length; i++) {
                 if (bundles[i] == null) {
-                    LogUtil.e(TAG, "The inner bundle is null at ", i, ", for path: ", path);
+                    Log.e(TAG, "The inner bundle is null at " + i + ", for path: " + path);
                     continue;
                 }
                 if (!(bundles[i] instanceof Bundle)) {
-                    LogUtil.e(
-                            TAG,
-                            "The inner element at ", i, " is a ", bundles[i].getClass(),
-                            ", not a Bundle for path: ", path);
+                    Log.e(TAG, "The inner element at " + i + " is a " + bundles[i].getClass()
+                            + ", not a Bundle for path: " + path);
                     continue;
                 }
                 documents[i] = new GenericDocument((Bundle) bundles[i]);
@@ -514,7 +512,7 @@ public class GenericDocument {
             }
             return flattenAccumulator(accumulator);
         } else {
-            LogUtil.e(TAG, "Failed to apply path to document; no nested value found: ", path);
+            Log.e(TAG, "Failed to apply path to document; no nested value found: " + path);
             return null;
         }
     }
@@ -741,11 +739,10 @@ public class GenericDocument {
     private static void warnIfSinglePropertyTooLong(
             @NonNull String propertyType, @NonNull String path, int propertyLength) {
         if (propertyLength > 1) {
-            LogUtil.w(
-                    TAG,
-                    "The value for \"", path, "\" contains ", propertyLength,
-                    " elements. Only the first one will be returned from getProperty",
-                    propertyType, "(). Try getProperty", propertyType, "Array().");
+            Log.w(TAG, "The value for \"" + path + "\" contains " + propertyLength
+                    + " elements. Only the first one will be returned from "
+                    + "getProperty" + propertyType + "(). Try getProperty" + propertyType
+                    + "Array().");
         }
     }
 
@@ -914,7 +911,7 @@ public class GenericDocument {
         try {
             return tClass.cast(value);
         } catch (ClassCastException e) {
-            LogUtil.w(TAG, e, "Error casting to requested type for path \"", path, "\"");
+            Log.w(TAG, "Error casting to requested type for path \"" + path + "\"", e);
             return null;
         }
     }

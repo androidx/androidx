@@ -17,6 +17,8 @@ package androidx.appsearch.localstorage.visibilitystore;
 
 import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -30,7 +32,6 @@ import androidx.appsearch.app.VisibilityPermissionDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.AppSearchImpl;
 import androidx.appsearch.localstorage.util.PrefixUtil;
-import androidx.appsearch.util.LogUtil;
 import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
 
@@ -192,10 +193,8 @@ public class VisibilityStore {
                     if (e.getResultCode() == RESULT_NOT_FOUND) {
                         // We are trying to remove this visibility setting, so it's weird but seems
                         // to be fine if we cannot find it.
-                        LogUtil.e(
-                                TAG,
-                                "Cannot find visibility document for ", prefixedSchemaType,
-                                " to remove.");
+                        Log.e(TAG, "Cannot find visibility document for " + prefixedSchemaType
+                                + " to remove.");
                         return;
                     }
                     throw e;

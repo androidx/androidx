@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage;
 
 import android.content.Context;
 import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,7 +32,6 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.InitializeStats;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.util.FutureUtil;
-import androidx.appsearch.util.LogUtil;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -384,7 +384,7 @@ public class LocalStorage {
                 }
                 mAppSearchImpl.checkForOptimize(builder);
             } catch (AppSearchException e) {
-                LogUtil.w(TAG, e, "Error occurred when check for optimize");
+                Log.w(TAG, "Error occurred when check for optimize", e);
             } finally {
                 if (builder != null) {
                     OptimizeStats oStats = builder

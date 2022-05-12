@@ -16,6 +16,8 @@
 
 package androidx.appsearch.localstorage;
 
+import android.util.Log;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,7 +31,6 @@ import androidx.appsearch.observer.DocumentChangeInfo;
 import androidx.appsearch.observer.ObserverCallback;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.observer.SchemaChangeInfo;
-import androidx.appsearch.util.LogUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.ObjectsCompat;
@@ -411,7 +412,7 @@ public class ObserverManager {
                     try {
                         observerInfo.mObserverCallback.onSchemaChanged(schemaChangeInfo);
                     } catch (Throwable t) {
-                        LogUtil.w(TAG, t, "ObserverCallback threw exception during dispatch");
+                        Log.w(TAG, "ObserverCallback threw exception during dispatch", t);
                     }
                 }
             }
@@ -430,7 +431,7 @@ public class ObserverManager {
                     try {
                         observerInfo.mObserverCallback.onDocumentChanged(documentChangeInfo);
                     } catch (Throwable t) {
-                        LogUtil.w(TAG, t, "ObserverCallback threw exception during dispatch");
+                        Log.w(TAG, "ObserverCallback threw exception during dispatch", t);
                     }
                 }
             }

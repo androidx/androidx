@@ -16,10 +16,11 @@
 
 package androidx.appsearch.localstorage.converter;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
-import androidx.appsearch.util.LogUtil;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentIndexingConfig;
@@ -208,7 +209,7 @@ public final class SchemaToProtoConverter {
             default:
                 // Avoid crashing in the 'read' path; we should try to interpret the document to the
                 // extent possible.
-                LogUtil.w(TAG, "Invalid indexingType: ", termMatchType.getNumber());
+                Log.w(TAG, "Invalid indexingType: " + termMatchType.getNumber());
                 return AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE;
         }
     }

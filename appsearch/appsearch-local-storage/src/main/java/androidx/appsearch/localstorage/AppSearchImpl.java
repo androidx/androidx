@@ -29,6 +29,7 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFrom
 
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -378,7 +379,7 @@ public final class AppSearchImpl implements Closeable {
 
             } catch (AppSearchException e) {
                 // Some error. Reset and see if it fixes it.
-                LogUtil.e(TAG, e, "Error initializing, resetting IcingSearchEngine.");
+                Log.e(TAG, "Error initializing, resetting IcingSearchEngine.", e);
                 if (initStatsBuilder != null) {
                     initStatsBuilder.setStatusCode(e.getResultCode());
                 }
@@ -424,7 +425,7 @@ public final class AppSearchImpl implements Closeable {
             LogUtil.piiTrace(TAG, "icingSearchEngine.close, response");
             mClosedLocked = true;
         } catch (AppSearchException e) {
-            LogUtil.w(TAG, e, "Error when closing AppSearchImpl.");
+            Log.w(TAG, "Error when closing AppSearchImpl.", e);
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
@@ -1606,10 +1607,8 @@ public final class AppSearchImpl implements Closeable {
                 if (tokens != null) {
                     tokens.remove(nextPageToken);
                 } else {
-                    LogUtil.wtf(
-                            TAG,
-                            "Failed to invalidate token ", nextPageToken,
-                            ": tokens are not cached.");
+                    Log.wtf(TAG, "Failed to invalidate token " + nextPageToken + ": tokens are not "
+                            + "cached.");
                 }
             }
         } finally {
@@ -1978,9 +1977,7 @@ public final class AppSearchImpl implements Closeable {
             StorageInfoResultProto storageInfoResult = mIcingSearchEngineLocked.getStorageInfo();
             LogUtil.piiTrace(
                     TAG,
-                    "getStorageInfo, response",
-                    storageInfoResult.getStatus(),
-                    storageInfoResult);
+                    "getStorageInfo, response", storageInfoResult.getStatus(), storageInfoResult);
             checkSuccess(storageInfoResult.getStatus());
             return storageInfoResult.getStorageInfo();
         } finally {
@@ -2477,7 +2474,7 @@ public final class AppSearchImpl implements Closeable {
         if (statusProto.getCode() == StatusProto.Code.WARNING_DATA_LOSS) {
             // TODO: May want to propagate WARNING_DATA_LOSS up to AppSearchSession so they can
             //  choose to log the error or potentially pass it on to clients.
-            LogUtil.w(TAG, "Encountered WARNING_DATA_LOSS: ", statusProto.getMessage());
+            Log.w(TAG, "Encountered WARNING_DATA_LOSS: " + statusProto.getMessage());
             return;
         }
 
@@ -2553,9 +2550,7 @@ public final class AppSearchImpl implements Closeable {
             OptimizeResultProto optimizeResultProto = mIcingSearchEngineLocked.optimize();
             LogUtil.piiTrace(
                     TAG,
-                    "optimize, response",
-                    optimizeResultProto.getStatus(),
-                    optimizeResultProto);
+                    "optimize, response", optimizeResultProto.getStatus(), optimizeResultProto);
             if (builder != null) {
                 builder.setStatusCode(statusProtoToResultCode(optimizeResultProto.getStatus()));
                 AppSearchLoggerHelper.copyNativeStats(optimizeResultProto.getOptimizeStats(),
