@@ -209,7 +209,7 @@ static PFNEGLDESTROYSYNCKHRPROC obtainEglDestroySyncKHR() {
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nCreateImageFromHardwareBuffer(
+Java_androidx_opengl_EGLBindings_00024Companion_nCreateImageFromHardwareBuffer(
         JNIEnv *env, jobject thiz, jlong egl_display_ptr, jobject hardware_buffer) {
     static std::once_flag eglGetNativeClientBufferANDROIDFlag;
     static std::once_flag eglCreateImageKHRFlag;
@@ -248,7 +248,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nCreateImageFromHar
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nDestroyImageKHR(
+Java_androidx_opengl_EGLBindings_00024Companion_nDestroyImageKHR(
         JNIEnv *env, jobject thiz, jlong egl_display_ptr, jlong egl_image_ptr) {
     static std::once_flag eglDestroyImageKHRFlag;
     std::call_once(eglDestroyImageKHRFlag, [](){
@@ -266,7 +266,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nDestroyImageKHR(
 
 extern "C"
 JNIEXPORT void JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nImageTargetTexture2DOES(
+Java_androidx_opengl_EGLBindings_00024Companion_nImageTargetTexture2DOES(
         JNIEnv *env, jobject thiz, jint target, jlong egl_image_ptr) {
     static std::once_flag glEGLImageTargetTexture2DOESFlag;
     std::call_once(glEGLImageTargetTexture2DOESFlag, [](){
@@ -282,7 +282,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nImageTargetTexture
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nDupNativeFenceFDANDROID(
+Java_androidx_opengl_EGLBindings_00024Companion_nDupNativeFenceFDANDROID(
         JNIEnv *env, jobject thiz, jlong egl_display_ptr, jlong sync_ptr) {
     static std::once_flag eglDupNativeFenceFDANDROIDflag;
     std::call_once(eglDupNativeFenceFDANDROIDflag, [](){
@@ -300,7 +300,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nDupNativeFenceFDAN
 
 extern "C"
 JNIEXPORT jlong JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nCreateSyncKHR(
+Java_androidx_opengl_EGLBindings_00024Companion_nCreateSyncKHR(
         JNIEnv *env, jobject thiz, jlong egl_display_ptr, jint type,
         jintArray attrs) {
     static std::once_flag eglCreateSyncKHRFlag;
@@ -359,7 +359,7 @@ static int jniThrowIllegalArgumentException(JNIEnv* env, const char* msg) {
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nGetSyncAttribKHR(
+Java_androidx_opengl_EGLBindings_00024Companion_nGetSyncAttribKHR(
         JNIEnv *env,
         jobject thiz,
         jlong egl_display_ptr,
@@ -406,7 +406,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nGetSyncAttribKHR(
 
 extern "C"
 JNIEXPORT jint JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nClientWaitSyncKHR(
+Java_androidx_opengl_EGLBindings_00024Companion_nClientWaitSyncKHR(
         JNIEnv *env,
         jobject thiz,
         jlong egl_display_ptr,
@@ -428,7 +428,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nClientWaitSyncKHR(
 
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nDestroySyncKHR(
+Java_androidx_opengl_EGLBindings_00024Companion_nDestroySyncKHR(
         JNIEnv *env, jobject thiz, jlong egl_display_ptr, jlong sync_ptr) {
     static std::once_flag eglDestroySyncKHRFlag;
     std::call_once(eglDestroySyncKHRFlag, [](){
@@ -450,7 +450,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nDestroySyncKHR(
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglGetNativeClientBufferAndroid(
+Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglGetNativeClientBufferAndroid(
         JNIEnv *env, jobject thiz) {
     return obtainEglGetNativeClientBufferANDROID() != nullptr;
 }
@@ -461,7 +461,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglGetNati
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglCreateImageKHR(
+Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglCreateImageKHR(
         JNIEnv *env, jobject thiz) {
     return obtainEglCreateImageKHR() != nullptr;
 }
@@ -472,7 +472,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglCreateI
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglDestroyImageKHR(
+Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglDestroyImageKHR(
         JNIEnv *env, jobject thiz) {
     return obtainEglDestroyImageKHR() != nullptr;
 }
@@ -483,7 +483,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglDestroy
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsGlImageTargetTexture2DOES(
+Java_androidx_opengl_EGLBindings_00024Companion_nSupportsGlImageTargetTexture2DOES(
         JNIEnv *env, jobject thiz) {
     return obtainGlImageTargetTexture2DOES() != nullptr;
 }
@@ -494,7 +494,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsGlImageTar
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglCreateSyncKHR(
+Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglCreateSyncKHR(
         JNIEnv *env, jobject thiz) {
     return obtainEglCreateSyncKHR() != nullptr;
 }
@@ -505,7 +505,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglCreateS
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglDestroySyncKHR(
+Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglDestroySyncKHR(
         JNIEnv *env, jobject thiz) {
     return obtainEglDestroySyncKHR() != nullptr;
 }
@@ -516,7 +516,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglDestroy
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsDupNativeFenceFDANDROID(
+Java_androidx_opengl_EGLBindings_00024Companion_nSupportsDupNativeFenceFDANDROID(
         JNIEnv *env, jobject thiz) {
     return obtainEglDupNativeFenceFDANDROID() != nullptr;
 }
@@ -527,7 +527,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsDupNativeF
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglGetSyncAttribKHR(
+Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglGetSyncAttribKHR(
         JNIEnv *env, jobject thiz) {
     return obtainEglGetSyncAttribKHR() != nullptr;
 }
@@ -538,7 +538,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglGetSync
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglClientWaitSyncKHR(
+Java_androidx_opengl_EGLBindings_00024Companion_nSupportsEglClientWaitSyncKHR(
         JNIEnv *env, jobject thiz) {
     return obtainEglClientWaitSyncKHR() != nullptr;
 }
@@ -549,7 +549,7 @@ Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nSupportsEglClientW
  */
 extern "C"
 JNIEXPORT jboolean JNICALL
-Java_androidx_graphics_opengl_egl_EGLBindings_00024Companion_nEqualToNativeForeverTimeout(
+Java_androidx_opengl_EGLBindings_00024Companion_nEqualToNativeForeverTimeout(
         JNIEnv *env, jobject thiz, jlong timeout_nanos) {
     return static_cast<EGLTimeKHR>(timeout_nanos) == EGL_FOREVER_KHR;
 }

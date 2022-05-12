@@ -49,79 +49,6 @@ package androidx.graphics.opengl {
 
 package androidx.graphics.opengl.egl {
 
-  public final class EGLExt {
-    method public static int eglClientWaitSyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int flags, long timeoutNanos);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.graphics.opengl.egl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.opengl.EGLDisplay eglDisplay, android.hardware.HardwareBuffer hardwareBuffer);
-    method public static androidx.graphics.opengl.egl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, int[]? attributes);
-    method public static boolean eglDestroyImageKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLImageKHR image);
-    method public static boolean eglDestroySyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR eglSync);
-    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public static androidx.hardware.SyncFenceCompat eglDupNativeFenceFDANDROID(android.opengl.EGLDisplay display, androidx.graphics.opengl.egl.EGLSyncKHR sync);
-    method public static boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int attribute, int[] value, int offset);
-    method public static void glEGLImageTargetTexture2DOES(int target, androidx.graphics.opengl.egl.EGLImageKHR image);
-    method public static java.util.Set<java.lang.String> parseExtensions(String queryString);
-    field public static final androidx.graphics.opengl.egl.EGLExt.Companion Companion;
-    field public static final String EGL_ANDROID_IMAGE_NATIVE_BUFFER = "EGL_ANDROID_image_native_buffer";
-    field public static final String EGL_ANDROID_NATIVE_FENCE_SYNC = "EGL_ANDROID_native_fence_sync";
-    field public static final int EGL_CONDITION_SATISFIED_KHR = 12534; // 0x30f6
-    field public static final String EGL_EXT_BUFFER_AGE = "EGL_EXT_buffer_age";
-    field public static final String EGL_EXT_GL_COLORSPACE_BT2020_PQ = "EGL_EXT_gl_colorspace_bt2020_pq";
-    field public static final String EGL_EXT_GL_COLORSPACE_DISPLAY_P3_PASSTHROUGH = "EGL_EXT_gl_colorspace_display_p3_passthrough";
-    field public static final String EGL_EXT_GL_COLORSPACE_SCRGB = "EGL_EXT_gl_colorspace_scrgb";
-    field public static final String EGL_EXT_PIXEL_FORMAT_FLOAT = "EGL_EXT_pixel_format_float";
-    field public static final int EGL_FALSE = 0; // 0x0
-    field public static final long EGL_FOREVER_KHR = -1L; // 0xffffffffffffffffL
-    field public static final String EGL_IMG_CONTEXT_PRIORITY = "EGL_IMG_context_priority";
-    field public static final String EGL_KHR_FENCE_SYNC = "EGL_KHR_fence_sync";
-    field public static final String EGL_KHR_GL_COLORSPACE = "EGL_KHR_gl_colorspace";
-    field public static final String EGL_KHR_IMAGE = "EGL_KHR_image";
-    field public static final String EGL_KHR_IMAGE_BASE = "EGL_KHR_image_base";
-    field public static final String EGL_KHR_NO_CONFIG_CONTEXT = "EGL_KHR_no_config_context";
-    field public static final String EGL_KHR_PARTIAL_UPDATE = "EGL_KHR_partial_update";
-    field public static final String EGL_KHR_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
-    field public static final String EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE = "EGL_KHR_swap_buffers_with_damage";
-    field public static final String EGL_KHR_WAIT_SYNC = "EGL_KHR_wait_sync";
-    field public static final int EGL_SIGNALED_KHR = 12530; // 0x30f2
-    field public static final int EGL_SYNC_CONDITION_KHR = 12536; // 0x30f8
-    field public static final int EGL_SYNC_FENCE_KHR = 12537; // 0x30f9
-    field public static final int EGL_SYNC_FLUSH_COMMANDS_BIT_KHR = 1; // 0x1
-    field public static final int EGL_SYNC_NATIVE_FENCE_ANDROID = 12612; // 0x3144
-    field public static final int EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR = 12528; // 0x30f0
-    field public static final int EGL_SYNC_STATUS_KHR = 12529; // 0x30f1
-    field public static final int EGL_SYNC_TYPE_KHR = 12535; // 0x30f7
-    field public static final int EGL_TIMEOUT_EXPIRED_KHR = 12533; // 0x30f5
-    field public static final int EGL_TRUE = 1; // 0x1
-    field public static final int EGL_UNSIGNALED_KHR = 12531; // 0x30f3
-  }
-
-  public static final class EGLExt.Companion {
-    method public int eglClientWaitSyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int flags, long timeoutNanos);
-    method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.graphics.opengl.egl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.opengl.EGLDisplay eglDisplay, android.hardware.HardwareBuffer hardwareBuffer);
-    method public androidx.graphics.opengl.egl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, int[]? attributes);
-    method public boolean eglDestroyImageKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLImageKHR image);
-    method public boolean eglDestroySyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR eglSync);
-    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.hardware.SyncFenceCompat eglDupNativeFenceFDANDROID(android.opengl.EGLDisplay display, androidx.graphics.opengl.egl.EGLSyncKHR sync);
-    method public boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.graphics.opengl.egl.EGLSyncKHR sync, int attribute, int[] value, int offset);
-    method public void glEGLImageTargetTexture2DOES(int target, androidx.graphics.opengl.egl.EGLImageKHR image);
-    method public java.util.Set<java.lang.String> parseExtensions(String queryString);
-  }
-
-  public interface EGLHandle {
-    method public long getNativeHandle();
-    property public abstract long nativeHandle;
-  }
-
-  public final class EGLImageKHR implements androidx.graphics.opengl.egl.EGLHandle {
-    ctor public EGLImageKHR(long nativeHandle);
-    method public long getNativeHandle();
-    property public long nativeHandle;
-  }
-
-  public final class EGLSyncKHR implements androidx.graphics.opengl.egl.EGLHandle {
-    ctor public EGLSyncKHR(long nativeHandle);
-    method public long getNativeHandle();
-    property public long nativeHandle;
-  }
-
   public final inline class EglConfigAttributes {
     ctor public EglConfigAttributes();
   }
@@ -275,6 +202,83 @@ package androidx.hardware {
   }
 
   public static final class SyncFenceCompat.Companion {
+  }
+
+}
+
+package androidx.opengl {
+
+  public final class EGLExt {
+    method public static int eglClientWaitSyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLSyncKHR sync, int flags, long timeoutNanos);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.opengl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.opengl.EGLDisplay eglDisplay, android.hardware.HardwareBuffer hardwareBuffer);
+    method public static androidx.opengl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, int[]? attributes);
+    method public static boolean eglDestroyImageKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLImageKHR image);
+    method public static boolean eglDestroySyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLSyncKHR eglSync);
+    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public static androidx.hardware.SyncFenceCompat eglDupNativeFenceFDANDROID(android.opengl.EGLDisplay display, androidx.opengl.EGLSyncKHR sync);
+    method public static boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLSyncKHR sync, int attribute, int[] value, int offset);
+    method public static void glEGLImageTargetTexture2DOES(int target, androidx.opengl.EGLImageKHR image);
+    method public static java.util.Set<java.lang.String> parseExtensions(String queryString);
+    field public static final androidx.opengl.EGLExt.Companion Companion;
+    field public static final String EGL_ANDROID_IMAGE_NATIVE_BUFFER = "EGL_ANDROID_image_native_buffer";
+    field public static final String EGL_ANDROID_NATIVE_FENCE_SYNC = "EGL_ANDROID_native_fence_sync";
+    field public static final int EGL_CONDITION_SATISFIED_KHR = 12534; // 0x30f6
+    field public static final String EGL_EXT_BUFFER_AGE = "EGL_EXT_buffer_age";
+    field public static final String EGL_EXT_GL_COLORSPACE_BT2020_PQ = "EGL_EXT_gl_colorspace_bt2020_pq";
+    field public static final String EGL_EXT_GL_COLORSPACE_DISPLAY_P3_PASSTHROUGH = "EGL_EXT_gl_colorspace_display_p3_passthrough";
+    field public static final String EGL_EXT_GL_COLORSPACE_SCRGB = "EGL_EXT_gl_colorspace_scrgb";
+    field public static final String EGL_EXT_PIXEL_FORMAT_FLOAT = "EGL_EXT_pixel_format_float";
+    field public static final int EGL_FALSE = 0; // 0x0
+    field public static final long EGL_FOREVER_KHR = -1L; // 0xffffffffffffffffL
+    field public static final String EGL_IMG_CONTEXT_PRIORITY = "EGL_IMG_context_priority";
+    field public static final String EGL_KHR_FENCE_SYNC = "EGL_KHR_fence_sync";
+    field public static final String EGL_KHR_GL_COLORSPACE = "EGL_KHR_gl_colorspace";
+    field public static final String EGL_KHR_IMAGE = "EGL_KHR_image";
+    field public static final String EGL_KHR_IMAGE_BASE = "EGL_KHR_image_base";
+    field public static final String EGL_KHR_NO_CONFIG_CONTEXT = "EGL_KHR_no_config_context";
+    field public static final String EGL_KHR_PARTIAL_UPDATE = "EGL_KHR_partial_update";
+    field public static final String EGL_KHR_SURFACELESS_CONTEXT = "EGL_KHR_surfaceless_context";
+    field public static final String EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE = "EGL_KHR_swap_buffers_with_damage";
+    field public static final String EGL_KHR_WAIT_SYNC = "EGL_KHR_wait_sync";
+    field public static final int EGL_SIGNALED_KHR = 12530; // 0x30f2
+    field public static final int EGL_SYNC_CONDITION_KHR = 12536; // 0x30f8
+    field public static final int EGL_SYNC_FENCE_KHR = 12537; // 0x30f9
+    field public static final int EGL_SYNC_FLUSH_COMMANDS_BIT_KHR = 1; // 0x1
+    field public static final int EGL_SYNC_NATIVE_FENCE_ANDROID = 12612; // 0x3144
+    field public static final int EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR = 12528; // 0x30f0
+    field public static final int EGL_SYNC_STATUS_KHR = 12529; // 0x30f1
+    field public static final int EGL_SYNC_TYPE_KHR = 12535; // 0x30f7
+    field public static final int EGL_TIMEOUT_EXPIRED_KHR = 12533; // 0x30f5
+    field public static final int EGL_TRUE = 1; // 0x1
+    field public static final int EGL_UNSIGNALED_KHR = 12531; // 0x30f3
+  }
+
+  public static final class EGLExt.Companion {
+    method public int eglClientWaitSyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLSyncKHR sync, int flags, long timeoutNanos);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.opengl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.opengl.EGLDisplay eglDisplay, android.hardware.HardwareBuffer hardwareBuffer);
+    method public androidx.opengl.EGLSyncKHR? eglCreateSyncKHR(android.opengl.EGLDisplay eglDisplay, int type, int[]? attributes);
+    method public boolean eglDestroyImageKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLImageKHR image);
+    method public boolean eglDestroySyncKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLSyncKHR eglSync);
+    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.hardware.SyncFenceCompat eglDupNativeFenceFDANDROID(android.opengl.EGLDisplay display, androidx.opengl.EGLSyncKHR sync);
+    method public boolean eglGetSyncAttribKHR(android.opengl.EGLDisplay eglDisplay, androidx.opengl.EGLSyncKHR sync, int attribute, int[] value, int offset);
+    method public void glEGLImageTargetTexture2DOES(int target, androidx.opengl.EGLImageKHR image);
+    method public java.util.Set<java.lang.String> parseExtensions(String queryString);
+  }
+
+  public interface EGLHandle {
+    method public long getNativeHandle();
+    property public abstract long nativeHandle;
+  }
+
+  public final class EGLImageKHR implements androidx.opengl.EGLHandle {
+    ctor public EGLImageKHR(long nativeHandle);
+    method public long getNativeHandle();
+    property public long nativeHandle;
+  }
+
+  public final class EGLSyncKHR implements androidx.opengl.EGLHandle {
+    ctor public EGLSyncKHR(long nativeHandle);
+    method public long getNativeHandle();
+    property public long nativeHandle;
   }
 
 }

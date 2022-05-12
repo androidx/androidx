@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.graphics.opengl.egl
+package androidx.opengl
 
 /**
  * Interface used to wrap native EGL objects to create type safe objects
