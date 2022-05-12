@@ -36,15 +36,18 @@ import androidx.wear.watchface.ComplicationSlotInflationFactory
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
+import androidx.wear.watchface.UserStyleFlavors
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
+import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.NoDataComplicationData
+import androidx.wear.watchface.complications.iterate
 import androidx.wear.watchface.control.IInteractiveWatchFace
 import androidx.wear.watchface.control.IPendingInteractiveWatchFace
 import androidx.wear.watchface.control.InteractiveInstanceManager
@@ -54,11 +57,13 @@ import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
 import androidx.wear.watchface.style.data.UserStyleWireFormat
+import androidx.wear.watchface.style.moveToStart
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert
@@ -369,5 +374,33 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                     "secondary(null, null), " +
                     "system(16, SHORT_TEXT)]}]")
         }
+    }
+
+    @OptIn(WatchFaceFlavorsExperimental::class)
+    @Test
+    public fun test_inflate_simple_flavor() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val parser = context.resources.getXml(R.xml.simple_flavor)
+
+        // Parse next until start tag is found
+        parser.moveToStart("XmlWatchFace")
+
+        var schema: UserStyleSchema? = null
+        var flavors: UserStyleFlavors? = null
+
+        parser.iterate {
+            when (parser.name) {
+                "UserStyleSchema" ->
+                    schema = UserStyleSchema.inflate(context.resources, parser)
+                "UserStyleFlavors" ->
+                    flavors = UserStyleFlavors.inflate(context.resources, parser, schema!!)
+                else -> throw IllegalNodeException(parser)
+            }
+        }
+
+        assertThat(flavors!!.flavors.size).isEqualTo(2)
+        assertThat(flavors!!.flavors[0].style.userStyleMap.keys).containsExactly(
+            context.getString(R.string.setting_time_style)
+        )
     }
 }

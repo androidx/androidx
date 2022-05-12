@@ -25,7 +25,6 @@ import android.graphics.RectF
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationType
 import java.io.DataOutputStream
-import org.xmlpull.v1.XmlPullParser
 
 const val NAMESPACE_APP = "http://schemas.android.com/apk/res-auto"
 const val NAMESPACE_ANDROID = "http://schemas.android.com/apk/res/android"
@@ -119,74 +118,67 @@ public class ComplicationSlotBounds(
             resources: Resources,
             parser: XmlResourceParser
         ): ComplicationSlotBounds? {
-            var type = 0
-            val outerDepth = parser.depth
             val perComplicationTypeBounds by lazy { HashMap<ComplicationType, RectF>() }
-            do {
-                if (type == XmlPullParser.START_TAG) {
-                    when (parser.name) {
-                        NODE_NAME -> {
-                            val rect = if (parser.hasValue("left"))
-                                RectF(
-                                    parser.requireAndGet("left", resources),
-                                    parser.requireAndGet("top", resources),
-                                    parser.requireAndGet("right", resources),
-                                    parser.requireAndGet("bottom", resources)
-                                )
-                            else if (parser.hasValue("center_x")) {
-                                val halfWidth = parser.requireAndGet("size_x", resources) / 2.0f
-                                val halfHeight = parser.requireAndGet("size_y", resources) / 2.0f
-                                val centerX = parser.requireAndGet("center_x", resources)
-                                val centerY = parser.requireAndGet("center_y", resources)
-                                RectF(
-                                    centerX - halfWidth,
-                                    centerY - halfHeight,
-                                    centerX + halfWidth,
-                                    centerY + halfHeight
-                                )
-                            } else {
-                                throw IllegalArgumentException("$NODE_NAME must " +
-                                    "either define top, bottom, left, right" +
-                                    "or center_x, center_y, size_x, size_y should be specified")
-                            }
-                            if (null != parser.getAttributeValue(
+            parser.iterate {
+                when (parser.name) {
+                    NODE_NAME -> {
+                        val rect = if (parser.hasValue("left"))
+                            RectF(
+                                parser.requireAndGet("left", resources),
+                                parser.requireAndGet("top", resources),
+                                parser.requireAndGet("right", resources),
+                                parser.requireAndGet("bottom", resources)
+                            )
+                        else if (parser.hasValue("center_x")) {
+                            val halfWidth = parser.requireAndGet("size_x", resources) / 2.0f
+                            val halfHeight = parser.requireAndGet("size_y", resources) / 2.0f
+                            val centerX = parser.requireAndGet("center_x", resources)
+                            val centerY = parser.requireAndGet("center_y", resources)
+                            RectF(
+                                centerX - halfWidth,
+                                centerY - halfHeight,
+                                centerX + halfWidth,
+                                centerY + halfHeight
+                            )
+                        } else {
+                            throw IllegalArgumentException("$NODE_NAME must " +
+                                "either define top, bottom, left, right" +
+                                "or center_x, center_y, size_x, size_y should be specified")
+                        }
+                        if (null != parser.getAttributeValue(
+                                NAMESPACE_APP,
+                                "complicationType"
+                            )
+                        ) {
+                            val complicationType = ComplicationType.fromWireType(
+                                parser.getAttributeIntValue(
                                     NAMESPACE_APP,
-                                    "complicationType"
+                                    "complicationType",
+                                    0
                                 )
+                            )
+                            require(
+                                !perComplicationTypeBounds.contains(complicationType)
                             ) {
-                                val complicationType = ComplicationType.fromWireType(
-                                    parser.getAttributeIntValue(
-                                        NAMESPACE_APP,
-                                        "complicationType",
-                                        0
-                                    )
-                                )
+                                "Duplicate $complicationType"
+                            }
+                            perComplicationTypeBounds[complicationType] = rect
+                        } else {
+                            for (complicationType in ComplicationType.values()) {
                                 require(
-                                    !perComplicationTypeBounds.contains(complicationType)
+                                    !perComplicationTypeBounds.contains(
+                                        complicationType
+                                    )
                                 ) {
                                     "Duplicate $complicationType"
                                 }
                                 perComplicationTypeBounds[complicationType] = rect
-                            } else {
-                                for (complicationType in ComplicationType.values()) {
-                                    require(
-                                        !perComplicationTypeBounds.contains(
-                                            complicationType
-                                        )
-                                    ) {
-                                        "Duplicate $complicationType"
-                                    }
-                                    perComplicationTypeBounds[complicationType] = rect
-                                }
                             }
                         }
-                        else -> throw IllegalArgumentException(
-                            "Unexpected node ${parser.name} at line ${parser.lineNumber}"
-                        )
                     }
+                    else -> throw IllegalNodeException(parser)
                 }
-                type = parser.next()
-            } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+            }
 
             return if (perComplicationTypeBounds.isEmpty()) {
                 null
