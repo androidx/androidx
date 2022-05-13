@@ -7,9 +7,7 @@
         errorLine1="                mActivity.setTurnScreenOn(true);"
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"
-            line="111"
-            column="27"/>
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                mActivity.setShowWhenLocked(true);"
         errorLine2="                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"
-            line="112"
-            column="27"/>
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                mKeyguardManager.requestDismissKeyguard(mActivity, null);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"
-            line="113"
-            column="34"/>
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        if (0 == getKeyIds(keyRequest.getData(), keyIds)) {"
         errorLine2="                                      ~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"
-            line="874"
-            column="39"/>
+            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                mActivity.setTurnScreenOn(true);"
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"
-            line="129"
-            column="27"/>
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                mActivity.setShowWhenLocked(true);"
         errorLine2="                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"
-            line="130"
-            column="27"/>
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                mKeyguardManager.requestDismissKeyguard(mActivity, null);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"
-            line="131"
-            column="34"/>
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="        if (0 == getKeyIds(keyRequest.getData(), keyIds)) {"
         errorLine2="                                      ~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"
-            line="955"
-            column="39"/>
+            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            return super.getResultCode();"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/MediaPlayer.java"
-            line="3859"
-            column="20"/>
+            file="src/main/java/androidx/media2/player/MediaPlayer.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/media2/player/TextRenderer.java"
-            line="132"
-            column="5"/>
+            file="src/main/java/androidx/media2/player/TextRenderer.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/media2/player/TextRenderer.java"
-            line="137"
-            column="5"/>
+            file="src/main/java/androidx/media2/player/TextRenderer.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    /** Clears any previous selection. */"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/media2/player/TextRenderer.java"
-            line="224"
-            column="5"/>
+            file="src/main/java/androidx/media2/player/TextRenderer.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    /** Selects the specified track type/channel for extraction and rendering. */"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/media2/player/TextRenderer.java"
-            line="229"
-            column="5"/>
+            file="src/main/java/androidx/media2/player/TextRenderer.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="            return (FileDescriptor) method.invoke(object, fileDescriptor);"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
-            line="102"
-            column="37"/>
+            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="            method.invoke(object, fileDescriptor, position, /* whence= */ SEEK_SET);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
-            line="127"
-            column="13"/>
+            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="            return (FileDescriptor) method.invoke(object, fileDescriptor);"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"
-            line="152"
-            column="37"/>
+            file="src/main/java/androidx/media2/player/FileDescriptorUtil.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="        void onPrepared(MediaItem mediaItem);"
         errorLine2="                        ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="92"
-            column="25"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="        void onBufferingStarted(MediaItem mediaItem);"
         errorLine2="                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="101"
-            column="33"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="        void onBufferingEnded(MediaItem mediaItem);"
         errorLine2="                              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="104"
-            column="31"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="        void onBufferingUpdate(MediaItem mediaItem, int bufferingPercentage);"
         errorLine2="                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="107"
-            column="32"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="        void onBandwidthSample(MediaItem mediaItem2, int bitrateKbps);"
         errorLine2="                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="110"
-            column="32"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="        void onVideoRenderingStart(MediaItem mediaItem);"
         errorLine2="                                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="113"
-            column="36"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="        void onVideoSizeChanged(MediaItem mediaItem, int width, int height);"
         errorLine2="                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="116"
-            column="33"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="        void onTimedMetadata(MediaItem mediaItem, TimedMetaData timedMetaData);"
         errorLine2="                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="123"
-            column="30"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="        void onTimedMetadata(MediaItem mediaItem, TimedMetaData timedMetaData);"
         errorLine2="                                                  ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="123"
-            column="51"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="        void onMediaItemStartedAsNext(MediaItem mediaItem);"
         errorLine2="                                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="126"
-            column="39"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="        void onMediaItemEnded(MediaItem mediaItem);"
         errorLine2="                              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="129"
-            column="31"/>
+            file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"/>
     </issue>
 
     <issue
@@ -305,7 +251,6 @@
         errorLine2="                    ~~~~~~~~~">
         <location
             file="src/main/java/androidx/media2/player/ExoPlayerWrapper.java"
-            line="132"
             column="21"/>
     </issue>
 

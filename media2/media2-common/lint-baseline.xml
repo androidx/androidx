@@ -7,9 +7,7 @@
         errorLine1="    public abstract MediaItem getCurrentMediaItem();"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/common/SessionPlayer.java"
-            line="819"
-            column="31"/>
+            file="src/main/java/androidx/media2/common/SessionPlayer.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            Executor executor, OnMetadataChangedListener listener) {"
         errorLine2="            ~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="231"
-            column="13"/>
+            file="src/main/java/androidx/media2/common/MediaItem.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            Executor executor, OnMetadataChangedListener listener) {"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="231"
-            column="32"/>
+            file="src/main/java/androidx/media2/common/MediaItem.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public void removeOnMetadataChangedListener(OnMetadataChangedListener listener) {"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/common/MediaItem.java"
-            line="246"
-            column="49"/>
+            file="src/main/java/androidx/media2/common/MediaItem.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
         errorLine2="                              ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/common/ParcelImplListSlice.java"
-            line="133"
-            column="31"/>
+            file="src/main/java/androidx/media2/common/ParcelImplListSlice.java"/>
     </issue>
 
 </issues>

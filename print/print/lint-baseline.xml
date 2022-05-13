@@ -7,9 +7,7 @@
         errorLine1="        PrintAttributes attr = new PrintAttributes.Builder()"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="271"
-            column="32"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                .setMediaSize(mediaSize)"
         errorLine2="                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="272"
-            column="18"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                .setColorMode(mColorMode)"
         errorLine2="                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="273"
-            column="18"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                .build();"
         errorLine2="                 ~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="274"
-            column="18"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        printManager.print(jobName,"
         errorLine2="                     ~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="276"
-            column="22"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        PrintAttributes.Builder builder = new PrintAttributes.Builder();"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="366"
-            column="43"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        builder.setColorMode(mColorMode);"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="367"
-            column="17"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="            builder.setMediaSize(PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE);"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="370"
-            column="21"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            builder.setMediaSize(PrintAttributes.MediaSize.UNKNOWN_PORTRAIT);"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="372"
-            column="21"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        PrintAttributes attr = builder.build();"
         errorLine2="                                       ~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="374"
-            column="40"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        printManager.print(jobName, printDocumentAdapter, attr);"
         errorLine2="                     ~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="376"
-            column="22"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="        PrintAttributes.Builder b = new PrintAttributes.Builder()"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="560"
-            column="37"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue

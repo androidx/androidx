@@ -7,9 +7,7 @@
         errorLine1="    private synchronized void handleRetriableDisconnection(Throwable throwable) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ServiceConnection.java"
-            line="154"
-            column="5"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ServiceConnection.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                        mCurrentVersion ="
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="69"
-            column="25"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                        return mConnectionConfiguration;"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="83"
-            column="32"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                            mConnectionManager.scheduleForExecution("
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="143"
-            column="29"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                                    new BaseQueueOperation(mConnectionConfiguration));"
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="144"
-            column="60"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                            mConnectionManager.scheduleForExecution("
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="150"
-            column="29"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                                    createQueueOperation(operation, settableFuture));"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="151"
-            column="37"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                operation.execute(getService(binder), settableFuture);"
         errorLine2="                                  ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="279"
-            column="35"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            RemoteFutureOperation&lt;S, R> operation, int minApiVersion) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="130"
-            column="52"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="            ClientConfiguration clientConfiguration,"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="61"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="            ConnectionManager connectionManager,"
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="62"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="            ServiceGetter&lt;S> serviceGetter,"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="63"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="            RemoteOperation&lt;S, Integer> remoteVersionGetter) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="64"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    protected &lt;R> ListenableFuture&lt;R> execute(RemoteOperation&lt;S, R> operation) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="102"
-            column="19"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    protected &lt;R> ListenableFuture&lt;R> execute(RemoteOperation&lt;S, R> operation) {"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="102"
-            column="47"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    protected &lt;R> ListenableFuture&lt;R> execute(RemoteFutureOperation&lt;S, R> operation) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="114"
-            column="19"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    protected &lt;R> ListenableFuture&lt;R> execute(RemoteFutureOperation&lt;S, R> operation) {"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="114"
-            column="47"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    protected &lt;R> ListenableFuture&lt;R> executeWithVersionCheck("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="129"
-            column="19"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="            RemoteFutureOperation&lt;S, R> operation, int minApiVersion) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="130"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    protected ListenableFuture&lt;Integer> getCurrentRemoteVersion(boolean forceRefresh) {"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="169"
-            column="15"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    protected &lt;R> ListenableFuture&lt;R> registerListener("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="196"
-            column="19"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> registerListenerOperation) {"
         errorLine2="            ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="197"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> registerListenerOperation) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="197"
-            column="38"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    protected &lt;R> ListenableFuture&lt;R> registerListener("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="217"
-            column="19"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> registerListenerOperation) {"
         errorLine2="            ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="218"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> registerListenerOperation) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="218"
-            column="38"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="    protected &lt;R> ListenableFuture&lt;R> unregisterListener("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="235"
-            column="19"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> unregisterListenerOperation) {"
         errorLine2="            ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="236"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="            ListenerKey listenerKey, RemoteOperation&lt;S, R> unregisterListenerOperation) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="236"
-            column="38"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="    protected &lt;R> ListenableFuture&lt;R> unregisterListener("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="253"
-            column="19"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> unregisterListenerOperation) {"
         errorLine2="            ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="254"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="            ListenerKey listenerKey, RemoteFutureOperation&lt;S, R> unregisterListenerOperation) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"
-            line="254"
-            column="38"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="    public ClientConfiguration(String apiClientName, String servicePackageName, String bindAction) {"
         errorLine2="                               ~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"
-            line="34"
-            column="32"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="    public ClientConfiguration(String apiClientName, String servicePackageName, String bindAction) {"
         errorLine2="                                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"
-            line="34"
-            column="54"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="    public ClientConfiguration(String apiClientName, String servicePackageName, String bindAction) {"
         errorLine2="                                                                                ~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"
-            line="34"
-            column="81"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="    public String getServicePackageName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"
-            line="41"
-            column="12"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="    public String getBindAction() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"
-            line="46"
-            column="12"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"/>
     </issue>
 
     <issue
@@ -414,9 +340,7 @@
         errorLine1="    public String getApiClientName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"
-            line="51"
-            column="12"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"/>
     </issue>
 
     <issue
@@ -425,9 +349,7 @@
         errorLine1="            String packageName,"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionConfiguration.java"
-            line="37"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionConfiguration.java"/>
     </issue>
 
     <issue
@@ -436,9 +358,7 @@
         errorLine1="            String clientName,"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionConfiguration.java"
-            line="38"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionConfiguration.java"/>
     </issue>
 
     <issue
@@ -447,9 +367,7 @@
         errorLine1="            String bindAction,"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionConfiguration.java"
-            line="39"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionConfiguration.java"/>
     </issue>
 
     <issue
@@ -458,9 +376,7 @@
         errorLine1="            QueueOperation refreshVersionOperation) {"
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionConfiguration.java"
-            line="40"
-            column="13"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionConfiguration.java"/>
     </issue>
 
     <issue
@@ -469,9 +385,7 @@
         errorLine1="    public ConnectionManager(Context context, Looper looper) {"
         errorLine2="                             ~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"
-            line="52"
-            column="30"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"/>
     </issue>
 
     <issue
@@ -480,9 +394,7 @@
         errorLine1="    public ConnectionManager(Context context, Looper looper) {"
         errorLine2="                                              ~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"
-            line="52"
-            column="47"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"/>
     </issue>
 
     <issue
@@ -491,9 +403,7 @@
         errorLine1="    public void scheduleForExecution(QueueOperation operation) {"
         errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"
-            line="62"
-            column="38"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"/>
     </issue>
 
     <issue
@@ -502,9 +412,7 @@
         errorLine1="    public void registerListener(ListenerKey listenerKey, QueueOperation registerOperation) {"
         errorLine2="                                 ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"
-            line="73"
-            column="34"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"/>
     </issue>
 
     <issue
@@ -513,9 +421,7 @@
         errorLine1="    public void registerListener(ListenerKey listenerKey, QueueOperation registerOperation) {"
         errorLine2="                                                          ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"
-            line="73"
-            column="59"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"/>
     </issue>
 
     <issue
@@ -524,9 +430,7 @@
         errorLine1="    public void unregisterListener(ListenerKey listenerKey, QueueOperation unregisterOperation) {"
         errorLine2="                                   ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"
-            line="86"
-            column="36"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"/>
     </issue>
 
     <issue
@@ -535,9 +439,7 @@
         errorLine1="    public void unregisterListener(ListenerKey listenerKey, QueueOperation unregisterOperation) {"
         errorLine2="                                                            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"
-            line="86"
-            column="61"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"/>
     </issue>
 
     <issue
@@ -546,9 +448,7 @@
         errorLine1="    public void onConnected(ServiceConnection connection) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"
-            line="94"
-            column="29"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"/>
     </issue>
 
     <issue
@@ -557,9 +457,7 @@
         errorLine1="    public void onDisconnected(ServiceConnection connection, long reconnectDelayMs) {"
         errorLine2="                               ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"
-            line="99"
-            column="32"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"/>
     </issue>
 
     <issue
@@ -568,9 +466,7 @@
         errorLine1="    public boolean handleMessage(Message msg) {"
         errorLine2="                                 ~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"
-            line="110"
-            column="34"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"/>
     </issue>
 
     <issue
@@ -579,9 +475,7 @@
         errorLine1="    public void track(SettableFuture&lt;?> future) {"
         errorLine2="                      ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/DefaultExecutionTracker.java"
-            line="39"
-            column="23"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/DefaultExecutionTracker.java"/>
     </issue>
 
     <issue
@@ -590,9 +484,7 @@
         errorLine1="    public void cancelPendingFutures(Throwable throwable) {"
         errorLine2="                                     ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/DefaultExecutionTracker.java"
-            line="53"
-            column="38"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/DefaultExecutionTracker.java"/>
     </issue>
 
     <issue
@@ -601,9 +493,7 @@
         errorLine1="    void track(SettableFuture&lt;?> future);"
         errorLine2="               ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ExecutionTracker.java"
-            line="33"
-            column="16"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ExecutionTracker.java"/>
     </issue>
 
     <issue
@@ -612,9 +502,7 @@
         errorLine1="    void cancelPendingFutures(Throwable throwable);"
         errorLine2="                              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ExecutionTracker.java"
-            line="36"
-            column="31"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ExecutionTracker.java"/>
     </issue>
 
     <issue
@@ -623,9 +511,7 @@
         errorLine1="    public ListenerKey(Object listenerKey) {"
         errorLine2="                       ~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ListenerKey.java"
-            line="32"
-            column="24"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ListenerKey.java"/>
     </issue>
 
     <issue
@@ -634,9 +520,7 @@
         errorLine1="    void execute(IBinder binder) throws RemoteException;"
         errorLine2="                 ~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/QueueOperation.java"
-            line="38"
-            column="18"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/QueueOperation.java"/>
     </issue>
 
     <issue
@@ -645,9 +529,7 @@
         errorLine1="    void setException(Throwable exception);"
         errorLine2="                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/QueueOperation.java"
-            line="41"
-            column="23"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/QueueOperation.java"/>
     </issue>
 
     <issue
@@ -656,9 +538,7 @@
         errorLine1="    QueueOperation trackExecution(ExecutionTracker tracker);"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/QueueOperation.java"
-            line="48"
-            column="5"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/QueueOperation.java"/>
     </issue>
 
     <issue
@@ -667,9 +547,7 @@
         errorLine1="    QueueOperation trackExecution(ExecutionTracker tracker);"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/QueueOperation.java"
-            line="48"
-            column="35"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/QueueOperation.java"/>
     </issue>
 
     <issue
@@ -678,9 +556,7 @@
         errorLine1="    ConnectionConfiguration getConnectionConfiguration();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/QueueOperation.java"
-            line="51"
-            column="5"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/QueueOperation.java"/>
     </issue>
 
     <issue
@@ -689,9 +565,7 @@
         errorLine1="    void execute(S service, SettableFuture&lt;R> resultFuture) throws RemoteException;"
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/RemoteFutureOperation.java"
-            line="44"
-            column="29"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/RemoteFutureOperation.java"/>
     </issue>
 
     <issue
@@ -700,9 +574,7 @@
         errorLine1="        void onConnected(ServiceConnection connection);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ServiceConnection.java"
-            line="60"
-            column="26"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ServiceConnection.java"/>
     </issue>
 
     <issue
@@ -711,9 +583,7 @@
         errorLine1="        void onDisconnected(ServiceConnection connection, long reconnectDelayMs);"
         errorLine2="                            ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ServiceConnection.java"
-            line="68"
-            column="29"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ServiceConnection.java"/>
     </issue>
 
     <issue
@@ -722,9 +592,7 @@
         errorLine1="    void execute(IBinder binder, SettableFuture&lt;R> resultFuture) throws RemoteException;"
         errorLine2="                 ~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/ServiceOperation.java"
-            line="44"
-            column="18"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/ServiceOperation.java"/>
     </issue>
 
     <issue
@@ -733,9 +601,7 @@
         errorLine1="    void execute(IBinder binder, SettableFuture&lt;R> resultFuture) throws RemoteException;"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/ServiceOperation.java"
-            line="44"
-            column="34"/>
+            file="src/main/java/androidx/health/platform/client/impl/ipc/ServiceOperation.java"/>
     </issue>
 
 </issues>

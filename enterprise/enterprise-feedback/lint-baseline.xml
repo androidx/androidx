@@ -7,9 +7,7 @@
         errorLine1="        getServiceConnection().onBindingDied(mTestComponentName);"
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/enterprise/feedback/BufferedServiceConnectionTest.java"
-            line="453"
-            column="32"/>
+            file="src/test/java/androidx/enterprise/feedback/BufferedServiceConnectionTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        getServiceConnection().onBindingDied(mTestComponentName);"
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/enterprise/feedback/DefaultKeyedAppStatesReporterTest.java"
-            line="602"
-            column="32"/>
+            file="src/test/java/androidx/enterprise/feedback/DefaultKeyedAppStatesReporterTest.java"/>
     </issue>
 
 </issues>

@@ -7,9 +7,7 @@
         errorLine1="public @interface ExperimentalJavaAnnotationWrongRetention {}"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/ExperimentalJavaAnnotationWrongRetention.java"
-            line="28"
-            column="19"/>
+            file="src/main/java/sample/optin/ExperimentalJavaAnnotationWrongRetention.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="annotation class ExperimentalKotlinAnnotationWrongRetention"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/ExperimentalKotlinAnnotationWrongRetention.kt"
-            line="21"
-            column="18"/>
+            file="src/main/java/sample/optin/ExperimentalKotlinAnnotationWrongRetention.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    static class ConcreteExperimentalInterface implements ExperimentalInterface { // unsafe"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
-            line="34"
-            column="59"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        public void experimentalMethod() {} // unsafe override"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
-            line="36"
-            column="21"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        ExperimentalInterface anonymous = new ExperimentalInterface() { // unsafe"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
-            line="62"
-            column="47"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            public void experimentalMethod() {} // unsafe override"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
-            line="64"
-            column="25"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        ExperimentalInterface lambda = () -> {}; // unsafe"
         errorLine2="                                       ~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
-            line="67"
-            column="40"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="        public void experimentalMethod() {} // unsafe override"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562926.java"
-            line="39"
-            column="21"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562926.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            public void experimentalMethod() {} // unsafe override"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562926.java"
-            line="49"
-            column="25"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562926.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        StableInterface lambda = () -> {}; // unsafe override"
         errorLine2="                                 ~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562926.java"
-            line="52"
-            column="34"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562926.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        foo.defaultExperimentalMethod(); // unsafe in Java but safe in Kotlin"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
-            line="92"
-            column="13"/>
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="        foo.experimentalMethod(); // unsafe"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
-            line="93"
-            column="13"/>
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="        Bar bar = new Bar(); // unsafe"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
-            line="95"
-            column="19"/>
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="        bar.stableMethodLevelOptIn(); // unsafe due to experimental class scope"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
-            line="96"
-            column="13"/>
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="        bar.experimentalMethod(); // unsafe"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
-            line="97"
-            column="13"/>
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="        AnnotatedJavaClass experimentalObject = new AnnotatedJavaClass();"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
-            line="31"
-            column="49"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="        return experimentalObject.field;"
         errorLine2="                                  ~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
-            line="32"
-            column="35"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="        AnnotatedJavaClass experimentalObject = new AnnotatedJavaClass();"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
-            line="39"
-            column="49"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="        return experimentalObject.method();"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
-            line="40"
-            column="35"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="        return AnnotatedJavaClass.FIELD_STATIC;"
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
-            line="47"
-            column="35"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="        return AnnotatedJavaClass.methodStatic();"
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
-            line="54"
-            column="35"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="        DateProvider dateProvider = new DateProvider();"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"
-            line="25"
-            column="37"/>
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="        return dateProvider.getDate();"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"
-            line="26"
-            column="29"/>
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="        LocationProvider locationProvider = new LocationProvider();"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"
-            line="53"
-            column="45"/>
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="        return dateProvider.getDate() + locationProvider.getLocation();"
         errorLine2="                                                         ~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"
-            line="54"
-            column="58"/>
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="        val experimentalObject = AnnotatedJavaClass()"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="28"
-            column="34"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue

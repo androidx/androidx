@@ -7,9 +7,7 @@
         errorLine1="                notificationManager.createNotificationChannel("
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/navigation/testapp/AndroidFragment.kt"
-            line="65"
-            column="37"/>
+            file="src/main/java/androidx/navigation/testapp/AndroidFragment.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                    NotificationChannel("
         errorLine2="                    ^">
         <location
-            file="src/main/java/androidx/navigation/testapp/AndroidFragment.kt"
-            line="66"
-            column="21"/>
+            file="src/main/java/androidx/navigation/testapp/AndroidFragment.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            val fade = Fade()"
         errorLine2="                       ~~~~~~">
         <location
-            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"
-            line="48"
-            column="24"/>
+            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="            fade.excludeTarget(android.R.id.statusBarBackground, true)"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"
-            line="49"
-            column="18"/>
+            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="            fade.excludeTarget(android.R.id.navigationBarBackground, true)"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"
-            line="50"
-            column="18"/>
+            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            window.exitTransition = fade"
         errorLine2="                   ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"
-            line="51"
-            column="20"/>
+            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="            window.enterTransition = fade"
         errorLine2="                   ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"
-            line="52"
-            column="20"/>
+            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"/>
     </issue>
 
 </issues>

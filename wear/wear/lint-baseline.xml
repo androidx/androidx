@@ -7,9 +7,7 @@
         errorLine1="    public int getDefaultCircleColor() {"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircledImageView.java"
-            line="544"
-            column="16"/>
+            file="src/main/java/androidx/wear/widget/CircledImageView.java"/>
     </issue>
 
     <issue
@@ -18,13 +16,9 @@
         errorLine1="    public int[] getColorSchemeColors() {"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
-            line="348"
-            column="18"/>
+            file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"/>
         <location
             file="src/main/java/androidx/wear/widget/CircularProgressLayout.java"
-            line="339"
-            column="17"
             message="Setter here"/>
     </issue>
 
@@ -34,13 +28,9 @@
         errorLine1="    public float getDotSpacing() {"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
-            line="208"
-            column="18"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
         <location
             file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
-            line="217"
-            column="17"
             message="Setter here"/>
     </issue>
 
@@ -50,13 +40,9 @@
         errorLine1="    public float getDotRadius() {"
         errorLine2="                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
-            line="229"
-            column="18"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
         <location
             file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
-            line="238"
-            column="17"
             message="Setter here"/>
     </issue>
 
@@ -66,13 +52,9 @@
         errorLine1="    public float getDotRadiusSelected() {"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
-            line="251"
-            column="18"/>
+            file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"/>
         <location
             file="src/main/java/androidx/wear/widget/drawer/PageIndicatorView.java"
-            line="260"
-            column="17"
             message="Setter here"/>
     </issue>
 
@@ -82,9 +64,7 @@
         errorLine1="    public void setIsAutoPeekEnabled(boolean canAutoPeek) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
-            line="394"
-            column="17"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
     </issue>
 
     <issue
@@ -93,9 +73,7 @@
         errorLine1="    public void setIsLocked(boolean locked) {"
         errorLine2="                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"
-            line="413"
-            column="17"/>
+            file="src/main/java/androidx/wear/widget/drawer/WearableDrawerView.java"/>
     </issue>
 
     <issue
@@ -104,9 +82,7 @@
         errorLine1="        AmbientCallback getAmbientCallback();"
         errorLine2="        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientMode.java"
-            line="100"
-            column="9"/>
+            file="src/main/java/androidx/wear/ambient/AmbientMode.java"/>
     </issue>
 
     <issue
@@ -115,9 +91,7 @@
         errorLine1="        public void onEnterAmbient(Bundle ambientDetails) {}"
         errorLine2="                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientMode.java"
-            line="116"
-            column="36"/>
+            file="src/main/java/androidx/wear/ambient/AmbientMode.java"/>
     </issue>
 
     <issue
@@ -126,9 +100,7 @@
         errorLine1="    public void onAttach(Context context) {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientMode.java"
-            line="181"
-            column="26"/>
+            file="src/main/java/androidx/wear/ambient/AmbientMode.java"/>
     </issue>
 
     <issue
@@ -137,9 +109,7 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientMode.java"
-            line="194"
-            column="26"/>
+            file="src/main/java/androidx/wear/ambient/AmbientMode.java"/>
     </issue>
 
     <issue
@@ -148,9 +118,7 @@
         errorLine1="    public static &lt;T extends Activity> AmbientController attachAmbientSupport(T activity) {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientMode.java"
-            line="250"
-            column="40"/>
+            file="src/main/java/androidx/wear/ambient/AmbientMode.java"/>
     </issue>
 
     <issue
@@ -159,9 +127,7 @@
         errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientMode.java"
-            line="265"
-            column="22"/>
+            file="src/main/java/androidx/wear/ambient/AmbientMode.java"/>
     </issue>
 
     <issue
@@ -170,9 +136,7 @@
         errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
         errorLine2="                                    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientMode.java"
-            line="265"
-            column="37"/>
+            file="src/main/java/androidx/wear/ambient/AmbientMode.java"/>
     </issue>
 
     <issue
@@ -181,9 +145,7 @@
         errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
         errorLine2="                                                       ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientMode.java"
-            line="265"
-            column="56"/>
+            file="src/main/java/androidx/wear/ambient/AmbientMode.java"/>
     </issue>
 
     <issue
@@ -192,9 +154,7 @@
         errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
         errorLine2="                                                                           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientMode.java"
-            line="265"
-            column="76"/>
+            file="src/main/java/androidx/wear/ambient/AmbientMode.java"/>
     </issue>
 
     <issue
@@ -203,9 +163,7 @@
         errorLine1="        AmbientCallback getAmbientCallback();"
         errorLine2="        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="127"
-            column="9"/>
+            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
     </issue>
 
     <issue
@@ -214,9 +172,7 @@
         errorLine1="        public void onEnterAmbient(Bundle ambientDetails) {}"
         errorLine2="                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="144"
-            column="36"/>
+            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
     </issue>
 
     <issue
@@ -225,9 +181,7 @@
         errorLine1="    public void onAttach(Context context) {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="211"
-            column="26"/>
+            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
     </issue>
 
     <issue
@@ -236,9 +190,7 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="224"
-            column="26"/>
+            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
     </issue>
 
     <issue
@@ -247,9 +199,7 @@
         errorLine1="    public static &lt;T extends FragmentActivity> AmbientController attach(T activity) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="280"
-            column="48"/>
+            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
     </issue>
 
     <issue
@@ -258,9 +208,7 @@
         errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="296"
-            column="22"/>
+            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
     </issue>
 
     <issue
@@ -269,9 +217,7 @@
         errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
         errorLine2="                                    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="296"
-            column="37"/>
+            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
     </issue>
 
     <issue
@@ -280,9 +226,7 @@
         errorLine1="    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {"
         errorLine2="                                                       ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"
-            line="296"
-            column="56"/>
+            file="src/main/java/androidx/wear/ambient/AmbientModeSupport.java"/>
     </issue>
 
     <issue

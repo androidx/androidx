@@ -7,9 +7,7 @@
         errorLine1="        GlyphChecker mGlyphChecker = new EmojiProcessor.DefaultGlyphChecker();"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"
-            line="1306"
-            column="38"/>
+            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            loaderCallback.onLoaded(MetadataRepo.create(mock(Typeface.class)));"
         errorLine2="                                                 ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/text/NoFontTestEmojiConfig.java"
-            line="46"
-            column="50"/>
+            file="src/androidTest/java/androidx/emoji2/text/NoFontTestEmojiConfig.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        final EmojiSpan span = mock(EmojiSpan.class);"
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"
-            line="130"
-            column="37"/>
+            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        EmojiSpan[] spans = spannable.getSpans(0, spannable.length(), EmojiSpan.class);"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"
-            line="141"
-            column="71"/>
+            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        final EmojiSpan span = mock(EmojiSpan.class);"
         errorLine2="                                    ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"
-            line="194"
-            column="37"/>
+            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        EmojiSpan[] spans = spannable.getSpans(0, spannable.length(), EmojiSpan.class);"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"
-            line="206"
-            column="71"/>
+            file="src/androidTest/java/androidx/emoji2/text/SpannableBuilderTest.java"/>
     </issue>
 
 </issues>

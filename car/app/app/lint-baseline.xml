@@ -7,9 +7,7 @@
         errorLine1="        assertThat(actions.get(0).getIcon().getResId()).isEqualTo(icon1);"
         errorLine2="                                            ~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/notification/CarAppExtenderTest.java"
-            line="209"
-            column="45"/>
+            file="src/test/java/androidx/car/app/notification/CarAppExtenderTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        assertThat(actions.get(1).getIcon().getResId()).isEqualTo(icon2);"
         errorLine2="                                            ~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/notification/CarAppExtenderTest.java"
-            line="212"
-            column="45"/>
+            file="src/test/java/androidx/car/app/notification/CarAppExtenderTest.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/CarContextTest.java"
-            line="258"
-            column="66"/>
+            file="src/test/java/androidx/car/app/CarContextTest.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
         errorLine2="                                                                              ~~~">
         <location
-            file="src/test/java/androidx/car/app/CarContextTest.java"
-            line="258"
-            column="79"/>
+            file="src/test/java/androidx/car/app/CarContextTest.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        assertThat(changed.getChannelId()).isEqualTo(EXTENDED_CHANNEL);"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"
-            line="112"
-            column="28"/>
+            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        assertThat(output.getChannelId()).isEqualTo(DEFAULT_CHANNEL);"
         errorLine2="                          ~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"
-            line="137"
-            column="27"/>
+            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        assertThat(output.getChannelId()).isEqualTo(DEFAULT_CHANNEL);"
         errorLine2="                          ~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"
-            line="165"
-            column="27"/>
+            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"/>
     </issue>
 
     <issue

@@ -7,9 +7,7 @@
         errorLine1="    public void setAfMode(CameraCaptureMetaData.AfMode mode) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"
-            line="44"
-            column="27"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public void setAfState(CameraCaptureMetaData.AfState state) {"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"
-            line="48"
-            column="28"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public void setAeState(CameraCaptureMetaData.AeState state) {"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"
-            line="52"
-            column="28"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public void setAwbState(CameraCaptureMetaData.AwbState state) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"
-            line="56"
-            column="29"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public void setFlashState(CameraCaptureMetaData.FlashState state) {"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"
-            line="60"
-            column="31"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public void setTag(TagBundle tag) {"
         errorLine2="                       ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"
-            line="68"
-            column="24"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public void setSuggestedResolution(String cameraId, Class&lt;? extends UseCaseConfig&lt;?>> type,"
         errorLine2="                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="43"
-            column="40"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public void setSuggestedResolution(String cameraId, Class&lt;? extends UseCaseConfig&lt;?>> type,"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="43"
-            column="57"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            Size size) {"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="44"
-            column="13"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public boolean checkSupported(String cameraId, List&lt;SurfaceConfig> surfaceConfigList) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="56"
-            column="35"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public boolean checkSupported(String cameraId, List&lt;SurfaceConfig> surfaceConfigList) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="56"
-            column="52"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="61"
-            column="12"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {"
         errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="61"
-            column="49"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {"
         errorLine2="                                                                                  ~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="61"
-            column="83"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public FakeCaptureStage(int id, CaptureConfig captureConfig) {"
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCaptureStage.java"
-            line="38"
-            column="37"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCaptureStage.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    public CaptureConfig getCaptureConfig() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCaptureStage.java"
-            line="49"
-            column="12"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCaptureStage.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    public void setPlanes(PlaneProxy[] planeProxy) {"
         errorLine2="                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeImageProxy.java"
-            line="165"
-            column="27"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeImageProxy.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public void setSurface(Surface surface) {"
         errorLine2="                           ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeImageReaderProxy.java"
-            line="195"
-            column="28"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeImageReaderProxy.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    public static void waitForLooperToIdle(Handler handler) throws InterruptedException {"
         errorLine2="                                           ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/HandlerUtil.java"
-            line="38"
-            column="44"/>
+            file="src/main/java/androidx/camera/testing/HandlerUtil.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    public static MessageQueue getQueue(Looper looper) {"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/compat/LooperCompat.java"
-            line="34"
-            column="19"/>
+            file="src/main/java/androidx/camera/testing/compat/LooperCompat.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    public static MessageQueue getQueue(Looper looper) {"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/compat/LooperCompat.java"
-            line="34"
-            column="41"/>
+            file="src/main/java/androidx/camera/testing/compat/LooperCompat.java"/>
     </issue>
 
 </issues>

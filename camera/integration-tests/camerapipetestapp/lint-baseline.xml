@@ -7,9 +7,7 @@
         errorLine1="            val elapsedRealtime = Process.getStartElapsedRealtime()"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/CameraPipeApplication.kt"
-            line="47"
-            column="43"/>
+            file="src/main/java/androidx/camera/integration/camera2/pipe/CameraPipeApplication.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    fun useAppContext() {"
         errorLine2="        ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/camera/integration/camera2/pipe/BasicInstrumentedTest.kt"
-            line="35"
-            column="9"/>
+            file="src/androidTest/java/androidx/camera/integration/camera2/pipe/BasicInstrumentedTest.kt"/>
     </issue>
 
 </issues>

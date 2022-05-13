@@ -7,9 +7,7 @@
         errorLine1="    static final int[] TRANSITION_TARGET = {"
         errorLine2="                                           ^">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="30"
-            column="44"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        int TARGET_ID = 1;"
         errorLine2="                        ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="43"
-            column="25"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        int EXCLUDE_ID = 2;"
         errorLine2="                         ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="45"
-            column="26"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        int EXCLUDE_CLASS = 3;"
         errorLine2="                            ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="47"
-            column="29"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        int TARGET_NAME = 4;"
         errorLine2="                          ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="49"
-            column="27"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        int EXCLUDE_NAME = 5;"
         errorLine2="                           ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="51"
-            column="28"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    static final int[] TRANSITION_MANAGER = {"
         errorLine2="                                            ^">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="55"
-            column="45"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="        int TO_SCENE = 1;"
         errorLine2="                       ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="65"
-            column="24"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="        int TRANSITION = 2;"
         errorLine2="                         ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="67"
-            column="26"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    static final int[] TRANSITION = {"
         errorLine2="                                    ^">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="71"
-            column="37"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        int DURATION = 1;"
         errorLine2="                       ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="82"
-            column="24"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="        int START_DELAY = 2;"
         errorLine2="                          ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="84"
-            column="27"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="        int MATCH_ORDER = 3;"
         errorLine2="                          ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="86"
-            column="27"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    static final int[] CHANGE_BOUNDS = {"
         errorLine2="                                       ^">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="90"
-            column="40"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    static final int[] VISIBILITY_TRANSITION = {"
         errorLine2="                                               ^">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="100"
-            column="48"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    static final int[] FADE = {"
         errorLine2="                              ^">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="110"
-            column="31"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    static final int[] CHANGE_TRANSFORM = {"
         errorLine2="                                          ^">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="120"
-            column="43"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="        int REPARENT_WITH_OVERLAY = 1;"
         errorLine2="                                    ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="129"
-            column="37"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    static final int[] SLIDE = {"
         errorLine2="                               ^">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="133"
-            column="32"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    static final int[] TRANSITION_SET = {"
         errorLine2="                                        ^">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="143"
-            column="41"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    static final int[] ARC_MOTION = {"
         errorLine2="                                    ^">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="153"
-            column="37"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="        int MINIMUM_VERTICAL_ANGLE = 1;"
         errorLine2="                                     ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="163"
-            column="38"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="        int MAXIMUM_ANGLE = 2;"
         errorLine2="                            ~">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="165"
-            column="29"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    static final int[] PATTERN_PATH_MOTION = {"
         errorLine2="                                             ^">
         <location
-            file="src/main/java/androidx/transition/Styleable.java"
-            line="169"
-            column="46"/>
+            file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="                        (View) sAddGhostMethod.invoke(null, view, viewGroup, matrix));"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/GhostViewPlatform.java"
-            line="47"
-            column="32"/>
+            file="src/main/java/androidx/transition/GhostViewPlatform.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="                sRemoveGhostMethod.invoke(null, view);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/GhostViewPlatform.java"
-            line="61"
-            column="17"/>
+            file="src/main/java/androidx/transition/GhostViewPlatform.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="                sCancelMethod.invoke(t);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewGroupUtilsApi14.java"
-            line="125"
-            column="17"/>
+            file="src/main/java/androidx/transition/ViewGroupUtilsApi14.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="                    sInvalidateChildInParentFastMethod.invoke(mHostView, left, top, dirty);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewOverlayApi14.java"
-            line="290"
-            column="21"/>
+            file="src/main/java/androidx/transition/ViewOverlayApi14.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="                sSetFrameMethod.invoke(v, left, top, right, bottom);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewUtilsBase.java"
-            line="145"
-            column="17"/>
+            file="src/main/java/androidx/transition/ViewUtilsBase.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="            animator.addPauseListener(listener);"
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/AnimatorUtils.java"
-            line="32"
-            column="22"/>
+            file="src/main/java/androidx/transition/AnimatorUtils.java"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="            animator.pause();"
         errorLine2="                     ~~~~~">
         <location
-            file="src/main/java/androidx/transition/AnimatorUtils.java"
-            line="38"
-            column="22"/>
+            file="src/main/java/androidx/transition/AnimatorUtils.java"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="            animator.resume();"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/AnimatorUtils.java"
-            line="54"
-            column="22"/>
+            file="src/main/java/androidx/transition/AnimatorUtils.java"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="                canvas.enableZ();"
         errorLine2="                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/CanvasUtils.java"
-            line="45"
-            column="24"/>
+            file="src/main/java/androidx/transition/CanvasUtils.java"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="                canvas.disableZ();"
         errorLine2="                       ~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/CanvasUtils.java"
-            line="47"
-            column="24"/>
+            file="src/main/java/androidx/transition/CanvasUtils.java"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="            if (view.getZ() != comparedWith.getZ()) {"
         errorLine2="                     ~~~~">
         <location
-            file="src/main/java/androidx/transition/GhostViewHolder.java"
-            line="176"
-            column="22"/>
+            file="src/main/java/androidx/transition/GhostViewHolder.java"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="            if (view.getZ() != comparedWith.getZ()) {"
         errorLine2="                                            ~~~~">
         <location
-            file="src/main/java/androidx/transition/GhostViewHolder.java"
-            line="176"
-            column="45"/>
+            file="src/main/java/androidx/transition/GhostViewHolder.java"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="                return view.getZ() > comparedWith.getZ();"
         errorLine2="                            ~~~~">
         <location
-            file="src/main/java/androidx/transition/GhostViewHolder.java"
-            line="177"
-            column="29"/>
+            file="src/main/java/androidx/transition/GhostViewHolder.java"/>
     </issue>
 
     <issue
@@ -414,9 +340,7 @@
         errorLine1="                return view.getZ() > comparedWith.getZ();"
         errorLine2="                                                  ~~~~">
         <location
-            file="src/main/java/androidx/transition/GhostViewHolder.java"
-            line="177"
-            column="51"/>
+            file="src/main/java/androidx/transition/GhostViewHolder.java"/>
     </issue>
 
     <issue
@@ -425,9 +349,7 @@
         errorLine1="            view.animateTransform(matrix);"
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ImageViewUtils.java"
-            line="46"
-            column="18"/>
+            file="src/main/java/androidx/transition/ImageViewUtils.java"/>
     </issue>
 
     <issue
@@ -436,9 +358,7 @@
         errorLine1="                view.animateTransform(matrix);"
         errorLine2="                     ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ImageViewUtils.java"
-            line="92"
-            column="22"/>
+            file="src/main/java/androidx/transition/ImageViewUtils.java"/>
     </issue>
 
     <issue
@@ -447,9 +367,7 @@
         errorLine1="            return ObjectAnimator.ofObject(target, property, null, path);"
         errorLine2="                                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ObjectAnimatorUtils.java"
-            line="29"
-            column="35"/>
+            file="src/main/java/androidx/transition/ObjectAnimatorUtils.java"/>
     </issue>
 
     <issue
@@ -458,9 +376,7 @@
         errorLine1="            return PropertyValuesHolder.ofObject(property, null, path);"
         errorLine2="                                        ~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/PropertyValuesHolderUtils.java"
-            line="39"
-            column="41"/>
+            file="src/main/java/androidx/transition/PropertyValuesHolderUtils.java"/>
     </issue>
 
     <issue
@@ -469,9 +385,7 @@
         errorLine1="            addToOverlay = !view.isAttachedToWindow();"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionUtils.java"
-            line="94"
-            column="34"/>
+            file="src/main/java/androidx/transition/TransitionUtils.java"/>
     </issue>
 
     <issue
@@ -480,9 +394,7 @@
         errorLine1="            sceneRootIsAttached = sceneRoot == null ? false : sceneRoot.isAttachedToWindow();"
         errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionUtils.java"
-            line="95"
-            column="73"/>
+            file="src/main/java/androidx/transition/TransitionUtils.java"/>
     </issue>
 
     <issue
@@ -491,9 +403,7 @@
         errorLine1="            sceneRoot.getOverlay().add(view);"
         errorLine2="                      ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionUtils.java"
-            line="108"
-            column="23"/>
+            file="src/main/java/androidx/transition/TransitionUtils.java"/>
     </issue>
 
     <issue
@@ -502,9 +412,7 @@
         errorLine1="            sceneRoot.getOverlay().add(view);"
         errorLine2="                                   ~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionUtils.java"
-            line="108"
-            column="36"/>
+            file="src/main/java/androidx/transition/TransitionUtils.java"/>
     </issue>
 
     <issue
@@ -513,9 +421,7 @@
         errorLine1="                bitmap = Bitmap.createBitmap(picture);"
         errorLine2="                                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionUtils.java"
-            line="127"
-            column="33"/>
+            file="src/main/java/androidx/transition/TransitionUtils.java"/>
     </issue>
 
     <issue
@@ -524,9 +430,7 @@
         errorLine1="            sceneRoot.getOverlay().remove(view);"
         errorLine2="                      ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionUtils.java"
-            line="137"
-            column="23"/>
+            file="src/main/java/androidx/transition/TransitionUtils.java"/>
     </issue>
 
     <issue
@@ -535,9 +439,7 @@
         errorLine1="            sceneRoot.getOverlay().remove(view);"
         errorLine2="                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionUtils.java"
-            line="137"
-            column="36"/>
+            file="src/main/java/androidx/transition/TransitionUtils.java"/>
     </issue>
 
     <issue
@@ -546,9 +448,7 @@
         errorLine1="            group.suppressLayout(suppress);"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewGroupUtils.java"
-            line="57"
-            column="19"/>
+            file="src/main/java/androidx/transition/ViewGroupUtils.java"/>
     </issue>
 
     <issue
@@ -557,9 +457,7 @@
         errorLine1="                group.suppressLayout(suppress);"
         errorLine2="                      ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewGroupUtils.java"
-            line="72"
-            column="23"/>
+            file="src/main/java/androidx/transition/ViewGroupUtils.java"/>
     </issue>
 
     <issue
@@ -568,9 +466,7 @@
         errorLine1="            return viewGroup.getChildDrawingOrder(i);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewGroupUtils.java"
-            line="84"
-            column="30"/>
+            file="src/main/java/androidx/transition/ViewGroupUtils.java"/>
     </issue>
 
     <issue
@@ -579,9 +475,7 @@
         errorLine1="                view.setTransitionAlpha(alpha);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewUtilsApi19.java"
-            line="40"
-            column="22"/>
+            file="src/main/java/androidx/transition/ViewUtilsApi19.java"/>
     </issue>
 
     <issue
@@ -590,9 +484,7 @@
         errorLine1="                return view.getTransitionAlpha();"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewUtilsApi19.java"
-            line="56"
-            column="29"/>
+            file="src/main/java/androidx/transition/ViewUtilsApi19.java"/>
     </issue>
 
     <issue
@@ -601,9 +493,7 @@
         errorLine1="                view.transformMatrixToGlobal(matrix);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewUtilsApi21.java"
-            line="50"
-            column="22"/>
+            file="src/main/java/androidx/transition/ViewUtilsApi21.java"/>
     </issue>
 
     <issue
@@ -612,9 +502,7 @@
         errorLine1="                view.transformMatrixToLocal(matrix);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewUtilsApi21.java"
-            line="64"
-            column="22"/>
+            file="src/main/java/androidx/transition/ViewUtilsApi21.java"/>
     </issue>
 
     <issue
@@ -623,9 +511,7 @@
         errorLine1="                view.setAnimationMatrix(matrix);"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewUtilsApi21.java"
-            line="78"
-            column="22"/>
+            file="src/main/java/androidx/transition/ViewUtilsApi21.java"/>
     </issue>
 
     <issue
@@ -634,9 +520,7 @@
         errorLine1="                v.setLeftTopRightBottom(left, top, right, bottom);"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewUtilsApi22.java"
-            line="40"
-            column="19"/>
+            file="src/main/java/androidx/transition/ViewUtilsApi22.java"/>
     </issue>
 
     <issue
@@ -645,9 +529,7 @@
         errorLine1="                    view.setTransitionVisibility(visibility);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/ViewUtilsApi23.java"
-            line="45"
-            column="26"/>
+            file="src/main/java/androidx/transition/ViewUtilsApi23.java"/>
     </issue>
 
     <issue
@@ -656,9 +538,7 @@
         errorLine1="    public long getStartDelay(ViewGroup sceneRoot, Transition transition,"
         errorLine2="                              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/CircularPropagation.java"
-            line="57"
-            column="31"/>
+            file="src/main/java/androidx/transition/CircularPropagation.java"/>
     </issue>
 
     <issue
@@ -667,9 +547,7 @@
         errorLine1="    public long getStartDelay(ViewGroup sceneRoot, Transition transition,"
         errorLine2="                                                   ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/CircularPropagation.java"
-            line="57"
-            column="52"/>
+            file="src/main/java/androidx/transition/CircularPropagation.java"/>
     </issue>
 
     <issue
@@ -678,9 +556,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues) {"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/CircularPropagation.java"
-            line="58"
-            column="13"/>
+            file="src/main/java/androidx/transition/CircularPropagation.java"/>
     </issue>
 
     <issue
@@ -689,9 +565,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues) {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/CircularPropagation.java"
-            line="58"
-            column="43"/>
+            file="src/main/java/androidx/transition/CircularPropagation.java"/>
     </issue>
 
     <issue
@@ -700,9 +574,7 @@
         errorLine1="    public Animator onAppear(ViewGroup sceneRoot, View view,"
         errorLine2="                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Explode.java"
-            line="84"
-            column="30"/>
+            file="src/main/java/androidx/transition/Explode.java"/>
     </issue>
 
     <issue
@@ -711,9 +583,7 @@
         errorLine1="    public Animator onAppear(ViewGroup sceneRoot, View view,"
         errorLine2="                                                  ~~~~">
         <location
-            file="src/main/java/androidx/transition/Explode.java"
-            line="84"
-            column="51"/>
+            file="src/main/java/androidx/transition/Explode.java"/>
     </issue>
 
     <issue
@@ -722,9 +592,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues) {"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Explode.java"
-            line="85"
-            column="13"/>
+            file="src/main/java/androidx/transition/Explode.java"/>
     </issue>
 
     <issue
@@ -733,9 +601,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues) {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Explode.java"
-            line="85"
-            column="43"/>
+            file="src/main/java/androidx/transition/Explode.java"/>
     </issue>
 
     <issue
@@ -744,9 +610,7 @@
         errorLine1="    public Animator onDisappear(ViewGroup sceneRoot, View view,"
         errorLine2="                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Explode.java"
-            line="102"
-            column="33"/>
+            file="src/main/java/androidx/transition/Explode.java"/>
     </issue>
 
     <issue
@@ -755,9 +619,7 @@
         errorLine1="    public Animator onDisappear(ViewGroup sceneRoot, View view,"
         errorLine2="                                                     ~~~~">
         <location
-            file="src/main/java/androidx/transition/Explode.java"
-            line="102"
-            column="54"/>
+            file="src/main/java/androidx/transition/Explode.java"/>
     </issue>
 
     <issue
@@ -766,9 +628,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues) {"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Explode.java"
-            line="103"
-            column="13"/>
+            file="src/main/java/androidx/transition/Explode.java"/>
     </issue>
 
     <issue
@@ -777,9 +637,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues) {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Explode.java"
-            line="103"
-            column="43"/>
+            file="src/main/java/androidx/transition/Explode.java"/>
     </issue>
 
     <issue
@@ -788,9 +646,7 @@
         errorLine1="    public Animator onAppear(ViewGroup sceneRoot, View view,"
         errorLine2="                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Fade.java"
-            line="149"
-            column="30"/>
+            file="src/main/java/androidx/transition/Fade.java"/>
     </issue>
 
     <issue
@@ -799,9 +655,7 @@
         errorLine1="    public Animator onAppear(ViewGroup sceneRoot, View view,"
         errorLine2="                                                  ~~~~">
         <location
-            file="src/main/java/androidx/transition/Fade.java"
-            line="149"
-            column="51"/>
+            file="src/main/java/androidx/transition/Fade.java"/>
     </issue>
 
     <issue
@@ -810,9 +664,7 @@
         errorLine1="            TransitionValues startValues,"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Fade.java"
-            line="150"
-            column="13"/>
+            file="src/main/java/androidx/transition/Fade.java"/>
     </issue>
 
     <issue
@@ -821,9 +673,7 @@
         errorLine1="            TransitionValues endValues) {"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Fade.java"
-            line="151"
-            column="13"/>
+            file="src/main/java/androidx/transition/Fade.java"/>
     </issue>
 
     <issue
@@ -832,9 +682,7 @@
         errorLine1="    public Animator onDisappear(ViewGroup sceneRoot, final View view, TransitionValues startValues,"
         errorLine2="                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Fade.java"
-            line="166"
-            column="33"/>
+            file="src/main/java/androidx/transition/Fade.java"/>
     </issue>
 
     <issue
@@ -843,9 +691,7 @@
         errorLine1="    public Animator onDisappear(ViewGroup sceneRoot, final View view, TransitionValues startValues,"
         errorLine2="                                                           ~~~~">
         <location
-            file="src/main/java/androidx/transition/Fade.java"
-            line="166"
-            column="60"/>
+            file="src/main/java/androidx/transition/Fade.java"/>
     </issue>
 
     <issue
@@ -854,9 +700,7 @@
         errorLine1="    public Animator onDisappear(ViewGroup sceneRoot, final View view, TransitionValues startValues,"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Fade.java"
-            line="166"
-            column="71"/>
+            file="src/main/java/androidx/transition/Fade.java"/>
     </issue>
 
     <issue
@@ -865,9 +709,7 @@
         errorLine1="            TransitionValues endValues) {"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Fade.java"
-            line="167"
-            column="13"/>
+            file="src/main/java/androidx/transition/Fade.java"/>
     </issue>
 
     <issue
@@ -876,9 +718,7 @@
         errorLine1="    public boolean canHandle(Object transition) {"
         errorLine2="                             ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="47"
-            column="30"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -887,9 +727,7 @@
         errorLine1="    public Object cloneTransition(Object transition) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="52"
-            column="12"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -898,9 +736,7 @@
         errorLine1="    public Object cloneTransition(Object transition) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="52"
-            column="35"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -909,9 +745,7 @@
         errorLine1="    public Object wrapTransitionInSet(Object transition) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="61"
-            column="12"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -920,9 +754,7 @@
         errorLine1="    public Object wrapTransitionInSet(Object transition) {"
         errorLine2="                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="61"
-            column="39"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -931,9 +763,7 @@
         errorLine1="    public void setSharedElementTargets(Object transitionObj,"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="71"
-            column="41"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -942,9 +772,7 @@
         errorLine1="            View nonExistentView, ArrayList&lt;View> sharedViews) {"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="72"
-            column="13"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -953,9 +781,7 @@
         errorLine1="            View nonExistentView, ArrayList&lt;View> sharedViews) {"
         errorLine2="                                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="72"
-            column="35"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -964,9 +790,7 @@
         errorLine1="    public void setEpicenter(Object transitionObj, View view) {"
         errorLine2="                             ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="87"
-            column="30"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -975,9 +799,7 @@
         errorLine1="    public void setEpicenter(Object transitionObj, View view) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="87"
-            column="52"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -986,9 +808,7 @@
         errorLine1="    public void addTargets(Object transitionObj, ArrayList&lt;View> views) {"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="103"
-            column="28"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -997,9 +817,7 @@
         errorLine1="    public void addTargets(Object transitionObj, ArrayList&lt;View> views) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="103"
-            column="50"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1008,9 +826,7 @@
         errorLine1="    public Object mergeTransitionsTogether(Object transition1, Object transition2,"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="134"
-            column="12"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1019,9 +835,7 @@
         errorLine1="    public Object mergeTransitionsTogether(Object transition1, Object transition2,"
         errorLine2="                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="134"
-            column="44"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1030,9 +844,7 @@
         errorLine1="    public Object mergeTransitionsTogether(Object transition1, Object transition2,"
         errorLine2="                                                               ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="134"
-            column="64"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1041,9 +853,7 @@
         errorLine1="            Object transition3) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="135"
-            column="13"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1052,9 +862,7 @@
         errorLine1="    public void scheduleHideFragmentView(Object exitTransitionObj, final View fragmentView,"
         errorLine2="                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="150"
-            column="42"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1063,9 +871,7 @@
         errorLine1="    public void scheduleHideFragmentView(Object exitTransitionObj, final View fragmentView,"
         errorLine2="                                                                         ~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="150"
-            column="74"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1074,9 +880,7 @@
         errorLine1="            final ArrayList&lt;View> exitingViews) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="151"
-            column="19"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1085,9 +889,7 @@
         errorLine1="    public Object mergeTransitionsInSequence(Object exitTransitionObj,"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="191"
-            column="12"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1096,9 +898,7 @@
         errorLine1="    public Object mergeTransitionsInSequence(Object exitTransitionObj,"
         errorLine2="                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="191"
-            column="46"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1107,9 +907,7 @@
         errorLine1="            Object enterTransitionObj, Object sharedElementTransitionObj) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="192"
-            column="13"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1118,9 +916,7 @@
         errorLine1="            Object enterTransitionObj, Object sharedElementTransitionObj) {"
         errorLine2="                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="192"
-            column="40"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1129,9 +925,7 @@
         errorLine1="    public void beginDelayedTransition(ViewGroup sceneRoot, Object transition) {"
         errorLine2="                                       ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="222"
-            column="40"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1140,9 +934,7 @@
         errorLine1="    public void beginDelayedTransition(ViewGroup sceneRoot, Object transition) {"
         errorLine2="                                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="222"
-            column="61"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1151,9 +943,7 @@
         errorLine1="    public void scheduleRemoveTargets(final Object overallTransitionObj,"
         errorLine2="                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="227"
-            column="45"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1162,9 +952,7 @@
         errorLine1="            final Object enterTransition, final ArrayList&lt;View> enteringViews,"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="228"
-            column="19"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1173,9 +961,7 @@
         errorLine1="            final Object enterTransition, final ArrayList&lt;View> enteringViews,"
         errorLine2="                                                ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="228"
-            column="49"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1184,9 +970,7 @@
         errorLine1="            final Object exitTransition, final ArrayList&lt;View> exitingViews,"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="229"
-            column="19"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1195,9 +979,7 @@
         errorLine1="            final Object exitTransition, final ArrayList&lt;View> exitingViews,"
         errorLine2="                                               ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="229"
-            column="48"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1206,9 +988,7 @@
         errorLine1="            final Object sharedElementTransition, final ArrayList&lt;View> sharedElementsIn) {"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="230"
-            column="19"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1217,9 +997,7 @@
         errorLine1="            final Object sharedElementTransition, final ArrayList&lt;View> sharedElementsIn) {"
         errorLine2="                                                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="230"
-            column="57"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1228,9 +1006,7 @@
         errorLine1="    public void swapSharedElementTargets(Object sharedElementTransitionObj,"
         errorLine2="                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="295"
-            column="42"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1239,9 +1015,7 @@
         errorLine1="            ArrayList&lt;View> sharedElementsOut, ArrayList&lt;View> sharedElementsIn) {"
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="296"
-            column="13"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1250,9 +1024,7 @@
         errorLine1="            ArrayList&lt;View> sharedElementsOut, ArrayList&lt;View> sharedElementsIn) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="296"
-            column="48"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1261,9 +1033,7 @@
         errorLine1="    public void replaceTargets(Object transitionObj, ArrayList&lt;View> oldTargets,"
         errorLine2="                               ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="306"
-            column="32"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1272,9 +1042,7 @@
         errorLine1="    public void replaceTargets(Object transitionObj, ArrayList&lt;View> oldTargets,"
         errorLine2="                                                     ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="306"
-            column="54"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1283,9 +1051,7 @@
         errorLine1="            ArrayList&lt;View> newTargets) {"
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="307"
-            column="13"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1294,9 +1060,7 @@
         errorLine1="    public void addTarget(Object transitionObj, View view) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="333"
-            column="27"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1305,9 +1069,7 @@
         errorLine1="    public void addTarget(Object transitionObj, View view) {"
         errorLine2="                                                ~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="333"
-            column="49"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1316,9 +1078,7 @@
         errorLine1="    public void removeTarget(Object transitionObj, View view) {"
         errorLine2="                             ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="341"
-            column="30"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1327,9 +1087,7 @@
         errorLine1="    public void removeTarget(Object transitionObj, View view) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="341"
-            column="52"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1338,9 +1096,7 @@
         errorLine1="    public void setEpicenter(Object transitionObj, final Rect epicenter) {"
         errorLine2="                             ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="349"
-            column="30"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1349,9 +1105,7 @@
         errorLine1="    public void setEpicenter(Object transitionObj, final Rect epicenter) {"
         errorLine2="                                                         ~~~~">
         <location
-            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"
-            line="349"
-            column="58"/>
+            file="src/main/java/androidx/transition/FragmentTransitionSupport.java"/>
     </issue>
 
     <issue
@@ -1360,9 +1114,7 @@
         errorLine1="    public PatternPathMotion(Path patternPath) {"
         errorLine2="                             ~~~~">
         <location
-            file="src/main/java/androidx/transition/PatternPathMotion.java"
-            line="85"
-            column="30"/>
+            file="src/main/java/androidx/transition/PatternPathMotion.java"/>
     </issue>
 
     <issue
@@ -1371,9 +1123,7 @@
         errorLine1="    public Path getPatternPath() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/transition/PatternPathMotion.java"
-            line="96"
-            column="12"/>
+            file="src/main/java/androidx/transition/PatternPathMotion.java"/>
     </issue>
 
     <issue
@@ -1382,9 +1132,7 @@
         errorLine1="    public void setPatternPath(Path patternPath) {"
         errorLine2="                               ~~~~">
         <location
-            file="src/main/java/androidx/transition/PatternPathMotion.java"
-            line="107"
-            column="32"/>
+            file="src/main/java/androidx/transition/PatternPathMotion.java"/>
     </issue>
 
     <issue
@@ -1393,9 +1141,7 @@
         errorLine1="    public long getStartDelay(ViewGroup sceneRoot, Transition transition,"
         errorLine2="                              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/SidePropagation.java"
-            line="74"
-            column="31"/>
+            file="src/main/java/androidx/transition/SidePropagation.java"/>
     </issue>
 
     <issue
@@ -1404,9 +1150,7 @@
         errorLine1="    public long getStartDelay(ViewGroup sceneRoot, Transition transition,"
         errorLine2="                                                   ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/SidePropagation.java"
-            line="74"
-            column="52"/>
+            file="src/main/java/androidx/transition/SidePropagation.java"/>
     </issue>
 
     <issue
@@ -1415,9 +1159,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues) {"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/SidePropagation.java"
-            line="75"
-            column="13"/>
+            file="src/main/java/androidx/transition/SidePropagation.java"/>
     </issue>
 
     <issue
@@ -1426,9 +1168,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues) {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/SidePropagation.java"
-            line="75"
-            column="43"/>
+            file="src/main/java/androidx/transition/SidePropagation.java"/>
     </issue>
 
     <issue
@@ -1437,9 +1177,7 @@
         errorLine1="    public Animator onAppear(ViewGroup sceneRoot, View view,"
         errorLine2="                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Slide.java"
-            line="250"
-            column="30"/>
+            file="src/main/java/androidx/transition/Slide.java"/>
     </issue>
 
     <issue
@@ -1448,9 +1186,7 @@
         errorLine1="    public Animator onAppear(ViewGroup sceneRoot, View view,"
         errorLine2="                                                  ~~~~">
         <location
-            file="src/main/java/androidx/transition/Slide.java"
-            line="250"
-            column="51"/>
+            file="src/main/java/androidx/transition/Slide.java"/>
     </issue>
 
     <issue
@@ -1459,9 +1195,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues) {"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Slide.java"
-            line="251"
-            column="13"/>
+            file="src/main/java/androidx/transition/Slide.java"/>
     </issue>
 
     <issue
@@ -1470,9 +1204,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues) {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Slide.java"
-            line="251"
-            column="43"/>
+            file="src/main/java/androidx/transition/Slide.java"/>
     </issue>
 
     <issue
@@ -1481,9 +1213,7 @@
         errorLine1="    public Animator onDisappear(ViewGroup sceneRoot, View view,"
         errorLine2="                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Slide.java"
-            line="267"
-            column="33"/>
+            file="src/main/java/androidx/transition/Slide.java"/>
     </issue>
 
     <issue
@@ -1492,9 +1222,7 @@
         errorLine1="    public Animator onDisappear(ViewGroup sceneRoot, View view,"
         errorLine2="                                                     ~~~~">
         <location
-            file="src/main/java/androidx/transition/Slide.java"
-            line="267"
-            column="54"/>
+            file="src/main/java/androidx/transition/Slide.java"/>
     </issue>
 
     <issue
@@ -1503,9 +1231,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues) {"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Slide.java"
-            line="268"
-            column="13"/>
+            file="src/main/java/androidx/transition/Slide.java"/>
     </issue>
 
     <issue
@@ -1514,9 +1240,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues) {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Slide.java"
-            line="268"
-            column="43"/>
+            file="src/main/java/androidx/transition/Slide.java"/>
     </issue>
 
     <issue
@@ -1525,9 +1249,7 @@
         errorLine1="    public void setMatchOrder(@MatchOrder int... matches) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="506"
-            column="43"/>
+            file="src/main/java/androidx/transition/Transition.java"/>
     </issue>
 
     <issue
@@ -1536,9 +1258,7 @@
         errorLine1="    public void pause(View sceneRoot) {"
         errorLine2="                      ~~~~">
         <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="1712"
-            column="23"/>
+            file="src/main/java/androidx/transition/Transition.java"/>
     </issue>
 
     <issue
@@ -1547,9 +1267,7 @@
         errorLine1="    public void resume(View sceneRoot) {"
         errorLine2="                       ~~~~">
         <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="1739"
-            column="24"/>
+            file="src/main/java/androidx/transition/Transition.java"/>
     </issue>
 
     <issue
@@ -1558,9 +1276,7 @@
         errorLine1="    protected void animate(Animator animator) {"
         errorLine2="                           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="1881"
-            column="28"/>
+            file="src/main/java/androidx/transition/Transition.java"/>
     </issue>
 
     <issue
@@ -1569,9 +1285,7 @@
         errorLine1="    public Transition clone() {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="2201"
-            column="12"/>
+            file="src/main/java/androidx/transition/Transition.java"/>
     </issue>
 
     <issue
@@ -1580,9 +1294,7 @@
         errorLine1="        public abstract Rect onGetEpicenter(@NonNull Transition transition);"
         errorLine2="                        ~~~~">
         <location
-            file="src/main/java/androidx/transition/Transition.java"
-            line="2424"
-            column="25"/>
+            file="src/main/java/androidx/transition/Transition.java"/>
     </issue>
 
     <issue
@@ -1591,9 +1303,7 @@
         errorLine1="    public Transition inflateTransition(int resource) {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionInflater.java"
-            line="70"
-            column="12"/>
+            file="src/main/java/androidx/transition/TransitionInflater.java"/>
     </issue>
 
     <issue
@@ -1602,9 +1312,7 @@
         errorLine1="    public TransitionManager inflateTransitionManager(int resource, ViewGroup sceneRoot) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionInflater.java"
-            line="92"
-            column="12"/>
+            file="src/main/java/androidx/transition/TransitionInflater.java"/>
     </issue>
 
     <issue
@@ -1613,9 +1321,7 @@
         errorLine1="    public TransitionManager inflateTransitionManager(int resource, ViewGroup sceneRoot) {"
         errorLine2="                                                                    ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionInflater.java"
-            line="92"
-            column="69"/>
+            file="src/main/java/androidx/transition/TransitionInflater.java"/>
     </issue>
 
     <issue
@@ -1624,9 +1330,7 @@
         errorLine1="    public static void endTransitions(final ViewGroup sceneRoot) {"
         errorLine2="                                            ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionManager.java"
-            line="428"
-            column="45"/>
+            file="src/main/java/androidx/transition/TransitionManager.java"/>
     </issue>
 
     <issue
@@ -1635,9 +1339,7 @@
         errorLine1="    public abstract long getStartDelay(ViewGroup sceneRoot, Transition transition,"
         errorLine2="                                       ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionPropagation.java"
-            line="47"
-            column="40"/>
+            file="src/main/java/androidx/transition/TransitionPropagation.java"/>
     </issue>
 
     <issue
@@ -1646,9 +1348,7 @@
         errorLine1="    public abstract long getStartDelay(ViewGroup sceneRoot, Transition transition,"
         errorLine2="                                                            ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionPropagation.java"
-            line="47"
-            column="61"/>
+            file="src/main/java/androidx/transition/TransitionPropagation.java"/>
     </issue>
 
     <issue
@@ -1657,9 +1357,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues);"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionPropagation.java"
-            line="48"
-            column="13"/>
+            file="src/main/java/androidx/transition/TransitionPropagation.java"/>
     </issue>
 
     <issue
@@ -1668,9 +1366,7 @@
         errorLine1="            TransitionValues startValues, TransitionValues endValues);"
         errorLine2="                                          ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionPropagation.java"
-            line="48"
-            column="43"/>
+            file="src/main/java/androidx/transition/TransitionPropagation.java"/>
     </issue>
 
     <issue
@@ -1679,9 +1375,7 @@
         errorLine1="    public abstract void captureValues(TransitionValues transitionValues);"
         errorLine2="                                       ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionPropagation.java"
-            line="75"
-            column="40"/>
+            file="src/main/java/androidx/transition/TransitionPropagation.java"/>
     </issue>
 
     <issue
@@ -1690,9 +1384,7 @@
         errorLine1="    public abstract String[] getPropagationProperties();"
         errorLine2="                    ~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionPropagation.java"
-            line="89"
-            column="21"/>
+            file="src/main/java/androidx/transition/TransitionPropagation.java"/>
     </issue>
 
     <issue
@@ -1701,9 +1393,7 @@
         errorLine1="    public void setPathMotion(PathMotion pathMotion) {"
         errorLine2="                              ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionSet.java"
-            line="389"
-            column="31"/>
+            file="src/main/java/androidx/transition/TransitionSet.java"/>
     </issue>
 
     <issue
@@ -1712,9 +1402,7 @@
         errorLine1="    public void pause(View sceneRoot) {"
         errorLine2="                      ~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionSet.java"
-            line="554"
-            column="23"/>
+            file="src/main/java/androidx/transition/TransitionSet.java"/>
     </issue>
 
     <issue
@@ -1723,9 +1411,7 @@
         errorLine1="    public void resume(View sceneRoot) {"
         errorLine2="                       ~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionSet.java"
-            line="565"
-            column="24"/>
+            file="src/main/java/androidx/transition/TransitionSet.java"/>
     </issue>
 
     <issue
@@ -1734,9 +1420,7 @@
         errorLine1="    public void setPropagation(TransitionPropagation transitionPropagation) {"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionSet.java"
-            line="605"
-            column="32"/>
+            file="src/main/java/androidx/transition/TransitionSet.java"/>
     </issue>
 
     <issue
@@ -1745,9 +1429,7 @@
         errorLine1="    public void setEpicenterCallback(EpicenterCallback epicenterCallback) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionSet.java"
-            line="615"
-            column="38"/>
+            file="src/main/java/androidx/transition/TransitionSet.java"/>
     </issue>
 
     <issue
@@ -1756,9 +1438,7 @@
         errorLine1="    public Transition clone() {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionSet.java"
-            line="634"
-            column="12"/>
+            file="src/main/java/androidx/transition/TransitionSet.java"/>
     </issue>
 
     <issue
@@ -1767,9 +1447,7 @@
         errorLine1="    public View view;"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/transition/TransitionValues.java"
-            line="65"
-            column="12"/>
+            file="src/main/java/androidx/transition/TransitionValues.java"/>
     </issue>
 
     <issue
@@ -1778,9 +1456,7 @@
         errorLine1="    public boolean isVisible(TransitionValues values) {"
         errorLine2="                             ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="183"
-            column="30"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1789,9 +1465,7 @@
         errorLine1="    public Animator onAppear(ViewGroup sceneRoot, TransitionValues startValues, int startVisibility,"
         errorLine2="                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="282"
-            column="30"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1800,9 +1474,7 @@
         errorLine1="    public Animator onAppear(ViewGroup sceneRoot, TransitionValues startValues, int startVisibility,"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="282"
-            column="51"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1811,9 +1483,7 @@
         errorLine1="            TransitionValues endValues, int endVisibility) {"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="283"
-            column="13"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1822,9 +1492,7 @@
         errorLine1="    public Animator onAppear(ViewGroup sceneRoot, View view, TransitionValues startValues,"
         errorLine2="                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="319"
-            column="30"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1833,9 +1501,7 @@
         errorLine1="    public Animator onAppear(ViewGroup sceneRoot, View view, TransitionValues startValues,"
         errorLine2="                                                  ~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="319"
-            column="51"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1844,9 +1510,7 @@
         errorLine1="    public Animator onAppear(ViewGroup sceneRoot, View view, TransitionValues startValues,"
         errorLine2="                                                             ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="319"
-            column="62"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1855,9 +1519,7 @@
         errorLine1="            TransitionValues endValues) {"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="320"
-            column="13"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1866,9 +1528,7 @@
         errorLine1="    public Animator onDisappear(ViewGroup sceneRoot, TransitionValues startValues,"
         errorLine2="                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="341"
-            column="33"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1877,9 +1537,7 @@
         errorLine1="    public Animator onDisappear(ViewGroup sceneRoot, TransitionValues startValues,"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="341"
-            column="54"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1888,9 +1546,7 @@
         errorLine1="            int startVisibility, TransitionValues endValues, int endVisibility) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="342"
-            column="34"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1899,9 +1555,7 @@
         errorLine1="    public Animator onDisappear(ViewGroup sceneRoot, View view, TransitionValues startValues,"
         errorLine2="                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="504"
-            column="33"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1910,9 +1564,7 @@
         errorLine1="    public Animator onDisappear(ViewGroup sceneRoot, View view, TransitionValues startValues,"
         errorLine2="                                                     ~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="504"
-            column="54"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1921,9 +1573,7 @@
         errorLine1="    public Animator onDisappear(ViewGroup sceneRoot, View view, TransitionValues startValues,"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="504"
-            column="65"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1932,9 +1582,7 @@
         errorLine1="            TransitionValues endValues) {"
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/Visibility.java"
-            line="505"
-            column="13"/>
+            file="src/main/java/androidx/transition/Visibility.java"/>
     </issue>
 
     <issue
@@ -1943,9 +1591,7 @@
         errorLine1="    public void captureValues(TransitionValues transitionValues) {"
         errorLine2="                              ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/VisibilityPropagation.java"
-            line="44"
-            column="31"/>
+            file="src/main/java/androidx/transition/VisibilityPropagation.java"/>
     </issue>
 
     <issue
@@ -1954,9 +1600,7 @@
         errorLine1="    public String[] getPropagationProperties() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/VisibilityPropagation.java"
-            line="61"
-            column="12"/>
+            file="src/main/java/androidx/transition/VisibilityPropagation.java"/>
     </issue>
 
     <issue
@@ -1965,9 +1609,7 @@
         errorLine1="    public int getViewVisibility(TransitionValues values) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/VisibilityPropagation.java"
-            line="72"
-            column="34"/>
+            file="src/main/java/androidx/transition/VisibilityPropagation.java"/>
     </issue>
 
     <issue
@@ -1976,9 +1618,7 @@
         errorLine1="    public int getViewX(TransitionValues values) {"
         errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/VisibilityPropagation.java"
-            line="90"
-            column="25"/>
+            file="src/main/java/androidx/transition/VisibilityPropagation.java"/>
     </issue>
 
     <issue
@@ -1987,9 +1627,7 @@
         errorLine1="    public int getViewY(TransitionValues values) {"
         errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/transition/VisibilityPropagation.java"
-            line="101"
-            column="25"/>
+            file="src/main/java/androidx/transition/VisibilityPropagation.java"/>
     </issue>
 
 </issues>

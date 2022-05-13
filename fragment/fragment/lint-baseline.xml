@@ -7,9 +7,7 @@
         errorLine1="                    animator = AnimatorInflater.loadAnimator(context, nextAnim);"
         errorLine2="                                                                      ~~~~~~~~">
         <location
-            file="src/main/java/androidx/fragment/app/FragmentAnim.java"
-            line="99"
-            column="71"/>
+            file="src/main/java/androidx/fragment/app/FragmentAnim.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    assertThat(fragment.enterTransition.enteringTargets).isEmpty()"
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
-            line="157"
-            column="25"/>
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    assertThat(fragment.enterTransition.enteringTargets).isEmpty()"
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
-            line="157"
-            column="41"/>
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    assertThat(fragment.enterTransition.exitingTargets).isEmpty()"
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
-            line="158"
-            column="25"/>
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    assertThat(fragment.enterTransition.exitingTargets).isEmpty()"
         errorLine2="                                        ~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
-            line="158"
-            column="41"/>
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    assertThat(fragment.exitTransition.enteringTargets).isEmpty()"
         errorLine2="                                       ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
-            line="159"
-            column="40"/>
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    assertThat(fragment.exitTransition.enteringTargets).isEmpty()"
         errorLine2="                        ~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
-            line="159"
-            column="25"/>
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    assertThat(fragment.exitTransition.exitingTargets).isEmpty()"
         errorLine2="                        ~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"
-            line="160"
-            column="25"/>
+            file="src/androidTest/java/androidx/fragment/app/FragmentTestUtil.kt"/>
     </issue>
 
     <issue

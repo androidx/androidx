@@ -7,9 +7,7 @@
         errorLine1="            mGridView.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);"
         errorLine2="                      ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/leanback/widget/GridActivity.java"
-            line="130"
-            column="23"/>
+            file="src/androidTest/java/androidx/leanback/widget/GridActivity.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                viewGroup.setLayoutMode(ViewGroup.LAYOUT_MODE_OPTICAL_BOUNDS);"
         errorLine2="                          ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/leanback/widget/GridActivity.java"
-            line="461"
-            column="27"/>
+            file="src/androidTest/java/androidx/leanback/widget/GridActivity.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                    getActivity().enterPictureInPictureMode();"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/leanback/app/PlaybackTestFragment.java"
-            line="104"
-            column="35"/>
+            file="src/androidTest/java/androidx/leanback/app/PlaybackTestFragment.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                    getActivity().enterPictureInPictureMode();"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/leanback/app/PlaybackTestSupportFragment.java"
-            line="101"
-            column="35"/>
+            file="src/androidTest/java/androidx/leanback/app/PlaybackTestSupportFragment.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="            if (!Objects.equals(mPreviousQuery, newQuery)) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/leanback/app/SearchFragmentTest.java"
-            line="245"
-            column="26"/>
+            file="src/androidTest/java/androidx/leanback/app/SearchFragmentTest.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            if (!Objects.equals(mPreviousQuery, query)) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/leanback/app/SearchFragmentTest.java"
-            line="256"
-            column="26"/>
+            file="src/androidTest/java/androidx/leanback/app/SearchFragmentTest.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="            if (!Objects.equals(mPreviousQuery, newQuery)) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/leanback/app/SearchSupportFragmentTest.java"
-            line="242"
-            column="26"/>
+            file="src/androidTest/java/androidx/leanback/app/SearchSupportFragmentTest.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="            if (!Objects.equals(mPreviousQuery, query)) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/leanback/app/SearchSupportFragmentTest.java"
-            line="253"
-            column="26"/>
+            file="src/androidTest/java/androidx/leanback/app/SearchSupportFragmentTest.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="                mPlaybackSpeed = -PLAYBACK_SPEED_FAST_L0;"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"
-            line="431"
-            column="34"/>
+            file="src/main/java/androidx/leanback/media/PlaybackBannerControlGlue.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="                drawable.setAlpha(view.getBackground().getAlpha());"
         errorLine2="                                                       ~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/widget/BackgroundHelper.java"
-            line="35"
-            column="56"/>
+            file="src/main/java/androidx/leanback/widget/BackgroundHelper.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="            yearPattern = android.text.format.DateFormat.getBestDateTimePattern(mConstant.locale,"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"
-            line="144"
-            column="58"/>
+            file="src/main/java/androidx/leanback/widget/picker/DatePicker.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="            return view.getForeground();"
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/widget/ForegroundHelper.java"
-            line="17"
-            column="25"/>
+            file="src/main/java/androidx/leanback/widget/ForegroundHelper.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="            view.setForeground(drawable);"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/widget/ForegroundHelper.java"
-            line="25"
-            column="18"/>
+            file="src/main/java/androidx/leanback/widget/ForegroundHelper.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="            return fragment.getContext();"
         errorLine2="                            ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/app/FragmentUtil.java"
-            line="25"
-            column="29"/>
+            file="src/main/java/androidx/leanback/app/FragmentUtil.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="                    vh.mTitleView.setAutofillHints(action.getAutofillHints());"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="698"
-            column="35"/>
+            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="                    vh.mTitleView.setAutofillHints((String[]) null);"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="700"
-            column="35"/>
+            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="                vh.mTitleView.setImportantForAutofill(View.IMPORTANT_FOR_AUTOFILL_NO);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="704"
-            column="31"/>
+            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="                    vh.mDescriptionView.setAutofillHints(action.getAutofillHints());"
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="719"
-            column="41"/>
+            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="                    vh.mDescriptionView.setAutofillHints((String[]) null);"
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"
-            line="721"
-            column="41"/>
+            file="src/main/java/androidx/leanback/widget/GuidedActionsStylist.java"/>
     </issue>
 
     <issue

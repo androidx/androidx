@@ -7,9 +7,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="68"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="73"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="79"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="84"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="89"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="94"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="99"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="114"
-            column="9"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="119"
-            column="9"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="124"
-            column="9"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="137"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="65"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="71"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"/>
     </issue>
 
     <issue

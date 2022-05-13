@@ -7,9 +7,7 @@
         errorLine1="                throw AssertionError(&quot;Block hit bad state $n times&quot;, e)"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/viewpager2/widget/BaseTest.kt"
-            line="737"
-            column="23"/>
+            file="src/androidTest/java/androidx/viewpager2/widget/BaseTest.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                v.setHasTransientState(true)"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/viewpager2/widget/TransientStateFragmentTest.kt"
-            line="76"
-            column="19"/>
+            file="src/androidTest/java/androidx/viewpager2/widget/TransientStateFragmentTest.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        return mLayoutManager.getOrientation();"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="582"
-            column="16"/>
+            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
-            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="183"
-            column="9"/>
+            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="            super(source, loader);"
         errorLine2="            ~~~~~">
         <location
-            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"
-            line="393"
-            column="13"/>
+            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"/>
     </issue>
 
 </issues>

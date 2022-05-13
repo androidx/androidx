@@ -7,9 +7,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/remotecallback/compiler/RemoteCallbackProcessor.java"
-            line="54"
-            column="5"/>
+            file="src/main/java/androidx/remotecallback/compiler/RemoteCallbackProcessor.java"/>
     </issue>
 
 </issues>

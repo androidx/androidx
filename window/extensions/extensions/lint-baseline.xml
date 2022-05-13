@@ -7,9 +7,7 @@
         errorLine1="        mRootViewId = View.generateViewId();"
         errorLine2="                           ~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/window/extensions/TestActivity.java"
-            line="37"
-            column="28"/>
+            file="src/androidTest/java/androidx/window/extensions/TestActivity.java"/>
     </issue>
 
 </issues>

@@ -7,9 +7,7 @@
         errorLine1="                    anim1X.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
         errorLine2="                                                                                ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="87"
-            column="81"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                    anim1X.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
         errorLine2="                                                    ~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="87"
-            column="53"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                    anim1Y.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
         errorLine2="                                                                                ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="88"
-            column="81"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                    anim1Y.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
         errorLine2="                                                    ~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="88"
-            column="53"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                    anim2X.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
         errorLine2="                                                                                ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="89"
-            column="81"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                    anim2X.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
         errorLine2="                                                    ~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="89"
-            column="53"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                    anim2Y.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
         errorLine2="                                                                                ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="90"
-            column="81"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                    anim2Y.getSpring().setStiffness(mStiffness).setDampingRatio(mDampingRatio);"
         errorLine2="                                                    ~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="90"
-            column="53"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="                    mDampingRatio = i / 80.0f;"
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="126"
-            column="21"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="                    mDampingRatio = (float) Math.exp((i - 90) / 10.0);"
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="128"
-            column="21"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="                    mDampingRatio = 1;"
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="130"
-            column="21"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="                drTxt.setText(String.format(&quot;%.4f&quot;, (float) mDampingRatio));"
         errorLine2="                                                            ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="132"
-            column="61"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="                mStiffness = stiffness;"
         errorLine2="                ~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="153"
-            column="17"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="                mSpringView.setMassHeight(img.getY());"
         errorLine2="                ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="54"
-            column="17"/>
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="                    mSpringView.setMassHeight(img.getY());"
         errorLine2="                    ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="86"
-            column="21"/>
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="                    anim.getSpring().setDampingRatio(mDampingRatio).setStiffness(mStiffness);"
         errorLine2="                                                     ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="92"
-            column="54"/>
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="                    anim.getSpring().setDampingRatio(mDampingRatio).setStiffness(mStiffness);"
         errorLine2="                                                                                 ~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="92"
-            column="82"/>
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="                    mDampingRatio = i / 80.0f;"
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="110"
-            column="21"/>
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="                    mDampingRatio = (float) Math.exp((i - 90) / 10.0);"
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="112"
-            column="21"/>
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="                    mDampingRatio = 1;"
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="114"
-            column="21"/>
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="                drTxt.setText(String.format(&quot;%.4f&quot;, (float) mDampingRatio));"
         errorLine2="                                                            ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="116"
-            column="61"/>
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="                mStiffness = stiffness;"
         errorLine2="                ~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="137"
-            column="17"/>
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
-            line="42"
-            column="26"/>
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
-            line="59"
-            column="15"/>
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
         errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
-            line="59"
-            column="49"/>
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
         errorLine2="              ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
-            line="125"
-            column="15"/>
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
         errorLine2="                                    ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
-            line="125"
-            column="37"/>
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
         errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
-            line="125"
-            column="49"/>
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="    protected Intent browseIntent(String path) {"
         errorLine2="              ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
-            line="131"
-            column="15"/>
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="    protected Intent browseIntent(String path) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
-            line="131"
-            column="35"/>
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
-            line="138"
-            column="28"/>
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
         errorLine2="                                                           ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
-            line="138"
-            column="60"/>
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
         errorLine2="                                                                        ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"
-            line="138"
-            column="73"/>
+            file="src/main/java/com/example/android/support/animation/BrowseActivity.java"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/MainActivity.java"
-            line="38"
-            column="29"/>
+            file="src/main/java/com/example/android/support/animation/MainActivity.java"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/SpringActivity.java"
-            line="40"
-            column="29"/>
+            file="src/main/java/com/example/android/support/animation/SpringActivity.java"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="    public SpringView(Context context, AttributeSet attrs) {"
         errorLine2="                      ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/SpringView.java"
-            line="32"
-            column="23"/>
+            file="src/main/java/com/example/android/support/animation/SpringView.java"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="    public SpringView(Context context, AttributeSet attrs) {"
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/animation/SpringView.java"
-            line="32"
-            column="40"/>
+            file="src/main/java/com/example/android/support/animation/SpringView.java"/>
     </issue>
 
 </issues>

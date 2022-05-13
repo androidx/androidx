@@ -7,9 +7,7 @@
         errorLine1="                    pushDirectShareTargets();"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/sharetarget/testapp/MainActivity.java"
-            line="58"
-            column="21"/>
+            file="src/main/java/androidx/sharetarget/testapp/MainActivity.java"/>
     </issue>
 
     <issue
