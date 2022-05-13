@@ -49,6 +49,7 @@ import androidx.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.ListenableFuturePagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxJava3PagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
 import androidx.room.solver.query.parameter.CollectionQueryParameterAdapter
 import androidx.room.solver.query.result.MultiTypedPagingSourceQueryResultBinder
@@ -547,6 +548,29 @@ class TypeAdapterStoreTest {
     }
 
     @Test
+    fun testMissingRoomPagingRx3() {
+        runProcessorTest(
+            sources = listOf(COMMON.RX3_PAGING_SOURCE)
+        ) { invocation ->
+            val rx3PagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingTypeNames.RX3_PAGING_SOURCE)
+            val intType = invocation.processingEnv.requireType(Integer::class)
+            val rx3PagingSourceIntIntType = invocation.processingEnv
+                .getDeclaredType(rx3PagingSourceElement, intType, intType)
+
+            assertThat(rx3PagingSourceElement, notNullValue())
+            assertThat(
+                RxJava3PagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(rx3PagingSourceIntIntType),
+                `is`(true)
+            )
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT)
+            }
+        }
+    }
+
+    @Test
     fun testFindPublisher() {
         listOf(
             COMMON.RX2_FLOWABLE to COMMON.RX2_ROOM,
@@ -932,6 +956,52 @@ class TypeAdapterStoreTest {
     }
 
     @Test
+    fun findRx3PagingSourceJavaCollectionValue() {
+        runProcessorTest(
+            sources = listOf(COMMON.RX3_PAGING_SOURCE)
+        ) { invocation ->
+            val rx3PagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingTypeNames.RX3_PAGING_SOURCE)
+            val intType = invocation.processingEnv.requireType(Integer::class)
+            val collectionType = invocation.processingEnv.requireType("java.util.Collection")
+            val rx3PagingSourceIntCollectionType = invocation.processingEnv
+                .getDeclaredType(rx3PagingSourceElement, intType, collectionType)
+
+            assertThat(rx3PagingSourceElement).isNotNull()
+            assertThat(
+                RxJava3PagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(rx3PagingSourceIntCollectionType)
+            ).isTrue()
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE)
+            }
+        }
+    }
+
+    @Test
+    fun findRx3PagingSourceKotlinCollectionValue() {
+        runProcessorTest(
+            sources = listOf(COMMON.RX3_PAGING_SOURCE)
+        ) { invocation ->
+            val rx3PagingSourceElement = invocation.processingEnv
+                .requireTypeElement(PagingTypeNames.RX3_PAGING_SOURCE)
+            val intType = invocation.processingEnv.requireType(Integer::class)
+            val kotlinCollectionType = invocation.processingEnv.requireType(Collection::class)
+            val rx3PagingSourceIntCollectionType = invocation.processingEnv
+                .getDeclaredType(rx3PagingSourceElement, intType, kotlinCollectionType)
+
+            assertThat(rx3PagingSourceElement).isNotNull()
+            assertThat(
+                RxJava3PagingSourceQueryResultBinderProvider(invocation.context)
+                    .matches(rx3PagingSourceIntCollectionType)
+            ).isTrue()
+            invocation.assertCompilationResult {
+                hasError(ProcessorErrors.PAGING_SPECIFY_PAGING_SOURCE_VALUE_TYPE)
+            }
+        }
+    }
+
+    @Test
     fun testPagingSourceBinder() {
         val inputSource =
             Source.java(
@@ -1034,6 +1104,54 @@ class TypeAdapterStoreTest {
                 .filterIsInstance<ReadQueryMethod>().first().returnType.rawType
             // make sure the actual returned type from Provider is ListenableFuturePagingSource
             assertThat(returnedXRawType).isEqualTo(listenableFuturePagingSourceXRawType)
+        }
+    }
+
+    @Test
+    fun testRx3PagingSourceBinder() {
+        val inputSource =
+            Source.java(
+                qName = "foo.bar.MyDao",
+                code =
+                """
+                ${DaoProcessorTest.DAO_PREFIX}
+
+                @Dao abstract class MyDao {
+                    @Query("SELECT uid FROM User")
+                    abstract androidx.paging.rxjava3.RxPagingSource<Integer, User> getAllIds();
+                }
+                    """.trimIndent()
+            )
+        runProcessorTest(
+            sources = listOf(
+                inputSource,
+                COMMON.USER,
+                COMMON.RX3_PAGING_SOURCE,
+                COMMON.LIMIT_OFFSET_RX3_PAGING_SOURCE,
+            ),
+        ) { invocation: XTestInvocation ->
+            val dao = invocation.roundEnv
+                .getElementsAnnotatedWith(
+                    Dao::class.qualifiedName!!
+                ).first()
+            check(dao.isTypeElement())
+            val dbType = invocation.context.processingEnv
+                .requireType(RoomTypeNames.ROOM_DB)
+            val parser = DaoProcessor(
+                invocation.context,
+                dao, dbType, null,
+            )
+            val parsedDao = parser.process()
+            val binder = parsedDao.queryMethods.filterIsInstance<ReadQueryMethod>()
+                .first().queryResultBinder
+
+            assertThat(binder is MultiTypedPagingSourceQueryResultBinder).isTrue()
+            val rxPagingSourceXRawType: XRawType? = invocation.context.processingEnv
+                .findType(PagingTypeNames.RX3_PAGING_SOURCE)?.rawType
+            val returnedXRawType = parsedDao.queryMethods
+                .filterIsInstance<ReadQueryMethod>().first().returnType.rawType
+            // make sure the actual returned type from Provider is a RxPagingSource
+            assertThat(returnedXRawType).isEqualTo(rxPagingSourceXRawType)
         }
     }
 

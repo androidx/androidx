@@ -30,6 +30,7 @@ import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.RoomPagingGuavaTypeNames
+import androidx.room.ext.RoomPagingRx3TypeNames
 import androidx.room.ext.RoomPagingTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
@@ -244,6 +245,20 @@ object COMMON {
         loadJavaCode(
             "common/input/LimitOffsetListenableFuturePagingSource.java",
             RoomPagingGuavaTypeNames.LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE.toString()
+        )
+    }
+
+    val RX3_PAGING_SOURCE by lazy {
+        loadJavaCode(
+            "common/input/Rx3PagingSource.java",
+            PagingTypeNames.RX3_PAGING_SOURCE.toString()
+        )
+    }
+
+    val LIMIT_OFFSET_RX3_PAGING_SOURCE by lazy {
+        loadJavaCode(
+            "common/input/LimitOffsetRx3PagingSource.java",
+            RoomPagingRx3TypeNames.LIMIT_OFFSET_RX_PAGING_SOURCE.toString()
         )
     }
 
