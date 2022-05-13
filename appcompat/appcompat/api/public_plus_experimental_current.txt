@@ -428,6 +428,7 @@ package androidx.appcompat.widget {
   public class ActionMenuView extends androidx.appcompat.widget.LinearLayoutCompat {
     ctor public ActionMenuView(android.content.Context);
     ctor public ActionMenuView(android.content.Context, android.util.AttributeSet?);
+    method public void attachViewToParent(android.view.View?, int, android.view.ViewGroup.LayoutParams?);
     method public void dismissPopupMenus();
     method protected androidx.appcompat.widget.ActionMenuView.LayoutParams! generateDefaultLayoutParams();
     method public androidx.appcompat.widget.ActionMenuView.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
@@ -439,6 +440,7 @@ package androidx.appcompat.widget {
     method public boolean isOverflowMenuShowing();
     method public void onConfigurationChanged(android.content.res.Configuration!);
     method public void onDetachedFromWindow();
+    method public void setIconTint(android.content.res.ColorStateList?);
     method public void setOnMenuItemClickListener(androidx.appcompat.widget.ActionMenuView.OnMenuItemClickListener!);
     method public void setOverflowIcon(android.graphics.drawable.Drawable?);
     method public void setPopupTheme(@StyleRes int);
@@ -989,6 +991,7 @@ package androidx.appcompat.widget {
     method public void setContentInsetStartWithNavigation(int);
     method public void setContentInsetsAbsolute(int, int);
     method public void setContentInsetsRelative(int, int);
+    method public void setIconTint(android.content.res.ColorStateList?);
     method public void setLogo(@DrawableRes int);
     method public void setLogo(android.graphics.drawable.Drawable!);
     method public void setLogoDescription(@StringRes int);
