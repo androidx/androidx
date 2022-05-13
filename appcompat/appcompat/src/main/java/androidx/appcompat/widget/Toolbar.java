@@ -155,6 +155,7 @@ public class Toolbar extends ViewGroup implements MenuHost {
     private static final String TAG = "Toolbar";
 
     private ActionMenuView mMenuView;
+    private ColorStateList mMenuViewTint;
     private TextView mTitleTextView;
     private TextView mSubtitleTextView;
     private ImageButton mNavButtonView;
@@ -364,6 +365,17 @@ public class Toolbar extends ViewGroup implements MenuHost {
         }
 
         a.recycle();
+    }
+
+    /**
+     * Set the tint for all icons in the toolbar's menu.
+     * @param iconTintList tint to be applied to all menu items
+     */
+    public void setIconTint(@Nullable ColorStateList iconTintList) {
+        mMenuViewTint = iconTintList;
+        if (mMenuView != null) {
+            mMenuView.setIconTint(iconTintList);
+        }
     }
 
     /**
@@ -1203,6 +1215,9 @@ public class Toolbar extends ViewGroup implements MenuHost {
             lp.gravity = GravityCompat.END | (mButtonGravity & Gravity.VERTICAL_GRAVITY_MASK);
             mMenuView.setLayoutParams(lp);
             addSystemView(mMenuView, false);
+            if (mMenuViewTint != null) {
+                mMenuView.setIconTint(mMenuViewTint);
+            }
         }
     }
 
