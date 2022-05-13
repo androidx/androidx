@@ -48,7 +48,8 @@ enum class Warning(val publicKey: String) {
     // expand projection is removed.
     EXPAND_PROJECTION_WITH_REMOVE_UNUSED_COLUMNS("ROOM_EXPAND_PROJECTION_WITH_UNUSED_COLUMNS"),
     // We shouldn't let devs suppress this error via Room so there is no runtime constant for it
-    JVM_NAME_ON_OVERRIDDEN_METHOD("ROOM_JVM_NAME_IN_OVERRIDDEN_METHOD");
+    JVM_NAME_ON_OVERRIDDEN_METHOD("ROOM_JVM_NAME_IN_OVERRIDDEN_METHOD"),
+    AMBIGUOUS_COLUMN_IN_RESULT("ROOM_AMBIGUOUS_COLUMN_IN_RESULT");
 
     companion object {
         val PUBLIC_KEY_MAP = values().associateBy { it.publicKey }

@@ -18,17 +18,29 @@ package androidx.room.solver.query.result
 
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
+import androidx.room.vo.ColumnIndexVar
 
 /**
- * Converts a row of a cursor result into an Entity or a primitive.
- * <p>
+ * Converts a row of a cursor result into an object or a primitive.
+ *
  * An instance of this is created for each usage so that it can keep local variables.
  */
 abstract class RowAdapter(val out: XType) {
+
     /**
-     * Called when cursor variable is ready, good place to put initialization code.
+     * Called when cursor variable along with column indices variables are ready.
+     *
+     * @param indices the list of index variables to use when getting columns from the cursor to
+     * convert the row.
+     * @param cursorVarName the name of the cursor local variable
      */
-    open fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {}
+    open fun onCursorReady(
+        indices: List<ColumnIndexVar> =
+            getDefaultIndexAdapter().apply { onCursorReady(cursorVarName, scope) }.getIndexVars(),
+        cursorVarName: String,
+        scope: CodeGenScope
+    ) {
+    }
 
     /**
      * Called to convert a single row.
@@ -36,8 +48,7 @@ abstract class RowAdapter(val out: XType) {
     abstract fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope)
 
     /**
-     * Called when the cursor is finished. It is important to return null if no operation is
-     * necessary so that caller can understand that we can do lazy loading.
+     * Gets the default index adapter for the implementation
      */
-    open fun onCursorFinished(): ((scope: CodeGenScope) -> Unit)? = null
+    abstract fun getDefaultIndexAdapter(): IndexAdapter
 }

@@ -264,6 +264,7 @@ package androidx.room.util {
     method public static int getColumnIndex(android.database.Cursor c, String name);
     method public static int getColumnIndexOrThrow(android.database.Cursor c, String name);
     method public static inline <R> R! useCursor(android.database.Cursor, kotlin.jvm.functions.Function1<? super android.database.Cursor,? extends R> block);
+    method public static android.database.Cursor wrapMappedColumns(android.database.Cursor cursor, String![] columnNames, int[] mapping);
   }
 
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class DBUtil {
