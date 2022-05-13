@@ -58,7 +58,6 @@ jobs:
         run: |
           set -x
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
-          echo "ANDROID_NDK_ROOT=$ANDROID_NDK_LATEST_HOME" >> $GITHUB_ENV
 
       - name: "Checkout androidx repo"
         uses: actions/checkout@v2
