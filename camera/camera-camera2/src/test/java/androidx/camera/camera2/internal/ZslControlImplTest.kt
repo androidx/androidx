@@ -67,7 +67,6 @@ public class ZslControlImplTest {
         zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
 
         assertThat(zslControl.mReprocessingImageReader).isNotNull()
-        assertThat(zslControl.mReprocessingImageWriter).isNull()
         assertThat(zslControl.mReprocessingImageReader.imageFormat).isEqualTo(YUV_420_888)
         assertThat(zslControl.mReprocessingImageReader.maxImages).isEqualTo(
             MAX_IMAGES)
@@ -86,7 +85,6 @@ public class ZslControlImplTest {
         zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
 
         assertThat(zslControl.mReprocessingImageReader).isNotNull()
-        assertThat(zslControl.mReprocessingImageWriter).isNull()
         assertThat(zslControl.mReprocessingImageReader.imageFormat).isEqualTo(PRIVATE)
         assertThat(zslControl.mReprocessingImageReader.maxImages).isEqualTo(
             MAX_IMAGES)
@@ -105,7 +103,6 @@ public class ZslControlImplTest {
         zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
 
         assertThat(zslControl.mReprocessingImageReader).isNull()
-        assertThat(zslControl.mReprocessingImageWriter).isNull()
     }
 
     @Test
@@ -120,22 +117,25 @@ public class ZslControlImplTest {
         zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
 
         assertThat(zslControl.mReprocessingImageReader).isNull()
-        assertThat(zslControl.mReprocessingImageWriter).isNull()
     }
 
     @Test
-    public fun isZslDisabledByFlashMode_NotAddZslConfig() {
+    public fun isZslDisabledByFlashMode_addZslConfig() {
         zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
             hasCapabilities = true,
             isYuvReprocessingSupported = false,
-            isPrivateReprocessingSupported = false
+            isPrivateReprocessingSupported = true
         ))
         zslControl.isZslDisabledByFlashMode = true
 
         zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
 
-        assertThat(zslControl.mReprocessingImageReader).isNull()
-        assertThat(zslControl.mReprocessingImageWriter).isNull()
+        assertThat(zslControl.mReprocessingImageReader).isNotNull()
+        assertThat(zslControl.mReprocessingImageReader.imageFormat).isEqualTo(PRIVATE)
+        assertThat(zslControl.mReprocessingImageReader.maxImages).isEqualTo(
+            MAX_IMAGES)
+        assertThat(zslControl.mImageRingBuffer.maxCapacity).isEqualTo(
+            RING_BUFFER_CAPACITY)
     }
 
     @Test
@@ -148,11 +148,10 @@ public class ZslControlImplTest {
 
         zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
 
-        zslControl.isZslDisabledByFlashMode = true
+        zslControl.isZslDisabledByUserCaseConfig = true
         zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
 
         assertThat(zslControl.mReprocessingImageReader).isNull()
-        assertThat(zslControl.mReprocessingImageWriter).isNull()
     }
 
     private fun createCameraCharacteristicsCompat(
