@@ -209,6 +209,10 @@ package androidx.core.app {
     method @Deprecated public void setInterruptIfStopped(boolean);
   }
 
+  public final class LocaleManagerCompat {
+    method @AnyThread public static androidx.core.os.LocaleListCompat getSystemLocales(android.content.Context);
+  }
+
   public final class MultiWindowModeChangedInfo {
     ctor public MultiWindowModeChangedInfo(boolean);
     ctor @RequiresApi(26) public MultiWindowModeChangedInfo(boolean, android.content.res.Configuration);
