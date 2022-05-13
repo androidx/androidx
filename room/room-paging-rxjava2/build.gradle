@@ -22,11 +22,33 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    api('androidx.paging:paging-rxjava2:3.1.1')
+    implementation(project(":room:room-paging"))
+    implementation(project(":room:room-rxjava2"))
+
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.testExtJunitKtx)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.kotlinTestJunit) //
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.kotlinCoroutinesRx2)
+    androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
+    androidTestImplementation(project(":internal-testutils-common"))
+    kspAndroidTest(
+            project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
+    )
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+    }
 }
 
 androidx {
