@@ -300,7 +300,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
     }
 
     @Override
-    protected boolean onStateChange(int[] state) {
+    protected boolean onStateChange(@NonNull int[] state) {
         if (mLastDrawable != null) {
             return mLastDrawable.setState(state);
         }

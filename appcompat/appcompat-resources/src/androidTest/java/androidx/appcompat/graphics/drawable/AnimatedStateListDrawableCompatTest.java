@@ -30,6 +30,7 @@ import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.util.StateSet;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.resources.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -39,9 +40,7 @@ import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
 import java.util.HashSet;
 
 @MediumTest
@@ -71,9 +70,10 @@ public class AnimatedStateListDrawableCompatTest {
         assertEquals(0, asld.getStateCount());
 
         try {
+            //noinspection ConstantConditions
             asld.addState(StateSet.WILD_CARD, null, R.id.focused);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
+            fail("Expected NullPointerException");
+        } catch (NullPointerException e) {
             // Expected.
         }
 
@@ -96,9 +96,10 @@ public class AnimatedStateListDrawableCompatTest {
         asld.addState(StateSet.WILD_CARD, unfocused, R.id.unfocused);
 
         try {
+            //noinspection ConstantConditions
             asld.addTransition(R.id.focused, R.id.focused, null, false);
-            fail("Expected IllegalArgumentException");
-        } catch (IllegalArgumentException e) {
+            fail("Expected NullPointerException");
+        } catch (NullPointerException e) {
             // Expected.
         }
 
@@ -145,9 +146,10 @@ public class AnimatedStateListDrawableCompatTest {
     }
 
     @Test
-    public void testAnimationDrawableTransition() throws XmlPullParserException, IOException {
+    public void testAnimationDrawableTransition() {
         AnimatedStateListDrawableCompat asld = AnimatedStateListDrawableCompat.create(mContext,
                 R.drawable.animated_state_list_density, mContext.getTheme());
+        assertNotNull(asld);
         assertTrue(asld.isVisible());
         // Missing public API to verify these.
         //assertFalse(asld.isConstantSize());
@@ -161,6 +163,7 @@ public class AnimatedStateListDrawableCompatTest {
         AnimatedStateListDrawableCompat asld = AnimatedStateListDrawableCompat.create(mContext,
                 R.drawable.asl_heart, mContext.getTheme());
         // Check that 4 drawables were parsed
+        assertNotNull(asld);
         assertEquals(4, asld.getStateCount());
     }
 
@@ -169,6 +172,7 @@ public class AnimatedStateListDrawableCompatTest {
         AnimatedStateListDrawableCompat asld = AnimatedStateListDrawableCompat.create(mContext,
                 R.drawable.animated_state_list_with_avd, mContext.getTheme());
         // Check that 6 drawables were parsed
+        assertNotNull(asld);
         assertEquals(6, asld.getStateCount());
     }
 
@@ -177,6 +181,7 @@ public class AnimatedStateListDrawableCompatTest {
         AnimatedStateListDrawableCompat asld = AnimatedStateListDrawableCompat.create(mContext,
                 R.drawable.asl_heart_embedded, mContext.getTheme());
         // Check that 4 drawables were parsed
+        assertNotNull(asld);
         assertEquals(4, asld.getStateCount());
     }
 
@@ -195,9 +200,10 @@ public class AnimatedStateListDrawableCompatTest {
         assertNull(asld.getConstantState());
     }
 
-    public class MockTransition extends MockDrawable implements Animatable,
+    @SuppressWarnings("NewClassNamingConvention")
+    static class MockTransition extends MockDrawable implements Animatable,
             Animatable2Compat {
-        private HashSet<AnimationCallback> mCallbacks = new HashSet<>();
+        private final HashSet<AnimationCallback> mCallbacks = new HashSet<>();
 
         @Override
         public void start() {
@@ -213,12 +219,12 @@ public class AnimatedStateListDrawableCompatTest {
         }
 
         @Override
-        public void registerAnimationCallback(AnimationCallback callback) {
+        public void registerAnimationCallback(@NonNull AnimationCallback callback) {
             mCallbacks.add(callback);
         }
 
         @Override
-        public boolean unregisterAnimationCallback(AnimationCallback callback) {
+        public boolean unregisterAnimationCallback(@NonNull AnimationCallback callback) {
             return mCallbacks.remove(callback);
         }
 
@@ -228,8 +234,8 @@ public class AnimatedStateListDrawableCompatTest {
         }
     }
 
-    @SuppressWarnings("deprecation")
-    public class MockDrawable extends Drawable {
+    @SuppressWarnings("NewClassNamingConvention")
+    static class MockDrawable extends Drawable {
         @Override
         public void draw(Canvas canvas) {
         }
