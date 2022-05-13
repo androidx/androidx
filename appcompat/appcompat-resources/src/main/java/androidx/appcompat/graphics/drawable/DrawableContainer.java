@@ -35,6 +35,7 @@ import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -173,6 +174,11 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
                 mCurrDrawable.setColorFilter(colorFilter);
             }
         }
+    }
+
+    @Override
+    public void setTint(@ColorInt int tintColor) {
+        setTintList(ColorStateList.valueOf(tintColor));
     }
 
     @Override

@@ -15,9 +15,13 @@
  */
 package androidx.appcompat.graphics.drawable
 
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,12 +40,39 @@ class DrawableContainerTest {
         MyDrawableContainerState(orig)
     }
 
-    internal inner class MyDrawableContainerState : DrawableContainer.DrawableContainerState {
+    @Test
+    fun testSetTint() {
+        val container = MyDrawableContainer()
+        container.setTint(Color.RED)
+
+        assertTrue(container.calledSetTintList)
+    }
+
+    internal class MyDrawableContainerState : DrawableContainer.DrawableContainerState {
         constructor() : super(null, null, null)
         constructor(orig: DrawableContainer.DrawableContainerState?) : super(orig, null, null)
 
+        init {
+            addChild(ColorDrawable(Color.WHITE))
+        }
+
         override fun newDrawable(): Drawable {
             return DrawableContainer()
+        }
+    }
+
+    internal class MyDrawableContainer : DrawableContainer() {
+        var calledSetTintList = false
+
+        init {
+            setConstantState(MyDrawableContainerState())
+            currentIndex = 0
+        }
+
+        override fun setTintList(tint: ColorStateList?) {
+            super.setTintList(tint)
+
+            calledSetTintList = true
         }
     }
 }

@@ -18,12 +18,20 @@ package androidx.testutils;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Provides null objects for testing.
+ */
 public class NullObject {
+    private NullObject() {
+        // This class is not instantiable.
+    }
+
     /**
      * Returns a null object pretending to be non-null.
      * <p>
      * Useful for testing handling of null parameters in Java code called from Kotlin tests.
      */
+    @SuppressWarnings("TypeParameterUnusedInFormals")
     @NonNull
     public static <T> T get() {
         //noinspection ConstantConditions

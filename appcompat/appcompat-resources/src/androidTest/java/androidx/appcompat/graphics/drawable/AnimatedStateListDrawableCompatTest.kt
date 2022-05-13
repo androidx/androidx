@@ -16,18 +16,23 @@
 package androidx.appcompat.graphics.drawable
 
 import android.content.Context
+import android.content.res.ColorStateList
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.ColorFilter
+import android.graphics.PorterDuff
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.util.StateSet
 import androidx.appcompat.resources.test.R
+import androidx.core.graphics.drawable.TintAwareDrawable
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.NullObject
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import org.junit.Assert
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -125,8 +130,8 @@ class AnimatedStateListDrawableCompatTest {
         Assert.assertNotNull(asld)
         Assert.assertTrue(asld!!.isVisible)
         // Missing public API to verify these.
-        //assertFalse(asld.isConstantSize());
-        //assertNull(asld.getConstantPadding());
+        // assertFalse(asld.isConstantSize());
+        // assertNull(asld.getConstantPadding());
         // Check that 4 drawables were parsed
         Assert.assertEquals(4, asld.stateCount.toLong())
     }
@@ -179,6 +184,21 @@ class AnimatedStateListDrawableCompatTest {
         Assert.assertNull(asld.constantState)
     }
 
+    /**
+     * Regression test for b/232529333 where setTint crashes with MethodNotFoundException when
+     * called prior to SDK 21. This test also ensures that setTintList() is called as expected on
+     * SDK 21 and higher.
+     */
+    @Test
+    fun testSetTint() {
+        val dr = MockDrawable()
+        val asld = AnimatedStateListDrawableCompat()
+        asld.addState(IntArray(0), dr)
+        asld.setTint(Color.RED)
+
+        assertTrue(dr.calledSetTintList)
+    }
+
     internal class MockTransition : MockDrawable(), Animatable,
         Animatable2Compat {
         private val mCallbacks = HashSet<Animatable2Compat.AnimationCallback>()
@@ -192,7 +212,9 @@ class AnimatedStateListDrawableCompatTest {
             mCallbacks.add(callback)
         }
 
-        override fun unregisterAnimationCallback(callback: Animatable2Compat.AnimationCallback): Boolean {
+        override fun unregisterAnimationCallback(
+            callback: Animatable2Compat.AnimationCallback
+        ): Boolean {
             return mCallbacks.remove(callback)
         }
 
@@ -201,7 +223,9 @@ class AnimatedStateListDrawableCompatTest {
         }
     }
 
-    internal open class MockDrawable : Drawable() {
+    internal open class MockDrawable : Drawable(), TintAwareDrawable {
+        var calledSetTintList = false
+
         override fun draw(canvas: Canvas) {}
 
         @Suppress("DeprecatedCallableAddReplaceWith")
@@ -212,6 +236,18 @@ class AnimatedStateListDrawableCompatTest {
 
         override fun setAlpha(alpha: Int) {}
         override fun setColorFilter(cf: ColorFilter?) {}
+
+        override fun setTint(tint: Int) {
+            // Do nothing.
+        }
+
+        override fun setTintList(tint: ColorStateList?) {
+            calledSetTintList = true
+        }
+
+        override fun setTintMode(tintMode: PorterDuff.Mode?) {
+            // Do nothing.
+        }
     }
 
     companion object {
