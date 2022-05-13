@@ -39,6 +39,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
+import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
@@ -90,6 +91,7 @@ import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.OutputConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.utils.OutputUtil;
+import androidx.camera.video.internal.workaround.CorrectNegativeLatLongForMediaMuxer;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
@@ -1536,8 +1538,11 @@ public final class Recorder implements VideoOutput {
             Location location = recordingToStart.getOutputOptions().getLocation();
             if (location != null) {
                 try {
-                    mediaMuxer.setLocation((float) location.getLatitude(),
-                            (float) location.getLongitude());
+                    Pair<Double, Double> geoLocation =
+                            CorrectNegativeLatLongForMediaMuxer.adjustGeoLocation(
+                                    location.getLatitude(), location.getLongitude());
+                    mediaMuxer.setLocation((float) geoLocation.first.doubleValue(),
+                            (float) geoLocation.second.doubleValue());
                 } catch (IllegalArgumentException e) {
                     mediaMuxer.release();
                     onInProgressRecordingInternalError(recordingToStart,
