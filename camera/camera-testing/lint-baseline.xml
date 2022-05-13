@@ -2,6 +2,28 @@
 <issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="    public boolean isZslSupported() {"
+        errorLine2="                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraInfoInternal.java"
+            line="196"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="        return false;"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraInfoInternal.java"
+            line="197"
+            column="16"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setAfMode(CameraCaptureMetaData.AfMode mode) {"
