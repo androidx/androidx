@@ -530,6 +530,7 @@ class MultiTypedPagingSourceTest(
         fun parameters() = listOf(
             PagingEntityDao::loadItems,
             PagingEntityDao::loadItemsListenableFuture,
+            PagingEntityDao::loadItemsRx2,
             PagingEntityDao::loadItemsRx3
         )
     }
@@ -737,6 +738,7 @@ class MultiTypedPagingSourceTestWithRawQuery(
         fun parameters() = listOf(
             PagingEntityDao::loadItemsRaw,
             PagingEntityDao::loadItemsRawListenableFuture,
+            PagingEntityDao::loadItemsRawRx2,
             PagingEntityDao::loadItemsRawRx3
         )
     }
