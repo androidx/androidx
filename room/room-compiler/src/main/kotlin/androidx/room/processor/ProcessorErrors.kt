@@ -147,25 +147,23 @@ object ProcessorErrors {
         " @Delete but does not have any parameters to delete."
 
     fun cannotMapInfoSpecifiedColumn(column: String, columnsInQuery: List<String>) =
-        "Column(s) specified in the provided @MapInfo annotation must be present in the query. " +
-            "Provided: $column. Columns Found: ${columnsInQuery.joinToString(", ")}"
+        "Column specified in the provided @MapInfo annotation must be present in the query. " +
+            "Provided: $column. Columns found: ${columnsInQuery.joinToString(", ")}"
 
     val MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED = "To use the @MapInfo annotation, you " +
         "must provide either the key column name, value column name, or both."
 
     fun keyMayNeedMapInfo(keyArg: TypeName): String {
         return """
-            Looks like you may need to use @MapInfo to clarify the 'keyColumnName' needed for
-            the return type of a method. Type argument that needs
-            @MapInfo: $keyArg
+            Looks like you may need to use @MapInfo to clarify the 'keyColumn' needed for
+            the return type of a method. Type argument that needs @MapInfo: $keyArg
             """.trim()
     }
 
     fun valueMayNeedMapInfo(valueArg: TypeName): String {
         return """
-            Looks like you may need to use @MapInfo to clarify the 'valueColumnName' needed for
-            the return type of a method. Type argument that needs
-            @MapInfo: $valueArg
+            Looks like you may need to use @MapInfo to clarify the 'valueColumn' needed for
+            the return type of a method. Type argument that needs @MapInfo: $valueArg
             """.trim()
     }
 
@@ -1033,4 +1031,34 @@ object ProcessorErrors {
     val JVM_NAME_ON_OVERRIDDEN_METHOD = "Using @JvmName annotation on a function or accessor " +
         "that will be overridden by Room is not supported. If this is important for your use " +
         "case, please file a bug at $ISSUE_TRACKER_LINK with details."
+
+    fun ambiguousColumn(
+        columnName: String,
+        location: AmbiguousColumnLocation,
+        typeName: TypeName?
+    ): String {
+        val (locationDesc, recommendation) = when (location) {
+            AmbiguousColumnLocation.MAP_INFO -> {
+                "in the @MapInfo" to "update @MapInfo"
+            }
+            AmbiguousColumnLocation.POJO -> {
+                checkNotNull(typeName)
+                "in the object '$typeName'" to "use @ColumnInfo"
+            }
+            AmbiguousColumnLocation.ENTITY -> {
+                checkNotNull(typeName)
+                "in the entity '$typeName'" to "use a new data class / POJO with @ColumnInfo'"
+            }
+        }
+        return "The column '$columnName' $locationDesc is ambiguous and cannot be properly " +
+            "resolved. Please alias the column and $recommendation. Otherwise there is a risk of " +
+            "the query returning invalid values. You can suppress this warning by annotating " +
+            "the method with @SuppressWarnings(RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)."
+    }
+
+    enum class AmbiguousColumnLocation {
+        MAP_INFO,
+        POJO,
+        ENTITY,
+    }
 }

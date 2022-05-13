@@ -194,6 +194,11 @@ public open class RoomWarnings {
          * method to write the value.
          */
         public const val MISMATCHED_SETTER: String = "ROOM_MISMATCHED_SETTER_TYPE"
+
+        /**
+         * Reported when there is an ambiguous column on the result of a multimap query.
+         */
+        public const val AMBIGUOUS_COLUMN_IN_RESULT: String = "ROOM_AMBIGUOUS_COLUMN_IN_RESULT"
     }
 
     @Deprecated("This type should not be instantiated as it contains only static methods. ")

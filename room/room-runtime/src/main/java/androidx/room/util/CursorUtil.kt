@@ -18,6 +18,7 @@
 
 package androidx.room.util
 
+import android.database.AbstractCursor
 import android.database.Cursor
 import android.database.MatrixCursor
 import android.os.Build
@@ -149,5 +150,44 @@ inline fun <R> Cursor.useCursor(block: (Cursor) -> R): R {
         } finally {
             this.close()
         }
+    }
+}
+
+/**
+ * Wraps the given cursor such that `getColumnIndex()` will utilize the provided
+ * `mapping` when getting the index of a column in `columnNames`.
+ *
+ * This is useful when the original cursor contains duplicate columns. Instead of letting the
+ * cursor return the first matching column with a name, we can resolve the ambiguous column
+ * indices and wrap the cursor such that for a set of desired column indices, the returned
+ * value will be that from the pre-computation.
+ *
+ * @param cursor the cursor to wrap.
+ * @param columnNames the column names whose index are known. The result column index of the
+ * column name at i will be at `mapping[i]`.
+ * @param mapping the cursor column indices of the columns at `columnNames`.
+ * @return the wrapped Cursor.
+ */
+fun wrapMappedColumns(cursor: Cursor, columnNames: Array<String>, mapping: IntArray): Cursor {
+    check(columnNames.size == mapping.size) { "Expected columnNames.length == mapping.length" }
+    return object : AbstractCursor() {
+        override fun getColumnIndex(columnName: String): Int {
+            columnNames.forEachIndexed { i, mappedColumnName ->
+                if (mappedColumnName.equals(columnName, ignoreCase = true)) {
+                    return mapping[i]
+                }
+            }
+            return super.getColumnIndex(columnName)
+        }
+
+        override fun getCount() = cursor.count
+        override fun getColumnNames() = cursor.columnNames
+        override fun getString(i: Int) = cursor.getString(i)
+        override fun getShort(i: Int) = cursor.getShort(i)
+        override fun getInt(i: Int) = cursor.getInt(i)
+        override fun getLong(i: Int) = cursor.getLong(i)
+        override fun getFloat(i: Int) = cursor.getFloat(i)
+        override fun getDouble(i: Int) = cursor.getDouble(i)
+        override fun isNull(i: Int) = cursor.isNull(i)
     }
 }

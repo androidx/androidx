@@ -29,7 +29,7 @@ class ArrayQueryResultAdapter(
     val type = rowAdapter.out
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            rowAdapter.onCursorReady(cursorVarName, scope)
+            rowAdapter.onCursorReady(cursorVarName = cursorVarName, scope = scope)
 
             val arrayType = ArrayTypeName.of(type.typeName)
 
@@ -55,7 +55,6 @@ class ArrayQueryResultAdapter(
                 addStatement("$L ++", indexVar)
             }
             endControlFlow()
-            rowAdapter.onCursorFinished()?.invoke(scope)
         }
     }
 }

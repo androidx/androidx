@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.room.solver.query.result
-
-import androidx.room.compiler.processing.XType
+package androidx.room.vo
 
 /**
- * A row adapter containing mapping information of the query and its result usage.
+ * A value object that associates a column with a generated local variable containing the result
+ * index.
  */
-abstract class QueryMappedRowAdapter(out: XType) : RowAdapter(out) {
-    abstract val mapping: Mapping
-
-    /**
-     * Base class of an adapter mapping declaring the used columns by the adapter.
-     */
-    abstract class Mapping {
-        abstract val usedColumns: List<String>
-    }
-}
+data class ColumnIndexVar(val column: String?, val indexVar: String)

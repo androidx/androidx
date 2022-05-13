@@ -30,7 +30,7 @@ class ListQueryResultAdapter(
 ) : QueryResultAdapter(listOf(rowAdapter)) {
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            rowAdapter.onCursorReady(cursorVarName, scope)
+            rowAdapter.onCursorReady(cursorVarName = cursorVarName, scope = scope)
             val collectionType = ParameterizedTypeName
                 .get(ClassName.get(List::class.java), typeArg.typeName)
             val arrayListType = ParameterizedTypeName
@@ -46,7 +46,6 @@ class ListQueryResultAdapter(
                 addStatement("$L.add($L)", outVarName, tmpVarName)
             }
             endControlFlow()
-            rowAdapter.onCursorFinished()?.invoke(scope)
         }
     }
 }
