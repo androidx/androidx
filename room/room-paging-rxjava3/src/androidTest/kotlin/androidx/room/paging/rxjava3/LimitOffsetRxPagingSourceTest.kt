@@ -55,6 +55,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.rx3.await
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,6 +70,12 @@ class LimitOffsetRxPagingSourceTest {
     @JvmField
     @Rule
     val countingTaskExecutorRule = CountingTaskExecutorRule()
+
+    @After
+    fun tearDown() {
+        countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
+        assertTrue(countingTaskExecutorRule.isIdle)
+    }
 
     @Test
     fun initialLoad_empty() = setupAndRun { db ->
@@ -466,6 +473,8 @@ class LimitOffsetRxPagingSourceTest {
             assertTrue(job.isCancelled)
             assertTrue(isDisposed)
         }
+        // need to drain before closing testDb or else will throw SQLiteConnectionPool exception
+        countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
         testDb.close()
     }
 
@@ -543,13 +552,7 @@ class LimitOffsetRxPagingSourceTest {
         runTest {
             test(db)
         }
-        tearDown(db)
-    }
-
-    private fun tearDown(db: LimitOffsetTestDb) {
-        if (db.isOpen) db.close()
-        countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
-        assertTrue(countingTaskExecutorRule.isIdle)
+        db.close()
     }
 }
 
