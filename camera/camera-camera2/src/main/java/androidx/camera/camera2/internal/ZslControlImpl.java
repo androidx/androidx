@@ -122,9 +122,11 @@ final class ZslControlImpl implements ZslControl {
             @NonNull SessionConfig.Builder sessionConfigBuilder) {
         cleanup();
 
-        // TODO(b/231160628): need to handle flash mode disabling separately to achieve zsl
-        //  on/off seamlessly switching as flash mode changes.
-        if (mIsZslDisabledByUseCaseConfig || mIsZslDisabledByFlashMode) {
+        // Early return only if use case config doesn't support zsl. If flash mode doesn't
+        // support zsl, we still create reprocessing capture session but will create a
+        // regular capture request when taking pictures. So when user switches flash mode, we
+        // could create reprocessing capture request if flash mode allows.
+        if (mIsZslDisabledByUseCaseConfig) {
             return;
         }
 
