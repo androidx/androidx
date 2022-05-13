@@ -95,6 +95,11 @@ public class CameraExtensionsActivity extends AppCompatActivity
     @VisibleForTesting
     static final String INTENT_EXTRA_DELETE_CAPTURED_IMAGE = "delete_captured_image";
 
+    // Possible values for this intent key: "BACKWARD" or "FORWARD".
+    private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
+    private static final String BACKWARD = "BACKWARD";
+    private static final String FORWARD = "FORWARD";
+
     private static final String TAG = "CameraExtensionActivity";
     private static final int PERMISSIONS_REQUEST_CODE = 42;
 
@@ -290,6 +295,18 @@ public class CameraExtensionsActivity extends AppCompatActivity
             mCurrentCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId);
         }
 
+        // Get params from adb extra string for the e2e test cases.
+        String cameraDirection = getIntent().getStringExtra(INTENT_EXTRA_CAMERA_DIRECTION);
+        if (cameraDirection != null) {
+            if (cameraDirection.equals(BACKWARD)) {
+                mCurrentCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+            } else if (cameraDirection.equals(FORWARD)) {
+                mCurrentCameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA;
+            } else {
+                throw new IllegalArgumentException(
+                        "The camera " + cameraDirection + " is unavailable.");
+            }
+        }
         mCurrentExtensionMode = getIntent().getIntExtra(INTENT_EXTRA_EXTENSION_MODE,
                 mCurrentExtensionMode);
 
