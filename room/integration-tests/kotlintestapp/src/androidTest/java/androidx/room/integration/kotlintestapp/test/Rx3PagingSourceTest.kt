@@ -127,9 +127,6 @@ class Rx3PagingSourceTest {
 
             assertTrue(isDisposed)
             assertFalse(pagingSource.invalid) // paging source should still be valid though
-
-            // give it some time for the delayed load to "complete". Should throw if load succeeded.
-            delay(600)
         }
     }
 
@@ -180,9 +177,6 @@ class Rx3PagingSourceTest {
 
             assertTrue(isDisposed)
             assertFalse(pagingSource.invalid) // paging source should still be valid though
-
-            // give some time for the delayed load to "complete". Should throw if it succeeded.
-            delay(600)
         }
     }
 
@@ -233,9 +227,6 @@ class Rx3PagingSourceTest {
 
             assertTrue(isDisposed)
             assertFalse(pagingSource.invalid) // paging source should still be valid though
-
-            // give some time for the delayed load to "complete". Should throw if it succeeded.
-            delay(600)
         }
     }
 
