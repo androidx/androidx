@@ -31,6 +31,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
+import android.location.Location;
 import android.media.MediaMuxer;
 import android.media.MediaRecorder;
 import android.media.MediaScannerConnection;
@@ -1512,6 +1513,7 @@ public final class Recorder implements VideoOutput {
                 return;
             }
 
+            MediaMuxer mediaMuxer;
             try {
                 MediaSpec mediaSpec = getObservableData(mMediaSpec);
                 int muxerOutputFormat =
@@ -1520,7 +1522,7 @@ public final class Recorder implements VideoOutput {
                                 MediaSpec.outputFormatToMuxerFormat(
                                         MEDIA_SPEC_DEFAULT.getOutputFormat()))
                                 : MediaSpec.outputFormatToMuxerFormat(mediaSpec.getOutputFormat());
-                mMediaMuxer = recordingToStart.performOneTimeMediaMuxerCreation(muxerOutputFormat,
+                mediaMuxer = recordingToStart.performOneTimeMediaMuxerCreation(muxerOutputFormat,
                         uri -> mOutputUri = uri);
             } catch (IOException e) {
                 onInProgressRecordingInternalError(recordingToStart, ERROR_INVALID_OUTPUT_OPTIONS,
@@ -1528,16 +1530,30 @@ public final class Recorder implements VideoOutput {
                 return;
             }
 
-            // TODO: Add more metadata to MediaMuxer, e.g. location information.
             if (mSurfaceTransformationInfo != null) {
-                mMediaMuxer.setOrientationHint(mSurfaceTransformationInfo.getRotationDegrees());
+                mediaMuxer.setOrientationHint(mSurfaceTransformationInfo.getRotationDegrees());
+            }
+            Location location = recordingToStart.getOutputOptions().getLocation();
+            if (location != null) {
+                try {
+                    mediaMuxer.setLocation((float) location.getLatitude(),
+                            (float) location.getLongitude());
+                } catch (IllegalArgumentException e) {
+                    mediaMuxer.release();
+                    onInProgressRecordingInternalError(recordingToStart,
+                            ERROR_INVALID_OUTPUT_OPTIONS, e);
+                    return;
+                }
             }
 
-            mVideoTrackIndex = mMediaMuxer.addTrack(mVideoOutputConfig.getMediaFormat());
+            mVideoTrackIndex = mediaMuxer.addTrack(mVideoOutputConfig.getMediaFormat());
             if (isAudioEnabled()) {
-                mAudioTrackIndex = mMediaMuxer.addTrack(mAudioOutputConfig.getMediaFormat());
+                mAudioTrackIndex = mediaMuxer.addTrack(mAudioOutputConfig.getMediaFormat());
             }
-            mMediaMuxer.start();
+            mediaMuxer.start();
+
+            // MediaMuxer is successfully initialized, transfer the ownership to Recorder.
+            mMediaMuxer = mediaMuxer;
 
             // Write first data to ensure tracks are not empty
             writeVideoData(videoDataToWrite, recordingToStart);

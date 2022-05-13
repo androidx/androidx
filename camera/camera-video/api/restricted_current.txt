@@ -20,7 +20,6 @@ package androidx.camera.video {
   }
 
   @RequiresApi(21) public final class FileDescriptorOutputOptions extends androidx.camera.video.OutputOptions {
-    method public long getFileSizeLimit();
     method public android.os.ParcelFileDescriptor getParcelFileDescriptor();
   }
 
@@ -28,24 +27,24 @@ package androidx.camera.video {
     ctor public FileDescriptorOutputOptions.Builder(android.os.ParcelFileDescriptor);
     method public androidx.camera.video.FileDescriptorOutputOptions build();
     method public androidx.camera.video.FileDescriptorOutputOptions.Builder setFileSizeLimit(long);
+    method public androidx.camera.video.FileDescriptorOutputOptions.Builder setLocation(android.location.Location?);
   }
 
   @RequiresApi(21) public final class FileOutputOptions extends androidx.camera.video.OutputOptions {
     method public java.io.File getFile();
-    method public long getFileSizeLimit();
   }
 
   @RequiresApi(21) public static final class FileOutputOptions.Builder {
     ctor public FileOutputOptions.Builder(java.io.File);
     method public androidx.camera.video.FileOutputOptions build();
     method public androidx.camera.video.FileOutputOptions.Builder setFileSizeLimit(long);
+    method public androidx.camera.video.FileOutputOptions.Builder setLocation(android.location.Location?);
   }
 
   @RequiresApi(21) public final class MediaStoreOutputOptions extends androidx.camera.video.OutputOptions {
     method public android.net.Uri getCollectionUri();
     method public android.content.ContentResolver getContentResolver();
     method public android.content.ContentValues getContentValues();
-    method public long getFileSizeLimit();
     field public static final android.content.ContentValues EMPTY_CONTENT_VALUES;
   }
 
@@ -54,10 +53,12 @@ package androidx.camera.video {
     method public androidx.camera.video.MediaStoreOutputOptions build();
     method public androidx.camera.video.MediaStoreOutputOptions.Builder setContentValues(android.content.ContentValues);
     method public androidx.camera.video.MediaStoreOutputOptions.Builder setFileSizeLimit(long);
+    method public androidx.camera.video.MediaStoreOutputOptions.Builder setLocation(android.location.Location?);
   }
 
   @RequiresApi(21) public abstract class OutputOptions {
-    method public abstract long getFileSizeLimit();
+    method public long getFileSizeLimit();
+    method public android.location.Location? getLocation();
     field public static final int FILE_SIZE_UNLIMITED = 0; // 0x0
   }
 
