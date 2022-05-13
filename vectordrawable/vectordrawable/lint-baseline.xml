@@ -7,9 +7,7 @@
         errorLine1="    static final int STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET_ANIMATION = 1;"
         errorLine2="                                                                           ~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"
-            line="87"
-            column="76"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AndroidResources.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public void scheduleSelf(Runnable what, long when) {"
         errorLine2="                                            ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="944"
-            column="45"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public Drawable mutate() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="329"
-            column="12"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public ConstantState getConstantState() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="347"
-            column="12"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public void draw(Canvas canvas) {"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="357"
-            column="22"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public void setColorFilter(ColorFilter colorFilter) {"
         errorLine2="                               ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="451"
-            column="32"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public ColorFilter getColorFilter() {"
         errorLine2="           ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="462"
-            column="12"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public void setTintList(ColorStateList tint) {"
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="495"
-            column="29"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public void setTintMode(Mode tintMode) {"
         errorLine2="                            ~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="510"
-            column="29"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    protected boolean onStateChange(int[] stateSet) {"
         errorLine2="                                    ~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="536"
-            column="37"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public static VectorDrawableCompat createFromXmlInner(Resources r, XmlPullParser parser,"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="682"
-            column="19"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public static VectorDrawableCompat createFromXmlInner(Resources r, XmlPullParser parser,"
         errorLine2="                                                          ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="682"
-            column="59"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public static VectorDrawableCompat createFromXmlInner(Resources r, XmlPullParser parser,"
         errorLine2="                                                                       ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="682"
-            column="72"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="            AttributeSet attrs, Theme theme) throws XmlPullParserException, IOException {"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="683"
-            column="13"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="            AttributeSet attrs, Theme theme) throws XmlPullParserException, IOException {"
         errorLine2="                                ~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="683"
-            column="33"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)"
         errorLine2="                        ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="697"
-            column="25"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)"
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="697"
-            column="40"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs)"
         errorLine2="                                                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="697"
-            column="62"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
         errorLine2="                        ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="708"
-            column="25"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
         errorLine2="                                       ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="708"
-            column="40"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
         errorLine2="                                                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="708"
-            column="62"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    public void inflate(Resources res, XmlPullParser parser, AttributeSet attrs, Theme theme)"
         errorLine2="                                                                                 ~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="708"
-            column="82"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    protected void onBoundsChange(Rect bounds) {"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="920"
-            column="35"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    public void scheduleSelf(Runnable what, long when) {"
         errorLine2="                             ~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="944"
-            column="30"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="    public void unscheduleSelf(Runnable what) {"
         errorLine2="                               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"
-            line="961"
-            column="32"/>
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/VectorDrawableCompat.java"/>
     </issue>
 
 </issues>

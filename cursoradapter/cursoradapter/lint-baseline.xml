@@ -7,9 +7,7 @@
         errorLine1="    public CursorAdapter(Context context, Cursor c, boolean autoRequery) {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="104"
-            column="26"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public CursorAdapter(Context context, Cursor c, boolean autoRequery) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="104"
-            column="43"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public CursorAdapter(Context context, Cursor c, int flags) {"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="117"
-            column="26"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public CursorAdapter(Context context, Cursor c, int flags) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="117"
-            column="43"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public Cursor getCursor() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="164"
-            column="12"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public abstract View newView(Context context, Cursor cursor, ViewGroup parent);"
         errorLine2="                    ~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="260"
-            column="21"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public abstract View newView(Context context, Cursor cursor, ViewGroup parent);"
         errorLine2="                                 ~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="260"
-            column="34"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public abstract View newView(Context context, Cursor cursor, ViewGroup parent);"
         errorLine2="                                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="260"
-            column="51"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public abstract View newView(Context context, Cursor cursor, ViewGroup parent);"
         errorLine2="                                                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="260"
-            column="66"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public View newDropDownView(Context context, Cursor cursor, ViewGroup parent) {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="270"
-            column="12"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public View newDropDownView(Context context, Cursor cursor, ViewGroup parent) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="270"
-            column="33"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public View newDropDownView(Context context, Cursor cursor, ViewGroup parent) {"
         errorLine2="                                                 ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="270"
-            column="50"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public View newDropDownView(Context context, Cursor cursor, ViewGroup parent) {"
         errorLine2="                                                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="270"
-            column="65"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public abstract void bindView(View view, Context context, Cursor cursor);"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="281"
-            column="35"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public abstract void bindView(View view, Context context, Cursor cursor);"
         errorLine2="                                             ~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="281"
-            column="46"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    public abstract void bindView(View view, Context context, Cursor cursor);"
         errorLine2="                                                              ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="281"
-            column="63"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    public void changeCursor(Cursor cursor) {"
         errorLine2="                             ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="290"
-            column="30"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public Cursor swapCursor(Cursor newCursor) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="307"
-            column="12"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    public Cursor swapCursor(Cursor newCursor) {"
         errorLine2="                             ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="307"
-            column="30"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    public CharSequence convertToString(Cursor cursor) {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="343"
-            column="12"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    public CharSequence convertToString(Cursor cursor) {"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="343"
-            column="41"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    public Cursor runQueryOnBackgroundThread(CharSequence constraint) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="373"
-            column="12"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    public Cursor runQueryOnBackgroundThread(CharSequence constraint) {"
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="373"
-            column="46"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    public FilterQueryProvider getFilterQueryProvider() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="398"
-            column="12"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="    public void setFilterQueryProvider(FilterQueryProvider filterQueryProvider) {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"
-            line="414"
-            column="40"/>
+            file="src/main/java/androidx/cursoradapter/widget/CursorAdapter.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="    public ResourceCursorAdapter(Context context, int layout, Cursor c, int flags) {"
         errorLine2="                                 ~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"
-            line="98"
-            column="34"/>
+            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="    public ResourceCursorAdapter(Context context, int layout, Cursor c, int flags) {"
         errorLine2="                                                              ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"
-            line="98"
-            column="63"/>
+            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="    public View newView(Context context, Cursor cursor, ViewGroup parent) {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"
-            line="111"
-            column="12"/>
+            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="    public View newView(Context context, Cursor cursor, ViewGroup parent) {"
         errorLine2="                        ~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"
-            line="111"
-            column="25"/>
+            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="    public View newView(Context context, Cursor cursor, ViewGroup parent) {"
         errorLine2="                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"
-            line="111"
-            column="42"/>
+            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="    public View newView(Context context, Cursor cursor, ViewGroup parent) {"
         errorLine2="                                                        ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"
-            line="111"
-            column="57"/>
+            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="    public View newDropDownView(Context context, Cursor cursor, ViewGroup parent) {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"
-            line="116"
-            column="12"/>
+            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="    public View newDropDownView(Context context, Cursor cursor, ViewGroup parent) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"
-            line="116"
-            column="33"/>
+            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="    public View newDropDownView(Context context, Cursor cursor, ViewGroup parent) {"
         errorLine2="                                                 ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"
-            line="116"
-            column="50"/>
+            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="    public View newDropDownView(Context context, Cursor cursor, ViewGroup parent) {"
         errorLine2="                                                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"
-            line="116"
-            column="65"/>
+            file="src/main/java/androidx/cursoradapter/widget/ResourceCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="    protected int[] mFrom;"
         errorLine2="              ~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="44"
-            column="15"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="    protected int[] mTo;"
         errorLine2="              ~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="51"
-            column="15"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -414,9 +340,7 @@
         errorLine1="    public SimpleCursorAdapter(Context context, int layout, Cursor c, String[] from,"
         errorLine2="                               ~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="93"
-            column="32"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -425,9 +349,7 @@
         errorLine1="    public SimpleCursorAdapter(Context context, int layout, Cursor c, String[] from,"
         errorLine2="                                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="93"
-            column="61"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -436,9 +358,7 @@
         errorLine1="    public SimpleCursorAdapter(Context context, int layout, Cursor c, String[] from,"
         errorLine2="                                                                      ~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="93"
-            column="71"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -447,9 +367,7 @@
         errorLine1="            int[] to, int flags) {"
         errorLine2="            ~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="94"
-            column="13"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -458,9 +376,7 @@
         errorLine1="    public void bindView(View view, Context context, Cursor cursor) {"
         errorLine2="                         ~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="125"
-            column="26"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -469,9 +385,7 @@
         errorLine1="    public void bindView(View view, Context context, Cursor cursor) {"
         errorLine2="                                    ~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="125"
-            column="37"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -480,9 +394,7 @@
         errorLine1="    public void bindView(View view, Context context, Cursor cursor) {"
         errorLine2="                                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="125"
-            column="54"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -491,9 +403,7 @@
         errorLine1="    public ViewBinder getViewBinder() {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="166"
-            column="12"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -502,9 +412,7 @@
         errorLine1="    public void setViewBinder(ViewBinder viewBinder) {"
         errorLine2="                              ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="179"
-            column="31"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -513,9 +421,7 @@
         errorLine1="    public void setViewImage(ImageView v, String value) {"
         errorLine2="                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="198"
-            column="30"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -524,9 +430,7 @@
         errorLine1="    public void setViewImage(ImageView v, String value) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="198"
-            column="43"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -535,9 +439,7 @@
         errorLine1="    public void setViewText(TextView v, String text) {"
         errorLine2="                            ~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="217"
-            column="29"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -546,9 +448,7 @@
         errorLine1="    public void setViewText(TextView v, String text) {"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="217"
-            column="41"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -557,9 +457,7 @@
         errorLine1="    public CursorToStringConverter getCursorToStringConverter() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="266"
-            column="12"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -568,9 +466,7 @@
         errorLine1="    public void setCursorToStringConverter(CursorToStringConverter cursorToStringConverter) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="282"
-            column="44"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -579,9 +475,7 @@
         errorLine1="    public CharSequence convertToString(Cursor cursor) {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="298"
-            column="12"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -590,9 +484,7 @@
         errorLine1="    public CharSequence convertToString(Cursor cursor) {"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="298"
-            column="41"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -601,9 +493,7 @@
         errorLine1="    public Cursor swapCursor(Cursor newCursor) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="331"
-            column="12"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -612,9 +502,7 @@
         errorLine1="    public Cursor swapCursor(Cursor newCursor) {"
         errorLine2="                             ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="331"
-            column="30"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -623,9 +511,7 @@
         errorLine1="    public void changeCursorAndColumns(Cursor c, String[] from, int[] to) {"
         errorLine2="                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="350"
-            column="40"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -634,9 +520,7 @@
         errorLine1="    public void changeCursorAndColumns(Cursor c, String[] from, int[] to) {"
         errorLine2="                                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="350"
-            column="50"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -645,9 +529,7 @@
         errorLine1="    public void changeCursorAndColumns(Cursor c, String[] from, int[] to) {"
         errorLine2="                                                                ~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="350"
-            column="65"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -656,9 +538,7 @@
         errorLine1="        boolean setViewValue(View view, Cursor cursor, int columnIndex);"
         errorLine2="                             ~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="387"
-            column="30"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -667,9 +547,7 @@
         errorLine1="        boolean setViewValue(View view, Cursor cursor, int columnIndex);"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="387"
-            column="41"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -678,9 +556,7 @@
         errorLine1="        CharSequence convertToString(Cursor cursor);"
         errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="405"
-            column="9"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
     <issue
@@ -689,9 +565,7 @@
         errorLine1="        CharSequence convertToString(Cursor cursor);"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"
-            line="405"
-            column="38"/>
+            file="src/main/java/androidx/cursoradapter/widget/SimpleCursorAdapter.java"/>
     </issue>
 
 </issues>

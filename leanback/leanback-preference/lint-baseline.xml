@@ -7,9 +7,7 @@
         errorLine1="&lt;manifest />"
         errorLine2=" ~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="18"
-            column="2"/>
+            file="src/main/AndroidManifest.xml"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="&lt;manifest />"
         errorLine2=" ~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="18"
-            column="2"/>
+            file="src/main/AndroidManifest.xml"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="&lt;manifest />"
         errorLine2=" ~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="18"
-            column="2"/>
+            file="src/main/AndroidManifest.xml"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragmentCompat.java"
-            line="71"
-            column="12"/>
+            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,"
         errorLine2="                                             ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragmentCompat.java"
-            line="71"
-            column="46"/>
+            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,"
         errorLine2="                                                                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragmentCompat.java"
-            line="71"
-            column="71"/>
+            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragmentCompat.java"
-            line="72"
-            column="13"/>
+            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public Fragment getCallbackFragment() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragmentCompat.java"
-            line="87"
-            column="12"/>
+            file="src/main/java/androidx/leanback/preference/BaseLeanbackPreferenceFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public static LeanbackEditTextPreferenceDialogFragmentCompat newInstance(String key) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackEditTextPreferenceDialogFragmentCompat.java"
-            line="67"
-            column="19"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackEditTextPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public static LeanbackEditTextPreferenceDialogFragmentCompat newInstance(String key) {"
         errorLine2="                                                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackEditTextPreferenceDialogFragmentCompat.java"
-            line="67"
-            column="78"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackEditTextPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackEditTextPreferenceDialogFragmentCompat.java"
-            line="79"
-            column="26"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackEditTextPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackEditTextPreferenceDialogFragmentCompat.java"
-            line="115"
-            column="12"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackEditTextPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackEditTextPreferenceDialogFragmentCompat.java"
-            line="115"
-            column="64"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackEditTextPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackEditTextPreferenceDialogFragmentCompat.java"
-            line="116"
-            column="13"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackEditTextPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public static LeanbackListPreferenceDialogFragmentCompat newInstanceSingle(String key) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"
-            line="73"
-            column="19"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    public static LeanbackListPreferenceDialogFragmentCompat newInstanceSingle(String key) {"
         errorLine2="                                                                               ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"
-            line="73"
-            column="80"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    public static LeanbackListPreferenceDialogFragmentCompat newInstanceMulti(String key) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"
-            line="89"
-            column="19"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public static LeanbackListPreferenceDialogFragmentCompat newInstanceMulti(String key) {"
         errorLine2="                                                                              ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"
-            line="89"
-            column="79"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"
-            line="101"
-            column="26"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"
-            line="160"
-            column="12"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"
-            line="160"
-            column="64"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"
-            line="161"
-            column="13"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="        public Checkable getWidgetView() {"
         errorLine2="               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"
-            line="351"
-            column="16"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="        public TextView getTitleView() {"
         errorLine2="               ~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"
-            line="355"
-            column="16"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="        public ViewGroup getContainer() {"
         errorLine2="               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"
-            line="359"
-            column="16"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceDialogFragmentCompat.java"
-            line="39"
-            column="26"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="    public DialogPreference getPreference() {"
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceDialogFragmentCompat.java"
-            line="53"
-            column="12"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"
-            line="49"
-            column="12"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"
-            line="49"
-            column="64"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"
-            line="50"
-            column="13"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {"
         errorLine2="                                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"
-            line="64"
-            column="51"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="    public void setTitle(CharSequence title) {"
         errorLine2="                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"
-            line="74"
-            column="26"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackPreferenceFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="    public static void addTransitions(Fragment f) {"
         errorLine2="                                      ~~~~~~~~">
         <location
-            file="api21/androidx/leanback/preference/LeanbackPreferenceFragmentTransitionHelperApi21.java"
-            line="36"
-            column="39"/>
+            file="api21/androidx/leanback/preference/LeanbackPreferenceFragmentTransitionHelperApi21.java"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragmentCompat.java"
-            line="64"
-            column="12"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragmentCompat.java"
-            line="64"
-            column="64"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragmentCompat.java"
-            line="65"
-            column="13"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {"
         errorLine2="                                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragmentCompat.java"
-            line="72"
-            column="51"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -414,9 +340,7 @@
         errorLine1="            Preference pref) {"
         errorLine2="            ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragmentCompat.java"
-            line="100"
-            column="13"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackSettingsFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -425,9 +349,7 @@
         errorLine1="    public LeanbackSettingsRootView(Context context) {"
         errorLine2="                                    ~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsRootView.java"
-            line="37"
-            column="37"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackSettingsRootView.java"/>
     </issue>
 
     <issue
@@ -436,9 +358,7 @@
         errorLine1="    public LeanbackSettingsRootView(Context context, AttributeSet attrs) {"
         errorLine2="                                    ~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsRootView.java"
-            line="41"
-            column="37"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackSettingsRootView.java"/>
     </issue>
 
     <issue
@@ -447,9 +367,7 @@
         errorLine1="    public LeanbackSettingsRootView(Context context, AttributeSet attrs) {"
         errorLine2="                                                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsRootView.java"
-            line="41"
-            column="54"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackSettingsRootView.java"/>
     </issue>
 
     <issue
@@ -458,9 +376,7 @@
         errorLine1="    public LeanbackSettingsRootView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                    ~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsRootView.java"
-            line="45"
-            column="37"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackSettingsRootView.java"/>
     </issue>
 
     <issue
@@ -469,9 +385,7 @@
         errorLine1="    public LeanbackSettingsRootView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsRootView.java"
-            line="45"
-            column="54"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackSettingsRootView.java"/>
     </issue>
 
     <issue
@@ -480,9 +394,7 @@
         errorLine1="    public void setOnBackKeyListener(OnKeyListener backKeyListener) {"
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/leanback/preference/LeanbackSettingsRootView.java"
-            line="49"
-            column="38"/>
+            file="src/main/java/androidx/leanback/preference/LeanbackSettingsRootView.java"/>
     </issue>
 
     <issue
@@ -491,9 +403,7 @@
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context) {"
         errorLine2="                                              ~~~~~~~">
         <location
-            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="42"
-            column="47"/>
+            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"/>
     </issue>
 
     <issue
@@ -502,9 +412,7 @@
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                              ~~~~~~~">
         <location
-            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="46"
-            column="47"/>
+            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"/>
     </issue>
 
     <issue
@@ -513,9 +421,7 @@
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                                               ~~~~~~~~~~~~">
         <location
-            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="46"
-            column="64"/>
+            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"/>
     </issue>
 
     <issue
@@ -524,9 +430,7 @@
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context, AttributeSet attrs,"
         errorLine2="                                              ~~~~~~~">
         <location
-            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="50"
-            column="47"/>
+            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"/>
     </issue>
 
     <issue
@@ -535,9 +439,7 @@
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context, AttributeSet attrs,"
         errorLine2="                                                               ~~~~~~~~~~~~">
         <location
-            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="50"
-            column="64"/>
+            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"/>
     </issue>
 
     <issue
@@ -546,9 +448,7 @@
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context, AttributeSet attrs,"
         errorLine2="                                              ~~~~~~~">
         <location
-            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="55"
-            column="47"/>
+            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"/>
     </issue>
 
     <issue
@@ -557,9 +457,7 @@
         errorLine1="    public OutlineOnlyWithChildrenFrameLayout(Context context, AttributeSet attrs,"
         errorLine2="                                                               ~~~~~~~~~~~~">
         <location
-            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"
-            line="55"
-            column="64"/>
+            file="api21/androidx/leanback/preference/internal/OutlineOnlyWithChildrenFrameLayout.java"/>
     </issue>
 
 </issues>

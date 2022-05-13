@@ -7,9 +7,7 @@
         errorLine1="        assertTrue(extractButton.hasOnClickListeners());"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/widget/EmojiExtractTextLayoutTest.java"
-            line="178"
-            column="34"/>
+            file="src/androidTest/java/androidx/emoji2/widget/EmojiExtractTextLayoutTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        assertFalse(extractButton.hasOnClickListeners());"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/widget/EmojiExtractTextLayoutTest.java"
-            line="200"
-            column="35"/>
+            file="src/androidTest/java/androidx/emoji2/widget/EmojiExtractTextLayoutTest.java"/>
     </issue>
 
 </issues>

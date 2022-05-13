@@ -7,9 +7,7 @@
         errorLine1="    public suspend fun setProgress(data: Data) {"
         errorLine2="                       ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/multiprocess/RemoteCoroutineWorker.kt"
-            line="90"
-            column="24"/>
+            file="src/main/java/androidx/work/multiprocess/RemoteCoroutineWorker.kt"/>
     </issue>
 
 </issues>

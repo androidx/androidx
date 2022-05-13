@@ -7,9 +7,7 @@
         errorLine1="                    mRefreshMethod.invoke(instance);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/sqlite/inspection/RoomInvalidationRegistry.java"
-            line="144"
-            column="21"/>
+            file="src/main/java/androidx/sqlite/inspection/RoomInvalidationRegistry.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            mNotifyDataChangeMethod.invoke(query);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/sqlite/inspection/SqlDelightInvalidation.java"
-            line="66"
-            column="13"/>
+            file="src/main/java/androidx/sqlite/inspection/SqlDelightInvalidation.java"/>
     </issue>
 
 </issues>

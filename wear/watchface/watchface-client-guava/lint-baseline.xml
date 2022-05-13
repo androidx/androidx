@@ -7,9 +7,7 @@
         errorLine1="    private val realService = object : WatchFaceControlService() {"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/wear/watchface/client/guava/ListenableWatchFaceMetadataClientTest.kt"
-            line="47"
-            column="31"/>
+            file="src/androidTest/java/androidx/wear/watchface/client/guava/ListenableWatchFaceMetadataClientTest.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    private val realService = object : WatchFaceControlService() {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/wear/watchface/client/guava/ListenableWatchFaceMetadataClientTest.kt"
-            line="47"
-            column="40"/>
+            file="src/androidTest/java/androidx/wear/watchface/client/guava/ListenableWatchFaceMetadataClientTest.kt"/>
     </issue>
 
 </issues>

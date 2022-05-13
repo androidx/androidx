@@ -7,9 +7,7 @@
         errorLine1="                    PixelCopy.request(source, dest, new PixelCopy.OnPixelCopyFinishedListener() {"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/media2/widget/VideoView_WithPlayerTest.java"
-            line="478"
-            column="57"/>
+            file="src/androidTest/java/androidx/media2/widget/VideoView_WithPlayerTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    protected synchronized void updateActiveCues(boolean rebuild, long timeMs) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/media2/widget/SubtitleTrack.java"
-            line="127"
-            column="5"/>
+            file="src/main/java/androidx/media2/widget/SubtitleTrack.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    private synchronized void takeTime(long timeMs) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/media2/widget/SubtitleTrack.java"
-            line="197"
-            column="5"/>
+            file="src/main/java/androidx/media2/widget/SubtitleTrack.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    protected synchronized void clearActiveCues() {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/media2/widget/SubtitleTrack.java"
-            line="201"
-            column="5"/>
+            file="src/main/java/androidx/media2/widget/SubtitleTrack.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    protected synchronized boolean addCue(Cue cue) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/media2/widget/SubtitleTrack.java"
-            line="291"
-            column="5"/>
+            file="src/main/java/androidx/media2/widget/SubtitleTrack.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/media2/widget/SubtitleTrack.java"
-            line="364"
-            column="5"/>
+            file="src/main/java/androidx/media2/widget/SubtitleTrack.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    static class MediaFormatUtil {"
         errorLine2="                 ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/widget/SubtitleController.java"
-            line="277"
-            column="18"/>
+            file="src/main/java/androidx/media2/widget/SubtitleController.java"/>
     </issue>
 
 </issues>

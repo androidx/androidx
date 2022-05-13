@@ -7,9 +7,7 @@
         errorLine1="    public RemoteViews createRemoteViews(Context context, int[] ids, int value) {"
         errorLine2="           ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"
-            line="43"
-            column="12"/>
+            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public RemoteViews createRemoteViews(Context context, int[] ids, int value) {"
         errorLine2="                                         ~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"
-            line="43"
-            column="42"/>
+            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public RemoteViews createRemoteViews(Context context, int[] ids, int value) {"
         errorLine2="                                                          ~~~~~">
         <location
-            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"
-            line="43"
-            column="59"/>
+            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public RemoteCallback setValue(Context context, int[] ids, int value) {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"
-            line="62"
-            column="12"/>
+            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public RemoteCallback setValue(Context context, int[] ids, int value) {"
         errorLine2="                                   ~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"
-            line="62"
-            column="36"/>
+            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public RemoteCallback setValue(Context context, int[] ids, int value) {"
         errorLine2="                                                    ~~~~~">
         <location
-            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"
-            line="62"
-            column="53"/>
+            file="src/main/java/com/example/androidx/remotecallback/demos/RemoteCallbackProvider.java"/>
     </issue>
 
 </issues>

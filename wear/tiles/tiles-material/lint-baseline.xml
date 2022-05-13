@@ -7,9 +7,7 @@
         errorLine1="            mSize = dp(size);"
         errorLine2="                       ~~~~">
         <location
-            file="src/main/java/androidx/wear/tiles/material/Button.java"
-            line="147"
-            column="24"/>
+            file="src/main/java/androidx/wear/tiles/material/Button.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        return recommendedIconSize(buttonSize.getValue());"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/tiles/material/ButtonDefaults.java"
-            line="46"
-            column="36"/>
+            file="src/main/java/androidx/wear/tiles/material/ButtonDefaults.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            mWidth = dp(width);"
         errorLine2="                        ~~~~~">
         <location
-            file="src/main/java/androidx/wear/tiles/material/Chip.java"
-            line="152"
-            column="25"/>
+            file="src/main/java/androidx/wear/tiles/material/Chip.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="            this.mStrokeWidth = dp(strokeWidth);"
         errorLine2="                                   ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/tiles/material/CircularProgressIndicator.java"
-            line="160"
-            column="36"/>
+            file="src/main/java/androidx/wear/tiles/material/CircularProgressIndicator.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="            this.mHorizontalSpacerWidth = dp(width);"
         errorLine2="                                             ~~~~~">
         <location
-            file="src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout.java"
-            line="134"
-            column="46"/>
+            file="src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            this.mVerticalSpacerHeight = dp(height);"
         errorLine2="                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout.java"
-            line="149"
-            column="45"/>
+            file="src/main/java/androidx/wear/tiles/material/layouts/MultiSlotLayout.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="            mWidth = dp(width);"
         errorLine2="                        ~~~~~">
         <location
-            file="src/main/java/androidx/wear/tiles/material/TitleChip.java"
-            line="126"
-            column="25"/>
+            file="src/main/java/androidx/wear/tiles/material/TitleChip.java"/>
     </issue>
 
 </issues>

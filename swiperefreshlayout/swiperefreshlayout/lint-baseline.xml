@@ -7,13 +7,9 @@
         errorLine1="    public int[] getColorSchemeColors() {"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"
-            line="381"
-            column="18"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"/>
         <location
             file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"
-            line="391"
-            column="17"
             message="Setter here"/>
     </issue>
 
@@ -23,9 +19,7 @@
         errorLine1="    public void draw(Canvas canvas) {"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"
-            line="398"
-            column="22"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"/>
     </issue>
 
     <issue
@@ -34,9 +28,7 @@
         errorLine1="    public void setColorFilter(ColorFilter colorFilter) {"
         errorLine2="                               ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"
-            line="418"
-            column="32"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/CircularProgressDrawable.java"/>
     </issue>
 
     <issue
@@ -45,9 +37,7 @@
         errorLine1="    protected Parcelable onSaveInstanceState() {"
         errorLine2="              ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="279"
-            column="15"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -56,9 +46,7 @@
         errorLine1="    protected void onRestoreInstanceState(Parcelable state) {"
         errorLine2="                                          ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="285"
-            column="43"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -67,9 +55,7 @@
         errorLine1="    public void setColorScheme(@ColorRes int... colors) {"
         errorLine2="                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="607"
-            column="42"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -78,9 +64,7 @@
         errorLine1="    public void setColorSchemeResources(@ColorRes int... colorResIds) {"
         errorLine2="                                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="618"
-            column="51"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -89,9 +73,7 @@
         errorLine1="    public void setColorSchemeColors(@ColorInt int... colors) {"
         errorLine2="                                               ~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="634"
-            column="48"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -100,9 +82,7 @@
         errorLine1="    public boolean onInterceptTouchEvent(MotionEvent ev) {"
         errorLine2="                                         ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="754"
-            column="42"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -111,9 +91,7 @@
         errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes, int type) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="902"
-            column="40"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -122,9 +100,7 @@
         errorLine1="    public boolean onStartNestedScroll(View child, View target, int axes, int type) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="902"
-            column="52"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -133,9 +109,7 @@
         errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes, int type) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="911"
-            column="40"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -144,9 +118,7 @@
         errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes, int type) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="911"
-            column="52"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -155,9 +127,7 @@
         errorLine1="    public void onStopNestedScroll(View target, int type) {"
         errorLine2="                                   ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="920"
-            column="36"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -166,9 +136,7 @@
         errorLine1="    public void onNestedScroll(View target, int dxConsumed, int dyConsumed, int dxUnconsumed,"
         errorLine2="                               ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="929"
-            column="32"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -177,9 +145,7 @@
         errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="936"
-            column="35"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -188,9 +154,7 @@
         errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed, int type) {"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="936"
-            column="64"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -199,9 +163,7 @@
         errorLine1="    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="947"
-            column="40"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -210,9 +172,7 @@
         errorLine1="    public boolean onStartNestedScroll(View child, View target, int nestedScrollAxes) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="947"
-            column="52"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -221,9 +181,7 @@
         errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes) {"
         errorLine2="                                       ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="953"
-            column="40"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -232,9 +190,7 @@
         errorLine1="    public void onNestedScrollAccepted(View child, View target, int axes) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="953"
-            column="52"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -243,9 +199,7 @@
         errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="963"
-            column="35"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -254,9 +208,7 @@
         errorLine1="    public void onNestedPreScroll(View target, int dx, int dy, int[] consumed) {"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="963"
-            column="64"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -265,9 +217,7 @@
         errorLine1="    public void onStopNestedScroll(View target) {"
         errorLine2="                                   ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1000"
-            column="36"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -276,9 +226,7 @@
         errorLine1="    public void onNestedScroll(final View target, final int dxConsumed, final int dyConsumed,"
         errorLine2="                                     ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1019"
-            column="38"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -287,9 +235,7 @@
         errorLine1="    public boolean onNestedPreFling(View target, float velocityX,"
         errorLine2="                                    ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1026"
-            column="37"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -298,9 +244,7 @@
         errorLine1="    public boolean onNestedFling(View target, float velocityX, float velocityY,"
         errorLine2="                                 ~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1032"
-            column="34"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -309,9 +253,7 @@
         errorLine1="            int dyUnconsumed, int[] offsetInWindow, int type) {"
         errorLine2="                              ~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1070"
-            column="31"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -320,9 +262,7 @@
         errorLine1="    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow,"
         errorLine2="                                                           ~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1076"
-            column="60"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -331,9 +271,7 @@
         errorLine1="    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow,"
         errorLine2="                                                                           ~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1076"
-            column="76"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -342,9 +280,7 @@
         errorLine1="            int dyUnconsumed, int[] offsetInWindow) {"
         errorLine2="                              ~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1111"
-            column="31"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -353,9 +289,7 @@
         errorLine1="    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {"
         errorLine2="                                                           ~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1117"
-            column="60"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -364,9 +298,7 @@
         errorLine1="    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {"
         errorLine2="                                                                           ~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1117"
-            column="76"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
     <issue
@@ -375,9 +307,7 @@
         errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"
-            line="1222"
-            column="33"/>
+            file="src/main/java/androidx/swiperefreshlayout/widget/SwipeRefreshLayout.java"/>
     </issue>
 
 </issues>
