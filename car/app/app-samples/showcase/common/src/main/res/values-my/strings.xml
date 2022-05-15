@@ -36,8 +36,7 @@
     <string name="on_action_title" msgid="4129601573763429611">"ဖွင့်"</string>
     <string name="off_action_title" msgid="8669201170189204848">"ပိတ်"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"ဆက်တင်များ"</string>
-    <!-- no translation found for accept_action_title (4899660585470647578) -->
-    <skip />
+    <string name="accept_action_title" msgid="4899660585470647578">"လက်ခံရန်"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"ပယ်ရန်"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"OK"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"ပစ်ရန်"</string>
@@ -46,6 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"မည်သို့ဖြစ်စေ စမ်းကြည့်ရန်"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"Yes"</string>
     <string name="no_action_title" msgid="1452124604210014010">"No"</string>
+    <string name="disable_all_rows" msgid="3003225080532928046">"အတန်းအားလုံး ပိတ်ရန်"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"အတန်းအားလုံး ဖွင့်ရန်"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"ချွတ်ယွင်းမှု သတင်းပို့ပြီးပြီ။"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"ဇူးမ်ဆွဲထားသည်"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"ဇူးမ်ဖြုတ်ထားသည်"</string>
@@ -277,6 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"နည်းလမ်း ၁"</string>
     <string name="option_2_title" msgid="1905146448697963818">"နည်းလမ်း ၂"</string>
     <string name="option_3_title" msgid="6319268250436119258">"နည်းလမ်း ၃"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"‘ရေဒီယိုခလုတ်’ ပါသည့်အတန်း"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"‘ရေဒီယိုခလုတ်’ နှင့် ‘သင်္ကေတ’ ပါသည့်အတန်း"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"‘ရေဒီယိုခလုတ်’ နှင့် ‘သင်္ကေတ’ ပါသည့်အတန်းနှင့် ‘အရောင်ပါစာသား’"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"ထပ်တိုးစာသားအချို့"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"နမူနာ ရွေးချယ်နိုင်သည့်စာရင်း"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"လုပ်ဆောင်စရာကန့်သတ်မှု သရုပ်ပြချက်"</string>
@@ -285,11 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"ရှေ့ဆက်သွားရန် နှိပ်ပါ"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"စစ်ဆေးမှု ပြောင်းခြင်း"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"အနေအထားအပြည့် အပြောင်းအလဲများ ခွင့်ပြုထားသည်"</string>
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"စမ်းသပ်ခလုတ် ဖွင့်ရန်"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"စမ်းသပ်ခလုတ်ကို ဖွင့်ရန် ဤတစ်ခုကို စစ်ကြည့်ပါ"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"စစ်ဆေးမှု ပြောင်းခြင်း"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"အနေအထားအပြည့် အပြောင်းအလဲများ ခွင့်ပြုထားသည်"</string>
     <string name="image_test_title" msgid="8273863429801477547">"ပုံစစ်ဆေးမှု"</string>
     <string name="image_test_text" msgid="6264812093895530445">"ပုံအပြောင်းအလဲများ ခွင့်ပြုထားသည်"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"နောက်ထပ်ဒေတာများ"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"ပြန်ရွှေ့ခြင်းများတွင် အပ်ဒိတ်များကို ခွင့်ပြုသည်။"</string>
+    <string name="toggle_test_enabled" msgid="982370904182034076">"စမ်းသပ်ခလုတ် ဖွင့်ထားသည်"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"စမ်းသပ်ခလုတ် ပိတ်ထားသည်"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"အထွေထွေ ပုံစံသရုပ်ပြချက်များ"</string>
+    <string name="cal_api_level_prefix" msgid="5933606412710039570">"CAL API အဆင့်- %d"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase သရုပ်ပြချက်များ"</string>
     <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"အရောင်ထည့်ထားသော ရင်းမြစ်ဗက်တာ"</string>
