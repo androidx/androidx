@@ -46,6 +46,10 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"চেষ্টা করে দেখুন"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"হ্যাঁ"</string>
     <string name="no_action_title" msgid="1452124604210014010">"না"</string>
+    <!-- no translation found for disable_all_rows (3003225080532928046) -->
+    <skip />
+    <!-- no translation found for enable_all_rows (7274285275711872091) -->
+    <skip />
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"সমস্যার ব্যাপারে অভিযোগ জানানো হয়েছে!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"বড় করা হয়েছে"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"ছোট করা হয়েছে"</string>
@@ -141,14 +145,10 @@
     <string name="importance_title" msgid="9034862997821839831">"গুরুত্ব"</string>
     <string name="category_title" msgid="4783851267093259949">"বিভাগ"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"চলছে"</string>
-    <!-- no translation found for default_importance (6347996298832939989) -->
-    <skip />
-    <!-- no translation found for high_importance (5009120714837304882) -->
-    <skip />
-    <!-- no translation found for low_importance (4721161314404294033) -->
-    <skip />
-    <!-- no translation found for unknown_importance (909001735933359216) -->
-    <skip />
+    <string name="default_importance" msgid="6347996298832939989">"ডিফল্ট"</string>
+    <string name="high_importance" msgid="5009120714837304882">"বেশি"</string>
+    <string name="low_importance" msgid="4721161314404294033">"কম"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"অজানা"</string>
     <string name="notification_demo" msgid="1819496937832036387">"বিজ্ঞপ্তির ডেমো"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"অন্যান্য ডেমো"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"নেভিগেট করার ডেমো"</string>
@@ -281,6 +281,12 @@
     <string name="option_1_title" msgid="7221252541651471199">"১ নম্বর বিকল্প"</string>
     <string name="option_2_title" msgid="1905146448697963818">"২ নম্বর বিকল্প"</string>
     <string name="option_3_title" msgid="6319268250436119258">"৩ নম্বর বিকল্প"</string>
+    <!-- no translation found for option_row_radio_title (5978617101267398181) -->
+    <skip />
+    <!-- no translation found for option_row_radio_icon_title (3304229002524317977) -->
+    <skip />
+    <!-- no translation found for option_row_radio_icon_colored_text_title (947641896184637026) -->
+    <skip />
     <string name="some_additional_text" msgid="4009872495806318260">"অতিরিক্ত টেক্সট"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"বেছে নেওয়া যায় এমন তালিকার নমুনা"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"টাস্কের উপর আরোপ করা বিধিনিষেধ সম্পর্কিত ডেমো"</string>
@@ -289,11 +295,25 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"এগিয়ে যাওয়ার জন্য ক্লিক করুন"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"টগল টেস্ট"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"স্টেটফুল পরিবর্তন করার অনুমতি দেওয়া হয়েছে"</string>
+    <!-- no translation found for toggle_test_first_toggle_title (3635022201072117680) -->
+    <skip />
+    <!-- no translation found for toggle_test_first_toggle_text (5914741538328669668) -->
+    <skip />
+    <!-- no translation found for toggle_test_second_toggle_title (1083594617400613969) -->
+    <skip />
+    <!-- no translation found for toggle_test_second_toggle_text (1813071017415876745) -->
+    <skip />
     <string name="image_test_title" msgid="8273863429801477547">"ছবির টেস্ট"</string>
     <string name="image_test_text" msgid="6264812093895530445">"ছবিতে পরিবর্তন করা যায়"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"অতিরিক্ত ডেটা"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"পিছনের পৃষ্ঠাতে গিয়ে পরিবর্তন করা যাবে।"</string>
+    <!-- no translation found for toggle_test_enabled (982370904182034076) -->
+    <skip />
+    <!-- no translation found for toggle_test_disabled (8366040658408451664) -->
+    <skip />
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"অন্যান্য টেমপ্লেটের ডেমো"</string>
+    <!-- no translation found for cal_api_level_prefix (5933606412710039570) -->
+    <skip />
     <string name="showcase_demos_title" msgid="1542092687878113304">"ডেমো শোকেস করুন"</string>
     <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"রঙিন রিসোর্স ভেক্টর"</string>
