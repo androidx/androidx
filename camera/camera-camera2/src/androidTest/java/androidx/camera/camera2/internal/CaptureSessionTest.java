@@ -34,11 +34,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
+import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
@@ -52,6 +55,7 @@ import android.os.Looper;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallback;
@@ -77,6 +81,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.CameraUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
@@ -119,6 +124,7 @@ import java.util.concurrent.TimeoutException;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 21)
+@RequiresApi(21)
 public final class CaptureSessionTest {
     /** Thread for all asynchronous calls. */
     private static HandlerThread sHandlerThread;
@@ -243,6 +249,20 @@ public final class CaptureSessionTest {
                 .onCaptureCompleted(any(CameraCaptureResult.class));
     }
 
+    private boolean isLegacyCamera() {
+        String cameraId = CameraUtil.getBackwardCompatibleCameraIdListOrThrow().get(0);
+        Context context = ApplicationProvider.getApplicationContext();
+        CameraManager cameraManager =
+                (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+        try {
+            return cameraManager.getCameraCharacteristics(cameraId)
+                    .get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+                    == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
+        } catch (CameraAccessException e) {
+        }
+        return false;
+    }
+
     // Sharing surface of YUV format is supported since API 28
     @SdkSuppress(minSdkVersion = 28)
     @Test
@@ -253,6 +273,8 @@ public final class CaptureSessionTest {
         assumeTrue(
                 new OutputConfigurationCompat(imageReader0.getSurface()).getMaxSharedSurfaceCount()
                         > 1);
+        assumeFalse(isLegacyCamera());  // Legacy device doesn't support shared surface.
+
         DeferrableSurface surface0 = new ImmediateSurface(imageReader0.getSurface());
         ImageReader imageReader1 = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
         DeferrableSurface surface1 = new ImmediateSurface(imageReader1.getSurface());
