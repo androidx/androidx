@@ -99,6 +99,7 @@ package androidx.wear.tiles.material {
   }
 
   public class CircularProgressIndicator implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.CircularProgressIndicator? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.ProgressIndicatorColors getCircularProgressIndicatorColors();
     method public CharSequence? getContentDescription();
     method public androidx.wear.tiles.DimensionBuilders.DegreesProp getEndAngle();

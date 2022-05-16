@@ -23,11 +23,17 @@ import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_STR
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.graphics.Color;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.tiles.LayoutElementBuilders.Box;
+import androidx.wear.tiles.LayoutElementBuilders.Column;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
+import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +47,7 @@ public class CircularProgressIndicatorTest {
         CircularProgressIndicator circularProgressIndicator =
                 new CircularProgressIndicator.Builder().build();
 
-        assertProgressIndicatorIsEqual(
+        assertProgressIndicator(
                 circularProgressIndicator,
                 0,
                 DEFAULT_START_ANGLE,
@@ -70,7 +76,7 @@ public class CircularProgressIndicatorTest {
                         .setContentDescription(contentDescription)
                         .build();
 
-        assertProgressIndicatorIsEqual(
+        assertProgressIndicator(
                 circularProgressIndicator,
                 progress,
                 startAngle,
@@ -80,41 +86,112 @@ public class CircularProgressIndicatorTest {
                 contentDescription);
     }
 
-    private void assertProgressIndicatorIsEqual(
-            @NonNull CircularProgressIndicator circularProgressIndicator,
-            float progress,
-            float startAngle,
-            float endAngle,
-            @NonNull ProgressIndicatorColors colors,
-            float thickness,
-            @Nullable String contentDescription) {
-        float total = endAngle + (endAngle <= startAngle ? 360 : 0) - startAngle;
-        assertThat(circularProgressIndicator.getProgress().getValue())
-                .isWithin(0.01f)
-                .of(progress * total);
-        assertThat(circularProgressIndicator.getStartAngle().getValue())
-                .isWithin(0.01f)
-                .of(startAngle);
-        assertThat(circularProgressIndicator.getEndAngle().getValue()).isWithin(0.01f).of(endAngle);
-        assertThat(
-                circularProgressIndicator
-                        .getCircularProgressIndicatorColors()
-                        .getIndicatorColor()
-                        .getArgb())
-                .isEqualTo(colors.getIndicatorColor().getArgb());
-        assertThat(
-                circularProgressIndicator
-                        .getCircularProgressIndicatorColors()
-                        .getTrackColor()
-                        .getArgb())
-                .isEqualTo(colors.getTrackColor().getArgb());
-        assertThat(circularProgressIndicator.getStrokeWidth().getValue()).isEqualTo(thickness);
+    @Test
+    public void testWrongElement() {
+        Column box = new Column.Builder().build();
 
-        if (contentDescription == null) {
-            assertThat(circularProgressIndicator.getContentDescription()).isNull();
+        assertThat(CircularProgressIndicator.fromLayoutElement(box)).isNull();
+    }
+
+    @Test
+    public void testWrongBox() {
+        Box box = new Box.Builder().build();
+
+        assertThat(CircularProgressIndicator.fromLayoutElement(box)).isNull();
+    }
+
+    @Test
+    public void testWrongTag() {
+        Box box =
+                new Box.Builder()
+                        .setModifiers(
+                                new Modifiers.Builder()
+                                        .setMetadata(
+                                                new ElementMetadata.Builder()
+                                                        .setTagData("test".getBytes(UTF_8))
+                                                        .build())
+                                        .build())
+                        .build();
+
+        assertThat(CircularProgressIndicator.fromLayoutElement(box)).isNull();
+    }
+
+    private void assertProgressIndicator(
+            @NonNull CircularProgressIndicator actualCircularProgressIndicator,
+            float expectedProgress,
+            float expectedStartAngle,
+            float expectedEndAngle,
+            @NonNull ProgressIndicatorColors expectedColors,
+            float expectedThickness,
+            @Nullable String expectedContentDescription) {
+        assertProgressIndicatorIsEqual(
+                actualCircularProgressIndicator,
+                expectedProgress,
+                expectedStartAngle,
+                expectedEndAngle,
+                expectedColors,
+                expectedThickness,
+                expectedContentDescription);
+
+        Box box = new Box.Builder().addContent(actualCircularProgressIndicator).build();
+
+        CircularProgressIndicator newCpi =
+                CircularProgressIndicator.fromLayoutElement(box.getContents().get(0));
+
+        assertThat(newCpi).isNotNull();
+        assertProgressIndicatorIsEqual(
+                actualCircularProgressIndicator,
+                expectedProgress,
+                expectedStartAngle,
+                expectedEndAngle,
+                expectedColors,
+                expectedThickness,
+                expectedContentDescription);
+    }
+
+    private void assertProgressIndicatorIsEqual(
+            @NonNull CircularProgressIndicator actualCircularProgressIndicator,
+            float expectedProgress,
+            float expectedStartAngle,
+            float expectedEndAngle,
+            @NonNull ProgressIndicatorColors expectedColors,
+            float expectedThickness,
+            @Nullable String expectedContentDescription) {
+        float total =
+                expectedEndAngle
+                        + (expectedEndAngle <= expectedStartAngle ? 360 : 0)
+                        - expectedStartAngle;
+        assertThat(actualCircularProgressIndicator.getMetadataTag())
+                .isEqualTo(CircularProgressIndicator.METADATA_TAG);
+        assertThat(actualCircularProgressIndicator.getProgress().getValue())
+                .isWithin(0.01f)
+                .of(expectedProgress * total);
+        assertThat(actualCircularProgressIndicator.getStartAngle().getValue())
+                .isWithin(0.01f)
+                .of(expectedStartAngle);
+        assertThat(actualCircularProgressIndicator.getEndAngle().getValue())
+                .isWithin(0.01f)
+                .of(expectedEndAngle);
+        assertThat(
+                        actualCircularProgressIndicator
+                                .getCircularProgressIndicatorColors()
+                                .getIndicatorColor()
+                                .getArgb())
+                .isEqualTo(expectedColors.getIndicatorColor().getArgb());
+        assertThat(
+                        actualCircularProgressIndicator
+                                .getCircularProgressIndicatorColors()
+                                .getTrackColor()
+                                .getArgb())
+                .isEqualTo(expectedColors.getTrackColor().getArgb());
+        assertThat(actualCircularProgressIndicator.getStrokeWidth().getValue())
+                .isEqualTo(expectedThickness);
+
+        if (expectedContentDescription == null) {
+            assertThat(actualCircularProgressIndicator.getContentDescription()).isNull();
         } else {
-            assertThat(circularProgressIndicator.getContentDescription())
-                    .isEqualTo(contentDescription);
+            assertThat(actualCircularProgressIndicator.getContentDescription().toString())
+                    .isEqualTo(expectedContentDescription);
         }
     }
 }
