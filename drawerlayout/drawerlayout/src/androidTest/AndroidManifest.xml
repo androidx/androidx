@@ -23,6 +23,8 @@
                 android:theme="@style/CustomDrawerLayoutTheme"/>
         <activity
             android:name="androidx.drawerlayout.widget.DrawerNoThemeActivity"/>
+        <activity
+            android:name="androidx.drawerlayout.widget.DrawerSingleStartActivity"/>
     </application>
 
 </manifest>

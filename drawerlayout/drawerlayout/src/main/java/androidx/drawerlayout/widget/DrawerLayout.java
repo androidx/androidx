@@ -43,13 +43,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -217,6 +222,14 @@ public class DrawerLayout extends ViewGroup implements Openable {
     private int mDrawerState;
     private boolean mInLayout;
     private boolean mFirstLayout = true;
+
+    // The callback handling back events. If this is non-null, the
+    // callback has been registered at least once.
+    private OnBackInvokedCallback mBackInvokedCallback;
+
+    // The dispatcher on which the callback was registered. If this
+    // value is null, the callback is not registered anywhere.
+    private OnBackInvokedDispatcher mBackInvokedDispatcher;
 
     private @LockMode int mLockModeLeft = LOCK_MODE_UNDEFINED;
     private @LockMode int mLockModeRight = LOCK_MODE_UNDEFINED;
@@ -883,6 +896,7 @@ public class DrawerLayout extends ViewGroup implements Openable {
 
             updateChildrenImportantForAccessibility(drawerView, false);
             updateChildAccessibilityAction(drawerView);
+            updateBackInvokedCallbackState();
 
             // Only send WINDOW_STATE_CHANGE if the host has window focus. This
             // may change if support for multiple foreground windows (e.g. IME)
@@ -911,6 +925,7 @@ public class DrawerLayout extends ViewGroup implements Openable {
 
             updateChildrenImportantForAccessibility(drawerView, true);
             updateChildAccessibilityAction(drawerView);
+            updateBackInvokedCallbackState();
 
             // Only send WINDOW_STATE_CHANGE if the host has window focus.
             if (hasWindowFocus()) {
@@ -1045,12 +1060,16 @@ public class DrawerLayout extends ViewGroup implements Openable {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mFirstLayout = true;
+
+        updateBackInvokedCallbackState();
     }
 
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mFirstLayout = true;
+
+        updateBackInvokedCallbackState();
     }
 
     @SuppressLint("WrongConstant")
@@ -1731,6 +1750,7 @@ public class DrawerLayout extends ViewGroup implements Openable {
 
             updateChildrenImportantForAccessibility(drawerView, true);
             updateChildAccessibilityAction(drawerView);
+            updateBackInvokedCallbackState();
         } else if (animate) {
             lp.openState |= LayoutParams.FLAG_IS_OPENING;
 
@@ -2026,6 +2046,40 @@ public class DrawerLayout extends ViewGroup implements Openable {
             cancelEvent.recycle();
             mChildrenCanceledTouch = true;
         }
+    }
+
+    /**
+     * Call this method whenever a property changes that affects whether the view will handle a
+     * back press, which is the combination of properties inspected in {@link #closeDrawers()} and
+     * properties that affect whether this view would normally receive key press events.
+     */
+    void updateBackInvokedCallbackState() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            View visibleDrawer = findVisibleDrawer();
+            OnBackInvokedDispatcher currentDispatcher = Api33Impl.findOnBackInvokedDispatcher(this);
+            boolean shouldBeRegistered = visibleDrawer != null
+                    && currentDispatcher != null
+                    && getDrawerLockMode(visibleDrawer) == LOCK_MODE_UNLOCKED
+                    && ViewCompat.isAttachedToWindow(this);
+
+            if (shouldBeRegistered && mBackInvokedDispatcher == null) {
+                if (mBackInvokedCallback == null) {
+                    mBackInvokedCallback = Api33Impl.newOnBackInvokedCallback(this::closeDrawers);
+                }
+                Api33Impl.tryRegisterOnBackInvokedCallback(
+                        currentDispatcher, mBackInvokedCallback);
+                mBackInvokedDispatcher = currentDispatcher;
+            } else if (!shouldBeRegistered && mBackInvokedDispatcher != null) {
+                Api33Impl.tryUnregisterOnBackInvokedCallback(
+                        mBackInvokedDispatcher, mBackInvokedCallback);
+                mBackInvokedDispatcher = null;
+            }
+        }
+    }
+
+    @VisibleForTesting
+    boolean isBackInvokedCallbackRegistered() {
+        return mBackInvokedDispatcher != null;
     }
 
     @Override
@@ -2525,6 +2579,40 @@ public class DrawerLayout extends ViewGroup implements Openable {
                 // For details refer to includeChildForAccessibility.
                 info.setParent(null);
             }
+        }
+    }
+
+    @RequiresApi(33)
+    static class Api33Impl {
+        private Api33Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void tryRegisterOnBackInvokedCallback(@NonNull Object dispatcherObj,
+                @NonNull Object callback) {
+            OnBackInvokedDispatcher dispatcher = (OnBackInvokedDispatcher) dispatcherObj;
+            dispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY,
+                    (OnBackInvokedCallback) callback);
+        }
+
+        @DoNotInline
+        static void tryUnregisterOnBackInvokedCallback(@NonNull Object dispatcherObj,
+                @NonNull Object callbackObj) {
+            OnBackInvokedDispatcher dispatcher = (OnBackInvokedDispatcher) dispatcherObj;
+            dispatcher.unregisterOnBackInvokedCallback((OnBackInvokedCallback) callbackObj);
+        }
+
+        @Nullable
+        @DoNotInline
+        static OnBackInvokedDispatcher findOnBackInvokedDispatcher(@NonNull DrawerLayout view) {
+            return view.findOnBackInvokedDispatcher();
+        }
+
+        @NonNull
+        @DoNotInline
+        static OnBackInvokedCallback newOnBackInvokedCallback(@NonNull Runnable action) {
+            return action::run;
         }
     }
 }
