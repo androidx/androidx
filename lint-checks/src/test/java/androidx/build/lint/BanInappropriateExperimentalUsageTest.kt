@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import androidx.build.lint.BanInappropriateExperimentalUsage.Companion.isAnnotationAlwaysAllowed
 import com.android.tools.lint.checks.infrastructure.ProjectDescription
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestMode
@@ -42,6 +43,20 @@ class BanInappropriateExperimentalUsageTest : AbstractLintDetectorTest(
     useIssues = listOf(BanInappropriateExperimentalUsage.ISSUE),
     stubs = arrayOf(Stubs.OptIn),
 ) {
+
+    @Test
+    fun `Check if annotation is always allowed`() {
+
+        // List of Kotlin stdlib experimental annotations used in AndroidX
+        assertTrue(isAnnotationAlwaysAllowed("kotlin.contracts.ExperimentalContracts"))
+        assertTrue(isAnnotationAlwaysAllowed("kotlin.ExperimentalStdlibApi"))
+        assertTrue(isAnnotationAlwaysAllowed("kotlin.experimental.ExperimentalTypeInference"))
+        assertTrue(isAnnotationAlwaysAllowed("kotlinx.coroutines.DelicateCoroutinesApi"))
+        assertTrue(isAnnotationAlwaysAllowed("kotlinx.coroutines.ExperimentalCoroutinesApi"))
+
+        assertFalse(isAnnotationAlwaysAllowed("androidx.foo.bar"))
+        assertFalse(isAnnotationAlwaysAllowed("com.google.foo.bar"))
+    }
 
     @Test
     fun `Test same atomic module Experimental usage via Gradle model`() {
