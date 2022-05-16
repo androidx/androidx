@@ -82,6 +82,12 @@ message Background {
   Corner corner = 2;
 }
 
+// Metadata about an element, for use by libraries only.
+message ElementMetadata {
+  // Property describing the element with which it is associated
+  bytes tag_data = 1;
+}
+
 // Modifiers for an element. These may change the way they are drawn (e.g.
 // Padding or Background), or change their behaviour (e.g. Clickable, or
 // Semantics).
@@ -102,6 +108,9 @@ message Modifiers {
 
   // Adds a background (with corner radius) to the modified element.
   Background background = 5;
+
+  // Metadata about an element, for use by libraries only.
+  ElementMetadata metadata = 6;
 }
 
 // Modifiers that can be used with ArcLayoutElements. These may change the way
