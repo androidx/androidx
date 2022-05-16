@@ -248,12 +248,17 @@ class AdvancedSessionProcessorTest {
         assertThat(captureOutputSurfaceFormat).isEqualTo(ImageFormat.YUV_420_888)
     }
 
-    private fun assumeAllowsSharedSurface() {
+    private suspend fun assumeAllowsSharedSurface() = withContext(Dispatchers.Main) {
         val imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2)
         val maxSharedSurfaceCount =
             OutputConfigurationCompat(imageReader.surface).maxSharedSurfaceCount
         imageReader.close()
-        assumeTrue(maxSharedSurfaceCount > 1)
+
+        val camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector)
+        val hardwareLevel = Camera2CameraInfo.from(camera.cameraInfo)
+            .getCameraCharacteristic(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+        assumeTrue(maxSharedSurfaceCount > 1 &&
+            hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
     }
 
     // Surface sharing of YUV format is supported after API 28.
