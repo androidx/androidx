@@ -18,7 +18,6 @@ package androidx.wear.tiles.material;
 
 import static androidx.wear.tiles.ColorBuilders.argb;
 import static androidx.wear.tiles.DimensionBuilders.dp;
-import static androidx.wear.tiles.LayoutElementBuilders.CONTENT_SCALE_MODE_FILL_BOUNDS;
 import static androidx.wear.tiles.material.ButtonDefaults.DEFAULT_BUTTON_SIZE;
 import static androidx.wear.tiles.material.ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE;
 import static androidx.wear.tiles.material.ButtonDefaults.LARGE_BUTTON_SIZE;
@@ -28,6 +27,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -36,10 +37,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.tiles.ActionBuilders.LaunchAction;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
-import androidx.wear.tiles.LayoutElementBuilders.ColorFilter;
-import androidx.wear.tiles.LayoutElementBuilders.Image;
+import androidx.wear.tiles.LayoutElementBuilders.Box;
+import androidx.wear.tiles.LayoutElementBuilders.Column;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
+import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,23 +59,31 @@ public class ButtonTest {
                     .setOnClick(new LaunchAction.Builder().build())
                     .setId("action_id")
                     .build();
-    private final Context mContext = ApplicationProvider.getApplicationContext();
-    private final LayoutElement mContent =
-            new Text.Builder(mContext, "ABC").setColor(argb(0)).build();
+    private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
+    private static final LayoutElement CONTENT =
+            new Text.Builder(CONTEXT, "ABC").setColor(argb(0)).build();
 
     @Test
     public void testButtonEmpty() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new Button.Builder(mContext, CLICKABLE).build());
+                () -> new Button.Builder(CONTEXT, CLICKABLE).build());
     }
 
     @Test
     public void testButtonCustomAddedContentNoContentDesc() {
-        Button button = new Button.Builder(mContext, CLICKABLE).setContent(mContent).build();
+        Button button = new Button.Builder(CONTEXT, CLICKABLE).setCustomContent(CONTENT).build();
 
-        assertButtonIsEqual(
-                button, mContent, DEFAULT_BUTTON_SIZE, new ButtonColors(Colors.PRIMARY, 0), null);
+        assertButton(
+                button,
+                DEFAULT_BUTTON_SIZE,
+                new ButtonColors(Colors.PRIMARY, 0),
+                null,
+                Button.METADATA_TAG_CUSTOM_CONTENT,
+                null,
+                null,
+                null,
+                CONTENT);
     }
 
     @Test
@@ -81,153 +92,205 @@ public class ButtonTest {
         ButtonColors mButtonColors = new ButtonColors(0x11223344, 0);
 
         Button button =
-                new Button.Builder(mContext, CLICKABLE)
-                        .setContent(mContent)
+                new Button.Builder(CONTEXT, CLICKABLE)
+                        .setCustomContent(CONTENT)
                         .setSize(mSize)
                         .setButtonColors(mButtonColors)
                         .setContentDescription(CONTENT_DESCRIPTION)
                         .build();
 
-        assertButtonIsEqual(button, mContent, mSize, mButtonColors, CONTENT_DESCRIPTION);
+        assertButton(
+                button,
+                mSize,
+                mButtonColors,
+                CONTENT_DESCRIPTION,
+                Button.METADATA_TAG_CUSTOM_CONTENT,
+                null,
+                null,
+                null,
+                CONTENT);
     }
 
     @Test
     public void testButtonSetIcon() {
-        LayoutElement content =
-                new Image.Builder()
-                        .setResourceId(RESOURCE_ID)
-                        .setColorFilter(
-                                new ColorFilter.Builder().setTint(argb(Colors.ON_PRIMARY)).build())
-                        .setWidth(dp(DEFAULT_BUTTON_SIZE.getValue() / 2))
-                        .setHeight(dp(DEFAULT_BUTTON_SIZE.getValue() / 2))
-                        .setContentScaleMode(CONTENT_SCALE_MODE_FILL_BOUNDS)
-                        .build();
 
         Button button =
-                new Button.Builder(mContext, CLICKABLE)
+                new Button.Builder(CONTEXT, CLICKABLE)
                         .setIconContent(RESOURCE_ID)
                         .setContentDescription(CONTENT_DESCRIPTION)
                         .build();
 
-        assertButtonIsEqual(
-                button, content, DEFAULT_BUTTON_SIZE, PRIMARY_BUTTON_COLORS, CONTENT_DESCRIPTION);
+        assertButton(
+                button,
+                DEFAULT_BUTTON_SIZE,
+                PRIMARY_BUTTON_COLORS,
+                CONTENT_DESCRIPTION,
+                Button.METADATA_TAG_ICON,
+                null,
+                RESOURCE_ID,
+                null,
+                null);
     }
 
     @Test
     public void testButtonSetIconSetSize() {
-        LayoutElement content =
-                new Image.Builder()
-                        .setResourceId(RESOURCE_ID)
-                        .setColorFilter(
-                                new ColorFilter.Builder().setTint(argb(Colors.ON_PRIMARY)).build())
-                        .setWidth(dp(LARGE_BUTTON_SIZE.getValue() / 2))
-                        .setHeight(dp(LARGE_BUTTON_SIZE.getValue() / 2))
-                        .setContentScaleMode(CONTENT_SCALE_MODE_FILL_BOUNDS)
-                        .build();
-
         Button button =
-                new Button.Builder(mContext, CLICKABLE)
+                new Button.Builder(CONTEXT, CLICKABLE)
                         .setIconContent(RESOURCE_ID)
                         .setSize(LARGE_BUTTON_SIZE)
                         .setContentDescription(CONTENT_DESCRIPTION)
                         .build();
 
-        assertButtonIsEqual(
-                button, content, LARGE_BUTTON_SIZE, PRIMARY_BUTTON_COLORS, CONTENT_DESCRIPTION);
+        assertButton(
+                button,
+                LARGE_BUTTON_SIZE,
+                PRIMARY_BUTTON_COLORS,
+                CONTENT_DESCRIPTION,
+                Button.METADATA_TAG_ICON,
+                null,
+                RESOURCE_ID,
+                null,
+                null);
     }
 
     @Test
     public void testButtonSetIconCustomSize() {
         DpProp mSize = dp(36);
-        LayoutElement content =
-                new Image.Builder()
-                        .setResourceId(RESOURCE_ID)
-                        .setColorFilter(
-                                new ColorFilter.Builder().setTint(argb(Colors.ON_PRIMARY)).build())
-                        .setWidth(mSize)
-                        .setHeight(mSize)
-                        .setContentScaleMode(CONTENT_SCALE_MODE_FILL_BOUNDS)
-                        .build();
 
         Button button =
-                new Button.Builder(mContext, CLICKABLE)
+                new Button.Builder(CONTEXT, CLICKABLE)
                         .setIconContent(RESOURCE_ID, mSize)
                         .setContentDescription(CONTENT_DESCRIPTION)
                         .build();
 
-        assertButtonIsEqual(
-                button, content, DEFAULT_BUTTON_SIZE, PRIMARY_BUTTON_COLORS, CONTENT_DESCRIPTION);
+        assertButton(
+                button,
+                DEFAULT_BUTTON_SIZE,
+                PRIMARY_BUTTON_COLORS,
+                CONTENT_DESCRIPTION,
+                Button.METADATA_TAG_ICON,
+                null,
+                RESOURCE_ID,
+                null,
+                null);
     }
 
     @Test
     public void testButtonSetText() {
-        LayoutElement content =
-                new Text.Builder(mContext, TEXT)
-                        .setTypography(Typography.TYPOGRAPHY_TITLE2)
-                        .setColor(argb(Colors.ON_PRIMARY))
-                        .setMaxLines(1)
-                        .build();
-
         Button button =
-                new Button.Builder(mContext, CLICKABLE)
+                new Button.Builder(CONTEXT, CLICKABLE)
                         .setTextContent(TEXT)
                         .setContentDescription(CONTENT_DESCRIPTION)
                         .build();
 
-        assertButtonIsEqual(
-                button, content, DEFAULT_BUTTON_SIZE, PRIMARY_BUTTON_COLORS, CONTENT_DESCRIPTION);
-    }
-
-    @Test
-    public void testButtonSetTextCustomTypographyCode() {
-        LayoutElement content =
-                new Text.Builder(mContext, TEXT)
-                        .setTypography(Typography.TYPOGRAPHY_BODY2)
-                        .setColor(argb(Colors.ON_PRIMARY))
-                        .setMaxLines(1)
-                        .build();
-
-        Button button =
-                new Button.Builder(mContext, CLICKABLE)
-                        .setTextContent(TEXT, Typography.TYPOGRAPHY_BODY2)
-                        .setContentDescription(CONTENT_DESCRIPTION)
-                        .build();
-
-        assertButtonIsEqual(
-                button, content, DEFAULT_BUTTON_SIZE, PRIMARY_BUTTON_COLORS, CONTENT_DESCRIPTION);
+        assertButton(
+                button,
+                DEFAULT_BUTTON_SIZE,
+                PRIMARY_BUTTON_COLORS,
+                CONTENT_DESCRIPTION,
+                Button.METADATA_TAG_TEXT,
+                TEXT,
+                null,
+                null,
+                null);
     }
 
     @Test
     public void testButtonSetTextSetSize() {
-        LayoutElement content =
-                new Text.Builder(mContext, TEXT)
-                        .setTypography(Typography.TYPOGRAPHY_DISPLAY3)
-                        .setColor(argb(Colors.ON_PRIMARY))
-                        .setMaxLines(1)
-                        .build();
-
         Button button =
-                new Button.Builder(mContext, CLICKABLE)
+                new Button.Builder(CONTEXT, CLICKABLE)
                         .setTextContent(TEXT)
                         .setContentDescription(CONTENT_DESCRIPTION)
                         .setSize(EXTRA_LARGE_BUTTON_SIZE)
                         .build();
 
-        assertButtonIsEqual(
+        assertButton(
                 button,
-                content,
                 EXTRA_LARGE_BUTTON_SIZE,
                 PRIMARY_BUTTON_COLORS,
-                CONTENT_DESCRIPTION);
+                CONTENT_DESCRIPTION,
+                Button.METADATA_TAG_TEXT,
+                TEXT,
+                null,
+                null,
+                null);
+    }
+
+    @Test
+    public void testWrongElementForButton() {
+        Column box = new Column.Builder().build();
+
+        assertThat(Button.fromLayoutElement(box)).isNull();
+    }
+
+    @Test
+    public void testWrongBoxForButton() {
+        Box box = new Box.Builder().build();
+
+        assertThat(Button.fromLayoutElement(box)).isNull();
+    }
+
+    @Test
+    public void testWrongTagForButton() {
+        Box box =
+                new Box.Builder()
+                        .setModifiers(
+                                new Modifiers.Builder()
+                                        .setMetadata(
+                                                new ElementMetadata.Builder()
+                                                        .setTagData("test".getBytes(UTF_8))
+                                                        .build())
+                                        .build())
+                        .build();
+
+        assertThat(Button.fromLayoutElement(box)).isNull();
+    }
+
+    private void assertButton(
+            @NonNull Button actualButton,
+            @NonNull DpProp expectedSize,
+            @NonNull ButtonColors expectedButtonColors,
+            @Nullable String expectedContentDescription,
+            @NonNull String expectedMetadataTag,
+            @Nullable String expectedTextContent,
+            @Nullable String expectedIconContent,
+            @Nullable String expectedImageContent,
+            @Nullable LayoutElement expectedCustomContent) {
+        assertButtonIsEqual(
+                actualButton,
+                expectedSize,
+                expectedButtonColors,
+                expectedContentDescription,
+                expectedMetadataTag,
+                expectedTextContent,
+                expectedIconContent,
+                expectedImageContent,
+                expectedCustomContent);
+
+        assertFromLayoutElementButtonIsEqual(
+                actualButton,
+                expectedSize,
+                expectedButtonColors,
+                expectedContentDescription,
+                expectedMetadataTag,
+                expectedTextContent,
+                expectedIconContent,
+                expectedImageContent,
+                expectedCustomContent);
     }
 
     private void assertButtonIsEqual(
             @NonNull Button actualButton,
-            @NonNull  LayoutElement expectedContent,
             @NonNull DpProp expectedSize,
-            @NonNull  ButtonColors expectedButtonColors,
-            @Nullable String expectedContentDescription) {
+            @NonNull ButtonColors expectedButtonColors,
+            @Nullable String expectedContentDescription,
+            @NonNull String expectedMetadataTag,
+            @Nullable String expectedTextContent,
+            @Nullable String expectedIconContent,
+            @Nullable String expectedImageContent,
+            @Nullable LayoutElement expectedCustomContent) {
         // Mandatory
+        assertThat(actualButton.getMetadataTag()).isEqualTo(expectedMetadataTag);
         assertThat(actualButton.getClickable().toProto()).isEqualTo(CLICKABLE.toProto());
         assertThat(actualButton.getSize().toContainerDimensionProto())
                 .isEqualTo(expectedSize.toContainerDimensionProto());
@@ -235,8 +298,6 @@ public class ButtonTest {
                 .isEqualTo(expectedButtonColors.getBackgroundColor().getArgb());
         assertThat(actualButton.getButtonColors().getContentColor().getArgb())
                 .isEqualTo(expectedButtonColors.getContentColor().getArgb());
-        assertThat(actualButton.getContent().toLayoutElementProto())
-                .isEqualTo(expectedContent.toLayoutElementProto());
 
         // Nullable
         if (expectedContentDescription == null) {
@@ -245,5 +306,57 @@ public class ButtonTest {
             assertThat(actualButton.getContentDescription().toString())
                     .isEqualTo(expectedContentDescription);
         }
+
+        if (expectedTextContent == null) {
+            assertThat(actualButton.getTextContent()).isNull();
+        } else {
+            assertThat(actualButton.getTextContent()).isEqualTo(expectedTextContent);
+        }
+
+        if (expectedIconContent == null) {
+            assertThat(actualButton.getIconContent()).isNull();
+        } else {
+            assertThat(actualButton.getIconContent()).isEqualTo(expectedIconContent);
+        }
+
+        if (expectedImageContent == null) {
+            assertThat(actualButton.getImageContent()).isNull();
+        } else {
+            assertThat(actualButton.getImageContent()).isEqualTo(expectedImageContent);
+        }
+
+        if (expectedCustomContent == null) {
+            assertThat(actualButton.getCustomContent()).isNull();
+        } else {
+            assertThat(actualButton.getCustomContent().toLayoutElementProto())
+                    .isEqualTo(expectedCustomContent.toLayoutElementProto());
+        }
+    }
+
+    private void assertFromLayoutElementButtonIsEqual(
+            @NonNull Button button,
+            @NonNull DpProp expectedSize,
+            @NonNull ButtonColors expectedButtonColors,
+            @Nullable String expectedContentDescription,
+            @NonNull String expectedMetadataTag,
+            @Nullable String expectedTextContent,
+            @Nullable String expectedIconContent,
+            @Nullable String expectedImageContent,
+            @Nullable LayoutElement expectedCustomContent) {
+        Box box = new Box.Builder().addContent(button).build();
+
+        Button newButton = Button.fromLayoutElement(box.getContents().get(0));
+
+        assertThat(newButton).isNotNull();
+        assertButtonIsEqual(
+                newButton,
+                expectedSize,
+                expectedButtonColors,
+                expectedContentDescription,
+                expectedMetadataTag,
+                expectedTextContent,
+                expectedIconContent,
+                expectedImageContent,
+                expectedCustomContent);
     }
 }

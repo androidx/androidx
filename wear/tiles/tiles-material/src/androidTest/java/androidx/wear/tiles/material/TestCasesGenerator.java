@@ -89,7 +89,7 @@ public class TestCasesGenerator {
                 new Button.Builder(context, clickable)
                         .setButtonColors(new ButtonColors(Color.YELLOW, Color.GREEN))
                         .setSize(ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE)
-                        .setContent(
+                        .setCustomContent(
                                 new Text.Builder(context, "ABC")
                                         .setTypography(Typography.TYPOGRAPHY_DISPLAY1)
                                         .setItalic(true)
