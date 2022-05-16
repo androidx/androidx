@@ -32,9 +32,9 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class ProgressIndicatorColorsTest {
     private static final int ARGB_BACKGROUND_COLOR = 0x12345678;
     private static final int ARGB_CONTENT_COLOR = 0x11223344;
-    private final ColorProp mTrackColor = argb(ARGB_BACKGROUND_COLOR);
-    private final ColorProp mIndicatorColor = argb(ARGB_CONTENT_COLOR);
-    private final Colors mColors = new Colors(0x123, 0x234, 0x345, 0x456);
+    private static final ColorProp TRACK_COLOR = argb(ARGB_BACKGROUND_COLOR);
+    private static final ColorProp INDICATOR_COLOR = argb(ARGB_CONTENT_COLOR);
+    private static final Colors COLORS = new Colors(0x123, 0x234, 0x345, 0x456);
 
     @Test
     public void testCreateProgressIndicatorColorsFromArgb() {
@@ -42,30 +42,30 @@ public class ProgressIndicatorColorsTest {
                 new ProgressIndicatorColors(ARGB_CONTENT_COLOR, ARGB_BACKGROUND_COLOR);
 
         assertThat(progressIndicatorColors.getTrackColor().getArgb())
-                .isEqualTo(mTrackColor.getArgb());
+                .isEqualTo(TRACK_COLOR.getArgb());
         assertThat(progressIndicatorColors.getIndicatorColor().getArgb())
-                .isEqualTo(mIndicatorColor.getArgb());
+                .isEqualTo(INDICATOR_COLOR.getArgb());
     }
 
     @Test
     public void testCreateProgressIndicatorColorsFromColorProp() {
         ProgressIndicatorColors progressIndicatorColors =
-                new ProgressIndicatorColors(mIndicatorColor, mTrackColor);
+                new ProgressIndicatorColors(INDICATOR_COLOR, TRACK_COLOR);
 
         assertThat(progressIndicatorColors.getTrackColor().getArgb())
-                .isEqualTo(mTrackColor.getArgb());
+                .isEqualTo(TRACK_COLOR.getArgb());
         assertThat(progressIndicatorColors.getIndicatorColor().getArgb())
-                .isEqualTo(mIndicatorColor.getArgb());
+                .isEqualTo(INDICATOR_COLOR.getArgb());
     }
 
     @Test
     public void testCreateProgressIndicatorColorsFromHelper() {
         ProgressIndicatorColors progressIndicatorColors =
-                ProgressIndicatorColors.progressIndicatorColors(mColors);
+                ProgressIndicatorColors.progressIndicatorColors(COLORS);
 
         assertThat(progressIndicatorColors.getTrackColor().getArgb())
-                .isEqualTo(mColors.getSurface());
+                .isEqualTo(COLORS.getSurface());
         assertThat(progressIndicatorColors.getIndicatorColor().getArgb())
-                .isEqualTo(mColors.getPrimary());
+                .isEqualTo(COLORS.getPrimary());
     }
 }

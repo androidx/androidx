@@ -39,8 +39,8 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
 public class MultiButtonLayoutTest {
-    private final Context mContext = ApplicationProvider.getApplicationContext();
-    private final Clickable mClickable =
+    private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
+    private static final Clickable CLICKABLE =
             new Clickable.Builder()
                     .setOnClick(new LaunchAction.Builder().build())
                     .setId("action_id")
@@ -49,7 +49,7 @@ public class MultiButtonLayoutTest {
     @Test
     public void test_1button() {
         Button button1 =
-                new Button.Builder(mContext, mClickable)
+                new Button.Builder(CONTEXT, CLICKABLE)
                         .setTextContent("1")
                         .setSize(ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE)
                         .build();
@@ -64,8 +64,8 @@ public class MultiButtonLayoutTest {
 
     @Test
     public void test_2buttons() {
-        Button button1 = new Button.Builder(mContext, mClickable).setTextContent("1").build();
-        Button button2 = new Button.Builder(mContext, mClickable).setTextContent("2").build();
+        Button button1 = new Button.Builder(CONTEXT, CLICKABLE).setTextContent("1").build();
+        Button button2 = new Button.Builder(CONTEXT, CLICKABLE).setTextContent("2").build();
 
         MultiButtonLayout layout =
                 new MultiButtonLayout.Builder()
@@ -85,7 +85,7 @@ public class MultiButtonLayoutTest {
         List<Button> buttons = new ArrayList<>();
         int size = 5;
         for (int i = 0; i < size; i++) {
-            buttons.add(new Button.Builder(mContext, mClickable).setTextContent("" + i).build());
+            buttons.add(new Button.Builder(CONTEXT, CLICKABLE).setTextContent("" + i).build());
         }
 
         MultiButtonLayout.Builder layoutBuilder = new MultiButtonLayout.Builder();
@@ -107,7 +107,7 @@ public class MultiButtonLayoutTest {
 
     @Test
     public void test_too_many_button() {
-        Button button = new Button.Builder(mContext, mClickable).setTextContent("1").build();
+        Button button = new Button.Builder(CONTEXT, CLICKABLE).setTextContent("1").build();
         MultiButtonLayout.Builder layoutBuilder = new MultiButtonLayout.Builder();
         for (int i = 0; i < LayoutDefaults.MULTI_BUTTON_MAX_NUMBER + 1; i++) {
             layoutBuilder.addButtonContent(button);
