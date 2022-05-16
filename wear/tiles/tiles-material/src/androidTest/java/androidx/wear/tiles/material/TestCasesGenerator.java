@@ -160,7 +160,7 @@ public class TestCasesGenerator {
                 "chip_custom_content_centered_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
-                        .setContent(
+                        .setCustomContent(
                                 new Box.Builder()
                                         .addContent(
                                                 new Text.Builder(context, "random text")
@@ -174,7 +174,7 @@ public class TestCasesGenerator {
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setChipColors(ChipDefaults.SECONDARY_COLORS)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
-                        .setContent(
+                        .setCustomContent(
                                 new Row.Builder()
                                         .addContent(
                                                 new Text.Builder(context, "text1")

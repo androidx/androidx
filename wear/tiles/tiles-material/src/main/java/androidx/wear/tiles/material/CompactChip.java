@@ -20,16 +20,21 @@ import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_PRIMARY_COLORS;
+import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.getTagName;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp;
+import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
+import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
 /**
@@ -44,6 +49,9 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * CompactChip}.
  */
 public class CompactChip implements LayoutElement {
+    /** Tool tag for Metadata in Modifiers, so we know that Box is actually a CompactChip. */
+    static final String METADATA_TAG = "CMPCHP";
+
     @NonNull private final Chip mElement;
 
     CompactChip(@NonNull Chip element) {
@@ -97,11 +105,13 @@ public class CompactChip implements LayoutElement {
         public CompactChip build() {
             Chip.Builder chipBuilder =
                     new Chip.Builder(mContext, mClickable, mDeviceParameters)
+                            .setMetadataTag(METADATA_TAG)
                             .setChipColors(mChipColors)
                             .setContentDescription(mText)
                             .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
                             .setWidth(new WrappedDimensionProp.Builder().build())
                             .setHeight(COMPACT_HEIGHT)
+                            .setMaxLines(1)
                             .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING)
                             .setPrimaryTextContent(mText)
                             .setPrimaryTextTypography(Typography.TYPOGRAPHY_CAPTION1)
@@ -123,10 +133,36 @@ public class CompactChip implements LayoutElement {
         return mElement.getChipColors();
     }
 
-    /** Returns content of this Chip. */
+    /** Returns text content of this Chip. */
     @NonNull
-    public LayoutElement getContent() {
-        return mElement.getContent();
+    public String getText() {
+        return checkNotNull(mElement.getPrimaryText());
+    }
+
+    /** Returns metadata tag set to this CompactChip, which should be {@link #METADATA_TAG}. */
+    @NonNull
+    String getMetadataTag() {
+        return mElement.getMetadataTag();
+    }
+
+    /**
+     * Returns CompactChip object from the given LayoutElement if that element can be converted to
+     * CompactChip. Otherwise, returns null.
+     */
+    @Nullable
+    public static CompactChip fromLayoutElement(@NonNull LayoutElement element) {
+        if (!(element instanceof Box)) {
+            return null;
+        }
+        Box boxElement = (Box) element;
+        Modifiers modifiers = boxElement.getModifiers();
+        if (modifiers == null
+                || modifiers.getMetadata() == null
+                || !METADATA_TAG.equals(getTagName(modifiers.getMetadata().getTagData()))) {
+            return null;
+        }
+        // Now we are sure that this element is a CompactChip.
+        return new CompactChip(new Chip(boxElement));
     }
 
     /** @hide */
