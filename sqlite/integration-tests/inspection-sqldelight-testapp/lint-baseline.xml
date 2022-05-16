@@ -7,9 +7,7 @@
         errorLine1="    fun test() {"
         errorLine2="        ~~~~">
         <location
-            file="src/androidTest/java/androidx/sqlite/inspection/SqlDelightInvalidationTest.kt"
-            line="73"
-            column="9"/>
+            file="src/androidTest/java/androidx/sqlite/inspection/SqlDelightInvalidationTest.kt"/>
     </issue>
 
 </issues>

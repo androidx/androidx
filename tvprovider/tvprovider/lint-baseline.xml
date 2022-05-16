@@ -7,9 +7,7 @@
         errorLine1="            return TvContract.buildRecordedProgramUri(recordedProgramId);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="457"
-            column="31"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            return TvContract.isChannelUri(uri);"
         errorLine2="                              ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="518"
-            column="31"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            return TvContract.isChannelUriForTunerInput(uri);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="529"
-            column="31"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="            return TvContract.isChannelUriForPassthroughInput(uri);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="540"
-            column="31"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="            return TvContract.isProgramUri(uri);"
         errorLine2="                              ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="551"
-            column="31"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            TvContract.requestChannelBrowsable(context, channelId);"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="579"
-            column="24"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="public class ChannelLogoUtils {"
         errorLine2="             ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/ChannelLogoUtils.java"
-            line="43"
-            column="14"/>
+            file="src/main/java/androidx/tvprovider/media/tv/ChannelLogoUtils.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public String getInternalProviderId() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="160"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public Uri getPreviewVideoUri() {"
         errorLine2="           ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="168"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public Uri getIntentUri() {"
         errorLine2="           ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="196"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public Intent getIntent() throws URISyntaxException {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="205"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public Uri getLogoUri() {"
         errorLine2="           ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="259"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public String getStartingPrice() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="277"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public String getOfferPrice() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="285"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public String getReleaseDate() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="293"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    public String getAuthor() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="337"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    public String getContentId() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="354"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public String getLogoContentDescription() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="364"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    public String getGenre() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="372"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    public Uri getPreviewAudioUri() {"
         errorLine2="           ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="398"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    public ContentValues toContentValues() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="416"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    public ContentValues toContentValues(boolean includeProtectedFields) {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="428"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="        public Builder(BasePreviewProgram other) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="649"
-            column="24"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="        public T setInternalProviderId(String externalId) {"
         errorLine2="                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="661"
-            column="40"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="        public T setPreviewVideoUri(Uri previewVideoUri) {"
         errorLine2="                                    ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="673"
-            column="37"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="        public T setIntentUri(Uri intentUri) {"
         errorLine2="                              ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="711"
-            column="31"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="        public T setIntent(Intent intent) {"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="723"
-            column="28"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="        public T setLogoUri(Uri logoUri) {"
         errorLine2="                            ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="820"
-            column="29"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="        public T setStartingPrice(String price) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="859"
-            column="35"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="        public T setOfferPrice(String price) {"
         errorLine2="                               ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="871"
-            column="32"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="        public T setReleaseDate(String releaseDate) {"
         errorLine2="                                ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="886"
-            column="33"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="        public T setReleaseDate(Date releaseDate) {"
         errorLine2="                                ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="898"
-            column="33"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="        public T setAuthor(String author) {"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="972"
-            column="28"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="        public T setContentId(String contentId) {"
         errorLine2="                              ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="998"
-            column="31"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="        public T setLogoContentDescription(String logoContentDescription) {"
         errorLine2="                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1013"
-            column="44"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="        public T setGenre(String genre) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1025"
-            column="27"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="        public T setPreviewAudioUri(Uri previewAudioUri) {"
         errorLine2="                                    ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"
-            line="1062"
-            column="37"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BasePreviewProgram.java"/>
     </issue>
 
     <issue
@@ -414,9 +340,7 @@
         errorLine1="    protected ContentValues mValues;"
         errorLine2="              ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="74"
-            column="15"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -425,9 +349,7 @@
         errorLine1="    public String getPackageName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="96"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -436,9 +358,7 @@
         errorLine1="    public String getTitle() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="104"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -447,9 +367,7 @@
         errorLine1="    public String getEpisodeTitle() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="112"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -458,9 +376,7 @@
         errorLine1="    public String getSeasonNumber() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="121"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -469,9 +385,7 @@
         errorLine1="    public String getEpisodeNumber() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="134"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -480,9 +394,7 @@
         errorLine1="    public String getDescription() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="146"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -491,9 +403,7 @@
         errorLine1="    public String getLongDescription() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="154"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -502,9 +412,7 @@
         errorLine1="    public @Genre String[] getCanonicalGenres() {"
         errorLine2="                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="180"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -513,9 +421,7 @@
         errorLine1="    public TvContentRating[] getContentRatings() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="188"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -524,9 +430,7 @@
         errorLine1="    public Uri getPosterArtUri() {"
         errorLine2="           ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="197"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -535,9 +439,7 @@
         errorLine1="    public Uri getThumbnailUri() {"
         errorLine2="           ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="206"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -546,9 +448,7 @@
         errorLine1="    public byte[] getInternalProviderDataByteArray() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="215"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -557,9 +457,7 @@
         errorLine1="    public String[] getAudioLanguages() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="223"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -568,9 +466,7 @@
         errorLine1="    public Long getInternalProviderFlag1() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="241"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -579,9 +475,7 @@
         errorLine1="    public Long getInternalProviderFlag2() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="249"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -590,9 +484,7 @@
         errorLine1="    public Long getInternalProviderFlag3() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="257"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -601,9 +493,7 @@
         errorLine1="    public Long getInternalProviderFlag4() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="265"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -612,9 +502,7 @@
         errorLine1="    public String getSeasonTitle() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="273"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -623,9 +511,7 @@
         errorLine1="    public String getReviewRating() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="290"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -634,9 +520,7 @@
         errorLine1="    public ContentValues toContentValues() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="326"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -645,9 +529,7 @@
         errorLine1="        protected ContentValues mValues;"
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="545"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -656,9 +538,7 @@
         errorLine1="        public Builder(BaseProgram other) {"
         errorLine2="                       ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="558"
-            column="24"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -667,9 +547,7 @@
         errorLine1="        public T setPackageName(String packageName) {"
         errorLine2="                                ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="583"
-            column="33"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -678,9 +556,7 @@
         errorLine1="        public T setTitle(String title) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="595"
-            column="27"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -689,9 +565,7 @@
         errorLine1="        public T setEpisodeTitle(String episodeTitle) {"
         errorLine2="                                 ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="607"
-            column="34"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -700,9 +574,7 @@
         errorLine1="        public T setSeasonNumber(String seasonNumber, int numericalSeasonNumber) {"
         errorLine2="                                 ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="636"
-            column="34"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -711,9 +583,7 @@
         errorLine1="        public T setEpisodeNumber(String episodeNumber, int numericalEpisodeNumber) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="669"
-            column="35"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -722,9 +592,7 @@
         errorLine1="        public T setDescription(String description) {"
         errorLine2="                                ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="686"
-            column="33"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -733,9 +601,7 @@
         errorLine1="        public T setLongDescription(String longDescription) {"
         errorLine2="                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="698"
-            column="37"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -744,9 +610,7 @@
         errorLine1="        public T setContentRatings(TvContentRating[] contentRatings) {"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="736"
-            column="36"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -755,9 +619,7 @@
         errorLine1="        public T setPosterArtUri(Uri posterArtUri) {"
         errorLine2="                                 ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="749"
-            column="34"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -766,9 +628,7 @@
         errorLine1="        public T setThumbnailUri(Uri thumbnailUri) {"
         errorLine2="                                 ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="762"
-            column="34"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -777,9 +637,7 @@
         errorLine1="        public T setCanonicalGenres(@Genre String[] genres) {"
         errorLine2="                                           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="777"
-            column="44"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -788,9 +646,7 @@
         errorLine1="        public T setInternalProviderData(byte[] data) {"
         errorLine2="                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="789"
-            column="42"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -799,9 +655,7 @@
         errorLine1="        public T setAudioLanguages(String[] audioLanguages) {"
         errorLine2="                                   ~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="801"
-            column="36"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -810,9 +664,7 @@
         errorLine1="        public T setReviewRating(String reviewRating) {"
         errorLine2="                                 ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="904"
-            column="34"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -821,9 +673,7 @@
         errorLine1="        public T setSeasonTitle(String seasonTitle) {"
         errorLine2="                                ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"
-            line="916"
-            column="33"/>
+            file="src/main/java/androidx/tvprovider/media/tv/BaseProgram.java"/>
     </issue>
 
     <issue
@@ -832,9 +682,7 @@
         errorLine1="    public String getPackageName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="112"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -843,9 +691,7 @@
         errorLine1="    public String getInputId() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="119"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -854,9 +700,7 @@
         errorLine1="    public @Channels.Type String getType() {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="126"
-            column="27"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -865,9 +709,7 @@
         errorLine1="    public String getDisplayNumber() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="133"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -876,9 +718,7 @@
         errorLine1="    public String getDisplayName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="140"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -887,9 +727,7 @@
         errorLine1="    public String getDescription() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="147"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -898,9 +736,7 @@
         errorLine1="    public @VideoFormat String getVideoFormat() {"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="154"
-            column="25"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -909,9 +745,7 @@
         errorLine1="    public String getAppLinkText() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="185"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -920,9 +754,7 @@
         errorLine1="    public Uri getAppLinkIconUri() {"
         errorLine2="           ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="200"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -931,9 +763,7 @@
         errorLine1="    public Uri getAppLinkPosterArtUri() {"
         errorLine2="           ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="208"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -942,9 +772,7 @@
         errorLine1="    public Uri getAppLinkIntentUri() {"
         errorLine2="           ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="216"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -953,9 +781,7 @@
         errorLine1="    public Intent getAppLinkIntent() throws URISyntaxException {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="224"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -964,9 +790,7 @@
         errorLine1="    public String getNetworkAffiliation() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="232"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -975,9 +799,7 @@
         errorLine1="    public byte[] getInternalProviderDataByteArray() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="247"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -986,9 +808,7 @@
         errorLine1="    public @ServiceType String getServiceType() {"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="257"
-            column="25"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -997,9 +817,7 @@
         errorLine1="    public Long getInternalProviderFlag1() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="264"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1008,9 +826,7 @@
         errorLine1="    public Long getInternalProviderFlag2() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="271"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1019,9 +835,7 @@
         errorLine1="    public Long getInternalProviderFlag3() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="278"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1030,9 +844,7 @@
         errorLine1="    public Long getInternalProviderFlag4() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="285"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1041,9 +853,7 @@
         errorLine1="    public String getInternalProviderId() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="292"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1052,9 +862,7 @@
         errorLine1="    public String getSystemChannelKey() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="332"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1063,9 +871,7 @@
         errorLine1="    public ContentValues toContentValues() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="373"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1074,9 +880,7 @@
         errorLine1="    public ContentValues toContentValues(boolean includeProtectedFields) {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="385"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1085,9 +889,7 @@
         errorLine1="    public static Channel fromCursor(Cursor cursor) {"
         errorLine2="                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="424"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1096,9 +898,7 @@
         errorLine1="    public static Channel fromCursor(Cursor cursor) {"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="424"
-            column="38"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1107,9 +907,7 @@
         errorLine1="        public Builder(Channel other) {"
         errorLine2="                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="630"
-            column="24"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1118,9 +916,7 @@
         errorLine1="        public Builder setInputId(String inputId) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="664"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1129,9 +925,7 @@
         errorLine1="        public Builder setInputId(String inputId) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="664"
-            column="35"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1140,9 +934,7 @@
         errorLine1="        public Builder setType(@Channels.Type String type) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="675"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1151,9 +943,7 @@
         errorLine1="        public Builder setType(@Channels.Type String type) {"
         errorLine2="                                              ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="675"
-            column="47"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1162,9 +952,7 @@
         errorLine1="        public Builder setDisplayNumber(String displayNumber) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="686"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1173,9 +961,7 @@
         errorLine1="        public Builder setDisplayNumber(String displayNumber) {"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="686"
-            column="41"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1184,9 +970,7 @@
         errorLine1="        public Builder setDisplayName(String displayName) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="697"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1195,9 +979,7 @@
         errorLine1="        public Builder setDisplayName(String displayName) {"
         errorLine2="                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="697"
-            column="39"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1206,9 +988,7 @@
         errorLine1="        public Builder setDescription(String description) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="708"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1217,9 +997,7 @@
         errorLine1="        public Builder setDescription(String description) {"
         errorLine2="                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="708"
-            column="39"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1228,9 +1006,7 @@
         errorLine1="        public Builder setVideoFormat(@VideoFormat String videoFormat) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="719"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1239,9 +1015,7 @@
         errorLine1="        public Builder setVideoFormat(@VideoFormat String videoFormat) {"
         errorLine2="                                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="719"
-            column="52"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1250,9 +1024,7 @@
         errorLine1="        public Builder setOriginalNetworkId(int originalNetworkId) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="731"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1261,9 +1033,7 @@
         errorLine1="        public Builder setTransportStreamId(int transportStreamId) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="743"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1272,9 +1042,7 @@
         errorLine1="        public Builder setServiceId(int serviceId) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="754"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1283,9 +1051,7 @@
         errorLine1="        public Builder setInternalProviderData(byte[] internalProviderData) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="766"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1294,9 +1060,7 @@
         errorLine1="        public Builder setInternalProviderData(byte[] internalProviderData) {"
         errorLine2="                                               ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="766"
-            column="48"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1305,9 +1069,7 @@
         errorLine1="        public Builder setInternalProviderData(String internalProviderData) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="778"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1316,9 +1078,7 @@
         errorLine1="        public Builder setInternalProviderData(String internalProviderData) {"
         errorLine2="                                               ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="778"
-            column="48"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1327,9 +1087,7 @@
         errorLine1="        public Builder setAppLinkText(String appLinkText) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="790"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1338,9 +1096,7 @@
         errorLine1="        public Builder setAppLinkText(String appLinkText) {"
         errorLine2="                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="790"
-            column="39"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1349,9 +1105,7 @@
         errorLine1="        public Builder setAppLinkColor(int appLinkColor) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="801"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1360,9 +1114,7 @@
         errorLine1="        public Builder setAppLinkIconUri(Uri appLinkIconUri) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="813"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1371,9 +1123,7 @@
         errorLine1="        public Builder setAppLinkIconUri(Uri appLinkIconUri) {"
         errorLine2="                                         ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="813"
-            column="42"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1382,9 +1132,7 @@
         errorLine1="        public Builder setAppLinkPosterArtUri(Uri appLinkPosterArtUri) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="826"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1393,9 +1141,7 @@
         errorLine1="        public Builder setAppLinkPosterArtUri(Uri appLinkPosterArtUri) {"
         errorLine2="                                              ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="826"
-            column="47"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1404,9 +1150,7 @@
         errorLine1="        public Builder setAppLinkIntent(Intent appLinkIntent) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="838"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1415,9 +1159,7 @@
         errorLine1="        public Builder setAppLinkIntent(Intent appLinkIntent) {"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="838"
-            column="41"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1426,9 +1168,7 @@
         errorLine1="        public Builder setAppLinkIntentUri(Uri appLinkIntentUri) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="851"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1437,9 +1177,7 @@
         errorLine1="        public Builder setAppLinkIntentUri(Uri appLinkIntentUri) {"
         errorLine2="                                           ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="851"
-            column="44"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1448,9 +1186,7 @@
         errorLine1="        public Builder setNetworkAffiliation(String networkAffiliation) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="864"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1459,9 +1195,7 @@
         errorLine1="        public Builder setNetworkAffiliation(String networkAffiliation) {"
         errorLine2="                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="864"
-            column="46"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1470,9 +1204,7 @@
         errorLine1="        public Builder setSearchable(boolean searchable) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="875"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1481,9 +1213,7 @@
         errorLine1="        public Builder setServiceType(@ServiceType String serviceType) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="888"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1492,9 +1222,7 @@
         errorLine1="        public Builder setServiceType(@ServiceType String serviceType) {"
         errorLine2="                                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="888"
-            column="52"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1503,9 +1231,7 @@
         errorLine1="        public Builder setInternalProviderFlag1(long flag) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="899"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1514,9 +1240,7 @@
         errorLine1="        public Builder setInternalProviderFlag2(long flag) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="910"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1525,9 +1249,7 @@
         errorLine1="        public Builder setInternalProviderFlag3(long flag) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="921"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1536,9 +1258,7 @@
         errorLine1="        public Builder setInternalProviderFlag4(long flag) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="932"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1547,9 +1267,7 @@
         errorLine1="        public Builder setInternalProviderId(String internalProviderId) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="944"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1558,9 +1276,7 @@
         errorLine1="        public Builder setInternalProviderId(String internalProviderId) {"
         errorLine2="                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="944"
-            column="46"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1569,9 +1285,7 @@
         errorLine1="        public Builder setTransient(boolean value) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="955"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1580,9 +1294,7 @@
         errorLine1="        public Builder setBrowsable(boolean value) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="968"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1591,9 +1303,7 @@
         errorLine1="        public Builder setSystemApproved(boolean value) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="981"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1602,9 +1312,7 @@
         errorLine1="        public Builder setConfigurationDisplayOrder(int value) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="994"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1613,9 +1321,7 @@
         errorLine1="        public Builder setSystemChannelKey(String value) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="1008"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1624,9 +1330,7 @@
         errorLine1="        public Builder setSystemChannelKey(String value) {"
         errorLine2="                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="1008"
-            column="44"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1635,9 +1339,7 @@
         errorLine1="        public Builder setLocked(boolean value) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="1033"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1646,9 +1348,7 @@
         errorLine1="        public Channel build() {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"
-            line="1042"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Channel.java"/>
     </issue>
 
     <issue
@@ -1657,9 +1357,7 @@
         errorLine1="    public static &lt;T> T[] concatAll(T[] first, T[]... rest) {"
         errorLine2="                      ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/CollectionUtils.java"
-            line="37"
-            column="23"/>
+            file="src/main/java/androidx/tvprovider/media/tv/CollectionUtils.java"/>
     </issue>
 
     <issue
@@ -1668,9 +1366,7 @@
         errorLine1="    public static &lt;T> T[] concatAll(T[] first, T[]... rest) {"
         errorLine2="                                    ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/CollectionUtils.java"
-            line="37"
-            column="37"/>
+            file="src/main/java/androidx/tvprovider/media/tv/CollectionUtils.java"/>
     </issue>
 
     <issue
@@ -1679,9 +1375,7 @@
         errorLine1="    public static &lt;T> T[] concatAll(T[] first, T[]... rest) {"
         errorLine2="                                               ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/CollectionUtils.java"
-            line="37"
-            column="48"/>
+            file="src/main/java/androidx/tvprovider/media/tv/CollectionUtils.java"/>
     </issue>
 
     <issue
@@ -1690,9 +1384,7 @@
         errorLine1="    public static PreviewChannel fromCursor(Cursor cursor) {"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="92"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1701,9 +1393,7 @@
         errorLine1="    public static PreviewChannel fromCursor(Cursor cursor) {"
         errorLine2="                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="92"
-            column="45"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1712,9 +1402,7 @@
         errorLine1="    public String getPackageName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="120"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1723,9 +1411,7 @@
         errorLine1="    public String getType() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="129"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1734,9 +1420,7 @@
         errorLine1="    public CharSequence getDisplayName() {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="136"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1745,9 +1429,7 @@
         errorLine1="    public CharSequence getDescription() {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="144"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1756,9 +1438,7 @@
         errorLine1="    public Uri getAppLinkIntentUri() {"
         errorLine2="           ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="151"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1767,9 +1447,7 @@
         errorLine1="    public Intent getAppLinkIntent() throws URISyntaxException {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="159"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1778,9 +1456,7 @@
         errorLine1="    public Bitmap getLogo(Context context) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="171"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1789,9 +1465,7 @@
         errorLine1="    public Bitmap getLogo(Context context) {"
         errorLine2="                          ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="171"
-            column="27"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1800,9 +1474,7 @@
         errorLine1="    public byte[] getInternalProviderDataByteArray() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="205"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1811,9 +1483,7 @@
         errorLine1="    public Long getInternalProviderFlag1() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="212"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1822,9 +1492,7 @@
         errorLine1="    public Long getInternalProviderFlag2() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="219"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1833,9 +1501,7 @@
         errorLine1="    public Long getInternalProviderFlag3() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="226"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1844,9 +1510,7 @@
         errorLine1="    public Long getInternalProviderFlag4() {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="233"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1855,9 +1519,7 @@
         errorLine1="    public String getInternalProviderId() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="240"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1866,9 +1528,7 @@
         errorLine1="    public boolean hasAnyUpdatedValues(PreviewChannel update) {"
         errorLine2="                                       ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="271"
-            column="40"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1877,9 +1537,7 @@
         errorLine1="    public ContentValues toContentValues() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="296"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1888,9 +1546,7 @@
         errorLine1="        public Builder(PreviewChannel other) {"
         errorLine2="                       ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="353"
-            column="24"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1899,9 +1555,7 @@
         errorLine1="        public Builder setDisplayName(CharSequence displayName) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="388"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1910,9 +1564,7 @@
         errorLine1="        public Builder setDisplayName(CharSequence displayName) {"
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="388"
-            column="39"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1921,9 +1573,7 @@
         errorLine1="        public Builder setAppLinkIntent(Intent appLinkIntent) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="416"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1932,9 +1582,7 @@
         errorLine1="        public Builder setAppLinkIntent(Intent appLinkIntent) {"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="416"
-            column="41"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1943,9 +1591,7 @@
         errorLine1="        public Builder setAppLinkIntentUri(Uri appLinkIntentUri) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="428"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1954,9 +1600,7 @@
         errorLine1="        public Builder setAppLinkIntentUri(Uri appLinkIntentUri) {"
         errorLine2="                                           ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="428"
-            column="44"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1965,9 +1609,7 @@
         errorLine1="        public Builder setInternalProviderId(String internalProviderId) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="447"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1976,9 +1618,7 @@
         errorLine1="        public Builder setInternalProviderId(String internalProviderId) {"
         errorLine2="                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="447"
-            column="46"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1987,9 +1627,7 @@
         errorLine1="        public Builder setInternalProviderData(byte[] internalProviderData) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="462"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -1998,9 +1636,7 @@
         errorLine1="        public Builder setInternalProviderData(byte[] internalProviderData) {"
         errorLine2="                                               ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="462"
-            column="48"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -2009,9 +1645,7 @@
         errorLine1="        public Builder setInternalProviderFlag1(long flag) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="477"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -2020,9 +1654,7 @@
         errorLine1="        public Builder setInternalProviderFlag2(long flag) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="492"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -2031,9 +1663,7 @@
         errorLine1="        public Builder setInternalProviderFlag3(long flag) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="507"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -2042,9 +1672,7 @@
         errorLine1="        public Builder setInternalProviderFlag4(long flag) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="522"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -2053,9 +1681,7 @@
         errorLine1="        public Builder setLogo(@NonNull Bitmap logoImage) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="533"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -2064,9 +1690,7 @@
         errorLine1="        public Builder setLogo(@NonNull Uri logoUri) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="545"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -2075,9 +1699,7 @@
         errorLine1="        public PreviewChannel build() {"
         errorLine2="               ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"
-            line="556"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannel.java"/>
     </issue>
 
     <issue
@@ -2086,9 +1708,7 @@
         errorLine1="    public PreviewChannelHelper(Context context) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannelHelper.java"
-            line="79"
-            column="33"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannelHelper.java"/>
     </issue>
 
     <issue
@@ -2097,9 +1717,7 @@
         errorLine1="    public PreviewChannelHelper(Context context, int urlConnectionTimeoutMillis,"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannelHelper.java"
-            line="87"
-            column="33"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannelHelper.java"/>
     </issue>
 
     <issue
@@ -2108,9 +1726,7 @@
         errorLine1="    public List&lt;PreviewChannel> getAllChannels() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannelHelper.java"
-            line="192"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannelHelper.java"/>
     </issue>
 
     <issue
@@ -2119,9 +1735,7 @@
         errorLine1="    protected Bitmap downloadBitmap(@NonNull Uri logoUri) throws IOException {"
         errorLine2="              ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannelHelper.java"
-            line="350"
-            column="15"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewChannelHelper.java"/>
     </issue>
 
     <issue
@@ -2130,9 +1744,7 @@
         errorLine1="    public boolean hasAnyUpdatedValues(PreviewProgram update) {"
         errorLine2="                                       ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"
-            line="120"
-            column="40"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"/>
     </issue>
 
     <issue
@@ -2141,9 +1753,7 @@
         errorLine1="    public ContentValues toContentValues() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"
-            line="142"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"/>
     </issue>
 
     <issue
@@ -2152,9 +1762,7 @@
         errorLine1="    public ContentValues toContentValues(boolean includeProtectedFields) {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"
-            line="155"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"/>
     </issue>
 
     <issue
@@ -2163,9 +1771,7 @@
         errorLine1="    public static PreviewProgram fromCursor(Cursor cursor) {"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"
-            line="171"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"/>
     </issue>
 
     <issue
@@ -2174,9 +1780,7 @@
         errorLine1="    public static PreviewProgram fromCursor(Cursor cursor) {"
         errorLine2="                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"
-            line="171"
-            column="45"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"/>
     </issue>
 
     <issue
@@ -2185,9 +1789,7 @@
         errorLine1="        public Builder(PreviewProgram other) {"
         errorLine2="                       ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"
-            line="211"
-            column="24"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"/>
     </issue>
 
     <issue
@@ -2196,9 +1798,7 @@
         errorLine1="        public Builder setChannelId(long channelId) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"
-            line="221"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"/>
     </issue>
 
     <issue
@@ -2207,9 +1807,7 @@
         errorLine1="        public Builder setWeight(int weight) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"
-            line="232"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"/>
     </issue>
 
     <issue
@@ -2218,9 +1816,7 @@
         errorLine1="        public PreviewProgram build() {"
         errorLine2="               ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"
-            line="240"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/PreviewProgram.java"/>
     </issue>
 
     <issue
@@ -2229,9 +1825,7 @@
         errorLine1="    public String[] getBroadcastGenres() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Program.java"
-            line="117"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Program.java"/>
     </issue>
 
     <issue
@@ -2240,9 +1834,7 @@
         errorLine1="    public ContentValues toContentValues() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Program.java"
-            line="182"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Program.java"/>
     </issue>
 
     <issue
@@ -2251,9 +1843,7 @@
         errorLine1="    public static Program fromCursor(Cursor cursor) {"
         errorLine2="                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Program.java"
-            line="200"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Program.java"/>
     </issue>
 
     <issue
@@ -2262,9 +1852,7 @@
         errorLine1="    public static Program fromCursor(Cursor cursor) {"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Program.java"
-            line="200"
-            column="38"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Program.java"/>
     </issue>
 
     <issue
@@ -2273,9 +1861,7 @@
         errorLine1="        public Builder(Program other) {"
         errorLine2="                       ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Program.java"
-            line="280"
-            column="24"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Program.java"/>
     </issue>
 
     <issue
@@ -2284,9 +1870,7 @@
         errorLine1="        public Builder setChannelId(long channelId) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Program.java"
-            line="290"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Program.java"/>
     </issue>
 
     <issue
@@ -2295,9 +1879,7 @@
         errorLine1="        public Builder setStartTimeUtcMillis(long startTimeUtcMillis) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Program.java"
-            line="302"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Program.java"/>
     </issue>
 
     <issue
@@ -2306,9 +1888,7 @@
         errorLine1="        public Builder setEndTimeUtcMillis(long endTimeUtcMillis) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Program.java"
-            line="314"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Program.java"/>
     </issue>
 
     <issue
@@ -2317,9 +1897,7 @@
         errorLine1="        public Builder setBroadcastGenres(@Genre String[] genres) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Program.java"
-            line="327"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Program.java"/>
     </issue>
 
     <issue
@@ -2328,9 +1906,7 @@
         errorLine1="        public Builder setBroadcastGenres(@Genre String[] genres) {"
         errorLine2="                                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Program.java"
-            line="327"
-            column="50"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Program.java"/>
     </issue>
 
     <issue
@@ -2339,9 +1915,7 @@
         errorLine1="        public Builder setRecordingProhibited(boolean prohibited) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Program.java"
-            line="339"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Program.java"/>
     </issue>
 
     <issue
@@ -2350,9 +1924,7 @@
         errorLine1="        public Program build() {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/Program.java"
-            line="377"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/Program.java"/>
     </issue>
 
     <issue
@@ -2361,9 +1933,7 @@
         errorLine1="    public static String buildInputId(ComponentName name) {"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="343"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2372,9 +1942,7 @@
         errorLine1="    public static String buildInputId(ComponentName name) {"
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="343"
-            column="39"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2383,9 +1951,7 @@
         errorLine1="    public static Uri buildChannelUri(long channelId) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="352"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2394,9 +1960,7 @@
         errorLine1="    public static Uri buildChannelUriForPassthroughInput(String inputId) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="361"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2405,9 +1969,7 @@
         errorLine1="    public static Uri buildChannelUriForPassthroughInput(String inputId) {"
         errorLine2="                                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="361"
-            column="58"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2416,9 +1978,7 @@
         errorLine1="    public static Uri buildChannelLogoUri(long channelId) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="370"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2427,9 +1987,7 @@
         errorLine1="    public static Uri buildChannelLogoUri(Uri channelUri) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="379"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2438,9 +1996,7 @@
         errorLine1="    public static Uri buildChannelLogoUri(Uri channelUri) {"
         errorLine2="                                          ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="379"
-            column="43"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2449,9 +2005,7 @@
         errorLine1="    public static Uri buildChannelsUriForInput(@Nullable String inputId) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="389"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2460,9 +2014,7 @@
         errorLine1="    public static Uri buildProgramUri(long programId) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="398"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2471,9 +2023,7 @@
         errorLine1="    public static Uri buildProgramsUriForChannel(long channelId) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="407"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2482,9 +2032,7 @@
         errorLine1="    public static Uri buildProgramsUriForChannel(Uri channelUri) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="416"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2493,9 +2041,7 @@
         errorLine1="    public static Uri buildProgramsUriForChannel(Uri channelUri) {"
         errorLine2="                                                 ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="416"
-            column="50"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2504,9 +2050,7 @@
         errorLine1="    public static Uri buildProgramsUriForChannel(long channelId, long startTime,"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="430"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2515,9 +2059,7 @@
         errorLine1="    public static Uri buildProgramsUriForChannel(Uri channelUri, long startTime,"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="445"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2526,9 +2068,7 @@
         errorLine1="    public static Uri buildProgramsUriForChannel(Uri channelUri, long startTime,"
         errorLine2="                                                 ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="445"
-            column="50"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2537,9 +2077,7 @@
         errorLine1="    public static Uri buildRecordedProgramUri(long recordedProgramId) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="455"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2548,9 +2086,7 @@
         errorLine1="    public static Uri buildPreviewProgramUri(long previewProgramId) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="468"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2559,9 +2095,7 @@
         errorLine1="    public static Uri buildPreviewProgramsUriForChannel(long channelId) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="477"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2570,9 +2104,7 @@
         errorLine1="    public static Uri buildPreviewProgramsUriForChannel(Uri channelUri) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="487"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2581,9 +2113,7 @@
         errorLine1="    public static Uri buildPreviewProgramsUriForChannel(Uri channelUri) {"
         errorLine2="                                                        ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="487"
-            column="57"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2592,9 +2122,7 @@
         errorLine1="    public static Uri buildWatchNextProgramUri(long watchNextProgramId) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="499"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2603,9 +2131,7 @@
         errorLine1="    public static boolean isChannelUri(Uri uri) {"
         errorLine2="                                       ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="516"
-            column="40"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2614,9 +2140,7 @@
         errorLine1="    public static boolean isChannelUriForTunerInput(Uri uri) {"
         errorLine2="                                                    ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="527"
-            column="53"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2625,9 +2149,7 @@
         errorLine1="    public static boolean isChannelUriForPassthroughInput(Uri uri) {"
         errorLine2="                                                          ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="538"
-            column="59"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2636,9 +2158,7 @@
         errorLine1="    public static boolean isProgramUri(Uri uri) {"
         errorLine2="                                       ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="549"
-            column="40"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2647,9 +2167,7 @@
         errorLine1="    public static boolean isRecordedProgramUri(Uri uri) {"
         errorLine2="                                               ~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="560"
-            column="48"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2658,9 +2176,7 @@
         errorLine1="    public static void requestChannelBrowsable(Context context, long channelId) {"
         errorLine2="                                               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="577"
-            column="48"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2669,9 +2185,7 @@
         errorLine1="        public static String getVideoResolution(@VideoFormat String videoFormat) {"
         errorLine2="                                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="1900"
-            column="62"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2680,9 +2194,7 @@
         errorLine1="            public static String encode(@NonNull @Genre String... genres) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="2662"
-            column="27"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2691,9 +2203,7 @@
         errorLine1="            public static @Genre String[] decode(@NonNull String genres) {"
         errorLine2="                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="2701"
-            column="34"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2702,9 +2212,7 @@
         errorLine1="            public static boolean isCanonical(String genre) {"
         errorLine2="                                              ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
-            line="2749"
-            column="47"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
 
     <issue
@@ -2713,9 +2221,7 @@
         errorLine1="    public static TvContentRating[] stringToContentRatings(String commaSeparatedRatings) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"
-            line="48"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"/>
     </issue>
 
     <issue
@@ -2724,9 +2230,7 @@
         errorLine1="    public static TvContentRating[] stringToContentRatings(String commaSeparatedRatings) {"
         errorLine2="                                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"
-            line="48"
-            column="60"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"/>
     </issue>
 
     <issue
@@ -2735,9 +2239,7 @@
         errorLine1="    public static String contentRatingsToString(TvContentRating[] contentRatings) {"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"
-            line="71"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"/>
     </issue>
 
     <issue
@@ -2746,9 +2248,7 @@
         errorLine1="    public static String contentRatingsToString(TvContentRating[] contentRatings) {"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"
-            line="71"
-            column="49"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"/>
     </issue>
 
     <issue
@@ -2757,9 +2257,7 @@
         errorLine1="    public static String[] stringToAudioLanguages(String commaSeparatedString) {"
         errorLine2="                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"
-            line="89"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"/>
     </issue>
 
     <issue
@@ -2768,9 +2266,7 @@
         errorLine1="    public static String[] stringToAudioLanguages(String commaSeparatedString) {"
         errorLine2="                                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"
-            line="89"
-            column="51"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"/>
     </issue>
 
     <issue
@@ -2779,9 +2275,7 @@
         errorLine1="    public static String audioLanguagesToString(String[] audioLanguages) {"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"
-            line="102"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"/>
     </issue>
 
     <issue
@@ -2790,9 +2284,7 @@
         errorLine1="    public static String audioLanguagesToString(String[] audioLanguages) {"
         errorLine2="                                                ~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"
-            line="102"
-            column="49"/>
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractUtils.java"/>
     </issue>
 
     <issue
@@ -2801,9 +2293,7 @@
         errorLine1="    public boolean hasAnyUpdatedValues(WatchNextProgram update) {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"
-            line="142"
-            column="40"/>
+            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"/>
     </issue>
 
     <issue
@@ -2812,9 +2302,7 @@
         errorLine1="    public ContentValues toContentValues() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"
-            line="164"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"/>
     </issue>
 
     <issue
@@ -2823,9 +2311,7 @@
         errorLine1="    public ContentValues toContentValues(boolean includeProtectedFields) {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"
-            line="177"
-            column="12"/>
+            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"/>
     </issue>
 
     <issue
@@ -2834,9 +2320,7 @@
         errorLine1="    public static WatchNextProgram fromCursor(Cursor cursor) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"
-            line="193"
-            column="19"/>
+            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"/>
     </issue>
 
     <issue
@@ -2845,9 +2329,7 @@
         errorLine1="    public static WatchNextProgram fromCursor(Cursor cursor) {"
         errorLine2="                                              ~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"
-            line="193"
-            column="47"/>
+            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"/>
     </issue>
 
     <issue
@@ -2856,9 +2338,7 @@
         errorLine1="        public Builder(WatchNextProgram other) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"
-            line="234"
-            column="24"/>
+            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"/>
     </issue>
 
     <issue
@@ -2867,9 +2347,7 @@
         errorLine1="        public Builder setWatchNextType(@WatchNextType int watchNextType) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"
-            line="250"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"/>
     </issue>
 
     <issue
@@ -2878,9 +2356,7 @@
         errorLine1="        public Builder setLastEngagementTimeUtcMillis(long lastEngagementTimeUtcMillis) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"
-            line="263"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"/>
     </issue>
 
     <issue
@@ -2889,9 +2365,7 @@
         errorLine1="        public WatchNextProgram build() {"
         errorLine2="               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"
-            line="272"
-            column="16"/>
+            file="src/main/java/androidx/tvprovider/media/tv/WatchNextProgram.java"/>
     </issue>
 
 </issues>

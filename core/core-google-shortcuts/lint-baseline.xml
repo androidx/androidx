@@ -7,9 +7,7 @@
         errorLine1="        assertThat(resolveInfos.stream().anyMatch(resolveInfo ->"
         errorLine2="                                ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/google/shortcuts/TrampolineActivityTest.java"
-            line="138"
-            column="33"/>
+            file="src/androidTest/java/androidx/core/google/shortcuts/TrampolineActivityTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        assertThat(resolveInfos.stream().anyMatch(resolveInfo ->"
         errorLine2="                                         ~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/google/shortcuts/TrampolineActivityTest.java"
-            line="138"
-            column="42"/>
+            file="src/androidTest/java/androidx/core/google/shortcuts/TrampolineActivityTest.java"/>
     </issue>
 
 </issues>

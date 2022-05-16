@@ -7,9 +7,7 @@
         errorLine1="        mTestUid = mContext.getPackageManager().getPackageUid(mTestPkg, 0);"
         errorLine2="                                                ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/slice/SlicePermissionTest.java"
-            line="58"
-            column="49"/>
+            file="src/androidTest/java/androidx/slice/SlicePermissionTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        builder.addHints(slice.getHints());"
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="57"
-            column="26"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                    builder.addSubSlice(unwrap(item.getSlice()), item.getSubType());"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="61"
-            column="66"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                    builder.addIcon(item.getIcon().toIcon(), item.getSubType(), item.getHints());"
         errorLine2="                                                                                ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="64"
-            column="81"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                    builder.addIcon(item.getIcon().toIcon(), item.getSubType(), item.getHints());"
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="64"
-            column="62"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                    builder.addRemoteInput(item.getRemoteInput(), item.getSubType(),"
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="67"
-            column="67"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                            item.getHints());"
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="68"
-            column="29"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                    builder.addAction(item.getAction(), unwrap(item.getSlice()), item.getSubType());"
         errorLine2="                                                                                 ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="71"
-            column="82"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="                    builder.addText(item.getText(), item.getSubType(), item.getHints());"
         errorLine2="                                                                       ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="74"
-            column="72"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="                    builder.addText(item.getText(), item.getSubType(), item.getHints());"
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="74"
-            column="53"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="                    builder.addInt(item.getInt(), item.getSubType(), item.getHints());"
         errorLine2="                                                                     ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="77"
-            column="70"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="                    builder.addInt(item.getInt(), item.getSubType(), item.getHints());"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="77"
-            column="51"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="                    builder.addLong(item.getLong(), item.getSubType(), item.getHints());"
         errorLine2="                                                                       ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="80"
-            column="72"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="                    builder.addLong(item.getLong(), item.getSubType(), item.getHints());"
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="80"
-            column="53"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="                    builder.addBundle((Bundle) item.mObj, item.getSubType(), item.getHints());"
         errorLine2="                                                                             ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="83"
-            column="78"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="                    builder.addBundle((Bundle) item.mObj, item.getSubType(), item.getHints());"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceConvert.java"
-            line="83"
-            column="59"/>
+            file="src/main/java/androidx/slice/SliceConvert.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="        return mManager.checkSlicePermission(uri, pid, uid);"
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/SliceManagerWrapper.java"
-            line="62"
-            column="16"/>
+            file="src/main/java/androidx/slice/SliceManagerWrapper.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    private synchronized void persist(PermissionState state) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
-            line="107"
-            column="5"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
-            line="97"
-            column="5"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"
-            line="143"
-            column="5"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
     </issue>
 
     <issue

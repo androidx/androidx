@@ -7,9 +7,7 @@
         errorLine1="    public static SwipeToLocation swipeTo(float[] targetLocation) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/SwipeToLocation.java"
-            line="143"
-            column="19"/>
+            file="src/main/java/androidx/testutils/SwipeToLocation.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public static SwipeToLocation swipeTo(float[] targetLocation) {"
         errorLine2="                                          ~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/SwipeToLocation.java"
-            line="143"
-            column="43"/>
+            file="src/main/java/androidx/testutils/SwipeToLocation.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public static SwipeToLocation flingTo(float[] targetLocation) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/SwipeToLocation.java"
-            line="154"
-            column="19"/>
+            file="src/main/java/androidx/testutils/SwipeToLocation.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public static SwipeToLocation flingTo(float[] targetLocation) {"
         errorLine2="                                          ~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/SwipeToLocation.java"
-            line="154"
-            column="43"/>
+            file="src/main/java/androidx/testutils/SwipeToLocation.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public static SwipeToLocation swipeToCenter() {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/SwipeToLocation.java"
-            line="164"
-            column="19"/>
+            file="src/main/java/androidx/testutils/SwipeToLocation.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public static SwipeToLocation flingToCenter() {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/SwipeToLocation.java"
-            line="174"
-            column="19"/>
+            file="src/main/java/androidx/testutils/SwipeToLocation.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public Matcher&lt;View> getConstraints() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/SwipeToLocation.java"
-            line="179"
-            column="12"/>
+            file="src/main/java/androidx/testutils/SwipeToLocation.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public String getDescription() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/SwipeToLocation.java"
-            line="184"
-            column="12"/>
+            file="src/main/java/androidx/testutils/SwipeToLocation.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public void perform(UiController uiController, View view) {"
         errorLine2="                        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/SwipeToLocation.java"
-            line="200"
-            column="25"/>
+            file="src/main/java/androidx/testutils/SwipeToLocation.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public void perform(UiController uiController, View view) {"
         errorLine2="                                                   ~~~~">
         <location
-            file="src/main/java/androidx/testutils/SwipeToLocation.java"
-            line="200"
-            column="52"/>
+            file="src/main/java/androidx/testutils/SwipeToLocation.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public void perform(Instrumentation instrumentation) {"
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/SwipeToLocation.java"
-            line="212"
-            column="25"/>
+            file="src/main/java/androidx/testutils/SwipeToLocation.java"/>
     </issue>
 
 </issues>

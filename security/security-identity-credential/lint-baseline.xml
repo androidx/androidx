@@ -7,9 +7,7 @@
         errorLine1="                    builder.addErrorStatus(namespaceName, entryName, status);"
         errorLine2="                                                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/security/identity/HardwareIdentityCredential.java"
-            line="244"
-            column="70"/>
+            file="src/main/java/androidx/security/identity/HardwareIdentityCredential.java"/>
     </issue>
 
 </issues>

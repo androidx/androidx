@@ -7,9 +7,7 @@
         errorLine1="            noop.setCompoundDrawableTintList(csl);"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="63"
-            column="18"/>
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="64"
-            column="18"/>
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            setActionBar(new Toolbar(this));"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="73"
-            column="13"/>
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="            setActionBar(new Toolbar(this));"
         errorLine2="                         ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"
-            line="73"
-            column="26"/>
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="            setActionBar(new Toolbar(this));"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"
-            line="33"
-            column="13"/>
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
     </issue>
 
     <issue
@@ -63,7 +53,6 @@
         errorLine2="                         ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"
-            line="33"
             column="26"/>
     </issue>
 

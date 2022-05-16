@@ -7,9 +7,7 @@
         errorLine1="    fun testConfig8888() {"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglConfigAttributesTest.kt"
-            line="30"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglConfigAttributesTest.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    fun testConfig1010102() {"
         errorLine2="        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglConfigAttributesTest.kt"
-            line="47"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglConfigAttributesTest.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    fun testConfigF16() {"
         errorLine2="        ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglConfigAttributesTest.kt"
-            line="63"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglConfigAttributesTest.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    fun testInclude() {"
         errorLine2="        ~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglConfigAttributesTest.kt"
-            line="80"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglConfigAttributesTest.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    fun testSupportsBufferAge() {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="28"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    fun testSupportBufferAgeFromPartialUpdate() {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="33"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    fun testSetDamage() {"
         errorLine2="        ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="41"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    fun testSwapBuffersWithDamage() {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="49"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    fun testColorSpace() {"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="57"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    fun testNoConfigContext() {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="65"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    fun testPixelFormatFloat() {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="73"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    fun testScRgb() {"
         errorLine2="        ~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="81"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    fun testDisplayP3() {"
         errorLine2="        ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="89"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    fun testHDR() {"
         errorLine2="        ~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="97"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    fun testContextPriority() {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="105"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    fun testSurfacelessContext() {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="113"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    fun testFenceSync() {"
         errorLine2="        ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="121"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    fun testWaitSync() {"
         errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="128"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    fun testNativeFenceSync() {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="133"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    fun testExtensionsQueryStringParsing() {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"
-            line="141"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglExtensionsTest.kt"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    fun testDestructuringComponents() {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglVersionTest.kt"
-            line="28"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglVersionTest.kt"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    fun testEquals() {"
         errorLine2="        ~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglVersionTest.kt"
-            line="35"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglVersionTest.kt"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    fun testToString() {"
         errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglVersionTest.kt"
-            line="40"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglVersionTest.kt"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    fun testHashCode() {"
         errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/graphics/opengl/egl/EglVersionTest.kt"
-            line="45"
-            column="9"/>
+            file="src/androidTest/java/androidx/graphics/opengl/egl/EglVersionTest.kt"/>
     </issue>
 
 </issues>

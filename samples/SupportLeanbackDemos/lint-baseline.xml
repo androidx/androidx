@@ -7,9 +7,7 @@
         errorLine1="    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/PlaybackSupportActivity.java"
-            line="43"
-            column="17"/>
+            file="src/main/java/com/example/android/leanback/PlaybackSupportActivity.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportActivity.java"
-            line="43"
-            column="17"/>
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportActivity.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        android:name=&quot;com.example.android.leanback.PlaybackOverlayFragment&quot;"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/playback_controls.xml"
-            line="23"
-            column="23"/>
+            file="src/main/res/layout/playback_controls.xml"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        android:name=&quot;com.example.android.leanback.PlaybackOverlaySupportFragment&quot;"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/res/layout/playback_controls_support.xml"
-            line="25"
-            column="23"/>
+            file="src/main/res/layout/playback_controls_support.xml"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/com/example/android/leanback/room/PhotoDatabase.java"
-            line="35"
-            column="5"/>
+            file="src/main/java/com/example/android/leanback/room/PhotoDatabase.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="419"
-            column="25"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="419"
-            column="51"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                                                                      ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="419"
-            column="71"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="705"
-            column="25"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="            if (mPlayer.getPlaybackParams().getSpeed() != NORMAL_SPEED) {"
         errorLine2="                                            ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="705"
-            column="45"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="763"
-            column="17"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="763"
-            column="43"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                                                              ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="763"
-            column="63"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="797"
-            column="17"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="797"
-            column="43"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                                                              ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="797"
-            column="63"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="840"
-            column="17"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="840"
-            column="43"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                                                              ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="840"
-            column="63"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="932"
-            column="17"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                                          ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="932"
-            column="43"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="        mPlayer.setPlaybackParams(mPlayer.getPlaybackParams().setSpeed("
         errorLine2="                                                              ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/MediaSessionService.java"
-            line="932"
-            column="63"/>
+            file="src/main/java/com/example/android/leanback/MediaSessionService.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="                        getActivity().enterPictureInPictureMode();"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/PlaybackFragment.java"
-            line="90"
-            column="39"/>
+            file="src/main/java/com/example/android/leanback/PlaybackFragment.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="                        getActivity().enterPictureInPictureMode();"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"
-            line="93"
-            column="39"/>
+            file="src/main/java/com/example/android/leanback/PlaybackSupportFragment.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="                        getActivity().enterPictureInPictureMode();"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/PlaybackTransportControlFragment.java"
-            line="76"
-            column="39"/>
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlFragment.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="                        getActivity().enterPictureInPictureMode();"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportFragment.java"
-            line="79"
-            column="39"/>
+            file="src/main/java/com/example/android/leanback/PlaybackTransportControlSupportFragment.java"/>
     </issue>
 
     <issue

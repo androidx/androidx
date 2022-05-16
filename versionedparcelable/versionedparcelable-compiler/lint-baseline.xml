@@ -7,9 +7,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/versionedparcelable/compiler/VersionedParcelProcessor.java"
-            line="85"
-            column="5"/>
+            file="src/main/java/androidx/versionedparcelable/compiler/VersionedParcelProcessor.java"/>
     </issue>
 
 </issues>

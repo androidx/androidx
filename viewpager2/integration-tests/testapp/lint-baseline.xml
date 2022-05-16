@@ -7,9 +7,7 @@
         errorLine1="                throw AssertionError(&quot;Block hit bad state $n times&quot;, e)"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/viewpager2/integration/testapp/test/util/RetryBlock.kt"
-            line="50"
-            column="23"/>
+            file="src/androidTest/java/androidx/viewpager2/integration/testapp/test/util/RetryBlock.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                        textDirection = View.TEXT_DIRECTION_LOCALE"
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager2/integration/testapp/MutableCollectionBaseActivity.kt"
-            line="65"
-            column="25"/>
+            file="src/main/java/androidx/viewpager2/integration/testapp/MutableCollectionBaseActivity.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                        textDirection = View.TEXT_DIRECTION_LOCALE"
         errorLine2="                        ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager2/integration/testapp/MutableCollectionBaseActivity.kt"
-            line="65"
-            column="25"/>
+            file="src/main/java/androidx/viewpager2/integration/testapp/MutableCollectionBaseActivity.kt"/>
     </issue>
 
 </issues>

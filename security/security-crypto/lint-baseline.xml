@@ -7,9 +7,7 @@
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/security/crypto/EncryptedFile.java"
-            line="352"
-            column="9"/>
+            file="src/main/java/androidx/security/crypto/EncryptedFile.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/security/crypto/EncryptedFile.java"
-            line="357"
-            column="9"/>
+            file="src/main/java/androidx/security/crypto/EncryptedFile.java"/>
     </issue>
 
 </issues>

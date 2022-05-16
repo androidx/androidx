@@ -7,9 +7,7 @@
         errorLine1="        assertNotNull(ld.getDrawable(0).getColorFilter());"
         errorLine2="                                        ~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/widget/TintResourcesTest.java"
-            line="79"
-            column="41"/>
+            file="src/androidTest/java/androidx/appcompat/widget/TintResourcesTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="93"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public synchronized void setHooks(ResourceManagerHooks hooks) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="131"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="135"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="139"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public synchronized void onConfigurationChanged(@NonNull Context context) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="162"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    private synchronized Drawable getCachedDrawable(@NonNull final Context context,"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="317"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    private synchronized boolean addDrawableToCache(@NonNull final Context context, final long key,"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="338"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    synchronized Drawable onDrawableLoadedFromResources(@NonNull Context context,"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="353"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    synchronized ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="381"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public static synchronized PorterDuffColorFilter getPorterDuffColorFilter("
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
-            line="471"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"/>
     </issue>
 
     <issue
@@ -128,13 +106,9 @@
         errorLine1="    public Resources.Theme getTheme() {"
         errorLine2="                           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
-            line="107"
-            column="28"/>
+            file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"/>
         <location
             file="src/main/java/androidx/appcompat/widget/TintContextWrapper.java"
-            line="112"
-            column="17"
             message="Setter here"/>
     </issue>
 
@@ -144,9 +118,7 @@
         errorLine1="    public void scheduleDrawable(Drawable who, Runnable what, long when) {"
         errorLine2="                                                              ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="169"
-            column="63"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
     </issue>
 
     <issue
@@ -155,9 +127,7 @@
         errorLine1="    public static AnimatedStateListDrawableCompat createFromXmlInner("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
-            line="165"
-            column="19"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -166,9 +136,7 @@
         errorLine1="    protected boolean onStateChange(int[] stateSet) {"
         errorLine2="                                    ~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
-            line="276"
-            column="37"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -177,9 +145,7 @@
         errorLine1="    public Drawable mutate() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"
-            line="605"
-            column="12"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/AnimatedStateListDrawableCompat.java"/>
     </issue>
 
     <issue
@@ -188,9 +154,7 @@
         errorLine1="    public static ColorStateList getColorStateList(@NonNull Context context, @ColorRes int resId) {"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/content/res/AppCompatResources.java"
-            line="47"
-            column="19"/>
+            file="src/main/java/androidx/appcompat/content/res/AppCompatResources.java"/>
     </issue>
 
     <issue
@@ -199,9 +163,7 @@
         errorLine1="    public static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="159"
-            column="19"/>
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"/>
     </issue>
 
     <issue
@@ -210,9 +172,7 @@
         errorLine1="    public static PorterDuff.Mode parseTintMode(int value, PorterDuff.Mode defaultMode) {"
         errorLine2="                                                           ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"
-            line="159"
-            column="60"/>
+            file="src/main/java/androidx/appcompat/widget/DrawableUtils.java"/>
     </issue>
 
     <issue
@@ -221,9 +181,7 @@
         errorLine1="    public DrawableWrapper(Drawable drawable) {"
         errorLine2="                           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="46"
-            column="28"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
     </issue>
 
     <issue
@@ -232,9 +190,7 @@
         errorLine1="    public void draw(Canvas canvas) {"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="51"
-            column="22"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
     </issue>
 
     <issue
@@ -243,9 +199,7 @@
         errorLine1="    protected void onBoundsChange(Rect bounds) {"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"
-            line="56"
-            column="35"/>
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableWrapper.java"/>
     </issue>
 
     <issue

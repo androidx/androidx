@@ -7,9 +7,7 @@
         errorLine1="                || button instanceof AnimatedStateListDrawable);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/widget/AppCompatCheckBoxTest.java"
-            line="71"
-            column="38"/>
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatCheckBoxTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                || checkMark instanceof AnimatedStateListDrawable);"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/widget/AppCompatCheckedTextViewTest.java"
-            line="89"
-            column="41"/>
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatCheckedTextViewTest.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        final InputContentInfo contentInfo = new InputContentInfo("
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/widget/AppCompatEditTextReceiveContentTest.java"
-            line="541"
-            column="46"/>
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatEditTextReceiveContentTest.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        return ic.commitContent(contentInfo, flags, null);"
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/widget/AppCompatEditTextReceiveContentTest.java"
-            line="549"
-            column="19"/>
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatEditTextReceiveContentTest.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    private static class NoOpTextClassifier implements TextClassifier {}"
         errorLine2="                                                       ~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/widget/AppCompatEditTextTest.java"
-            line="201"
-            column="56"/>
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatEditTextTest.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                || button instanceof AnimatedStateListDrawable);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/widget/AppCompatRadioButtonTest.java"
-            line="72"
-            column="38"/>
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatRadioButtonTest.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        wrappedBase.applyOverrideConfiguration(overrideConfig);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/widget/AppCompatSpinnerRtlActivity.java"
-            line="33"
-            column="21"/>
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatSpinnerRtlActivity.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    private static class NoOpTextClassifier implements TextClassifier {}"
         errorLine2="                                                       ~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/widget/AppCompatTextViewTest.java"
-            line="928"
-            column="56"/>
+            file="src/androidTest/java/androidx/appcompat/widget/AppCompatTextViewTest.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            wrappedBase.applyOverrideConfiguration(overrideConfig);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/testutils/BaseTestActivity.java"
-            line="97"
-            column="25"/>
+            file="src/androidTest/java/androidx/appcompat/testutils/BaseTestActivity.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        mSystemWindowInsetTop = insets.getSystemWindowInsetTop();"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/custom/CustomDrawerLayout.java"
-            line="41"
-            column="40"/>
+            file="src/androidTest/java/androidx/appcompat/custom/CustomDrawerLayout.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        configuration.setLayoutDirection(locale)"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/app/NightModeRtlTestUtilsRegressionTestCase.kt"
-            line="73"
-            column="23"/>
+            file="src/androidTest/java/androidx/appcompat/app/NightModeRtlTestUtilsRegressionTestCase.kt"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="        configuration.setLocale(locale)"
         errorLine2="                      ~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/app/NightModeRtlTestUtilsRegressionTestCase.kt"
-            line="74"
-            column="23"/>
+            file="src/androidTest/java/androidx/appcompat/app/NightModeRtlTestUtilsRegressionTestCase.kt"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="        assertEquals(TextUtils.getLayoutDirectionFromLocale(CUSTOM_LOCALE), config.layoutDirection)"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/appcompat/app/NightModeRtlTestUtilsRegressionTestCase.kt"
-            line="94"
-            column="32"/>
+            file="src/androidTest/java/androidx/appcompat/app/NightModeRtlTestUtilsRegressionTestCase.kt"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public static synchronized void preload() {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
-            line="58"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
-            line="462"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    public synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
-            line="474"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
-            line="478"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public synchronized void onConfigurationChanged(@NonNull Context context) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
-            line="483"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    synchronized Drawable onDrawableLoadedFromResources(@NonNull Context context,"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
-            line="487"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    synchronized ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
-            line="497"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    public static synchronized PorterDuffColorFilter getPorterDuffColorFilter("
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
-            line="505"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatRatingBar.java"
-            line="59"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/AppCompatRatingBar.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatSeekBar.java"
-            line="58"
-            column="5"/>
+            file="src/main/java/androidx/appcompat/widget/AppCompatSeekBar.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="                info.setHomeAsUpIndicator.invoke(actionBar, drawable);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"
-            line="55"
-            column="17"/>
+            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="                info.setHomeActionContentDescription.invoke(actionBar, contentDescRes);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"
-            line="56"
-            column="17"/>
+            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="                info.setHomeActionContentDescription.invoke(actionBar, contentDescRes);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"
-            line="76"
-            column="17"/>
+            file="src/main/java/androidx/appcompat/app/ActionBarDrawerToggleHoneycomb.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="                        method.invoke(mTextView);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="677"
-            column="25"/>
+            file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"/>
     </issue>
 
     <issue

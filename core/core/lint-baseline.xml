@@ -7,9 +7,7 @@
         errorLine1="                return Optional.of(modeCompat);"
         errorLine2="                                ~~">
         <location
-            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
-            line="74"
-            column="33"/>
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        return Optional.empty();"
         errorLine2="                        ~~~~~">
         <location
-            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
-            line="77"
-            column="25"/>
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        mDisplayManager = (DisplayManager) mContext.getSystemService(DISPLAY_SERVICE);"
         errorLine2="                           ~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
-            line="84"
-            column="28"/>
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        mDefaultDisplay = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);"
         errorLine2="                                          ~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
-            line="85"
-            column="43"/>
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay)).get();"
         errorLine2="                                                                                           ~~~">
         <location
-            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
-            line="112"
-            column="92"/>
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        Display secondDisplay = mDisplayManager.getDisplay(secondDisplayId);"
         errorLine2="                                                ~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
-            line="123"
-            column="49"/>
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                findNativeMode(DisplayCompat.getSupportedModes(mContext, secondDisplay)).get();"
         errorLine2="                                                                                         ~~~">
         <location
-            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
-            line="130"
-            column="90"/>
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay)).get();"
         errorLine2="                                                                                           ~~~">
         <location
-            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
-            line="145"
-            column="92"/>
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="                findNativeMode(DisplayCompat.getSupportedModes(mContext, mDefaultDisplay)).get();"
         errorLine2="                                                                                           ~~~">
         <location
-            file="src/test/java/androidx/core/view/DisplayCompatTest.java"
-            line="166"
-            column="92"/>
+            file="src/test/java/androidx/core/view/DisplayCompatTest.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="                closeable.close();"
         errorLine2="                          ~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/content/FileProviderTest.java"
-            line="491"
-            column="27"/>
+            file="src/androidTest/java/androidx/core/content/FileProviderTest.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="            boolean equality = nc1.getImportance() == nc2.getImportance()"
         errorLine2="                                   ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="175"
-            column="36"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="            boolean equality = nc1.getImportance() == nc2.getImportance()"
         errorLine2="                                                          ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="175"
-            column="59"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="                    &amp;&amp; nc1.canBypassDnd() == nc2.canBypassDnd()"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="176"
-            column="28"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="                    &amp;&amp; nc1.canBypassDnd() == nc2.canBypassDnd()"
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="176"
-            column="50"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="                    &amp;&amp; nc1.getLockscreenVisibility() == nc2.getLockscreenVisibility()"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="177"
-            column="28"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="                    &amp;&amp; nc1.getLockscreenVisibility() == nc2.getLockscreenVisibility()"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="177"
-            column="61"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="                    &amp;&amp; nc1.getLightColor() == nc2.getLightColor()"
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="178"
-            column="28"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="                    &amp;&amp; nc1.getLightColor() == nc2.getLightColor()"
         errorLine2="                                                  ~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="178"
-            column="51"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getId(), nc2.getId())"
         errorLine2="                                          ~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="179"
-            column="43"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getId(), nc2.getId())"
         errorLine2="                                                       ~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="179"
-            column="56"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getName(), nc2.getName())"
         errorLine2="                                          ~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="180"
-            column="43"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getName(), nc2.getName())"
         errorLine2="                                                         ~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="180"
-            column="58"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getDescription(), nc2.getDescription())"
         errorLine2="                                          ~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="181"
-            column="43"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getDescription(), nc2.getDescription())"
         errorLine2="                                                                ~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="181"
-            column="65"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getSound(), nc2.getSound())"
         errorLine2="                                          ~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="182"
-            column="43"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="                    &amp;&amp; Objects.equals(nc1.getSound(), nc2.getSound())"
         errorLine2="                                                          ~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="182"
-            column="59"/>
+            file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"/>
     </issue>
 
     <issue
@@ -294,7 +242,6 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/core/app/NotificationChannelCompatTest.java"
-            line="183"
             column="42"/>
     </issue>
 

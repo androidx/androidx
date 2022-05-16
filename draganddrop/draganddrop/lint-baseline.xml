@@ -8,7 +8,6 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/draganddrop/DropHelperTest.java"
-            line="119"
             column="17"/>
     </issue>
 

@@ -7,9 +7,7 @@
         errorLine1="            .setTriggeredContentAuthorities(authorities.toList())"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"
-            line="102"
-            column="14"/>
+            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"/>
     </issue>
 
     <issue

@@ -7,9 +7,7 @@
         errorLine1="            holder.itemView.setAccessibilityHeading(true);"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/preference/PreferenceCategory.java"
-            line="77"
-            column="29"/>
+            file="src/main/java/androidx/preference/PreferenceCategory.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    @Nullable OnBindEditTextListener getOnBindEditTextListener() {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/preference/EditTextPreference.java"
-            line="164"
-            column="38"/>
+            file="src/main/java/androidx/preference/EditTextPreference.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    private int getValueIndex() {"
         errorLine2="                ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/preference/ListPreference.java"
-            line="249"
-            column="17"/>
+            file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    private int getValueIndex() {"
         errorLine2="                ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/preference/ListPreference.java"
-            line="249"
-            column="17"/>
+            file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public boolean shouldUseGeneratedIds() {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/preference/PreferenceScreen.java"
-            line="82"
-            column="20"/>
+            file="src/main/java/androidx/preference/PreferenceScreen.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    protected Object onGetDefaultValue(@NonNull TypedArray a, int index) {"
         errorLine2="              ~~~~~~">
         <location
-            file="src/main/java/androidx/preference/EditTextPreference.java"
-            line="102"
-            column="15"/>
+            file="src/main/java/androidx/preference/EditTextPreference.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    protected void onSetInitialValue(Object defaultValue) {"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/preference/EditTextPreference.java"
-            line="107"
-            column="38"/>
+            file="src/main/java/androidx/preference/EditTextPreference.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public static EditTextPreferenceDialogFragmentCompat newInstance(String key) {"
         errorLine2="                                                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/preference/EditTextPreferenceDialogFragmentCompat.java"
-            line="50"
-            column="70"/>
+            file="src/main/java/androidx/preference/EditTextPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public void setEntries(CharSequence[] entries) {"
         errorLine2="                           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/preference/ListPreference.java"
-            line="102"
-            column="28"/>
+            file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public CharSequence[] getEntries() {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/preference/ListPreference.java"
-            line="119"
-            column="12"/>
+            file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public void setEntryValues(CharSequence[] entryValues) {"
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/preference/ListPreference.java"
-            line="130"
-            column="32"/>
+            file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public CharSequence[] getEntryValues() {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/preference/ListPreference.java"
-            line="147"
-            column="12"/>
+            file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public void setValue(String value) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/preference/ListPreference.java"
-            line="188"
-            column="26"/>
+            file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public String getValue() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/preference/ListPreference.java"
-            line="206"
-            column="12"/>
+            file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public int findIndexOfValue(String value) {"
         errorLine2="                                ~~~~~~">
         <location
-            file="src/main/java/androidx/preference/ListPreference.java"
-            line="227"
-            column="33"/>
+            file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    protected Object onGetDefaultValue(@NonNull TypedArray a, int index) {"
         errorLine2="              ~~~~~~">
         <location
-            file="src/main/java/androidx/preference/ListPreference.java"
-            line="254"
-            column="15"/>
+            file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    protected void onSetInitialValue(Object defaultValue) {"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/preference/ListPreference.java"
-            line="259"
-            column="38"/>
+            file="src/main/java/androidx/preference/ListPreference.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public static ListPreferenceDialogFragmentCompat newInstance(String key) {"
         errorLine2="                                                                 ~~~~~~">
         <location
-            file="src/main/java/androidx/preference/ListPreferenceDialogFragmentCompat.java"
-            line="39"
-            column="66"/>
+            file="src/main/java/androidx/preference/ListPreferenceDialogFragmentCompat.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    public void setEntries(CharSequence[] entries) {"
         errorLine2="                           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/preference/MultiSelectListPreference.java"
-            line="93"
-            column="28"/>
+            file="src/main/java/androidx/preference/MultiSelectListPreference.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    public CharSequence[] getEntries() {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/preference/MultiSelectListPreference.java"
-            line="110"
-            column="12"/>
+            file="src/main/java/androidx/preference/MultiSelectListPreference.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    public void setEntryValues(CharSequence[] entryValues) {"
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/preference/MultiSelectListPreference.java"
-            line="121"
-            column="32"/>
+            file="src/main/java/androidx/preference/MultiSelectListPreference.java"/>
     </issue>
 
     <issue
@@ -239,7 +197,6 @@
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/preference/MultiSelectListPreference.java"
-            line="138"
             column="12"/>
     </issue>
 

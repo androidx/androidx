@@ -7,9 +7,7 @@
         errorLine1="    public String getIdTag() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="369"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public String getTitle() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="378"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public String getText() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="387"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public String getSourceName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="396"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public Bitmap getContentImage() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="405"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public String getBackgroundImageUri() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="426"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public void setGroup(String groupTag) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="450"
-            column="26"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public String getGroup() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="459"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public void setSortKey(String sortKey) {"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="473"
-            column="28"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public String getSortKey() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="482"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public IntentData getContentIntent() {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="559"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public IntentData getDismissIntent() {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="570"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public String[] getContentTypes() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="582"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public String getPrimaryContentType() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="596"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public String[] getGenres() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="609"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    public String getPricingType() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="622"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    public String getPricingValue() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="633"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public String getMaturityRating() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="667"
-            column="12"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="        public Builder setIdTag(String idTag) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="750"
-            column="16"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="        public Builder setIdTag(String idTag) {"
         errorLine2="                                ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="750"
-            column="33"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="        public Builder setTitle(String title) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="761"
-            column="16"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="        public Builder setTitle(String title) {"
         errorLine2="                                ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="761"
-            column="33"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="        public Builder setText(@Nullable String description) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="772"
-            column="16"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="        public Builder setSourceName(@Nullable String source) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="786"
-            column="16"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="        public Builder setContentImage(Bitmap image) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="797"
-            column="16"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="        public Builder setContentImage(Bitmap image) {"
         errorLine2="                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="797"
-            column="40"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="        public Builder setBadgeIcon(@DrawableRes int iconResourceId) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="812"
-            column="16"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="        public Builder setBackgroundImageUri(@Nullable String imageUri) {"
         errorLine2="               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"
-            line="824"
-            column="16"/>
+            file="src/main/java/androidx/recommendation/app/ContentRecommendation.java"/>
     </issue>
 
     <issue

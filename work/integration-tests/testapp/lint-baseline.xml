@@ -7,9 +7,7 @@
         errorLine1="                &amp;&amp; Build.VERSION.SDK_INT >= 16 &amp;&amp; data.getClipData() != null) {"
         errorLine2="                                                       ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"
-            line="95"
-            column="56"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            int count = data.getClipData().getItemCount();"
         errorLine2="                             ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"
-            line="97"
-            column="30"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                String uriString = data.getClipData().getItemAt(i).getUri().toString();"
         errorLine2="                                        ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"
-            line="101"
-            column="41"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                    jobScheduler.cancelAll();"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="560"
-            column="34"/>
+            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                        jobScheduler.schedule("
         errorLine2="                                     ~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="562"
-            column="38"/>
+            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                                new JobInfo.Builder("
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="563"
-            column="33"/>
+            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                                        .setMinimumLatency(10 * 60 * 1000)"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="566"
-            column="42"/>
+            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                                        .build());"
         errorLine2="                                         ~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="567"
-            column="42"/>
+            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="                        mImageRecyclerViewAdapter.updateList(images);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"
-            line="65"
-            column="25"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="                        if (mShouldLoad) {"
         errorLine2="                            ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"
-            line="78"
-            column="29"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="                            mImageView.setImageBitmap(bitmap);"
         errorLine2="                            ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"
-            line="80"
-            column="29"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="                            mTextView.setText(image.mOriginalAssetName);"
         errorLine2="                            ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"
-            line="81"
-            column="29"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="                            mProgressBar.setVisibility(View.GONE);"
         errorLine2="                            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"
-            line="82"
-            column="29"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="                            mImageView.setVisibility(View.VISIBLE);"
         errorLine2="                            ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"
-            line="83"
-            column="29"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="                scheduleWork(&quot;one&quot;, 3, 0.2);"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"
-            line="63"
-            column="17"/>
+            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="                scheduleWork(&quot;two&quot;, 5, 0.5);"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"
-            line="64"
-            column="17"/>
+            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="                            mTextView.setText(&quot;nothing to show&quot;);"
         errorLine2="                            ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"
-            line="79"
-            column="29"/>
+            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="                            mTextView.setText(text);"
         errorLine2="                            ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"
-            line="81"
-            column="29"/>
+            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    protected void onCreate(final Bundle savedInstanceState) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/sherlockholmes/AnalyzeSherlockHolmesActivity.java"
-            line="50"
-            column="35"/>
+            file="src/main/java/androidx/work/integration/testapp/sherlockholmes/AnalyzeSherlockHolmesActivity.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    public String mProcessedFilePath;"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/Image.java"
-            line="34"
-            column="12"/>
+            file="src/main/java/androidx/work/integration/testapp/db/Image.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    public Bitmap mImage;"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/Image.java"
-            line="39"
-            column="12"/>
+            file="src/main/java/androidx/work/integration/testapp/db/Image.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    void insert(Image image);"
         errorLine2="                ~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/ImageDao.java"
-            line="37"
-            column="17"/>
+            file="src/main/java/androidx/work/integration/testapp/db/ImageDao.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    List&lt;Image> getImages();"
         errorLine2="    ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/ImageDao.java"
-            line="45"
-            column="5"/>
+            file="src/main/java/androidx/work/integration/testapp/db/ImageDao.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    int setProcessed(String originalAssetName, String processedFilePath);"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/ImageDao.java"
-            line="54"
-            column="22"/>
+            file="src/main/java/androidx/work/integration/testapp/db/ImageDao.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="    int setProcessed(String originalAssetName, String processedFilePath);"
         errorLine2="                                               ~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/ImageDao.java"
-            line="54"
-            column="48"/>
+            file="src/main/java/androidx/work/integration/testapp/db/ImageDao.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="    LiveData&lt;List&lt;Image>> getImagesLiveData();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/ImageDao.java"
-            line="62"
-            column="5"/>
+            file="src/main/java/androidx/work/integration/testapp/db/ImageDao.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"
-            line="49"
-            column="29"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"
-            line="117"
-            column="12"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {"
         errorLine2="                                         ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"
-            line="117"
-            column="42"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="    public void onBindViewHolder(ViewHolder holder, int position) {"
         errorLine2="                                 ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"
-            line="124"
-            column="34"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="    public void onViewRecycled(ViewHolder holder) {"
         errorLine2="                               ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"
-            line="129"
-            column="32"/>
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"
-            line="82"
-            column="29"/>
+            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="    public static String TAG = &quot;RecursiveWorker&quot;;"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/RecursiveWorker.java"
-            line="34"
-            column="19"/>
+            file="src/main/java/androidx/work/integration/testapp/RecursiveWorker.java"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="    public static TestDatabase getInstance(Context context) {"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"
-            line="38"
-            column="19"/>
+            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="    public static TestDatabase getInstance(Context context) {"
         errorLine2="                                           ~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"
-            line="38"
-            column="44"/>
+            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="    public abstract WordCountDao getWordCountDao();"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"
-            line="51"
-            column="21"/>
+            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="    public abstract ImageDao getImageDao();"
         errorLine2="                    ~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"
-            line="58"
-            column="21"/>
+            file="src/main/java/androidx/work/integration/testapp/db/TestDatabase.java"/>
     </issue>
 
     <issue
@@ -414,9 +340,7 @@
         errorLine1="    public static OneTimeWorkRequest.Builder create(String inputFile) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/sherlockholmes/TextMappingWorker.java"
-            line="50"
-            column="19"/>
+            file="src/main/java/androidx/work/integration/testapp/sherlockholmes/TextMappingWorker.java"/>
     </issue>
 
     <issue
@@ -425,9 +349,7 @@
         errorLine1="    public static OneTimeWorkRequest.Builder create(String inputFile) {"
         errorLine2="                                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/sherlockholmes/TextMappingWorker.java"
-            line="50"
-            column="53"/>
+            file="src/main/java/androidx/work/integration/testapp/sherlockholmes/TextMappingWorker.java"/>
     </issue>
 
     <issue
@@ -436,9 +358,7 @@
         errorLine1="    public static OneTimeWorkRequest.Builder create(String message) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/ToastWorker.java"
-            line="45"
-            column="19"/>
+            file="src/main/java/androidx/work/integration/testapp/ToastWorker.java"/>
     </issue>
 
     <issue
@@ -447,9 +367,7 @@
         errorLine1="    public static OneTimeWorkRequest.Builder create(String message) {"
         errorLine2="                                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/ToastWorker.java"
-            line="45"
-            column="53"/>
+            file="src/main/java/androidx/work/integration/testapp/ToastWorker.java"/>
     </issue>
 
     <issue
@@ -458,9 +376,7 @@
         errorLine1="    void insertWordCount(WordCount wordCount);"
         errorLine2="                         ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/WordCountDao.java"
-            line="37"
-            column="26"/>
+            file="src/main/java/androidx/work/integration/testapp/db/WordCountDao.java"/>
     </issue>
 
     <issue
@@ -469,9 +385,7 @@
         errorLine1="    LiveData&lt;List&lt;WordCount>> getWordCounts();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/integration/testapp/db/WordCountDao.java"
-            line="45"
-            column="5"/>
+            file="src/main/java/androidx/work/integration/testapp/db/WordCountDao.java"/>
     </issue>
 
 </issues>

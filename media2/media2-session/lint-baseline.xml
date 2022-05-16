@@ -7,9 +7,7 @@
         errorLine1="        return new VolumeProviderCompat(player.getVolumeControlType(), player.getMaxVolume(),"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaSessionLegacyStub.java"
-            line="630"
-            column="41"/>
+            file="src/main/java/androidx/media2/session/MediaSessionLegacyStub.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        return new SessionResult(result.getResultCode(), null, result.getMediaItem(),"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/SessionResult.java"
-            line="134"
-            column="34"/>
+            file="src/main/java/androidx/media2/session/SessionResult.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public void setTimeDiff(Long timeDiff) {"
         errorLine2="                            ~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaController.java"
-            line="1399"
-            column="29"/>
+            file="src/main/java/androidx/media2/session/MediaController.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public IBinder onBind(@NonNull Intent intent) {"
         errorLine2="           ~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaLibraryService.java"
-            line="505"
-            column="12"/>
+            file="src/main/java/androidx/media2/session/MediaLibraryService.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public MediaSessionCompat getSessionCompat() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaSession.java"
-            line="420"
-            column="12"/>
+            file="src/main/java/androidx/media2/session/MediaSession.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public static MediaItem convertToMediaItem(MediaBrowserCompat.MediaItem item) {"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="286"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public static MediaItem convertToMediaItem(MediaBrowserCompat.MediaItem item) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="286"
-            column="48"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public static MediaItem convertToMediaItem(QueueItem item) {"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="300"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public static MediaItem convertToMediaItem(QueueItem item) {"
         errorLine2="                                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="300"
-            column="48"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public static List&lt;MediaItem> convertMediaItemListToMediaItemList("
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="368"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="            List&lt;MediaBrowserCompat.MediaItem> items) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="369"
-            column="13"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public static List&lt;MediaItem> convertQueueItemListToMediaItemList(List&lt;QueueItem> items) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="383"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public static List&lt;MediaItem> convertQueueItemListToMediaItemList(List&lt;QueueItem> items) {"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="383"
-            column="71"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public static MediaDescriptionCompat createMediaDescriptionCompat(String mediaId) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="400"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public static MediaDescriptionCompat createMediaDescriptionCompat(String mediaId) {"
         errorLine2="                                                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="400"
-            column="71"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    public static List&lt;QueueItem> convertToQueueItemList(List&lt;MediaItem> items) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="411"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    public static List&lt;QueueItem> convertToQueueItemList(List&lt;MediaItem> items) {"
         errorLine2="                                                         ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="411"
-            column="58"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public static List&lt;MediaItem> convertParcelImplListSliceToMediaItemList("
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="445"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="            ParcelImplListSlice listSlice) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="446"
-            column="13"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    public static &lt;T extends Parcelable> List&lt;T> truncateListBySize(final List&lt;T> list,"
         errorLine2="                                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="466"
-            column="42"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    public static &lt;T extends Parcelable> List&lt;T> truncateListBySize(final List&lt;T> list,"
         errorLine2="                                                                          ~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="466"
-            column="75"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    public static MediaMetadata convertToMediaMetadata(CharSequence queueTitle) {"
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="561"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    public static MediaMetadata convertToMediaMetadata(CharSequence queueTitle) {"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="561"
-            column="56"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    public static MediaMetadataCompat convertToMediaMetadataCompat(MediaMetadata metadata) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="578"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="    public static MediaMetadataCompat convertToMediaMetadataCompat(MediaMetadata metadata) {"
         errorLine2="                                                                   ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="578"
-            column="68"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="    public static Rating convertToRating(RatingCompat ratingCompat) {"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="613"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="    public static Rating convertToRating(RatingCompat ratingCompat) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="613"
-            column="42"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="    public static RatingCompat convertToRatingCompat(Rating rating) {"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="649"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="    public static RatingCompat convertToRatingCompat(Rating rating) {"
         errorLine2="                                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="649"
-            column="54"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="    public static List&lt;ParcelImpl> convertCommandButtonListToParcelImplList("
         errorLine2="                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="679"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="            List&lt;CommandButton> commandButtonList) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="680"
-            column="13"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="    public static ParcelImplListSlice convertMediaItemListToParcelImplListSlice("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="695"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="            List&lt;MediaItem> mediaItemList) {"
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="696"
-            column="13"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="    public static int convertToPlayerState(PlaybackStateCompat state) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="737"
-            column="44"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="    public static MediaController.PlaybackInfo toPlaybackInfo2("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="781"
-            column="19"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="            MediaControllerCompat.PlaybackInfo info) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="782"
-            column="13"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="    public static boolean isUnparcelableBundle(Bundle bundle) {"
         errorLine2="                                               ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="792"
-            column="48"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -414,9 +340,7 @@
         errorLine1="    public static void keepUnparcelableBundlesOnly(final List&lt;Bundle> bundles) {"
         errorLine2="                                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/MediaUtils.java"
-            line="808"
-            column="58"/>
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
     </issue>
 
     <issue
@@ -425,9 +349,7 @@
         errorLine1="    public ComponentName getComponentName() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="210"
-            column="12"/>
+            file="src/main/java/androidx/media2/session/SessionToken.java"/>
     </issue>
 
     <issue
@@ -436,9 +358,7 @@
         errorLine1="    public Object getBinder() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="250"
-            column="12"/>
+            file="src/main/java/androidx/media2/session/SessionToken.java"/>
     </issue>
 
     <issue
@@ -447,9 +367,7 @@
         errorLine1="        void onSessionTokenCreated(MediaSessionCompat.Token compatToken, SessionToken sessionToken);"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="411"
-            column="36"/>
+            file="src/main/java/androidx/media2/session/SessionToken.java"/>
     </issue>
 
     <issue
@@ -458,9 +376,7 @@
         errorLine1="        void onSessionTokenCreated(MediaSessionCompat.Token compatToken, SessionToken sessionToken);"
         errorLine2="                                                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/session/SessionToken.java"
-            line="411"
-            column="74"/>
+            file="src/main/java/androidx/media2/session/SessionToken.java"/>
     </issue>
 
 </issues>
