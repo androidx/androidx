@@ -190,6 +190,7 @@ val WearMaterialDemos = DemoCategory(
                     listOf(
                         ComposableDemo("Clock only") { TimeTextClockOnly() },
                         ComposableDemo("Clock with leading text") { TimeTextWithLeadingText() },
+                        ComposableDemo("Clock with shadow") { TimeTextWithShadow() },
                         ComposableDemo("Clock with localised format") {
                             TimeTextWithLocalisedFormat()
                         },
