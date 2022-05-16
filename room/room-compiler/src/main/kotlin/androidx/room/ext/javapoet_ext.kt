@@ -115,6 +115,8 @@ object PagingTypeNames {
         ClassName.get(PAGING_PACKAGE, "PagingSource")
     val LISTENABLE_FUTURE_PAGING_SOURCE: ClassName =
         ClassName.get(PAGING_PACKAGE, "ListenableFuturePagingSource")
+    val RX2_PAGING_SOURCE: ClassName =
+        ClassName.get("$PAGING_PACKAGE.rxjava2", "RxPagingSource")
     val RX3_PAGING_SOURCE: ClassName =
         ClassName.get("$PAGING_PACKAGE.rxjava3", "RxPagingSource")
 }
@@ -210,6 +212,14 @@ object RoomPagingGuavaTypeNames {
         ClassName.get(
             "$ROOM_PACKAGE.paging.guava",
             "LimitOffsetListenableFuturePagingSource"
+        )
+}
+
+object RoomPagingRx2TypeNames {
+    val LIMIT_OFFSET_RX_PAGING_SOURCE: ClassName =
+        ClassName.get(
+            "$ROOM_PACKAGE.paging.rxjava2",
+            "LimitOffsetRxPagingSource"
         )
 }
 
