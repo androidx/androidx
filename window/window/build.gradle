@@ -74,9 +74,9 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.junit) // Needed for Assert.assertThrows
     androidTestImplementation(compileOnly(project(":window:extensions:extensions")))
     androidTestImplementation(compileOnly(project(":window:sidecar:sidecar")))
-
     samples(project(":window:window-samples"))
 }
 
