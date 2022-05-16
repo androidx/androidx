@@ -51,7 +51,7 @@ public class MaterialGoldenTest {
     public AndroidXScreenshotTestRule mScreenshotRule =
             new AndroidXScreenshotTestRule("wear/wear-tiles-material");
 
-    public MaterialGoldenTest(LayoutElement layoutElement, String expected) {
+    public MaterialGoldenTest(String expected, LayoutElement layoutElement) {
         mLayoutElement = layoutElement;
         mExpected = expected;
     }
@@ -87,7 +87,7 @@ public class MaterialGoldenTest {
                         .setScreenShape(DeviceParametersBuilders.SCREEN_SHAPE_RECT)
                         .build();
 
-        Map<LayoutElement, String> testCases = generateTestCases(context, deviceParameters, "");
+        Map<String, LayoutElement> testCases = generateTestCases(context, deviceParameters, "");
 
         return testCases.entrySet().stream()
                 .map(test -> new Object[] {test.getKey(), test.getValue()})
