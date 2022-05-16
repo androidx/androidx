@@ -18,6 +18,7 @@ playground {
         if (name == ":internal-testutils-truth") return true
         if (name == ":annotation:annotation-sampled") return true
         if (name == ":test:screenshot:screenshot") return true
+        if (name == ":test:screenshot:screenshot-proto") return true
         return false
     })
 }
