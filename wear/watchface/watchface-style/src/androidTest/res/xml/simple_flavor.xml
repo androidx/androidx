@@ -16,7 +16,7 @@
 
 <XmlWatchFace xmlns:app="http://schemas.android.com/apk/res-auto">
     <UserStyleSchema>
-        <ListUserStyleSetting app:parent="@xml/xml_time_style"/>
+        <ListUserStyleSetting app:parent="@xml/list_setting_common"/>
     </UserStyleSchema>
     <UserStyleFlavors>
         <UserStyleFlavor app:id="first"/>

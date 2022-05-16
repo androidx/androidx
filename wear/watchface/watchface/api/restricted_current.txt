@@ -353,6 +353,7 @@ package androidx.wear.watchface {
   public abstract class WatchFaceService extends android.service.wallpaper.WallpaperService {
     ctor public WatchFaceService();
     method @WorkerThread protected androidx.wear.watchface.ComplicationSlotsManager createComplicationSlotsManager(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
+    method @WorkerThread protected androidx.wear.watchface.style.UserStyleFlavors createUserStyleFlavors(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager);
     method @WorkerThread protected androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema();
     method @WorkerThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
     method public final android.os.Handler getBackgroundThreadHandler();
