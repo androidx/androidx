@@ -621,6 +621,10 @@ object ProcessorErrors {
         "add `room-paging-guava` artifact from Room as a dependency. " +
         "androidx.room:room-paging-guava:<version>"
 
+    val MISSING_ROOM_PAGING_RXJAVA2_ARTIFACT = "To use RxPagingSource, you must " +
+        "add `room-paging-rxjava2` artifact from Room as a dependency. " +
+        "androidx.room:room-paging-rxjava2:<version>"
+
     val MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT = "To use RxPagingSource, you must " +
         "add `room-paging-rxjava3` artifact from Room as a dependency. " +
         "androidx.room:room-paging-rxjava3:<version>"
