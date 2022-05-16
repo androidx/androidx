@@ -17,6 +17,7 @@
 package androidx.wear.watchface.complications
 
 import android.content.ComponentName
+import android.content.res.XmlResourceParser
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.SystemDataSources.DataSourceId
 import androidx.wear.watchface.complications.data.ComplicationType
@@ -314,7 +315,103 @@ public class DefaultComplicationDataSourcePolicy {
         return result
     }
 
-    internal companion object {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemDataSources.NO_DATA_SOURCE
+
+        fun inflate(
+            parser: XmlResourceParser,
+            nodeName: String,
+        ): DefaultComplicationDataSourcePolicy {
+            val primaryDataSource =
+                parser.getAttributeValue(NAMESPACE_APP, "primaryDataSource")?.let {
+                    ComponentName.unflattenFromString(it)
+                }
+            val primaryDataSourceDefaultType =
+                if (parser.hasValue("primaryDataSourceDefaultType")) {
+                    ComplicationType.fromWireType(
+                        parser.getAttributeIntValue(
+                            NAMESPACE_APP,
+                            "primaryDataSourceDefaultType",
+                            0
+                        )
+                    )
+                } else {
+                    null
+                }
+            val secondaryDataSource =
+                parser.getAttributeValue(NAMESPACE_APP, "secondaryDataSource")?.let {
+                    ComponentName.unflattenFromString(it)
+                }
+
+            val secondaryDataSourceDefaultType =
+                if (parser.hasValue("secondaryDataSourceDefaultType")) {
+                    ComplicationType.fromWireType(
+                        parser.getAttributeIntValue(
+                            NAMESPACE_APP,
+                            "secondaryDataSourceDefaultType",
+                            0
+                        )
+                    )
+                } else {
+                    null
+                }
+
+            require(parser.hasValue("systemDataSourceFallback")) {
+                "A $nodeName must have a systemDataSourceFallback attribute"
+            }
+            val systemDataSourceFallback = parser.getAttributeIntValue(
+                NAMESPACE_APP, "systemDataSourceFallback", 0)
+            require(parser.hasValue("systemDataSourceFallbackDefaultType")) {
+                "A $nodeName must have a systemDataSourceFallbackDefaultType attribute"
+            }
+            val systemDataSourceFallbackDefaultType = ComplicationType.fromWireType(
+                parser.getAttributeIntValue(
+                    NAMESPACE_APP, "systemDataSourceFallbackDefaultType", 0))
+            return when {
+                secondaryDataSource != null -> {
+                    require(primaryDataSource != null) {
+                        "If a secondaryDataSource is specified, a primaryDataSource must be too"
+                    }
+                    require(primaryDataSourceDefaultType != null) {
+                        "If a secondaryDataSource is specified, a " +
+                            "primaryDataSourceDefaultType must be too"
+                    }
+                    require(secondaryDataSourceDefaultType != null) {
+                        "If a secondaryDataSource is specified, a " +
+                            "secondaryDataSourceDefaultType must be too"
+                    }
+                    DefaultComplicationDataSourcePolicy(
+                        primaryDataSource,
+                        primaryDataSourceDefaultType,
+                        secondaryDataSource,
+                        secondaryDataSourceDefaultType,
+                        systemDataSourceFallback,
+                        systemDataSourceFallbackDefaultType
+                    )
+                }
+
+                primaryDataSource != null -> {
+                    require(primaryDataSourceDefaultType != null) {
+                        "If a primaryDataSource is specified, a " +
+                            "primaryDataSourceDefaultType must be too"
+                    }
+                    DefaultComplicationDataSourcePolicy(
+                        primaryDataSource,
+                        primaryDataSourceDefaultType,
+                        systemDataSourceFallback,
+                        systemDataSourceFallbackDefaultType
+                    )
+                }
+
+                else -> {
+                    DefaultComplicationDataSourcePolicy(
+                        systemDataSourceFallback,
+                        systemDataSourceFallbackDefaultType
+                    )
+                }
+            }
+        }
     }
 }

@@ -60,7 +60,6 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -522,7 +521,6 @@ class WatchFaceControlClientTest {
         headlessInstance.close()
     }
 
-    @OptIn(WatchFaceFlavorsExperimental::class)
     @Test
     fun headlessUserStyleFlavors() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
