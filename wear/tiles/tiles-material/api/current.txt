@@ -148,6 +148,7 @@ package androidx.wear.tiles.material {
   }
 
   public class Text implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.Text? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.ColorBuilders.ColorProp getColor();
     method public androidx.wear.tiles.LayoutElementBuilders.FontStyle getFontStyle();
     method public float getLineHeight();
