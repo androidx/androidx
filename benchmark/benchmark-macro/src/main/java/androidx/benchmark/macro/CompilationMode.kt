@@ -70,7 +70,24 @@ sealed class CompilationMode {
         if (Build.VERSION.SDK_INT >= 24) {
             if (Arguments.enableCompilation) {
                 Log.d(TAG, "Resetting $packageName")
-                reinstallPackage(packageName)
+                if (Arguments.enablePackageReset) {
+                    // Package reset enabled
+                    Log.w(TAG, "Shader compilation will be cached between runs.")
+                    Log.d(TAG, "Re-compiling $packageName")
+                    // cmd package compile --reset returns a "Success" or a "Failure" to stdout.
+                    // Rather than rely on exit codes which are not always correct, we specifically
+                    // look for the work "Success" in stdout to make sure reset actually
+                    // happened.
+                    val output =
+                        Shell.executeScriptWithStderr("cmd package compile --reset $packageName")
+                    check(output.stdout.trim() == "Success") {
+                        "Unable to recompile $packageName ($output)"
+                    }
+                } else {
+                    // User builds. Kick off a full uninstall-reinstall
+                    Log.d(TAG, "Reinstalling $packageName")
+                    reinstallPackage(packageName)
+                }
                 // Write skip file to stop profile installer from interfering with the benchmark
                 writeProfileInstallerSkipFile(packageName)
                 compileImpl(packageName, warmupBlock)
