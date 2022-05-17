@@ -24,10 +24,10 @@
         app:top="0.4" />
     <ComplicationSlotBounds
         app:complicationType="LONG_TEXT"
-        app:bottom="0.5"
-        app:left="0.6"
-        app:right="0.7"
-        app:top="0.8" />
+        app:bottom="192dp"
+        app:left="96dp"
+        app:right="192dp"
+        app:top="96dp" />
     <ComplicationSlotBounds
         app:complicationType="RANGED_VALUE"
         app:center_x="0.4"
