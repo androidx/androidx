@@ -45,6 +45,7 @@ import androidx.appcompat.widget.ResourceManagerInternal;
 import androidx.collection.LongSparseArray;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.graphics.drawable.TintAwareDrawable;
+import androidx.core.util.ObjectsCompat;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
@@ -87,7 +88,6 @@ import java.io.IOException;
  * {@link android.R.attr#state_last}
  * {@link android.R.attr#state_pressed}
  */
-@SuppressLint("RestrictedAPI") // Temporary until we have correct restriction scopes for 1.0
 public class AnimatedStateListDrawableCompat extends StateListDrawable
         implements TintAwareDrawable {
     private static final String LOGTAG = AnimatedStateListDrawableCompat.class.getSimpleName();
@@ -141,6 +141,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
             final XmlPullParser parser = res.getXml(resId);
             final AttributeSet attrs = Xml.asAttributeSet(parser);
             int type;
+            //noinspection StatementWithEmptyBody
             while ((type = parser.next()) != XmlPullParser.START_TAG
                     && type != XmlPullParser.END_DOCUMENT) {
                 // Empty loop
@@ -162,6 +163,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
      * {@link Resources.Theme}. Called on a parser positioned at a tag in an XML
      * document, tries to create an AnimatedStateListDrawableCompat from that tag.
      */
+    @NonNull
     public static AnimatedStateListDrawableCompat createFromXmlInner(
             @NonNull Context context,
             @NonNull Resources resources,
@@ -188,8 +190,8 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
      * @param parser XML parser from which to inflate this Drawable
      * @param attrs Base set of attribute values
      * @param theme Theme to apply, may be null
-     * @throws XmlPullParserException
-     * @throws IOException
+     * @throws XmlPullParserException if the XML is malformed
+     * @throws IOException if the XML could not be read
      */
     @Override
     public void inflate(
@@ -232,9 +234,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
      * @param id       The unique identifier for the keyframe
      */
     public void addState(@NonNull int[] stateSet, @NonNull Drawable drawable, int id) {
-        if (drawable == null) {
-            throw new IllegalArgumentException("Drawable must not be null");
-        }
+        ObjectsCompat.requireNonNull(drawable);
         mState.addStateSet(stateSet, drawable, id);
         onStateChange(getState());
     }
@@ -249,9 +249,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
      */
     public <T extends Drawable & Animatable> void addTransition(int fromId, int toId,
             @NonNull T transition, boolean reversible) {
-        if (transition == null) {
-            throw new IllegalArgumentException("Transition drawable must not be null");
-        }
+        ObjectsCompat.requireNonNull(transition);
         mState.addTransition(fromId, toId, transition, reversible);
     }
 
@@ -273,7 +271,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
     }
 
     @Override
-    protected boolean onStateChange(int[] stateSet) {
+    protected boolean onStateChange(@NonNull int[] stateSet) {
         // If we're not already at the target index, either attempt to find a
         // valid transition to it or jump directly there.
         final int targetIndex = mState.indexOfKeyframe(stateSet);
@@ -527,6 +525,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
         // it needs to happen after obtaining attributes and extracting states.
         if (dr == null) {
             int type;
+            //noinspection StatementWithEmptyBody
             while ((type = parser.next()) == XmlPullParser.TEXT) {
                 // no-op
             }
@@ -578,6 +577,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
         // it needs to happen after obtaining attributes and extracting states.
         if (dr == null) {
             int type;
+            //noinspection StatementWithEmptyBody
             while ((type = parser.next()) == XmlPullParser.TEXT) {
                 // no-op
             }
@@ -601,6 +601,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
         return mState.addStateSet(states, dr, keyframeId);
     }
 
+    @NonNull
     @Override
     public Drawable mutate() {
         if (!mMutated && super.mutate() == this) {
