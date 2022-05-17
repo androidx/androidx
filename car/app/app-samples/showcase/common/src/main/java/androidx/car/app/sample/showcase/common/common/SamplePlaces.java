@@ -279,7 +279,7 @@ public class SamplePlaces {
                                         BitmapFactory.decodeResource(
                                                 carContext.getResources(),
                                                 R.drawable.ic_hi)))
-                                .build(), CarIconSpan.ALIGN_BOTTOM),
+                                .build(), CarIconSpan.ALIGN_CENTER),
                         5,
                         6,
                         Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
