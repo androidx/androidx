@@ -85,11 +85,10 @@ public class ActivitySession(
          */
         @JvmField
         val ACTIVE_TIME_TOTAL: AggregateMetric<Duration> =
-            AggregateMetric(
-                Duration::class,
-                "ActiveTime",
-                AggregateMetric.AggregationType.TOTAL,
-                "time"
+            AggregateMetric.durationMetric(
+                dataTypeName = "ActiveTime",
+                aggregationType = AggregateMetric.AggregationType.TOTAL,
+                fieldName = "time",
             )
         // Active time requires computing total time from ActivityEvent/Session and is not a
         // straightforward Duration aggregation.
