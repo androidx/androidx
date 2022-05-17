@@ -20,10 +20,10 @@ import java.time.Duration
 /**
  * Identifier to supported metrics for aggregation.
  *
- * @see AggregationResult.hasMetric
- * @see AggregationResult.getMetric
+ * @see AggregationResult.contains
+ * @see AggregationResult.get
  */
-class AggregateMetric<T : Any>
+class AggregateMetric<out T : Any>
 internal constructor(
     /** Converter from a raw value to the resulting type [T]. Internal to SDK only. */
     internal val converter: Converter<*, T>,
