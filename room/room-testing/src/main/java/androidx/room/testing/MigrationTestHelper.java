@@ -16,6 +16,9 @@
 
 package androidx.room.testing;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+
 import android.annotation.SuppressLint;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -57,7 +60,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -250,13 +252,13 @@ public class MigrationTestHelper extends TestWatcher {
                 null,
                 true,
                 false,
-                Collections.<Integer>emptySet(),
+                emptySet(),
                 null,
                 null,
                 null,
                 null,
-                null,
-                null);
+                emptyList(),
+                emptyList());
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new CreatingDelegate(schemaBundle.getDatabase()),
                 schemaBundle.getDatabase().getIdentityHash(),
@@ -315,13 +317,13 @@ public class MigrationTestHelper extends TestWatcher {
                 null,
                 true,
                 false,
-                Collections.<Integer>emptySet(),
+                emptySet(),
                 null,
                 null,
                 null,
                 null,
-                null,
-                null);
+                emptyList(),
+                emptyList());
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
                 // we pass the same hash twice since an old schema does not necessarily have
@@ -510,7 +512,7 @@ public class MigrationTestHelper extends TestWatcher {
 
     private static Set<TableInfo.Index> toIndices(List<IndexBundle> indices) {
         if (indices == null) {
-            return Collections.emptySet();
+            return emptySet();
         }
         Set<TableInfo.Index> result = new HashSet<>();
         for (IndexBundle bundle : indices) {
@@ -523,7 +525,7 @@ public class MigrationTestHelper extends TestWatcher {
     private static Set<TableInfo.ForeignKey> toForeignKeys(
             List<ForeignKeyBundle> bundles) {
         if (bundles == null) {
-            return Collections.emptySet();
+            return emptySet();
         }
         Set<TableInfo.ForeignKey> result = new HashSet<>(bundles.size());
         for (ForeignKeyBundle bundle : bundles) {

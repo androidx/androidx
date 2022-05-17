@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room;
+package androidx.room
 
-import androidx.annotation.NonNull;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.db.SupportSQLiteOpenHelper
 
 /**
- * Package private interface for OpenHelpers which delegate to other open helpers.
+ * Internal interface for OpenHelpers which delegate to other open helpers.
  *
  * TODO(b/175612939): delete this interface once implementations are merged.
  */
-interface DelegatingOpenHelper {
-
+internal interface DelegatingOpenHelper {
     /**
-     * Returns the delegate open helper (which may itself be a DelegatingOpenHelper) so
+     * The delegate open helper (which may itself be a DelegatingOpenHelper) so
      * configurations on specific instances can be applied.
-     *
-     * @return the delegate
      */
-    @NonNull
-    SupportSQLiteOpenHelper getDelegate();
+    val delegate: SupportSQLiteOpenHelper
 }

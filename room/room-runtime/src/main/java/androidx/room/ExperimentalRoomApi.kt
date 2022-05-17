@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room;
+package androidx.room
 
-import androidx.annotation.RequiresOptIn;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
-
+import androidx.annotation.RequiresOptIn
 
 /**
  * APIs marked with ExperimentalRoomApi are experimental and may change.
  */
-@Target({ElementType.TYPE, ElementType.METHOD})
-@RequiresOptIn()
-public @interface ExperimentalRoomApi {}
+@Target(
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION
+)
+@Suppress("UnsafeOptInUsageError")
+@RequiresOptIn
+annotation class ExperimentalRoomApi

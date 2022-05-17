@@ -18,6 +18,7 @@ package androidx.room
 
 import android.content.Context
 import android.content.res.AssetManager
+import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
@@ -56,7 +57,7 @@ class SQLiteCopyOpenHelperTest {
 
     val context: Context = mock(Context::class.java)
     val assetManager: AssetManager = mock(AssetManager::class.java)
-    val delegate: SupportSQLiteOpenHelper = mock(SQLiteCopyOpenHelper::class.java)
+    val delegate: SupportSQLiteOpenHelper = mock(SupportSQLiteOpenHelper::class.java)
     val configuration: DatabaseConfiguration = mock(DatabaseConfiguration::class.java)
 
     @Test
@@ -189,11 +190,12 @@ class SQLiteCopyOpenHelperTest {
     fun testGetDelegate() {
         val openHelper = createOpenHelper(tempDirectory.newFile("toCopy.db"))
 
-        assertSame(delegate, openHelper.getDelegate())
+        assertSame(delegate, openHelper.delegate)
     }
 
     internal fun setupMocks(tmpDir: File, copyFromFile: File, onAssetOpen: () -> Unit = {}) {
         `when`(delegate.databaseName).thenReturn(DB_NAME)
+        `when`(delegate.writableDatabase).thenReturn(mock(SupportSQLiteDatabase::class.java))
         `when`(context.getDatabasePath(DB_NAME)).thenReturn(File(tmpDir, DB_NAME))
         configuration::class.java.getField("multiInstanceInvalidation").let { field ->
             field.isAccessible = true
