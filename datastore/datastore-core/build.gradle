@@ -15,19 +15,39 @@
  */
 
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
 
 plugins {
     id("AndroidXPlugin")
     id("org.jetbrains.kotlin.multiplatform")
 }
 
+def boolProperty(name) {
+    return project.providers.gradleProperty(name).getOrNull()?.toBoolean()
+}
+
+def playground = androidx.build.StudioType.isPlayground(project)
+//Native on by default in playground
+def enableNative = boolProperty('androidx.kmp.native.enabled') ?: playground
+
 kotlin {
     jvm {
         withJava()
     }
-
+    if (enableNative) {
+        macosX64()
+        linuxX64()
+        macosArm64()
+    }
     sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+            }
+        }
         jvmMain {
             dependencies {
                 api(libs.kotlinStdlib)
@@ -36,17 +56,55 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesTest)
+            }
+        }
+
         jvmTest {
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinTest)
                 implementation(libs.truth)
                 implementation(project(":internal-testutils-truth"))
             }
         }
 
+        if (enableNative) {
+            nativeMain {
+                dependsOn(commonMain)
+                dependencies {
+                    api(libs.kotlinCoroutinesCore)
+                    implementation(libs.atomicFu)
+                }
+            }
+            nativeTest {
+                dependsOn(commonTest)
+            }
+        }
+
+
         all {
             languageSettings.optIn("kotlin.RequiresOptIn")
+        }
+        targets.withType(KotlinNativeTarget).configureEach {
+            binaries.all {
+                binaryOptions["memoryModel"] = "experimental"
+            }
+        }
+        targets.forEach {target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(sourceSets["nativeMain"])
+                }
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(sourceSets["nativeTest"])
+                }
+            }
         }
     }
 }
