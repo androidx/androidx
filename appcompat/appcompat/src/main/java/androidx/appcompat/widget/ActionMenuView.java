@@ -156,7 +156,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     }
 
     @Override
-    public void attachViewToParent(@Nullable View child, int index,
+    protected void attachViewToParent(@Nullable View child, int index,
             @Nullable ViewGroup.LayoutParams params) {
         super.attachViewToParent(child, index, params);
         setItemIconTint(child);

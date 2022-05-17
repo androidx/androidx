@@ -1267,7 +1267,6 @@ package androidx.appcompat.widget {
   public class ActionMenuView extends androidx.appcompat.widget.LinearLayoutCompat implements androidx.appcompat.view.menu.MenuBuilder.ItemInvoker androidx.appcompat.view.menu.MenuView {
     ctor public ActionMenuView(android.content.Context);
     ctor public ActionMenuView(android.content.Context, android.util.AttributeSet?);
-    method public void attachViewToParent(android.view.View?, int, android.view.ViewGroup.LayoutParams?);
     method public void dismissPopupMenus();
     method protected androidx.appcompat.widget.ActionMenuView.LayoutParams! generateDefaultLayoutParams();
     method public androidx.appcompat.widget.ActionMenuView.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
