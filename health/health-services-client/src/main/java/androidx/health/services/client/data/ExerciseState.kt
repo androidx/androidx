@@ -76,7 +76,8 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * The exercise is being prepared, GPS and HeartRate sensors will be turned on if requested
          * in the [WarmUpConfig].
          */
-        @JvmField public val PREPARING: ExerciseState = ExerciseState(15, "PREPARING")
+        @JvmField
+        public val PREPARING: ExerciseState = ExerciseState(15, "PREPARING")
 
         /**
          * The exercise is actively being started, but we don't yet have sensor stability or GPS
@@ -84,7 +85,8 @@ public class ExerciseState private constructor(public val id: Int, public val na
          *
          * Used only in the manually started exercise.
          */
-        @JvmField public val USER_STARTING: ExerciseState = ExerciseState(1, "USER_STARTING")
+        @JvmField
+        public val USER_STARTING: ExerciseState = ExerciseState(1, "USER_STARTING")
 
         /**
          * The exercise is actively in-progress.
@@ -93,56 +95,64 @@ public class ExerciseState private constructor(public val id: Int, public val na
          * also the state when the automatic exercise detection has detected an exercise and the
          * exercise is actively in-progress.
          */
-        @JvmField public val ACTIVE: ExerciseState = ExerciseState(2, "ACTIVE")
+        @JvmField
+        public val ACTIVE: ExerciseState = ExerciseState(2, "ACTIVE")
 
         /**
          * The session is being paused by the user. Sensors are actively being flushed.
          *
          * Used only in the manually started exercise.
          */
-        @JvmField public val USER_PAUSING: ExerciseState = ExerciseState(3, "USER_PAUSING")
+        @JvmField
+        public val USER_PAUSING: ExerciseState = ExerciseState(3, "USER_PAUSING")
 
         /**
          * The session has been paused by the user. Sensors have completed flushing.
          *
          * Used only in the manually started exercise.
          */
-        @JvmField public val USER_PAUSED: ExerciseState = ExerciseState(4, "USER_PAUSED")
+        @JvmField
+        public val USER_PAUSED: ExerciseState = ExerciseState(4, "USER_PAUSED")
 
         /**
          * The session is being paused by auto-pause. Sensors are actively being flushed.
          *
          * Used only in the manually started exercise.
          */
-        @JvmField public val AUTO_PAUSING: ExerciseState = ExerciseState(5, "AUTO_PAUSING")
+        @JvmField
+        public val AUTO_PAUSING: ExerciseState = ExerciseState(5, "AUTO_PAUSING")
 
         /**
          * The session has been automatically paused. Sensors have completed flushing.
          *
          * Used only in the manually started exercise.
          */
-        @JvmField public val AUTO_PAUSED: ExerciseState = ExerciseState(6, "AUTO_PAUSED")
+        @JvmField
+        public val AUTO_PAUSED: ExerciseState = ExerciseState(6, "AUTO_PAUSED")
 
         /**
          * The session is being resumed by the user.
          *
          * Used only in the manually started exercise.
          */
-        @JvmField public val USER_RESUMING: ExerciseState = ExerciseState(7, "USER_RESUMING")
+        @JvmField
+        public val USER_RESUMING: ExerciseState = ExerciseState(7, "USER_RESUMING")
 
         /**
          * The session is being automatically resumed.
          *
          * Used only in the manually started exercise.
          */
-        @JvmField public val AUTO_RESUMING: ExerciseState = ExerciseState(8, "AUTO_RESUMING")
+        @JvmField
+        public val AUTO_RESUMING: ExerciseState = ExerciseState(8, "AUTO_RESUMING")
 
         /**
          * The exercise is being ended by the user. Sensors are actively being flushed.
          *
          * Used only in the manually started exercise.
          */
-        @JvmField public val USER_ENDING: ExerciseState = ExerciseState(9, "USER_ENDING")
+        @JvmField
+        public val USER_ENDING: ExerciseState = ExerciseState(9, "USER_ENDING")
 
         /**
          * The exercise has been ended by the user. No new metrics will be exported and a final
@@ -150,7 +160,8 @@ public class ExerciseState private constructor(public val id: Int, public val na
          *
          * Used only in the manually started exercise.
          */
-        @JvmField public val USER_ENDED: ExerciseState = ExerciseState(10, "USER_ENDED")
+        @JvmField
+        public val USER_ENDED: ExerciseState = ExerciseState(10, "USER_ENDED")
 
         /**
          * The exercise is being automatically ended due to a lack of exercise updates being
@@ -158,7 +169,8 @@ public class ExerciseState private constructor(public val id: Int, public val na
          *
          * Used only in the manually started exercise.
          */
-        @JvmField public val AUTO_ENDING: ExerciseState = ExerciseState(11, "AUTO_ENDING")
+        @JvmField
+        public val AUTO_ENDING: ExerciseState = ExerciseState(11, "AUTO_ENDING")
 
         /**
          * The exercise has been automatically ended due to a lack of exercise updates being
@@ -167,7 +179,8 @@ public class ExerciseState private constructor(public val id: Int, public val na
          *
          * Used only in the manually started exercise.
          */
-        @JvmField public val AUTO_ENDED: ExerciseState = ExerciseState(12, "AUTO_ENDED")
+        @JvmField
+        public val AUTO_ENDED: ExerciseState = ExerciseState(12, "AUTO_ENDED")
 
         /**
          * The exercise is being automatically ended due to lack of client's permissions to receive
@@ -191,7 +204,8 @@ public class ExerciseState private constructor(public val id: Int, public val na
          *
          * Used in both of the manually started exercise and the automatic exercise detection.
          */
-        @JvmField public val TERMINATING: ExerciseState = ExerciseState(13, "TERMINATING")
+        @JvmField
+        public val TERMINATING: ExerciseState = ExerciseState(13, "TERMINATING")
 
         /**
          * The exercise has been ended because it was superseded by a new exercise being started by
@@ -200,7 +214,14 @@ public class ExerciseState private constructor(public val id: Int, public val na
          *
          * Used in both of the manually started exercise and the automatic exercise detection.
          */
-        @JvmField public val TERMINATED: ExerciseState = ExerciseState(14, "TERMINATED")
+        @JvmField
+        public val TERMINATED: ExerciseState = ExerciseState(14, "TERMINATED")
+
+        /**
+         * The exercise has been ended, with the reason specified by [ExerciseStateInfo.endReason].
+         */
+        @JvmField
+        public val ENDED: ExerciseState = ExerciseState(18, "ENDED")
 
         private val RESUMING_STATES = setOf(USER_RESUMING, AUTO_RESUMING)
         private val PAUSED_STATES = setOf(USER_PAUSED, AUTO_PAUSED)
@@ -211,9 +232,7 @@ public class ExerciseState private constructor(public val id: Int, public val na
         private val OTHER_STATES =
             setOf(PREPARING, USER_STARTING, USER_PAUSING, AUTO_PAUSING, ACTIVE)
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @JvmField
-        public val VALUES: Set<ExerciseState> =
+        private val VALUES: Set<ExerciseState> =
             HashSet<ExerciseState>().apply {
                 addAll(OTHER_STATES)
                 addAll(RESUMING_STATES)
@@ -222,7 +241,13 @@ public class ExerciseState private constructor(public val id: Int, public val na
                 addAll(ENDING_STATES)
             }
 
-        @JvmStatic public fun fromId(id: Int): ExerciseState? = VALUES.firstOrNull { it.id == id }
+        /**
+         * Returns the [ExerciseState] object corresponding to [id] or `null` if none match.
+         *
+         * @param id the [ExerciseState.id] to match against
+         */
+        @JvmStatic
+        public fun fromId(id: Int): ExerciseState? = VALUES.firstOrNull { it.id == id }
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)

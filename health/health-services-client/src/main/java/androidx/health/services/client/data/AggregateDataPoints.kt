@@ -151,13 +151,18 @@ public object AggregateDataPoints {
     /**
      * Creates a new [AggregateDataPoint] of type [DataType.STEPS_PER_MINUTE] with the given
      * `steps`.
+     *
+     * @param minStepsPerMinute minimum number of steps per minute between [startTime] and [endTime]
+     * @param maxStepsPerMinute maximum number of steps per minute between [startTime] and [endTime]
+     * @param avgStepsPerMinute average number of steps per minute between [startTime] and [endTime]
+     * @param startTime the point in time this data point begins
+     * @param endTime the point in time this data point ends
      */
     @JvmStatic
-    // TODO(b/227475943): open up visibility
-    internal fun aggregateStepsPerMinute(
-        minstepsPerMinute: Long,
-        maxstepsPerMinute: Long,
-        avgstepsPerMinute: Long,
+    public fun aggregateStepsPerMinute(
+        minStepsPerMinute: Long,
+        maxStepsPerMinute: Long,
+        avgStepsPerMinute: Long,
         startTime: Instant,
         endTime: Instant
     ): AggregateDataPoint =
@@ -165,9 +170,9 @@ public object AggregateDataPoints {
             startTime,
             endTime,
             DataType.STEPS_PER_MINUTE,
-            Value.ofLong(minstepsPerMinute),
-            Value.ofLong(maxstepsPerMinute),
-            Value.ofLong(avgstepsPerMinute)
+            Value.ofLong(minStepsPerMinute),
+            Value.ofLong(maxStepsPerMinute),
+            Value.ofLong(avgStepsPerMinute)
         )
 
     /**

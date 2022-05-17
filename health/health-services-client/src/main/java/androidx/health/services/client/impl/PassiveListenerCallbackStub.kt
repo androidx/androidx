@@ -21,33 +21,39 @@ import androidx.annotation.GuardedBy
 import androidx.health.services.client.PassiveListenerCallback
 import androidx.health.services.client.impl.event.PassiveListenerEvent
 import androidx.health.services.client.impl.ipc.internal.ListenerKey
+import androidx.health.services.client.impl.response.HealthEventResponse
 import androidx.health.services.client.impl.response.PassiveMonitoringGoalResponse
 import androidx.health.services.client.impl.response.PassiveMonitoringUpdateResponse
+import androidx.health.services.client.proto.EventsProto
 import androidx.health.services.client.proto.EventsProto.PassiveListenerEvent.EventCase.EVENT_NOT_SET
 import androidx.health.services.client.proto.EventsProto.PassiveListenerEvent.EventCase.HEALTH_EVENT_RESPONSE
 import androidx.health.services.client.proto.EventsProto.PassiveListenerEvent.EventCase.PASSIVE_GOAL_RESPONSE
 import androidx.health.services.client.proto.EventsProto.PassiveListenerEvent.EventCase.PASSIVE_UPDATE_RESPONSE
 import androidx.health.services.client.proto.EventsProto.PassiveListenerEvent.EventCase.PERMISSION_LOST_RESPONSE
+import java.util.concurrent.Executor
 
 /** A stub implementation for IPassiveListenerCallback. */
 internal class PassiveListenerCallbackStub(
     private val packageName: String,
+    private val executor: Executor,
     private val callback: PassiveListenerCallback
 ) : IPassiveListenerCallback.Stub() {
 
     public val listenerKey: ListenerKey = ListenerKey(packageName)
 
     override fun onPassiveListenerEvent(event: PassiveListenerEvent) {
-        val proto = event.proto
+        executor.execute { triggerListener(event.proto) }
+    }
 
+    private fun triggerListener(proto: EventsProto.PassiveListenerEvent) {
         when (proto.eventCase) {
             PASSIVE_UPDATE_RESPONSE -> {
                 val response = PassiveMonitoringUpdateResponse(proto.passiveUpdateResponse)
                 if (!response.passiveMonitoringUpdate.dataPoints.isEmpty()) {
-                    callback.onNewDataPoints(response.passiveMonitoringUpdate.dataPoints)
+                    callback.onNewDataPointsReceived(response.passiveMonitoringUpdate.dataPoints)
                 }
                 for (userActivityInfo in response.passiveMonitoringUpdate.userActivityInfoUpdates) {
-                    callback.onUserActivityInfo(userActivityInfo)
+                    callback.onUserActivityInfoReceived(userActivityInfo)
                 }
             }
             PASSIVE_GOAL_RESPONSE -> {
@@ -55,7 +61,8 @@ internal class PassiveListenerCallbackStub(
                 callback.onGoalCompleted(response.passiveGoal)
             }
             HEALTH_EVENT_RESPONSE -> {
-                // TODO(b/227475943): Fill this in when Health Event changes are added.
+                val response = HealthEventResponse(proto.healthEventResponse)
+                callback.onHealthEventReceived(response.healthEvent)
             }
             PERMISSION_LOST_RESPONSE -> {
                 callback.onPermissionLost()
@@ -76,11 +83,12 @@ internal class PassiveListenerCallbackStub(
 
         public fun getOrCreate(
             packageName: String,
+            executor: Executor,
             callback: PassiveListenerCallback
         ): PassiveListenerCallbackStub {
             synchronized(listenerLock) {
                 return listeners.getOrPut(packageName) {
-                    PassiveListenerCallbackStub(packageName, callback)
+                    PassiveListenerCallbackStub(packageName, executor, callback)
                 }
             }
         }

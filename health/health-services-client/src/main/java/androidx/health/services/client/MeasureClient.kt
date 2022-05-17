@@ -36,7 +36,7 @@ public interface MeasureClient {
      * Registers the app for live measurement of the specified [DataType].
      *
      * The callback will be called on the main application thread. To move calls to an alternative
-     * thread use [registerCallback].
+     * thread use [registerMeasureCallback].
      *
      * Even if data is registered for live capture, it can still be sent out in batches depending on
      * the application processor state.
@@ -48,8 +48,8 @@ public interface MeasureClient {
      * [MeasureCapabilities]. The returned future will fail if the request is not supported on a
      * given device.
      *
-     * The callback will continue to be called until the app is killed or [unregisterCallbackAsync]
-     * is called.
+     * The callback will continue to be called until the app is killed or
+     * [unregisterMeasureCallbackAsync] is called.
      *
      * If the same [callback] is already registered for the given [DataType], this operation is a
      * no-op.
@@ -57,16 +57,16 @@ public interface MeasureClient {
      * @param dataType the [DataType] that needs to be measured
      * @param callback the [MeasureCallback] to receive updates from Health Services
      */
-    public fun registerCallback(dataType: DataType, callback: MeasureCallback)
+    public fun registerMeasureCallback(dataType: DataType, callback: MeasureCallback)
 
     /**
-     * Same as [registerCallback], except the [callback] is called on the given [Executor].
+     * Same as [registerMeasureCallback], except the [callback] is called on the given [Executor].
      *
      * @param dataType the [DataType] that needs to be measured
      * @param executor the [Executor] on which [callback] will be invoked
      * @param callback the [MeasureCallback] to receive updates from Health Services
      */
-    public fun registerCallback(
+    public fun registerMeasureCallback(
         dataType: DataType,
         executor: Executor,
         callback: MeasureCallback
@@ -80,7 +80,7 @@ public interface MeasureClient {
      * @return a [ListenableFuture] that completes when the un-registration succeeds in Health
      * Services. This is a no-op if the callback has already been unregistered.
      */
-    public fun unregisterCallbackAsync(
+    public fun unregisterMeasureCallbackAsync(
         dataType: DataType,
         callback: MeasureCallback
     ): ListenableFuture<Void>
@@ -94,5 +94,5 @@ public interface MeasureClient {
      *
      * @return a [ListenableFuture] containing the [MeasureCapabilities] for this device
      */
-    public val capabilities: ListenableFuture<MeasureCapabilities>
+    public fun getCapabilitiesAsync(): ListenableFuture<MeasureCapabilities>
 }

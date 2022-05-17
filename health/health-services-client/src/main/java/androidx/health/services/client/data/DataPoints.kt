@@ -16,11 +16,9 @@
 
 package androidx.health.services.client.data
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.Keep
 import java.time.Duration
-import java.util.ArrayList
 
 /** Helper class to facilitate working with [DataPoint]s. */
 // TODO(b/177504986): Remove all @Keep annotations once we figure out why this class gets stripped
@@ -58,35 +56,6 @@ public object DataPoints {
 
     /** Name of intent extra containing whether permissions are granted or not. */
     private const val EXTRA_PERMISSIONS_GRANTED: String = "hs.data_points_has_permissions"
-
-    /** Retrieves the [DataPoint]s that are contained in the given [Intent], if any. */
-    @Suppress("DEPRECATION")
-    @JvmStatic
-    @Keep
-    // TODO(b/227475943): remove this function once new passive APIs are submitted
-    public fun getDataPoints(intent: Intent): List<DataPoint> =
-        intent.getParcelableArrayListExtra(EXTRA_DATA_POINTS) ?: listOf()
-
-    /** Puts the given [DataPoint]s in the given [Intent]. */
-    @JvmStatic
-    // TODO(b/227475943): remove this function once new passive APIs are submitted
-    public fun putDataPoints(intent: Intent, dataPoints: Collection<DataPoint>) {
-        val copy = ArrayList(dataPoints)
-        intent.putParcelableArrayListExtra(EXTRA_DATA_POINTS, copy)
-    }
-
-    /** Sets whether [DataPoint] permissions are `granted` in the given [Intent]. */
-    @JvmStatic
-    // TODO(b/227475943): remove this function once new passive APIs are submitted
-    public fun putPermissionsGranted(intent: Intent, granted: Boolean) {
-        intent.putExtra(EXTRA_PERMISSIONS_GRANTED, granted)
-    }
-
-    /** Retrieves whether permissions are granted in this [Intent]. */
-    @JvmStatic
-    // TODO(b/227475943): remove this function once new passive APIs are submitted
-    public fun getPermissionsGranted(intent: Intent): Boolean =
-        intent.getBooleanExtra(EXTRA_PERMISSIONS_GRANTED, true)
 
     /** Creates a new [DataPoint] of type [DataType.STEPS] with the given `steps`. */
     @JvmStatic
@@ -134,11 +103,17 @@ public object DataPoints {
             metadata ?: Bundle()
         )
 
-    /** Creates a new [DataPoint] of type [DataType.ELEVATION_GAIN] with the given `meters`. */
+    /**
+     * Creates a new [DataPoint] of type [DataType.ELEVATION_GAIN] with the given `meters`.
+     *
+     * @param meters meters gained between [startDurationFromBoot] and [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     * @param metadata optional OEM specific data, not intended for broad consumption
+     */
     @JvmStatic
     @JvmOverloads
-    // TODO(b/227475943): open up visibility
-    internal fun elevationGain(
+    public fun elevationGain(
         meters: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
@@ -152,11 +127,17 @@ public object DataPoints {
             metadata ?: Bundle()
         )
 
-    /** Create a new [DataPoint] of type [DataType.ELEVATION_LOSS] with the given `meters`. */
+    /**
+     * Create a new [DataPoint] of type [DataType.ELEVATION_LOSS] with the given `meters`.
+     *
+     * @param meters meters lost between [startDurationFromBoot] and [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     * @param metadata optional OEM specific data, not intended for broad consumption
+     */
     @JvmStatic
     @JvmOverloads
-    // TODO(b/227475943): open up visibility
-    internal fun elevationLoss(
+    public fun elevationLoss(
         meters: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration,
@@ -231,6 +212,30 @@ public object DataPoints {
             Value.ofLong(strokes),
             startDurationFromBoot,
             endDurationFromBoot
+        )
+
+    /**
+     * Creates a new [DataPoint] of type [DataType.GOLF_SHOT_COUNT] with the given [shots].
+     *
+     * @param shots golf shots made between [startDurationFromBoot] and [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     * @param metadata optional OEM specific data, not intended for broad consumption
+     */
+    @JvmStatic
+    @JvmOverloads
+    public fun golfShotCount(
+        shots: Long,
+        startDurationFromBoot: Duration,
+        endDurationFromBoot: Duration,
+        metadata: Bundle? = null
+    ): DataPoint =
+        DataPoint.createInterval(
+            DataType.GOLF_SHOT_COUNT,
+            Value.ofLong(shots),
+            startDurationFromBoot,
+            endDurationFromBoot,
+            metadata ?: Bundle()
         )
 
     /**
