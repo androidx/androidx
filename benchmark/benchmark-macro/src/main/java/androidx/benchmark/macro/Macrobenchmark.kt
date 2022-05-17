@@ -310,6 +310,9 @@ fun macrobenchmarkWithStartupMode(
         setupBlock = {
             if (startupMode == StartupMode.COLD) {
                 killProcess()
+                // Shader caches are stored in the code cache directory. Make sure that
+                // they are cleared every iteration.
+                dropShaderCache()
                 // drop app pages from page cache to ensure it is loaded from disk, from scratch
 
                 // resetAndCompile uses ProfileInstallReceiver to write a skip file.
