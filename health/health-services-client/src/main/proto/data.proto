@@ -238,7 +238,8 @@ enum ExerciseState {
   EXERCISE_STATE_AUTO_ENDED_PERMISSION_LOST = 17;
   EXERCISE_STATE_TERMINATING = 13;
   EXERCISE_STATE_TERMINATED = 14;
-  reserved 18 to max;  // Next ID
+  EXERCISE_STATE_ENDED = 18;
+  reserved 19 to max;  // Next ID
 }
 
 enum ExerciseTrackedStatus {
@@ -389,8 +390,20 @@ message ExerciseUpdate {
   repeated MilestoneMarkerSummary mile_stone_marker_summaries = 6;
   optional ExerciseConfig exercise_config = 7;
   optional ActiveDurationCheckpoint active_duration_checkpoint = 10;
+  optional ExerciseEndReason exercise_end_reason = 11;
 
-  reserved 11 to max;  // Next ID
+  reserved 12 to max;  // Next ID
+}
+
+enum ExerciseEndReason {
+  EXERCISE_END_REASON_UNKNOWN = 0;
+  EXERCISE_END_REASON_AUTO_END_PERMISSION_LOST = 1;
+  EXERCISE_END_REASON_AUTO_END_PAUSE_EXPIRED = 2;
+  EXERCISE_END_REASON_AUTO_END_MISSING_LISTENER = 3;
+  EXERCISE_END_REASON_USER_END = 4;
+  EXERCISE_END_REASON_AUTO_END_SUPERSEDED = 5;
+  EXERCISE_END_REASON_AUTO_END_PREPARE_EXPIRED = 6;
+  reserved 7 to max;  // Next ID
 }
 
 message HealthEvent {

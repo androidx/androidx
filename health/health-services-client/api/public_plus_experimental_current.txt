@@ -6,7 +6,7 @@ package androidx.health.services.client {
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> clearUpdateCallbackAsync(androidx.health.services.client.ExerciseUpdateCallback callback);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> endExerciseAsync();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> flushExerciseAsync();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.ExerciseCapabilities> getCapabilities();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.ExerciseCapabilities> getCapabilitiesAsync();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.ExerciseInfo> getCurrentExerciseInfoAsync();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> markLapAsync();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> overrideAutoPauseAndResumeForActiveExerciseAsync(boolean enabled);
@@ -17,7 +17,6 @@ package androidx.health.services.client {
     method public void setUpdateCallback(androidx.health.services.client.ExerciseUpdateCallback callback);
     method public void setUpdateCallback(java.util.concurrent.Executor executor, androidx.health.services.client.ExerciseUpdateCallback callback);
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> startExerciseAsync(androidx.health.services.client.data.ExerciseConfig configuration);
-    property public abstract com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.ExerciseCapabilities> capabilities;
   }
 
   public interface ExerciseUpdateCallback {
@@ -50,26 +49,41 @@ package androidx.health.services.client {
   }
 
   public interface MeasureClient {
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.MeasureCapabilities> getCapabilities();
-    method public void registerCallback(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.MeasureCallback callback);
-    method public void registerCallback(androidx.health.services.client.data.DataType dataType, java.util.concurrent.Executor executor, androidx.health.services.client.MeasureCallback callback);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> unregisterCallbackAsync(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.MeasureCallback callback);
-    property public abstract com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.MeasureCapabilities> capabilities;
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.MeasureCapabilities> getCapabilitiesAsync();
+    method public void registerMeasureCallback(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.MeasureCallback callback);
+    method public void registerMeasureCallback(androidx.health.services.client.data.DataType dataType, java.util.concurrent.Executor executor, androidx.health.services.client.MeasureCallback callback);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> unregisterMeasureCallbackAsync(androidx.health.services.client.data.DataType dataType, androidx.health.services.client.MeasureCallback callback);
   }
 
-  public interface PassiveMonitoringCallback {
-    method public void onPassiveMonitoringUpdate(androidx.health.services.client.data.PassiveMonitoringUpdate update);
+  public interface PassiveListenerCallback {
+    method public default void onGoalCompleted(androidx.health.services.client.data.PassiveGoal goal);
+    method public default void onHealthEventReceived(androidx.health.services.client.data.HealthEvent event);
+    method public default void onNewDataPointsReceived(java.util.List<androidx.health.services.client.data.DataPoint> dataPoints);
+    method public default void onPermissionLost();
+    method public void onRegistered();
+    method public void onRegistrationFailed(Throwable throwable);
+    method public default void onUserActivityInfoReceived(androidx.health.services.client.data.UserActivityInfo info);
+  }
+
+  public abstract class PassiveListenerService extends android.app.Service implements androidx.health.services.client.PassiveListenerCallback {
+    ctor public PassiveListenerService();
+    method public final android.os.IBinder? onBind(android.content.Intent intent);
+    field public static final String TAG = "PassiveListenerService";
   }
 
   public interface PassiveMonitoringClient {
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> clearPassiveListenerCallbackAsync();
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> clearPassiveListenerServiceAsync();
     method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> flushAsync();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.PassiveMonitoringCapabilities> getCapabilities();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> registerDataCallbackAsync(androidx.health.services.client.data.PassiveMonitoringConfig configuration);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> registerDataCallbackAsync(androidx.health.services.client.data.PassiveMonitoringConfig configuration, androidx.health.services.client.PassiveMonitoringCallback callback);
-    method public <T extends android.content.BroadcastReceiver> com.google.common.util.concurrent.ListenableFuture<java.lang.Void> registerPassiveGoalCallbackAsync(androidx.health.services.client.data.PassiveGoal passiveGoal, Class<T> broadcastReceiver);
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> unregisterDataCallbackAsync();
-    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> unregisterPassiveGoalCallbackAsync(androidx.health.services.client.data.PassiveGoal passiveGoal);
-    property public abstract com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.PassiveMonitoringCapabilities> capabilities;
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.health.services.client.data.PassiveMonitoringCapabilities> getCapabilitiesAsync();
+    method public void setPassiveListenerCallback(androidx.health.services.client.data.PassiveListenerConfig config, androidx.health.services.client.PassiveListenerCallback callback);
+    method public void setPassiveListenerCallback(androidx.health.services.client.data.PassiveListenerConfig config, java.util.concurrent.Executor executor, androidx.health.services.client.PassiveListenerCallback callback);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> setPassiveListenerServiceAsync(Class<? extends androidx.health.services.client.PassiveListenerService> service, androidx.health.services.client.data.PassiveListenerConfig config);
+  }
+
+  public final class VersionApiService extends android.app.Service {
+    ctor public VersionApiService();
+    method public android.os.IBinder? onBind(android.content.Intent? intent);
   }
 
 }
@@ -101,6 +115,7 @@ package androidx.health.services.client.data {
     method public static androidx.health.services.client.data.AggregateDataPoint aggregatePace(java.time.Duration minMillisPerKm, java.time.Duration maxMillisPerKm, java.time.Duration avgMillisPerKm, java.time.Instant startTime, java.time.Instant endTime);
     method public static androidx.health.services.client.data.StatisticalDataPoint aggregateSpeed(double minMetersPerSecond, double maxMetersPerSecond, double avgMetersPerSecond, java.time.Instant startTime, java.time.Instant endTime);
     method public static androidx.health.services.client.data.AggregateDataPoint aggregateSteps(long steps, java.time.Instant startTime, java.time.Instant endTime);
+    method public static androidx.health.services.client.data.AggregateDataPoint aggregateStepsPerMinute(long minStepsPerMinute, long maxStepsPerMinute, long avgStepsPerMinute, java.time.Instant startTime, java.time.Instant endTime);
     method public static androidx.health.services.client.data.AggregateDataPoint aggregateSwimmingStrokes(long swimmingStrokes, java.time.Instant startTime, java.time.Instant endTime);
     field public static final androidx.health.services.client.data.AggregateDataPoints INSTANCE;
   }
@@ -198,10 +213,14 @@ package androidx.health.services.client.data {
     method public static androidx.health.services.client.data.DataPoint dailySteps(long steps, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
     method public static androidx.health.services.client.data.DataPoint distance(double meters, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot, optional android.os.Bundle? metadata);
     method public static androidx.health.services.client.data.DataPoint distance(double meters, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint elevationGain(double meters, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot, optional android.os.Bundle? metadata);
+    method public static androidx.health.services.client.data.DataPoint elevationGain(double meters, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
+    method public static androidx.health.services.client.data.DataPoint elevationLoss(double meters, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot, optional android.os.Bundle? metadata);
+    method public static androidx.health.services.client.data.DataPoint elevationLoss(double meters, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
     method public static androidx.health.services.client.data.DataPoint floors(double floors, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot, optional android.os.Bundle? metadata);
     method public static androidx.health.services.client.data.DataPoint floors(double floors, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
-    method @Keep public static java.util.List<androidx.health.services.client.data.DataPoint> getDataPoints(android.content.Intent intent);
-    method public static boolean getPermissionsGranted(android.content.Intent intent);
+    method public static androidx.health.services.client.data.DataPoint golfShotCount(long shots, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot, optional android.os.Bundle? metadata);
+    method public static androidx.health.services.client.data.DataPoint golfShotCount(long shots, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot);
     method public static androidx.health.services.client.data.DataPoint heartRate(double bpm, java.time.Duration durationFromBoot, optional androidx.health.services.client.data.HeartRateAccuracy? accuracy);
     method public static androidx.health.services.client.data.DataPoint heartRate(double bpm, java.time.Duration durationFromBoot);
     method public static androidx.health.services.client.data.DataPoint location(double latitude, double longitude, optional double altitude, optional double bearing, java.time.Duration durationFromBoot, optional androidx.health.services.client.data.LocationAccuracy? accuracy);
@@ -209,8 +228,6 @@ package androidx.health.services.client.data {
     method public static androidx.health.services.client.data.DataPoint location(double latitude, double longitude, optional double altitude, java.time.Duration durationFromBoot);
     method public static androidx.health.services.client.data.DataPoint location(double latitude, double longitude, java.time.Duration durationFromBoot);
     method public static androidx.health.services.client.data.DataPoint pace(java.time.Duration millisPerKm, java.time.Duration durationFromBoot);
-    method public static void putDataPoints(android.content.Intent intent, java.util.Collection<androidx.health.services.client.data.DataPoint> dataPoints);
-    method public static void putPermissionsGranted(android.content.Intent intent, boolean granted);
     method public static androidx.health.services.client.data.DataPoint speed(double metersPerSecond, java.time.Duration durationFromBoot, optional android.os.Bundle? metadata);
     method public static androidx.health.services.client.data.DataPoint speed(double metersPerSecond, java.time.Duration durationFromBoot);
     method public static androidx.health.services.client.data.DataPoint steps(long steps, java.time.Duration startDurationFromBoot, java.time.Duration endDurationFromBoot, optional android.os.Bundle? metadata);
@@ -249,6 +266,7 @@ package androidx.health.services.client.data {
     field public static final androidx.health.services.client.data.DataType FLAT_GROUND_DISTANCE;
     field public static final androidx.health.services.client.data.DataType FLAT_GROUND_DURATION;
     field public static final androidx.health.services.client.data.DataType FLOORS;
+    field public static final androidx.health.services.client.data.DataType GOLF_SHOT_COUNT;
     field public static final androidx.health.services.client.data.DataType HEART_RATE_BPM;
     field public static final androidx.health.services.client.data.DataType INCLINE_DISTANCE;
     field public static final androidx.health.services.client.data.DataType INCLINE_DURATION;
@@ -374,8 +392,8 @@ package androidx.health.services.client.data {
     method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseGoals(java.util.List<androidx.health.services.client.data.ExerciseGoal> exerciseGoals);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseParams(android.os.Bundle exerciseParams);
     method public androidx.health.services.client.data.ExerciseConfig.Builder setExerciseType(androidx.health.services.client.data.ExerciseType exerciseType);
-    method public androidx.health.services.client.data.ExerciseConfig.Builder setIsAutoPauseAndResumeEnabled(boolean autoPauseAndResumeEnabled);
-    method public androidx.health.services.client.data.ExerciseConfig.Builder setIsGpsEnabled(boolean gpsEnabled);
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setIsAutoPauseAndResumeEnabled(boolean isAutoPauseAndResumeEnabled);
+    method public androidx.health.services.client.data.ExerciseConfig.Builder setIsGpsEnabled(boolean isGpsEnabled);
   }
 
   public static final class ExerciseConfig.Companion {
@@ -475,6 +493,7 @@ package androidx.health.services.client.data {
     field public static final androidx.health.services.client.data.ExerciseState AUTO_PAUSING;
     field public static final androidx.health.services.client.data.ExerciseState AUTO_RESUMING;
     field public static final androidx.health.services.client.data.ExerciseState.Companion Companion;
+    field public static final androidx.health.services.client.data.ExerciseState ENDED;
     field public static final androidx.health.services.client.data.ExerciseState PREPARING;
     field public static final androidx.health.services.client.data.ExerciseState TERMINATED;
     field public static final androidx.health.services.client.data.ExerciseState TERMINATING;
@@ -488,6 +507,18 @@ package androidx.health.services.client.data {
 
   public static final class ExerciseState.Companion {
     method public androidx.health.services.client.data.ExerciseState? fromId(int id);
+  }
+
+  public final class ExerciseStateInfo {
+    ctor public ExerciseStateInfo(androidx.health.services.client.data.ExerciseState exerciseState, int exerciseEndReason);
+    method public int getEndReason();
+    method public androidx.health.services.client.data.ExerciseState getState();
+    property public final int endReason;
+    property public final androidx.health.services.client.data.ExerciseState state;
+    field public static final androidx.health.services.client.data.ExerciseStateInfo.Companion Companion;
+  }
+
+  public static final class ExerciseStateInfo.Companion {
   }
 
   public final class ExerciseType {
@@ -617,27 +648,28 @@ package androidx.health.services.client.data {
   }
 
   public final class ExerciseUpdate extends androidx.health.services.client.data.ProtoParcelable<androidx.health.services.client.proto.DataProto.ExerciseUpdate> {
-    ctor public ExerciseUpdate(androidx.health.services.client.data.ExerciseState state, java.time.Instant? startTime, java.time.Duration activeDuration, java.time.Duration? updateDurationFromBoot, java.util.Map<androidx.health.services.client.data.DataType,? extends java.util.List<androidx.health.services.client.data.DataPoint>> latestMetrics, java.util.Map<androidx.health.services.client.data.DataType,? extends androidx.health.services.client.data.AggregateDataPoint> latestAggregateMetrics, java.util.Set<androidx.health.services.client.data.AchievedExerciseGoal> latestAchievedGoals, java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> latestMilestoneMarkerSummaries, androidx.health.services.client.data.ExerciseConfig? exerciseConfig, androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? activeDurationCheckpoint);
+    ctor public ExerciseUpdate(java.time.Instant? startTime, java.time.Duration activeDuration, java.time.Duration? updateDurationFromBoot, java.util.Map<androidx.health.services.client.data.DataType,? extends java.util.List<androidx.health.services.client.data.DataPoint>> latestMetrics, java.util.Map<androidx.health.services.client.data.DataType,? extends androidx.health.services.client.data.AggregateDataPoint> latestAggregateMetrics, java.util.Set<androidx.health.services.client.data.AchievedExerciseGoal> latestAchievedGoals, java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> latestMilestoneMarkerSummaries, androidx.health.services.client.data.ExerciseConfig? exerciseConfig, androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? activeDurationCheckpoint, androidx.health.services.client.data.ExerciseStateInfo exerciseStateInfo);
     method public java.time.Duration getActiveDuration();
     method public java.time.Duration getActiveDurationAtDataPoint(androidx.health.services.client.data.DataPoint dataPoint);
     method public androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? getActiveDurationCheckpoint();
     method public androidx.health.services.client.data.ExerciseConfig? getExerciseConfig();
+    method public androidx.health.services.client.data.ExerciseStateInfo getExerciseStateInfo();
     method public java.util.Set<androidx.health.services.client.data.AchievedExerciseGoal> getLatestAchievedGoals();
     method public java.util.Map<androidx.health.services.client.data.DataType,androidx.health.services.client.data.AggregateDataPoint> getLatestAggregateMetrics();
     method public java.util.Map<androidx.health.services.client.data.DataType,java.util.List<androidx.health.services.client.data.DataPoint>> getLatestMetrics();
     method public java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> getLatestMilestoneMarkerSummaries();
     method public androidx.health.services.client.proto.DataProto.ExerciseUpdate getProto();
     method public java.time.Instant? getStartTime();
-    method public androidx.health.services.client.data.ExerciseState getState();
+    method public java.time.Duration getUpdateDurationFromBoot();
     property public final java.time.Duration activeDuration;
     property public final androidx.health.services.client.data.ExerciseUpdate.ActiveDurationCheckpoint? activeDurationCheckpoint;
     property public final androidx.health.services.client.data.ExerciseConfig? exerciseConfig;
+    property public final androidx.health.services.client.data.ExerciseStateInfo exerciseStateInfo;
     property public final java.util.Set<androidx.health.services.client.data.AchievedExerciseGoal> latestAchievedGoals;
     property public final java.util.Map<androidx.health.services.client.data.DataType,androidx.health.services.client.data.AggregateDataPoint> latestAggregateMetrics;
     property public final java.util.Map<androidx.health.services.client.data.DataType,java.util.List<androidx.health.services.client.data.DataPoint>> latestMetrics;
     property public final java.util.Set<androidx.health.services.client.data.MilestoneMarkerSummary> latestMilestoneMarkerSummaries;
     property public final java.time.Instant? startTime;
-    property public final androidx.health.services.client.data.ExerciseState state;
     field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.ExerciseUpdate> CREATOR;
     field public static final androidx.health.services.client.data.ExerciseUpdate.Companion Companion;
   }
@@ -651,6 +683,29 @@ package androidx.health.services.client.data {
   }
 
   public static final class ExerciseUpdate.Companion {
+  }
+
+  public final class HealthEvent {
+    ctor public HealthEvent(androidx.health.services.client.data.HealthEvent.Type type, java.time.Instant eventTime, java.util.Map<androidx.health.services.client.data.DataType,? extends java.util.List<androidx.health.services.client.data.DataPoint>> metrics);
+    method public java.time.Instant getEventTime();
+    method public java.util.Map<androidx.health.services.client.data.DataType,java.util.List<androidx.health.services.client.data.DataPoint>> getMetrics();
+    method public androidx.health.services.client.data.HealthEvent.Type getType();
+    property public final java.time.Instant eventTime;
+    property public final java.util.Map<androidx.health.services.client.data.DataType,java.util.List<androidx.health.services.client.data.DataPoint>> metrics;
+    property public final androidx.health.services.client.data.HealthEvent.Type type;
+  }
+
+  public static final class HealthEvent.Type {
+    method public int getId();
+    method public String getName();
+    property public final int id;
+    property public final String name;
+    field public static final androidx.health.services.client.data.HealthEvent.Type.Companion Companion;
+    field public static final androidx.health.services.client.data.HealthEvent.Type FALL_DETECTED;
+    field public static final androidx.health.services.client.data.HealthEvent.Type UNKNOWN;
+  }
+
+  public static final class HealthEvent.Type.Companion {
   }
 
   public final class HeartRateAccuracy extends androidx.health.services.client.data.DataPointAccuracy {
@@ -683,11 +738,12 @@ package androidx.health.services.client.data {
   }
 
   public final class LocationAccuracy extends androidx.health.services.client.data.DataPointAccuracy {
-    ctor public LocationAccuracy(double horizontalPositionErrorMeters, optional double verticalPositionErrorMeters);
-    ctor public LocationAccuracy(double horizontalPositionErrorMeters);
+    ctor public LocationAccuracy(double horizontalPositionErrorMeters, Double? verticalPositionErrorMeters);
     method public double getHorizontalPositionErrorMeters();
     method public androidx.health.services.client.proto.DataProto.DataPointAccuracy getProto();
+    method public Double? getVerticalPositionErrorMeters();
     property public final double horizontalPositionErrorMeters;
+    property public final Double? verticalPositionErrorMeters;
     field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.LocationAccuracy> CREATOR;
     field public static final androidx.health.services.client.data.LocationAccuracy.Companion Companion;
   }
@@ -765,44 +821,51 @@ package androidx.health.services.client.data {
     method public androidx.health.services.client.data.PassiveGoal? fromIntent(android.content.Intent intent);
   }
 
+  public final class PassiveListenerConfig extends androidx.health.services.client.data.ProtoParcelable<androidx.health.services.client.proto.DataProto.PassiveListenerConfig> {
+    ctor public PassiveListenerConfig(java.util.Set<androidx.health.services.client.data.DataType> dataTypes, boolean shouldRequestUserActivityState, java.util.Set<androidx.health.services.client.data.PassiveGoal> passiveGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
+    method public static androidx.health.services.client.data.PassiveListenerConfig.Builder builder();
+    method public java.util.Set<androidx.health.services.client.data.DataType> getDataTypes();
+    method public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getHealthEventTypes();
+    method public java.util.Set<androidx.health.services.client.data.PassiveGoal> getPassiveGoals();
+    method public androidx.health.services.client.proto.DataProto.PassiveListenerConfig getProto();
+    method public boolean getShouldRequestUserActivityState();
+    property public final java.util.Set<androidx.health.services.client.data.DataType> dataTypes;
+    property public final java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes;
+    property public final java.util.Set<androidx.health.services.client.data.PassiveGoal> passiveGoals;
+    property public final boolean shouldRequestUserActivityState;
+    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.PassiveListenerConfig> CREATOR;
+    field public static final androidx.health.services.client.data.PassiveListenerConfig.Companion Companion;
+  }
+
+  public static final class PassiveListenerConfig.Builder {
+    ctor public PassiveListenerConfig.Builder();
+    method public androidx.health.services.client.data.PassiveListenerConfig build();
+    method public androidx.health.services.client.data.PassiveListenerConfig.Builder setDataTypes(java.util.Set<androidx.health.services.client.data.DataType> dataTypes);
+    method public androidx.health.services.client.data.PassiveListenerConfig.Builder setHealthEventTypes(java.util.Set<androidx.health.services.client.data.HealthEvent.Type> healthEventTypes);
+    method public androidx.health.services.client.data.PassiveListenerConfig.Builder setPassiveGoals(java.util.Set<androidx.health.services.client.data.PassiveGoal> passiveGoals);
+    method public androidx.health.services.client.data.PassiveListenerConfig.Builder setShouldRequestUserActivityState(boolean requestUserActivityState);
+  }
+
+  public static final class PassiveListenerConfig.Companion {
+    method public androidx.health.services.client.data.PassiveListenerConfig.Builder builder();
+  }
+
   public final class PassiveMonitoringCapabilities extends androidx.health.services.client.data.ProtoParcelable<androidx.health.services.client.proto.DataProto.PassiveMonitoringCapabilities> {
-    ctor public PassiveMonitoringCapabilities(java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesPassiveMonitoring, java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesPassiveGoals, java.util.Set<androidx.health.services.client.data.UserActivityState> supportedUserActivityStates);
+    ctor public PassiveMonitoringCapabilities(java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesPassiveMonitoring, java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesPassiveGoals, java.util.Set<androidx.health.services.client.data.HealthEvent.Type> supportedHealthEventTypes, java.util.Set<androidx.health.services.client.data.UserActivityState> supportedUserActivityStates);
     method public androidx.health.services.client.proto.DataProto.PassiveMonitoringCapabilities getProto();
     method public java.util.Set<androidx.health.services.client.data.DataType> getSupportedDataTypesPassiveGoals();
     method public java.util.Set<androidx.health.services.client.data.DataType> getSupportedDataTypesPassiveMonitoring();
+    method public java.util.Set<androidx.health.services.client.data.HealthEvent.Type> getSupportedHealthEventTypes();
+    method public java.util.Set<androidx.health.services.client.data.UserActivityState> getSupportedUserActivityStates();
     property public final java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesPassiveGoals;
     property public final java.util.Set<androidx.health.services.client.data.DataType> supportedDataTypesPassiveMonitoring;
+    property public final java.util.Set<androidx.health.services.client.data.HealthEvent.Type> supportedHealthEventTypes;
+    property public final java.util.Set<androidx.health.services.client.data.UserActivityState> supportedUserActivityStates;
     field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.PassiveMonitoringCapabilities> CREATOR;
     field public static final androidx.health.services.client.data.PassiveMonitoringCapabilities.Companion Companion;
   }
 
   public static final class PassiveMonitoringCapabilities.Companion {
-  }
-
-  public final class PassiveMonitoringConfig extends androidx.health.services.client.data.ProtoParcelable<androidx.health.services.client.proto.DataProto.PassiveMonitoringConfig> {
-    ctor public PassiveMonitoringConfig(java.util.Set<androidx.health.services.client.data.DataType> dataTypes, android.content.ComponentName componentName, optional boolean requestUserActivityState);
-    method public static androidx.health.services.client.data.PassiveMonitoringConfig.Builder builder();
-    method public android.content.ComponentName getComponentName();
-    method public java.util.Set<androidx.health.services.client.data.DataType> getDataTypes();
-    method public androidx.health.services.client.proto.DataProto.PassiveMonitoringConfig getProto();
-    method public boolean getRequestUserActivityState();
-    property public final android.content.ComponentName componentName;
-    property public final java.util.Set<androidx.health.services.client.data.DataType> dataTypes;
-    property public final boolean requestUserActivityState;
-    field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.PassiveMonitoringConfig> CREATOR;
-    field public static final androidx.health.services.client.data.PassiveMonitoringConfig.Companion Companion;
-  }
-
-  public static final class PassiveMonitoringConfig.Builder {
-    ctor public PassiveMonitoringConfig.Builder();
-    method public androidx.health.services.client.data.PassiveMonitoringConfig build();
-    method public androidx.health.services.client.data.PassiveMonitoringConfig.Builder setComponentName(android.content.ComponentName componentName);
-    method public androidx.health.services.client.data.PassiveMonitoringConfig.Builder setDataTypes(java.util.Set<androidx.health.services.client.data.DataType> dataTypes);
-    method public androidx.health.services.client.data.PassiveMonitoringConfig.Builder setRequestUserActivityState(boolean requestUserActivityState);
-  }
-
-  public static final class PassiveMonitoringConfig.Companion {
-    method public androidx.health.services.client.data.PassiveMonitoringConfig.Builder builder();
   }
 
   public final class PassiveMonitoringUpdate extends androidx.health.services.client.data.ProtoParcelable<androidx.health.services.client.proto.DataProto.PassiveMonitoringUpdate> {
@@ -901,6 +964,7 @@ package androidx.health.services.client.data {
 
   public final class Value extends androidx.health.services.client.data.ProtoParcelable<androidx.health.services.client.proto.DataProto.Value> {
     method public boolean asBoolean();
+    method public byte[] asByteArray();
     method public double asDouble();
     method public double[] asDoubleArray();
     method public long asLong();
@@ -908,22 +972,26 @@ package androidx.health.services.client.data {
     method public int getFormat();
     method public androidx.health.services.client.proto.DataProto.Value getProto();
     method public boolean isBoolean();
+    method public boolean isByteArray();
     method public boolean isDouble();
     method public boolean isDoubleArray();
     method public boolean isLong();
     method public static androidx.health.services.client.data.Value ofBoolean(boolean value);
+    method public static androidx.health.services.client.data.Value ofByteArray(byte[] value);
     method public static androidx.health.services.client.data.Value ofDouble(double value);
     method public static androidx.health.services.client.data.Value ofDoubleArray(double... doubleArray);
     method public static androidx.health.services.client.data.Value ofLong(long value);
     method public static androidx.health.services.client.data.Value sum(androidx.health.services.client.data.Value first, androidx.health.services.client.data.Value second);
     property public final int format;
     property public final boolean isBoolean;
+    property public final boolean isByteArray;
     property public final boolean isDouble;
     property public final boolean isDoubleArray;
     property public final boolean isLong;
     field public static final android.os.Parcelable.Creator<androidx.health.services.client.data.Value> CREATOR;
     field public static final androidx.health.services.client.data.Value.Companion Companion;
     field public static final int FORMAT_BOOLEAN = 4; // 0x4
+    field public static final int FORMAT_BYTE_ARRAY = 5; // 0x5
     field public static final int FORMAT_DOUBLE = 1; // 0x1
     field public static final int FORMAT_DOUBLE_ARRAY = 3; // 0x3
     field public static final int FORMAT_LONG = 2; // 0x2
@@ -932,6 +1000,7 @@ package androidx.health.services.client.data {
   public static final class Value.Companion {
     method public int compare(androidx.health.services.client.data.Value first, androidx.health.services.client.data.Value second);
     method public androidx.health.services.client.data.Value ofBoolean(boolean value);
+    method public androidx.health.services.client.data.Value ofByteArray(byte[] value);
     method public androidx.health.services.client.data.Value ofDouble(double value);
     method public androidx.health.services.client.data.Value ofDoubleArray(double... doubleArray);
     method public androidx.health.services.client.data.Value ofLong(long value);

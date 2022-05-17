@@ -73,8 +73,8 @@ public constructor(
         private var exerciseType: ExerciseType? = null
         private var dataTypes: Set<DataType> = emptySet()
         private var aggregateDataTypes: Set<DataType> = emptySet()
-        private var autoPauseAndResumeEnabled: Boolean = false
-        private var gpsEnabled: Boolean = false
+        private var isAutoPauseAndResumeEnabled: Boolean = false
+        private var isGpsEnabled: Boolean = false
         private var exerciseGoals: List<ExerciseGoal> = emptyList()
         private var exerciseParams: Bundle = Bundle.EMPTY
 
@@ -121,11 +121,11 @@ public constructor(
          * Sets whether auto pause and auto resume should be enabled for this exercise. If not set,
          * auto-pause is disabled by default.
          *
-         * @param autoPauseAndResumeEnabled if true, exercise will automatically pause and resume
+         * @param isAutoPauseAndResumeEnabled if true, exercise will automatically pause and resume
          */
         @Suppress("MissingGetterMatchingBuilder")
-        public fun setIsAutoPauseAndResumeEnabled(autoPauseAndResumeEnabled: Boolean): Builder {
-            this.autoPauseAndResumeEnabled = autoPauseAndResumeEnabled
+        public fun setIsAutoPauseAndResumeEnabled(isAutoPauseAndResumeEnabled: Boolean): Builder {
+            this.isAutoPauseAndResumeEnabled = isAutoPauseAndResumeEnabled
             return this
         }
 
@@ -138,14 +138,14 @@ public constructor(
          *
          * If no data type is specified in the configuration, WHS provides all data types
          * supported for the exercise. In this case, if [DataType.LOCATION] is among the supported
-         * data types for the exercise but GPS usage is disabled (i.e. [gpsEnabled] is `false`, then
-         * [ExerciseClient.startExerciseAsync] will fail.
+         * data types for the exercise but GPS usage is disabled (i.e. [isGpsEnabled] is `false`,
+         * then [ExerciseClient.startExerciseAsync] will fail.
          *
-         * @param gpsEnabled if true, GPS will be enabled for this exercise
+         * @param isGpsEnabled if true, GPS will be enabled for this exercise
          */
         @Suppress("MissingGetterMatchingBuilder")
-        public fun setIsGpsEnabled(gpsEnabled: Boolean): Builder {
-            this.gpsEnabled = gpsEnabled
+        public fun setIsGpsEnabled(isGpsEnabled: Boolean): Builder {
+            this.isGpsEnabled = isGpsEnabled
             return this
         }
 
@@ -178,8 +178,8 @@ public constructor(
                 checkNotNull(exerciseType) { "No exercise type specified" },
                 dataTypes,
                 aggregateDataTypes,
-                autoPauseAndResumeEnabled,
-                gpsEnabled,
+                isAutoPauseAndResumeEnabled,
+                isGpsEnabled,
                 exerciseGoals,
                 exerciseParams
             )

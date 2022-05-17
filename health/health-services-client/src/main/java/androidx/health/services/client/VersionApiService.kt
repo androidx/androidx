@@ -14,22 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.health.services.client.impl
+package androidx.health.services.client
 
 import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import androidx.health.services.client.impl.IVersionApiService
+import androidx.health.services.client.impl.IpcConstants
 
 /** Service that allows querying the canonical SDK version used to compile this app. */
-// TODO(b/227475943): open up visibility
-internal class VersionApiService : Service() {
+public class VersionApiService : Service() {
 
     private val stub: VersionApiServiceStub = VersionApiServiceStub()
 
-    override fun onBind(intent: Intent): IBinder? {
-        if (intent.action != IpcConstants.VERSION_API_BIND_ACTION) {
-            Log.w(TAG, "Bind request with invalid action [${intent.action}]")
+    override fun onBind(intent: Intent?): IBinder? {
+        if (intent?.action != IpcConstants.VERSION_API_BIND_ACTION) {
+            Log.w(TAG, "Bind request with invalid action [${intent?.action}]")
             return null
         }
 
@@ -37,9 +38,8 @@ internal class VersionApiService : Service() {
     }
 
     private class VersionApiServiceStub : IVersionApiService.Stub() {
-        override fun getVersionApiServiceVersion(): Int =
-            IVersionApiService.VERSION_API_SERVICE_VERSION
-        override fun getSdkVersion(): Int = IVersionApiService.CANONICAL_SDK_VERSION
+        override fun getVersionApiServiceVersion(): Int = VERSION_API_SERVICE_VERSION
+        override fun getSdkVersion(): Int = CANONICAL_SDK_VERSION
     }
 
     private companion object {

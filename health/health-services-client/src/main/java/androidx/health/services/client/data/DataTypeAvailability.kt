@@ -64,7 +64,7 @@ public class DataTypeAvailability private constructor(
         @JvmField
         public val ACQUIRING: DataTypeAvailability = DataTypeAvailability(2, "ACQUIRING")
 
-        /** The [DataType] is unavailable; health services cannot acquire it. */
+        /** The [DataType] is unavailable because health services cannot acquire it. */
         @JvmField
         public val UNAVAILABLE: DataTypeAvailability = DataTypeAvailability(3, "UNAVAILABLE")
 

@@ -89,8 +89,7 @@ public class Value internal constructor(proto: DataProto.Value) :
      *
      * @throws IllegalStateException if [isByteArray] is `false`
      */
-    // TODO(b/227475943): open up visibility
-    internal fun asByteArray(): ByteArray {
+    public fun asByteArray(): ByteArray {
         check(isByteArray) {
             "Attempted to read value as ByteArray, but value is not of type ByteArray"
         }
@@ -128,8 +127,7 @@ public class Value internal constructor(proto: DataProto.Value) :
         get() = format == FORMAT_DOUBLE_ARRAY
 
     /** Whether or not this [Value] can be represented as a `byteArray`. */
-    // TODO(b/227475943): open up visibility
-    internal val isByteArray: Boolean
+    public val isByteArray: Boolean
         get() = format == FORMAT_BYTE_ARRAY
 
     public companion object {
@@ -146,8 +144,7 @@ public class Value internal constructor(proto: DataProto.Value) :
         public const val FORMAT_DOUBLE_ARRAY: Int = 3
 
         /** The format used for a [Value] represented as a `ByteArray`. */
-        // TODO(b/227475943): open up visibility
-        internal const val FORMAT_BYTE_ARRAY: Int = 5
+        public const val FORMAT_BYTE_ARRAY: Int = 5
 
         @JvmField
         public val CREATOR: Parcelable.Creator<Value> = newCreator {
@@ -181,10 +178,13 @@ public class Value internal constructor(proto: DataProto.Value) :
                     .build()
             )
 
-        /** Creates a [Value] that represents a `ByteArray`. */
+        /**
+         * Creates a [Value] that represents a `ByteArray`.
+         *
+         * @param value byte array to represent in the returned [Value]
+         */
         @JvmStatic
-        // TODO(b/227475943): open up visibility
-        internal fun ofByteArray(value: ByteArray): Value =
+        public fun ofByteArray(value: ByteArray): Value =
             Value(DataProto.Value.newBuilder().setByteArrayVal(ByteString.copyFrom(value)).build())
 
         /**

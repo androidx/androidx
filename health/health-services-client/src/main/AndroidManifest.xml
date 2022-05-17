@@ -19,7 +19,7 @@
 
     <application>
         <service
-            android:name="androidx.health.services.client.impl.VersionApiService"
+            android:name="androidx.health.services.client.VersionApiService"
             android:exported="true">
             <intent-filter>
                 <action android:name="hs.versionclient.BIND" />
