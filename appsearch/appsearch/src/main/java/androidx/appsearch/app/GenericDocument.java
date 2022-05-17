@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.app.PropertyPath.PathSegment;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.util.BundleUtil;
 import androidx.appsearch.util.IndentingStringBuilder;
@@ -296,7 +297,8 @@ public class GenericDocument {
     @Nullable
     public Object getProperty(@NonNull String path) {
         Preconditions.checkNotNull(path);
-        Object rawValue = getRawPropertyFromRawDocument(path, mBundle);
+        Object rawValue =
+                getRawPropertyFromRawDocument(new PropertyPath(path), /*pathIndex=*/0, mBundle);
 
         // Unpack the raw value into the types the user expects, if required.
         if (rawValue instanceof Bundle) {
@@ -357,164 +359,138 @@ public class GenericDocument {
      *
      * <p>The return value may be any of GenericDocument's internal repeated storage types
      * (String[], long[], double[], boolean[], ArrayList&lt;Bundle&gt;, Parcelable[]).
+     *
+     * <p>Usually, this method takes a path and loops over it to get a property from the bundle.
+     * But in the case where we collect documents across repeated nested documents, we need to
+     * recurse back into this method, and so we also keep track of the index into the path.
+     *
+     * @param path the PropertyPath object representing the path
+     * @param pathIndex the index into the path we start at
+     * @param documentBundle the bundle that contains the path we are looking up
+     * @return the raw property
      */
     @Nullable
     @SuppressWarnings("deprecation")
     private static Object getRawPropertyFromRawDocument(
-            @NonNull String path, @NonNull Bundle documentBundle) {
+            @NonNull PropertyPath path, int pathIndex, @NonNull Bundle documentBundle) {
         Preconditions.checkNotNull(path);
         Preconditions.checkNotNull(documentBundle);
         Bundle properties = Preconditions.checkNotNull(documentBundle.getBundle(PROPERTIES_FIELD));
 
-        // Determine whether the path is just a raw property name with no control characters
-        int controlIdx = -1;
-        boolean controlIsIndex = false;
-        for (int i = 0; i < path.length(); i++) {
-            char c = path.charAt(i);
-            if (c == '[' || c == '.') {
-                controlIdx = i;
-                controlIsIndex = c == '[';
-                break;
-            }
-        }
 
-        // Look up the value of the first path element
-        Object firstElementValue;
-        if (controlIdx == -1) {
-            firstElementValue = properties.get(path);
-        } else {
-            String name = path.substring(0, controlIdx);
-            firstElementValue = properties.get(name);
-        }
+        for (int i = pathIndex; i < path.size(); i++) {
+            PathSegment segment = path.get(i);
 
-        // If the path has no further elements, we're done.
-        if (firstElementValue == null || controlIdx == -1) {
-            return firstElementValue;
-        }
+            Object currentElementValue = properties.get(segment.getPropertyName());
 
-        // At this point, for a path like "recipients[0]", firstElementValue contains the value of
-        // "recipients". If the first element of the path is an indexed value, we now update
-        // firstElementValue to contain "recipients[0]" instead.
-        String remainingPath;
-        if (!controlIsIndex) {
-            // Remaining path is everything after the .
-            remainingPath = path.substring(controlIdx + 1);
-        } else {
-            int endBracketIdx = path.indexOf(']', controlIdx);
-            if (endBracketIdx == -1) {
-                throw new IllegalArgumentException("Malformed path (no ending ']'): " + path);
-            }
-            if (endBracketIdx + 1 < path.length() && path.charAt(endBracketIdx + 1) != '.') {
-                throw new IllegalArgumentException(
-                        "Malformed path (']' not followed by '.'): " + path);
-            }
-            String indexStr = path.substring(controlIdx + 1, endBracketIdx);
-            int index = Integer.parseInt(indexStr);
-            if (index < 0) {
-                throw new IllegalArgumentException("Path index less than 0: " + path);
+            if (currentElementValue == null) {
+                return null;
             }
 
-            // Remaining path is everything after the [n]
-            if (endBracketIdx + 1 < path.length()) {
-                // More path remains, and we've already checked that charAt(endBracketIdx+1) == .
-                remainingPath = path.substring(endBracketIdx + 2);
+            // If the current PathSegment has an index, we now need to update currentElementValue to
+            // contain the value of the indexed property. For example, for a path segment like
+            // "recipients[0]", currentElementValue now contains the value of "recipients" while we
+            // need the value of "recipients[0]".
+            int index = segment.getPropertyIndex();
+            if (index != PathSegment.NON_REPEATED_CARDINALITY) {
+                // Extract the right array element
+                Object extractedValue = null;
+                if (currentElementValue instanceof String[]) {
+                    String[] stringValues = (String[]) currentElementValue;
+                    if (index < stringValues.length) {
+                        extractedValue = Arrays.copyOfRange(stringValues, index, index + 1);
+                    }
+                } else if (currentElementValue instanceof long[]) {
+                    long[] longValues = (long[]) currentElementValue;
+                    if (index < longValues.length) {
+                        extractedValue = Arrays.copyOfRange(longValues, index, index + 1);
+                    }
+                } else if (currentElementValue instanceof double[]) {
+                    double[] doubleValues = (double[]) currentElementValue;
+                    if (index < doubleValues.length) {
+                        extractedValue = Arrays.copyOfRange(doubleValues, index, index + 1);
+                    }
+                } else if (currentElementValue instanceof boolean[]) {
+                    boolean[] booleanValues = (boolean[]) currentElementValue;
+                    if (index < booleanValues.length) {
+                        extractedValue = Arrays.copyOfRange(booleanValues, index, index + 1);
+                    }
+                } else if (currentElementValue instanceof List) {
+                    @SuppressWarnings("unchecked")
+                    List<Bundle> bundles = (List<Bundle>) currentElementValue;
+                    if (index < bundles.size()) {
+                        extractedValue = bundles.subList(index, index + 1);
+                    }
+                } else if (currentElementValue instanceof Parcelable[]) {
+                    // Special optimization: to avoid creating new singleton arrays for traversing
+                    // paths we return the bare document Bundle in this particular case.
+                    Parcelable[] bundles = (Parcelable[]) currentElementValue;
+                    if (index < bundles.length) {
+                        extractedValue = (Bundle) bundles[index];
+                    }
+                } else {
+                    throw new IllegalStateException("Unsupported value type: "
+                            + currentElementValue);
+                }
+                currentElementValue = extractedValue;
+            }
+
+            // at the end of the path, either something like "...foo" or "...foo[1]"
+            if (currentElementValue == null || i == path.size() - 1) {
+                return currentElementValue;
+            }
+
+            // currentElementValue is now a Bundle or Parcelable[], we can continue down the path
+            if (currentElementValue instanceof Bundle) {
+                properties = ((Bundle) currentElementValue).getBundle(PROPERTIES_FIELD);
+            } else if (currentElementValue instanceof Parcelable[]) {
+                Parcelable[] parcelables = (Parcelable[]) currentElementValue;
+                if (parcelables.length == 1) {
+                    properties = ((Bundle) parcelables[0]).getBundle(PROPERTIES_FIELD);
+                    continue;
+                }
+
+                // Slowest path: we're collecting values across repeated nested docs. (Example:
+                // given a path like recipient.name, where recipient is a repeated field, we return
+                // a string array where each recipient's name is an array element).
+                //
+                // Performance note: Suppose that we have a property path "a.b.c" where the "a"
+                // property has N document values and each containing a "b" property with M document
+                // values and each of those containing a "c" property with an int array.
+                //
+                // We'll allocate a new ArrayList for each of the "b" properties, add the M int
+                // arrays from the "c" properties to it and then we'll allocate an int array in
+                // flattenAccumulator before returning that (1 + M allocation per "b" property).
+                //
+                // When we're on the "a" properties, we'll allocate an ArrayList and add the N
+                // flattened int arrays returned from the "b" properties to the list. Then we'll
+                // allocate an int array in flattenAccumulator (1 + N ("b" allocs) allocations per
+                // "a"). // So this implementation could incur 1 + N + NM allocs.
+                //
+                // However, we expect the vast majority of getProperty calls to be either for direct
+                // property names (not paths) or else property paths returned from snippetting,
+                // which always refer to exactly one property value and don't aggregate across
+                // repeated values. The implementation is optimized for these two cases, requiring
+                // no additional allocations. So we've decided that the above performance
+                // characteristics are OK for the less used path.
+                List<Object> accumulator = new ArrayList<>(parcelables.length);
+                for (Parcelable parcelable : parcelables) {
+                    // recurse as we need to branch
+                    Object value = getRawPropertyFromRawDocument(path, /*pathIndex=*/i + 1,
+                            (Bundle) parcelable);
+                    if (value != null) {
+                        accumulator.add(value);
+                    }
+                }
+                // Break the path traversing loop
+                return flattenAccumulator(accumulator);
             } else {
-                // No more path remains.
-                remainingPath = null;
+                Log.e(TAG, "Failed to apply path to document; no nested value found: " + path);
+                return null;
             }
-
-            // Extract the right array element
-            Object extractedValue = null;
-            if (firstElementValue instanceof String[]) {
-                String[] stringValues = (String[]) firstElementValue;
-                if (index < stringValues.length) {
-                    extractedValue = Arrays.copyOfRange(stringValues, index, index + 1);
-                }
-            } else if (firstElementValue instanceof long[]) {
-                long[] longValues = (long[]) firstElementValue;
-                if (index < longValues.length) {
-                    extractedValue = Arrays.copyOfRange(longValues, index, index + 1);
-                }
-            } else if (firstElementValue instanceof double[]) {
-                double[] doubleValues = (double[]) firstElementValue;
-                if (index < doubleValues.length) {
-                    extractedValue = Arrays.copyOfRange(doubleValues, index, index + 1);
-                }
-            } else if (firstElementValue instanceof boolean[]) {
-                boolean[] booleanValues = (boolean[]) firstElementValue;
-                if (index < booleanValues.length) {
-                    extractedValue = Arrays.copyOfRange(booleanValues, index, index + 1);
-                }
-            } else if (firstElementValue instanceof List) {
-                @SuppressWarnings("unchecked")
-                List<Bundle> bundles = (List<Bundle>) firstElementValue;
-                if (index < bundles.size()) {
-                    extractedValue = bundles.subList(index, index + 1);
-                }
-            } else if (firstElementValue instanceof Parcelable[]) {
-                // Special optimization: to avoid creating new singleton arrays for traversing paths
-                // we return the bare document Bundle in this particular case.
-                Parcelable[] bundles = (Parcelable[]) firstElementValue;
-                if (index < bundles.length) {
-                    extractedValue = (Bundle) bundles[index];
-                }
-            } else {
-                throw new IllegalStateException("Unsupported value type: " + firstElementValue);
-            }
-            firstElementValue = extractedValue;
         }
-
-        // If we are at the end of the path or there are no deeper elements in this document, we
-        // have nothing to recurse into.
-        if (firstElementValue == null || remainingPath == null) {
-            return firstElementValue;
-        }
-
-        // More of the path remains; recursively evaluate it
-        if (firstElementValue instanceof Bundle) {
-            return getRawPropertyFromRawDocument(remainingPath, (Bundle) firstElementValue);
-        } else if (firstElementValue instanceof Parcelable[]) {
-            Parcelable[] parcelables = (Parcelable[]) firstElementValue;
-            if (parcelables.length == 1) {
-                return getRawPropertyFromRawDocument(remainingPath, (Bundle) parcelables[0]);
-            }
-
-            // Slowest path: we're collecting values across repeated nested docs. (Example: given a
-            // path like recipient.name, where recipient is a repeated field, we return a string
-            // array where each recipient's name is an array element).
-            //
-            // Performance note: Suppose that we have a property path "a.b.c" where the "a"
-            // property has N document values and each containing a "b" property with M document
-            // values and each of those containing a "c" property with an int array.
-            //
-            // We'll allocate a new ArrayList for each of the "b" properties, add the M int arrays
-            // from the "c" properties to it and then we'll allocate an int array in
-            // flattenAccumulator before returning that (1 + M allocation per "b" property).
-            //
-            // When we're on the "a" properties, we'll allocate an ArrayList and add the N
-            // flattened int arrays returned from the "b" properties to the list. Then we'll
-            // allocate an int array in flattenAccumulator (1 + N ("b" allocs) allocations per "a").
-            // So this implementation could incur 1 + N + NM allocs.
-            //
-            // However, we expect the vast majority of getProperty calls to be either for direct
-            // property names (not paths) or else property paths returned from snippetting, which
-            // always refer to exactly one property value and don't aggregate across repeated
-            // values. The implementation is optimized for these two cases, requiring no additional
-            // allocations. So we've decided that the above performance characteristics are OK for
-            // the less used path.
-            List<Object> accumulator = new ArrayList<>(parcelables.length);
-            for (int i = 0; i < parcelables.length; i++) {
-                Object value =
-                        getRawPropertyFromRawDocument(remainingPath, (Bundle) parcelables[i]);
-                if (value != null) {
-                    accumulator.add(value);
-                }
-            }
-            return flattenAccumulator(accumulator);
-        } else {
-            Log.e(TAG, "Failed to apply path to document; no nested value found: " + path);
-            return null;
-        }
+        // Only way to get here is with an empty path list
+        return null;
     }
 
     /**
