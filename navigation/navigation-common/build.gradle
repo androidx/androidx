@@ -56,6 +56,8 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestImplementation(libs.kotlinStdlib)
+
+    lintPublish(project(':navigation:navigation-common-lint'))
 }
 
 //used by testImplementation safe-args-generator
