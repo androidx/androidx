@@ -7,9 +7,7 @@
         errorLine1="            return (T) m.invoke(null, versionedParcel);"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1598"
-            column="24"/>
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            m.invoke(null, val, versionedParcel);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="1625"
-            column="13"/>
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public void writeStrongInterface(@Nullable IInterface val, int fieldId) {"
         errorLine2="                                                               ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"
-            line="291"
-            column="64"/>
+            file="src/main/java/androidx/versionedparcelable/VersionedParcel.java"/>
     </issue>
 
 </issues>

@@ -7,9 +7,7 @@
         errorLine1="                val display = mDisplayManager.getDisplay(displayId)"
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/OrientationConfigChangesOverriddenActivity.kt"
-            line="33"
-            column="31"/>
+            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/OrientationConfigChangesOverriddenActivity.kt"/>
     </issue>
 
 </issues>

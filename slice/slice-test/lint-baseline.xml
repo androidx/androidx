@@ -7,9 +7,7 @@
         errorLine1="    public static Uri getUri(String path, Context context) {"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="157"
-            column="19"/>
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public static Uri getUri(String path, Context context) {"
         errorLine2="                             ~~~~~~">
         <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="157"
-            column="30"/>
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public static Uri getUri(String path, Context context) {"
         errorLine2="                                          ~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="157"
-            column="43"/>
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public Slice onBindSlice(@NonNull Uri sliceUri) {"
         errorLine2="           ~~~~~">
         <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="177"
-            column="12"/>
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public static ArrayList&lt;String> sGroceryList = new ArrayList&lt;>();"
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="861"
-            column="19"/>
+            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"/>
     </issue>
 
 </issues>

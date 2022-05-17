@@ -7,9 +7,7 @@
         errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
         errorLine2="                              ~~~~~~">
         <location
-            file="src/main/java/androidx/customview/view/AbsSavedState.java"
-            line="86"
-            column="31"/>
+            file="src/main/java/androidx/customview/view/AbsSavedState.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View host) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="156"
-            column="12"/>
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View host) {"
         errorLine2="                                                                        ~~~~">
         <location
-            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="156"
-            column="73"/>
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {"
         errorLine2="                                               ~~~~">
         <location
-            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="661"
-            column="48"/>
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="661"
-            column="59"/>
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {"
         errorLine2="                                                  ~~~~">
         <location
-            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="756"
-            column="51"/>
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {"
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="756"
-            column="62"/>
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    protected abstract void getVisibleVirtualViews(List&lt;Integer> virtualViewIds);"
         errorLine2="                                                   ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"
-            line="1093"
-            column="52"/>
+            file="src/main/java/androidx/customview/widget/ExploreByTouchHelper.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="        void obtainBounds(T data, Rect outBounds);"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/androidx/customview/widget/FocusStrategy.java"
-            line="443"
-            column="35"/>
+            file="src/main/java/androidx/customview/widget/FocusStrategy.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public static ViewDragHelper create(@NonNull ViewGroup forParent, @NonNull Callback cb) {"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/customview/widget/ViewDragHelper.java"
-            line="363"
-            column="19"/>
+            file="src/main/java/androidx/customview/widget/ViewDragHelper.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public static ViewDragHelper create(@NonNull ViewGroup forParent, float sensitivity,"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/customview/widget/ViewDragHelper.java"
-            line="376"
-            column="19"/>
+            file="src/main/java/androidx/customview/widget/ViewDragHelper.java"/>
     </issue>
 
 </issues>

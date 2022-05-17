@@ -7,9 +7,7 @@
         errorLine1="            ).use {"
         errorLine2="              ~~~">
         <location
-            file="src/main/java/androidx/datastore/multiprocess/SharedCounter.kt"
-            line="74"
-            column="15"/>
+            file="src/main/java/androidx/datastore/multiprocess/SharedCounter.kt"/>
     </issue>
 
 </issues>

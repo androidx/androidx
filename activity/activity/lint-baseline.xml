@@ -7,9 +7,7 @@
         errorLine1="                    getExtensionVersion(Build.VERSION_CODES.R) >= 2"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"
-            line="626"
-            column="21"/>
+            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                    getExtensionVersion(Build.VERSION_CODES.R) >= 2"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"
-            line="626"
-            column="21"/>
+            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                    require(maxItems &lt;= MediaStore.getPickImagesMaxLimit()) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"
-            line="734"
-            column="52"/>
+            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                MediaStore.getPickImagesMaxLimit()"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"
-            line="779"
-            column="28"/>
+            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                    getExtensionVersion(Build.VERSION_CODES.R) >= 2"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"
-            line="626"
-            column="21"/>
+            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                    getExtensionVersion(Build.VERSION_CODES.R) >= 2"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"
-            line="626"
-            column="21"/>
+            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                    require(maxItems &lt;= MediaStore.getPickImagesMaxLimit()) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"
-            line="734"
-            column="52"/>
+            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                MediaStore.getPickImagesMaxLimit()"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"
-            line="779"
-            column="28"/>
+            file="src/main/java/androidx/activity/result/contract/ActivityResultContracts.kt"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            mOnBackPressedDispatcher.setOnBackInvokedDispatcher(getOnBackInvokedDispatcher());"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/activity/ComponentActivity.java"
-            line="357"
-            column="65"/>
+            file="src/main/java/androidx/activity/ComponentActivity.java"/>
     </issue>
 
 </issues>

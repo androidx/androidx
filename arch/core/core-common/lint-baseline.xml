@@ -7,9 +7,7 @@
         errorLine1="    protected Entry&lt;K, V> get(K k) {"
         errorLine2="              ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java"
-            line="41"
-            column="15"/>
+            file="src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public Map.Entry&lt;K, V> ceil(K k) {"
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java"
-            line="75"
-            column="12"/>
+            file="src/main/java/androidx/arch/core/internal/FastSafeIterableMap.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    protected Entry&lt;K, V> get(K k) {"
         errorLine2="              ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
-            line="46"
-            column="15"/>
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public Iterator&lt;Map.Entry&lt;K, V>> descendingIterator() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
-            line="150"
-            column="12"/>
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public IteratorWithAdditions iteratorWithAdditions() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
-            line="159"
-            column="12"/>
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public Map.Entry&lt;K, V> eldest() {"
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
-            line="169"
-            column="12"/>
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public Map.Entry&lt;K, V> newest() {"
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"
-            line="176"
-            column="12"/>
+            file="src/main/java/androidx/arch/core/internal/SafeIterableMap.java"/>
     </issue>
 
 </issues>

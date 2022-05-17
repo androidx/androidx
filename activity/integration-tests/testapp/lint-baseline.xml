@@ -7,9 +7,7 @@
         errorLine1="    val takePicture = registerForActivityResult(TakePicture()) { success ->"
         errorLine2="        ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/activity/integration/testapp/MainActivity.kt"
-            line="64"
-            column="9"/>
+            file="src/main/java/androidx/activity/integration/testapp/MainActivity.kt"/>
     </issue>
 
 </issues>

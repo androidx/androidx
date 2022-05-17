@@ -7,9 +7,7 @@
         errorLine1="    public void executeOnDiskIO(Runnable runnable) {"
         errorLine2="                                ~~~~~~~~">
         <location
-            file="src/main/java/androidx/arch/core/executor/ArchTaskExecutor.java"
-            line="95"
-            column="33"/>
+            file="src/main/java/androidx/arch/core/executor/ArchTaskExecutor.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public void postToMainThread(Runnable runnable) {"
         errorLine2="                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/arch/core/executor/ArchTaskExecutor.java"
-            line="100"
-            column="34"/>
+            file="src/main/java/androidx/arch/core/executor/ArchTaskExecutor.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public void executeOnDiskIO(Runnable runnable) {"
         errorLine2="                                ~~~~~~~~">
         <location
-            file="src/main/java/androidx/arch/core/executor/DefaultTaskExecutor.java"
-            line="59"
-            column="33"/>
+            file="src/main/java/androidx/arch/core/executor/DefaultTaskExecutor.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public void postToMainThread(Runnable runnable) {"
         errorLine2="                                 ~~~~~~~~">
         <location
-            file="src/main/java/androidx/arch/core/executor/DefaultTaskExecutor.java"
-            line="64"
-            column="34"/>
+            file="src/main/java/androidx/arch/core/executor/DefaultTaskExecutor.java"/>
     </issue>
 
 </issues>

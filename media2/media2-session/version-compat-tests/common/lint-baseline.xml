@@ -7,9 +7,7 @@
         errorLine1="    public static void waitFor(final PollingCheckCondition condition) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/test/common/PollingCheck.java"
-            line="76"
-            column="38"/>
+            file="src/main/java/androidx/media2/test/common/PollingCheck.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public static void waitFor(long timeout, final PollingCheckCondition condition) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/test/common/PollingCheck.java"
-            line="90"
-            column="52"/>
+            file="src/main/java/androidx/media2/test/common/PollingCheck.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public static boolean equals(Bundle a, Bundle b) {"
         errorLine2="                                 ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="43"
-            column="34"/>
+            file="src/main/java/androidx/media2/test/common/TestUtils.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public static boolean equals(Bundle a, Bundle b) {"
         errorLine2="                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="43"
-            column="44"/>
+            file="src/main/java/androidx/media2/test/common/TestUtils.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public static boolean contains(Bundle a, Bundle b) {"
         errorLine2="                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="56"
-            column="36"/>
+            file="src/main/java/androidx/media2/test/common/TestUtils.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public static boolean contains(Bundle a, Bundle b) {"
         errorLine2="                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="56"
-            column="46"/>
+            file="src/main/java/androidx/media2/test/common/TestUtils.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public static boolean equals(Object a, Object b) {"
         errorLine2="                                 ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="76"
-            column="34"/>
+            file="src/main/java/androidx/media2/test/common/TestUtils.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public static boolean equals(Object a, Object b) {"
         errorLine2="                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="76"
-            column="44"/>
+            file="src/main/java/androidx/media2/test/common/TestUtils.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public static Bundle createTestBundle() {"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="89"
-            column="19"/>
+            file="src/main/java/androidx/media2/test/common/TestUtils.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public static String getMediaIdInFakeList(int index) {"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="98"
-            column="19"/>
+            file="src/main/java/androidx/media2/test/common/TestUtils.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        public SyncHandler(Looper looper) {"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="107"
-            column="28"/>
+            file="src/main/java/androidx/media2/test/common/TestUtils.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="        public void postAndSync(final Runnable runnable) throws InterruptedException {"
         errorLine2="                                      ~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/test/common/TestUtils.java"
-            line="111"
-            column="39"/>
+            file="src/main/java/androidx/media2/test/common/TestUtils.java"/>
     </issue>
 
 </issues>

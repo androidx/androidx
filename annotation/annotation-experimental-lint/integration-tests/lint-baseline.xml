@@ -7,9 +7,7 @@
         errorLine1="public @interface ExperimentalJavaAnnotationWrongRetention {}"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/ExperimentalJavaAnnotationWrongRetention.java"
-            line="28"
-            column="19"/>
+            file="src/main/java/sample/optin/ExperimentalJavaAnnotationWrongRetention.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="annotation class ExperimentalKotlinAnnotationWrongRetention"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/ExperimentalKotlinAnnotationWrongRetention.kt"
-            line="21"
-            column="18"/>
+            file="src/main/java/sample/optin/ExperimentalKotlinAnnotationWrongRetention.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    static class ConcreteExperimentalInterface implements ExperimentalInterface { // unsafe"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
-            line="34"
-            column="59"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        public void experimentalMethod() {} // unsafe override"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
-            line="36"
-            column="21"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        ExperimentalInterface anonymous = new ExperimentalInterface() { // unsafe"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
-            line="62"
-            column="47"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            public void experimentalMethod() {} // unsafe override"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
-            line="64"
-            column="25"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        ExperimentalInterface lambda = () -> {}; // unsafe"
         errorLine2="                                       ~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562469.java"
-            line="67"
-            column="40"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562469.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="        public void experimentalMethod() {} // unsafe override"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562926.java"
-            line="39"
-            column="21"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562926.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            public void experimentalMethod() {} // unsafe override"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562926.java"
-            line="49"
-            column="25"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562926.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        StableInterface lambda = () -> {}; // unsafe override"
         errorLine2="                                 ~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava192562926.java"
-            line="52"
-            column="34"/>
+            file="src/main/java/sample/optin/RegressionTestJava192562926.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        foo.defaultExperimentalMethod(); // unsafe in Java but safe in Kotlin"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
-            line="92"
-            column="13"/>
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="        foo.experimentalMethod(); // unsafe"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
-            line="93"
-            column="13"/>
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="        Bar bar = new Bar(); // unsafe"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
-            line="95"
-            column="19"/>
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="        bar.stableMethodLevelOptIn(); // unsafe due to experimental class scope"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
-            line="96"
-            column="13"/>
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="        bar.experimentalMethod(); // unsafe"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/RegressionTestJava193110413.java"
-            line="97"
-            column="13"/>
+            file="src/main/java/sample/optin/RegressionTestJava193110413.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="        AnnotatedJavaClass experimentalObject = new AnnotatedJavaClass();"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
-            line="31"
-            column="49"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="        return experimentalObject.field;"
         errorLine2="                                  ~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
-            line="32"
-            column="35"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="        AnnotatedJavaClass experimentalObject = new AnnotatedJavaClass();"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
-            line="39"
-            column="49"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="        return experimentalObject.method();"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
-            line="40"
-            column="35"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="        return AnnotatedJavaClass.FIELD_STATIC;"
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
-            line="47"
-            column="35"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="        return AnnotatedJavaClass.methodStatic();"
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"
-            line="54"
-            column="35"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalClassFromJava.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="        DateProvider dateProvider = new DateProvider();"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"
-            line="25"
-            column="37"/>
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="        return dateProvider.getDate();"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"
-            line="26"
-            column="29"/>
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="        LocationProvider locationProvider = new LocationProvider();"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"
-            line="53"
-            column="45"/>
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="        return dateProvider.getDate() + locationProvider.getLocation();"
         errorLine2="                                                         ~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"
-            line="54"
-            column="58"/>
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="        val experimentalObject = AnnotatedJavaClass()"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="28"
-            column="34"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="        val dateProvider = DateProvider()"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"
-            line="29"
-            column="28"/>
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="        return experimentalObject.field"
         errorLine2="                                  ~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="29"
-            column="35"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="        return dateProvider.date"
         errorLine2="                            ~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"
-            line="30"
-            column="29"/>
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="        val experimentalObject = AnnotatedJavaClass()"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="36"
-            column="34"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="        return experimentalObject.method()"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="37"
-            column="35"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="        return AnnotatedJavaClass.FIELD_STATIC"
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="44"
-            column="35"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="        return AnnotatedJavaClass.methodStatic()"
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="51"
-            column="35"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="        val locationProvider = LocationProvider()"
         errorLine2="                               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"
-            line="57"
-            column="32"/>
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="        return dateProvider.date + locationProvider.location"
         errorLine2="                                                    ~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"
-            line="58"
-            column="53"/>
+            file="src/main/java/sample/experimental/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="        return stableObject.field"
         errorLine2="                            ~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="77"
-            column="29"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="        return stableObject.method()"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="85"
-            column="29"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -414,9 +340,7 @@
         errorLine1="        return AnnotatedJavaMembers.FIELD_STATIC"
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="92"
-            column="37"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -425,9 +349,7 @@
         errorLine1="        return AnnotatedJavaMembers.methodStatic()"
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="99"
-            column="37"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -436,9 +358,7 @@
         errorLine1="        return experimentalObject.method() + AnnotatedJavaClass2.FIELD_STATIC"
         errorLine2="                                                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="108"
-            column="66"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -447,9 +367,7 @@
         errorLine1="        AnnotatedJavaMembers().field = -1"
         errorLine2="                               ~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="144"
-            column="32"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -458,9 +376,7 @@
         errorLine1="        AnnotatedJavaMembers().field = -1"
         errorLine2="                                       ~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="144"
-            column="40"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -469,9 +385,7 @@
         errorLine1="        val value = AnnotatedJavaMembers().field"
         errorLine2="                                           ~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="145"
-            column="44"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -480,9 +394,7 @@
         errorLine1="        AnnotatedJavaMembers().fieldWithSetMarker = -1"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="146"
-            column="32"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -491,9 +403,7 @@
         errorLine1="        AnnotatedJavaMembers().fieldWithSetMarker = -1"
         errorLine2="                                                    ~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"
-            line="146"
-            column="53"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalFromKt.kt"/>
     </issue>
 
     <issue
@@ -502,9 +412,7 @@
         errorLine1="        return stableObject.field;"
         errorLine2="                            ~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"
-            line="30"
-            column="29"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"/>
     </issue>
 
     <issue
@@ -513,9 +421,7 @@
         errorLine1="        return stableObject.method();"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"
-            line="38"
-            column="29"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"/>
     </issue>
 
     <issue
@@ -524,9 +430,7 @@
         errorLine1="        return AnnotatedJavaMembers.FIELD_STATIC;"
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"
-            line="45"
-            column="37"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"/>
     </issue>
 
     <issue
@@ -535,9 +439,7 @@
         errorLine1="        return AnnotatedJavaMembers.methodStatic();"
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"
-            line="52"
-            column="37"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"/>
     </issue>
 
     <issue
@@ -546,9 +448,7 @@
         errorLine1="        new AnnotatedJavaMembers().field = -1;"
         errorLine2="                                   ~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"
-            line="59"
-            column="36"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"/>
     </issue>
 
     <issue
@@ -557,9 +457,7 @@
         errorLine1="        new AnnotatedJavaMembers().field = -1;"
         errorLine2="                                           ~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"
-            line="59"
-            column="44"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"/>
     </issue>
 
     <issue
@@ -568,9 +466,7 @@
         errorLine1="        int value = new AnnotatedJavaMembers().field;"
         errorLine2="                                               ~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"
-            line="60"
-            column="48"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"/>
     </issue>
 
     <issue
@@ -579,9 +475,7 @@
         errorLine1="        new AnnotatedJavaMembers().setFieldWithSetMarker(-1);"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"
-            line="61"
-            column="36"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalMembersFromJava.java"/>
     </issue>
 
     <issue
@@ -590,9 +484,7 @@
         errorLine1="        AnnotatedJavaClass2 experimentalObject2 = new AnnotatedJavaClass2();"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalMultipleMarkersFromJava.java"
-            line="33"
-            column="51"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalMultipleMarkersFromJava.java"/>
     </issue>
 
     <issue
@@ -601,9 +493,7 @@
         errorLine1="        return experimentalObject.method() + experimentalObject2.field;"
         errorLine2="                                                                 ~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaExperimentalMultipleMarkersFromJava.java"
-            line="34"
-            column="66"/>
+            file="src/main/java/sample/optin/UseJavaExperimentalMultipleMarkersFromJava.java"/>
     </issue>
 
     <issue
@@ -612,9 +502,7 @@
         errorLine1="        Bar bar = new Bar();"
         errorLine2="                  ~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaPackageFromJava.java"
-            line="28"
-            column="19"/>
+            file="src/main/java/sample/experimental/UseJavaPackageFromJava.java"/>
     </issue>
 
     <issue
@@ -623,9 +511,7 @@
         errorLine1="        bar.baz();"
         errorLine2="            ~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaPackageFromJava.java"
-            line="29"
-            column="13"/>
+            file="src/main/java/sample/experimental/UseJavaPackageFromJava.java"/>
     </issue>
 
     <issue
@@ -634,9 +520,7 @@
         errorLine1="        AnnotatedJavaPackage experimentalObject = new AnnotatedJavaPackage();"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaPackageFromJava.java"
-            line="33"
-            column="51"/>
+            file="src/main/java/sample/optin/UseJavaPackageFromJava.java"/>
     </issue>
 
     <issue
@@ -645,9 +529,7 @@
         errorLine1="        experimentalObject.method();"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaPackageFromJava.java"
-            line="34"
-            column="28"/>
+            file="src/main/java/sample/optin/UseJavaPackageFromJava.java"/>
     </issue>
 
     <issue
@@ -656,9 +538,7 @@
         errorLine1="        callPackageExperimental();"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaPackageFromJava.java"
-            line="52"
-            column="9"/>
+            file="src/main/java/sample/experimental/UseJavaPackageFromJava.java"/>
     </issue>
 
     <issue
@@ -667,9 +547,7 @@
         errorLine1="        safePropagateMarker();"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaPackageFromJava.java"
-            line="67"
-            column="9"/>
+            file="src/main/java/sample/optin/UseJavaPackageFromJava.java"/>
     </issue>
 
     <issue
@@ -678,9 +556,7 @@
         errorLine1="        val experimentalObject = AnnotatedJavaPackage()"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaPackageFromKt.kt"
-            line="30"
-            column="34"/>
+            file="src/main/java/sample/optin/UseJavaPackageFromKt.kt"/>
     </issue>
 
     <issue
@@ -689,9 +565,7 @@
         errorLine1="        experimentalObject.method()"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaPackageFromKt.kt"
-            line="31"
-            column="28"/>
+            file="src/main/java/sample/optin/UseJavaPackageFromKt.kt"/>
     </issue>
 
     <issue
@@ -700,9 +574,7 @@
         errorLine1="        val bar = Bar()"
         errorLine2="                  ~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaPackageFromKt.kt"
-            line="32"
-            column="19"/>
+            file="src/main/java/sample/experimental/UseJavaPackageFromKt.kt"/>
     </issue>
 
     <issue
@@ -711,9 +583,7 @@
         errorLine1="        bar.baz()"
         errorLine2="            ~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaPackageFromKt.kt"
-            line="33"
-            column="13"/>
+            file="src/main/java/sample/experimental/UseJavaPackageFromKt.kt"/>
     </issue>
 
     <issue
@@ -722,9 +592,7 @@
         errorLine1="        callPackageExperimental()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseJavaPackageFromKt.kt"
-            line="56"
-            column="9"/>
+            file="src/main/java/sample/experimental/UseJavaPackageFromKt.kt"/>
     </issue>
 
     <issue
@@ -733,9 +601,7 @@
         errorLine1="        callPackageExperimental()"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseJavaPackageFromKt.kt"
-            line="64"
-            column="9"/>
+            file="src/main/java/sample/optin/UseJavaPackageFromKt.kt"/>
     </issue>
 
     <issue
@@ -744,9 +610,7 @@
         errorLine1="        sample.experimental.DateProviderKt dateProvider = new sample.experimental.DateProviderKt();"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"
-            line="25"
-            column="59"/>
+            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -755,9 +619,7 @@
         errorLine1="        return dateProvider.getDate();"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"
-            line="26"
-            column="29"/>
+            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -766,9 +628,7 @@
         errorLine1="        AnnotatedKotlinClass experimentalObject = new AnnotatedKotlinClass();"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"
-            line="28"
-            column="51"/>
+            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -777,9 +637,7 @@
         errorLine1="        return experimentalObject.method();"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"
-            line="29"
-            column="35"/>
+            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -788,9 +646,7 @@
         errorLine1="        LocationProviderKt locationProvider = new LocationProviderKt();"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"
-            line="54"
-            column="47"/>
+            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -799,9 +655,7 @@
         errorLine1="        return dateProvider.getDate() + locationProvider.getLocation();"
         errorLine2="                                                         ~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"
-            line="55"
-            column="58"/>
+            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -810,9 +664,7 @@
         errorLine1="        return experimentalObject.method() + AnnotatedKotlinClass2.fieldStatic;"
         errorLine2="                                                                   ~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"
-            line="56"
-            column="68"/>
+            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -821,9 +673,7 @@
         errorLine1="        TimeProviderKt.getTimeStatically();"
         errorLine2="                       ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"
-            line="88"
-            column="24"/>
+            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -832,9 +682,7 @@
         errorLine1="        TimeProviderKt.Companion.getTimeStatically();"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"
-            line="89"
-            column="34"/>
+            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -843,9 +691,7 @@
         errorLine1="        new TimeProviderKt().getTime();"
         errorLine2="                             ~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"
-            line="96"
-            column="30"/>
+            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -854,9 +700,7 @@
         errorLine1="        new TimeProviderKt().getTimeJava();"
         errorLine2="                             ~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"
-            line="97"
-            column="30"/>
+            file="src/main/java/sample/experimental/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -865,9 +709,7 @@
         errorLine1="        AnnotatedKotlinMembers.methodStatic();"
         errorLine2="                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"
-            line="97"
-            column="32"/>
+            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -876,9 +718,7 @@
         errorLine1="        AnnotatedKotlinMembers.Companion.methodStatic();"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"
-            line="98"
-            column="42"/>
+            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -887,9 +727,7 @@
         errorLine1="        new AnnotatedKotlinMembers().method();"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"
-            line="107"
-            column="38"/>
+            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -898,9 +736,7 @@
         errorLine1="        new AnnotatedKotlinMembers().methodWithJavaMarker();"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"
-            line="108"
-            column="38"/>
+            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"/>
     </issue>
 
     <issue
@@ -909,9 +745,7 @@
         errorLine1="        new AnnotatedKotlinMembers().setFieldWithSetMarker(-1);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"
-            line="117"
-            column="38"/>
+            file="src/main/java/sample/optin/UseKtExperimentalFromJava.java"/>
     </issue>
 
 </issues>

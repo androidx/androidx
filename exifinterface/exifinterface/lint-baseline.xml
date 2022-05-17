@@ -7,9 +7,7 @@
         errorLine1="    public void setGpsInfo(Location location) {"
         errorLine2="                           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
-            line="5062"
-            column="28"/>
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"/>
     </issue>
 
 </issues>

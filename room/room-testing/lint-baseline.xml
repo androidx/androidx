@@ -7,9 +7,7 @@
         errorLine1="    protected void starting(Description description) {"
         errorLine2="                            ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="211"
-            column="29"/>
+            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public SupportSQLiteDatabase createDatabase(String name, int version) throws IOException {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="228"
-            column="12"/>
+            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public SupportSQLiteDatabase createDatabase(String name, int version) throws IOException {"
         errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="228"
-            column="49"/>
+            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public SupportSQLiteDatabase runMigrationsAndValidate(String name, int version,"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="293"
-            column="12"/>
+            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public SupportSQLiteDatabase runMigrationsAndValidate(String name, int version,"
         errorLine2="                                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="293"
-            column="59"/>
+            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            boolean validateDroppedTables, Migration... migrations) throws IOException {"
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="294"
-            column="44"/>
+            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    protected void finished(Description description) {"
         errorLine2="                            ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="416"
-            column="29"/>
+            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public void closeWhenFinished(SupportSQLiteDatabase db) {"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="443"
-            column="35"/>
+            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public void closeWhenFinished(RoomDatabase db) {"
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="460"
-            column="35"/>
+            file="src/main/java/androidx/room/testing/MigrationTestHelper.java"/>
     </issue>
 
 </issues>

@@ -7,9 +7,7 @@
         errorLine1="            @NonNull LifecycleOwner lifecycle, @NonNull LiveData&lt;T> liveData) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/lifecycle/LiveDataReactiveStreams.java"
-            line="55"
-            column="48"/>
+            file="src/main/java/androidx/lifecycle/LiveDataReactiveStreams.java"/>
     </issue>
 
 </issues>

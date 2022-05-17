@@ -7,9 +7,7 @@
         errorLine1="            final TypedArray aa = getContext().obtainStyledAttributes(COLOR_BACKGROUND_ATTR);"
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/cardview/widget/CardView.java"
-            line="133"
-            column="71"/>
+            file="src/main/java/androidx/cardview/widget/CardView.java"/>
     </issue>
 
 </issues>

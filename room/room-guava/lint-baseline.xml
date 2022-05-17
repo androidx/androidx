@@ -7,9 +7,7 @@
         errorLine1="            final boolean releaseQuery) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="59"
-            column="13"/>
+            file="src/main/java/androidx/room/guava/GuavaRoom.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            final boolean releaseQuery) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="76"
-            column="13"/>
+            file="src/main/java/androidx/room/guava/GuavaRoom.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            final @Nullable CancellationSignal cancellationSignal) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="107"
-            column="13"/>
+            file="src/main/java/androidx/room/guava/GuavaRoom.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public static &lt;T> ListenableFuture&lt;T> createListenableFuture("
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="86"
-            column="23"/>
+            file="src/main/java/androidx/room/guava/GuavaRoom.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="            final RoomDatabase roomDatabase,"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="87"
-            column="19"/>
+            file="src/main/java/androidx/room/guava/GuavaRoom.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            final Callable&lt;T> callable,"
         errorLine2="                  ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="89"
-            column="19"/>
+            file="src/main/java/androidx/room/guava/GuavaRoom.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="            final RoomSQLiteQuery query,"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/guava/GuavaRoom.java"
-            line="90"
-            column="19"/>
+            file="src/main/java/androidx/room/guava/GuavaRoom.java"/>
     </issue>
 
 </issues>

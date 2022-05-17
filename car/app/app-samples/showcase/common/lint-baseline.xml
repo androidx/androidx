@@ -7,9 +7,7 @@
         errorLine1="                                        context.startForegroundService(intent);"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/car/app/sample/showcase/common/navigation/NavigationNotificationsDemoScreen.java"
-            line="59"
-            column="49"/>
+            file="src/main/java/androidx/car/app/sample/showcase/common/navigation/NavigationNotificationsDemoScreen.java"/>
     </issue>
 
 </issues>
