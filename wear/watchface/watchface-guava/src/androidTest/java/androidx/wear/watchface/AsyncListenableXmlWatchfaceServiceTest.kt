@@ -50,8 +50,9 @@ private class TestAsyncXmlListenableWatchFaceService(
 
     override fun getXmlWatchFaceResourceId() = R.xml.xml_watchface
 
-    override fun getComplicationSlotInflationFactory() =
-        object : ComplicationSlotInflationFactory() {
+    override fun getComplicationSlotInflationFactory(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = object : ComplicationSlotInflationFactory() {
             override fun getCanvasComplicationFactory(
                 slotId: Int
             ) = CanvasComplicationFactory { watchState, invalidateCallback ->

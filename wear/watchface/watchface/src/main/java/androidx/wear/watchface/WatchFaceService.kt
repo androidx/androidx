@@ -444,7 +444,7 @@ public abstract class WatchFaceService : WallpaperService() {
     ): ComplicationSlotsManager =
         xmlSchemaAndComplicationSlotsDefinition.buildComplicationSlotsManager(
             currentUserStyleRepository,
-            getComplicationSlotInflationFactory()
+            getComplicationSlotInflationFactory(currentUserStyleRepository)
         )
 
     /**
@@ -457,9 +457,30 @@ public abstract class WatchFaceService : WallpaperService() {
      * for your WatchFaceService 's manifest, and your XML includes <ComplicationSlot> tags then you
      * must override this method.
      */
+    @Deprecated(
+        "Use the version with currentUserStyleRepository argument instead",
+        ReplaceWith("getComplicationSlotInflationFactory" +
+            "(currentUserStyleRepository: CurrentUserStyleRepository)")
+    )
     @WorkerThread
     protected open fun getComplicationSlotInflationFactory(): ComplicationSlotInflationFactory? =
         null
+
+    /**
+     * Used when inflating [ComplicationSlot]s from XML to provide a
+     * [ComplicationSlotInflationFactory] which provides the [CanvasComplicationFactory] and where
+     * necessary edge complication [ComplicationTapFilter]s needed for inflating
+     * [ComplicationSlot]s.
+     *
+     * If an androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition metadata tag is defined
+     * for your WatchFaceService 's manifest, and your XML includes <ComplicationSlot> tags then you
+     * must override this method.
+     */
+    @Suppress("DEPRECATION")
+    @WorkerThread
+    protected open fun getComplicationSlotInflationFactory(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): ComplicationSlotInflationFactory? = getComplicationSlotInflationFactory()
 
     /**
      * If the WatchFaceService's manifest doesn't define a
