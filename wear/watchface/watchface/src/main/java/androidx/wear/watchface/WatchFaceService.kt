@@ -1277,12 +1277,18 @@ public abstract class WatchFaceService : WallpaperService() {
         @UiThread
         internal fun ambientTickUpdate(): Unit = TraceEvent("EngineWrapper.ambientTickUpdate").use {
             if (mutableWatchState.isAmbient.value!!) {
-                ambientUpdateWakelock.acquire()
-                // It's unlikely an ambient tick would be sent to a watch face that hasn't loaded
-                // yet. The watch face will render at least once upon loading so we don't need to do
-                // anything special here.
-                draw()
                 ambientUpdateWakelock.acquire(SURFACE_DRAW_TIMEOUT_MS)
+                try {
+                    // It's unlikely an ambient tick would be sent to a watch face that hasn't
+                    // loaded yet (if that did happen then draw would be a NOP). The watch face will
+                    // render at least once upon loading so we don't need to do anything special
+                    // here.
+                    draw()
+                } catch (t: Throwable) {
+                    Log.e(TAG, "ambientTickUpdate failed", t)
+                } finally {
+                    ambientUpdateWakelock.release()
+                }
             }
         }
 
