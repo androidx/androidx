@@ -16,7 +16,6 @@
 package androidx.health.connect.client.aggregate
 
 import java.time.Duration
-import kotlin.reflect.KClass
 
 /**
  * Identifier to supported metrics for aggregation.
@@ -26,10 +25,8 @@ import kotlin.reflect.KClass
  */
 class AggregateMetric<T : Any>
 internal constructor(
-    /**
-     * Return type of aggregation, such as `Long`, `Double`, `Duration` etc. Internal to SDK only.
-     */
-    internal val type: KClass<T>,
+    /** Converter from a raw value to the resulting type [T]. Internal to SDK only. */
+    internal val converter: Converter<*, T>,
     /**
      * Data type name of the aggregation, such as `Nutrition`, `Speed` etc. Internal to SDK only.
      */
@@ -41,6 +38,13 @@ internal constructor(
      */
     internal val aggregationField: String?
 ) {
+
+    /** Converts a raw type [T] to a resulting type [R]. Internal for SDK use only. */
+    internal sealed interface Converter<in T : Any, out R : Any> : (T) -> R {
+        fun interface FromLong<out R : Any> : Converter<Long, R>
+        fun interface FromDouble<out R : Any> : Converter<Double, R>
+    }
+
     /** Supported aggregation types. Internal for SDK use only. */
     internal enum class AggregationType(
         /** Serialization string for the aggregation type. */
@@ -59,44 +63,88 @@ internal constructor(
          * Creates a metric with type [Duration] that sum up duration of intervals. Internal for SDK
          * use only.
          */
-        internal fun durationMetric(dataTypeName: String): AggregateMetric<Duration> {
-            return AggregateMetric(
-                Duration::class,
-                dataTypeName,
+        internal fun durationMetric(dataTypeName: String): AggregateMetric<Duration> =
+            AggregateMetric(
+                converter = Converter.FromLong(Duration::ofMillis),
+                dataTypeName = dataTypeName,
                 aggregationType = AggregationType.DURATION,
-                aggregationField = null
+                aggregationField = null,
             )
-        }
+
+        internal fun durationMetric(
+            dataTypeName: String,
+            aggregationType: AggregationType,
+            fieldName: String
+        ): AggregateMetric<Duration> =
+            AggregateMetric(
+                converter = Converter.FromLong(Duration::ofMillis),
+                dataTypeName = dataTypeName,
+                aggregationType = aggregationType,
+                aggregationField = fieldName,
+            )
 
         /** Creates a metric with type [Double]. Internal for SDK use only. */
         internal fun doubleMetric(
             dataTypeName: String,
             aggregationType: AggregationType,
             fieldName: String
-        ): AggregateMetric<Double> {
-            return AggregateMetric(Double::class, dataTypeName, aggregationType, fieldName)
-        }
+        ): AggregateMetric<Double> =
+            AggregateMetric(
+                converter = Converter.FromDouble { it },
+                dataTypeName = dataTypeName,
+                aggregationType = aggregationType,
+                aggregationField = fieldName,
+            )
+
+        internal fun <R : Any> doubleMetric(
+            dataTypeName: String,
+            aggregationType: AggregationType,
+            fieldName: String,
+            mapper: (Double) -> R,
+        ): AggregateMetric<R> =
+            AggregateMetric(
+                converter = Converter.FromDouble(mapper),
+                dataTypeName = dataTypeName,
+                aggregationType = aggregationType,
+                aggregationField = fieldName,
+            )
 
         /** Creates a metric with type [Long]. Internal for SDK use only. */
         internal fun longMetric(
             dataTypeName: String,
             aggregationType: AggregationType,
             fieldName: String
-        ): AggregateMetric<Long> {
-            return AggregateMetric(Long::class, dataTypeName, aggregationType, fieldName)
-        }
+        ): AggregateMetric<Long> =
+            AggregateMetric(
+                converter = Converter.FromLong { it },
+                dataTypeName = dataTypeName,
+                aggregationType = aggregationType,
+                aggregationField = fieldName,
+            )
+
+        internal fun <R : Any> longMetric(
+            dataTypeName: String,
+            aggregationType: AggregationType,
+            fieldName: String,
+            mapper: (Long) -> R,
+        ): AggregateMetric<R> =
+            AggregateMetric(
+                converter = Converter.FromLong(mapper),
+                dataTypeName = dataTypeName,
+                aggregationType = aggregationType,
+                aggregationField = fieldName,
+            )
 
         /**
          * Creates a [AggregateMetric] returning sample or record counts. Internal for SDK use only.
          */
-        internal fun countMetric(dataTypeName: String): AggregateMetric<Long> {
-            return AggregateMetric(
-                Long::class,
-                dataTypeName,
-                AggregationType.COUNT,
-                aggregationField = null
+        internal fun countMetric(dataTypeName: String): AggregateMetric<Long> =
+            AggregateMetric(
+                converter = Converter.FromLong { it },
+                dataTypeName = dataTypeName,
+                aggregationType = AggregationType.COUNT,
+                aggregationField = null,
             )
-        }
     }
 
     internal val metricKey: String
