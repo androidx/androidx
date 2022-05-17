@@ -283,6 +283,8 @@ public final class Recorder implements VideoOutput {
     private static final int AUDIO_CACHE_SIZE = 60;
     @VisibleForTesting
     static final EncoderFactory DEFAULT_ENCODER_FACTORY = EncoderImpl::new;
+    private static final Executor AUDIO_EXECUTOR =
+            CameraXExecutors.newSequentialExecutor(CameraXExecutors.ioExecutor());
 
     private final MutableStateObservable<StreamInfo> mStreamInfo;
     // Used only by getExecutor()
@@ -1261,7 +1263,11 @@ public final class Recorder implements VideoOutput {
         AudioSource.Settings audioSourceSettings =
                 resolveAudioSourceSettings(audioMimeInfo, mediaSpec.getAudioSpec());
         try {
+            if (mAudioSource != null) {
+                releaseCurrentAudioSource();
+            }
             mAudioSource = setupAudioSource(recordingToStart, audioSourceSettings);
+            Logger.d(TAG, String.format("Set up new audio source: 0x%x", mAudioSource.hashCode()));
         } catch (AudioSourceAccessException e) {
             throw new ResourceCreationException(e);
         }
@@ -1290,33 +1296,32 @@ public final class Recorder implements VideoOutput {
             throws AudioSourceAccessException {
 
         AudioSource audioSource = recordingToStart.performOneTimeAudioSourceCreation(
-                audioSourceSettings, CameraXExecutors.ioExecutor());
-
-        audioSource.setAudioSourceCallback(mSequentialExecutor,
-                new AudioSource.AudioSourceCallback() {
-                    @Override
-                    public void onSilenced(boolean silenced) {
-                        if (mIsAudioSourceSilenced != silenced) {
-                            mIsAudioSourceSilenced = silenced;
-                            mAudioErrorCause = silenced ? new IllegalStateException(
-                                    "The audio source has been silenced.") : null;
-                            updateInProgressStatusEvent();
-                        } else {
-                            Logger.w(TAG, "Audio source silenced transitions to the same state "
-                                    + silenced);
-                        }
-                    }
-
-                    @Override
-                    public void onError(@NonNull Throwable throwable) {
-                        if (throwable instanceof AudioSourceAccessException) {
-                            setAudioState(AudioState.DISABLED);
-                            updateInProgressStatusEvent();
-                        }
-                    }
-                });
+                audioSourceSettings, AUDIO_EXECUTOR);
 
         return audioSource;
+    }
+
+    private void releaseCurrentAudioSource() {
+        if (mAudioSource == null) {
+            throw new AssertionError("Cannot release null audio source.");
+        }
+        AudioSource audioSource = mAudioSource;
+        mAudioSource = null;
+        Logger.d(TAG, String.format("Releasing audio source: 0x%x", audioSource.hashCode()));
+        // Run callback on direct executor since it is only logging
+        Futures.addCallback(audioSource.release(), new FutureCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void result) {
+                Logger.d(TAG, String.format("Released audio source successfully: 0x%x",
+                        audioSource.hashCode()));
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Logger.d(TAG, String.format("An error occurred while attempting to "
+                        + "release audio source: 0x%x", audioSource.hashCode()));
+            }
+        }, CameraXExecutors.directExecutor());
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -1611,7 +1616,7 @@ public final class Recorder implements VideoOutput {
                 break;
         }
 
-        initEncoderCallbacks(recordingToStart);
+        initEncoderAndAudioSourceCallbacks(recordingToStart);
         if (isAudioEnabled()) {
             mAudioSource.start();
             mAudioEncoder.start();
@@ -1624,7 +1629,7 @@ public final class Recorder implements VideoOutput {
     }
 
     @ExecutedBy("mSequentialExecutor")
-    private void initEncoderCallbacks(@NonNull RecordingRecord recordingToStart) {
+    private void initEncoderAndAudioSourceCallbacks(@NonNull RecordingRecord recordingToStart) {
         mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
                 completer -> {
                     mVideoEncoder.setEncoderCallback(new EncoderCallback() {
@@ -1723,6 +1728,43 @@ public final class Recorder implements VideoOutput {
         if (isAudioEnabled()) {
             mEncodingFutures.add(CallbackToFutureAdapter.getFuture(
                     completer -> {
+                        Consumer<Throwable> audioErrorConsumer = throwable -> {
+                            if (mAudioErrorCause == null) {
+                                // If the audio source or encoder encounters error, update the
+                                // status event to notify users. Then continue recording without
+                                // audio data.
+                                setAudioState(AudioState.ERROR);
+                                mAudioErrorCause = throwable;
+                                updateInProgressStatusEvent();
+                                completer.set(null);
+                            }
+                        };
+
+                        mAudioSource.setAudioSourceCallback(mSequentialExecutor,
+                                new AudioSource.AudioSourceCallback() {
+                                    @Override
+                                    public void onSilenced(boolean silenced) {
+                                        if (mIsAudioSourceSilenced != silenced) {
+                                            mIsAudioSourceSilenced = silenced;
+                                            mAudioErrorCause = silenced ? new IllegalStateException(
+                                                    "The audio source has been silenced.") : null;
+                                            updateInProgressStatusEvent();
+                                        } else {
+                                            Logger.w(TAG, "Audio source silenced transitions"
+                                                    + " to the same state " + silenced);
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onError(@NonNull Throwable throwable) {
+                                        Logger.e(TAG, "Error occurred after audio source started.",
+                                                throwable);
+                                        if (throwable instanceof AudioSourceAccessException) {
+                                            audioErrorConsumer.accept(throwable);
+                                        }
+                                    }
+                                });
+
                         mAudioEncoder.setEncoderCallback(new EncoderCallback() {
                             @ExecutedBy("mSequentialExecutor")
                             @Override
@@ -1739,12 +1781,9 @@ public final class Recorder implements VideoOutput {
                             @ExecutedBy("mSequentialExecutor")
                             @Override
                             public void onEncodeError(@NonNull EncodeException e) {
-                                // If the audio encoder encounters error, update the status event
-                                // to notify users. Then continue recording without audio data.
-                                setAudioState(AudioState.ERROR);
-                                mAudioErrorCause = e;
-                                updateInProgressStatusEvent();
-                                completer.set(null);
+                                if (mAudioErrorCause == null) {
+                                    audioErrorConsumer.accept(e);
+                                }
                             }
 
                             @ExecutedBy("mSequentialExecutor")
@@ -2005,9 +2044,7 @@ public final class Recorder implements VideoOutput {
             mVideoOutputConfig = null;
         }
         if (mAudioSource != null) {
-            Logger.d(TAG, "Releasing audio source.");
-            mAudioSource.release();
-            mAudioSource = null;
+            releaseCurrentAudioSource();
         }
 
         setAudioState(AudioState.INITIALIZING);
@@ -2122,6 +2159,7 @@ public final class Recorder implements VideoOutput {
                 // Fall-through
             case ACTIVE:
                 setAudioState(AudioState.IDLING);
+                mAudioSource.stop();
                 break;
             case ERROR:
                 // Reset audio state to INITIALIZING if the audio encoder encountered error, so

@@ -46,9 +46,11 @@ import androidx.camera.video.internal.compat.Api24Impl;
 import androidx.camera.video.internal.compat.Api29Impl;
 import androidx.camera.video.internal.compat.Api31Impl;
 import androidx.camera.video.internal.encoder.InputBuffer;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -252,7 +254,7 @@ public final class AudioSource {
                     }
                     break;
                 case RELEASED:
-                    throw new IllegalStateException("AudioRecorder is released");
+                    throw new AssertionError("AudioRecorder is released");
             }
         });
     }
@@ -266,8 +268,6 @@ public final class AudioSource {
      *
      * <p>Audio data will start being sent to the {@link BufferProvider} when
      * {@link BufferProvider}'s state is {@link BufferProvider.State#ACTIVE}.
-     *
-     * @throws IllegalStateException if the AudioSource is released.
      */
     public void start() {
         mExecutor.execute(() -> {
@@ -280,7 +280,7 @@ public final class AudioSource {
                     // Do nothing
                     break;
                 case RELEASED:
-                    throw new IllegalStateException("AudioRecorder is released");
+                    throw new AssertionError("AudioRecorder is released");
             }
         });
     }
@@ -289,8 +289,6 @@ public final class AudioSource {
      * Stops the AudioSource.
      *
      * <p>Audio data will stop being sent to the {@link BufferProvider}.
-     *
-     * @throws IllegalStateException if it is released.
      */
     public void stop() {
         mExecutor.execute(() -> {
@@ -303,7 +301,8 @@ public final class AudioSource {
                     // Do nothing
                     break;
                 case RELEASED:
-                    throw new IllegalStateException("AudioRecorder is released");
+                    Logger.w(TAG, "AudioRecorder is released. "
+                            + "Calling stop() is a no-op.");
             }
         });
     }
@@ -313,25 +312,35 @@ public final class AudioSource {
      *
      * <p>Once the AudioSource is released, it can not be used any more.
      */
-    public void release() {
-        mExecutor.execute(() -> {
-            switch (mState) {
-                case STARTED:
-                    // Fall-through
-                case CONFIGURED:
-                    resetBufferProvider(null);
-                    if (Build.VERSION.SDK_INT >= 29) {
-                        Api29Impl.unregisterAudioRecordingCallback(mAudioRecord,
-                                mAudioRecordingCallback);
+    @NonNull
+    public ListenableFuture<Void> release() {
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            mExecutor.execute(() -> {
+                try {
+                    switch (mState) {
+                        case STARTED:
+                            // Fall-through
+                        case CONFIGURED:
+                            resetBufferProvider(null);
+                            if (Build.VERSION.SDK_INT >= 29) {
+                                Api29Impl.unregisterAudioRecordingCallback(mAudioRecord,
+                                        mAudioRecordingCallback);
+                            }
+                            mAudioRecord.release();
+                            stopSendingAudio();
+                            setState(RELEASED);
+                            break;
+                        case RELEASED:
+                            // Do nothing
+                            break;
                     }
-                    mAudioRecord.release();
-                    stopSendingAudio();
-                    setState(RELEASED);
-                    break;
-                case RELEASED:
-                    // Do nothing
-                    break;
-            }
+                    completer.set(null);
+                } catch (Throwable t) {
+                    completer.setException(t);
+                }
+            });
+
+            return "AudioSource-release";
         });
     }
 
@@ -354,7 +363,7 @@ public final class AudioSource {
                 case STARTED:
                     // Fall-through
                 case RELEASED:
-                    throw new IllegalStateException("The audio recording callback must be "
+                    throw new AssertionError("The audio recording callback must be "
                             + "registered before the audio source is started.");
             }
         });
