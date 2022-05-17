@@ -39,14 +39,14 @@ import java.util.Locale
  * A SupportSQLiteOpenHelper that has auto close enabled for database connections.
  */
 internal class AutoClosingRoomOpenHelper(
-    private val delegateOpenHelper: SupportSQLiteOpenHelper,
+    override val delegate: SupportSQLiteOpenHelper,
     @JvmField
     internal val autoCloser: AutoCloser
-) : SupportSQLiteOpenHelper by delegateOpenHelper, DelegatingOpenHelper {
+) : SupportSQLiteOpenHelper by delegate, DelegatingOpenHelper {
     private val autoClosingDb: AutoClosingSupportSQLiteDatabase
 
     init {
-        autoCloser.init(delegateOpenHelper)
+        autoCloser.init(delegate)
         autoClosingDb = AutoClosingSupportSQLiteDatabase(
             autoCloser
         )
@@ -74,10 +74,6 @@ internal class AutoClosingRoomOpenHelper(
         } catch (e: IOException) {
             SneakyThrow.reThrow(e)
         }
-    }
-
-    override fun getDelegate(): SupportSQLiteOpenHelper {
-        return delegateOpenHelper
     }
 
     /**

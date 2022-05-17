@@ -812,6 +812,10 @@ public abstract class RoomDatabase {
             mJournalMode = JournalMode.AUTOMATIC;
             mRequireMigration = true;
             mMigrationContainer = new MigrationContainer();
+            // TODO:(b/218894771) Initialize these as empty lists here for now, will be updated once
+            //  RoomDatabase is in Kotlin
+            mTypeConverters = new ArrayList<>();
+            mAutoMigrationSpecs = new ArrayList<>();
         }
 
         /**

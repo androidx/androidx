@@ -22,7 +22,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 import java.util.concurrent.Executor
 
 internal class QueryInterceptorOpenHelper(
-    private val delegate: SupportSQLiteOpenHelper,
+    override val delegate: SupportSQLiteOpenHelper,
     private val queryCallbackExecutor: Executor,
     private val queryCallback: RoomDatabase.QueryCallback
 ) : SupportSQLiteOpenHelper by delegate, DelegatingOpenHelper {
@@ -40,9 +40,5 @@ internal class QueryInterceptorOpenHelper(
             queryCallbackExecutor,
             queryCallback
         )
-    }
-
-   override fun getDelegate(): SupportSQLiteOpenHelper {
-        return delegate
     }
 }
