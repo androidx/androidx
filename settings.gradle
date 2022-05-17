@@ -657,6 +657,7 @@ includeProject(":metrics:metrics-integration-tests:janktest", "metrics/integrati
 includeProject(":navigation:navigation-benchmark", [BuildType.MAIN, BuildType.FLAN])
 includeProject(":navigation:navigation-common", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":navigation:navigation-common-ktx", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":navigation:navigation-common-lint", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
 includeProject(":navigation:navigation-compose", [BuildType.COMPOSE])
 includeProject(":navigation:navigation-compose:navigation-compose-samples", "navigation/navigation-compose/samples", [BuildType.COMPOSE])
 includeProject(":navigation:navigation-compose:integration-tests:navigation-demos", [BuildType.COMPOSE])
