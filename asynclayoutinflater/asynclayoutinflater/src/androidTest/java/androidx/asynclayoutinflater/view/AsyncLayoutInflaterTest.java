@@ -33,6 +33,7 @@ import org.junit.runner.RunWith;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@SuppressWarnings("deprecation")
 public class AsyncLayoutInflaterTest {
     @Rule
     public ActivityScenarioRule<TestActivity> testActivityRule =
@@ -51,7 +52,7 @@ public class AsyncLayoutInflaterTest {
     }
 
     @Test
-    public void incorrectAsyncInflaterView_forButton() throws Exception {
+    public void incorrectAsyncInflaterView_forButton_withDeprecatedAPI() throws Exception {
         SettableFuture<View> asyncInflatedViewFuture = SettableFuture.create();
         mAsyncLayoutInflater.inflate(R.layout.test_button, null, (view, resId, parent) -> {
             asyncInflatedViewFuture.set(view);
@@ -60,5 +61,20 @@ public class AsyncLayoutInflaterTest {
         View inflatedView = LayoutInflater.from(mActivity).inflate(
                 R.layout.test_button, null, false);
         Assert.assertNotSame(asyncInflatedView.getClass(), inflatedView.getClass());
+    }
+
+    @Test
+    public void correctAsyncInflaterView_forButton() throws Exception {
+        SettableFuture<View> asyncInflatedViewFuture = SettableFuture.create();
+        mAsyncLayoutInflater.inflateWithOriginalFactory(R.layout.test_button, null,
+                (view, resId, parent) -> {
+                    asyncInflatedViewFuture.set(view);
+                });
+
+        View asyncInflatedView = asyncInflatedViewFuture.get();
+        View inflatedView = LayoutInflater.from(mActivity).inflate(
+                R.layout.test_button, null, false);
+
+        Assert.assertSame(asyncInflatedView.getClass(), inflatedView.getClass());
     }
 }
