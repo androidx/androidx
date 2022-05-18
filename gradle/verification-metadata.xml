@@ -321,11 +321,7 @@
          <trusted-key id="a5b2dde7843e7ca3e8caabd02383163bc40844fd" group="org.reactivestreams" name="reactive-streams"/>
          <trusted-key id="a5bd02b93e7a40482eb1d66a5f69ad087600b22c" group="org.ow2.asm"/>
          <trusted-key id="a6adfc93ef34893e" group="org.hamcrest"/>
-         <trusted-key id="a6d6c97108b8585f91b158748671a8df71296252">
-            <trusting group="com.squareup"/>
-            <trusting group="com.squareup.okio"/>
-            <trusting group="^com[.]squareup($|([.].*))" regex="true"/>
-         </trusted-key>
+         <trusted-key id="a6d6c97108b8585f91b158748671a8df71296252" group="^com[.]squareup($|([.].*))" regex="true"/>
          <trusted-key id="a730529ca355a63e" group="org.ccil.cowan.tagsoup"/>
          <trusted-key id="a7764f502a938c99" group="com.google.protobuf"/>
          <trusted-key id="a7892505cf1a58076453e52d7999befba1039e8b" group="net.bytebuddy"/>
@@ -406,6 +402,7 @@
          <trusted-key id="d790f72ea8fd39551012b62dcf9f3090ce4cb752" group="org.abego.treelayout" name="org.abego.treelayout.core"/>
          <trusted-key id="da7a1bb85b19e4fb05073431205c8673dc742c7c" group="org.apache.maven"/>
          <trusted-key id="db0597e3144342256bc81e3ec727d053c4481cf5" group="org.tensorflow"/>
+         <trusted-key id="dbd744ace7ade6aa50dd591f66b50994442d2d40" group="com.squareup.okio"/>
          <trusted-key id="dddafa7674e54418" group="org.testng"/>
          <trusted-key id="e0130a3ed5a2079e" group="org.webjars"/>
          <trusted-key id="e0cb7823cfd00fbf" group="com.jakewharton.android.repackaged"/>
