@@ -21,7 +21,7 @@ import androidx.health.connect.client.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
-/** Each record represents the binary result of an ovulation test (positive or negative). */
+/** Each record represents the result of an ovulation test. */
 public class OvulationTest(
     /**
      * The result of a user's ovulation test, which shows if they're ovulating or not. Required
@@ -53,14 +53,32 @@ public class OvulationTest(
         return result
     }
 
-    /** The result of a user's ovulation test, which shows if they're ovulating or not. */
+    /** The result of a user's ovulation test. */
     object Result {
-        const val NEGATIVE = "negative"
+        /**
+         * Positive fertility (may also be referred as "peak" fertility). Refers to the peak of the
+         * luteinizing hormone (LH) surge and ovulation is expected to occur in 10-36 hours.
+         */
         const val POSITIVE = "positive"
+        /**
+         * High fertility. Refers to a rise in estrogen or luteinizing hormone that may signal the
+         * fertile window (time in the menstrual cycle when conception is likely to occur).
+         */
+        const val HIGH = "high"
+        /**
+         * Negative fertility (may also be referred as "low" fertility). Refers to the time in the
+         * cycle where fertility/conception is expected to be low.
+         */
+        const val NEGATIVE = "negative"
+        /**
+         * Inconclusive result. Refers to ovulation test results that are indeterminate (e.g. may be
+         * testing malfunction, user error, etc.). "
+         */
+        const val INCONCLUSIVE = "inconclusive"
     }
 
     /**
-     * The result of a user's ovulation test, which shows if they're ovulating or not.
+     * The result of a user's ovulation test.
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
@@ -69,6 +87,8 @@ public class OvulationTest(
             [
                 Result.NEGATIVE,
                 Result.POSITIVE,
+                Result.INCONCLUSIVE,
+                Result.HIGH,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
