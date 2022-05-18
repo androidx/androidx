@@ -389,13 +389,13 @@ internal class InteractiveWatchFaceClientImpl internal constructor(
     }
 
     override val contentDescriptionLabels: List<ContentDescriptionLabel>
-        get() = iInteractiveWatchFace.contentDescriptionLabels.map {
+        get() = iInteractiveWatchFace.contentDescriptionLabels?.map {
             ContentDescriptionLabel(
                 it.text.toApiComplicationText(),
                 it.bounds,
                 it.tapAction
             )
-        }
+        } ?: emptyList()
 
     override fun setWatchUiState(
         watchUiState: androidx.wear.watchface.client.WatchUiState
