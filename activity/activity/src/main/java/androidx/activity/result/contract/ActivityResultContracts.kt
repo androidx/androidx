@@ -622,8 +622,15 @@ class ActivityResultContracts private constructor() {
              */
             @JvmStatic
             fun isPhotoPickerAvailable(): Boolean {
-                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ||
+                return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    true
+                } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    // getExtension is seen as part of Android Tiramisu only while the SdkExtensions
+                    // have been added on Android R
                     getExtensionVersion(Build.VERSION_CODES.R) >= 2
+                } else {
+                    false
+                }
             }
 
             internal fun getVisualMimeType(input: VisualMediaType): String? {
