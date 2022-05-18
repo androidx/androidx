@@ -51,7 +51,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 27
+        minSdkVersion 26
     }
     buildFeatures {
         aidl = true
