@@ -18,6 +18,8 @@ package androidx.window.sample
 
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
@@ -26,8 +28,10 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
-import androidx.window.sample.infolog.InfoLogAdapter
 import androidx.window.sample.databinding.ActivityDisplayFeaturesNoConfigChangeBinding
+import androidx.window.sample.infolog.InfoLogAdapter
+import androidx.window.sample.util.PictureInPictureUtil.appendPictureInPictureMenu
+import androidx.window.sample.util.PictureInPictureUtil.handlePictureInPictureMenuItem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -63,6 +67,18 @@ class DisplayFeaturesNoConfigChangeActivity : AppCompatActivity() {
                         updateCurrentState(newLayoutInfo)
                     }
             }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        appendPictureInPictureMenu(menuInflater, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when {
+            handlePictureInPictureMenuItem(this, item) -> true
+            else -> super.onOptionsItemSelected(item)
         }
     }
 
