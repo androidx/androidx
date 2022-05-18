@@ -1060,6 +1060,29 @@ class WatchFaceControlClientTest {
         assertThat(contentDescriptionLabels[4].tapAction).isEqualTo(pendingIntent2)
     }
 
+    @Test
+    fun contentDescriptionLabels_after_close() {
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of InteractiveWatchFaceClient.
+        createEngine()
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        assertThat(interactiveInstance.contentDescriptionLabels).isNotEmpty()
+        interactiveInstance.close()
+        assertThat(interactiveInstance.contentDescriptionLabels).isEmpty()
+    }
+
     @SuppressLint("NewApi") // renderWatchFaceToBitmap
     @Test
     fun updateInstance() {
