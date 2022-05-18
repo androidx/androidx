@@ -78,6 +78,10 @@ gradleEnterprise {
             value("BUILD_NUMBER", buildNumber)
             link("ci.android.com build", "https://ci.android.com/builds/branches/aosp-androidx-main/grid?head=$buildNumber&tail=$buildNumber")
         }
+        value("androidx.compose.multiplatformEnabled", isMultiplatformEnabled().toString())
+        value("androidx.projects", getRequestedProjectSubsetName() ?: "Unset")
+        value("androidx.useMaxDepVersions", providers.gradleProperty("androidx.useMaxDepVersions").isPresent().toString())
+
         publishAlways()
         publishIfAuthenticated()
     }
