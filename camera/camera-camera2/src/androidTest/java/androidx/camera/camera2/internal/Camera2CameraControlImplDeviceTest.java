@@ -48,7 +48,6 @@ import android.graphics.Rect;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -121,6 +120,7 @@ public final class Camera2CameraControlImplDeviceTest {
     private HandlerThread mHandlerThread;
     private Handler mHandler;
     private CameraCharacteristics mCameraCharacteristics;
+    private CameraCharacteristicsCompat mCameraCharacteristicsCompat;
     private boolean mHasFlashUnit;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraUseCaseAdapter mCamera;
@@ -145,9 +145,9 @@ public final class Camera2CameraControlImplDeviceTest {
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
-        CameraCharacteristicsCompat cameraCharacteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCameraCharacteristics);
-        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristicsCompat,
+        mCameraCharacteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                mCameraCharacteristics);
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristicsCompat,
                 executorService, executorService, mControlUpdateCallback);
 
         mCamera2CameraControlImpl.incrementUseCount();
@@ -172,9 +172,7 @@ public final class Camera2CameraControlImplDeviceTest {
     }
 
     private boolean isAndroidRZoomEnabled() {
-        return (Build.VERSION.SDK_INT >= 30
-                && mCameraCharacteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
-                != null);
+        return ZoomControl.isAndroidRZoomSupported(mCameraCharacteristicsCompat);
     }
 
     private int getMaxAfRegionCount() {

@@ -32,7 +32,6 @@ import android.graphics.Rect;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -84,6 +83,7 @@ public final class ZoomControlDeviceTest {
     private HandlerThread mHandlerThread;
     private ControlUpdateCallback mControlUpdateCallback;
     private CameraCharacteristics mCameraCharacteristics;
+    private CameraCharacteristicsCompat mCameraCharacteristicsCompat;
     private Handler mHandler;
 
     @Before
@@ -107,9 +107,9 @@ public final class ZoomControlDeviceTest {
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
-        CameraCharacteristicsCompat cameraCharacteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCameraCharacteristics);
-        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristicsCompat,
+        mCameraCharacteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                mCameraCharacteristics);
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristicsCompat,
                 executorService, executorService, mControlUpdateCallback);
 
         mZoomControl = mCamera2CameraControlImpl.getZoomControl();
@@ -129,9 +129,7 @@ public final class ZoomControlDeviceTest {
     }
 
     private boolean isAndroidRZoomEnabled() {
-        return (Build.VERSION.SDK_INT >= 30
-                && mCameraCharacteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
-                != null);
+        return ZoomControl.isAndroidRZoomSupported(mCameraCharacteristicsCompat);
     }
 
     @Test
