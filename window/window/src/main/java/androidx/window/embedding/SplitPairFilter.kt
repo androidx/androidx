@@ -33,18 +33,21 @@ class SplitPairFilter(
     /**
      * Component name of the primary activity in the split. Must be non-empty. Can contain a single
      * wildcard at the end.
-     * Supported formats: "package/class", "package&#47;&#42;", "package/suffix.&#42;",
-     * "&#42;&#47;&#42;"
+     * Supported formats:
+     * - package/class
+     * - `package/*`
+     * - `package/suffix.*`
+     * - `*/*`
      */
     val primaryActivityName: ComponentName,
     /**
      * Component name in the intent for the secondary activity in the split. Must be non-empty.
      * Can contain a single wildcard at the end.
      * Supported formats:
-     * <li>package/class</li>
-     * <li>package/\*</li>
-     * <li>package/suffix.\*</li>
-     * <li>\*\/\*</li>
+     * - package/class
+     * - `package/*`
+     * - `package/suffix.*`
+     * - `*/*`
      */
     val secondaryActivityName: ComponentName,
     /**
