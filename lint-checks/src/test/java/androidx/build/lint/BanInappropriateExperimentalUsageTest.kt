@@ -46,16 +46,21 @@ class BanInappropriateExperimentalUsageTest : AbstractLintDetectorTest(
 
     @Test
     fun `Check if annotation is always allowed`() {
+        /* ktlint-disable max-line-length */
 
-        // List of Kotlin stdlib experimental annotations used in AndroidX
+        // These annotations are used in AndroidX
+        assertTrue(isAnnotationAlwaysAllowed("com.google.devtools.ksp.KspExperimental"))
         assertTrue(isAnnotationAlwaysAllowed("kotlin.contracts.ExperimentalContracts"))
         assertTrue(isAnnotationAlwaysAllowed("kotlin.ExperimentalStdlibApi"))
         assertTrue(isAnnotationAlwaysAllowed("kotlin.experimental.ExperimentalTypeInference"))
         assertTrue(isAnnotationAlwaysAllowed("kotlinx.coroutines.DelicateCoroutinesApi"))
         assertTrue(isAnnotationAlwaysAllowed("kotlinx.coroutines.ExperimentalCoroutinesApi"))
+        assertTrue(isAnnotationAlwaysAllowed("org.jetbrains.kotlin.extensions.internal.InternalNonStableExtensionPoints"))
+        assertTrue(isAnnotationAlwaysAllowed("org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI"))
 
         assertFalse(isAnnotationAlwaysAllowed("androidx.foo.bar"))
         assertFalse(isAnnotationAlwaysAllowed("com.google.foo.bar"))
+        /* ktlint-enable max-line-length */
     }
 
     @Test

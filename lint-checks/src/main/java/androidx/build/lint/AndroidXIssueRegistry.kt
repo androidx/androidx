@@ -42,6 +42,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 BanParcelableUsage.ISSUE,
                 BanConcurrentHashMap.ISSUE,
                 BanInappropriateExperimentalUsage.ISSUE,
+                BanInappropriateExperimentalUsage.NULL_ANNOTATION_GROUP_ISSUE,
                 BanKeepAnnotation.ISSUE,
                 TargetApiAnnotationUsageDetector.ISSUE,
                 // If you add more SampledAnnotationDetector issues here, you
