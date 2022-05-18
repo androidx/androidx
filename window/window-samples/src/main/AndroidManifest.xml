@@ -32,12 +32,14 @@
         <activity
             android:name=".DisplayFeaturesConfigChangeActivity"
             android:exported="false"
+            android:supportsPictureInPicture="true"
             android:configChanges=
                 "orientation|screenSize|screenLayout|screenSize|layoutDirection|smallestScreenSize"
             android:label="@string/display_features_config_change" />
         <activity
             android:name=".DisplayFeaturesNoConfigChangeActivity"
             android:exported="false"
+            android:supportsPictureInPicture="true"
             android:label="@string/display_features_no_config_change" />
         <activity
             android:name=".SplitLayoutActivity"
