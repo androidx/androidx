@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -400,6 +401,7 @@ public fun ScalingLazyColumn(
             state.anchorType.value = anchorType
             state.autoCentering.value = autoCentering
             state.reverseLayout.value = reverseLayout
+            state.localInspectionMode.value = LocalInspectionMode.current
 
             LazyColumn(
                 modifier = Modifier
