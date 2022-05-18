@@ -22,6 +22,7 @@ package androidx.wear.watchface.complications
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.RectF
+import android.util.TypedValue
 import androidx.annotation.RestrictTo
 import androidx.wear.watchface.complications.data.ComplicationType
 import java.io.DataOutputStream
@@ -193,13 +194,28 @@ internal fun XmlResourceParser.requireAndGet(
     id: String,
     resources: Resources
 ): Float {
-    require(null != getAttributeValue(NAMESPACE_APP, id)) {
+    val stringValue = getAttributeValue(NAMESPACE_APP, id)
+    require(null != stringValue) {
         "${ComplicationSlotBounds.NODE_NAME} must define '$id'"
     }
 
     val resId = getAttributeResourceValue(NAMESPACE_APP, id, 0)
     if (resId != 0) {
         return resources.getDimension(resId) / resources.displayMetrics.widthPixels
+    }
+
+    // There is "dp" -> "dip" conversion while resources compilation.
+    val dpStr = "dip"
+
+    if (stringValue.endsWith(dpStr)) {
+        val dps = stringValue.substring(0, stringValue.length - dpStr.length).toFloat()
+        return TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            dps,
+            resources.displayMetrics
+        ) / resources.displayMetrics.widthPixels
+    } else {
+        stringValue.toFloat()
     }
 
     return getAttributeFloatValue(NAMESPACE_APP, id, 0f)

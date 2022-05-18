@@ -91,8 +91,9 @@ class TestXmlWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
-    override fun getComplicationSlotInflationFactory() =
-        object : ComplicationSlotInflationFactory() {
+    override fun getComplicationSlotInflationFactory(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = object : ComplicationSlotInflationFactory() {
             override fun getCanvasComplicationFactory(slotId: Int): CanvasComplicationFactory {
                 return CanvasComplicationFactory { _, _ ->
                     object : CanvasComplication {
