@@ -182,6 +182,13 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         issue: Issue,
         atomicGroupList: List<String>,
     ) {
+
+        // Experimental annotations are permitted if they are in the allowlist
+        val annotationQualifiedName = annotation.getQualifiedName()
+        if (annotationQualifiedName != null && isAnnotationAlwaysAllowed(annotationQualifiedName)) {
+            return
+        }
+
         val evaluator = context.evaluator
 
         // The location where the annotation is used
@@ -189,20 +196,27 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         val usageGroupId = usageCoordinates?.groupId
 
         // The location where the annotation is declared
-        // TODO (b/222554358): annotationGroup is (unexpectedly) null sometimes; fix this
-        val annotationCoordinates = evaluator.getLibraryLocalMode(annotation) ?: return
+        val annotationCoordinates = evaluator.getLibraryLocalMode(annotation)
+
+        // TODO (b/222554358): annotationCoordinates is sometimes null; report this
+        if (annotationCoordinates == null) {
+            Incident(context)
+                .issue(NULL_ANNOTATION_GROUP_ISSUE)
+                .at(usage)
+                .message(
+                    "Could not find associated group for annotation " +
+                        "${annotation.getQualifiedName()}, which is used in " +
+                        "${context.project.mavenCoordinate.groupId}."
+                )
+                .report()
+            return
+        }
+
         val annotationGroupId = annotationCoordinates.groupId
 
         val isUsedInSameGroup = usageCoordinates.groupId == annotationCoordinates.groupId
         val isUsedInSameArtifact = usageCoordinates.artifactId == annotationCoordinates.artifactId
         val isAtomic = atomicGroupList.contains(usageGroupId)
-
-        val annotationQualifiedName = annotation.getQualifiedName()
-        val isAnnotationAllowed = if (annotationQualifiedName != null) {
-            isAnnotationAlwaysAllowed(annotationQualifiedName)
-        } else {
-            false
-        }
 
         /**
          * Usage of experimental APIs is allowed in either of the following conditions:
@@ -210,11 +224,9 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
          * - Both the group ID and artifact ID in `usageCoordinates` and
          *   `annotationCoordinates` match
          * - The group IDs match, and that group ID is atomic
-         * - The annotation being used is is an allowlist
          */
         if ((isUsedInSameGroup && isUsedInSameArtifact) ||
-            (isUsedInSameGroup && isAtomic) ||
-            isAnnotationAllowed) return
+            (isUsedInSameGroup && isAtomic)) return
 
         // Log inappropriate experimental usage
         if (DEBUG) {
@@ -298,14 +310,29 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
             ),
         )
 
+        val NULL_ANNOTATION_GROUP_ISSUE = Issue.create(
+            id = "NullAnnotationGroup",
+            briefDescription = "Maven group associated with an annotation could not be found",
+            explanation = "An annotation's group could not be found using `getProject` or " +
+                "`getLibrary`.",
+            category = Category.CORRECTNESS,
+            priority = 5,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                BanInappropriateExperimentalUsage::class.java,
+                Scope.JAVA_FILE_SCOPE,
+            ),
+        )
+
         /**
          * Checks to see if the given annotation is always allowed for use in @OptIn.
-         * For now, allow Kotlin all stdlib experimental annotations.
          */
         internal fun isAnnotationAlwaysAllowed(annotation: String): Boolean {
             val allowedExperimentalAnnotations = listOf(
+                Regex("com\\.google\\.devtools\\.ksp\\.KspExperimental"),
                 Regex("kotlin\\..*"),
                 Regex("kotlinx\\..*"),
+                Regex("org.jetbrains.kotlin\\..*"),
             )
             return allowedExperimentalAnnotations.any {
                 annotation.matches(it)
