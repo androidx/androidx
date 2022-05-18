@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
@@ -126,6 +127,7 @@ public final class TravelEstimate {
      * @see Builder#setTripText(CarText)
      */
     @Nullable
+    @RequiresCarApi(5)
     public CarText getTripText() {
         return mTripText;
     }
@@ -136,6 +138,7 @@ public final class TravelEstimate {
      * @see Builder#setTripIcon(CarIcon)
      */
     @Nullable
+    @RequiresCarApi(5)
     public CarIcon getTripIcon() {
         return mTripIcon;
     }
@@ -342,6 +345,7 @@ public final class TravelEstimate {
          */
         // TODO(b/221086935): Document the ColorSpan requirement once we have the UX spec
         @NonNull
+        @RequiresCarApi(5)
         public Builder setTripText(@NonNull CarText tripText) {
             mTripText = requireNonNull(tripText);
             CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(mTripText);
@@ -358,6 +362,7 @@ public final class TravelEstimate {
          */
         // TODO(b/221086935): Document the image size requirement once we have the UX spec
         @NonNull
+        @RequiresCarApi(5)
         public Builder setTripIcon(@NonNull CarIcon tripIcon) {
             CarIconConstraints.DEFAULT.validateOrThrow(requireNonNull(tripIcon));
             mTripIcon = tripIcon;
