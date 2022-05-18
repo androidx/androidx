@@ -30,7 +30,6 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 import android.util.ArrayMap;
 import android.util.Rational;
-import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -390,9 +389,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     }
 
     @Override
-    public void addZslConfig(@NonNull Size resolution,
-            @NonNull SessionConfig.Builder sessionConfigBuilder) {
-        mZslControl.addZslConfig(resolution, sessionConfigBuilder);
+    public void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder) {
+        mZslControl.addZslConfig(sessionConfigBuilder);
     }
 
     @Override

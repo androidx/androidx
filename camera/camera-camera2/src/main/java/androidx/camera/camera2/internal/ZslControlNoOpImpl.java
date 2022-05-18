@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.internal;
 
-import android.util.Size;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageProxy;
@@ -28,8 +26,7 @@ import androidx.camera.core.impl.SessionConfig;
  */
 public class ZslControlNoOpImpl implements ZslControl {
     @Override
-    public void addZslConfig(@NonNull Size resolution,
-            @NonNull SessionConfig.Builder sessionConfigBuilder) {
+    public void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder) {
     }
 
     @Override
