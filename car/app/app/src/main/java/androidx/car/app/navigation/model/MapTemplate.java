@@ -216,7 +216,28 @@ public final class MapTemplate implements Template {
         /**
          * Sets the {@link Pane} for this template.
          *
-         * @throws NullPointerException if {@code pane} is null
+         * {@link Pane#getImage()} for pane will not be shown in {@link MapTemplate}.
+         *
+         * <p>Unless set with this method, the template will not show a pane.
+         *
+         * <h4>Requirements</h4>
+         *
+         * The number of items in the {@link Pane} should be smaller or equal than the limit
+         * provided by
+         * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_PANE}.
+         * The host via {@link Row.Builder#addText} and cannot contain either a {@link Toggle} or a
+         * {@link OnClickListener}.
+         *
+         * <p>Up to 2 {@link Action}s are allowed in the {@link Pane}. Each action's title color
+         * can be customized with {@link ForegroundCarColorSpan} instances. Any other span is
+         * not supported.
+         *
+         * <p>If none of the header {@link Action}, the header title or the action strip have
+         * been set on the template, the header is hidden.
+         *
+         * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
+         * @throws NullPointerException     if {@code pane} is null
+         * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull
         public Builder setPane(@NonNull Pane pane) {
