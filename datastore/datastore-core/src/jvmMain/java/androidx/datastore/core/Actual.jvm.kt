@@ -19,7 +19,10 @@
 package androidx.datastore.core
 
 import androidx.annotation.RestrictTo
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 
 /**
  * Common IOException mapped to java.io.Exception in jvm code.
@@ -37,3 +40,15 @@ internal actual class AtomicInt {
     actual fun get(): Int = delegate.get()
     actual fun incrementAndGet(): Int = delegate.incrementAndGet()
 }
+
+internal actual class AtomicBoolean actual constructor(initialValue: Boolean) {
+    private val delegate: java.util.concurrent.atomic.AtomicBoolean = AtomicBoolean(initialValue)
+
+    actual fun get(): Boolean = delegate.get()
+
+    actual fun set(value: Boolean) {
+        delegate.set(value)
+    }
+}
+
+internal actual fun ioDispatcher(): CoroutineDispatcher = Dispatchers.IO
