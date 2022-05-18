@@ -73,40 +73,46 @@ fun DemoApp(
     onNavigateTo: (Demo) -> Unit,
     onNavigateBack: () -> Unit,
 ) {
-    DisplayDemo(currentDemo, parentDemo, onNavigateTo, onNavigateBack)
+    val swipeToDismissState = swipeDismissStateWithNavigation(onNavigateBack)
+    DisplayDemo(swipeToDismissState, currentDemo, parentDemo, onNavigateTo, onNavigateBack)
 }
 
 @Composable
 private fun DisplayDemo(
-    demo: Demo,
+    state: SwipeToDismissBoxState,
+    currentDemo: Demo,
     parentDemo: Demo?,
     onNavigateTo: (Demo) -> Unit,
     onNavigateBack: () -> Unit
 ) {
-    val swipeToDismissState = swipeDismissStateWithNavigation(onNavigateBack)
-
     SwipeToDismissBox(
-        state = swipeToDismissState,
+        state = state,
         hasBackground = parentDemo != null,
         backgroundKey = parentDemo?.title ?: SwipeToDismissKeys.Background,
-        contentKey = demo.title,
+        contentKey = currentDemo.title,
     ) { isBackground ->
-        if (isBackground) {
-            if (parentDemo != null) {
-                DisplayDemo(parentDemo, null, onNavigateTo, onNavigateBack)
-            }
-        } else {
-            when (demo) {
-                is ActivityDemo<*> -> {
-                    /* should never get here as activity demos are not added to the backstack*/
-                }
-                is ComposableDemo -> {
-                    demo.content(DemoParameters(onNavigateBack, swipeToDismissState))
-                }
-                is DemoCategory -> {
-                    DisplayDemoList(demo, onNavigateTo)
-                }
-            }
+        BoxDemo(state, if (isBackground) parentDemo else currentDemo, onNavigateTo, onNavigateBack)
+    }
+}
+
+@Composable
+private fun BoxScope.BoxDemo(
+    state: SwipeToDismissBoxState,
+    demo: Demo?,
+    onNavigateTo: (Demo) -> Unit,
+    onNavigateBack: () -> Unit
+) {
+    when (demo) {
+        is ActivityDemo<*> -> {
+            /* should never get here as activity demos are not added to the backstack*/
+        }
+        is ComposableDemo -> {
+            demo.content(DemoParameters(onNavigateBack, state))
+        }
+        is DemoCategory -> {
+            DisplayDemoList(demo, onNavigateTo)
+        }
+        else -> {
         }
     }
 }
