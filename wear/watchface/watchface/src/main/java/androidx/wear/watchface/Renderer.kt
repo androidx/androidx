@@ -493,7 +493,7 @@ public sealed class Renderer @WorkerThread constructor(
      * with [RenderParameters.HighlightLayer.backgroundTint] before [renderHighlightLayer] is
      * called. Defaults to `false`.
      */
-    @Deprecated(message = "use CanvasRenderer2 instead")
+    @Deprecated(message = "CanvasRenderer is deprecated", ReplaceWith("CanvasRenderer2"))
     public abstract class CanvasRenderer @WorkerThread @JvmOverloads constructor(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
@@ -873,7 +873,7 @@ public sealed class Renderer @WorkerThread constructor(
      * default this is empty.
      * @throws [GlesException] If any GL calls fail during initialization.
      */
-    @Deprecated(message = "use GlesRenderer2 instead")
+    @Deprecated(message = "GlesRenderer is deprecated", ReplaceWith("GlesRenderer2"))
     public abstract class GlesRenderer
     @Throws(GlesException::class)
     @JvmOverloads
