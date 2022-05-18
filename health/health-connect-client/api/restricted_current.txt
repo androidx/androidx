@@ -490,33 +490,33 @@ package androidx.health.connect.client.records {
   }
 
   public final class CervicalMucusRecord implements androidx.health.connect.client.records.InstantaneousRecord {
-    ctor public CervicalMucusRecord(optional String? texture, optional String? amount, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
-    method public String? getAmount();
+    ctor public CervicalMucusRecord(optional String? appearance, optional String? sensation, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public String? getAppearance();
     method public androidx.health.connect.client.metadata.Metadata getMetadata();
-    method public String? getTexture();
+    method public String? getSensation();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final String? amount;
+    property public final String? appearance;
     property public androidx.health.connect.client.metadata.Metadata metadata;
-    property public final String? texture;
+    property public final String? sensation;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
   }
 
-  public static final class CervicalMucusRecord.Amount {
-    field public static final String HEAVY = "heavy";
-    field public static final androidx.health.connect.client.records.CervicalMucusRecord.Amount INSTANCE;
-    field public static final String LIGHT = "light";
-    field public static final String MEDIUM = "medium";
-  }
-
-  public static final class CervicalMucusRecord.Texture {
+  public static final class CervicalMucusRecord.Appearance {
     field public static final String CLEAR = "clear";
     field public static final String CREAMY = "creamy";
     field public static final String DRY = "dry";
-    field public static final androidx.health.connect.client.records.CervicalMucusRecord.Texture INSTANCE;
+    field public static final androidx.health.connect.client.records.CervicalMucusRecord.Appearance INSTANCE;
     field public static final String STICKY = "sticky";
     field public static final String WATERY = "watery";
+  }
+
+  public static final class CervicalMucusRecord.Sensation {
+    field public static final String HEAVY = "heavy";
+    field public static final androidx.health.connect.client.records.CervicalMucusRecord.Sensation INSTANCE;
+    field public static final String LIGHT = "light";
+    field public static final String MEDIUM = "medium";
   }
 
   public final class CyclingPedalingCadence {
