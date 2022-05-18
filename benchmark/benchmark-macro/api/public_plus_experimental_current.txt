@@ -68,6 +68,7 @@ package androidx.benchmark.macro {
   public final class MacrobenchmarkScope {
     ctor public MacrobenchmarkScope(String packageName, boolean launchWithClearTask);
     method public void dropKernelPageCache();
+    method public void dropShaderCache();
     method public androidx.test.uiautomator.UiDevice getDevice();
     method public Integer? getIteration();
     method public String getPackageName();
