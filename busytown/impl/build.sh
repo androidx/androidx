@@ -63,6 +63,7 @@ function run() {
 # export some variables
 ANDROID_HOME=../../prebuilts/fullsdk-linux
 
+BUILD_STATUS=0
 # enable remote build cache unless explicitly disabled
 if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
   export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
@@ -90,8 +91,10 @@ else
       cd -
     fi
   fi
-  exit 1
+  BUILD_STATUS=1 # failure
 fi
 
 # check that no unexpected modifications were made to the source repository, such as new cache directories
 DIST_DIR=$DIST_DIR $SCRIPT_DIR/verify_no_caches_in_source_repo.sh $BUILD_START_MARKER
+
+exit "$BUILD_STATUS"
