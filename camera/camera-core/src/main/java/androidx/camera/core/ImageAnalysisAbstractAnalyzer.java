@@ -359,10 +359,11 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
 
     void setAnalyzer(@Nullable Executor userExecutor,
             @Nullable ImageAnalysis.Analyzer subscribedAnalyzer) {
+        // Keep clearCache out of mAnalyzerLock critical section to avoid deadlock.
+        if (subscribedAnalyzer == null) {
+            clearCache();
+        }
         synchronized (mAnalyzerLock) {
-            if (subscribedAnalyzer == null) {
-                clearCache();
-            }
             mSubscribedAnalyzer = subscribedAnalyzer;
             mUserExecutor = userExecutor;
         }
