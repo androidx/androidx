@@ -374,7 +374,8 @@ package androidx.wear.watchface {
     method @WorkerThread protected androidx.wear.watchface.style.UserStyleSchema createUserStyleSchema();
     method @WorkerThread protected abstract suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace>);
     method public final android.os.Handler getBackgroundThreadHandler();
-    method @WorkerThread protected androidx.wear.watchface.ComplicationSlotInflationFactory? getComplicationSlotInflationFactory();
+    method @Deprecated @WorkerThread protected androidx.wear.watchface.ComplicationSlotInflationFactory? getComplicationSlotInflationFactory();
+    method @WorkerThread protected androidx.wear.watchface.ComplicationSlotInflationFactory? getComplicationSlotInflationFactory(androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
     method public final android.os.Handler getUiThreadHandler();
     method public final android.service.wallpaper.WallpaperService.Engine onCreateEngine();
     method @MainThread public void onWatchFaceInstanceDeleted(String instanceId);

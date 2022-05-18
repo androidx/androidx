@@ -23,21 +23,21 @@
         <!-- The type of complication. Required if per-complication type bounds are used. -->
         <attr name="complicationType"/>
         <!-- Complication top bound coordinate. -->
-        <attr name="top" format="float|reference" />
+        <attr name="top" format="float|reference|dimension" />
         <!-- Complication bottom bound coordinate. -->
-        <attr name="bottom" format="float|reference" />
+        <attr name="bottom" format="float|reference|dimension" />
         <!-- Complication left bound coordinate. -->
-        <attr name="left" format="float|reference" />
+        <attr name="left" format="float|reference|dimension" />
         <!-- Complication right bound coordinate. -->
-        <attr name="right" format="float|reference" />
+        <attr name="right" format="float|reference|dimension" />
 
         <!-- Complication center X position. -->
-        <attr name="center_x" format="float|reference" />
+        <attr name="center_x" format="float|reference|dimension" />
         <!-- Complication center Y position. -->
-        <attr name="center_y" format="float|reference" />
+        <attr name="center_y" format="float|reference|dimension" />
         <!-- Complication width. -->
-        <attr name="size_x" format="float|reference" />
+        <attr name="size_x" format="float|reference|dimension" />
         <!-- Complication height. -->
-        <attr name="size_y" format="float|reference" />
+        <attr name="size_y" format="float|reference|dimension" />
     </declare-styleable>
 </resources>
