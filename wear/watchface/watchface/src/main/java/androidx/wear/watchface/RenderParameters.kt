@@ -100,6 +100,9 @@ public class RenderParameters @JvmOverloads constructor(
     /**
      * Whether or not we're rendering for a screenshot. Some watch faces with animations may need to
      * make adjustments when a screen shot is taken to achieve the best result.
+     *
+     * Note [Renderer.CanvasRenderer2] and [Renderer.CanvasRenderer] always use software rendering
+     * for screenshots.
      */
     public var isForScreenshot: Boolean = false
       internal set
