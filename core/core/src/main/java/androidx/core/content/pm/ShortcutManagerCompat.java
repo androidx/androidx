@@ -594,7 +594,7 @@ public class ShortcutManagerCompat {
      * Compatibility behavior:
      * <ul>
      *      <li>API 25 and above, this method matches platform behavior.
-     *      <li>API 24 and earlier, this method behalves the same as {@link #removeDynamicShortcuts}
+     *      <li>API 24 and earlier, this method behaves the same as {@link #removeDynamicShortcuts}
      * </ul>
      *
      * @throws IllegalArgumentException If trying to disable immutable shortcuts.
@@ -623,7 +623,7 @@ public class ShortcutManagerCompat {
      * Compatibility behavior:
      * <ul>
      *      <li>API 25 and above, this method matches platform behavior.
-     *      <li>API 24 and earlier, this method behalves the same as {@link #addDynamicShortcuts}
+     *      <li>API 24 and earlier, this method behaves the same as {@link #addDynamicShortcuts}
      * </ul>
      *
      * @throws IllegalArgumentException If trying to enable immutable shortcuts.
@@ -691,7 +691,7 @@ public class ShortcutManagerCompat {
      * Compatibility behavior:
      * <ul>
      *      <li>API 30 and above, this method matches platform behavior.
-     *      <li>API 29 and earlier, this method behalves the same as {@link #removeDynamicShortcuts}
+     *      <li>API 29 and earlier, this method behaves the same as {@link #removeDynamicShortcuts}
      * </ul>
      *
      * @throws IllegalStateException when the user is locked.
