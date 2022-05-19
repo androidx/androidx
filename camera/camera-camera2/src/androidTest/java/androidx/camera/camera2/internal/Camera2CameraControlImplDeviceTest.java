@@ -48,6 +48,7 @@ import android.graphics.Rect;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -269,7 +270,15 @@ public final class Camera2CameraControlImplDeviceTest {
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_AUTO_FLASH);
         assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(
                 ImageCapture.FLASH_MODE_AUTO);
-        assertThat(mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isTrue();
+        // ZSL only support API >= 23. ZslControlImpl will be created for API >= 23, otherwise
+        // ZslControlNoOpImpl will be created, which always return false for this flag.
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertThat(
+                    mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isTrue();
+        } else {
+            assertThat(
+                    mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isFalse();
+        }
     }
 
     @Test
@@ -303,7 +312,15 @@ public final class Camera2CameraControlImplDeviceTest {
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_ALWAYS_FLASH);
 
         assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
-        assertThat(mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isTrue();
+        // ZSL only support API >= 23. ZslControlImpl will be created for API >= 23, otherwise
+        // ZslControlNoOpImpl will be created, which always return false for this flag.
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertThat(
+                    mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isTrue();
+        } else {
+            assertThat(
+                    mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isFalse();
+        }
     }
 
     @Test
