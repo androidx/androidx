@@ -21,16 +21,19 @@ import android.os.SystemClock
 import android.view.Surface
 import android.view.SurfaceControl
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-import org.junit.Ignore
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -39,7 +42,12 @@ import org.junit.runner.RunWith
 @RequiresApi(Build.VERSION_CODES.Q)
 @SdkSuppress(minSdkVersion = 29)
 class SurfaceControlCompatTest {
-    var executor = InstrumentationRegistry.getInstrumentation().context.mainExecutor
+    var executor: Executor? = null
+
+    @Before
+    fun setup() {
+        executor = Executors.newSingleThreadExecutor(Executors.defaultThreadFactory())
+    }
 
     @Test
     fun testCreateFromWindow() {
@@ -126,19 +134,29 @@ class SurfaceControlCompatTest {
         }
     }
 
-    @Ignore("b/233214549")
     @Test
     fun testSurfaceTransactionOnCompleteCallback() {
         val listener = TransactionOnCompleteListener()
 
-        SurfaceControlCompat.Transaction()
-            .addTransactionCompletedListener(executor, listener)
-            .commit()
+        val scenario = ActivityScenario.launch(SurfaceControlCompatTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
 
-        listener.mLatch.await(3, TimeUnit.SECONDS)
+        try {
+            scenario.onActivity {
+                SurfaceControlCompat.Transaction()
+                    .addTransactionCompletedListener(executor!!, listener)
+                    .commit()
+            }
 
-        assertEquals(0, listener.mLatch.count)
-        assertTrue(listener.mCallbackTime > 0)
+            scenario.moveToState(Lifecycle.State.RESUMED)
+
+            listener.mLatch.await(3, TimeUnit.SECONDS)
+            assertEquals(0, listener.mLatch.count)
+            assertTrue(listener.mCallbackTime > 0)
+        } finally {
+            // ensure activity is destroyed after any failures
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
@@ -147,7 +165,7 @@ class SurfaceControlCompatTest {
         val listener = TransactionOnCommitListener()
 
         SurfaceControlCompat.Transaction()
-            .addTransactionCommittedListener(executor, listener)
+            .addTransactionCommittedListener(executor!!, listener)
             .commit()
 
         listener.mLatch.await(3, TimeUnit.SECONDS)
@@ -163,8 +181,8 @@ class SurfaceControlCompatTest {
         val listener2 = TransactionOnCommitListener()
 
         SurfaceControlCompat.Transaction()
-            .addTransactionCommittedListener(executor, listener)
-            .addTransactionCommittedListener(executor, listener2)
+            .addTransactionCommittedListener(executor!!, listener)
+            .addTransactionCommittedListener(executor!!, listener2)
             .commit()
 
         listener.mLatch.await(3, TimeUnit.SECONDS)
@@ -184,8 +202,8 @@ class SurfaceControlCompatTest {
         val listener2 = TransactionOnCompleteListener()
 
         SurfaceControlCompat.Transaction()
-            .addTransactionCommittedListener(executor, listener1)
-            .addTransactionCompletedListener(executor, listener2)
+            .addTransactionCommittedListener(executor!!, listener1)
+            .addTransactionCompletedListener(executor!!, listener2)
             .commit()
 
         listener1.mLatch.await(3, TimeUnit.SECONDS)
