@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -125,6 +126,7 @@ class SurfaceControlCompatTest {
         }
     }
 
+    @Ignore("b/233214549")
     @Test
     fun testSurfaceTransactionOnCompleteCallback() {
         val listener = TransactionOnCompleteListener()
