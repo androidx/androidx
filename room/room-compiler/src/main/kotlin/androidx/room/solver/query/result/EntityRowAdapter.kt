@@ -44,7 +44,7 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
 
     private val indexAdapter = object : IndexAdapter {
 
-        private lateinit var indexVars: List<ColumnIndexVar>
+        private var indexVars: List<ColumnIndexVar>? = null
 
         override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
             indexVars = entity.columnNames.map {
@@ -58,7 +58,7 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
             }
         }
 
-        override fun getIndexVars() = indexVars
+        override fun getIndexVars() = indexVars ?: emptyList()
     }
 
     override fun onCursorReady(
@@ -66,7 +66,11 @@ class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) 
         cursorVarName: String,
         scope: CodeGenScope
     ) {
-        if (indices.isNotEmpty()) {
+        // Check if given indices are the default ones, i.e. onCursorReady() was called without
+        // an indices argument and these are the default parameter ones, which means a wrapped
+        // cursor is not needed since the generated entity cursor converter has access to the
+        // original cursor.
+        if (indices.isNotEmpty() && indices != indexAdapter.getIndexVars()) {
             // Due to entity converter code being shared and using Cursor.getColumnIndex() we can't
             // generate code that uses the mapping directly. Instead we create a wrapped Cursor that is
             // solely used in the shared converter method and whose getColumnIndex() is overridden

@@ -15,10 +15,11 @@
  */
 
 package foo.bar;
-import androidx.room.*;
-import java.util.List;
 import androidx.lifecycle.LiveData;
+import androidx.room.*;
+import androidx.sqlite.db.SupportSQLiteQuery;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.util.List;
 
 @Dao
 abstract class ComplexDao {
@@ -81,4 +82,7 @@ abstract class ComplexDao {
     @RewriteQueriesToDropUnusedColumns
     @Query("SELECT * FROM User")
     abstract public List<UserSummary> getUserNames();
+
+    @RawQuery(observedEntities = User.class)
+    abstract public User getUserViaRawQuery(SupportSQLiteQuery rawQuery);
 }

@@ -18,8 +18,8 @@
 
 package androidx.room.util
 
-import android.database.AbstractCursor
 import android.database.Cursor
+import android.database.CursorWrapper
 import android.database.MatrixCursor
 import android.os.Build
 import android.util.Log
@@ -170,7 +170,7 @@ inline fun <R> Cursor.useCursor(block: (Cursor) -> R): R {
  */
 fun wrapMappedColumns(cursor: Cursor, columnNames: Array<String>, mapping: IntArray): Cursor {
     check(columnNames.size == mapping.size) { "Expected columnNames.length == mapping.length" }
-    return object : AbstractCursor() {
+    return object : CursorWrapper(cursor) {
         override fun getColumnIndex(columnName: String): Int {
             columnNames.forEachIndexed { i, mappedColumnName ->
                 if (mappedColumnName.equals(columnName, ignoreCase = true)) {
@@ -179,15 +179,5 @@ fun wrapMappedColumns(cursor: Cursor, columnNames: Array<String>, mapping: IntAr
             }
             return super.getColumnIndex(columnName)
         }
-
-        override fun getCount() = cursor.count
-        override fun getColumnNames() = cursor.columnNames
-        override fun getString(i: Int) = cursor.getString(i)
-        override fun getShort(i: Int) = cursor.getShort(i)
-        override fun getInt(i: Int) = cursor.getInt(i)
-        override fun getLong(i: Int) = cursor.getLong(i)
-        override fun getFloat(i: Int) = cursor.getFloat(i)
-        override fun getDouble(i: Int) = cursor.getDouble(i)
-        override fun isNull(i: Int) = cursor.isNull(i)
     }
 }
