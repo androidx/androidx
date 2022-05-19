@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.ExperimentalUseCaseApi
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.BackpressureStrategy
 import androidx.camera.core.ImageCapture
@@ -102,6 +103,7 @@ internal class ImageAnalysisTest(
     @Before
     fun setUp(): Unit = runBlocking {
         ProcessCameraProvider.configureInstance(cameraConfig)
+
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
         handlerThread = HandlerThread("AnalysisThread")
         handlerThread.start()
@@ -212,6 +214,21 @@ internal class ImageAnalysisTest(
         val imageAnalysis = ImageAnalysis.Builder().build()
         assertThat(imageAnalysis.backpressureStrategy)
             .isEqualTo(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+    }
+
+    @Test
+    @ExperimentalUseCaseApi
+    fun canObtainBackgroundExecutor() {
+        val ioExecutor = CameraXExecutors.ioExecutor()
+        val imageAnalysis = ImageAnalysis.Builder()
+            .setBackgroundExecutor(ioExecutor).build()
+        val imageAnalysis2 = ImageAnalysis.Builder().build()
+
+        // check return when provided an Executor
+        assertThat(imageAnalysis.backgroundExecutor).isSameInstanceAs(ioExecutor)
+
+        // check default return
+        assertThat(imageAnalysis2.backgroundExecutor).isNull()
     }
 
     @Test
