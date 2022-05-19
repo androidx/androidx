@@ -35,7 +35,6 @@ final class FragmentState implements Parcelable {
     final boolean mRetainInstance;
     final boolean mRemoving;
     final boolean mDetached;
-    final Bundle mArguments;
     final boolean mHidden;
     final int mMaxLifecycleState;
 
@@ -51,7 +50,6 @@ final class FragmentState implements Parcelable {
         mRetainInstance = frag.mRetainInstance;
         mRemoving = frag.mRemoving;
         mDetached = frag.mDetached;
-        mArguments = frag.mArguments;
         mHidden = frag.mHidden;
         mMaxLifecycleState = frag.mMaxState.ordinal();
     }
@@ -66,7 +64,6 @@ final class FragmentState implements Parcelable {
         mRetainInstance = in.readInt() != 0;
         mRemoving = in.readInt() != 0;
         mDetached = in.readInt() != 0;
-        mArguments = in.readBundle();
         mHidden = in.readInt() != 0;
         mSavedFragmentState = in.readBundle();
         mMaxLifecycleState = in.readInt();
@@ -79,10 +76,6 @@ final class FragmentState implements Parcelable {
     Fragment instantiate(@NonNull FragmentFactory fragmentFactory,
             @NonNull ClassLoader classLoader) {
         Fragment fragment = fragmentFactory.instantiate(classLoader, mClassName);
-        if (mArguments != null) {
-            mArguments.setClassLoader(classLoader);
-        }
-        fragment.setArguments(mArguments);
         fragment.mWho = mWho;
         fragment.mFromLayout = mFromLayout;
         fragment.mRestored = true;
@@ -156,7 +149,6 @@ final class FragmentState implements Parcelable {
         dest.writeInt(mRetainInstance ? 1 : 0);
         dest.writeInt(mRemoving ? 1 : 0);
         dest.writeInt(mDetached ? 1 : 0);
-        dest.writeBundle(mArguments);
         dest.writeInt(mHidden ? 1 : 0);
         dest.writeBundle(mSavedFragmentState);
         dest.writeInt(mMaxLifecycleState);
