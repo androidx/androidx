@@ -146,6 +146,69 @@ package androidx.glance.action {
 
 }
 
+package androidx.glance.color {
+
+  public final class ColorProviders {
+    ctor public ColorProviders(androidx.glance.unit.ColorProvider primary, androidx.glance.unit.ColorProvider onPrimary, androidx.glance.unit.ColorProvider primaryContainer, androidx.glance.unit.ColorProvider onPrimaryContainer, androidx.glance.unit.ColorProvider secondary, androidx.glance.unit.ColorProvider onSecondary, androidx.glance.unit.ColorProvider secondaryContainer, androidx.glance.unit.ColorProvider onSecondaryContainer, androidx.glance.unit.ColorProvider tertiary, androidx.glance.unit.ColorProvider onTertiary, androidx.glance.unit.ColorProvider tertiaryContainer, androidx.glance.unit.ColorProvider onTertiaryContainer, androidx.glance.unit.ColorProvider error, androidx.glance.unit.ColorProvider errorContainer, androidx.glance.unit.ColorProvider onError, androidx.glance.unit.ColorProvider onErrorContainer, androidx.glance.unit.ColorProvider background, androidx.glance.unit.ColorProvider onBackground, androidx.glance.unit.ColorProvider surface, androidx.glance.unit.ColorProvider onSurface, androidx.glance.unit.ColorProvider surfaceVariant, androidx.glance.unit.ColorProvider onSurfaceVariant, androidx.glance.unit.ColorProvider outline, androidx.glance.unit.ColorProvider inverseOnSurface, androidx.glance.unit.ColorProvider inverseSurface, androidx.glance.unit.ColorProvider inversePrimary);
+    method public androidx.glance.unit.ColorProvider getBackground();
+    method public androidx.glance.unit.ColorProvider getError();
+    method public androidx.glance.unit.ColorProvider getErrorContainer();
+    method public androidx.glance.unit.ColorProvider getInverseOnSurface();
+    method public androidx.glance.unit.ColorProvider getInversePrimary();
+    method public androidx.glance.unit.ColorProvider getInverseSurface();
+    method public androidx.glance.unit.ColorProvider getOnBackground();
+    method public androidx.glance.unit.ColorProvider getOnError();
+    method public androidx.glance.unit.ColorProvider getOnErrorContainer();
+    method public androidx.glance.unit.ColorProvider getOnPrimary();
+    method public androidx.glance.unit.ColorProvider getOnPrimaryContainer();
+    method public androidx.glance.unit.ColorProvider getOnSecondary();
+    method public androidx.glance.unit.ColorProvider getOnSecondaryContainer();
+    method public androidx.glance.unit.ColorProvider getOnSurface();
+    method public androidx.glance.unit.ColorProvider getOnSurfaceVariant();
+    method public androidx.glance.unit.ColorProvider getOnTertiary();
+    method public androidx.glance.unit.ColorProvider getOnTertiaryContainer();
+    method public androidx.glance.unit.ColorProvider getOutline();
+    method public androidx.glance.unit.ColorProvider getPrimary();
+    method public androidx.glance.unit.ColorProvider getPrimaryContainer();
+    method public androidx.glance.unit.ColorProvider getSecondary();
+    method public androidx.glance.unit.ColorProvider getSecondaryContainer();
+    method public androidx.glance.unit.ColorProvider getSurface();
+    method public androidx.glance.unit.ColorProvider getSurfaceVariant();
+    method public androidx.glance.unit.ColorProvider getTertiary();
+    method public androidx.glance.unit.ColorProvider getTertiaryContainer();
+    property public final androidx.glance.unit.ColorProvider background;
+    property public final androidx.glance.unit.ColorProvider error;
+    property public final androidx.glance.unit.ColorProvider errorContainer;
+    property public final androidx.glance.unit.ColorProvider inverseOnSurface;
+    property public final androidx.glance.unit.ColorProvider inversePrimary;
+    property public final androidx.glance.unit.ColorProvider inverseSurface;
+    property public final androidx.glance.unit.ColorProvider onBackground;
+    property public final androidx.glance.unit.ColorProvider onError;
+    property public final androidx.glance.unit.ColorProvider onErrorContainer;
+    property public final androidx.glance.unit.ColorProvider onPrimary;
+    property public final androidx.glance.unit.ColorProvider onPrimaryContainer;
+    property public final androidx.glance.unit.ColorProvider onSecondary;
+    property public final androidx.glance.unit.ColorProvider onSecondaryContainer;
+    property public final androidx.glance.unit.ColorProvider onSurface;
+    property public final androidx.glance.unit.ColorProvider onSurfaceVariant;
+    property public final androidx.glance.unit.ColorProvider onTertiary;
+    property public final androidx.glance.unit.ColorProvider onTertiaryContainer;
+    property public final androidx.glance.unit.ColorProvider outline;
+    property public final androidx.glance.unit.ColorProvider primary;
+    property public final androidx.glance.unit.ColorProvider primaryContainer;
+    property public final androidx.glance.unit.ColorProvider secondary;
+    property public final androidx.glance.unit.ColorProvider secondaryContainer;
+    property public final androidx.glance.unit.ColorProvider surface;
+    property public final androidx.glance.unit.ColorProvider surfaceVariant;
+    property public final androidx.glance.unit.ColorProvider tertiary;
+    property public final androidx.glance.unit.ColorProvider tertiaryContainer;
+  }
+
+  public final class ColorProvidersKt {
+  }
+
+}
+
 package androidx.glance.layout {
 
   public final class Alignment {
@@ -340,7 +403,9 @@ package androidx.glance.state {
 package androidx.glance.template {
 
   public final class CompositionLocalsKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.color.ColorProviders> getLocalTemplateColors();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.template.TemplateMode> getLocalTemplateMode();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.color.ColorProviders> LocalTemplateColors;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.glance.template.TemplateMode> LocalTemplateMode;
   }
 

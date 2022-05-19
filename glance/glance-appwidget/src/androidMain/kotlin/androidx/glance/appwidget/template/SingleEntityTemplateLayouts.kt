@@ -17,7 +17,6 @@
 package androidx.glance.appwidget.template
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -33,6 +32,7 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
+import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.SingleEntityTemplateData
 import androidx.glance.template.TemplateMode
@@ -56,7 +56,8 @@ fun SingleEntityTemplate(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WidgetLayoutCollapsed(data: SingleEntityTemplateData) {
-    var modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.White)
+    var modifier = GlanceModifier
+        .fillMaxSize().padding(16.dp).background(LocalTemplateColors.current.surface)
 
     data.image?.let { image ->
         modifier = modifier.background(image.image, ContentScale.Crop)
@@ -70,7 +71,11 @@ private fun WidgetLayoutCollapsed(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WidgetLayoutVertical(data: SingleEntityTemplateData) {
-    Column(modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.White)) {
+
+    Column(modifier = GlanceModifier
+        .fillMaxSize()
+        .padding(16.dp)
+        .background(LocalTemplateColors.current.surface)) {
         data.headerIcon?.let { AppWidgetTemplateHeader(it, data.header) }
         Spacer(modifier = GlanceModifier.height(16.dp))
         data.image?.let { image ->
@@ -92,10 +97,14 @@ private fun WidgetLayoutVertical(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WidgetLayoutHorizontal(data: SingleEntityTemplateData) {
-    Row(modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.White)) {
+    Row(modifier = GlanceModifier
+        .fillMaxSize()
+        .padding(16.dp)
+        .background(LocalTemplateColors.current.surface)) {
+
         Column(
             modifier =
-            GlanceModifier.fillMaxHeight().background(Color.Transparent).defaultWeight()
+            GlanceModifier.defaultWeight().fillMaxHeight()
         ) {
             data.headerIcon?.let { AppWidgetTemplateHeader(it, data.header) }
             Spacer(modifier = GlanceModifier.height(16.dp))
