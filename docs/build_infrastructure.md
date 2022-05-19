@@ -20,9 +20,11 @@ a given change that is being built.
 
 ## Gradle Remote Build Cache
 
-AndroidX build bots use
+AndroidX build bots use the
 [Gradle Remote Build Cache](https://docs.gradle.org/current/userguide/build_cache.html)
-to speed up build targets.
+to speed up build targets. We
+[configure](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/remoteBuildCache.gradle;drc=dd99f75742c18a499110b979c7c25bf822113e3e;l=49)
+the
 [GCP build cache Gradle plugin](https://github.com/androidx/gcp-gradle-build-cache)
-is used to connect to a GCP Storage bucket `androidx-gradle-remote-cache` from
-the `androidx-ge` project.
+to connect to the GCP Storage bucket `androidx-gradle-remote-cache` in the
+`androidx-ge` project.
