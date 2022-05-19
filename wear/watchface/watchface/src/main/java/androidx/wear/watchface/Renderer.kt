@@ -74,6 +74,10 @@ public annotation class CanvasType {
          *
          * NOTE this is only supported on API level 26 and above. On lower API levels we fall back
          * to a software canvas.
+         *
+         * NOTE the system takes screenshots for use in the watch face picker UI and these will be
+         * taken using software rendering. This means [Bitmap]s with [Bitmap.Config.HARDWARE] must
+         * be avoided.
          */
         public const val HARDWARE: Int = 1
     }
@@ -482,7 +486,9 @@ public sealed class Renderer @WorkerThread constructor(
      * into [render].
      * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
-     * @param canvasType The type of canvas to request.
+     * @param canvasType The [CanvasType] to request. Note even if [CanvasType.HARDWARE] is used,
+     * screenshots will taken using the software rendering pipeline, as such [Bitmap]s with
+     * [Bitmap.Config.HARDWARE] must be avoided.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
      * interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
      * rate will be clamped to 10fps. Watch faces are recommended to use lower frame rates if
@@ -696,7 +702,9 @@ public sealed class Renderer @WorkerThread constructor(
      * into [render].
      * @param currentUserStyleRepository The watch face's associated [CurrentUserStyleRepository].
      * @param watchState The watch face's associated [WatchState].
-     * @param canvasType The type of canvas to request.
+     * @param canvasType The [CanvasType] to request. Note even if [CanvasType.HARDWARE] is used,
+     * screenshots will taken using the software rendering pipeline, as such [Bitmap]s with
+     * [Bitmap.Config.HARDWARE] must be avoided.
      * @param interactiveDrawModeUpdateDelayMillis The interval in milliseconds between frames in
      * interactive [DrawMode]s. To render at 60hz set to 16. Note when battery is low, the frame
      * rate will be clamped to 10fps. Watch faces are recommended to use lower frame rates if
