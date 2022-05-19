@@ -46,6 +46,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -126,6 +127,7 @@ class MultiTypedPagingSourceTest(
     }
 
     @Test
+    @Ignore("b/233214547")
     fun loadEverything_inReverse() {
         // open db
         val items = createItems(startId = 0, count = 100)
