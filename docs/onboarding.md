@@ -248,6 +248,20 @@ files, you can run `./studiow --clean main <project subset>` or `./studiow
 >     make sure that "Do not build Gradle task list during Gradle sync" is
 >     unchecked. (Note that unchecking this can reduce Studio's performance)
 
+### Enabling Compose @Preview annotation previews
+
+Add the following dependencies to your project's `build.gradle`
+
+```groovy
+dependencies {
+    implementation(project(":compose:ui:ui-tooling-preview"))
+    debugImplementation(project(":compose:ui:ui-tooling"))
+}
+```
+
+then
+[use it like you would on an external project](https://developer.android.com/jetpack/compose/tooling).
+
 ## Making changes {#changes}
 
 Similar to Android framework development, library development should occur in
@@ -375,7 +389,7 @@ Note that debugging will not be available until Gradle sync has completed.
 Tasks may also be debugged from the command line, which may be useful if
 `./studiow` cannot run due to a Gradle task configuration issue.
 
-1.  From the configurations dropdown in Studio, select "Edit Configurations".
+1.  From the Run dropdown in Studio, select "Edit Configurations".
 1.  Click the plus in the top left to create a new "Remote" configuration. Give
     it a name and hit "Ok".
 1.  Set breakpoints.
