@@ -793,6 +793,7 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.detachUseCases(Arrays.asList(preview, record));
     }
 
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void attachUseCaseWithTemplateZSLNoRecord() throws InterruptedException {
         UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW, /* isZslDisabled = */false);
@@ -823,6 +824,7 @@ public final class Camera2CameraImplTest {
                 .isFalse();
     }
 
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void attachUseCaseWithTemplateZSLHasRecord() throws InterruptedException {
         UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW, /* isZslDisabled = */false);
@@ -855,6 +857,7 @@ public final class Camera2CameraImplTest {
                 .isFalse();
     }
 
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     public void attachAndDetachUseCasesMultipleTimes() throws InterruptedException {
         UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW, /* isZslDisabled = */false);
