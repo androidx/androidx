@@ -19,6 +19,7 @@ package androidx.dynamicanimation.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.AdditionalMatchers.lt;
@@ -59,7 +60,6 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
@@ -74,16 +74,13 @@ public class SpringTests {
     public View mView1;
     public View mView2;
 
-    @Rule
-    public ExpectedException mExpectedException = ExpectedException.none();
-
     @SuppressWarnings("deprecation")
     public SpringTests() {
         mActivityTestRule = new androidx.test.rule.ActivityTestRule<>(AnimationActivity.class);
     }
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         mView1 = mActivityTestRule.getActivity().findViewById(R.id.anim_view);
         mView2 = mActivityTestRule.getActivity().findViewById(R.id.anim_another_view);
     }
@@ -418,8 +415,7 @@ public class SpringTests {
     @Test
     public void testInvalidStiffness() {
         SpringForce spring = new SpringForce();
-        mExpectedException.expect(IllegalArgumentException.class);
-        spring.setStiffness(-5f);
+        assertThrows(IllegalArgumentException.class, () -> spring.setStiffness(-5f));
     }
 
     /**
@@ -428,8 +424,7 @@ public class SpringTests {
     @Test
     public void testInvalidDampingRatio() {
         SpringForce spring = new SpringForce();
-        mExpectedException.expect(IllegalArgumentException.class);
-        spring.setDampingRatio(-5f);
+        assertThrows(IllegalArgumentException.class, () -> spring.setDampingRatio(-5f));
     }
 
     /**
@@ -750,13 +745,14 @@ public class SpringTests {
      */
     @Test
     public void testStartOnNonAnimationHandlerThread() throws InterruptedException {
-        mExpectedException.expect(AndroidRuntimeException.class);
-        SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            anim.setScheduler(anim.getScheduler());
-        });
-        runRunnableOnNewThread(() -> {
-            anim.start();
+        assertThrows(AndroidRuntimeException.class, () -> {
+            SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                anim.setScheduler(anim.getScheduler());
+            });
+            runRunnableOnNewThread(() -> {
+                anim.start();
+            });
         });
     }
 
@@ -765,13 +761,14 @@ public class SpringTests {
      */
     @Test
     public void testCancelOnNonAnimationHandlerThread() throws InterruptedException {
-        mExpectedException.expect(AndroidRuntimeException.class);
-        SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            anim.setScheduler(anim.getScheduler());
-        });
-        runRunnableOnNewThread(() -> {
-            anim.cancel();
+        assertThrows(AndroidRuntimeException.class, () -> {
+            SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                anim.setScheduler(anim.getScheduler());
+            });
+            runRunnableOnNewThread(() -> {
+                anim.cancel();
+            });
         });
     }
 
@@ -779,14 +776,15 @@ public class SpringTests {
      * Test skipToEnd() on a test thread.
      */
     @Test
-    public void testSkipToEndOnNonAnimationHandlerThread() throws InterruptedException {
-        mExpectedException.expect(AndroidRuntimeException.class);
-        SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            anim.setScheduler(anim.getScheduler());
-        });
-        runRunnableOnNewThread(() -> {
-            anim.skipToEnd();
+    public void testSkipToEndOnNonAnimationHandlerThread() {
+        assertThrows(AndroidRuntimeException.class, () -> {
+            SpringAnimation anim = new SpringAnimation(mView1, DynamicAnimation.ALPHA, 0f);
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
+                anim.setScheduler(anim.getScheduler());
+            });
+            runRunnableOnNewThread(() -> {
+                anim.skipToEnd();
+            });
         });
     }
 

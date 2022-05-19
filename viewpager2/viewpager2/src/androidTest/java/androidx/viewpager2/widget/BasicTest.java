@@ -19,6 +19,7 @@ package androidx.viewpager2.widget;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayWithSize;
+import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -32,9 +33,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.viewpager2.test.R;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 
 import java.util.UUID;
@@ -42,17 +41,16 @@ import java.util.UUID;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class BasicTest {
-    @Rule
-    public ExpectedException mExpectedException = ExpectedException.none();
-
     @Test
     public void test_childrenNotAllowed() {
-        mExpectedException.expect(IllegalStateException.class);
-        mExpectedException.expectMessage("ViewPager2 does not support direct child views");
+        assertThrows("ViewPager2 does not support direct child views",
+                IllegalStateException.class,
+                () -> {
+                    Context context = ApplicationProvider.getApplicationContext();
+                    ViewPager2 viewPager = new ViewPager2(context);
+                    viewPager.addView(new View(context));
+                });
 
-        Context context = ApplicationProvider.getApplicationContext();
-        ViewPager2 viewPager = new ViewPager2(context);
-        viewPager.addView(new View(context));
     }
 
     @Test
