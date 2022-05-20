@@ -45,10 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"பரவாயில்லை, முயல்க"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"ஆம்"</string>
     <string name="no_action_title" msgid="1452124604210014010">"இல்லை"</string>
-    <!-- no translation found for disable_all_rows (3003225080532928046) -->
-    <skip />
-    <!-- no translation found for enable_all_rows (7274285275711872091) -->
-    <skip />
+    <string name="disable_all_rows" msgid="3003225080532928046">"அனைத்து வரிசைகளையும் முடக்கு"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"அனைத்து வரிசைகளையும் இயக்கு"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"பிழை கண்டறியப்பட்டது!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"பெரிதாக்கப்பட்டது"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"சிறிதாக்கப்பட்டது"</string>
@@ -280,12 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"விருப்பம் 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"விருப்பம் 2"</string>
     <string name="option_3_title" msgid="6319268250436119258">"விருப்பம் 3"</string>
-    <!-- no translation found for option_row_radio_title (5978617101267398181) -->
-    <skip />
-    <!-- no translation found for option_row_radio_icon_title (3304229002524317977) -->
-    <skip />
-    <!-- no translation found for option_row_radio_icon_colored_text_title (947641896184637026) -->
-    <skip />
+    <string name="option_row_radio_title" msgid="5978617101267398181">"ரேடியோ பட்டனைக் கொண்ட வரிசை"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"ரேடியோ பட்டன் &amp; ஐகானைக் கொண்ட வரிசை"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"ரேடியோ பட்டன் &amp; ஐகான், வண்ண வார்த்தைகள் ஆகியவற்றைக் கொண்ட வரிசை"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"சில கூடுதல் உரை"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"தேர்ந்தெடுக்கக்கூடிய மாதிரிப் பட்டியல்"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"பணிக் கட்டுப்பாட்டின் டெமோ"</string>
@@ -294,27 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"முன்னேறிச் செல்ல கிளிக் செய்யவும்"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"நிலைமாற்றப் பரிசோதனை"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"நிலை மாற்றங்கள் அனுமதிக்கப்படுகின்றன"</string>
-    <!-- no translation found for toggle_test_first_toggle_title (3635022201072117680) -->
-    <skip />
-    <!-- no translation found for toggle_test_first_toggle_text (5914741538328669668) -->
-    <skip />
-    <!-- no translation found for toggle_test_second_toggle_title (1083594617400613969) -->
-    <skip />
-    <!-- no translation found for toggle_test_second_toggle_text (1813071017415876745) -->
-    <skip />
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"நிலைமாற்றப் பரிசோதனையை இயக்கு"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"நிலைமாற்றப் பரிசோதனையை இயக்க, இதைப் பார்க்கவும்"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"நிலைமாற்றப் பரிசோதனை"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"நிலை மாற்றங்கள் அனுமதிக்கப்படுகின்றன"</string>
     <string name="image_test_title" msgid="8273863429801477547">"படப் பரிசோதனை"</string>
     <string name="image_test_text" msgid="6264812093895530445">"படங்களை மாற்றிக்கொள்ளலாம்"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"கூடுதல் தரவு"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"முந்தைய பக்கத்திற்குச் சென்று மாற்றங்களைச் செய்யலாம்."</string>
-    <!-- no translation found for toggle_test_enabled (982370904182034076) -->
-    <skip />
-    <!-- no translation found for toggle_test_disabled (8366040658408451664) -->
-    <skip />
+    <string name="toggle_test_enabled" msgid="982370904182034076">"நிலைமாற்றப் பரிசோதனை இயக்கப்பட்டது"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"நிலைமாற்றப் பரிசோதனை முடக்கப்பட்டது"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"மற்ற டெம்ப்ளேட்டுகளின் டெமோக்கள்"</string>
-    <!-- no translation found for cal_api_level_prefix (5933606412710039570) -->
-    <skip />
     <string name="showcase_demos_title" msgid="1542092687878113304">"ஷோகேஸின் டெமோக்கள்"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"ரிசோர்ஸ் வெக்டார் மென்னிறமாக்கப்பட்டது"</string>
     <string name="location_2_description" msgid="3331356135359047166">"பட ரிசோர்ஸ் பிட்மேப்"</string>
     <string name="location_3_description" msgid="3982142774088944850">"வண்ண உரை அடையாளங்காட்டி"</string>
