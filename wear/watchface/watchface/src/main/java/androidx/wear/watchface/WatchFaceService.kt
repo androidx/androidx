@@ -474,7 +474,10 @@ public abstract class WatchFaceService : WallpaperService() {
      *
      * If an androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition metadata tag is defined
      * for your WatchFaceService 's manifest, and your XML includes <ComplicationSlot> tags then you
-     * must override this method.
+     * must override this method. An exception will be thrown if the implementation returns null.
+     *
+     * @param currentUserStyleRepository The [CurrentUserStyleRepository] constructed using the
+     * [UserStyleSchema] returned by [createUserStyleSchema].
      */
     @Suppress("DEPRECATION")
     @WorkerThread
