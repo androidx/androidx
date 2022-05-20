@@ -77,6 +77,7 @@ import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
+import androidx.health.connect.client.units.meters
 import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
 
@@ -428,7 +429,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "Distance" ->
                 DistanceRecord(
-                    distanceMeters = getDouble("distance"),
+                    distance = getDouble("distance").meters,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
