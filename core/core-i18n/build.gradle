@@ -25,6 +25,11 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     // Add dependencies here
+    api("androidx.annotation:annotation:1.2.0")
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
 }
 
 androidx {
@@ -38,4 +43,7 @@ androidx {
 
 android {
     namespace "androidx.core.i18n"
+    defaultConfig {
+        minSdkVersion 19
+    }
 }
