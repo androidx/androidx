@@ -122,6 +122,30 @@ public class AutomotiveCarInfoTest {
     }
 
     @Test
+    public void fetchModel_returnsModelWithUnknownValuesIfNoResponses()
+            throws InterruptedException {
+        // Add "INFO_MAKE", "INFO_MODEL" and "INFO_MODEL_YEAR" of the vehicle to the request.
+        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_MAKE));
+        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_MODEL));
+        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_MODEL_YEAR));
+        when(mPropertyManager.submitGetPropertyRequest(
+                eq(mGetPropertyRequests), eq(mExecutor))).thenReturn(
+                Futures.immediateFuture(mResponse));
+        AtomicReference<Model> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<Model> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.fetchModel(mExecutor, listener);
+        mCountDownLatch.await();
+
+        assertThat(loadedResult.get()).isEqualTo(new Model.Builder().build());
+        verify(mPropertyManager).submitGetPropertyRequest(
+                eq(mGetPropertyRequests), eq(mExecutor));
+    }
+
+    @Test
     public void getModel_SuccessfulResponse() throws InterruptedException {
         // Add "INFO_MAKE", "INFO_MODEL" and "INFO_MODEL_YEAR" of the vehicle to the request.
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_MAKE));
@@ -196,7 +220,8 @@ public class AutomotiveCarInfoTest {
                 Futures.immediateFuture(mResponse);
         when(mPropertyManager.submitGetPropertyRequest(
                 eq(mGetPropertyRequests), eq(mExecutor))).thenReturn(listenableCarPropertyResponse);
-        OnCarDataAvailableListener<Model> listener = (data) -> {};
+        OnCarDataAvailableListener<Model> listener = (data) -> {
+        };
 
         // Given that the number of values in the response is more(3) than what was requested(2),
         // there should be null pointer exception.
@@ -248,29 +273,27 @@ public class AutomotiveCarInfoTest {
     }
 
     @Test
-    public void getEnergyProfile_EmptyResponse() throws InterruptedException {
+    public void fetchEnergyProfile_returnsEnergyProfileWithUnknownValuesIfNoResponses()
+            throws InterruptedException {
         // Add "INFO_EV_CONNECTOR_TYPE" and "INFO_FUEL_TYPE" type of the vehicle to the request.
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EV_CONNECTOR_TYPE));
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_FUEL_TYPE));
-
         // Leave the response empty.
-        ListenableFuture<List<CarPropertyResponse<?>>> listenableCarPropertyResponse =
-                Futures.immediateFuture(mResponse);
         when(mPropertyManager.submitGetPropertyRequest(
-                eq(mGetPropertyRequests), eq(mExecutor))).thenReturn(listenableCarPropertyResponse);
+                eq(mGetPropertyRequests), eq(mExecutor))).thenReturn(
+                Futures.immediateFuture(mResponse));
         AtomicReference<EnergyProfile> loadedResult = new AtomicReference<>();
         OnCarDataAvailableListener<EnergyProfile> listener = (data) -> {
             loadedResult.set(data);
             mCountDownLatch.countDown();
         };
+
         mAutomotiveCarInfo.fetchEnergyProfile(mExecutor, listener);
+        mCountDownLatch.await();
+
+        assertThat(loadedResult.get()).isEqualTo(new EnergyProfile.Builder().build());
         verify(mPropertyManager, times(1)).submitGetPropertyRequest(
                 eq(mGetPropertyRequests), eq(mExecutor));
-        mCountDownLatch.await();
-        EnergyProfile energyProfile = loadedResult.get();
-        assertThat(energyProfile.getEvConnectorTypes().getValue()).isEqualTo(
-                null);
-        assertThat(energyProfile.getFuelTypes().getValue()).isEqualTo(null);
     }
 
     @Test
@@ -312,6 +335,30 @@ public class AutomotiveCarInfoTest {
         Mileage mileage = loadedResult.get();
         assertThat(mileage.getOdometerMeters().getValue()).isEqualTo(1f);
         assertThat(mileage.getDistanceDisplayUnit().getValue()).isEqualTo(2);
+    }
+
+    @Test
+    public void addMileageListener_returnsMileageWithUnknownValuesIfNoResponses()
+            throws InterruptedException {
+        // Create "PERF_ODOMETER" and "DISTANCE_DISPLAY_UNITS" property IDs list.
+        mPropertyIds.add(PERF_ODOMETER);
+        mPropertyIds.add(DISTANCE_DISPLAY_UNITS);
+        AtomicReference<Mileage> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<Mileage> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.addMileageListener(mExecutor, listener);
+
+        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
+        verify(mPropertyManager).submitRegisterListenerRequest(eq(mPropertyIds),
+                eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        assertThat(loadedResult.get()).isEqualTo(new Mileage.Builder().build());
     }
 
     @Test
@@ -467,6 +514,30 @@ public class AutomotiveCarInfoTest {
     }
 
     @Test
+    public void addEvStatusListener_returnsEvStatusWithUnknownValuesIfNoResponses()
+            throws InterruptedException {
+        // Create "EV_CHARGE_PORT_OPEN" and "EV_CHARGE_PORT_CONNECTED" property IDs list.
+        mPropertyIds.add(EV_CHARGE_PORT_OPEN);
+        mPropertyIds.add(EV_CHARGE_PORT_CONNECTED);
+        AtomicReference<EvStatus> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<EvStatus> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.addEvStatusListener(mExecutor, listener);
+
+        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
+        verify(mPropertyManager).submitRegisterListenerRequest(eq(mPropertyIds),
+                eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        assertThat(loadedResult.get()).isEqualTo(new EvStatus.Builder().build());
+    }
+
+    @Test
     public void getEvStatus_withInvalidResponse_verifyResponse() throws InterruptedException {
         // Create "EV_CHARGE_PORT_OPEN" and "EV_CHARGE_PORT_CONNECTED" property IDs list.
         mPropertyIds.add(EV_CHARGE_PORT_OPEN);
@@ -492,7 +563,7 @@ public class AutomotiveCarInfoTest {
                 .setTimestampMillis(1L).build());
         mResponse.add(CarPropertyResponse.builder()
                 .setPropertyId(EV_CHARGE_PORT_CONNECTED)
-                .setStatus(STATUS_UNKNOWN)
+                .setStatus(CarValue.STATUS_UNIMPLEMENTED)
                 .setValue(null)
                 .setTimestampMillis(1L).build());
 
@@ -501,8 +572,7 @@ public class AutomotiveCarInfoTest {
 
         EvStatus evStatus = loadedResult.get();
         assertThat(evStatus.getEvChargePortOpen().getValue()).isEqualTo(true);
-        assertThat(evStatus.getEvChargePortConnected().getStatus()).isEqualTo(
-                CarValue.STATUS_UNIMPLEMENTED);
+        assertThat(evStatus.getEvChargePortConnected().getStatus()).isEqualTo(STATUS_UNKNOWN);
     }
 
     @Config(minSdk = 31)
@@ -606,6 +676,32 @@ public class AutomotiveCarInfoTest {
     }
 
     @Test
+    public void addSpeedListener_returnsSpeedWithUnknownValuesIfNoResponses()
+            throws InterruptedException {
+        // Create "PERF_VEHICLE_SPEED", "PERF_VEHICLE_SPEED_DISPLAY" and "SPEED_DISPLAY_UNIT_ID"
+        // property IDs list.
+        mPropertyIds.add(PERF_VEHICLE_SPEED);
+        mPropertyIds.add(PERF_VEHICLE_SPEED_DISPLAY);
+        mPropertyIds.add(SPEED_DISPLAY_UNIT_ID);
+        AtomicReference<Speed> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<Speed> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.addSpeedListener(mExecutor, listener);
+
+        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
+        verify(mPropertyManager).submitRegisterListenerRequest(eq(mPropertyIds),
+                eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        assertThat(loadedResult.get()).isEqualTo(new Speed.Builder().build());
+    }
+
+    @Test
     public void getEnergyLevel_verifyResponse() throws InterruptedException {
         // Add "INFO_EV_BATTERY_CAPACITY" and "INFO_FUEL_CAPACITY" to the request.
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EV_BATTERY_CAPACITY));
@@ -705,6 +801,43 @@ public class AutomotiveCarInfoTest {
     }
 
     @Test
+    public void addEnergyLevelListener_returnsEnergyLevelWithUnknownValuesIfNoResponses()
+            throws InterruptedException {
+        // Add "INFO_EV_BATTERY_CAPACITY" and "INFO_FUEL_CAPACITY" to the request.
+        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EV_BATTERY_CAPACITY));
+        mGetPropertyRequests.add(GetPropertyRequest.create(INFO_FUEL_CAPACITY));
+        List<CarPropertyResponse<?>> capacities = new ArrayList<>();
+        when(mPropertyManager.submitGetPropertyRequest(eq(mGetPropertyRequests), any()))
+                .thenReturn(Futures.immediateFuture(capacities));
+        AtomicReference<EnergyLevel> loadedResult = new AtomicReference<>();
+        OnCarDataAvailableListener<EnergyLevel> listener = (data) -> {
+            loadedResult.set(data);
+            mCountDownLatch.countDown();
+        };
+
+        mAutomotiveCarInfo.addEnergyLevelListener(mExecutor, listener);
+
+        verify(mPropertyManager, times(1)).submitGetPropertyRequest(
+                eq(mGetPropertyRequests), eq(mExecutor));
+        // Create "EV_BATTERY_LEVEL", "FUEL_LEVEL", "FUEL_LEVEL_LOW", "RANGE_REMAINING",
+        // "DISTANCE_DISPLAY_UNITS" and "FUEL_VOLUME_DISPLAY_UNITS" property IDs list.
+        mPropertyIds.add(EV_BATTERY_LEVEL);
+        mPropertyIds.add(FUEL_LEVEL);
+        mPropertyIds.add(FUEL_LEVEL_LOW);
+        mPropertyIds.add(RANGE_REMAINING);
+        mPropertyIds.add(DISTANCE_DISPLAY_UNITS);
+        mPropertyIds.add(FUEL_VOLUME_DISPLAY_UNITS);
+        ArgumentCaptor<OnCarPropertyResponseListener> captor = ArgumentCaptor.forClass(
+                OnCarPropertyResponseListener.class);
+        verify(mPropertyManager, times(1)).submitRegisterListenerRequest(
+                eq(mPropertyIds), eq(DEFAULT_SAMPLE_RATE), captor.capture(), eq(mExecutor));
+        captor.getValue().onCarPropertyResponses(mResponse);
+        mCountDownLatch.await();
+
+        assertThat(loadedResult.get()).isEqualTo(new EnergyLevel.Builder().build());
+    }
+
+    @Test
     public void getEnergyLevel_withUnavailableCapacityValues() throws InterruptedException {
         // Add "INFO_EV_BATTERY_CAPACITY" and "INFO_FUEL_CAPACITY" to the request.
         mGetPropertyRequests.add(GetPropertyRequest.create(INFO_EV_BATTERY_CAPACITY));
@@ -791,12 +924,12 @@ public class AutomotiveCarInfoTest {
 
         EnergyLevel energyLevel = loadedResult.get();
 
-        // Battery percent and fuel percent should be UNIMPLEMENTED_FLOAT since we can not get
+        // Battery percent and fuel percent should be UNKNOWN_FLOAT since we can not get
         // the capacity of battery and fuel property.
         assertThat(energyLevel.getBatteryPercent().getValue()).isEqualTo(
-                CarValue.UNIMPLEMENTED_FLOAT.getValue());
+                CarValue.UNKNOWN_FLOAT.getValue());
         assertThat(energyLevel.getFuelPercent().getValue()).isEqualTo(
-                CarValue.UNIMPLEMENTED_FLOAT.getValue());
+                CarValue.UNKNOWN_FLOAT.getValue());
 
         // The other properties should still work without capacity values
         assertThat(energyLevel.getEnergyIsLow().getValue()).isEqualTo(

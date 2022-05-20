@@ -292,9 +292,9 @@ public class AutomotiveCarInfo implements CarInfo {
         future.addListener(() -> {
             try {
                 List<CarPropertyResponse<?>> result = future.get();
-                CarValue<String> makeValue = CarValue.UNIMPLEMENTED_STRING;
-                CarValue<Integer> yearValue = CarValue.UNIMPLEMENTED_INTEGER;
-                CarValue<String> modelValue = CarValue.UNIMPLEMENTED_STRING;
+                CarValue<String> makeValue = CarValue.UNKNOWN_STRING;
+                CarValue<Integer> yearValue = CarValue.UNKNOWN_INTEGER;
+                CarValue<String> modelValue = CarValue.UNKNOWN_STRING;
                 for (CarPropertyResponse<?> value : result) {
                     if (value.getValue() == null) {
                         Log.w(LogTags.TAG_CAR_HARDWARE,
@@ -334,8 +334,8 @@ public class AutomotiveCarInfo implements CarInfo {
         future.addListener(() -> {
             try {
                 List<CarPropertyResponse<?>> result = future.get();
-                CarValue<List<Integer>> evConnector = CarValue.UNIMPLEMENTED_INTEGER_LIST;
-                CarValue<List<Integer>> fuel = CarValue.UNIMPLEMENTED_INTEGER_LIST;
+                CarValue<List<Integer>> evConnector = CarValue.UNKNOWN_INTEGER_LIST;
+                CarValue<List<Integer>> fuel = CarValue.UNKNOWN_INTEGER_LIST;
                 for (CarPropertyResponse<?> value : result) {
                     if (value.getValue() == null) {
                         Log.w(LogTags.TAG_CAR_HARDWARE,
@@ -433,9 +433,9 @@ public class AutomotiveCarInfo implements CarInfo {
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
             mExecutor.execute(() -> {
-                CarValue<Float> rawSpeedValue = CarValue.UNIMPLEMENTED_FLOAT;
-                CarValue<Float> displaySpeedValue = CarValue.UNIMPLEMENTED_FLOAT;
-                CarValue<Integer> displayUnitValue = CarValue.UNIMPLEMENTED_INTEGER;
+                CarValue<Float> rawSpeedValue = CarValue.UNKNOWN_FLOAT;
+                CarValue<Float> displaySpeedValue = CarValue.UNKNOWN_FLOAT;
+                CarValue<Integer> displayUnitValue = CarValue.UNKNOWN_INTEGER;
                 for (CarPropertyResponse<?> response : carPropertyResponses) {
                     switch (response.getPropertyId()) {
                         case VehiclePropertyIds.PERF_VEHICLE_SPEED:
@@ -483,8 +483,8 @@ public class AutomotiveCarInfo implements CarInfo {
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
             mExecutor.execute(() -> {
-                CarValue<Boolean> evChargePortOpenValue = CarValue.UNIMPLEMENTED_BOOLEAN;
-                CarValue<Boolean> evChargePortConnectedValue = CarValue.UNIMPLEMENTED_BOOLEAN;
+                CarValue<Boolean> evChargePortOpenValue = CarValue.UNKNOWN_BOOLEAN;
+                CarValue<Boolean> evChargePortConnectedValue = CarValue.UNKNOWN_BOOLEAN;
                 for (CarPropertyResponse<?> response : carPropertyResponses) {
                     if (response.getValue() == null) {
                         Log.w(LogTags.TAG_CAR_HARDWARE,
@@ -534,8 +534,8 @@ public class AutomotiveCarInfo implements CarInfo {
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
             mExecutor.execute(() -> {
-                CarValue<Float> odometerValue = CarValue.UNIMPLEMENTED_FLOAT;
-                CarValue<Integer> distanceDisplayUnitValue = CarValue.UNIMPLEMENTED_INTEGER;
+                CarValue<Float> odometerValue = CarValue.UNKNOWN_FLOAT;
+                CarValue<Integer> distanceDisplayUnitValue = CarValue.UNKNOWN_INTEGER;
                 for (CarPropertyResponse<?> response : carPropertyResponses) {
                     if (response.getValue() == null) {
                         Log.w(LogTags.TAG_CAR_HARDWARE,
@@ -601,14 +601,14 @@ public class AutomotiveCarInfo implements CarInfo {
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
             mExecutor.execute(() -> {
-                CarValue<Float> batteryPercentValue = CarValue.UNIMPLEMENTED_FLOAT;
-                CarValue<Float> fuelPercentValue = CarValue.UNIMPLEMENTED_FLOAT;
-                CarValue<Boolean> energyIsLowValue = CarValue.UNIMPLEMENTED_BOOLEAN;
-                CarValue<Float> rangeRemainingValue = CarValue.UNIMPLEMENTED_FLOAT;
+                CarValue<Float> batteryPercentValue = CarValue.UNKNOWN_FLOAT;
+                CarValue<Float> fuelPercentValue = CarValue.UNKNOWN_FLOAT;
+                CarValue<Boolean> energyIsLowValue = CarValue.UNKNOWN_BOOLEAN;
+                CarValue<Float> rangeRemainingValue = CarValue.UNKNOWN_FLOAT;
                 CarValue<Integer> distanceDisplayUnitValue =
-                        CarValue.UNIMPLEMENTED_INTEGER;
+                        CarValue.UNKNOWN_INTEGER;
                 CarValue<Integer> fuelVolumeDisplayUnitValue =
-                        CarValue.UNIMPLEMENTED_INTEGER;
+                        CarValue.UNKNOWN_INTEGER;
                 for (CarPropertyResponse<?> response : carPropertyResponses) {
                     if (response.getValue() == null) {
                         Log.w(LogTags.TAG_CAR_HARDWARE,

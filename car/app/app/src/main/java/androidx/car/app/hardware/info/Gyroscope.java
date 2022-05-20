@@ -85,6 +85,6 @@ public final class Gyroscope {
 
     /** Constructs an empty instance, used by serialization code. */
     private Gyroscope() {
-        mRotations = CarValue.UNIMPLEMENTED_FLOAT_LIST;
+        mRotations = CarValue.UNKNOWN_FLOAT_LIST;
     }
 }
