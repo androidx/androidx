@@ -103,7 +103,7 @@ public class IconCompatTest {
         bitmap.eraseColor(Color.RED);
         Intent intent = new Intent();
         IconCompat.createWithBitmap(bitmap).addToShortcutIntent(intent, null, mContext);
-        assertEquals(bitmap, intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON));
+        assertTrue(bitmap.sameAs(intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_ICON)));
     }
 
     @Test
@@ -150,7 +150,7 @@ public class IconCompatTest {
         final Context context = ApplicationProvider.getApplicationContext();
         Drawable d = compat.toIcon(context).loadDrawable(context);
         assertTrue(d instanceof BitmapDrawable);
-        assertEquals(bitmap, ((BitmapDrawable) d).getBitmap());
+        assertTrue(bitmap.sameAs(((BitmapDrawable) d).getBitmap()));
     }
 
     @Test
@@ -384,7 +384,7 @@ public class IconCompatTest {
     public void testBitmapIconCompat_getBitmap() {
         Bitmap bitmap = Bitmap.createBitmap(16, 16, Bitmap.Config.ARGB_8888);
         IconCompat icon = IconCompat.createWithBitmap(bitmap);
-        assertEquals(bitmap, icon.getBitmap());
+        assertTrue(bitmap.sameAs(icon.getBitmap()));
     }
 
     @Test
