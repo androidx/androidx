@@ -28,9 +28,7 @@ import androidx.core.uwb.helper.checkSystemFeature
 import androidx.core.uwb.helper.handleApiException
 
 internal class UwbManagerImpl(val context: Context) : UwbManager {
-    override suspend fun <R> clientSessionScope(
-        sessionHandler: suspend UwbClientSessionScope.() -> R
-    ): R {
+    override suspend fun clientSessionScope(): UwbClientSessionScope {
         // Check whether UWB hardware is available on the device.
         checkSystemFeature(context)
         val uwbClient = Nearby.getUwbControleeClient(context)
@@ -51,6 +49,6 @@ internal class UwbManagerImpl(val context: Context) : UwbManager {
                 rangingCapabilities.supportsAzimuthalAngle(),
                 rangingCapabilities.supportsElevationAngle()),
             UwbAddress(localAddress.address)
-        ).sessionHandler()
+        )
     }
 }
