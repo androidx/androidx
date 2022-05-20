@@ -127,12 +127,12 @@ public final class TollCard {
 
     /** Constructs an empty instance, used by serialization code. */
     private TollCard() {
-        mCardState = CarValue.UNIMPLEMENTED_INTEGER;
+        mCardState = CarValue.UNKNOWN_INTEGER;
     }
 
     /** A builder of {@link TollCard}. */
     public static final class Builder {
-        CarValue<@TollCardState Integer> mCardState = CarValue.UNIMPLEMENTED_INTEGER;
+        CarValue<@TollCardState Integer> mCardState = CarValue.UNKNOWN_INTEGER;
 
         /**
          * Sets the toll card state.
