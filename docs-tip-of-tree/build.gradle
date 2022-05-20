@@ -177,6 +177,7 @@ dependencies {
     docs(project(":lifecycle:lifecycle-reactivestreams"))
     docs(project(":lifecycle:lifecycle-reactivestreams-ktx"))
     docs(project(":lifecycle:lifecycle-runtime"))
+    docs(project(":lifecycle:lifecycle-runtime-compose"))
     docs(project(":lifecycle:lifecycle-runtime-ktx"))
     docs(project(":lifecycle:lifecycle-runtime-testing"))
     docs(project(":lifecycle:lifecycle-service"))
