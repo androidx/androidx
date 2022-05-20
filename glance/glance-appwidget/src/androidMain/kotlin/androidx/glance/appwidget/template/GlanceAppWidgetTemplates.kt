@@ -32,15 +32,16 @@ import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.width
-import androidx.glance.text.Text
-import androidx.glance.text.TextStyle
 import androidx.glance.template.TemplateButton
 import androidx.glance.template.TemplateImageButton
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
 import androidx.glance.template.TemplateTextButton
+import androidx.glance.text.Text
+import androidx.glance.text.TextStyle
 
 /**
  * Default header template layout implementation for AppWidgets, usually displayed at the top of the
@@ -48,16 +49,18 @@ import androidx.glance.template.TemplateTextButton
  *
  * @param headerIcon glanceable main logo icon
  * @param header main header text
+ * @param actionButton main header action button to the right side
  */
 @Composable
 internal fun AppWidgetTemplateHeader(
-    headerIcon: TemplateImageWithDescription?,
-    header: TemplateText?
+    headerIcon: TemplateImageWithDescription? = null,
+    header: TemplateText? = null,
+    actionButton: TemplateButton? = null,
 ) {
-    if (headerIcon == null && header == null) return
+    if (headerIcon == null && header == null && actionButton == null) return
 
     Row(
-        modifier = GlanceModifier.background(Color.Transparent),
+        modifier = GlanceModifier.fillMaxWidth().background(Color.Transparent),
         verticalAlignment = Alignment.CenterVertically
     ) {
         headerIcon?.let {
@@ -71,7 +74,6 @@ internal fun AppWidgetTemplateHeader(
             if (headerIcon != null) {
                 Spacer(modifier = GlanceModifier.width(8.dp))
             }
-
             val size =
                 textSize(TemplateText.Type.Title, DisplaySize.fromDpSize(LocalSize.current))
             Text(
@@ -79,6 +81,12 @@ internal fun AppWidgetTemplateHeader(
                 text = header.text,
                 style = TextStyle(fontSize = size),
                 maxLines = 1
+            )
+        }
+        actionButton?.let {
+            AppWidgetTemplateButton(
+                actionButton,
+                GlanceModifier.height(48.dp).width(48.dp)
             )
         }
     }
@@ -112,9 +120,15 @@ internal fun AppWidgetTextSection(textList: List<TemplateText>) {
 
 /**
  * Displays a [TemplateButton] for AppWidget layouts.
+ *
+ * @param button text or image button
+ * @param glanceModifier Glance modifier for further text or image button customization
  */
 @Composable
-internal fun AppWidgetTemplateButton(button: TemplateButton) {
+internal fun AppWidgetTemplateButton(
+    button: TemplateButton,
+    glanceModifier: GlanceModifier = GlanceModifier
+) {
     when (button) {
         is TemplateImageButton -> {
             // TODO: Specify sizing for image button
@@ -122,11 +136,11 @@ internal fun AppWidgetTemplateButton(button: TemplateButton) {
             Image(
                 provider = image.image,
                 contentDescription = image.description,
-                modifier = GlanceModifier.clickable(button.action)
+                modifier = glanceModifier.clickable(button.action)
             )
         }
         is TemplateTextButton -> {
-            Button(text = button.text, onClick = button.action)
+            Button(text = button.text, onClick = button.action, modifier = glanceModifier)
         }
     }
 }
