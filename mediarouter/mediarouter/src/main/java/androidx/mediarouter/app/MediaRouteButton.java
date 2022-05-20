@@ -58,37 +58,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The media route button allows the user to select routes and to control the
- * currently selected route.
- * <p>
- * The application must specify the kinds of routes that the user should be allowed
- * to select by specifying a {@link MediaRouteSelector selector} with the
- * {@link #setRouteSelector} method.
- * </p><p>
- * When the default route is selected, the button will appear in an inactive state indicating
- * that the application is not connected to a route. Clicking on the button opens
- * a {@link MediaRouteChooserDialog} to allow the user to select a route.
- * If no non-default routes match the selector and it is not possible for an active
- * scan to discover any matching routes, then the button is disabled and cannot
- * be clicked unless {@link #setAlwaysVisible} is called.
- * </p><p>
- * When a non-default route is selected, the button will appear in an active state indicating
- * that the application is connected to a route of the kind that it wants to use.
- * The button may also appear in an intermediary connecting state if the route is in the process
- * of connecting to the destination but has not yet completed doing so.  In either case, clicking
- * on the button opens a {@link MediaRouteControllerDialog} to allow the user
- * to control or disconnect from the current route.
- * </p>
+ * The media route button allows the user to select routes and to control the currently selected
+ * route.
+ *
+ * <p>The application must specify the kinds of routes that the user should be allowed to select
+ * by specifying a {@link MediaRouteSelector selector} with the {@link #setRouteSelector} method.
+ *
+ * <p>When the default route is selected, the button will appear in an inactive state indicating
+ * that the application is not connected to a route. Clicking on the button opens a
+ * {@link MediaRouteChooserDialog} to allow the user to select a route. If no non-default routes
+ * match the selector and it is not possible for an active scan to discover any matching routes,
+ * then the button is disabled and cannot be clicked unless {@link #setAlwaysVisible} is called.
+ *
+ * <p>When a non-default route is selected, the button will appear in an active state indicating
+ * that the application is connected to a route of the kind that it wants to use. The button may
+ * also appear in an intermediary connecting state if the route is in the process of connecting
+ * to the destination but has not yet completed doing so. In either case, clicking on the button
+ * opens a {@link MediaRouteControllerDialog} to allow the user to control or disconnect from the
+ * current route.
  *
  * <h3>Prerequisites</h3>
- * <p>
- * To use the media route button, the activity must be a subclass of
- * {@link FragmentActivity} from the <code>android.support.v4</code>
- * support library.  Refer to support library documentation for details.
- * </p>
+ *
+ * To use the media route button, the containing activity must be a subclass of
+ * {@link FragmentActivity}.
  *
  * @see MediaRouteActionProvider
- * @see #setRouteSelector
  */
 public class MediaRouteButton extends View {
     private static final String TAG = "MediaRouteButton";
