@@ -232,6 +232,9 @@ build completes.
 > -Dsun.java2d.uiScale.enabled=false
 > ```
 
+> NOTE: We are aware of a bug where running `./studiow` does not result in
+> Android Studio application being launched.
+
 If in the future you encounter unexpected errors in Studio and you want to check
 for the possibility it is due to some incorrect settings or other generated
 files, you can run `./studiow --clean main <project subset>` or `./studiow
