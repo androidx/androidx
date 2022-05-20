@@ -346,7 +346,7 @@ public fun ScalingLazyColumn(
             space = 4.dp,
             alignment = if (!reverseLayout) Alignment.Top else Alignment.Bottom
         ),
-    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
+    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     scalingParams: ScalingParams = ScalingLazyColumnDefaults.scalingParams(),
