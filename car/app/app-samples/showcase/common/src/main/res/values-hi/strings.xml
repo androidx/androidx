@@ -45,10 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"आज़माएं"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"हां"</string>
     <string name="no_action_title" msgid="1452124604210014010">"नहीं"</string>
-    <!-- no translation found for disable_all_rows (3003225080532928046) -->
-    <skip />
-    <!-- no translation found for enable_all_rows (7274285275711872091) -->
-    <skip />
+    <string name="disable_all_rows" msgid="3003225080532928046">"सभी रो बंद करें"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"सभी रो चालू करें"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"गड़बड़ी को रिपोर्ट किया गया!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"ज़ूम इन किया गया"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"ज़ूम आउट किया गया"</string>
@@ -280,12 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"पहला विकल्प"</string>
     <string name="option_2_title" msgid="1905146448697963818">"दूसरा विकल्प"</string>
     <string name="option_3_title" msgid="6319268250436119258">"तीसरा विकल्प"</string>
-    <!-- no translation found for option_row_radio_title (5978617101267398181) -->
-    <skip />
-    <!-- no translation found for option_row_radio_icon_title (3304229002524317977) -->
-    <skip />
-    <!-- no translation found for option_row_radio_icon_colored_text_title (947641896184637026) -->
-    <skip />
+    <string name="option_row_radio_title" msgid="5978617101267398181">"रेडियो बटन वाली रो"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"रेडियो बटन और आइकॉन वाली रो"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"रेडियो बटन, आइकॉन, और कलर किए हुए टेक्स्ट वाली रो"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"अतिरिक्त टेक्स्ट"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"चुनी जा सकने वाली सूची का सैंपल"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"टास्क पर लगी पाबंदी से जुड़ा डेमो"</string>
@@ -294,27 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"आगे जाने के लिए क्लिक करें"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"टॉगल टेस्ट"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"स्टेटफ़ुल बदलाव करने की अनुमति है"</string>
-    <!-- no translation found for toggle_test_first_toggle_title (3635022201072117680) -->
-    <skip />
-    <!-- no translation found for toggle_test_first_toggle_text (5914741538328669668) -->
-    <skip />
-    <!-- no translation found for toggle_test_second_toggle_title (1083594617400613969) -->
-    <skip />
-    <!-- no translation found for toggle_test_second_toggle_text (1813071017415876745) -->
-    <skip />
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"टॉगल टेस्ट चालू करें"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"टॉगल टेस्ट चालू करने के लिए इसे देखें"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"टॉगल टेस्ट"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"स्टेटफ़ुल बदलाव करने की अनुमति है"</string>
     <string name="image_test_title" msgid="8273863429801477547">"इमेज टेस्ट"</string>
     <string name="image_test_text" msgid="6264812093895530445">"इमेज में बदलाव किए जा सकते हैं"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"अतिरिक्त डेटा"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"पिछले पेज पर जाकर बदलाव किए जा सकते हैं."</string>
-    <!-- no translation found for toggle_test_enabled (982370904182034076) -->
-    <skip />
-    <!-- no translation found for toggle_test_disabled (8366040658408451664) -->
-    <skip />
+    <string name="toggle_test_enabled" msgid="982370904182034076">"टॉगल टेस्ट चालू किया गया"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"टॉगल टेस्ट बंद किया गया"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"दूसरे टेंप्लेट के डेमो"</string>
-    <!-- no translation found for cal_api_level_prefix (5933606412710039570) -->
-    <skip />
     <string name="showcase_demos_title" msgid="1542092687878113304">"डेमो दिखाएं"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"रंगीन रिसॉर्स वेक्टर"</string>
     <string name="location_2_description" msgid="3331356135359047166">"इमेज रिसॉर्स का बिट मैप"</string>
     <string name="location_3_description" msgid="3982142774088944850">"रंगीन टेक्स्ट मार्कर"</string>

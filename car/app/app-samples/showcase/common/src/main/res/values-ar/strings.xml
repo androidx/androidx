@@ -36,8 +36,7 @@
     <string name="on_action_title" msgid="4129601573763429611">"مُفعّل"</string>
     <string name="off_action_title" msgid="8669201170189204848">"إيقاف"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"الإعدادات"</string>
-    <!-- no translation found for accept_action_title (4899660585470647578) -->
-    <skip />
+    <string name="accept_action_title" msgid="4899660585470647578">"قبول"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"رفض"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"حسنًا"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"طرح"</string>
@@ -46,10 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"المحاولة على أيّ حال"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"نعم"</string>
     <string name="no_action_title" msgid="1452124604210014010">"لا"</string>
-    <!-- no translation found for disable_all_rows (3003225080532928046) -->
-    <skip />
-    <!-- no translation found for enable_all_rows (7274285275711872091) -->
-    <skip />
+    <string name="disable_all_rows" msgid="3003225080532928046">"إيقاف جميع الصفوف"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"تفعيل جميع الصفوف"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"تم الإبلاغ عن الخطأ."</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"تم التكبير"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"تم التصغير"</string>
@@ -281,12 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"الخيار الأول"</string>
     <string name="option_2_title" msgid="1905146448697963818">"الخيار الثاني"</string>
     <string name="option_3_title" msgid="6319268250436119258">"الخيار الثالث"</string>
-    <!-- no translation found for option_row_radio_title (5978617101267398181) -->
-    <skip />
-    <!-- no translation found for option_row_radio_icon_title (3304229002524317977) -->
-    <skip />
-    <!-- no translation found for option_row_radio_icon_colored_text_title (947641896184637026) -->
-    <skip />
+    <string name="option_row_radio_title" msgid="5978617101267398181">"صف يحتوي على \"زر اختيار\"."</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"صف يحتوي على \"زر اختيار\" و\"رمز\"."</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"صف يحتوي على \"زر اختيار\" و\"رمز\" و\"نص ملون\"."</string>
     <string name="some_additional_text" msgid="4009872495806318260">"بعض النصوص الإضافية"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"نموذج لقائمة قابلة للاختيار"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"إصدار تجريبي لتقييد المهمّة"</string>
@@ -295,27 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"انقر للتقدم إلى الأمام."</string>
     <string name="toggle_test_title" msgid="924485265152862631">"إيقاف/تفعيل الاختبار"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"يُسمَح بتغيير الحالة."</string>
-    <!-- no translation found for toggle_test_first_toggle_title (3635022201072117680) -->
-    <skip />
-    <!-- no translation found for toggle_test_first_toggle_text (5914741538328669668) -->
-    <skip />
-    <!-- no translation found for toggle_test_second_toggle_title (1083594617400613969) -->
-    <skip />
-    <!-- no translation found for toggle_test_second_toggle_text (1813071017415876745) -->
-    <skip />
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"تفعيل زر إيقاف/تفعيل الاختبار"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"ضَعْ علامة في مربّع الاختيار هذا لتفعيل زر إيقاف/تفعيل الاختبار."</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"إيقاف/تفعيل الاختبار"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"يُسمَح بتغيير الحالة."</string>
     <string name="image_test_title" msgid="8273863429801477547">"اختبار الصورة"</string>
     <string name="image_test_text" msgid="6264812093895530445">"يُسمَح بإجراء تغييرات على الصورة."</string>
     <string name="additional_data_title" msgid="3546689652240300617">"البيانات الإضافية"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"التحديثات المسموح بها على العمليات التي تتم بالخلفية"</string>
-    <!-- no translation found for toggle_test_enabled (982370904182034076) -->
-    <skip />
-    <!-- no translation found for toggle_test_disabled (8366040658408451664) -->
-    <skip />
+    <string name="toggle_test_enabled" msgid="982370904182034076">"تم تفعيل زر إيقاف/تفعيل الاختبار."</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"تم إيقاف زر إيقاف/تفعيل الاختبار."</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"إصدارات تجريبية لنموذج ميزات متنوّعة"</string>
-    <!-- no translation found for cal_api_level_prefix (5933606412710039570) -->
-    <skip />
     <string name="showcase_demos_title" msgid="1542092687878113304">"عرض الإصدارات التجريبية"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"متّجه مورد بدرجات ألوان"</string>
     <string name="location_2_description" msgid="3331356135359047166">"صورة نقطية لمصدر الصورة"</string>
     <string name="location_3_description" msgid="3982142774088944850">"علامة النص الملوّن"</string>

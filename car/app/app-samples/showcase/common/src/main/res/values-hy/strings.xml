@@ -45,10 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"Փորձել"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"Այո"</string>
     <string name="no_action_title" msgid="1452124604210014010">"Ոչ"</string>
-    <!-- no translation found for disable_all_rows (3003225080532928046) -->
-    <skip />
-    <!-- no translation found for enable_all_rows (7274285275711872091) -->
-    <skip />
+    <string name="disable_all_rows" msgid="3003225080532928046">"Անջատել բոլոր տողերը"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"Միացնել բոլոր տողերը"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"Վրիպակի մասին հաղորդվեց"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"Մեծացվեց"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"Փոքրացվեց"</string>
@@ -241,7 +239,7 @@
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Ձեր խնամորդը չի աջակցում մուտքի ձևանմուշը"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Անհամատեղելի խնամորդ"</string>
     <string name="email_hint" msgid="7205549445477319606">"Էլփոստ"</string>
-    <string name="sign_in_title" msgid="4551967308262681703">"Մուտք գործել"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"Մուտք"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"Մուտքագրեք ձեր մուտքի տվյալները"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"Օգտատիրոջ անունը պետք է լինի վավեր էլ․ հասցե"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"Օգտատիրոջ անունը պետք է պարունակի առնվազն %s նիշ"</string>
@@ -280,12 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"Տարբերակ 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Տարբերակ 2"</string>
     <string name="option_3_title" msgid="6319268250436119258">"Տարբերակ 3"</string>
-    <!-- no translation found for option_row_radio_title (5978617101267398181) -->
-    <skip />
-    <!-- no translation found for option_row_radio_icon_title (3304229002524317977) -->
-    <skip />
-    <!-- no translation found for option_row_radio_icon_colored_text_title (947641896184637026) -->
-    <skip />
+    <string name="option_row_radio_title" msgid="5978617101267398181">"Կետակոճակով տող"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"Կետակոճակով և պատկերակով տող"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"Կետակոճակով, պատկերակով և գունավոր տեքստով տող"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"Լրացուցիչ տեքստ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Ընտրելու տարբերակներով ցանկի օրինակ"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Առաջադրանքների սահմանափակման դեմո"</string>
@@ -294,27 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"Սեղմեք՝ առաջ անցնելու համար"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Միացնել/անջատել ստուգումը"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Կարգավիճակի փոփոխությունները թույլատրված են"</string>
-    <!-- no translation found for toggle_test_first_toggle_title (3635022201072117680) -->
-    <skip />
-    <!-- no translation found for toggle_test_first_toggle_text (5914741538328669668) -->
-    <skip />
-    <!-- no translation found for toggle_test_second_toggle_title (1083594617400613969) -->
-    <skip />
-    <!-- no translation found for toggle_test_second_toggle_text (1813071017415876745) -->
-    <skip />
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Միացնել փոխանջատիչի փորձարկումը"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"Նշեք այս վանդակը՝ փոխանջատիչի փորձարկումը միացնելու համար"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"Փոխանջատիչի փորձարկում"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"Կարգավիճակի փոփոխությունները թույլատրված են"</string>
     <string name="image_test_title" msgid="8273863429801477547">"Պատկերների ստուգում"</string>
     <string name="image_test_text" msgid="6264812093895530445">"Դուք կարող եք փոխել պատկերները"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Լրացուցիչ տվյալներ"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"Թարմացումները թույլատրված են՝ ֆոնային ռեժիմում գործողություններ կատարելու համար։"</string>
-    <!-- no translation found for toggle_test_enabled (982370904182034076) -->
-    <skip />
-    <!-- no translation found for toggle_test_disabled (8366040658408451664) -->
-    <skip />
+    <string name="toggle_test_enabled" msgid="982370904182034076">"Փոխանջատիչի փորձարկումը միացված է"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"Փոխանջատիչի փորձարկումն անջատված է"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Այլ ձևանմուշների դեմոներ"</string>
-    <!-- no translation found for cal_api_level_prefix (5933606412710039570) -->
-    <skip />
     <string name="showcase_demos_title" msgid="1542092687878113304">"Ցուցադրել դեմոները"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Երանգավորված ռեսուրսների վեկտոր"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Պատկերի ռեսուրսի բիթային քարտեզ"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Գունավոր տեքստի նշիչ"</string>

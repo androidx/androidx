@@ -45,10 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"試してみる"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"はい"</string>
     <string name="no_action_title" msgid="1452124604210014010">"いいえ"</string>
-    <!-- no translation found for disable_all_rows (3003225080532928046) -->
-    <skip />
-    <!-- no translation found for enable_all_rows (7274285275711872091) -->
-    <skip />
+    <string name="disable_all_rows" msgid="3003225080532928046">"すべての行を無効にする"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"すべての行を有効にする"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"バグを報告しました！"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"拡大しました"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"縮小しました"</string>
@@ -280,12 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"オプション 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"オプション 2"</string>
     <string name="option_3_title" msgid="6319268250436119258">"オプション 3"</string>
-    <!-- no translation found for option_row_radio_title (5978617101267398181) -->
-    <skip />
-    <!-- no translation found for option_row_radio_icon_title (3304229002524317977) -->
-    <skip />
-    <!-- no translation found for option_row_radio_icon_colored_text_title (947641896184637026) -->
-    <skip />
+    <string name="option_row_radio_title" msgid="5978617101267398181">"ラジオボタンがある行"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"ラジオボタンとアイコンがある行"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"ラジオボタンとアイコンと色付きのテキストがある行"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"追加のテキスト"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"選択可能リストの例"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"タスク制限のデモ"</string>
@@ -294,27 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"クリックして続行"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"切り替えのテスト"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"ステートフルな変更が許可されています"</string>
-    <!-- no translation found for toggle_test_first_toggle_title (3635022201072117680) -->
-    <skip />
-    <!-- no translation found for toggle_test_first_toggle_text (5914741538328669668) -->
-    <skip />
-    <!-- no translation found for toggle_test_second_toggle_title (1083594617400613969) -->
-    <skip />
-    <!-- no translation found for toggle_test_second_toggle_text (1813071017415876745) -->
-    <skip />
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"切り替えのテストを有効にする"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"切り替えのテストを有効にするには、このチェックボックスを ON にしてください"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"切り替えのテスト"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"ステートフルな変更が許可されています"</string>
     <string name="image_test_title" msgid="8273863429801477547">"画像テスト"</string>
     <string name="image_test_text" msgid="6264812093895530445">"画像の変更が許可されています"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"追加データ"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"アップデートにより「戻る」操作ができるようになりました。"</string>
-    <!-- no translation found for toggle_test_enabled (982370904182034076) -->
-    <skip />
-    <!-- no translation found for toggle_test_disabled (8366040658408451664) -->
-    <skip />
+    <string name="toggle_test_enabled" msgid="982370904182034076">"切り替えのテスト有効"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"切り替えのテスト無効"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"その他のテンプレートのデモ"</string>
-    <!-- no translation found for cal_api_level_prefix (5933606412710039570) -->
-    <skip />
     <string name="showcase_demos_title" msgid="1542092687878113304">"デモを表示"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"色合い調整されたリソース ベクター"</string>
     <string name="location_2_description" msgid="3331356135359047166">"画像リソースのビットマップ"</string>
     <string name="location_3_description" msgid="3982142774088944850">"色付きのテキスト マーカー"</string>
