@@ -83,7 +83,6 @@ Fix for src/androidx/sample/core/widget/ListViewCompat.java line 39: Extract to 
 -             listView.scrollListBy(y);
 +             Api19Impl.scrollListBy(listView, y);
 @@ -91 +91
-- }
 + @androidx.annotation.RequiresApi(19)
 + static class Api19Impl {
 +     private Api19Impl() {
@@ -94,15 +93,14 @@ Fix for src/androidx/sample/core/widget/ListViewCompat.java line 39: Extract to 
 +     static void scrollListBy(android.widget.AbsListView absListView, int y) {
 +         absListView.scrollListBy(y);
 +     }
-@@ -93 +102
-+ }}
 +
+@@ -92 +103
++ }
 Fix for src/androidx/sample/core/widget/ListViewCompat.java line 69: Extract to static inner class:
 @@ -69 +69
 -             return listView.canScrollList(direction);
 +             return Api19Impl.canScrollList(listView, direction);
 @@ -91 +91
-- }
 + @androidx.annotation.RequiresApi(19)
 + static class Api19Impl {
 +     private Api19Impl() {
@@ -113,9 +111,9 @@ Fix for src/androidx/sample/core/widget/ListViewCompat.java line 69: Extract to 
 +     static boolean canScrollList(android.widget.AbsListView absListView, int direction) {
 +         return absListView.canScrollList(direction);
 +     }
-@@ -93 +102
-+ }}
 +
+@@ -92 +103
++ }
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -200,7 +198,6 @@ Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract 
 -             view.setBackgroundTintList(new ColorStateList(null, null));
 +             Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
 @@ -37 +37
-- }
 + @annotation.RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
@@ -211,9 +208,9 @@ Fix for src/androidx/AutofixUnsafeVoidMethodReferenceJava.java line 34: Extract 
 +     static void setBackgroundTintList(View view, ColorStateList tint) {
 +         view.setBackgroundTintList(tint);
 +     }
-@@ -39 +48
-+ }}
 +
+@@ -38 +49
++ }
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -233,7 +230,6 @@ Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract
 -             AccessibilityNodeInfo node = new AccessibilityNodeInfo(new View(context), 1);
 +             AccessibilityNodeInfo node = Api30Impl.createAccessibilityNodeInfo(new View(context), 1);
 @@ -38 +38
-- }
 + @annotation.RequiresApi(30)
 + static class Api30Impl {
 +     private Api30Impl() {
@@ -244,9 +240,9 @@ Fix for src/androidx/AutofixUnsafeConstructorReferenceJava.java line 35: Extract
 +     static AccessibilityNodeInfo createAccessibilityNodeInfo(View root, int virtualDescendantId) {
 +         return new AccessibilityNodeInfo(root, virtualDescendantId);
 +     }
-@@ -40 +49
-+ }}
 +
+@@ -39 +50
++ }
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -266,7 +262,6 @@ Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extrac
 -             return View.generateViewId();
 +             return Api17Impl.generateViewId();
 @@ -37 +37
-- }
 + @annotation.RequiresApi(17)
 + static class Api17Impl {
 +     private Api17Impl() {
@@ -277,9 +272,9 @@ Fix for src/androidx/AutofixUnsafeStaticMethodReferenceJava.java line 33: Extrac
 +     static int generateViewId() {
 +         return View.generateViewId();
 +     }
-@@ -39 +48
-+ }}
 +
+@@ -38 +49
++ }
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -299,7 +294,6 @@ Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extra
 -             return context.getSystemService(serviceClass);
 +             return Api23Impl.getSystemService(context, serviceClass);
 @@ -38 +38
-- }
 + @annotation.RequiresApi(23)
 + static class Api23Impl {
 +     private Api23Impl() {
@@ -310,9 +304,9 @@ Fix for src/androidx/AutofixUnsafeGenericMethodReferenceJava.java line 34: Extra
 +     static <T> T getSystemService(Context context, Class<T> serviceClass) {
 +         return context.getSystemService(serviceClass);
 +     }
-@@ -40 +49
-+ }}
 +
+@@ -39 +50
++ }
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -333,7 +327,6 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: E
 -             view.setBackgroundTintList(new ColorStateList(null, null));
 +             Api21Impl.setBackgroundTintList(view, new ColorStateList(null, null));
 @@ -46 +46
-- }
 + @RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
@@ -344,9 +337,9 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: E
 +     static void setBackgroundTintList(View view, ColorStateList tint) {
 +         view.setBackgroundTintList(tint);
 +     }
-@@ -48 +57
-+ }}
 +
+@@ -47 +58
++ }
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -377,7 +370,6 @@ Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java li
 -                 mContainer.mSplitBackground.getOutline(outline);
 +                 Api21Impl.getOutline(mContainer.mSplitBackground, outline);
 @@ -90 +90
-- }
 + @RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
@@ -388,15 +380,14 @@ Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java li
 +     static void getOutline(Drawable drawable, Outline outline) {
 +         drawable.getOutline(outline);
 +     }
-@@ -92 +101
-+ }}
 +
+@@ -91 +102
++ }
 Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java line 76: Extract to static inner class:
 @@ -76 +76
 -                 mContainer.mBackground.getOutline(outline);
 +                 Api21Impl.getOutline(mContainer.mBackground, outline);
 @@ -90 +90
-- }
 + @RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
@@ -407,9 +398,9 @@ Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java li
 +     static void getOutline(Drawable drawable, Outline outline) {
 +         drawable.getOutline(outline);
 +     }
-@@ -92 +101
-+ }}
 +
+@@ -91 +102
++ }
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -437,7 +428,6 @@ Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 35: Extract
 -         return callback.onSearchRequested(searchEvent);
 +         return Api23Impl.onSearchRequested(callback, searchEvent);
 @@ -37 +37
-- }
 + @RequiresApi(23)
 + static class Api23Impl {
 +     private Api23Impl() {
@@ -448,9 +438,9 @@ Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 35: Extract
 +     static boolean onSearchRequested(Window.Callback callback, SearchEvent p) {
 +         return callback.onSearchRequested(p);
 +     }
-@@ -39 +48
-+ }}
 +
+@@ -38 +49
++ }
         """
         /* ktlint-enable max-line-length */
 

@@ -22,7 +22,6 @@ import com.android.SdkConstants.ATTR_VALUE
 import com.android.tools.lint.checks.ApiLookup
 import com.android.tools.lint.checks.ApiLookup.equivalentName
 import com.android.tools.lint.checks.DesugaredMethodLookup
-import com.android.tools.lint.checks.VersionChecks.Companion.codeNameToApi
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Context
@@ -588,6 +587,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     }
                     $wrapperMethodBody
                 }
+
                 """.trimIndent()
             } else {
                 implInsertionPoint = context.getLocation(existingWrapperClass.lastChild)
