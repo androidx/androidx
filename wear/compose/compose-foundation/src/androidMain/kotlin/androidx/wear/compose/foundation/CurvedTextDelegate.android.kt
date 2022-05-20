@@ -174,24 +174,23 @@ internal actual class CurvedTextDelegate {
         addEllipsis: Boolean,
         ellipsizedWidth: Int,
     ): String {
-        // Code reused from wear/wear/src/main/java/androidx/wear/widget/CurvedTextView.java
-        val layoutBuilder =
-            StaticLayout.Builder.obtain(text, 0, text.length, paint, ellipsizedWidth)
-        layoutBuilder.setEllipsize(if (addEllipsis) TextUtils.TruncateAt.END else null)
-        layoutBuilder.setMaxLines(1)
-        val layout = layoutBuilder.build()
+        if (addEllipsis) {
+            return TextUtils.ellipsize(
+                text,
+                paint,
+                ellipsizedWidth.toFloat(),
+                TextUtils.TruncateAt.END
+            ).toString()
+        }
+
+        val layout = StaticLayout.Builder
+            .obtain(text, 0, text.length, paint, ellipsizedWidth)
+            .setEllipsize(null)
+            .setMaxLines(1)
+            .build()
 
         // Cut text that it's too big when in TextOverFlow.Clip mode.
-        if (!addEllipsis) {
-            return text.substring(0, layout.getLineEnd(0))
-        }
-        val ellipsisCount = layout.getEllipsisCount(0)
-        if (ellipsisCount == 0) {
-            return text
-        }
-        val ellipsisStart = layout.getEllipsisStart(0)
-        // "\u2026" is unicode's ellipsis "..."
-        return text.replaceRange(ellipsisStart, ellipsisStart + ellipsisCount, "\u2026")
+        return text.substring(0, layout.getLineEnd(0))
     }
 
     private fun getNativeTypeface(

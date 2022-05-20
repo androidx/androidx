@@ -58,6 +58,7 @@ import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.StepperSample
 import androidx.wear.compose.material.samples.StepperWithIntegerSample
+import androidx.wear.compose.material.samples.TimeTextAnimation
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
 import androidx.wear.compose.material.samples.TimeTextWithStatus
 import androidx.wear.compose.material.samples.TitleCardStandard
@@ -182,6 +183,12 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Clock with Status") { TimeTextWithStatus() },
                         ComposableDemo("Clock with custom time format") {
                             TimeTextWithFullDateAndTimeFormat()
+                        },
+                        ComposableDemo("Clock with animated status",
+                            "A TimeText with status that animates in/out when tapping " +
+                                "the central button."
+                        ) {
+                            TimeTextAnimation()
                         },
                     )
                 ),

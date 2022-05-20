@@ -69,6 +69,9 @@ import androidx.wear.compose.material.TimeTextDefaults.timeFormat
  * An example of a [TimeText] with a different date and time format:
  * @sample androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
  *
+ * An example of a [TimeText] animating a message that is added or removed
+ * @sample androidx.wear.compose.material.samples.TimeTextAnimation
+ *
  * @param modifier Current modifier.
  * @param timeSource [TimeSource] which retrieves the current time and formats it.
  * @param timeTextStyle Optional textStyle for the time text itself
