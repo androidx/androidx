@@ -836,44 +836,15 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 "may not be available at run time, including platform APIs introduced after a " +
                 "library's minSdkVersion.",
             """
-                The Java language requires a virtual machine to verify the class files it
-                loads and executes. A class may fail verification for a wide variety of
-                reasons, but in practice it‘s usually because the class’s code refers to
-                unknown classes or methods.
-                
                 References to APIs added after a library's minSdkVersion -- regardless of
                 any surrounding version checks -- will fail run-time class verification if
-                the API does not exist on the device, leading to reduced run-time
-                performance.
+                the API does not exist on the device, leading to reduced run-time performance.
 
-                Gating references on SDK checks alone DOES NOT address class verification
-                failures.
+                To prevent class verification failures, references to new APIs must be moved to
+                methods within inner classes that are only initialized inside of an appropriate
+                SDK check. These methods must be paired with the @DoNotInline annotation.
 
-                To prevent class verification failures, references to new APIs must be
-                moved to inner classes that are only initialized inside of an appropriate
-                SDK check.
-
-                For example, if our minimum SDK is 14 and platform method a.x(params...)
-                was added in SDK 16, the method call must be moved to an inner class like:
-
-                @RequiresApi(16)
-                private static class Api16Impl{
-                  @DoNotInline
-                  static void callX(params...) {
-                    a.x(params...);
-                  }
-                }
-
-                The call site is changed from a.x(params...) to Api16Impl.callX(params).
-
-                Since ART will only try to optimize Api16Impl when it's on the execution
-                path, we are guaranteed to have a.x(...) available.
-
-                In addition, optimizers like R8 or Proguard may inline the method in the
-                separate class and replace the wrapper call with the actual call, so you
-                must disable inlining using the @DoNotInline annotation.
-
-                Failure to do the above may result in overall performance degradation.
+                For more details and an example, see go/androidx-api-guidelines#compat-sdk.
             """,
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(ClassVerificationFailureDetector::class.java, Scope.JAVA_FILE_SCOPE)
