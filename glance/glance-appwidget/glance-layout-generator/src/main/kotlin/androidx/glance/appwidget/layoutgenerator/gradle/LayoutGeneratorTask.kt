@@ -24,6 +24,7 @@ import com.android.build.gradle.LibraryExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
@@ -37,6 +38,7 @@ import java.io.File
  * See [LayoutGenerator] for details on the template format, and [generateRegistry] for details
  * on the Kotlin code generated to access those layouts from code.
  */
+@CacheableTask
 abstract class LayoutGeneratorTask : DefaultTask() {
 
     @get:PathSensitive(PathSensitivity.NAME_ONLY)

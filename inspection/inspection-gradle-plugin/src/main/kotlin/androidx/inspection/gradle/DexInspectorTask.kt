@@ -44,6 +44,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.process.ExecOperations
+import org.gradle.work.DisableCachingByDefault
 
 @CacheableTask
 abstract class DexInspectorTask : DefaultTask() {
@@ -132,8 +133,9 @@ fun Project.registerUnzipTask(
 }
 
 // Working around Gradle issue https://github.com/gradle/gradle/issues/17936
+@DisableCachingByDefault(because = "Doesn't benefit from cache")
 abstract class CopyFixed : DefaultTask() {
-    @get:InputFile
+    @get:[InputFile PathSensitive(PathSensitivity.ABSOLUTE)]
     abstract val inputJar: RegularFileProperty
 
     @get:OutputDirectory
