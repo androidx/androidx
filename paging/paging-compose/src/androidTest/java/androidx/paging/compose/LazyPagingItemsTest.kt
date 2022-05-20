@@ -39,9 +39,9 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.TestPagingSource
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -487,7 +487,7 @@ class LazyPagingItemsTest {
             .assertTopPositionInRootIsEqualTo(itemSize * 2)
     }
 
-    @FlakyTest(bugId = 229089541)
+    @Ignore // b/229089541
     @Test
     fun removingItem() {
         val items = mutableListOf(1, 2, 3)
