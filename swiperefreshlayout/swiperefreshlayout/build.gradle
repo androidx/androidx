@@ -16,7 +16,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(libs.espressoContrib, excludes.espresso)
+    androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-espresso"))
@@ -26,6 +26,7 @@ dependencies {
     androidTestImplementation(project(":recyclerview:recyclerview"), {
         exclude group: "androidx.swiperefreshlayout", module: "swiperefreshlayout"
     })
+    androidTestImplementation(libs.multidex)
 }
 
 androidx {
@@ -37,5 +38,8 @@ androidx {
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
     namespace "androidx.swiperefreshlayout"
 }
