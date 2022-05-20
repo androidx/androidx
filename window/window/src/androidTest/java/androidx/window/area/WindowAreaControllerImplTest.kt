@@ -39,7 +39,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Ignore
 
-@Ignore // todo(b/222407443)
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalWindowApi::class)
 class WindowAreaControllerImplTest {
 
@@ -49,6 +48,7 @@ class WindowAreaControllerImplTest {
 
     private val testScope = TestScope(UnconfinedTestDispatcher())
 
+    @Ignore // todo(b/222407443)
     @TargetApi(Build.VERSION_CODES.N)
     @Test
     public fun testRearDisplayStatus(): Unit = testScope.runTest {
@@ -72,6 +72,7 @@ class WindowAreaControllerImplTest {
         }
     }
 
+    @Ignore // todo(b/222407443)
     @Test
     public fun testRearDisplayStatusNullComponent(): Unit = testScope.runTest {
         activityScenario.scenario.onActivity {
@@ -90,6 +91,7 @@ class WindowAreaControllerImplTest {
      * changes the orientation of the activity to landscape when rear display mode is enabled
      * and then returns it back to portrait when it's disabled.
      */
+    @Ignore // todo(b/222407443)
     @TargetApi(Build.VERSION_CODES.N)
     @Test
     public fun testRearDisplayMode(): Unit = testScope.runTest {
@@ -121,6 +123,7 @@ class WindowAreaControllerImplTest {
         }
     }
 
+    @Ignore // todo(b/222407443)
     @TargetApi(Build.VERSION_CODES.N)
     @Test
     public fun testRearDisplayModeReturnsError(): Unit = testScope.runTest {
@@ -136,6 +139,7 @@ class WindowAreaControllerImplTest {
         }
     }
 
+    @Ignore // todo(b/222407443)
     @Test
     public fun testRearDisplayModeNullComponent(): Unit = testScope.runTest {
         val repo = EmptyWindowAreaControllerImpl()
