@@ -27,6 +27,14 @@ buildscript {
     }
 }
 
+// Abort immediately if we're running in Studio, but not a managed instance of Studio.
+if (startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
+    def expectedAgpVersion = System.getenv().get("EXPECTED_AGP_VERSION")
+    if (expectedAgpVersion == null) {
+        throw new Exception("Android Studio must be run from studiow or gradlew studio.")
+    }
+}
+
 // Makes strong assumptions about the project structure.
 def prebuiltsRoot = new File(
         buildscript.sourceFile.parentFile.parentFile.parentFile,
