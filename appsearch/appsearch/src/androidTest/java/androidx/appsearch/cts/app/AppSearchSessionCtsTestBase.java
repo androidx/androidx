@@ -54,6 +54,7 @@ import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.cts.app.customer.EmailDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.testutil.AppSearchEmail;
+import androidx.collection.ArrayMap;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.ImmutableList;
@@ -70,6 +71,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -668,9 +670,22 @@ public abstract class AppSearchSessionCtsTestBase {
         // AppSearchResult could handle large batch.
         SearchResults searchResults = mDb1.search("end", new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setResultCountPerPage(4000)
                 .build());
         List<GenericDocument> outDocuments = convertSearchResultsToDocuments(searchResults);
-        assertThat(inDocuments).containsExactlyElementsIn(outDocuments);
+
+        // Create a map to assert the output is same to the input in O(n).
+        // containsExactlyElementsIn will create two iterators and the complexity is O(n^2).
+        Map<String, GenericDocument> outMap = new ArrayMap<>(outDocuments.size());
+        for (int i = 0; i < outDocuments.size(); i++) {
+            outMap.put(outDocuments.get(i).getId(), outDocuments.get(i));
+        }
+        for (int i = 0; i < inDocuments.size(); i++) {
+            GenericDocument inDocument = inDocuments.get(i);
+            assertThat(inDocument).isEqualTo(outMap.get(inDocument.getId()));
+            outMap.remove(inDocument.getId());
+        }
+        assertThat(outMap).isEmpty();
 
         // Get by document ID and verify they are same with the input. This also verify
         // AppSearchBatchResult could handle large batch.
