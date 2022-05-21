@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
@@ -25,22 +24,17 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
-    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
-
+    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
     implementation(libs.kotlinStdlib)
-    implementation projectOrArtifact(":lifecycle:lifecycle-runtime-compose")
-    implementation "androidx.compose.material:material:1.0.1"
 }
 
 androidx {
-    name = "AndroidX Lifecycle Runtime Compose Integration Samples"
-    type = LibraryType.SAMPLES
-    mavenGroup = LibraryGroups.LIFECYCLE
-    inceptionYear = "2021"
-    description = "Samples for Compose integration with Lifecycle Runtime"
+    name = "Lifecycle Runtime Compose Demos"
+    publish = Publish.NONE
+    inceptionYear = "2022"
+    description = "This is a project for Lifecycle Runtime Compose demos."
 }
 
 android {
-    namespace "androidx.lifecycle.runtime.compose.samples"
+    namespace "androidx.lifecycle.runtime.compose.demos"
 }

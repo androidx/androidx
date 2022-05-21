@@ -27,10 +27,22 @@ plugins {
 
 dependencies {
     kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
-    api projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx")
+    api projectOrArtifact(":lifecycle:lifecycle-runtime-ktx")
     api("androidx.annotation:annotation-experimental:1.1.0")
+    api("androidx.compose.runtime:runtime:1.0.1")
+    api("androidx.compose.ui:ui:1.0.1")
 
     implementation(libs.kotlinStdlib)
+
+    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
+    androidTestImplementation projectOrArtifact(":compose:test-utils")
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
+
+    samples(projectOrArtifact(":lifecycle:lifecycle-runtime-compose:lifecycle-runtime-compose-samples"))
 }
 
 androidx {

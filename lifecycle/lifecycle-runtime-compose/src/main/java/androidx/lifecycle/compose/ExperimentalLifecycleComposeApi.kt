@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+package androidx.lifecycle.compose
 
-plugins {
-    id("AndroidXPlugin")
-    id("com.android.library")
-    id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
-}
-
-dependencies {
-    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
-    implementation(libs.kotlinStdlib)
-}
-
-androidx {
-    name = "Compose Lifecycle Runtime Demos"
-    publish = Publish.NONE
-    inceptionYear = "2022"
-    description = "This is a project for Lifecycle Runtime Compose demos."
-}
-
-android {
-    namespace "androidx.lifecycle.runtime.compose.demos"
-}
+@RequiresOptIn(message = "This is an experimental Lifecycle Compose API.")
+@Target(
+    AnnotationTarget.CLASS,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.PROPERTY_GETTER,
+)
+annotation class ExperimentalLifecycleComposeApi
