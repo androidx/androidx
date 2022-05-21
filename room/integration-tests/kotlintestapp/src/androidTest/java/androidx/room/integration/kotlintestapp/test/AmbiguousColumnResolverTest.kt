@@ -36,6 +36,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.collect.ImmutableListMultimap
 import com.google.common.collect.ImmutableMap
 import com.google.common.truth.Truth.assertThat
+import java.nio.ByteBuffer
 import org.junit.Before
 import org.junit.Test
 
@@ -48,7 +49,7 @@ class AmbiguousColumnResolverTest {
     private val comment1 = Comment(1, 1, "")
     private val comment2 = Comment(2, 2, "")
     private val comment3 = Comment(3, 2, "")
-    private val avatar1 = Avatar(1, "")
+    private val avatar1 = Avatar(1, "", ByteBuffer.allocate(0))
 
     @Before
     fun setup() {
@@ -95,6 +96,9 @@ class AmbiguousColumnResolverTest {
         dao.getUserCommentMapWithoutQueryVerification().let { result ->
             assertThat(result[user1]).containsExactly(comment1)
             assertThat(result[user2]).containsExactly(comment2, comment3)
+        }
+        dao.getCommentAvatarMapWithoutQueryVerification().let { result ->
+            assertThat(result[comment1]).isEqualTo(avatar1)
         }
     }
 
@@ -179,6 +183,10 @@ class AmbiguousColumnResolverTest {
         @Query("SELECT * FROM User JOIN Comment ON User.id = Comment.userId")
         fun getUserCommentMapWithoutQueryVerification(): Map<User, List<Comment>>
 
+        @SkipQueryVerification
+        @Query("SELECT * FROM Comment JOIN Avatar ON Comment.userId = Avatar.userId")
+        fun getCommentAvatarMapWithoutQueryVerification(): Map<Comment, Avatar>
+
         @Query("""
             SELECT User.id, name, Comment.id, userId, text
             FROM User JOIN Comment ON User.id = Comment.userId
@@ -248,6 +256,7 @@ class AmbiguousColumnResolverTest {
     data class Avatar(
         @PrimaryKey val userId: Int,
         val url: String,
+        val data: ByteBuffer,
     )
 
     data class UserAndAvatar(
