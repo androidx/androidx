@@ -26,6 +26,7 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.view.Display;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.mediarouter.R;
@@ -41,7 +42,6 @@ import java.util.Locale;
  * routes as user routes.
  */
 abstract class SystemMediaRouteProvider extends MediaRouteProvider {
-    private static final String TAG = "SystemMediaRouteProvider";
 
     public static final String PACKAGE_NAME = "android";
     public static final String DEFAULT_ROUTE_ID = "DEFAULT_ROUTE";
@@ -102,14 +102,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         void onSystemRouteSelectedByDescriptorId(@NonNull String id);
     }
 
-    protected Object getDefaultRoute() {
-        return null;
-    }
-
-    protected Object getSystemRoute(MediaRouter.RouteInfo route) {
-        return null;
-    }
-
     /**
      * Legacy implementation for platform versions prior to Jellybean.
      */
@@ -117,6 +109,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         static final int PLAYBACK_STREAM = AudioManager.STREAM_MUSIC;
 
         private static final ArrayList<IntentFilter> CONTROL_FILTERS;
+
         static {
             IntentFilter f = new IntentFilter();
             f.addCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO);
@@ -132,7 +125,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         public LegacyImpl(Context context) {
             super(context);
-            mAudioManager = (AudioManager)context.getSystemService(Context.AUDIO_SERVICE);
+            mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             mVolumeChangeReceiver = new VolumeChangeReceiver();
 
             context.registerReceiver(mVolumeChangeReceiver,
@@ -156,8 +149,8 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
             MediaRouteProviderDescriptor providerDescriptor =
                     new MediaRouteProviderDescriptor.Builder()
-                    .addRoute(defaultRoute)
-                    .build();
+                            .addRoute(defaultRoute)
+                            .build();
             setDescriptor(providerDescriptor);
         }
 
@@ -219,6 +212,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
     static class JellybeanImpl extends SystemMediaRouteProvider
             implements MediaRouterJellybean.Callback, MediaRouterJellybean.VolumeCallback {
         private static final ArrayList<IntentFilter> LIVE_AUDIO_CONTROL_FILTERS;
+
         static {
             IntentFilter f = new IntentFilter();
             f.addCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO);
@@ -228,6 +222,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         private static final ArrayList<IntentFilter> LIVE_VIDEO_CONTROL_FILTERS;
+
         static {
             IntentFilter f = new IntentFilter();
             f.addCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
@@ -573,7 +568,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         protected UserRouteRecord getUserRouteRecord(Object routeObj) {
             Object tag = MediaRouterJellybean.RouteInfo.getTag(routeObj);
-            return tag instanceof UserRouteRecord ? (UserRouteRecord)tag : null;
+            return tag instanceof UserRouteRecord ? (UserRouteRecord) tag : null;
         }
 
         protected void updateSystemRouteDescriptor(SystemRouteRecord record) {
@@ -660,24 +655,11 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                     MediaRouterJellybean.ALL_ROUTE_TYPES, routeObj);
         }
 
-        @Override
         protected Object getDefaultRoute() {
             if (mGetDefaultRouteWorkaround == null) {
                 mGetDefaultRouteWorkaround = new MediaRouterJellybean.GetDefaultRouteWorkaround();
             }
             return mGetDefaultRouteWorkaround.getDefaultRoute(mRouterObj);
-        }
-
-        @Override
-        protected Object getSystemRoute(MediaRouter.RouteInfo route) {
-            if (route == null) {
-                return null;
-            }
-            int index = findSystemRouteRecordByDescriptorId(route.getDescriptorId());
-            if (index >= 0) {
-                return mSystemRouteRecords.get(index).mRouteObj;
-            }
-            return null;
         }
 
         /**
@@ -754,8 +736,8 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                         != record.mRouteDescriptor.getPresentationDisplayId()) {
                     record.mRouteDescriptor =
                             new MediaRouteDescriptor.Builder(record.mRouteDescriptor)
-                            .setPresentationDisplayId(newPresentationDisplayId)
-                            .build();
+                                    .setPresentationDisplayId(newPresentationDisplayId)
+                                    .build();
                     publishRoutes();
                 }
             }
@@ -814,37 +796,41 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             super(context, syncCallback);
         }
 
+        @DoNotInline
         @Override
         protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
                 MediaRouteDescriptor.Builder builder) {
             super.onBuildSystemRouteDescriptor(record, builder);
 
             CharSequence description =
-                    MediaRouterJellybeanMr2.RouteInfo.getDescription(record.mRouteObj);
+                    ((android.media.MediaRouter.RouteInfo) record.mRouteObj).getDescription();
             if (description != null) {
                 builder.setDescription(description.toString());
             }
         }
 
+        @DoNotInline
         @Override
         protected void selectRoute(Object routeObj) {
             MediaRouterJellybean.selectRoute(mRouterObj,
                     MediaRouterJellybean.ALL_ROUTE_TYPES, routeObj);
         }
 
+        @DoNotInline
         @Override
         protected Object getDefaultRoute() {
-            return MediaRouterJellybeanMr2.getDefaultRoute(mRouterObj);
+            return ((android.media.MediaRouter) mRouterObj).getDefaultRoute();
         }
 
+        @DoNotInline
         @Override
         protected void updateUserRouteProperties(UserRouteRecord record) {
             super.updateUserRouteProperties(record);
-
-            MediaRouterJellybeanMr2.UserRouteInfo.setDescription(
-                    record.mRouteObj, record.mRoute.getDescription());
+            ((android.media.MediaRouter.UserRouteInfo) record.mRouteObj).setDescription(
+                    record.mRoute.getDescription());
         }
 
+        @DoNotInline
         @Override
         protected void updateCallback() {
             if (mCallbackRegistered) {
@@ -852,14 +838,16 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             }
 
             mCallbackRegistered = true;
-            MediaRouterJellybeanMr2.addCallback(mRouterObj, mRouteTypes, mCallbackObj,
-                    MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS
-                    | (mActiveScan ? MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN : 0));
+            int flags = MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS
+                    | (mActiveScan ? MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN : 0);
+            ((android.media.MediaRouter) mRouterObj).addCallback(mRouteTypes,
+                    (android.media.MediaRouter.Callback) mCallbackObj, flags);
         }
 
+        @DoNotInline
         @Override
         protected boolean isConnecting(SystemRouteRecord record) {
-            return MediaRouterJellybeanMr2.RouteInfo.isConnecting(record.mRouteObj);
+            return ((android.media.MediaRouter.RouteInfo) record.mRouteObj).isConnecting();
         }
     }
 
@@ -873,11 +861,12 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @Override
+        @DoNotInline
         protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
-                                                    MediaRouteDescriptor.Builder builder) {
+                MediaRouteDescriptor.Builder builder) {
             super.onBuildSystemRouteDescriptor(record, builder);
-
-            builder.setDeviceType(MediaRouterApi24.RouteInfo.getDeviceType(record.mRouteObj));
+            builder.setDeviceType(
+                    ((android.media.MediaRouter.RouteInfo) record.mRouteObj).getDeviceType());
         }
     }
 }
