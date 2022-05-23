@@ -60,7 +60,7 @@ public fun <T> arraySetOf(vararg values: T): ArraySet<T> {
  * will grow once items are added to it.
  */
 public class ArraySet<E> @JvmOverloads constructor(capacity: Int = 0) :
-    MutableCollection<E>, MutableSet<E> {
+    AbstractMutableCollection<E>(), MutableSet<E> {
 
     private var hashes: IntArray = EMPTY_INTS
     private var array: Array<Any?> = EMPTY_OBJECTS
