@@ -109,8 +109,9 @@ class ScalingLazyListState constructor(
      */
     public val centerItemIndex: Int
         get() =
-            (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.centerItemIndex
-                ?: initialCenterItemIndex
+            (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.let {
+                if (it.initialized) it.centerItemIndex else null
+            } ?: initialCenterItemIndex
 
     internal val topAutoCenteringItemSizePx: Int by derivedStateOf {
         if (extraPaddingPx.value == null || scalingParams.value == null ||
@@ -144,8 +145,10 @@ class ScalingLazyListState constructor(
      * the items Edge or Center.
      */
     public val centerItemScrollOffset: Int
-        get() = (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.centerItemScrollOffset
-            ?: initialCenterItemScrollOffset
+        get() =
+            (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.let {
+                if (it.initialized) it.centerItemScrollOffset else null
+            } ?: initialCenterItemScrollOffset
 
     /**
      * The object of [ScalingLazyListLayoutInfo] calculated during the last layout pass. For
