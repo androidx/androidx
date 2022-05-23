@@ -188,7 +188,6 @@ package androidx.wear.watchface.client {
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public androidx.wear.watchface.client.InteractiveWatchFaceClient? getInteractiveWatchFaceClientInstance(String instanceId) throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public suspend Object? getOrCreateInteractiveWatchFaceClient(String id, androidx.wear.watchface.client.DeviceConfig deviceConfig, androidx.wear.watchface.client.WatchUiState watchUiState, androidx.wear.watchface.style.UserStyleData? userStyle, java.util.Map<java.lang.Integer,? extends androidx.wear.watchface.complications.data.ComplicationData>? slotIdToComplicationData, kotlin.coroutines.Continuation<? super androidx.wear.watchface.client.InteractiveWatchFaceClient>) throws android.os.RemoteException;
     method public default boolean hasComplicationDataCache();
-    method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default void notifyWatchFaceInstanceDeleted(android.content.ComponentName componentName, String instanceId) throws android.os.RemoteException;
     field public static final androidx.wear.watchface.client.WatchFaceControlClient.Companion Companion;
   }
 

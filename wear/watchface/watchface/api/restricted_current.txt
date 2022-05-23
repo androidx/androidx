@@ -359,7 +359,6 @@ package androidx.wear.watchface {
     method @WorkerThread protected androidx.wear.watchface.ComplicationSlotInflationFactory? getComplicationSlotInflationFactory();
     method public final android.os.Handler getUiThreadHandler();
     method public final android.service.wallpaper.WallpaperService.Engine onCreateEngine();
-    method @MainThread public void onWatchFaceInstanceDeleted(String instanceId);
     field public static final androidx.wear.watchface.WatchFaceService.Companion Companion;
     field public static final int MAX_CREATE_WATCHFACE_TIME_MILLIS = 5000; // 0x1388
   }
