@@ -245,6 +245,14 @@ public @interface RestrictTo {
             """
         )
 
+        val JetBrainsAnnotations = TestFiles.kotlin(
+            """
+package org.jetbrains.annotations
+
+annotation class NotNull
+annotation class Nullable
+            """
+        )
         /* ktlint-enable max-line-length */
     }
 }
