@@ -32,41 +32,41 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class ButtonColorsTest {
     private static final int ARGB_BACKGROUND_COLOR = 0x12345678;
     private static final int ARGB_CONTENT_COLOR = 0x11223344;
-    private final ColorProp mBackgroundColor = argb(ARGB_BACKGROUND_COLOR);
-    private final ColorProp mContentColor = argb(ARGB_CONTENT_COLOR);
-    private final Colors mColors = new Colors(0x123, 0x234, 0x345, 0x456);
+    private static final ColorProp BACKGROUND_COLOR = argb(ARGB_BACKGROUND_COLOR);
+    private static final ColorProp CONTENT_COLOR = argb(ARGB_CONTENT_COLOR);
+    private static final Colors COLORS = new Colors(0x123, 0x234, 0x345, 0x456);
 
     @Test
     public void testCreateButtonColorsFromArgb() {
         ButtonColors buttonColors = new ButtonColors(ARGB_BACKGROUND_COLOR, ARGB_CONTENT_COLOR);
 
         assertThat(buttonColors.getBackgroundColor().getArgb())
-                .isEqualTo(mBackgroundColor.getArgb());
-        assertThat(buttonColors.getContentColor().getArgb()).isEqualTo(mContentColor.getArgb());
+                .isEqualTo(BACKGROUND_COLOR.getArgb());
+        assertThat(buttonColors.getContentColor().getArgb()).isEqualTo(CONTENT_COLOR.getArgb());
     }
 
     @Test
     public void testCreateButtonColorsFromColorProp() {
-        ButtonColors buttonColors = new ButtonColors(mBackgroundColor, mContentColor);
+        ButtonColors buttonColors = new ButtonColors(BACKGROUND_COLOR, CONTENT_COLOR);
 
         assertThat(buttonColors.getBackgroundColor().getArgb())
-                .isEqualTo(mBackgroundColor.getArgb());
-        assertThat(buttonColors.getContentColor().getArgb()).isEqualTo(mContentColor.getArgb());
+                .isEqualTo(BACKGROUND_COLOR.getArgb());
+        assertThat(buttonColors.getContentColor().getArgb()).isEqualTo(CONTENT_COLOR.getArgb());
     }
 
     @Test
     public void testCreateButtonColorsFromHelperPrimary() {
-        ButtonColors buttonColors = ButtonColors.primaryButtonColors(mColors);
+        ButtonColors buttonColors = ButtonColors.primaryButtonColors(COLORS);
 
-        assertThat(buttonColors.getBackgroundColor().getArgb()).isEqualTo(mColors.getPrimary());
-        assertThat(buttonColors.getContentColor().getArgb()).isEqualTo(mColors.getOnPrimary());
+        assertThat(buttonColors.getBackgroundColor().getArgb()).isEqualTo(COLORS.getPrimary());
+        assertThat(buttonColors.getContentColor().getArgb()).isEqualTo(COLORS.getOnPrimary());
     }
 
     @Test
     public void testCreateButtonColorsFromHelperSurface() {
-        ButtonColors buttonColors = ButtonColors.secondaryButtonColors(mColors);
+        ButtonColors buttonColors = ButtonColors.secondaryButtonColors(COLORS);
 
-        assertThat(buttonColors.getBackgroundColor().getArgb()).isEqualTo(mColors.getSurface());
-        assertThat(buttonColors.getContentColor().getArgb()).isEqualTo(mColors.getOnSurface());
+        assertThat(buttonColors.getBackgroundColor().getArgb()).isEqualTo(COLORS.getSurface());
+        assertThat(buttonColors.getContentColor().getArgb()).isEqualTo(COLORS.getOnSurface());
     }
 }

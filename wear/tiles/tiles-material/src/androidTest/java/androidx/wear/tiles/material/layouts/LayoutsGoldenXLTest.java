@@ -62,7 +62,7 @@ public class LayoutsGoldenXLTest {
     public AndroidXScreenshotTestRule mScreenshotRule =
             new AndroidXScreenshotTestRule("wear/wear-tiles-material");
 
-    public LayoutsGoldenXLTest(LayoutElement layoutElement, String expected) {
+    public LayoutsGoldenXLTest(String expected, LayoutElement layoutElement) {
         mLayoutElement = layoutElement;
         mExpected = expected;
     }
@@ -103,7 +103,7 @@ public class LayoutsGoldenXLTest {
                         .setScreenShape(DeviceParametersBuilders.SCREEN_SHAPE_RECT)
                         .build();
 
-        Map<LayoutElement, String> testCases =
+        Map<String, LayoutElement> testCases =
                 generateTestCases(context, deviceParameters, XXXL_SCALE_SUFFIX);
 
         // Restore state before this method, so other test have correct context. This is needed here

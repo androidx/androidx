@@ -26,6 +26,8 @@ import androidx.wear.tiles.DeviceParametersBuilders;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Helper class used for Tiles Material.
  *
@@ -50,6 +52,7 @@ public class Helper {
     }
 
     /** Returns radius in {@link DpProp} of the given diameter. */
+    @NonNull
     static DpProp radiusOf(DpProp diameter) {
         return dp(diameter.getValue() / 2);
     }
@@ -62,5 +65,27 @@ public class Helper {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static boolean isRoundDevice(@NonNull DeviceParameters deviceParameters) {
         return deviceParameters.getScreenShape() == DeviceParametersBuilders.SCREEN_SHAPE_ROUND;
+    }
+
+    /**
+     * Returns String representation of tag from byte array.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static String getTagName(@NonNull byte[] tagData) {
+        return new String(tagData, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Returns byte array representation of tag from String.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static byte[] getTagBytes(@NonNull String tagName) {
+        return tagName.getBytes(StandardCharsets.UTF_8);
     }
 }

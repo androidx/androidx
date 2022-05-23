@@ -31,7 +31,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
 public class ProgressIndicatorLayoutTest {
-    private final DeviceParameters mDeviceParameters =
+    private static final DeviceParameters DEVICE_PARAMETERS =
             new DeviceParameters.Builder().setScreenWidthDp(192).setScreenHeightDp(192).build();
 
     @Test
@@ -40,7 +40,7 @@ public class ProgressIndicatorLayoutTest {
         CircularProgressIndicator progressIndicator =
                 new CircularProgressIndicator.Builder().build();
         ProgressIndicatorLayout layout =
-                new ProgressIndicatorLayout.Builder(mDeviceParameters)
+                new ProgressIndicatorLayout.Builder(DEVICE_PARAMETERS)
                         .setContent(content)
                         .setProgressIndicatorContent(progressIndicator)
                         .build();
@@ -57,7 +57,7 @@ public class ProgressIndicatorLayoutTest {
     public void testContentOnly() {
         LayoutElement content = new Box.Builder().build();
         ProgressIndicatorLayout layout =
-                new ProgressIndicatorLayout.Builder(mDeviceParameters).setContent(content).build();
+                new ProgressIndicatorLayout.Builder(DEVICE_PARAMETERS).setContent(content).build();
 
         assertThat(layout.getContent()).isNotNull();
         assertThat(layout.getContent().toLayoutElementProto())
@@ -70,7 +70,7 @@ public class ProgressIndicatorLayoutTest {
         CircularProgressIndicator progressIndicator =
                 new CircularProgressIndicator.Builder().build();
         ProgressIndicatorLayout layout =
-                new ProgressIndicatorLayout.Builder(mDeviceParameters)
+                new ProgressIndicatorLayout.Builder(DEVICE_PARAMETERS)
                         .setProgressIndicatorContent(progressIndicator)
                         .build();
 
@@ -83,7 +83,7 @@ public class ProgressIndicatorLayoutTest {
     @Test
     public void testEmpty() {
         ProgressIndicatorLayout layout =
-                new ProgressIndicatorLayout.Builder(mDeviceParameters).build();
+                new ProgressIndicatorLayout.Builder(DEVICE_PARAMETERS).build();
 
         assertThat(layout.getContent()).isNull();
         assertThat(layout.getProgressIndicatorContent()).isNull();

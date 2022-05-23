@@ -146,7 +146,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
     @Nullable
     public LayoutElement getContent() {
         List<LayoutElement> contents = mElement.getContents();
-        if (contents.size() > 0) {
+        if (!contents.isEmpty()) {
             // If content exists, it will always be the first one in the list. If that element is
             // not Box, than this layout only has indicator, so we'll return null.
             LayoutElement element = contents.get(0);

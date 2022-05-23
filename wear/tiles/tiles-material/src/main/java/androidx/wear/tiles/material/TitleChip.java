@@ -22,6 +22,8 @@ import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.tiles.material.ChipDefaults.TITLE_HEIGHT;
 import static androidx.wear.tiles.material.ChipDefaults.TITLE_HORIZONTAL_PADDING;
 import static androidx.wear.tiles.material.ChipDefaults.TITLE_PRIMARY_COLORS;
+import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.getTagName;
 
 import android.content.Context;
 
@@ -32,9 +34,11 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
+import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
+import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
 /**
@@ -48,6 +52,9 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * TitleChip}.
  */
 public class TitleChip implements LayoutElement {
+    /** Tool tag for Metadata in Modifiers, so we know that Box is actually a TitleChip. */
+    static final String METADATA_TAG = "TTLCHP";
+
     @NonNull private final Chip mElement;
 
     TitleChip(@NonNull Chip element) {
@@ -134,6 +141,7 @@ public class TitleChip implements LayoutElement {
         public TitleChip build() {
             Chip.Builder chipBuilder =
                     new Chip.Builder(mContext, mClickable, mDeviceParameters)
+                            .setMetadataTag(METADATA_TAG)
                             .setChipColors(mChipColors)
                             .setContentDescription(mText)
                             .setHorizontalAlignment(mHorizontalAlign)
@@ -170,16 +178,42 @@ public class TitleChip implements LayoutElement {
         return mElement.getChipColors();
     }
 
-    /** Returns content of this Chip. */
+    /** Returns text content of this Chip. */
     @NonNull
-    public LayoutElement getContent() {
-        return mElement.getContent();
+    public String getText() {
+        return checkNotNull(mElement.getPrimaryText());
     }
 
     /** Returns the horizontal alignment of the content in this Chip. */
     @HorizontalAlignment
     public int getHorizontalAlignment() {
         return mElement.getHorizontalAlignment();
+    }
+
+    /** Returns metadata tag set to this TitleChip, which should be {@link #METADATA_TAG}. */
+    @NonNull
+    String getMetadataTag() {
+        return mElement.getMetadataTag();
+    }
+
+    /**
+     * Returns TitleChip object from the given LayoutElement if that element can be converted to
+     * TitleChip. Otherwise, returns null.
+     */
+    @Nullable
+    public static TitleChip fromLayoutElement(@NonNull LayoutElement element) {
+        if (!(element instanceof Box)) {
+            return null;
+        }
+        Box boxElement = (Box) element;
+        Modifiers modifiers = boxElement.getModifiers();
+        if (modifiers == null
+                || modifiers.getMetadata() == null
+                || !METADATA_TAG.equals(getTagName(modifiers.getMetadata().getTagData()))) {
+            return null;
+        }
+        // Now we are sure that this element is a TitleChip.
+        return new TitleChip(new Chip(boxElement));
     }
 
     /** @hide */
