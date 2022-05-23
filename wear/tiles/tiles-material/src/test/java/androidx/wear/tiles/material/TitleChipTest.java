@@ -21,6 +21,8 @@ import static androidx.wear.tiles.material.Utils.areChipColorsEqual;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.content.Context;
 import android.graphics.Color;
 
@@ -29,7 +31,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.tiles.ActionBuilders.LaunchAction;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
+import androidx.wear.tiles.LayoutElementBuilders.Box;
+import androidx.wear.tiles.LayoutElementBuilders.Column;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
+import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,8 +43,8 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
-// This test is testing that defaults of skeleton are set. More detailed tests that everything is in
-// // place are in Scuba tests.
+// This test is testing that defaults of are set. More detailed tests that everything is in place
+// are in Scuba tests.
 public class TitleChipTest {
     private static final String MAIN_TEXT = "Action";
     private static final Clickable CLICKABLE =
@@ -49,7 +55,7 @@ public class TitleChipTest {
     private static final DeviceParameters DEVICE_PARAMETERS =
             new DeviceParameters.Builder().setScreenWidthDp(192).setScreenHeightDp(192).build();
     private static final ChipColors COLORS = new ChipColors(Color.YELLOW, Color.BLUE);
-    private final Context mContext = ApplicationProvider.getApplicationContext();
+    private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
     private static final DpProp EXPECTED_WIDTH =
             dp(
                     DEVICE_PARAMETERS.getScreenWidthDp()
@@ -59,28 +65,75 @@ public class TitleChipTest {
     @Test
     public void testTitleChipDefault() {
         TitleChip titleChip =
-                new TitleChip.Builder(mContext, MAIN_TEXT, CLICKABLE, DEVICE_PARAMETERS).build();
+                new TitleChip.Builder(CONTEXT, MAIN_TEXT, CLICKABLE, DEVICE_PARAMETERS).build();
 
-        assertChipSkeletonIsEqual(titleChip, ChipDefaults.TITLE_PRIMARY_COLORS, EXPECTED_WIDTH);
+        assertChip(titleChip, ChipDefaults.TITLE_PRIMARY_COLORS, EXPECTED_WIDTH);
     }
 
     @Test
     public void testTitleChipCustom() {
         DpProp width = dp(150);
         TitleChip titleChip =
-                new TitleChip.Builder(mContext, MAIN_TEXT, CLICKABLE, DEVICE_PARAMETERS)
+                new TitleChip.Builder(CONTEXT, MAIN_TEXT, CLICKABLE, DEVICE_PARAMETERS)
                         .setChipColors(COLORS)
                         .setWidth(width)
                         .build();
 
-        assertChipSkeletonIsEqual(titleChip, COLORS, width);
+        assertChip(titleChip, COLORS, width);
     }
 
-    private void assertChipSkeletonIsEqual(
+    @Test
+    public void testWrongElement() {
+        Column box = new Column.Builder().build();
+
+        assertThat(TitleChip.fromLayoutElement(box)).isNull();
+    }
+
+    @Test
+    public void testWrongBox() {
+        Box box = new Box.Builder().build();
+
+        assertThat(TitleChip.fromLayoutElement(box)).isNull();
+    }
+
+    @Test
+    public void testWrongTag() {
+        Box box =
+                new Box.Builder()
+                        .setModifiers(
+                                new Modifiers.Builder()
+                                        .setMetadata(
+                                                new ElementMetadata.Builder()
+                                                        .setTagData("test".getBytes(UTF_8))
+                                                        .build())
+                                        .build())
+                        .build();
+
+        assertThat(TitleChip.fromLayoutElement(box)).isNull();
+    }
+
+    private void assertChip(TitleChip actualTitleChip, ChipColors colors, DpProp width) {
+        assertChipIsEqual(actualTitleChip, colors, width);
+        assertFromLayoutElementChipIsEqual(actualTitleChip, colors, width);
+    }
+
+    private void assertChipIsEqual(
             TitleChip actualTitleChip, ChipColors colors, DpProp width) {
+        assertThat(actualTitleChip.getMetadataTag()).isEqualTo(TitleChip.METADATA_TAG);
         assertThat(actualTitleChip.getClickable().toProto()).isEqualTo(CLICKABLE.toProto());
         assertThat(actualTitleChip.getWidth().toContainerDimensionProto())
                 .isEqualTo(width.toContainerDimensionProto());
         assertThat(areChipColorsEqual(actualTitleChip.getChipColors(), colors)).isTrue();
+        assertThat(actualTitleChip.getText()).isEqualTo(MAIN_TEXT);
+    }
+
+    private void assertFromLayoutElementChipIsEqual(
+            TitleChip chip, ChipColors colors, DpProp width) {
+        Box box = new Box.Builder().addContent(chip).build();
+
+        TitleChip newChip = TitleChip.fromLayoutElement(box.getContents().get(0));
+
+        assertThat(newChip).isNotNull();
+        assertChipIsEqual(newChip, colors, width);
     }
 }

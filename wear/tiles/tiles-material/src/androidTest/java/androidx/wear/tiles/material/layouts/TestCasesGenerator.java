@@ -57,7 +57,7 @@ public class TestCasesGenerator {
      * as it should point on the same size independent image.
      */
     @NonNull
-    static Map<LayoutElement, String> generateTestCases(
+    static Map<String, LayoutElement> generateTestCases(
             @NonNull Context context,
             @NonNull DeviceParameters deviceParameters,
             @NonNull String goldenSuffix) {
@@ -66,7 +66,7 @@ public class TestCasesGenerator {
                         .setOnClick(new LaunchAction.Builder().build())
                         .setId("action_id")
                         .build();
-        HashMap<LayoutElement, String> testCases = new HashMap<>();
+        HashMap<String, LayoutElement> testCases = new HashMap<>();
 
         TitleChip content =
                 new TitleChip.Builder(context, "Action", clickable, deviceParameters).build();
@@ -74,62 +74,63 @@ public class TestCasesGenerator {
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters);
 
         testCases.put(
+                "default_empty_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
-                        .build(),
-                "default_empty_primarychiplayout_golden" + goldenSuffix);
+                        .build());
 
         testCases.put(
+                "coloredbox_primarylabel_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(buildColoredBox(Color.YELLOW))
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
-                        .build(),
-                "coloredbox_primarylabel_primarychiplayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_primarylabel_secondarylabel_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(buildColoredBox(Color.YELLOW))
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
-                        .build(),
-                "coloredbox_primarylabel_secondarylabel_primarychiplayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_secondarylabel_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(buildColoredBox(Color.YELLOW))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
-                        .build(),
-                "coloredbox_secondarylabel_primarychiplayout_golden" + goldenSuffix);
+                        .build());
 
         testCases.put(
+                "custom_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(content)
                         .setPrimaryChipContent(
                                 primaryChipBuilder
                                         .setChipColors(new ChipColors(Color.YELLOW, Color.GREEN))
                                         .build())
-                        .build(),
-                "custom_primarychiplayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(buildColoredBox(Color.YELLOW))
-                        .build(),
-                "coloredbox_primarychiplayout_golden" + goldenSuffix);
+                        .build());
 
         primaryChipBuilder =
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters);
         testCases.put(
+                "coloredbox_1_chip_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
                                 new MultiSlotLayout.Builder()
                                         .addSlotContent(buildColoredBox(Color.YELLOW))
                                         .build())
-                        .build(),
-                "coloredbox_1_chip_columnslayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_2_chip_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
@@ -137,9 +138,9 @@ public class TestCasesGenerator {
                                         .addSlotContent(buildColoredBox(Color.YELLOW))
                                         .addSlotContent(buildColoredBox(Color.BLUE))
                                         .build())
-                        .build(),
-                "coloredbox_2_chip_columnslayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_3_chip_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
@@ -148,9 +149,9 @@ public class TestCasesGenerator {
                                         .addSlotContent(buildColoredBox(Color.BLUE))
                                         .addSlotContent(buildColoredBox(Color.MAGENTA))
                                         .build())
-                        .build(),
-                "coloredbox_3_chip_columnslayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_2_chip_primary_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
@@ -159,9 +160,9 @@ public class TestCasesGenerator {
                                         .addSlotContent(buildColoredBox(Color.BLUE))
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
-                        .build(),
-                "coloredbox_2_chip_primary_columnslayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_2_chip_primary_secondary_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
@@ -171,18 +172,18 @@ public class TestCasesGenerator {
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
-                        .build(),
-                "coloredbox_2_chip_primary_secondary_columnslayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_2_columnslayout_golden" + NORMAL_SCALE_SUFFIX,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiSlotLayout.Builder()
                                         .addSlotContent(buildColoredBox(Color.YELLOW))
                                         .addSlotContent(buildColoredBox(Color.BLUE))
                                         .build())
-                        .build(),
-                "coloredbox_2_columnslayout_golden" + NORMAL_SCALE_SUFFIX);
+                        .build());
         testCases.put(
+                "coloredbox_2_primary_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiSlotLayout.Builder()
@@ -190,9 +191,9 @@ public class TestCasesGenerator {
                                         .addSlotContent(buildColoredBox(Color.BLUE))
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
-                        .build(),
-                "coloredbox_2_primary_columnslayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_2_primary_secondary_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiSlotLayout.Builder()
@@ -201,9 +202,9 @@ public class TestCasesGenerator {
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
-                        .build(),
-                "coloredbox_2_primary_secondary_columnslayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_3_chip_primary_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
@@ -213,9 +214,9 @@ public class TestCasesGenerator {
                                         .addSlotContent(buildColoredBox(Color.MAGENTA))
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
-                        .build(),
-                "coloredbox_3_chip_primary_columnslayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_3_chip_primary_secondary_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
@@ -226,9 +227,9 @@ public class TestCasesGenerator {
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
-                        .build(),
-                "coloredbox_3_chip_primary_secondary_columnslayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_3_columnslayout_golden" + NORMAL_SCALE_SUFFIX,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiSlotLayout.Builder()
@@ -236,9 +237,9 @@ public class TestCasesGenerator {
                                         .addSlotContent(buildColoredBox(Color.BLUE))
                                         .addSlotContent(buildColoredBox(Color.MAGENTA))
                                         .build())
-                        .build(),
-                "coloredbox_3_columnslayout_golden" + NORMAL_SCALE_SUFFIX);
+                        .build());
         testCases.put(
+                "coloredbox_3_primary_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiSlotLayout.Builder()
@@ -247,9 +248,9 @@ public class TestCasesGenerator {
                                         .addSlotContent(buildColoredBox(Color.MAGENTA))
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
-                        .build(),
-                "coloredbox_3_primary_columnslayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_3_primary_secondary_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiSlotLayout.Builder()
@@ -259,9 +260,10 @@ public class TestCasesGenerator {
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
-                        .build(),
-                "coloredbox_3_primary_secondary_columnslayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "custom_spacer_coloredbox_3_chip_primary_secondary_columnslayout_golden"
+                        + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(
@@ -274,9 +276,7 @@ public class TestCasesGenerator {
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setSecondaryLabelTextContent(buildTextLabel(context, "Secondary label"))
                         .setVerticalSpacerHeight(1)
-                        .build(),
-                "custom_spacer_coloredbox_3_chip_primary_secondary_columnslayout_golden"
-                        + goldenSuffix);
+                        .build());
 
         CircularProgressIndicator.Builder progressIndicatorBuilder =
                 new CircularProgressIndicator.Builder().setProgress(0.3f);
@@ -286,11 +286,12 @@ public class TestCasesGenerator {
                         .setTypography(Typography.TYPOGRAPHY_DISPLAY1)
                         .build();
         testCases.put(
+                "default_empty_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
                 new ProgressIndicatorLayout.Builder(deviceParameters)
                         .setProgressIndicatorContent(progressIndicatorBuilder.build())
-                        .build(),
-                "default_empty_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX);
+                        .build());
         testCases.put(
+                "custom_progressindicatorlayout_golden" + goldenSuffix,
                 new ProgressIndicatorLayout.Builder(deviceParameters)
                         .setContent(textContent)
                         .setProgressIndicatorContent(
@@ -299,9 +300,9 @@ public class TestCasesGenerator {
                                                 new ProgressIndicatorColors(
                                                         Color.YELLOW, Color.GREEN))
                                         .build())
-                        .build(),
-                "custom_progressindicatorlayout_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "coloredbox_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
                 new ProgressIndicatorLayout.Builder(deviceParameters)
                         .setProgressIndicatorContent(
                                 progressIndicatorBuilder
@@ -321,8 +322,7 @@ public class TestCasesGenerator {
                                                                         .build())
                                                         .build())
                                         .build())
-                        .build(),
-                "coloredbox_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX);
+                        .build());
 
         Button button1 = new Button.Builder(context, clickable).setTextContent("1").build();
         Button button2 = new Button.Builder(context, clickable).setTextContent("2").build();
@@ -347,32 +347,33 @@ public class TestCasesGenerator {
                         .setSize(ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE)
                         .build();
         testCases.put(
+                "multibutton_layout_1button_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
                                         .addButtonContent(extraLargeButton)
                                         .build())
-                        .build(),
-                "multibutton_layout_1button_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_1button_chip_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
                                         .addButtonContent(extraLargeButton)
                                         .build())
                         .setPrimaryChipContent(primaryChipBuilder.build())
-                        .build(),
-                "multibutton_layout_1button_chip_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_2button_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
                                         .addButtonContent(largeButton1)
                                         .addButtonContent(largeButton2)
                                         .build())
-                        .build(),
-                "multibutton_layout_2button_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_2button_chip_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
@@ -380,9 +381,9 @@ public class TestCasesGenerator {
                                         .addButtonContent(largeButton2)
                                         .build())
                         .setPrimaryChipContent(primaryChipBuilder.build())
-                        .build(),
-                "multibutton_layout_2button_chip_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_2button_primarylabel_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
@@ -390,9 +391,9 @@ public class TestCasesGenerator {
                                         .addButtonContent(largeButton2)
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
-                        .build(),
-                "multibutton_layout_2button_primarylabel_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_2button_chip_primarylabel_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
@@ -401,9 +402,9 @@ public class TestCasesGenerator {
                                         .build())
                         .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
                         .setPrimaryChipContent(primaryChipBuilder.build())
-                        .build(),
-                "multibutton_layout_2button_chip_primarylabel_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_3button_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
@@ -411,31 +412,9 @@ public class TestCasesGenerator {
                                         .addButtonContent(button2)
                                         .addButtonContent(button3)
                                         .build())
-                        .build(),
-                "multibutton_layout_3button_golden" + goldenSuffix);
+                        .build());
         testCases.put(
-                new PrimaryLayout.Builder(deviceParameters)
-                        .setContent(
-                                new MultiButtonLayout.Builder()
-                                        .addButtonContent(button1)
-                                        .addButtonContent(button2)
-                                        .addButtonContent(button3)
-                                        .build())
-                        .setPrimaryChipContent(primaryChipBuilder.build())
-                        .build(),
-                "multibutton_layout_3button_chip_golden" + goldenSuffix);
-        testCases.put(
-                new PrimaryLayout.Builder(deviceParameters)
-                        .setContent(
-                                new MultiButtonLayout.Builder()
-                                        .addButtonContent(button1)
-                                        .addButtonContent(button2)
-                                        .addButtonContent(button3)
-                                        .build())
-                        .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
-                        .build(),
-                "multibutton_layout_3button_primarylabel_golden" + goldenSuffix);
-        testCases.put(
+                "multibutton_layout_3button_chip_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
@@ -444,10 +423,32 @@ public class TestCasesGenerator {
                                         .addButtonContent(button3)
                                         .build())
                         .setPrimaryChipContent(primaryChipBuilder.build())
-                        .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
-                        .build(),
-                "multibutton_layout_3button_chip_primarylabel_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_3button_primarylabel_golden" + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setContent(
+                                new MultiButtonLayout.Builder()
+                                        .addButtonContent(button1)
+                                        .addButtonContent(button2)
+                                        .addButtonContent(button3)
+                                        .build())
+                        .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
+                        .build());
+        testCases.put(
+                "multibutton_layout_3button_chip_primarylabel_golden" + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setContent(
+                                new MultiButtonLayout.Builder()
+                                        .addButtonContent(button1)
+                                        .addButtonContent(button2)
+                                        .addButtonContent(button3)
+                                        .build())
+                        .setPrimaryChipContent(primaryChipBuilder.build())
+                        .setPrimaryLabelTextContent(buildTextLabel(context, "Primary label"))
+                        .build());
+        testCases.put(
+                "multibutton_layout_4button_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
@@ -456,9 +457,9 @@ public class TestCasesGenerator {
                                         .addButtonContent(button3)
                                         .addButtonContent(button4)
                                         .build())
-                        .build(),
-                "multibutton_layout_4button_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_4button_chip_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
@@ -468,9 +469,9 @@ public class TestCasesGenerator {
                                         .addButtonContent(button4)
                                         .build())
                         .setPrimaryChipContent(primaryChipBuilder.build())
-                        .build(),
-                "multibutton_layout_4button_chip_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_5button_top_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
@@ -483,9 +484,9 @@ public class TestCasesGenerator {
                                                 MultiButtonLayout
                                                         .FIVE_BUTTON_DISTRIBUTION_TOP_HEAVY)
                                         .build())
-                        .build(),
-                "multibutton_layout_5button_top_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_5button_bottom_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
@@ -498,9 +499,9 @@ public class TestCasesGenerator {
                                                 MultiButtonLayout
                                                         .FIVE_BUTTON_DISTRIBUTION_BOTTOM_HEAVY)
                                         .build())
-                        .build(),
-                "multibutton_layout_5button_bottom_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_5button_bottom_chip_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
@@ -514,9 +515,9 @@ public class TestCasesGenerator {
                                                         .FIVE_BUTTON_DISTRIBUTION_BOTTOM_HEAVY)
                                         .build())
                         .setPrimaryChipContent(primaryChipBuilder.build())
-                        .build(),
-                "multibutton_layout_5button_bottom_chip_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_6button_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setContent(
                                 new MultiButtonLayout.Builder()
@@ -527,9 +528,9 @@ public class TestCasesGenerator {
                                         .addButtonContent(button5)
                                         .addButtonContent(button6)
                                         .build())
-                        .build(),
-                "multibutton_layout_6button_golden" + goldenSuffix);
+                        .build());
         testCases.put(
+                "multibutton_layout_7button_golden" + goldenSuffix,
                 new MultiButtonLayout.Builder()
                         .addButtonContent(button1)
                         .addButtonContent(button2)
@@ -538,8 +539,7 @@ public class TestCasesGenerator {
                         .addButtonContent(button5)
                         .addButtonContent(button6)
                         .addButtonContent(button7)
-                        .build(),
-                "multibutton_layout_7button_golden" + goldenSuffix);
+                        .build());
 
         return testCases;
     }

@@ -20,6 +20,8 @@ import static androidx.wear.tiles.ColorBuilders.argb;
 import static androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_CENTER;
 import static androidx.wear.tiles.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.getTagBytes;
+import static androidx.wear.tiles.material.Helper.getTagName;
 import static androidx.wear.tiles.material.Typography.TYPOGRAPHY_DISPLAY1;
 import static androidx.wear.tiles.material.Typography.getFontStyleBuilder;
 import static androidx.wear.tiles.material.Typography.getLineHeightForTypography;
@@ -38,9 +40,11 @@ import androidx.wear.tiles.LayoutElementBuilders.FontWeight;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.LayoutElementBuilders.TextAlignment;
 import androidx.wear.tiles.LayoutElementBuilders.TextOverflow;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.material.Typography.TypographyName;
 import androidx.wear.tiles.proto.LayoutElementProto;
+import androidx.wear.tiles.proto.ModifiersProto;
 
 /**
  * Tiles component {@link Text} that represents text object holding any information.
@@ -49,6 +53,9 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * FontStyle}.
  */
 public class Text implements LayoutElement {
+    /** Tool tag for Metadata in Modifiers, so we know that Text is actually a Material Text. */
+    static final String METADATA_TAG = "TXT";
+
     @NonNull private final LayoutElementBuilders.Text mText;
 
     Text(@NonNull LayoutElementBuilders.Text mText) {
@@ -194,9 +201,21 @@ public class Text implements LayoutElement {
                             .setLineHeight(getLineHeightForTypography(mTypographyName))
                             .setMaxLines(mMaxLines)
                             .setMultilineAlignment(mMultilineAlignment)
-                            .setModifiers(mModifiers)
+                            .setModifiers(addTagToModifiers(mModifiers))
                             .setOverflow(mOverflow);
             return new Text(text.build());
+        }
+
+        @NonNull
+        static Modifiers addTagToModifiers(Modifiers modifiers) {
+            return Modifiers.fromProto(
+                    ModifiersProto.Modifiers.newBuilder(modifiers.toProto())
+                            .setMetadata(
+                                    new ElementMetadata.Builder()
+                                            .setTagData(getTagBytes(METADATA_TAG))
+                                            .build()
+                                            .toProto())
+                            .build());
         }
     }
 
@@ -260,6 +279,37 @@ public class Text implements LayoutElement {
     /** Returns whether the Text is underlined. */
     public boolean isUnderline() {
         return checkNotNull(checkNotNull(mText.getFontStyle()).getUnderline()).getValue();
+    }
+
+    /** Returns metadata tag set to this Text, which should be {@link #METADATA_TAG}. */
+    @NonNull
+    String getMetadataTag() {
+        return getMetadataTag(checkNotNull(getModifiers()));
+    }
+
+    @NonNull
+    private static String getMetadataTag(Modifiers modifiers) {
+        return getTagName(checkNotNull(modifiers.getMetadata()).getTagData());
+    }
+
+    /**
+     * Returns Material Text object from the given LayoutElement if that element can be converted to
+     * Material Text. Otherwise, returns null.
+     */
+    @Nullable
+    public static Text fromLayoutElement(@NonNull LayoutElement element) {
+        if (!(element instanceof LayoutElementBuilders.Text)) {
+            return null;
+        }
+        LayoutElementBuilders.Text textElement = (LayoutElementBuilders.Text) element;
+        Modifiers modifiers = textElement.getModifiers();
+        if (modifiers == null
+                || modifiers.getMetadata() == null
+                || !METADATA_TAG.equals(getMetadataTag(modifiers))) {
+            return null;
+        }
+        // Now we are sure that this element is a Material Text.
+        return new Text(textElement);
     }
 
     /** @hide */

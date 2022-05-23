@@ -32,13 +32,18 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.content.Context;
 import android.graphics.Color;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.wear.tiles.LayoutElementBuilders.Box;
+import androidx.wear.tiles.LayoutElementBuilders.Column;
 import androidx.wear.tiles.LayoutElementBuilders.FontStyle;
 import androidx.wear.tiles.ModifiersBuilders.Background;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import org.junit.Test;
@@ -50,18 +55,18 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class TextTest {
 
     public static final int NUM_OF_FONT_STYLE_CONST = 12;
-    private final Context mContext = ApplicationProvider.getApplicationContext();
+    private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
 
     @Test
     public void testTypography_incorrectTypography_negativeValue() {
-        assertThrows(IllegalArgumentException.class, () -> getFontStyleBuilder(-1, mContext));
+        assertThrows(IllegalArgumentException.class, () -> getFontStyleBuilder(-1, CONTEXT));
     }
 
     @Test
     public void testTypography_incorrectTypography_positiveValue() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> getFontStyleBuilder(NUM_OF_FONT_STYLE_CONST + 1, mContext));
+                () -> getFontStyleBuilder(NUM_OF_FONT_STYLE_CONST + 1, CONTEXT));
     }
 
     @Test
@@ -78,14 +83,44 @@ public class TextTest {
 
     @Test
     public void testTypography_body1() {
-        FontStyle fontStyle = getFontStyleBuilder(TYPOGRAPHY_BODY1, mContext).build();
+        FontStyle fontStyle = getFontStyleBuilder(TYPOGRAPHY_BODY1, CONTEXT).build();
         assertFontStyle(fontStyle, 16, FONT_WEIGHT_NORMAL, 0.01f, 20, TYPOGRAPHY_BODY1);
     }
 
     @Test
     public void testTypography_caption2() {
-        FontStyle fontStyle = getFontStyleBuilder(TYPOGRAPHY_CAPTION2, mContext).build();
+        FontStyle fontStyle = getFontStyleBuilder(TYPOGRAPHY_CAPTION2, CONTEXT).build();
         assertFontStyle(fontStyle, 12, FONT_WEIGHT_MEDIUM, 0.01f, 16, TYPOGRAPHY_CAPTION2);
+    }
+
+    @Test
+    public void testWrongElement() {
+        Column box = new Column.Builder().build();
+
+        assertThat(Text.fromLayoutElement(box)).isNull();
+    }
+
+    @Test
+    public void testWrongBox() {
+        Box box = new Box.Builder().build();
+
+        assertThat(Text.fromLayoutElement(box)).isNull();
+    }
+
+    @Test
+    public void testWrongTag() {
+        Box box =
+                new Box.Builder()
+                    .setModifiers(
+                        new Modifiers.Builder()
+                            .setMetadata(
+                                new ElementMetadata.Builder()
+                                    .setTagData("test".getBytes(UTF_8))
+                                    .build())
+                            .build())
+                    .build();
+
+        assertThat(Text.fromLayoutElement(box)).isNull();
     }
 
     @Test
@@ -97,7 +132,7 @@ public class TextTest {
                         .build();
         int color = Color.YELLOW;
         Text text =
-                new Text.Builder(mContext, textContent)
+                new Text.Builder(CONTEXT, textContent)
                         .setItalic(true)
                         .setColor(argb(color))
                         .setTypography(TYPOGRAPHY_TITLE1)
@@ -110,21 +145,37 @@ public class TextTest {
                         .build();
 
         FontStyle expectedFontStyle =
-                getFontStyleBuilder(TYPOGRAPHY_TITLE1, mContext)
+                getFontStyleBuilder(TYPOGRAPHY_TITLE1, CONTEXT)
                         .setItalic(true)
                         .setUnderline(true)
                         .setColor(argb(color))
                         .setWeight(FONT_WEIGHT_BOLD)
                         .build();
 
-        assertThat(text.getFontStyle().toProto()).isEqualTo(expectedFontStyle.toProto());
-        assertThat(text.getText()).isEqualTo(textContent);
-        assertThat(text.getColor().getArgb()).isEqualTo(color);
-        assertThat(text.getModifiers().toProto()).isEqualTo(modifiers.toProto());
-        assertThat(text.getOverflow()).isEqualTo(TEXT_OVERFLOW_ELLIPSIZE_END);
-        assertThat(text.getMultilineAlignment()).isEqualTo(TEXT_ALIGN_END);
-        assertThat(text.getMaxLines()).isEqualTo(2);
-        assertThat(text.getLineHeight())
+        assertTextIsEqual(text, textContent, modifiers, color, expectedFontStyle);
+
+        Box box = new Box.Builder().addContent(text).build();
+        Text newText = Text.fromLayoutElement(box.getContents().get(0));
+        assertThat(newText).isNotNull();
+        assertTextIsEqual(newText, textContent, modifiers, color, expectedFontStyle);
+    }
+
+    private void assertTextIsEqual(
+            Text actualText,
+            String expectedTextContent,
+            Modifiers expectedModifiers,
+            int expectedColor,
+            FontStyle expectedFontStyle) {
+        assertThat(actualText.getFontStyle().toProto()).isEqualTo(expectedFontStyle.toProto());
+        assertThat(actualText.getText()).isEqualTo(expectedTextContent);
+        assertThat(actualText.getColor().getArgb()).isEqualTo(expectedColor);
+        assertThat(actualText.getMetadataTag()).isEqualTo(Text.METADATA_TAG);
+        assertThat(actualText.getModifiers().toProto())
+                .isEqualTo(Text.Builder.addTagToModifiers(expectedModifiers).toProto());
+        assertThat(actualText.getOverflow()).isEqualTo(TEXT_OVERFLOW_ELLIPSIZE_END);
+        assertThat(actualText.getMultilineAlignment()).isEqualTo(TEXT_ALIGN_END);
+        assertThat(actualText.getMaxLines()).isEqualTo(2);
+        assertThat(actualText.getLineHeight())
                 .isEqualTo(getLineHeightForTypography(TYPOGRAPHY_TITLE1).getValue());
     }
 
@@ -144,5 +195,4 @@ public class TextTest {
         assertThat(getLineHeightForTypography(typographyCode).getValue())
                 .isEqualTo(expectedLineHeight);
     }
-
 }
