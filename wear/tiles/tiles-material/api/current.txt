@@ -232,6 +232,7 @@ package androidx.wear.tiles.material.layouts {
   }
 
   public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.layouts.MultiButtonLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getButtonContents();
     method public int getFiveButtonDistribution();
     field public static final int FIVE_BUTTON_DISTRIBUTION_BOTTOM_HEAVY = 2; // 0x2
@@ -246,6 +247,7 @@ package androidx.wear.tiles.material.layouts {
   }
 
   public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.layouts.MultiSlotLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method @Dimension(unit=androidx.annotation.Dimension.DP) public float getHorizontalSpacerWidth();
     method public java.util.List<androidx.wear.tiles.LayoutElementBuilders.LayoutElement!> getSlotContents();
   }

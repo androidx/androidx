@@ -18,10 +18,15 @@ package androidx.wear.tiles.material.layouts;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
+import androidx.wear.tiles.LayoutElementBuilders.Column;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.LayoutElementBuilders.Row;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
+import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +49,53 @@ public class MultiSlotLayoutTest {
                         .setHorizontalSpacerWidth(spacerWidth)
                         .build();
 
+        assertLayoutIsEqual(content1, content2, spacerWidth, layout);
+
+        Box box = new Box.Builder().addContent(layout).build();
+
+        MultiSlotLayout newLayout = MultiSlotLayout.fromLayoutElement(box.getContents().get(0));
+
+        assertThat(newLayout).isNotNull();
+        assertLayoutIsEqual(content1, content2, spacerWidth, newLayout);
+    }
+
+    @Test
+    public void testWrongElement() {
+        Column box = new Column.Builder().build();
+
+        assertThat(MultiSlotLayout.fromLayoutElement(box)).isNull();
+    }
+
+    @Test
+    public void testWrongBox() {
+        Box box = new Box.Builder().build();
+
+        assertThat(MultiSlotLayout.fromLayoutElement(box)).isNull();
+    }
+
+    @Test
+    public void testWrongTag() {
+        Box box =
+                new Box.Builder()
+                    .setModifiers(
+                        new Modifiers.Builder()
+                            .setMetadata(
+                                new ElementMetadata.Builder()
+                                    .setTagData("test".getBytes(UTF_8))
+                                    .build())
+                            .build())
+                        .build();
+
+        assertThat(MultiSlotLayout.fromLayoutElement(box)).isNull();
+    }
+
+    private void assertLayoutIsEqual(
+            LayoutElement content1,
+            LayoutElement content2,
+            float spacerWidth,
+            MultiSlotLayout layout) {
         assertThat(layout.getSlotContents()).hasSize(2);
+        assertThat(layout.getMetadataTag()).isEqualTo(MultiSlotLayout.METADATA_TAG);
         assertThat(layout.getSlotContents().get(0).toLayoutElementProto())
                 .isEqualTo(content1.toLayoutElementProto());
         assertThat(layout.getSlotContents().get(1).toLayoutElementProto())
