@@ -42,7 +42,6 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyleData
-import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -173,9 +172,7 @@ public interface WatchFaceControlClient : AutoCloseable {
      * When finished call [HeadlessWatchFaceClient.close] to release resources.
      *
      * @param id The ID for the requested [HeadlessWatchFaceClient], will be exposed to the watch
-     * face via [androidx.wear.watchface.WatchState.watchFaceInstanceId]. The watchface may use this
-     * ID as the key in a local database, if and when the ID is no longer in use,
-     * [notifyWatchFaceInstanceDeleted] must be called.
+     * face via [androidx.wear.watchface.WatchState.watchFaceInstanceId].
      * @param watchFaceName The [ComponentName] of the watch face to create a headless instance for
      * must be in the same APK the WatchFaceControlClient is connected to. NB a single apk can
      * contain multiple watch faces.
@@ -204,9 +201,7 @@ public interface WatchFaceControlClient : AutoCloseable {
      * NOTE that currently only one [InteractiveWatchFaceClient] per process can exist at a time.
      *
      * @param id The ID for the requested [InteractiveWatchFaceClient], will be exposed to the
-     * watch face via [androidx.wear.watchface.WatchState.watchFaceInstanceId]. The watchface may
-     * use this ID as the key in a local database, if and when the ID is no longer in use,
-     * [notifyWatchFaceInstanceDeleted] must be called.
+     * watch face via [androidx.wear.watchface.WatchState.watchFaceInstanceId].
      * @param deviceConfig The [DeviceConfig] for the wearable.
      * @param watchUiState The initial [WatchUiState] for the wearable.
      * @param userStyle Optional [UserStyleData] to apply to the instance (whether or not it's
@@ -257,15 +252,7 @@ public interface WatchFaceControlClient : AutoCloseable {
     /**
      * Sends a notification to the WatchFaceService that [instanceId] has been deleted.
      *
-     * OEM system implementations may support multiple instances of a watchface, and the IDs passed
-     * into [getOrCreateInteractiveWatchFaceClient] and [createHeadlessWatchFaceClient] are
-     * exposed to watchfaces via [androidx.wear.watchface.WatchState.watchFaceInstanceId].
-     * Some watch faces store config that's outside of the [UserStyleSchema] in a local database and
-     * they use the instanceId as a key so they need to be informed if an instance is disposed of to
-     * let them to release resources.
-     *
      * Note this silently does nothing for old watch faces that don't support this notification.
-     * This method should not be called while any instances of [instanceId] are still open.
      *
      * @param [componentName] The [ComponentName] of the WatchFaceService corresponding to the
      * deleted instance.
