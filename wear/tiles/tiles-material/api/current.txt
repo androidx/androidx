@@ -260,6 +260,7 @@ package androidx.wear.tiles.material.layouts {
   }
 
   public class PrimaryLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.layouts.PrimaryLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryChipContent();
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
