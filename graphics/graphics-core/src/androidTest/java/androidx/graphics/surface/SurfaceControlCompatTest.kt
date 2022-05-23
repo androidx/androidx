@@ -164,14 +164,24 @@ class SurfaceControlCompatTest {
     fun testSurfaceTransactionOnCommitCallback() {
         val listener = TransactionOnCommitListener()
 
-        SurfaceControlCompat.Transaction()
-            .addTransactionCommittedListener(executor!!, listener)
-            .commit()
+        val scenario = ActivityScenario.launch(SurfaceControlCompatTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
 
-        listener.mLatch.await(3, TimeUnit.SECONDS)
+        try {
+            scenario.onActivity {
+                SurfaceControlCompat.Transaction()
+                    .addTransactionCommittedListener(executor!!, listener)
+                    .commit()
+            }
+            scenario.moveToState(Lifecycle.State.RESUMED)
 
-        assertEquals(0, listener.mLatch.count)
-        assertTrue(listener.mCallbackTime > 0)
+            listener.mLatch.await(3, TimeUnit.SECONDS)
+            assertEquals(0, listener.mLatch.count)
+            assertTrue(listener.mCallbackTime > 0)
+        } finally {
+            // ensure activity is destroyed after any failures
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
@@ -180,19 +190,31 @@ class SurfaceControlCompatTest {
         val listener = TransactionOnCommitListener()
         val listener2 = TransactionOnCommitListener()
 
-        SurfaceControlCompat.Transaction()
-            .addTransactionCommittedListener(executor!!, listener)
-            .addTransactionCommittedListener(executor!!, listener2)
-            .commit()
+        val scenario = ActivityScenario.launch(SurfaceControlCompatTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
 
-        listener.mLatch.await(3, TimeUnit.SECONDS)
-        listener2.mLatch.await(3, TimeUnit.SECONDS)
+        try {
+            scenario.onActivity {
+                SurfaceControlCompat.Transaction()
+                    .addTransactionCommittedListener(executor!!, listener)
+                    .addTransactionCommittedListener(executor!!, listener2)
+                    .commit()
+            }
 
-        assertEquals(0, listener.mLatch.count)
-        assertEquals(0, listener2.mLatch.count)
+            scenario.moveToState(Lifecycle.State.RESUMED)
 
-        assertTrue(listener.mCallbackTime > 0)
-        assertTrue(listener2.mCallbackTime > 0)
+            listener.mLatch.await(3, TimeUnit.SECONDS)
+            listener2.mLatch.await(3, TimeUnit.SECONDS)
+
+            assertEquals(0, listener.mLatch.count)
+            assertEquals(0, listener2.mLatch.count)
+
+            assertTrue(listener.mCallbackTime > 0)
+            assertTrue(listener2.mCallbackTime > 0)
+        } finally {
+            // ensure activity is destroyed after any failures
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
@@ -201,17 +223,29 @@ class SurfaceControlCompatTest {
         val listener1 = TransactionOnCommitListener()
         val listener2 = TransactionOnCompleteListener()
 
-        SurfaceControlCompat.Transaction()
-            .addTransactionCommittedListener(executor!!, listener1)
-            .addTransactionCompletedListener(executor!!, listener2)
-            .commit()
+        val scenario = ActivityScenario.launch(SurfaceControlCompatTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
 
-        listener1.mLatch.await(3, TimeUnit.SECONDS)
-        listener2.mLatch.await(3, TimeUnit.SECONDS)
+        try {
+            scenario.onActivity {
+                SurfaceControlCompat.Transaction()
+                    .addTransactionCommittedListener(executor!!, listener1)
+                    .addTransactionCompletedListener(executor!!, listener2)
+                    .commit()
+            }
 
-        assertEquals(0, listener1.mLatch.count)
-        assertEquals(0, listener2.mLatch.count)
-        assertTrue(listener1.mCallbackTime > 0)
-        assertTrue(listener2.mCallbackTime > 0)
+            scenario.moveToState(Lifecycle.State.RESUMED)
+
+            listener1.mLatch.await(3, TimeUnit.SECONDS)
+            listener2.mLatch.await(3, TimeUnit.SECONDS)
+
+            assertEquals(0, listener1.mLatch.count)
+            assertEquals(0, listener2.mLatch.count)
+            assertTrue(listener1.mCallbackTime > 0)
+            assertTrue(listener2.mCallbackTime > 0)
+        } finally {
+            // ensure activity is destroyed after any failures
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+        }
     }
 }
