@@ -20,8 +20,9 @@ import static androidx.annotation.Dimension.DP;
 import static androidx.wear.tiles.DimensionBuilders.degrees;
 import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.checkTag;
+import static androidx.wear.tiles.material.Helper.getMetadataTagName;
 import static androidx.wear.tiles.material.Helper.getTagBytes;
-import static androidx.wear.tiles.material.Helper.getTagName;
 import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_COLORS;
 import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_END_ANGLE;
 import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_PADDING;
@@ -291,12 +292,7 @@ public class CircularProgressIndicator implements LayoutElement {
      */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTag(checkNotNull(mElement.getModifiers()));
-    }
-
-    @NonNull
-    private static String getMetadataTag(Modifiers modifiers) {
-        return getTagName(checkNotNull(modifiers.getMetadata()).getTagData());
+        return getMetadataTagName(checkNotNull(mElement.getModifiers()));
     }
 
     /**
@@ -309,10 +305,7 @@ public class CircularProgressIndicator implements LayoutElement {
             return null;
         }
         Arc arcElement = (Arc) element;
-        Modifiers modifiers = arcElement.getModifiers();
-        if (modifiers == null
-                || modifiers.getMetadata() == null
-                || !METADATA_TAG.equals(getMetadataTag(modifiers))) {
+        if (!checkTag(arcElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
         // Now we are sure that this element is a CircularProgressIndicator.
