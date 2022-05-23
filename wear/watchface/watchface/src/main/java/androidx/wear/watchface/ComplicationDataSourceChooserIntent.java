@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -193,7 +192,6 @@ public class ComplicationDataSourceChooserIntent {
      *     preference. If a data source can supply data for more than one of these types, the type
      *     chosen will be whichever was specified first.
      */
-    @SuppressLint("PendingIntentMutability")
     public static void startProviderChooserActivity(
             @NonNull Context context,
             @NonNull ComponentName watchFace,
