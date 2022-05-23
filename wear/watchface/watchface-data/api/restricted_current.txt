@@ -77,15 +77,6 @@ package androidx.wear.watchface.control.data {
     field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.IdTypeAndDefaultProviderPolicyWireFormat!>! CREATOR;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class InstanceDeletedParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public InstanceDeletedParams(android.content.ComponentName, String);
-    method public int describeContents();
-    method public String getInstanceId();
-    method public android.content.ComponentName getWatchFaceName();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.wear.watchface.control.data.InstanceDeletedParams!>! CREATOR;
-  }
-
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true) public class WallpaperInteractiveWatchFaceInstanceParams implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
     ctor public WallpaperInteractiveWatchFaceInstanceParams(String, androidx.wear.watchface.data.DeviceConfig, androidx.wear.watchface.data.WatchUiState, androidx.wear.watchface.style.data.UserStyleWireFormat, java.util.List<androidx.wear.watchface.data.IdAndComplicationDataWireFormat!>?);
     method public int describeContents();
