@@ -242,7 +242,9 @@ package androidx.wear.watchface.complications.data {
     method public androidx.wear.watchface.complications.data.ComplicationText? getText();
     method public androidx.wear.watchface.complications.data.ComplicationText? getTitle();
     method public float getValue();
+    method @androidx.wear.watchface.complications.data.ComplicationExperimental public boolean isDrawSegmented();
     property public final androidx.wear.watchface.complications.data.ComplicationText? contentDescription;
+    property @androidx.wear.watchface.complications.data.ComplicationExperimental public final boolean drawSegmented;
     property public final float max;
     property public final float min;
     property public final androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage;
@@ -257,6 +259,7 @@ package androidx.wear.watchface.complications.data {
     ctor public RangedValueComplicationData.Builder(float value, float min, float max, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData build();
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setDataSource(android.content.ComponentName? dataSource);
+    method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setDrawSegmented(boolean drawSegmented);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setMonochromaticImage(androidx.wear.watchface.complications.data.MonochromaticImage? monochromaticImage);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setTapAction(android.app.PendingIntent? tapAction);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData.Builder setText(androidx.wear.watchface.complications.data.ComplicationText? text);
