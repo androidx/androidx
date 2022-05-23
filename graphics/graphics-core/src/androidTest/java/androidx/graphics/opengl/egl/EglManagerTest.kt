@@ -52,7 +52,6 @@ import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -490,12 +489,11 @@ class EglManagerTest {
         }
     }
 
-    @Ignore
     @Test
     fun testEglDupNativeFenceFDANDROIDSupported() {
         testEglManager {
             initializeWithDefaultConfig()
-            if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
+            if (supportsNativeAndroidFence()) {
                 assertTrue(EGLBindings.nSupportsDupNativeFenceFDANDROID())
             }
         }
