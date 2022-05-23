@@ -42,8 +42,8 @@ import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
 import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
 import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
 import androidx.health.connect.client.records.HeightRecord
@@ -64,8 +64,8 @@ import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.SpeedRecord
-import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.SwimmingStrokesRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.TotalEnergyBurnedRecord
@@ -159,12 +159,12 @@ fun Record.toProto(): DataProto.DataPoint =
         is HeightRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Height"))
-                .apply { putValues("height", doubleVal(heightMeters)) }
+                .apply { putValues("height", doubleVal(height.inMeters)) }
                 .build()
         is HipCircumferenceRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HipCircumference"))
-                .apply { putValues("circumference", doubleVal(circumferenceMeters)) }
+                .apply { putValues("circumference", doubleVal(circumference.inMeters)) }
                 .build()
         is HeartRateVariabilityDifferentialIndexRecord ->
             instantaneousProto()
@@ -278,7 +278,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is WaistCircumferenceRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("WaistCircumference"))
-                .apply { putValues("circumference", doubleVal(circumferenceMeters)) }
+                .apply { putValues("circumference", doubleVal(circumference.inMeters)) }
                 .build()
         is WeightRecord ->
             instantaneousProto()
@@ -304,8 +304,8 @@ fun Record.toProto(): DataProto.DataPoint =
             intervalProto()
                 .setDataType(protoDataType("ActivityLap"))
                 .apply {
-                    if (lengthMeters > 0) {
-                        putValues("length", doubleVal(lengthMeters))
+                    if (length != null) {
+                        putValues("length", doubleVal(length.inMeters))
                     }
                 }
                 .build()
@@ -326,7 +326,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is ElevationGainedRecord ->
             intervalProto()
                 .setDataType(protoDataType("ElevationGained"))
-                .apply { putValues("elevation", doubleVal(elevationMeters)) }
+                .apply { putValues("elevation", doubleVal(elevation.inMeters)) }
                 .build()
         is FloorsClimbedRecord ->
             intervalProto()

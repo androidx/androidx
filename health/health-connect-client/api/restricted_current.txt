@@ -206,16 +206,16 @@ package androidx.health.connect.client.records {
   }
 
   public final class ActivityLapRecord implements androidx.health.connect.client.records.IntervalRecord {
-    ctor public ActivityLapRecord(optional double lengthMeters, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    ctor public ActivityLapRecord(optional androidx.health.connect.client.units.Length? length, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
-    method public double getLengthMeters();
+    method public androidx.health.connect.client.units.Length? getLength();
     method public androidx.health.connect.client.metadata.Metadata getMetadata();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
-    property public final double lengthMeters;
+    property public final androidx.health.connect.client.units.Length? length;
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
@@ -572,21 +572,21 @@ package androidx.health.connect.client.records {
   }
 
   public final class ElevationGainedRecord implements androidx.health.connect.client.records.IntervalRecord {
-    ctor public ElevationGainedRecord(double elevationMeters, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
-    method public double getElevationMeters();
+    ctor public ElevationGainedRecord(androidx.health.connect.client.units.Length elevation, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.Length getElevation();
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public androidx.health.connect.client.metadata.Metadata getMetadata();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
-    property public final double elevationMeters;
+    property public final androidx.health.connect.client.units.Length elevation;
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
     field public static final androidx.health.connect.client.records.ElevationGainedRecord.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> ELEVATION_GAINED_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Length> ELEVATION_GAINED_TOTAL;
   }
 
   public static final class ElevationGainedRecord.Companion {
@@ -646,31 +646,31 @@ package androidx.health.connect.client.records {
   }
 
   public final class HeightRecord implements androidx.health.connect.client.records.InstantaneousRecord {
-    ctor public HeightRecord(double heightMeters, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
-    method public double getHeightMeters();
+    ctor public HeightRecord(androidx.health.connect.client.units.Length height, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.Length getHeight();
     method public androidx.health.connect.client.metadata.Metadata getMetadata();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final double heightMeters;
+    property public final androidx.health.connect.client.units.Length height;
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
     field public static final androidx.health.connect.client.records.HeightRecord.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> HEIGHT_AVG;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> HEIGHT_MAX;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> HEIGHT_MIN;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Length> HEIGHT_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Length> HEIGHT_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Length> HEIGHT_MIN;
   }
 
   public static final class HeightRecord.Companion {
   }
 
   public final class HipCircumferenceRecord implements androidx.health.connect.client.records.InstantaneousRecord {
-    ctor public HipCircumferenceRecord(double circumferenceMeters, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
-    method public double getCircumferenceMeters();
+    ctor public HipCircumferenceRecord(androidx.health.connect.client.units.Length circumference, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.Length getCircumference();
     method public androidx.health.connect.client.metadata.Metadata getMetadata();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final double circumferenceMeters;
+    property public final androidx.health.connect.client.units.Length circumference;
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
@@ -1293,12 +1293,12 @@ package androidx.health.connect.client.records {
   }
 
   public final class WaistCircumferenceRecord implements androidx.health.connect.client.records.InstantaneousRecord {
-    ctor public WaistCircumferenceRecord(double circumferenceMeters, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
-    method public double getCircumferenceMeters();
+    ctor public WaistCircumferenceRecord(androidx.health.connect.client.units.Length circumference, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.Length getCircumference();
     method public androidx.health.connect.client.metadata.Metadata getMetadata();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final double circumferenceMeters;
+    property public final androidx.health.connect.client.units.Length circumference;
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;

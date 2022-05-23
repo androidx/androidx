@@ -41,7 +41,7 @@ public class DistanceRecord(
 ) : IntervalRecord {
 
     init {
-        requireNotLess(value = distance, other = distance.zero(), name = "distance")
+        distance.requireNotLess(other = distance.zero(), name = "distance")
     }
 
     /*
