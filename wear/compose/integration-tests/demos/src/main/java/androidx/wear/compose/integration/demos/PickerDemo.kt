@@ -16,7 +16,10 @@
 
 package androidx.wear.compose.integration.demos
 
+import android.annotation.SuppressLint
+import android.os.Build
 import android.view.MotionEvent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +36,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -46,12 +51,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
-import androidx.wear.compose.material.ButtonDefaults
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.Icon
@@ -62,17 +65,49 @@ import androidx.wear.compose.material.PickerScope
 import androidx.wear.compose.material.PickerState
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.rememberPickerState
-import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoField
+import java.time.temporal.TemporalAdjusters
 
-@OptIn(ExperimentalComposeUiApi::class)
+/**
+ * A full screen TimePicker with hours, minutes and seconds.
+ *
+ * This component is designed to take most/all of the screen and utilizes large fonts. In order to
+ * ensure that it will draw properly on smaller screens it does not take account of user font size
+ * overrides for MaterialTheme.typography.display3 which is used to display the main picker
+ * value.
+ *
+ * @param onTimeConfirm the button event handler.
+ * @param modifier the modifiers for the `Box` containing the UI elements.
+ * @param time the initial value to seed the picker with.
+ */
+@SuppressLint("ClassVerificationFailure")
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TimePickerWithHoursMinutesSeconds() {
+public fun TimePicker(
+    onTimeConfirm: (LocalTime) -> Unit,
+    modifier: Modifier = Modifier,
+    time: LocalTime = LocalTime.now()
+) {
     // Omit scaling according to Settings > Display > Font size for this screen
     val typography = MaterialTheme.typography.copy(
         display3 = MaterialTheme.typography.display3.copy(
             fontSize = with(LocalDensity.current) { 30.dp.toSp() }
         )
+    )
+    val hourState = rememberPickerState(
+        initialNumberOfOptions = 24,
+        initiallySelectedOption = time.hour
+    )
+    val minuteState = rememberPickerState(
+        initialNumberOfOptions = 60,
+        initiallySelectedOption = time.minute
+    )
+    val secondsState = rememberPickerState(
+        initialNumberOfOptions = 60,
+        initiallySelectedOption = time.second
     )
     MaterialTheme(typography = typography) {
         var selectedColumn by remember { mutableStateOf(0) }
@@ -81,7 +116,7 @@ fun TimePickerWithHoursMinutesSeconds() {
         val focusRequester1 = remember { FocusRequester() }
         val focusRequester2 = remember { FocusRequester() }
         val focusRequester3 = remember { FocusRequester() }
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = modifier.fillMaxSize()) {
             Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -98,7 +133,11 @@ fun TimePickerWithHoursMinutesSeconds() {
                     maxLines = 1,
                 )
                 val weightsToCenterVertically = 0.5f
-                Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
+                Spacer(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(weightsToCenterVertically)
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -106,10 +145,7 @@ fun TimePickerWithHoursMinutesSeconds() {
                 ) {
                     PickerWithRSB(
                         readOnly = selectedColumn != 0,
-                        state = rememberPickerState(
-                            initialNumberOfOptions = 24,
-                            initiallySelectedOption = 6
-                        ),
+                        state = hourState,
                         focusRequester = focusRequester1,
                         modifier = Modifier.size(40.dp, 100.dp),
                     ) { hour: Int ->
@@ -123,7 +159,7 @@ fun TimePickerWithHoursMinutesSeconds() {
                     Separator(6.dp, textStyle)
                     PickerWithRSB(
                         readOnly = selectedColumn != 1,
-                        state = rememberPickerState(initialNumberOfOptions = 60),
+                        state = minuteState,
                         focusRequester = focusRequester2,
                         modifier = Modifier.size(40.dp, 100.dp),
                     ) { minute: Int ->
@@ -137,7 +173,7 @@ fun TimePickerWithHoursMinutesSeconds() {
                     Separator(6.dp, textStyle)
                     PickerWithRSB(
                         readOnly = selectedColumn != 2,
-                        state = rememberPickerState(initialNumberOfOptions = 60),
+                        state = secondsState,
                         focusRequester = focusRequester3,
                         modifier = Modifier.size(40.dp, 100.dp),
                     ) { second: Int ->
@@ -149,12 +185,25 @@ fun TimePickerWithHoursMinutesSeconds() {
                         )
                     }
                 }
-                Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
-                Button(onClick = {}) {
+                Spacer(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(weightsToCenterVertically)
+                )
+                Button(onClick = {
+                    val confirmedTime = LocalTime.of(
+                        hourState.selectedOption,
+                        minuteState.selectedOption,
+                        secondsState.selectedOption
+                    )
+                    onTimeConfirm(confirmedTime)
+                }) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_check_24px),
+                        imageVector = Icons.Filled.Check,
                         contentDescription = "check",
-                        modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
+                        modifier = Modifier
+                            .size(24.dp)
+                            .wrapContentSize(align = Alignment.Center),
                     )
                 }
                 Spacer(Modifier.height(12.dp))
@@ -167,30 +216,62 @@ fun TimePickerWithHoursMinutesSeconds() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+/**
+ * A full screen TimePicker with hours and minutes and AM/PM selector.
+ *
+ * This component is designed to take most/all of the screen and utilizes large fonts. In order to
+ * ensure that it will draw properly on smaller screens it does not take account of user font size
+ * overrides for MaterialTheme.typography.display1 which is used to display the main picker
+ * value.
+ *
+ * @param onTimeConfirm the button event handler.
+ * @param modifier the modifiers for the `Column` containing the UI elements.
+ * @param time the initial value to seed the picker with.
+ */
+@SuppressLint("ClassVerificationFailure")
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun TimePickerWith12HourClock() {
+public fun TimePickerWith12HourClock(
+    onTimeConfirm: (LocalTime) -> Unit,
+    modifier: Modifier = Modifier,
+    time: LocalTime = LocalTime.now()
+) {
     // Omit scaling according to Settings > Display > Font size for this screen,
     val typography = MaterialTheme.typography.copy(
         display1 = MaterialTheme.typography.display1.copy(
             fontSize = with(LocalDensity.current) { 40.dp.toSp() }
         )
     )
+    val hourState = rememberPickerState(
+        initialNumberOfOptions = 12,
+        initiallySelectedOption = time[ChronoField.CLOCK_HOUR_OF_AMPM] - 1
+    )
+    val minuteState = rememberPickerState(
+        initialNumberOfOptions = 60,
+        initiallySelectedOption = time.minute
+    )
+    var amPm by remember { mutableStateOf(time[ChronoField.AMPM_OF_DAY]) }
+
+    val amString = remember {
+        LocalTime.of(6, 0).format(DateTimeFormatter.ofPattern("a"))
+    }
+    val pmString = remember {
+        LocalTime.of(18, 0).format(DateTimeFormatter.ofPattern("a"))
+    }
     MaterialTheme(typography = typography) {
-        var morning by remember { mutableStateOf(true) }
         var selectedColumn by remember { mutableStateOf(0) }
         val textStyle = MaterialTheme.typography.display1
         val focusRequester1 = remember { FocusRequester() }
         val focusRequester2 = remember { FocusRequester() }
 
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(8.dp))
             CompactChip(
-                onClick = { morning = !morning },
+                onClick = { amPm = 1 - amPm },
                 modifier = Modifier.size(width = 50.dp, height = 24.dp),
                 label = {
                     Row(
@@ -198,7 +279,7 @@ fun TimePickerWith12HourClock() {
                         horizontalArrangement = Arrangement.Center
                     ) {
                         Text(
-                            text = if (morning) "AM" else "PM",
+                            text = if (amPm == 0) amString else pmString,
                             color = MaterialTheme.colors.onPrimary,
                             style = MaterialTheme.typography.button,
                         )
@@ -207,7 +288,11 @@ fun TimePickerWith12HourClock() {
                 colors = ChipDefaults.chipColors(backgroundColor = MaterialTheme.colors.secondary),
                 contentPadding = PaddingValues(vertical = 0.dp),
             )
-            Spacer(Modifier.fillMaxWidth().weight(0.5f))
+            Spacer(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(0.5f)
+            )
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -216,10 +301,7 @@ fun TimePickerWith12HourClock() {
                 Spacer(Modifier.width(8.dp))
                 PickerWithRSB(
                     readOnly = selectedColumn != 0,
-                    state = rememberPickerState(
-                        initialNumberOfOptions = 12,
-                        initiallySelectedOption = 6
-                    ),
+                    state = hourState,
                     focusRequester = focusRequester1,
                     modifier = Modifier.size(64.dp, 100.dp),
                     readOnlyLabel = { LabelText("Hour") }
@@ -235,7 +317,7 @@ fun TimePickerWith12HourClock() {
 
                 PickerWithRSB(
                     readOnly = selectedColumn != 1,
-                    state = rememberPickerState(initialNumberOfOptions = 60),
+                    state = minuteState,
                     focusRequester = focusRequester2,
                     modifier = Modifier.size(64.dp, 100.dp),
                     readOnlyLabel = { LabelText("Min") }
@@ -249,12 +331,25 @@ fun TimePickerWith12HourClock() {
                 }
                 Spacer(Modifier.width(8.dp))
             }
-            Spacer(Modifier.fillMaxWidth().weight(0.5f))
-            Button(onClick = {}) {
+            Spacer(
+                Modifier
+                    .fillMaxWidth()
+                    .weight(0.5f)
+            )
+            Button(onClick = {
+                val confirmedTime = LocalTime.of(
+                    hourState.selectedOption + 1,
+                    minuteState.selectedOption,
+                    0
+                ).with(ChronoField.AMPM_OF_DAY, amPm.toLong())
+                onTimeConfirm(confirmedTime)
+            }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_check_24px),
+                    imageVector = Icons.Filled.Check,
                     contentDescription = "check",
-                    modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .wrapContentSize(align = Alignment.Center),
                 )
             }
             Spacer(Modifier.height(8.dp))
@@ -265,9 +360,26 @@ fun TimePickerWith12HourClock() {
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
+/**
+ * Full screen date picker with day, month, year.
+ *
+ * This component is designed to take most/all of the screen and utilizes large fonts. In order to
+ * ensure that it will draw properly on smaller screens it does not take account of user font size
+ * overrides for MaterialTheme.typography.display2 which is used to display the main picker
+ * value.
+ *
+ * @param onDateConfirm the button event handler.
+ * @param modifier the modifiers for the `Box` containing the UI elements.
+ * @param date the initial value to seed the picker with.
+ */
+@SuppressLint("ClassVerificationFailure")
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DatePicker() {
+public fun DatePicker(
+    onDateConfirm: (LocalDate) -> Unit,
+    modifier: Modifier = Modifier,
+    date: LocalDate = LocalDate.now()
+) {
     // Omit scaling according to Settings > Display > Font size for this screen
     val typography = MaterialTheme.typography.copy(
         display2 = MaterialTheme.typography.display2.copy(
@@ -275,24 +387,28 @@ fun DatePicker() {
         )
     )
     MaterialTheme(typography = typography) {
-        val today = remember { Calendar.getInstance() }
         val yearState = rememberPickerState(
             initialNumberOfOptions = 3000,
-            initiallySelectedOption = today.get(Calendar.YEAR) - 1)
+            initiallySelectedOption = date.year - 1
+        )
         val monthState = rememberPickerState(
             initialNumberOfOptions = 12,
-            initiallySelectedOption = today.get(Calendar.MONTH))
-        val monthCalendar = remember { Calendar.getInstance() }
+            initiallySelectedOption = date.monthValue - 1
+        )
         val maxDayInMonth by remember {
             derivedStateOf {
-                monthCalendar.set(yearState.selectedOption + 1, monthState.selectedOption, 1)
-                val max = monthCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-                max
+                val firstDayOfMonth =
+                    LocalDate.of(
+                        yearState.selectedOption + 1,
+                        monthState.selectedOption + 1,
+                        1
+                    )
+                firstDayOfMonth.with(TemporalAdjusters.lastDayOfMonth()).dayOfMonth
             }
         }
         val dayState = rememberPickerState(
             initialNumberOfOptions = maxDayInMonth,
-            initiallySelectedOption = today.get(Calendar.DAY_OF_MONTH) - 1
+            initiallySelectedOption = date.dayOfMonth - 1
         )
         val focusRequester1 = remember { FocusRequester() }
         val focusRequester2 = remember { FocusRequester() }
@@ -304,18 +420,15 @@ fun DatePicker() {
             }
         }
         val monthNames = remember {
-            val months = 0..11
+            val monthFormatter = DateTimeFormatter.ofPattern("MMM")
+            val months = 1..12
             months.map {
                 // Translate month index into 3-character month string e.g. Jan.
-                // Using deprecated Date constructor rather than LocalDate in order to avoid
-                // requirement for API 26+.
-                val calendar = Calendar.getInstance()
-                calendar.set(2022, it, 1)
-                SimpleDateFormat("MMM").format(calendar.getTime())
+                LocalDate.of(2022, it, 1).format(monthFormatter)
             }
         }
         var selectedColumn by remember { mutableStateOf(0) }
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        BoxWithConstraints(modifier = modifier.fillMaxSize()) {
             val boxConstraints = this
             Column(
                 verticalArrangement = Arrangement.Center,
@@ -333,7 +446,11 @@ fun DatePicker() {
                     maxLines = 1,
                 )
                 val weightsToCenterVertically = 0.5f
-                Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
+                Spacer(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(weightsToCenterVertically)
+                )
                 val spacerWidth = 8.dp
                 val dayWidth = 54.dp
                 val monthWidth = 80.dp
@@ -343,7 +460,11 @@ fun DatePicker() {
                     1 -> (boxConstraints.maxWidth - monthWidth) / 2 - dayWidth - spacerWidth
                     else -> (boxConstraints.maxWidth - yearWidth) / 2 - monthWidth
                 }
-                Row(modifier = Modifier.fillMaxWidth().offset(offset)) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .offset(offset)
+                ) {
                     if (selectedColumn < 2) {
                         DatePickerImpl(
                             state = dayState,
@@ -375,12 +496,24 @@ fun DatePicker() {
                         )
                     }
                 }
-                Spacer(Modifier.fillMaxWidth().weight(weightsToCenterVertically))
+                Spacer(
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(weightsToCenterVertically)
+                )
                 Button(
-                    onClick = { selectedColumn = (selectedColumn + 1) % 3 },
-                    colors =
-                    if (selectedColumn < 2) ButtonDefaults.secondaryButtonColors()
-                    else ButtonDefaults.primaryButtonColors()
+                    onClick = {
+                        if (selectedColumn == 2) {
+                            val confirmedDate = LocalDate.of(
+                                yearState.selectedOption + 1,
+                                monthState.selectedOption + 1,
+                                dayState.selectedOption + 1
+                            )
+                            onDateConfirm(confirmedDate)
+                        } else {
+                            selectedColumn = (selectedColumn + 1) % 3
+                        }
+                    },
                 ) {
                     DemoIcon(
                         resourceId =
@@ -424,27 +557,29 @@ private fun DatePickerImpl(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun TimePiece(
+internal fun TimePiece(
     selected: Boolean,
     onSelected: () -> Unit,
     text: String,
     style: TextStyle,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
-        val modifier = Modifier.align(Alignment.Center).wrapContentSize()
+        val modifier = Modifier
+            .align(Alignment.Center)
+            .wrapContentSize()
         Text(
             text = text,
             maxLines = 1,
             style = style,
             color =
-                if (selected) MaterialTheme.colors.secondary
-                else MaterialTheme.colors.onBackground,
+            if (selected) MaterialTheme.colors.secondary
+            else MaterialTheme.colors.onBackground,
             modifier =
-                if (selected) modifier
-                else modifier.pointerInteropFilter {
-                    if (it.action == MotionEvent.ACTION_DOWN) onSelected()
-                    true
-                },
+            if (selected) modifier
+            else modifier.pointerInteropFilter {
+                if (it.action == MotionEvent.ACTION_DOWN) onSelected()
+                true
+            },
         )
     }
 }
