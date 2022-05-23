@@ -279,6 +279,7 @@ package androidx.wear.tiles.material.layouts {
   }
 
   public class ProgressIndicatorLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.layouts.ProgressIndicatorLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getProgressIndicatorContent();
   }
