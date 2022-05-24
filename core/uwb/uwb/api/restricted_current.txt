@@ -116,7 +116,7 @@ package androidx.core.uwb {
   }
 
   public interface UwbManager {
-    method public suspend <R> Object? clientSessionScope(kotlin.jvm.functions.Function2<? super androidx.core.uwb.UwbClientSessionScope,? super kotlin.coroutines.Continuation<? super R>,?> sessionHandler, kotlin.coroutines.Continuation<? super R>);
+    method public suspend Object? clientSessionScope(kotlin.coroutines.Continuation<? super androidx.core.uwb.UwbClientSessionScope>);
     method public default static androidx.core.uwb.UwbManager createInstance(android.content.Context context);
     field public static final androidx.core.uwb.UwbManager.Companion Companion;
   }
