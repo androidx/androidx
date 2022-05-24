@@ -16,13 +16,16 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.graphics.ImageFormat.PRIVATE;
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
 
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCaptureSession;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.InputConfiguration;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageWriter;
 import android.os.Build;
@@ -44,10 +47,14 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.compat.ImageWriterCompat;
 import androidx.camera.core.internal.utils.ZslRingBuffer;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 /**
@@ -63,6 +70,12 @@ final class ZslControlImpl implements ZslControl {
 
     @VisibleForTesting
     static final int MAX_IMAGES = RING_BUFFER_CAPACITY * 3;
+
+    @NonNull
+    private final Map<Integer, Size> mReprocessingInputSizeMap;
+
+    @NonNull
+    private final CameraCharacteristicsCompat mCameraCharacteristicsCompat;
 
     @VisibleForTesting
     @SuppressWarnings("WeakerAccess")
@@ -82,9 +95,12 @@ final class ZslControlImpl implements ZslControl {
     ImageWriter mReprocessingImageWriter;
 
     ZslControlImpl(@NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
+        mCameraCharacteristicsCompat = cameraCharacteristicsCompat;
         mIsPrivateReprocessingSupported =
-                isCapabilitySupported(cameraCharacteristicsCompat,
+                isCapabilitySupported(mCameraCharacteristicsCompat,
                         REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING);
+
+        mReprocessingInputSizeMap = createReprocessingInputSizeMap(mCameraCharacteristicsCompat);
 
         mImageRingBuffer = new ZslRingBuffer(
                 RING_BUFFER_CAPACITY,
@@ -112,9 +128,7 @@ final class ZslControlImpl implements ZslControl {
     }
 
     @Override
-    public void addZslConfig(
-            @NonNull Size resolution,
-            @NonNull SessionConfig.Builder sessionConfigBuilder) {
+    public void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder) {
         cleanup();
 
         // Early return only if use case config doesn't support zsl. If flash mode doesn't
@@ -127,12 +141,15 @@ final class ZslControlImpl implements ZslControl {
 
         // Due to b/232268355 and feedback from pixel team that private format will have better
         // performance, we will use private only for zsl.
-        if (!mIsPrivateReprocessingSupported) {
+        if (!mIsPrivateReprocessingSupported
+                || mReprocessingInputSizeMap.isEmpty()
+                || !mReprocessingInputSizeMap.containsKey(PRIVATE)
+                || !isJpegValidOutputForInputFormat(mCameraCharacteristicsCompat, PRIVATE)) {
             return;
         }
 
-        int reprocessingImageFormat = ImageFormat.PRIVATE;
-
+        int reprocessingImageFormat = PRIVATE;
+        Size resolution = mReprocessingInputSizeMap.get(reprocessingImageFormat);
         MetadataImageReader metadataImageReader = new MetadataImageReader(
                 resolution.getWidth(),
                 resolution.getHeight(),
@@ -251,5 +268,54 @@ final class ZslControlImpl implements ZslControl {
             reprocessingImageWriter.close();
             mReprocessingImageWriter = null;
         }
+    }
+
+    @NonNull
+    private Map<Integer, Size> createReprocessingInputSizeMap(
+            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
+        StreamConfigurationMap map =
+                cameraCharacteristicsCompat.get(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+        if (map == null || map.getInputFormats() == null) {
+            return new HashMap<>();
+        }
+
+        Map<Integer, Size> inputSizeMap = new HashMap<>();
+        for (int format: map.getInputFormats()) {
+            Size[] inputSizes = map.getInputSizes(format);
+            if (inputSizes != null) {
+                // Sort by descending order
+                Arrays.sort(inputSizes, new CompareSizesByArea(true));
+
+                // TODO(b/233696144): Check if selecting an input size closer to output size will
+                //  improve performance or not.
+                inputSizeMap.put(format, inputSizes[0]);
+            }
+        }
+        return inputSizeMap;
+    }
+
+    private boolean isJpegValidOutputForInputFormat(
+            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
+            int inputFormat) {
+        StreamConfigurationMap map =
+                cameraCharacteristicsCompat.get(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+        if (map == null) {
+            return false;
+        }
+
+        int[] validOutputFormats = map.getValidOutputFormatsForInput(inputFormat);
+        if (validOutputFormats == null) {
+            return false;
+        }
+        for (int outputFormat : validOutputFormats) {
+            if (outputFormat == ImageFormat.JPEG) {
+                return true;
+            }
+        }
+        return false;
     }
 }

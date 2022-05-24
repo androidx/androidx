@@ -375,7 +375,7 @@ public final class ImageCapture extends UseCase {
         YuvToJpegProcessor softwareJpegProcessor = null;
 
         if (Build.VERSION.SDK_INT >= 23 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {
-            getCameraControl().addZslConfig(resolution, sessionConfigBuilder);
+            getCameraControl().addZslConfig(sessionConfigBuilder);
         }
 
         // Setup the ImageReader to do processing
