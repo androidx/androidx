@@ -126,6 +126,11 @@ export JAVA_HOME="$APP_HOME/../../prebuilts/jdk/jdk11/$plat-$platform_suffix"
 export JAVA_TOOLS_JAR="$APP_HOME/../../prebuilts/jdk/jdk8/$plat-x86/lib/tools.jar"
 export STUDIO_GRADLE_JDK=$JAVA_HOME
 
+# Warn developers if they try to build top level project without the full checkout
+[ ! -d "$JAVA_HOME" ] && echo "You likely checked out the standalone AndroidX git project.
+
+This type of checkout only supports building a subset of projects, see CONTRIBUTING.md" && exit -1
+
 # ----------------------------------------------------------------------------
 
 # Determine the Java command to use to start the JVM.
