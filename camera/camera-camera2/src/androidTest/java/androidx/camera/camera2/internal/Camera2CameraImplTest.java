@@ -796,8 +796,14 @@ public final class Camera2CameraImplTest {
     @SdkSuppress(minSdkVersion = 23)
     @Test
     public void attachUseCaseWithTemplateZSLNoRecord() throws InterruptedException {
-        UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW, /* isZslDisabled = */false);
-        UseCase zsl = createUseCase(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG,
+        if (!mCamera2CameraImpl.getCameraInfo().isZslSupported()) {
+            return;
+        }
+        UseCase preview = createUseCase(
+                CameraDevice.TEMPLATE_PREVIEW,
+                /* isZslDisabled = */false);
+        UseCase zsl = createUseCase(
+                CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG,
                 /* isZslDisabled = */false);
 
         mCamera2CameraImpl.attachUseCases(Arrays.asList(preview, zsl));
@@ -815,19 +821,24 @@ public final class Camera2CameraImplTest {
 
         assertThat(captureResult.get(CaptureResult.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_ZERO_SHUTTER_LAG);
-        assertThat(mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+        assertThat(
+                mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isFalse();
 
         mCamera2CameraImpl.detachUseCases(Arrays.asList(preview, zsl));
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
-        assertThat(mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
-                .isFalse();
+        assertThat(mCamera2CameraImpl.getCameraControlInternal()
+                .isZslDisabledByByUserCaseConfig()).isFalse();
     }
 
     @SdkSuppress(minSdkVersion = 23)
     @Test
     public void attachUseCaseWithTemplateZSLHasRecord() throws InterruptedException {
-        UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW, /* isZslDisabled = */false);
+        if (!mCamera2CameraImpl.getCameraInfo().isZslSupported()) {
+            return;
+        }
+        UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW, /* isZslDisabled = */
+                false);
         UseCase record = createUseCase(CameraDevice.TEMPLATE_RECORD, /* isZslDisabled = */true);
         UseCase zsl = createUseCase(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG,
                 /* isZslDisabled = */false);
@@ -848,19 +859,25 @@ public final class Camera2CameraImplTest {
 
         assertThat(captureResult.get(CaptureResult.CONTROL_CAPTURE_INTENT))
                 .isEqualTo(CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD);
-        assertThat(mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+        assertThat(
+                mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isTrue();
 
         mCamera2CameraImpl.detachUseCases(Arrays.asList(preview, record, zsl));
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
-        assertThat(mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+        assertThat(
+                mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isFalse();
     }
 
     @SdkSuppress(minSdkVersion = 23)
     @Test
     public void attachAndDetachUseCasesMultipleTimes() throws InterruptedException {
-        UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW, /* isZslDisabled = */false);
+        if (!mCamera2CameraImpl.getCameraInfo().isZslSupported()) {
+            return;
+        }
+        UseCase preview = createUseCase(CameraDevice.TEMPLATE_PREVIEW, /* isZslDisabled = */
+                false);
         UseCase record = createUseCase(CameraDevice.TEMPLATE_RECORD, /* isZslDisabled = */true);
         UseCase zsl = createUseCase(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG,
                 /* isZslDisabled = */false);
@@ -870,40 +887,47 @@ public final class Camera2CameraImplTest {
         mCamera2CameraImpl.onUseCaseActive(zsl);
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
-        assertThat(mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+        assertThat(
+                mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isFalse();
 
         mCamera2CameraImpl.attachUseCases(Arrays.asList(record));
         mCamera2CameraImpl.onUseCaseActive(record);
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
-        assertThat(mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+        assertThat(
+                mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isTrue();
 
         mCamera2CameraImpl.detachUseCases(Arrays.asList(record));
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
-        assertThat(mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+        assertThat(
+                mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isFalse();
 
         mCamera2CameraImpl.attachUseCases(Arrays.asList(record));
         mCamera2CameraImpl.onUseCaseActive(record);
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
-        assertThat(mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+        assertThat(
+                mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isTrue();
 
         mCamera2CameraImpl.detachUseCases(Arrays.asList(zsl));
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
-        assertThat(mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+        assertThat(
+                mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isTrue();
 
         mCamera2CameraImpl.detachUseCases(Arrays.asList(preview));
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
-        assertThat(mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+        assertThat(
+                mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isTrue();
 
         mCamera2CameraImpl.detachUseCases(Arrays.asList(record));
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
-        assertThat(mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
+        assertThat(
+                mCamera2CameraImpl.getCameraControlInternal().isZslDisabledByByUserCaseConfig())
                 .isFalse();
     }
 
