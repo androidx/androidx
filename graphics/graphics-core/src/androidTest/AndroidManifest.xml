@@ -30,6 +30,11 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="androidx.graphics.surface.SurfaceControlCompatTestActivity"
+            android:label="Graphics Core Test"
+            android:exported="true">
+        </activity>
+
         <activity android:name="androidx.graphics.opengl.GLTestActivity"
             android:label="Graphics Core Test"
             android:exported="true">
