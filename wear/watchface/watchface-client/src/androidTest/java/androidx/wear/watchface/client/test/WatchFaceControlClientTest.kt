@@ -1564,6 +1564,37 @@ class WatchFaceControlClientTest {
     }
 
     @Test
+    fun watchfaceOverlayStyle_after_close() {
+        val wallpaperService = TestWatchfaceOverlayStyleWatchFaceService(
+            context,
+            surfaceHolder,
+            WatchFace.OverlayStyle(Color.valueOf(Color.RED), Color.valueOf(Color.BLACK))
+        )
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of the interactive instance.
+        handler.post {
+            engine = wallpaperService.onCreateEngine() as WatchFaceService.EngineWrapper
+        }
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        interactiveInstance.close()
+
+        assertThat(interactiveInstance.overlayStyle.backgroundColor).isNull()
+        assertThat(interactiveInstance.overlayStyle.foregroundColor).isNull()
+    }
+
+    @Test
     fun computeUserStyleSchemaDigestHash() {
         val headlessInstance1 = service.createHeadlessWatchFaceClient(
             "id",

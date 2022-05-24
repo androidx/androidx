@@ -99,6 +99,7 @@ import java.io.PrintWriter
 import java.time.Instant
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 
 /** The wire format for [ComplicationData]. */
 internal typealias WireComplicationData = android.support.wearable.complications.ComplicationData
@@ -318,6 +319,12 @@ public abstract class WatchFaceService : WallpaperService() {
         /** The maximum permitted duration of [WatchFaceService.createWatchFace]. */
         public const val MAX_CREATE_WATCHFACE_TIME_MILLIS: Int = 5000
 
+        /**
+         * The maximum delay for [awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking] and
+         * [awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread] in milliseconds.
+         */
+        private const val AWAIT_DEFERRED_TIMEOUT = 10000L
+
         /** The maximum reasonable wire size for a [UserStyleSchema] in bytes. */
         internal const val MAX_REASONABLE_SCHEMA_WIRE_SIZE_BYTES = 50000
 
@@ -342,9 +349,11 @@ public abstract class WatchFaceService : WallpaperService() {
             }
             runBlocking {
                 try {
-                    val watchFaceImpl = engine.deferredWatchFaceImpl.await()
-                    withContext(engine.uiThreadCoroutineScope.coroutineContext) {
-                        task(watchFaceImpl)
+                    withTimeout(AWAIT_DEFERRED_TIMEOUT) {
+                        val watchFaceImpl = engine.deferredWatchFaceImpl.await()
+                        withContext(engine.uiThreadCoroutineScope.coroutineContext) {
+                            task(watchFaceImpl)
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e(HeadlessWatchFaceImpl.TAG, "Operation failed", e)
@@ -353,7 +362,7 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        internal fun <R> deferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        internal fun <R> awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
             engine: WatchFaceService.EngineWrapper?,
             traceName: String,
             task: (watchFaceInitDetails: WatchFaceService.WatchFaceInitDetails) -> R
@@ -364,7 +373,9 @@ public abstract class WatchFaceService : WallpaperService() {
             }
             runBlocking {
                 try {
-                    task(engine.watchFaceInitDetails.await())
+                    withTimeout(AWAIT_DEFERRED_TIMEOUT) {
+                        task(engine.watchFaceInitDetails.await())
+                    }
                 } catch (e: Exception) {
                     Log.e(HeadlessWatchFaceImpl.TAG, "Operation failed", e)
                     throw e
