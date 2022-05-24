@@ -32,7 +32,8 @@ import kotlinx.coroutines.withContext
  */
 @RequiresApi(27)
 internal class HeadlessWatchFaceImpl(
-    internal var engine: WatchFaceService.EngineWrapper?
+    internal var engine: WatchFaceService.EngineWrapper?,
+    internal var watchFaceService: WatchFaceService?
 ) : IHeadlessWatchFace.Stub() {
 
     internal companion object {
@@ -129,6 +130,9 @@ internal class HeadlessWatchFaceImpl(
                     synchronized(this@HeadlessWatchFaceImpl) {
                         engine!!.onDestroy()
                         engine = null
+
+                        watchFaceService!!.onDestroy()
+                        watchFaceService = null
                     }
                 }
             }
