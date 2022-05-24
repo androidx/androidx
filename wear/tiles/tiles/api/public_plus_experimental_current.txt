@@ -568,8 +568,10 @@ package androidx.wear.tiles {
   }
 
   public static final class LayoutElementBuilders.Layout {
+    method @androidx.wear.tiles.TilesExperimental public static androidx.wear.tiles.LayoutElementBuilders.Layout? fromByteArray(byte[]);
     method public static androidx.wear.tiles.LayoutElementBuilders.Layout fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getRoot();
+    method @androidx.wear.tiles.TilesExperimental public byte[] toByteArray();
   }
 
   public static final class LayoutElementBuilders.Layout.Builder {
@@ -953,8 +955,10 @@ package androidx.wear.tiles {
   }
 
   public static final class ResourceBuilders.Resources {
+    method @androidx.wear.tiles.TilesExperimental public static androidx.wear.tiles.ResourceBuilders.Resources? fromByteArray(byte[]);
     method public java.util.Map<java.lang.String!,androidx.wear.tiles.ResourceBuilders.ImageResource!> getIdToImageMapping();
     method public String getVersion();
+    method @androidx.wear.tiles.TilesExperimental public byte[] toByteArray();
   }
 
   public static final class ResourceBuilders.Resources.Builder {
