@@ -32,6 +32,9 @@ package androidx.glance.wear.tiles {
     property public androidx.glance.wear.tiles.TimelineMode timelineMode;
   }
 
+  public final class GlanceWearTilesKt {
+  }
+
   public final class NormalizeCompositionTreeKt {
   }
 
