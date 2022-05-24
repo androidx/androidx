@@ -85,8 +85,10 @@ import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.celsius
+import androidx.health.connect.client.units.grams
 import androidx.health.connect.client.units.kilocalories
 import androidx.health.connect.client.units.kilocaloriesPerDay
+import androidx.health.connect.client.units.kilograms
 import androidx.health.connect.client.units.liters
 import androidx.health.connect.client.units.meters
 import androidx.health.connect.client.units.watts
@@ -224,7 +226,7 @@ class AllRecordsConverterTest {
     fun testBodyWaterMass() {
         val data =
             BodyWaterMassRecord(
-                massKg = 1.0,
+                mass = 1.kilograms,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -238,7 +240,7 @@ class AllRecordsConverterTest {
     fun testBoneMass() {
         val data =
             BoneMassRecord(
-                massKg = 1.0,
+                mass = 1.kilograms,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -477,7 +479,7 @@ class AllRecordsConverterTest {
     fun testLeanBodyMass() {
         val data =
             LeanBodyMassRecord(
-                massKg = 1.0,
+                mass = 1.kilograms,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -682,7 +684,7 @@ class AllRecordsConverterTest {
     fun testWeight() {
         val data =
             WeightRecord(
-                weightKg = 1.0,
+                weight = 1.kilograms,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -826,48 +828,48 @@ class AllRecordsConverterTest {
     fun testNutrition() {
         val data =
             NutritionRecord(
-                biotinGrams = 1.0,
-                caffeineGrams = 1.0,
-                calciumGrams = 1.0,
+                biotin = 1.grams,
+                caffeine = 1.grams,
+                calcium = 1.grams,
                 energy = 1.kilocalories,
                 energyFromFat = 1.kilocalories,
-                chlorideGrams = 1.0,
-                cholesterolGrams = 1.0,
-                chromiumGrams = 1.0,
-                copperGrams = 1.0,
-                dietaryFiberGrams = 1.0,
-                folateGrams = 1.0,
-                folicAcidGrams = 1.0,
-                iodineGrams = 1.0,
-                ironGrams = 1.0,
-                magnesiumGrams = 1.0,
-                manganeseGrams = 1.0,
-                molybdenumGrams = 1.0,
-                monounsaturatedFatGrams = 1.0,
-                niacinGrams = 1.0,
-                pantothenicAcidGrams = 1.0,
-                phosphorusGrams = 1.0,
-                polyunsaturatedFatGrams = 1.0,
-                potassiumGrams = 1.0,
-                proteinGrams = 1.0,
-                riboflavinGrams = 1.0,
-                saturatedFatGrams = 1.0,
-                seleniumGrams = 1.0,
-                sodiumGrams = 1.0,
-                sugarGrams = 1.0,
-                thiaminGrams = 1.0,
-                totalCarbohydrateGrams = 1.0,
-                totalFatGrams = 1.0,
-                transFatGrams = 1.0,
-                unsaturatedFatGrams = 1.0,
-                vitaminAGrams = 1.0,
-                vitaminB12Grams = 1.0,
-                vitaminB6Grams = 1.0,
-                vitaminCGrams = 1.0,
-                vitaminDGrams = 1.0,
-                vitaminEGrams = 1.0,
-                vitaminKGrams = 1.0,
-                zincGrams = 1.0,
+                chloride = 1.grams,
+                cholesterol = 1.grams,
+                chromium = 1.grams,
+                copper = 1.grams,
+                dietaryFiber = 1.grams,
+                folate = 1.grams,
+                folicAcid = 1.grams,
+                iodine = 1.grams,
+                iron = 1.grams,
+                magnesium = 1.grams,
+                manganese = 1.grams,
+                molybdenum = 1.grams,
+                monounsaturatedFat = 1.grams,
+                niacin = 1.grams,
+                pantothenicAcid = 1.grams,
+                phosphorus = 1.grams,
+                polyunsaturatedFat = 1.grams,
+                potassium = 1.grams,
+                protein = 1.grams,
+                riboflavin = 1.grams,
+                saturatedFat = 1.grams,
+                selenium = 1.grams,
+                sodium = 1.grams,
+                sugar = 1.grams,
+                thiamin = 1.grams,
+                totalCarbohydrate = 1.grams,
+                totalFat = 1.grams,
+                transFat = 1.grams,
+                unsaturatedFat = 1.grams,
+                vitaminA = 1.grams,
+                vitaminB12 = 1.grams,
+                vitaminB6 = 1.grams,
+                vitaminC = 1.grams,
+                vitaminD = 1.grams,
+                vitaminE = 1.grams,
+                vitaminK = 1.grams,
+                zinc = 1.grams,
                 mealType = null,
                 name = null,
                 startTime = START_TIME,
