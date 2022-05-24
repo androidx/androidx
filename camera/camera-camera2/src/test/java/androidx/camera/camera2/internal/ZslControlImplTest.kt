@@ -17,7 +17,6 @@
 package androidx.camera.camera2.internal
 
 import android.graphics.ImageFormat.PRIVATE
-import android.graphics.ImageFormat.YUV_420_888
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.os.Build
@@ -57,24 +56,6 @@ public class ZslControlImplTest {
     }
 
     @Test
-    public fun isYuvReprocessingSupported_addZslConfig() {
-        zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
-            hasCapabilities = true,
-            isYuvReprocessingSupported = true,
-            isPrivateReprocessingSupported = false
-        ))
-
-        zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
-
-        assertThat(zslControl.mReprocessingImageReader).isNotNull()
-        assertThat(zslControl.mReprocessingImageReader.imageFormat).isEqualTo(YUV_420_888)
-        assertThat(zslControl.mReprocessingImageReader.maxImages).isEqualTo(
-            MAX_IMAGES)
-        assertThat(zslControl.mImageRingBuffer.maxCapacity).isEqualTo(
-            RING_BUFFER_CAPACITY)
-    }
-
-    @Test
     public fun isPrivateReprocessingSupported_addZslConfig() {
         zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
             hasCapabilities = true,
@@ -93,6 +74,19 @@ public class ZslControlImplTest {
     }
 
     @Test
+    public fun isYuvReprocessingSupported_notAddZslConfig() {
+        zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
+            hasCapabilities = true,
+            isYuvReprocessingSupported = true,
+            isPrivateReprocessingSupported = false
+        ))
+
+        zslControl.addZslConfig(RESOLUTION, sessionConfigBuilder)
+
+        assertThat(zslControl.mReprocessingImageReader).isNull()
+    }
+
+    @Test
     public fun isReprocessingNotSupported_notAddZslConfig() {
         zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
             hasCapabilities = true,
@@ -106,7 +100,7 @@ public class ZslControlImplTest {
     }
 
     @Test
-    public fun isZslDisabledByUserCaseConfig_NotAddZslConfig() {
+    public fun isZslDisabledByUserCaseConfig_notAddZslConfig() {
         zslControl = ZslControlImpl(createCameraCharacteristicsCompat(
             hasCapabilities = true,
             isYuvReprocessingSupported = false,
