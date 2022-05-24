@@ -17,7 +17,6 @@
 package androidx.camera.camera2.internal;
 
 import android.media.ImageWriter;
-import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,12 +31,9 @@ interface ZslControl {
     /**
      * Adds zero-shutter lag config to {@link SessionConfig}.
      *
-     * @param resolution surface resolution.
      * @param sessionConfigBuilder session config builder.
      */
-    void addZslConfig(
-            @NonNull Size resolution,
-            @NonNull SessionConfig.Builder sessionConfigBuilder);
+    void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder);
 
     /**
      * Sets the flag if zero-shutter lag needs to be disabled by user case config.
