@@ -34,8 +34,11 @@ interface UwbClientSessionScope {
      * android.permission.UWB_RANGING permission. Apps must
      * have requested and been granted this permission before calling this method.
      *
-     * @throws [IllegalArgumentException] if the client starts a controlee session
+     * @throws [IllegalArgumentException] if the client starts a ranging session
      * without setting complex channel and peer address.
+     *
+     * @throws [IllegalArgumentException] if the client starts a ranging session
+     * with invalid config id or ranging update type.
      */
     fun prepareSession(parameters: RangingParameters): Flow<RangingResult>
 
