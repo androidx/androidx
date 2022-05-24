@@ -19,7 +19,7 @@
   public *** setExtensionCallback(androidx.window.layout.ExtensionInterfaceCompat$ExtensionCallbackInterface);
 }
 -keep class androidx.window.layout.SidecarCompat$TranslatingCallback,
- androidx.window.layout.SidecarCompat$DistinctSidecarElementCallback {
+ androidx.window.layout.DistinctElementSidecarCallback {
   public *** onDeviceStateChanged(androidx.window.sidecar.SidecarDeviceState);
   public *** onWindowLayoutChanged(android.os.IBinder, androidx.window.sidecar.SidecarWindowLayoutInfo);
 }
