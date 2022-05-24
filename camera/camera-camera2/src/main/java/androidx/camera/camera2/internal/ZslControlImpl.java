@@ -17,7 +17,6 @@
 package androidx.camera.camera2.internal;
 
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
-import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING;
 
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
@@ -72,7 +71,6 @@ final class ZslControlImpl implements ZslControl {
 
     private boolean mIsZslDisabledByUseCaseConfig = false;
     private boolean mIsZslDisabledByFlashMode = false;
-    private boolean mIsYuvReprocessingSupported = false;
     private boolean mIsPrivateReprocessingSupported = false;
 
     @SuppressWarnings("WeakerAccess")
@@ -84,9 +82,6 @@ final class ZslControlImpl implements ZslControl {
     ImageWriter mReprocessingImageWriter;
 
     ZslControlImpl(@NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat) {
-        mIsYuvReprocessingSupported =
-                isCapabilitySupported(cameraCharacteristicsCompat,
-                        REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING);
         mIsPrivateReprocessingSupported =
                 isCapabilitySupported(cameraCharacteristicsCompat,
                         REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING);
@@ -130,14 +125,13 @@ final class ZslControlImpl implements ZslControl {
             return;
         }
 
-        if (!mIsYuvReprocessingSupported && !mIsPrivateReprocessingSupported) {
+        // Due to b/232268355 and feedback from pixel team that private format will have better
+        // performance, we will use private only for zsl.
+        if (!mIsPrivateReprocessingSupported) {
             return;
         }
 
-        // Init the reprocessing image reader and enqueue available images into the ring buffer.
-        // TODO(b/226683183): Decide whether YUV or PRIVATE reprocessing should be the default.
-        int reprocessingImageFormat = mIsPrivateReprocessingSupported
-                ? ImageFormat.PRIVATE : ImageFormat.YUV_420_888;
+        int reprocessingImageFormat = ImageFormat.PRIVATE;
 
         MetadataImageReader metadataImageReader = new MetadataImageReader(
                 resolution.getWidth(),
