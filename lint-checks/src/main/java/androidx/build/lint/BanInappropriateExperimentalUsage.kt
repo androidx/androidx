@@ -28,6 +28,7 @@ import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
+import com.android.tools.lint.model.DefaultLintModelMavenName
 import com.android.tools.lint.model.LintModelMavenName
 import com.intellij.psi.PsiCompiledElement
 import java.io.File
@@ -198,7 +199,7 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         // The location where the annotation is declared
         val annotationCoordinates = evaluator.getLibraryLocalMode(annotation)
 
-        // TODO (b/222554358): annotationCoordinates is sometimes null; report this
+        // This should not happen; generate a lint report if it does
         if (annotationCoordinates == null) {
             Incident(context)
                 .issue(NULL_ANNOTATION_GROUP_ISSUE)
@@ -257,7 +258,8 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         }
         val findJarPath = findJarPath(element)
         return if (findJarPath != null) {
-            getLibrary(File(findJarPath))
+            val file = File(findJarPath)
+            getLibrary(file) ?: getMavenCoordinatesFromPath(file.path)
         } else {
             null
         }
@@ -337,6 +339,36 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
             return allowedExperimentalAnnotations.any {
                 annotation.matches(it)
             }
+        }
+
+        /**
+         * Extracts the Maven coordinates from a given JAR path
+         *
+         * For example: given `<checkout root>/androidx/paging/paging-common/build/libs/paging-common-3.2.0-alpha01.jar`,
+         * this method will return a:
+         *
+         * - `groupId` of `androidx.paging`
+         * - `artifactId` of `paging-common`
+         * - `version` of `3.2.0-alpha01`
+         *
+         * @param jarFilePath the path to the JAR file
+         * @return a [LintModelMavenName] with the groupId, artifactId, and version parsed from the
+         *         path, or `null` if [jarFilePath] doesn't contain the string "androidx".
+         */
+        internal fun getMavenCoordinatesFromPath(jarFilePath: String): LintModelMavenName? {
+            if (!jarFilePath.contains("androidx")) return null
+
+            val pathParts = jarFilePath.split("/")
+
+            val androidxIndex = pathParts.indexOf("androidx")
+            val groupId = pathParts[androidxIndex] + "." + pathParts[androidxIndex + 1]
+
+            val artifactId = pathParts[androidxIndex + 2]
+
+            val filename = pathParts.last()
+            val version = filename.removePrefix("$artifactId-").removeSuffix(".jar")
+
+            return DefaultLintModelMavenName(groupId, artifactId, version)
         }
     }
 }
