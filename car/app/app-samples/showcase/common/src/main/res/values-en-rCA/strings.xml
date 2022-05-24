@@ -300,9 +300,7 @@
     <string name="toggle_test_enabled" msgid="982370904182034076">"Toggle test enabled"</string>
     <string name="toggle_test_disabled" msgid="8366040658408451664">"Toggle test disabled"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Misc templates demos"</string>
-    <string name="cal_api_level_prefix" msgid="5933606412710039570">"CAL API level: %d"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase demos"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Tinted resource vector"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Image resource bitmap"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Coloured text marker"</string>
