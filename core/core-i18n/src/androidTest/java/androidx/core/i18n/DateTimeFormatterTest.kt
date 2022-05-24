@@ -18,6 +18,7 @@ package androidx.core.i18n
 
 import android.os.Build
 import android.util.Log
+import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -46,9 +47,11 @@ class DateTimeFormatterTest {
         private const val AVAILABLE_PERIOD_B = Build.VERSION_CODES.Q
     }
 
-    // To make the if (version > ?) a bit more readable
+    /** Starting with Android N ICU4J is public API. */
     private val isIcuAvailable = Build.VERSION.SDK_INT >= AVAILABLE_ICU4J
+    /** Starting with Android S ICU honors the "-u-hc-" extension in locale id. */
     private val isHcExtensionHonored = Build.VERSION.SDK_INT >= AVAILABLE_HC_U_EXT
+    /** Starting with Android Q ICU supports "b" and "B". */
     private val isFlexiblePeriodAvailable = Build.VERSION.SDK_INT >= AVAILABLE_PERIOD_B
 
     private val logTag = this::class.qualifiedName
@@ -279,7 +282,10 @@ class DateTimeFormatterTest {
         } else {
             "12:43 AM || 4:43 AM || 8:43 AM || 12:43 PM || 4:43 PM || 8:43 PM"
         }
-        val expectedZh = if (isFlexiblePeriodAvailable) {
+        val expectedZh = if (BuildCompat.isAtLeastT()) {
+            // Chinese changed to 24h from ICU 70.1
+            "00:43 || 04:43 || 08:43 || 12:43 || 16:43 || 20:43"
+        } else if (isFlexiblePeriodAvailable) {
             "凌晨12:43 || 凌晨4:43 || 上午8:43 || 中午12:43 || 下午4:43 || 晚上8:43"
         } else {
             "上午12:43 || 上午4:43 || 上午8:43 || 下午12:43 || 下午4:43 || 下午8:43"
