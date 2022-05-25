@@ -15,6 +15,6 @@ offline_gradle() {
         "$*"
 }
 
-offline_gradle collection2:collection2:tasks
+offline_gradle collection:collection:tasks
 offline_gradle -Pandroidx.kmp.linux.enabled=true \
-               collection2:collection2:linuxX64Test
+               collection:collection:linuxX64Test
