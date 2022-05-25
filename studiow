@@ -98,6 +98,9 @@ while [ "$1" != "" ]; do
   if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
     newSubset=all
   fi
+  if [ "$subsetArg" == "t" -o "$subsetArg" == "tools" ]; then
+    newSubset=tools
+  fi
   if [ "$newSubset" == "" ]; then
     echo "Unrecognized argument: '$subsetArg'"
     usage

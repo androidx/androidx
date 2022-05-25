@@ -156,6 +156,7 @@ enum BuildType {
     MEDIA,
     WEAR,
     GLANCE,
+    TOOLS
 }
 
 private String getRequestedProjectSubsetName() {
@@ -203,6 +204,9 @@ private Set<BuildType> createRequestedFilter() {
                 // requiring every project to be tagged
                 filter.add(BuildType.COMPOSE)
                 filter.add(BuildType.GLANCE)
+                break
+            case "TOOLS":
+                filter.add(BuildType.TOOLS)
                 break
             case "ALL":
                 // Return null so that no filtering is done
@@ -344,7 +348,7 @@ includeProject(":biometric:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":bluetooth:bluetooth", [BuildType.MAIN])
 includeProject(":bluetooth:bluetooth-testing", [BuildType.MAIN])
 includeProject(":browser:browser", [BuildType.MAIN])
-includeProject(":buildSrc-tests", [BuildType.MAIN])
+includeProject(":buildSrc-tests", [BuildType.MAIN, BuildType.TOOLS])
 // these projects intentionally fail to compile unless androidx.useMaxDepVersions is enabled
 if (startParameter.projectProperties.containsKey("androidx.useMaxDepVersions")) {
     includeProject(":buildSrc-tests:max-dep-versions:buildSrc-tests-max-dep-versions-dep", [BuildType.MAIN])
@@ -904,7 +908,7 @@ includeProject(":internal-testutils-kmp", "testutils/testutils-kmp", [BuildType.
 includeProject(":internal-testutils-macrobenchmark", "testutils/testutils-macrobenchmark", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":internal-testutils-navigation", "testutils/testutils-navigation", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":internal-testutils-paging", "testutils/testutils-paging", [BuildType.MAIN, BuildType.COMPOSE])
-includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-plugin", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE])
+includeProject(":internal-testutils-gradle-plugin", "testutils/testutils-gradle-plugin", [BuildType.MAIN, BuildType.FLAN, BuildType.COMPOSE, BuildType.TOOLS])
 includeProject(":internal-testutils-mockito", "testutils/testutils-mockito", [BuildType.MAIN, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
 
 /////////////////////////////

@@ -169,6 +169,11 @@ class ProjectSetupRule : ExternalResource() {
     }
 }
 
+// TODO(b/233600239): document the rest of the parameters
+/**
+ * @param buildSrcOutPath: absolute path to folder where outputs from buildSrc builds can be found
+ *                         (perhaps something like $HOME/src/androidx-main/out/buildSrc)
+ */
 data class ProjectProps(
     val compileSdkVersion: String,
     val buildToolsVersion: String,
@@ -181,7 +186,8 @@ data class ProjectProps(
     val rootProjectPath: String,
     val tipOfTreeMavenRepoPath: String,
     val agpDependency: String,
-    val repositoryUrls: List<String>
+    val repositoryUrls: List<String>,
+    val buildSrcOutPath: String
 ) {
     companion object {
         private fun Properties.getCanonicalPath(key: String): String {
@@ -220,6 +226,7 @@ data class ProjectProps(
                 kotlinVersion = properties.getProperty("kotlinVersion"),
                 kspVersion = properties.getProperty("kspVersion"),
                 agpDependency = properties.getProperty("agpDependency"),
+                buildSrcOutPath = properties.getCanonicalPath("buildSrcOutPath")
             )
         }
     }
