@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,568 +13,502 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
-package androidx.room;
+import android.database.Cursor
+import android.database.sqlite.SQLiteException
+import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.arch.core.executor.JunitTaskExecutorRule
+import androidx.sqlite.db.SimpleSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteOpenHelper
+import androidx.sqlite.db.SupportSQLiteStatement
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import java.lang.ref.ReferenceQueue
+import java.lang.ref.WeakReference
+import java.util.Locale
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.test.assertFailsWith
+import kotlin.test.fail
+import org.junit.After
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+import org.mockito.ArgumentCaptor
+import org.mockito.ArgumentMatchers.anyInt
+import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.isNull
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.reset
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
+import org.mockito.stubbing.Answer
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.hamcrest.core.IsCollectionContaining.hasItems;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+@RunWith(JUnit4::class)
+class InvalidationTrackerTest {
+    private lateinit var mTracker: InvalidationTracker
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteException;
+    private val mRoomDatabase: RoomDatabase = mock()
 
-import androidx.annotation.NonNull;
-import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.arch.core.executor.JunitTaskExecutorRule;
-import androidx.sqlite.db.SimpleSQLiteQuery;
-import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.SupportSQLiteOpenHelper;
-import androidx.sqlite.db.SupportSQLiteStatement;
+    private val mSqliteDb: SupportSQLiteDatabase = mock()
 
-import com.google.common.truth.Truth;
+    private val mOpenHelper: SupportSQLiteOpenHelper = mock()
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-
-import java.lang.ref.Reference;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReentrantLock;
-
-@RunWith(JUnit4.class)
-public class InvalidationTrackerTest {
-    private InvalidationTracker mTracker;
-    @Mock
-    private RoomDatabase mRoomDatabase;
-    @Mock
-    private SupportSQLiteDatabase mSqliteDb;
-    @Mock
-    private SupportSQLiteOpenHelper mOpenHelper;
-    @Rule
-    public JunitTaskExecutorRule mTaskExecutorRule = new JunitTaskExecutorRule(1, true);
+    @get:Rule
+    var mTaskExecutorRule = JunitTaskExecutorRule(1, true)
 
     @Before
-    public void setup() {
-        MockitoAnnotations.initMocks(this);
-        final SupportSQLiteStatement statement = mock(SupportSQLiteStatement.class);
-        doReturn(statement).when(mSqliteDb)
-                .compileStatement(eq(InvalidationTracker.RESET_UPDATED_TABLES_SQL));
-        doReturn(mSqliteDb).when(mOpenHelper).getWritableDatabase();
-        doReturn(true).when(mRoomDatabase).isOpen();
-        doReturn(ArchTaskExecutor.getIOThreadExecutor()).when(mRoomDatabase).getQueryExecutor();
-        ReentrantLock closeLock = new ReentrantLock();
-        doReturn(closeLock).when(mRoomDatabase).getCloseLock();
-        //noinspection ResultOfMethodCallIgnored
-        doReturn(mOpenHelper).when(mRoomDatabase).getOpenHelper();
-        HashMap<String, String> shadowTables = new HashMap<>();
-        shadowTables.put("C", "C_content");
-        shadowTables.put("d", "a");
-        HashMap<String, Set<String>> viewTables = new HashMap<>();
-        HashSet<String> tableSet = new HashSet<>();
-        tableSet.add("a");
-        viewTables.put("e", tableSet);
-        mTracker = new InvalidationTracker(mRoomDatabase, shadowTables, viewTables,
-                "a", "B", "i", "C", "d");
-        mTracker.internalInit(mSqliteDb);
-        reset(mSqliteDb);
+    fun setup() {
+        val statement: SupportSQLiteStatement = mock()
+        doReturn(statement).whenever(mSqliteDb)
+            .compileStatement(eq(InvalidationTracker.RESET_UPDATED_TABLES_SQL))
+        doReturn(mSqliteDb).whenever(mOpenHelper).writableDatabase
+        doReturn(true).whenever(mRoomDatabase).isOpen
+        doReturn(ArchTaskExecutor.getIOThreadExecutor()).whenever(mRoomDatabase).queryExecutor
+        val closeLock = ReentrantLock()
+        doReturn(closeLock).whenever(mRoomDatabase).getCloseLock()
+        doReturn(mOpenHelper).whenever(mRoomDatabase).openHelper
+        val shadowTables = HashMap<String, String>()
+        shadowTables["C"] = "C_content"
+        shadowTables["d"] = "a"
+        val viewTables = HashMap<String, Set<String>>()
+        val tableSet = HashSet<String>()
+        tableSet.add("a")
+        viewTables["e"] = tableSet
+        mTracker = InvalidationTracker(
+            mRoomDatabase, shadowTables, viewTables,
+            "a", "B", "i", "C", "d"
+        )
+        mTracker.internalInit(mSqliteDb)
+        reset(mSqliteDb)
     }
 
     @Before
-    public void setLocale() {
-        Locale.setDefault(Locale.forLanguageTag("tr-TR"));
+    fun setLocale() {
+        Locale.setDefault(Locale.forLanguageTag("tr-TR"))
     }
 
     @After
-    public void unsetLocale() {
-        Locale.setDefault(Locale.US);
+    fun unsetLocale() {
+        Locale.setDefault(Locale.US)
     }
 
     @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void tableIds() {
-        assertThat(mTracker.tableIdLookup.size(), is(5));
-        assertThat(mTracker.tableIdLookup.get("a"), is(0));
-        assertThat(mTracker.tableIdLookup.get("b"), is(1));
-        assertThat(mTracker.tableIdLookup.get("i"), is(2));
-        assertThat(mTracker.tableIdLookup.get("c"), is(3)); // fts
-        assertThat(mTracker.tableIdLookup.get("d"), is(0)); // external content fts
+    fun tableIds() {
+        assertThat(mTracker.tableIdLookup.size).isEqualTo(5)
+        assertThat(mTracker.tableIdLookup["a"]).isEqualTo(0)
+        assertThat(mTracker.tableIdLookup["b"]).isEqualTo(1)
+        assertThat(mTracker.tableIdLookup["i"]).isEqualTo(2)
+        assertThat(mTracker.tableIdLookup["c"]).isEqualTo(3) // fts
+        assertThat(mTracker.tableIdLookup["d"]).isEqualTo(0) // external content fts
     }
 
     @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void tableNames() {
-        assertThat(mTracker.tablesNames.length, is(5));
-        assertThat(mTracker.tablesNames[0], is("a"));
-        assertThat(mTracker.tablesNames[1], is("b"));
-        assertThat(mTracker.tablesNames[2], is("i"));
-        assertThat(mTracker.tablesNames[3], is("c_content")); // fts
-        assertThat(mTracker.tablesNames[4], is("a")); // external content fts
+    fun tableNames() {
+        assertThat(mTracker.tablesNames.size).isEqualTo(5)
+        assertThat(mTracker.tablesNames[0]).isEqualTo("a")
+        assertThat(mTracker.tablesNames[1]).isEqualTo("b")
+        assertThat(mTracker.tablesNames[2]).isEqualTo("i")
+        assertThat(mTracker.tablesNames[3]).isEqualTo("c_content") // fts
+        assertThat(mTracker.tablesNames[4]).isEqualTo("a") // external content fts
     }
 
     @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void testWeak() throws InterruptedException {
-        final AtomicInteger data = new AtomicInteger(0);
-        InvalidationTracker.Observer observer = new InvalidationTracker.Observer("a") {
-            @Override
-            public void onInvalidated(@NonNull Set<String> tables) {
-                data.incrementAndGet();
+    @org.junit.Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
+    fun testWeak() {
+        val data = AtomicInteger(0)
+        var observer: InvalidationTracker.Observer? = object : InvalidationTracker.Observer("a") {
+            override fun onInvalidated(tables: Set<String>) {
+                data.incrementAndGet()
             }
-        };
-        ReferenceQueue<Object> queue = new ReferenceQueue<>();
-        WeakReference<InvalidationTracker.Observer> weakRef = new WeakReference<>(observer, queue);
-        mTracker.addWeakObserver(observer);
-        setInvalidatedTables(0);
-        refreshSync();
-        assertThat(data.get(), is(1));
-        observer = null;
-        forceGc(queue);
-        setInvalidatedTables(0);
-        refreshSync();
-        assertThat(data.get(), is(1));
-    }
-
-    @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void addRemoveObserver() throws Exception {
-        InvalidationTracker.Observer observer = new LatchObserver(1, "a");
-        mTracker.addObserver(observer);
-        assertThat(mTracker.observerMap.size(), is(1));
-        mTracker.removeObserver(new LatchObserver(1, "a"));
-        assertThat(mTracker.observerMap.size(), is(1));
-        mTracker.removeObserver(observer);
-        assertThat(mTracker.observerMap.size(), is(0));
-    }
-
-    private void drainTasks() throws InterruptedException {
-        mTaskExecutorRule.drainTasks(200);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void badObserver() {
-        InvalidationTracker.Observer observer = new LatchObserver(1, "x");
-        mTracker.addObserver(observer);
-    }
-
-    private void refreshSync() throws InterruptedException {
-        mTracker.refreshVersionsAsync();
-        drainTasks();
-    }
-
-    @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void refreshCheckTasks() throws Exception {
-        when(mRoomDatabase.query(any(SimpleSQLiteQuery.class)))
-                .thenReturn(mock(Cursor.class));
-        mTracker.refreshVersionsAsync();
-        mTracker.refreshVersionsAsync();
-        verify(mTaskExecutorRule.getTaskExecutor()).executeOnDiskIO(mTracker.refreshRunnable);
-        drainTasks();
-
-        reset(mTaskExecutorRule.getTaskExecutor());
-        mTracker.refreshVersionsAsync();
-        verify(mTaskExecutorRule.getTaskExecutor()).executeOnDiskIO(mTracker.refreshRunnable);
-    }
-
-    @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void observe1Table() throws Exception {
-        LatchObserver observer = new LatchObserver(1, "a");
-        mTracker.addObserver(observer);
-        setInvalidatedTables(0);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(1));
-        assertThat(observer.getInvalidatedTables(), hasItem("a"));
-
-        setInvalidatedTables(1);
-        observer.reset(1);
-        refreshSync();
-        assertThat(observer.await(), is(false));
-
-        setInvalidatedTables(0);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(1));
-        assertThat(observer.getInvalidatedTables(), hasItem("a"));
-    }
-
-    @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void observe2Tables() throws Exception {
-        LatchObserver observer = new LatchObserver(1, "A", "B");
-        mTracker.addObserver(observer);
-        setInvalidatedTables(0, 1);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(2));
-        assertThat(observer.getInvalidatedTables(), hasItems("A", "B"));
-
-        setInvalidatedTables(1, 2);
-        observer.reset(1);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(1));
-        assertThat(observer.getInvalidatedTables(), hasItem("B"));
-
-        setInvalidatedTables(0, 3);
-        observer.reset(1);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(1));
-        assertThat(observer.getInvalidatedTables(), hasItem("A"));
-
-        observer.reset(1);
-        refreshSync();
-        assertThat(observer.await(), is(false));
-    }
-
-    @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void locale() {
-        LatchObserver observer = new LatchObserver(1, "I");
-        mTracker.addObserver(observer);
-    }
-
-    @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void closedDb() {
-        doReturn(false).when(mRoomDatabase).isOpen();
-        doThrow(new IllegalStateException("foo")).when(mOpenHelper).getWritableDatabase();
-        mTracker.addObserver(new LatchObserver(1, "a", "b"));
-        mTracker.refreshRunnable.run();
-    }
-
-    @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void createTriggerOnShadowTable() {
-        LatchObserver observer = new LatchObserver(1, "C");
-        String[] triggers = new String[]{"UPDATE", "DELETE", "INSERT"};
-        ArgumentCaptor<String> sqlArgCaptor;
-        List<String> sqlCaptorValues;
-
-        mTracker.addObserver(observer);
-        sqlArgCaptor = ArgumentCaptor.forClass(String.class);
-        verify(mSqliteDb, times(4)).execSQL(sqlArgCaptor.capture());
-        sqlCaptorValues = sqlArgCaptor.getAllValues();
-        assertThat(sqlCaptorValues.get(0),
-                is("INSERT OR IGNORE INTO room_table_modification_log VALUES(3, 0)"));
-        for (int i = 0; i < triggers.length; i++) {
-            assertThat(sqlCaptorValues.get(i + 1),
-                    is("CREATE TEMP TRIGGER IF NOT EXISTS "
-                            + "`room_table_modification_trigger_c_content_" + triggers[i]
-                            + "` AFTER " + triggers[i] + " ON `c_content` BEGIN UPDATE "
-                            + "room_table_modification_log SET invalidated = 1 WHERE table_id = 3 "
-                            + "AND invalidated = 0; END"
-                    ));
         }
+        val queue = ReferenceQueue<Any?>()
+        WeakReference(observer, queue)
+        mTracker.addWeakObserver(observer!!)
+        setInvalidatedTables(0)
+        refreshSync()
+        assertThat(data.get()).isEqualTo(1)
+        @Suppress("UNUSED_VALUE") // On purpose, to dereference the observer and GC it
+        observer = null
+        forceGc(queue)
+        setInvalidatedTables(0)
+        refreshSync()
+        assertThat(data.get()).isEqualTo(1)
+    }
 
-        reset(mSqliteDb);
+    @Test
+    fun addRemoveObserver() {
+        val observer: InvalidationTracker.Observer = LatchObserver(1, "a")
+        mTracker.addObserver(observer)
+        assertThat(mTracker.getObserverMap().size()).isEqualTo(1)
+        mTracker.removeObserver(LatchObserver(1, "a"))
+        assertThat(mTracker.getObserverMap().size()).isEqualTo(1)
+        mTracker.removeObserver(observer)
+        assertThat(mTracker.getObserverMap().size()).isEqualTo(0)
+    }
 
-        mTracker.removeObserver(observer);
-        sqlArgCaptor = ArgumentCaptor.forClass(String.class);
-        verify(mSqliteDb, times(3)).execSQL(sqlArgCaptor.capture());
-        sqlCaptorValues = sqlArgCaptor.getAllValues();
-        for (int i = 0; i < triggers.length; i++) {
-            assertThat(sqlCaptorValues.get(i),
-                    is("DROP TRIGGER IF EXISTS `room_table_modification_trigger_c_content_"
-                            + triggers[i] + "`"));
+    private fun drainTasks() {
+        mTaskExecutorRule.drainTasks(200)
+    }
+
+    @Test
+    fun badObserver() {
+        assertFailsWith<IllegalArgumentException>(message = "There is no table with name x") {
+            val observer: InvalidationTracker.Observer = LatchObserver(1, "x")
+            mTracker.addObserver(observer)
+        }
+    }
+
+    private fun refreshSync() {
+        mTracker.refreshVersionsAsync()
+        drainTasks()
+    }
+
+    @Test
+    fun refreshCheckTasks() {
+        whenever(mRoomDatabase.query(any<SimpleSQLiteQuery>(), isNull())).thenReturn(mock<Cursor>())
+        mTracker.refreshVersionsAsync()
+        mTracker.refreshVersionsAsync()
+        verify(mTaskExecutorRule.taskExecutor).executeOnDiskIO(mTracker.refreshRunnable)
+        drainTasks()
+        reset(mTaskExecutorRule.taskExecutor)
+        mTracker.refreshVersionsAsync()
+        verify(mTaskExecutorRule.taskExecutor).executeOnDiskIO(mTracker.refreshRunnable)
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun observe1Table() {
+        val observer = LatchObserver(1, "a")
+        mTracker.addObserver(observer)
+        setInvalidatedTables(0)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observer.invalidatedTables).contains("a")
+        setInvalidatedTables(1)
+        observer.reset(1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(false)
+        setInvalidatedTables(0)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observer.invalidatedTables).contains("a")
+    }
+
+    @Test
+    @Throws(Exception::class)
+    fun observe2Tables() {
+        val observer = LatchObserver(1, "A", "B")
+        mTracker.addObserver(observer)
+        setInvalidatedTables(0, 1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(2)
+        assertThat(observer.invalidatedTables).containsAtLeast("A", "B")
+        setInvalidatedTables(1, 2)
+        observer.reset(1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observer.invalidatedTables).contains("B")
+        setInvalidatedTables(0, 3)
+        observer.reset(1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observer.invalidatedTables).contains("A")
+        observer.reset(1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(false)
+    }
+
+    @Test
+    fun locale() {
+        val observer = LatchObserver(1, "I")
+        mTracker.addObserver(observer)
+    }
+
+    @Test
+    fun closedDb() {
+        doReturn(false).whenever(mRoomDatabase).isOpen
+        doThrow(IllegalStateException("foo")).whenever(mOpenHelper).writableDatabase
+        mTracker.addObserver(LatchObserver(1, "a", "b"))
+        mTracker.refreshRunnable.run()
+    }
+
+    @Test
+    fun createTriggerOnShadowTable() {
+        val observer = LatchObserver(1, "C")
+        val triggers = arrayOf("UPDATE", "DELETE", "INSERT")
+        var sqlArgCaptor: ArgumentCaptor<String>
+        var sqlCaptorValues: List<String>
+        mTracker.addObserver(observer)
+        sqlArgCaptor = ArgumentCaptor.forClass(String::class.java)
+        verify(mSqliteDb, times(4)).execSQL(sqlArgCaptor.capture())
+        sqlCaptorValues = sqlArgCaptor.allValues
+        assertThat(sqlCaptorValues[0])
+            .isEqualTo("INSERT OR IGNORE INTO room_table_modification_log VALUES(3, 0)")
+        for (i in triggers.indices) {
+            assertThat(sqlCaptorValues[i + 1])
+                .isEqualTo(
+                    "CREATE TEMP TRIGGER IF NOT EXISTS " +
+                        "`room_table_modification_trigger_c_content_" + triggers[i] +
+                        "` AFTER " + triggers[i] + " ON `c_content` BEGIN UPDATE " +
+                        "room_table_modification_log SET invalidated = 1 WHERE table_id = 3 " +
+                        "AND invalidated = 0; END"
+                )
+        }
+        reset(mSqliteDb)
+        mTracker.removeObserver(observer)
+        sqlArgCaptor = ArgumentCaptor.forClass(String::class.java)
+        verify(mSqliteDb, times(3)).execSQL(sqlArgCaptor.capture())
+        sqlCaptorValues = sqlArgCaptor.allValues
+        for (i in triggers.indices) {
+            assertThat(sqlCaptorValues[i])
+                .isEqualTo(
+                    "DROP TRIGGER IF EXISTS `room_table_modification_trigger_c_content_" +
+                        triggers[i] + "`"
+                )
         }
     }
 
     @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void observeFtsTable() throws InterruptedException {
-        LatchObserver observer = new LatchObserver(1, "C");
-        mTracker.addObserver(observer);
-        setInvalidatedTables(3);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(1));
-        assertThat(observer.getInvalidatedTables(), hasItem("C"));
-
-        setInvalidatedTables(1);
-        observer.reset(1);
-        refreshSync();
-        assertThat(observer.await(), is(false));
-
-        setInvalidatedTables(0, 3);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(1));
-        assertThat(observer.getInvalidatedTables(), hasItem("C"));
+    fun observeFtsTable() {
+        val observer = LatchObserver(1, "C")
+        mTracker.addObserver(observer)
+        setInvalidatedTables(3)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observer.invalidatedTables).contains("C")
+        setInvalidatedTables(1)
+        observer.reset(1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(false)
+        setInvalidatedTables(0, 3)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observer.invalidatedTables).contains("C")
     }
 
     @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void observeExternalContentFtsTable() throws InterruptedException {
-        LatchObserver observer = new LatchObserver(1, "d");
-        mTracker.addObserver(observer);
-        setInvalidatedTables(0);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(1));
-        assertThat(observer.getInvalidatedTables(), hasItem("d"));
-
-        setInvalidatedTables(2, 3);
-        observer.reset(1);
-        refreshSync();
-        assertThat(observer.await(), is(false));
-
-        setInvalidatedTables(0, 1);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(1));
-        assertThat(observer.getInvalidatedTables(), hasItem("d"));
+    fun observeExternalContentFtsTable() {
+        val observer = LatchObserver(1, "d")
+        mTracker.addObserver(observer)
+        setInvalidatedTables(0)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observer.invalidatedTables).contains("d")
+        setInvalidatedTables(2, 3)
+        observer.reset(1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(false)
+        setInvalidatedTables(0, 1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observer.invalidatedTables).contains("d")
     }
 
     @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void observeExternalContentFtsTableAndContentTable() throws InterruptedException {
-        LatchObserver observer = new LatchObserver(1, "d", "a");
-        mTracker.addObserver(observer);
-        setInvalidatedTables(0);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(2));
-        assertThat(observer.getInvalidatedTables(), hasItems("d", "a"));
-
-        setInvalidatedTables(2, 3);
-        observer.reset(1);
-        refreshSync();
-        assertThat(observer.await(), is(false));
-
-        setInvalidatedTables(0, 1);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(2));
-        assertThat(observer.getInvalidatedTables(), hasItems("d", "a"));
+    fun observeExternalContentFtsTableAndContentTable() {
+        val observer = LatchObserver(1, "d", "a")
+        mTracker.addObserver(observer)
+        setInvalidatedTables(0)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(2)
+        assertThat(observer.invalidatedTables).containsAtLeast("d", "a")
+        setInvalidatedTables(2, 3)
+        observer.reset(1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(false)
+        setInvalidatedTables(0, 1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(2)
+        assertThat(observer.invalidatedTables).containsAtLeast("d", "a")
     }
 
     @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void observeExternalContentFatsTableAndContentTableSeparately()
-            throws InterruptedException {
-        LatchObserver observerA = new LatchObserver(1, "a");
-        LatchObserver observerD = new LatchObserver(1, "d");
-        mTracker.addObserver(observerA);
-        mTracker.addObserver(observerD);
-
-        setInvalidatedTables(0);
-        refreshSync();
-
-        assertThat(observerA.await(), is(true));
-        assertThat(observerD.await(), is(true));
-        assertThat(observerA.getInvalidatedTables().size(), is(1));
-        assertThat(observerD.getInvalidatedTables().size(), is(1));
-        assertThat(observerA.getInvalidatedTables(), hasItem("a"));
-        assertThat(observerD.getInvalidatedTables(), hasItem("d"));
+    fun observeExternalContentFatsTableAndContentTableSeparately() {
+        val observerA = LatchObserver(1, "a")
+        val observerD = LatchObserver(1, "d")
+        mTracker.addObserver(observerA)
+        mTracker.addObserver(observerD)
+        setInvalidatedTables(0)
+        refreshSync()
+        assertThat(observerA.await()).isEqualTo(true)
+        assertThat(observerD.await()).isEqualTo(true)
+        assertThat(observerA.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observerD.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observerA.invalidatedTables).contains("a")
+        assertThat(observerD.invalidatedTables).contains("d")
 
         // Remove observer 'd' which is backed by 'a', observers to 'a' should still work.
-        mTracker.removeObserver(observerD);
-
-        setInvalidatedTables(0);
-        observerA.reset(1);
-        observerD.reset(1);
-        refreshSync();
-
-        assertThat(observerA.await(), is(true));
-        assertThat(observerD.await(), is(false));
-        assertThat(observerA.getInvalidatedTables().size(), is(1));
-        assertThat(observerA.getInvalidatedTables(), hasItem("a"));
+        mTracker.removeObserver(observerD)
+        setInvalidatedTables(0)
+        observerA.reset(1)
+        observerD.reset(1)
+        refreshSync()
+        assertThat(observerA.await()).isEqualTo(true)
+        assertThat(observerD.await()).isEqualTo(false)
+        assertThat(observerA.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observerA.invalidatedTables).contains("a")
     }
 
     @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void observeView() throws InterruptedException {
-        LatchObserver observer = new LatchObserver(1, "E");
-        mTracker.addObserver(observer);
-        setInvalidatedTables(0, 1);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(1));
-        assertThat(observer.getInvalidatedTables(), hasItem("a"));
-
-        setInvalidatedTables(2, 3);
-        observer.reset(1);
-        refreshSync();
-        assertThat(observer.await(), is(false));
-
-        setInvalidatedTables(0, 1);
-        refreshSync();
-        assertThat(observer.await(), is(true));
-        assertThat(observer.getInvalidatedTables().size(), is(1));
-        assertThat(observer.getInvalidatedTables(), hasItem("a"));
+    fun observeView() {
+        val observer = LatchObserver(1, "E")
+        mTracker.addObserver(observer)
+        setInvalidatedTables(0, 1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observer.invalidatedTables).contains("a")
+        setInvalidatedTables(2, 3)
+        observer.reset(1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(false)
+        setInvalidatedTables(0, 1)
+        refreshSync()
+        assertThat(observer.await()).isEqualTo(true)
+        assertThat(observer.invalidatedTables!!.size).isEqualTo(1)
+        assertThat(observer.invalidatedTables).contains("a")
     }
 
-    @SuppressWarnings("deprecation")
     @Test
-    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
-    public void failFastCreateLiveData() {
+    fun failFastCreateLiveData() {
         // assert that sending a bad createLiveData table name fails instantly
         try {
-            mTracker.createLiveData(new String[]{"invalid table name"}, new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    return null;
-                }
-            });
-            Assert.fail("should've throw an exception for invalid table name");
-        } catch (IllegalArgumentException expected) {
+            mTracker.createLiveData<Unit>(
+                tableNames = arrayOf("invalid table name"),
+                inTransaction = false
+            ) {}
+            fail("should've throw an exception for invalid table name")
+        } catch (expected: IllegalArgumentException) {
             // expected
         }
     }
 
     @Test
-    @Ignore // disabled due to flakiness b/65257997
-    public void closedDbAfterOpen() throws InterruptedException {
-        setInvalidatedTables(3, 1);
-        mTracker.addObserver(new LatchObserver(1, "a", "b"));
-        mTracker.syncTriggers();
-        mTracker.refreshRunnable.run();
-        doThrow(new SQLiteException("foo")).when(mRoomDatabase).query(
-                Mockito.eq(InvalidationTracker.SELECT_UPDATED_TABLES_SQL),
-                any(Object[].class));
-        mTracker.pendingRefresh.set(true);
-        mTracker.refreshRunnable.run();
+    fun closedDbAfterOpen() {
+        setInvalidatedTables(3, 1)
+        mTracker.addObserver(LatchObserver(1, "a", "b"))
+        mTracker.syncTriggers()
+        mTracker.refreshRunnable.run()
+        doThrow(SQLiteException("foo")).whenever(mRoomDatabase)?.query(
+            query = InvalidationTracker.SELECT_UPDATED_TABLES_SQL,
+            args = arrayOf(Array<Any>::class.java)
+        )
+        mTracker.pendingRefresh.set(true)
+        mTracker.refreshRunnable.run()
     }
 
     /**
      * Setup Cursor result to return INVALIDATED for given tableIds
      */
-    private void setInvalidatedTables(int... tableIds) throws InterruptedException {
+    private fun setInvalidatedTables(vararg tableIds: Int) {
         // mockito does not like multi-threaded access so before setting versions, make sure we
         // sync background tasks.
-        drainTasks();
-        Cursor cursor = createCursorWithValues(tableIds);
-        doReturn(cursor).when(mRoomDatabase).query(
-                argThat(new ArgumentMatcher<SimpleSQLiteQuery>() {
-                    @Override
-                    public boolean matches(SimpleSQLiteQuery argument) {
-                        return argument.getSql().equals(
-                                InvalidationTracker.SELECT_UPDATED_TABLES_SQL);
-                    }
-                })
-        );
+        drainTasks()
+        val cursor = createCursorWithValues(*tableIds)
+        doReturn(cursor).whenever(mRoomDatabase)?.query(
+            query = argThat<SimpleSQLiteQuery> { argument ->
+                argument.sql == InvalidationTracker.SELECT_UPDATED_TABLES_SQL
+            },
+            signal = isNull(),
+        )
     }
 
-    private Cursor createCursorWithValues(final int... tableIds) {
-        Cursor cursor = mock(Cursor.class);
-        final AtomicInteger index = new AtomicInteger(-1);
-        when(cursor.moveToNext()).thenAnswer(new Answer<Boolean>() {
-            @Override
-            public Boolean answer(InvocationOnMock invocation) throws Throwable {
-                return index.addAndGet(1) < tableIds.length;
-            }
-        });
-        Answer<Integer> intAnswer = new Answer<Integer>() {
-            @Override
-            public Integer answer(InvocationOnMock invocation) throws Throwable {
-                // checkUpdatedTable only checks for column 0 (invalidated table id)
-                assert ((Integer) invocation.getArguments()[0]) == 0;
-                return tableIds[index.intValue()];
-            }
-        };
-        when(cursor.getInt(anyInt())).thenAnswer(intAnswer);
-        return cursor;
+    private fun createCursorWithValues(vararg tableIds: Int): Cursor {
+        val cursor: Cursor = mock()
+        val index = AtomicInteger(-1)
+        whenever(cursor.moveToNext()).thenAnswer { index.addAndGet(1) < tableIds.size }
+        val intAnswer = Answer { invocation ->
+            // checkUpdatedTable only checks for column 0 (invalidated table id)
+            assert(invocation.arguments[0] as Int == 0)
+            tableIds[index.toInt()]
+        }
+        whenever(cursor.getInt(anyInt())).thenAnswer(intAnswer)
+        return cursor
     }
 
-    static class LatchObserver extends InvalidationTracker.Observer {
-        private CountDownLatch mLatch;
-        private Set<String> mInvalidatedTables;
+    internal class LatchObserver(
+        count: Int,
+        vararg tableNames: String
+    ) : InvalidationTracker.Observer(arrayOf(*tableNames)) {
+        private var mLatch: CountDownLatch
 
-        LatchObserver(int count, String... tableNames) {
-            super(tableNames);
-            mLatch = new CountDownLatch(count);
+        var invalidatedTables: Set<String>? = null
+            private set
+
+        init {
+            mLatch = CountDownLatch(count)
         }
 
-        boolean await() throws InterruptedException {
-            return mLatch.await(3, TimeUnit.SECONDS);
+        fun await(): Boolean {
+            return mLatch.await(3, TimeUnit.SECONDS)
         }
 
-        @Override
-        public void onInvalidated(@NonNull Set<String> tables) {
-            mInvalidatedTables = tables;
-            mLatch.countDown();
+        override fun onInvalidated(tables: Set<String>) {
+            invalidatedTables = tables
+            mLatch.countDown()
         }
 
-        void reset(@SuppressWarnings("SameParameterValue") int count) {
-            mInvalidatedTables = null;
-            mLatch = new CountDownLatch(count);
-        }
-
-        Set<String> getInvalidatedTables() {
-            return mInvalidatedTables;
+        fun reset(count: Int) {
+            invalidatedTables = null
+            mLatch = CountDownLatch(count)
         }
     }
 
-    /**
-     * Tries to trigger garbage collection by allocating in the heap until an element is
-     * available in the given reference queue.
-     */
-    private static void forceGc(ReferenceQueue<Object> queue) throws InterruptedException {
-        AtomicBoolean continueTriggeringGc = new AtomicBoolean(true);
-        Thread t = new Thread(() -> {
-            int byteCount = 0;
-            try {
-                @SuppressWarnings("MismatchedQueryAndUpdateOfCollection")
-                ArrayList<byte[]> leak = new ArrayList<>();
-                do {
-                    int arraySize = (int) (Math.random() * 1000);
-                    byteCount += arraySize;
-                    leak.add(new byte[arraySize]);
-                    System.gc(); // Not guaranteed to trigger GC, hence the leak and the timeout
-                    Thread.sleep(10);
-                } while (continueTriggeringGc.get());
-            } catch (InterruptedException e) {
-                // Ignored
+    companion object {
+        /**
+         * Tries to trigger garbage collection by allocating in the heap until an element is
+         * available in the given reference queue.
+         */
+        private fun forceGc(queue: ReferenceQueue<Any?>) {
+            val continueTriggeringGc = AtomicBoolean(true)
+            val t = Thread {
+                var byteCount = 0
+                try {
+                    val leak = ArrayList<ByteArray>()
+                    do {
+                        val arraySize = (Math.random() * 1000).toInt()
+                        byteCount += arraySize
+                        leak.add(ByteArray(arraySize))
+                        System.gc() // Not guaranteed to trigger GC, hence the leak and the timeout
+                        Thread.sleep(10)
+                    } while (continueTriggeringGc.get())
+                } catch (e: InterruptedException) {
+                    // Ignored
+                }
+                println("Allocated $byteCount bytes trying to force a GC.")
             }
-            System.out.println("Allocated " + byteCount + " bytes trying to force a GC.");
-        });
-        t.start();
-        Reference<?> result = queue.remove(TimeUnit.SECONDS.toMillis(10));
-        continueTriggeringGc.set(false);
-        t.interrupt();
-        Truth.assertWithMessage("Couldn't trigger garbage collection, test flake")
+            t.start()
+            val result = queue.remove(TimeUnit.SECONDS.toMillis(10))
+            continueTriggeringGc.set(false)
+            t.interrupt()
+            assertWithMessage("Couldn't trigger garbage collection, test flake")
                 .that(result)
-                .isNotNull();
-        result.clear();
+                .isNotNull()
+            result.clear()
+        }
     }
 }

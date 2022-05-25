@@ -65,6 +65,7 @@
          <trusted-key id="1188b69f6d6259ca" group="com.google.accompanist"/>
          <trusted-key id="11b581967f079a30a3e93140d57506cd188fd842" group="com.google.api.grpc"/>
          <trusted-key id="120d6f34e627ed3a772ebbfe55c7e5e701832382" group="org.snakeyaml"/>
+         <trusted-key id="147b691a19097624902f4ea9689cbe64f4bc997f" group="^org[.]mockito($|([.].*))" regex="true"/>
          <trusted-key id="151ba00a46886a5f95441a0f5d67bffcba1f9a39" group="com.google.gradle" name="osdetector-gradle-plugin"/>
          <trusted-key id="160a7a9cf46221a56b06ad64461a804f2609fd89" group="com.github.shyiko.klob" name="klob"/>
          <trusted-key id="1861c322c56014b2" group="commons-lang"/>

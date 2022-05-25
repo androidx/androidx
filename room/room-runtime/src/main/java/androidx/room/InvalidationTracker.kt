@@ -96,6 +96,13 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     @VisibleForTesting
     protected val observerMap = SafeIterableMap<Observer, ObserverWrapper>()
 
+    @GuardedBy("observerMap")
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @VisibleForTesting
+    fun getObserverMap(): SafeIterableMap<Observer, ObserverWrapper> {
+        return observerMap
+    }
+
     private var multiInstanceInvalidationClient: MultiInstanceInvalidationClient? = null
 
     private val syncTriggersLock = Any()
@@ -610,7 +617,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected class ObserverWrapper(
+    class ObserverWrapper(
         @get:RestrictTo(RestrictTo.Scope.LIBRARY)
         val observer: Observer,
         @get:RestrictTo(RestrictTo.Scope.LIBRARY)
