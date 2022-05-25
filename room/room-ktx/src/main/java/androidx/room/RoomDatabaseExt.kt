@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("RoomDatabaseKt")
 
 package androidx.room
 
@@ -96,7 +97,7 @@ private suspend fun RoomDatabase.createTransactionContext(): CoroutineContext {
     coroutineContext[Job]?.invokeOnCompletion {
         controlJob.cancel()
     }
-    val dispatcher = transactionExecutor.acquireTransactionThread(controlJob)
+    val dispatcher = getTransactionExecutor().acquireTransactionThread(controlJob)
     val transactionElement = TransactionElement(controlJob, dispatcher)
     val threadLocalElement =
         suspendingTransactionId.asContextElement(System.identityHashCode(controlJob))

@@ -147,9 +147,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
      *
      * @param autoCloser the autocloser associated with the db
      */
-    // TODO (b/218894771): Make internal when RoomDatabase is converted to Kotlin
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun setAutoCloser(autoCloser: AutoCloser) {
+    internal fun setAutoCloser(autoCloser: AutoCloser) {
         this.autoCloser = autoCloser
         autoCloser.setAutoCloseCallback(::onAutoCloseCallback)
     }
@@ -187,21 +185,23 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         }
     }
 
-    // TODO (b/218894771): Make internal when RoomDatabase is converted to Kotlin
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun startMultiInstanceInvalidation(context: Context, name: String, serviceIntent: Intent) {
+    internal fun startMultiInstanceInvalidation(
+        context: Context,
+        name: String,
+        serviceIntent: Intent
+    ) {
         multiInstanceInvalidationClient = MultiInstanceInvalidationClient(
             context = context,
             name = name,
             serviceIntent = serviceIntent,
             invalidationTracker = this,
-            executor = database.queryExecutor
+            executor = database.getQueryExecutor()
         )
     }
 
-    // TODO (b/218894771): Make internal when RoomDatabase is converted to Kotlin
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun stopMultiInstanceInvalidation() {
+    internal fun stopMultiInstanceInvalidation() {
         multiInstanceInvalidationClient?.stop()
         multiInstanceInvalidationClient = null
     }
@@ -352,7 +352,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         }
         if (!initialized) {
             // trigger initialization
-            database.openHelper.writableDatabase
+            database.getOpenHelper().writableDatabase
         }
         if (!initialized) {
             Log.e(LOG_TAG, "database is not initialized even though it is open")
@@ -366,7 +366,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     val refreshRunnable: Runnable = object : Runnable {
         override fun run() {
-            val closeLock = database.closeLock
+            val closeLock = database.getCloseLock()
             closeLock.lock()
             val invalidatedTableIds: Set<Int> =
                 try {
@@ -386,7 +386,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
 
                     // This transaction has to be on the underlying DB rather than the RoomDatabase
                     // in order to avoid a recursive loop after endTransaction.
-                    val db = database.openHelper.writableDatabase
+                    val db = database.getOpenHelper().writableDatabase
                     db.beginTransactionNonExclusive()
                     val invalidatedTableIds: Set<Int>
                     try {
@@ -456,7 +456,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
             // db isn't closed until refresh is completed. This increment call must be
             // matched with a corresponding call in refreshRunnable.
             autoCloser?.incrementCountAndEnsureDbIsOpen()
-            database.queryExecutor.execute(refreshRunnable)
+            database.getQueryExecutor().execute(refreshRunnable)
         }
     }
 
@@ -495,15 +495,14 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         }
     }
 
-    // TODO (b/218894771): Make internal when RoomDatabase is converted to Kotlin
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected fun syncTriggers(database: SupportSQLiteDatabase) {
+    internal fun syncTriggers(database: SupportSQLiteDatabase) {
         if (database.inTransaction()) {
             // we won't run this inside another transaction.
             return
         }
         try {
-            val closeLock = this.database.closeLock
+            val closeLock = this.database.getCloseLock()
             closeLock.lock()
             try {
                 // Serialize adding and removing table trackers, this is specifically important
@@ -550,7 +549,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         if (!database.isOpen) {
             return
         }
-        syncTriggers(database.openHelper.writableDatabase)
+        syncTriggers(database.getOpenHelper().writableDatabase)
     }
 
     /**

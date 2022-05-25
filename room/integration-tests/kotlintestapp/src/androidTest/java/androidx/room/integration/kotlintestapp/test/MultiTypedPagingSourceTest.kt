@@ -21,6 +21,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.room.InvalidationTracker
 import androidx.room.Room
+import androidx.room.RoomDatabase
 import androidx.room.androidx.room.integration.kotlintestapp.testutil.ItemStore
 import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingEntityDao
 import androidx.room.androidx.room.integration.kotlintestapp.testutil.PagingDb
@@ -496,7 +497,7 @@ class MultiTypedPagingSourceTest(
     ) {
         if (preOpenDb) {
             // trigger db open
-            db.openHelper.writableDatabase
+            db.getOpenHelper().writableDatabase
         }
 
         runTest {
@@ -757,18 +758,19 @@ private fun buildAndReturnDb(
         ApplicationProvider.getApplicationContext(),
         PagingDb::class.java
     ).setQueryCallback(
-        { sqlQuery, _ ->
-            if (Thread.currentThread() === mainThread) {
-                mainThreadQueries.add(
-                    sqlQuery to Throwable().stackTraceToString()
-                )
+        object : RoomDatabase.QueryCallback {
+            override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                if (Thread.currentThread() === mainThread) {
+                    mainThreadQueries.add(
+                        sqlQuery to Throwable().stackTraceToString()
+                    )
+                }
             }
-        },
-        {
-            // instantly execute the log callback so that we can check the thread.
-            it.run()
         }
-    ).setQueryExecutor(queryExecutor)
+    ) {
+        // instantly execute the log callback so that we can check the thread.
+        it.run()
+    }.setQueryExecutor(queryExecutor)
         .build()
 }
 
