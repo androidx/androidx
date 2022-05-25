@@ -43,14 +43,14 @@ import java.util.Set;
 public final class ActionsConstraints {
 
     /**
-     * Constraints for template headers, where only the special-purpose back and app-icon standard
-     * actions are allowed.
+     * Constraints for template headers, where only one of a custom action with an icon, the
+     * special-purpose back or app-icon standard action is allowed.
      */
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_HEADER =
             new ActionsConstraints.Builder()
                     .setMaxActions(1)
-                    .addDisallowedActionType(Action.TYPE_CUSTOM)
+                    .setRequireActionIcons(true)
                     .build();
     /**
      * Constraints for template headers, where any custom action with an icon is allowed in
