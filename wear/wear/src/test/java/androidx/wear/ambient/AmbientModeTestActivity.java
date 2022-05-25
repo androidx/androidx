@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ import android.os.Bundle;
 
 import androidx.fragment.app.FragmentActivity;
 
-public class AmbientModeSupportTestActivity extends FragmentActivity
-        implements AmbientModeSupport.AmbientCallbackProvider {
-    AmbientModeSupport.AmbientController mAmbientController;
+public class AmbientModeTestActivity extends FragmentActivity
+        implements AmbientMode.AmbientCallbackProvider {
+    AmbientMode.AmbientController mAmbientController;
 
     boolean mEnterAmbientCalled;
     boolean mUpdateAmbientCalled;
@@ -31,15 +31,15 @@ public class AmbientModeSupportTestActivity extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAmbientController = AmbientModeSupport.attach(this);
+        mAmbientController = AmbientMode.attachAmbientSupport(this);
     }
 
     @Override
-    public AmbientModeSupport.AmbientCallback getAmbientCallback() {
+    public AmbientMode.AmbientCallback getAmbientCallback() {
         return new MyAmbientCallback();
     }
 
-    private class MyAmbientCallback extends AmbientModeSupport.AmbientCallback {
+    private class MyAmbientCallback extends AmbientMode.AmbientCallback {
 
         @Override
         public void onEnterAmbient(Bundle ambientDetails) {
@@ -62,7 +62,7 @@ public class AmbientModeSupportTestActivity extends FragmentActivity
         }
     }
 
-    public AmbientModeSupport.AmbientController getAmbientController() {
+    public AmbientMode.AmbientController getAmbientController() {
         return mAmbientController;
     }
 

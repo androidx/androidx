@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,30 +19,29 @@ package androidx.wear.ambient;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.wear.widget.util.WakeLockRule;
 
 import com.google.android.wearable.compat.WearableActivityController;
 
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public class AmbientModeSupportTest {
-    @Rule
-    public final WakeLockRule mWakeLock = new WakeLockRule();
+    private ActivityScenario<AmbientModeSupportTestActivity> mScenario;
 
-    @Rule
-    public final ActivityScenarioRule<AmbientModeSupportTestActivity> mActivityRule =
-            new ActivityScenarioRule<>(AmbientModeSupportTestActivity.class);
+    @Before
+    public void setUp() {
+        mScenario = AmbientTestActivityUtil.launchActivity(AmbientModeSupportTestActivity.class);
+    }
 
     @Test
     public void testEnterAmbientCallback() {
-        mActivityRule.getScenario().onActivity(activity-> {
+        mScenario.onActivity(activity-> {
             WearableActivityController.getLastInstance().enterAmbient();
             assertTrue(activity.mEnterAmbientCalled);
             assertFalse(activity.mUpdateAmbientCalled);
@@ -53,7 +52,7 @@ public class AmbientModeSupportTest {
 
     @Test
     public void testUpdateAmbientCallback() {
-        mActivityRule.getScenario().onActivity(activity-> {
+        mScenario.onActivity(activity-> {
             WearableActivityController.getLastInstance().updateAmbient();
             assertFalse(activity.mEnterAmbientCalled);
             assertTrue(activity.mUpdateAmbientCalled);
@@ -64,7 +63,7 @@ public class AmbientModeSupportTest {
 
     @Test
     public void testExitAmbientCallback() {
-        mActivityRule.getScenario().onActivity(activity-> {
+        mScenario.onActivity(activity-> {
             WearableActivityController.getLastInstance().exitAmbient();
             assertFalse(activity.mEnterAmbientCalled);
             assertFalse(activity.mUpdateAmbientCalled);
@@ -75,7 +74,7 @@ public class AmbientModeSupportTest {
 
     @Test
     public void testAmbientOffloadInvalidatedCallback() {
-        mActivityRule.getScenario().onActivity(activity-> {
+        mScenario.onActivity(activity-> {
             WearableActivityController.getLastInstance().invalidateAmbientOffload();
             assertFalse(activity.mEnterAmbientCalled);
             assertFalse(activity.mUpdateAmbientCalled);
@@ -91,7 +90,7 @@ public class AmbientModeSupportTest {
 
     @Test
     public void testCallsControllerIsAmbient() {
-        mActivityRule.getScenario().onActivity(activity-> {
+        mScenario.onActivity(activity-> {
             WearableActivityController.getLastInstance().setAmbient(true);
             assertTrue(activity.getAmbientController().isAmbient());
 
@@ -102,7 +101,7 @@ public class AmbientModeSupportTest {
 
     @Test
     public void testEnableAmbientOffload() {
-        mActivityRule.getScenario().onActivity(activity-> {
+        mScenario.onActivity(activity-> {
             activity.getAmbientController().setAmbientOffloadEnabled(true);
             assertTrue(WearableActivityController.getLastInstance().isAmbientOffloadEnabled());
 
@@ -117,7 +116,7 @@ public class AmbientModeSupportTest {
 
         // Test disable/enable auto resume with ambient mode enabled
         assertTrue(WearableActivityController.getLastInstance().isAmbientEnabled());
-        mActivityRule.getScenario().onActivity(activity-> {
+        mScenario.onActivity(activity-> {
             activity.getAmbientController().setAutoResumeEnabled(false);
             assertFalse(WearableActivityController.getLastInstance().isAutoResumeEnabled());
 
