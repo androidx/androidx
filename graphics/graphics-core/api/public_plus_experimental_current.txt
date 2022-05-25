@@ -111,14 +111,21 @@ package androidx.graphics.opengl.egl {
   }
 
   public interface EglSpec {
+    method public int eglClientWaitSyncKHR(androidx.opengl.EGLSyncKHR sync, int flags, long timeoutNanos);
     method public android.opengl.EGLContext eglCreateContext(android.opengl.EGLConfig config);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public androidx.opengl.EGLImageKHR? eglCreateImageFromHardwareBuffer(android.hardware.HardwareBuffer hardwareBuffer);
     method public android.opengl.EGLSurface eglCreatePBufferSurface(android.opengl.EGLConfig config, int[]? configAttributes);
+    method public androidx.opengl.EGLSyncKHR? eglCreateSyncKHR(int type, int[]? attributes);
     method public android.opengl.EGLSurface eglCreateWindowSurface(android.opengl.EGLConfig config, android.view.Surface surface, int[]? configAttributes);
     method public void eglDestroyContext(android.opengl.EGLContext eglContext);
+    method public boolean eglDestroyImageKHR(androidx.opengl.EGLImageKHR image);
     method public boolean eglDestroySurface(android.opengl.EGLSurface surface);
+    method public boolean eglDestroySyncKHR(androidx.opengl.EGLSyncKHR sync);
+    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.hardware.SyncFenceCompat eglDupNativeFenceFDANDROID(androidx.opengl.EGLSyncKHR sync);
     method public android.opengl.EGLSurface eglGetCurrentDrawSurface();
     method public android.opengl.EGLSurface eglGetCurrentReadSurface();
     method public int eglGetError();
+    method public boolean eglGetSyncAttribKHR(androidx.opengl.EGLSyncKHR sync, int attribute, int[] value, int offset);
     method public androidx.graphics.opengl.egl.EglVersion eglInitialize();
     method public boolean eglMakeCurrent(android.opengl.EGLContext context, android.opengl.EGLSurface drawSurface, android.opengl.EGLSurface readSurface);
     method public String eglQueryString(int nameId);
