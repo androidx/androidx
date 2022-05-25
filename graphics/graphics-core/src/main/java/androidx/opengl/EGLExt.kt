@@ -342,14 +342,14 @@ class EGLExt private constructor() {
 
         /**
          * Creates an EGLImage from the provided [HardwareBuffer]. This handles
-         * internally creating an EGLClientBuffer and an EGLImage from the client buffer.
+         * internally creating an EGLClientBuffer and an [EGLImageKHR] from the client buffer.
          *
          * @param eglDisplay EGLDisplay connection associated with the EGLImage to create
          * @param hardwareBuffer Backing [HardwareBuffer] for the generated EGLImage instance
          *
-         * @return an EGLImageKHR instance representing the EGLImage created from the HardwareBuffer
-         * Because this is created internally through EGL's eglCreateImageKR method, this has the
-         * KHR suffix.
+         * @return an [EGLImageKHR] instance representing the [EGLImageKHR] created from the
+         * HardwareBuffer. Because this is created internally through EGL's eglCreateImageKR method,
+         * this has the KHR suffix.
          */
         @JvmStatic
         @RequiresApi(Build.VERSION_CODES.O)
@@ -368,11 +368,11 @@ class EGLExt private constructor() {
         }
 
         /**
-         * Destroy the given EGLImageKHR instance. Once destroyed, the image may not be used to
-         * create any additional EGLImage target resources within any client API contexts,
-         * although existing EGLImage siblings may continue to be used. True is returned
-         * if DestroyImageKHR succeeds, false indicates failure. This can return false if
-         * the EGLImage is not associated with the default display.
+         * Destroy the given [EGLImageKHR] instance. Once destroyed, the image may not be used to
+         * create any additional [EGLImageKHR] target resources within any client API contexts,
+         * although existing [EGLImageKHR] siblings may continue to be used. `True` is returned
+         * if DestroyImageKHR succeeds, `false` indicates failure. This can return `false` if
+         * the [EGLImageKHR] is not associated with the default display.
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_image_base.txt
          *
@@ -498,7 +498,7 @@ class EGLExt private constructor() {
          * when [sync] was already signaled when [eglClientWaitSyncKHR] was called. If an error
          * occurs then an error is generated and [EGL_FALSE] is returned.
          *
-         * If the sync object being blokced upon will not be signaled in finite time (for example
+         * If the sync object being blocked upon will not be signaled in finite time (for example
          * by an associated fence command issued previously, but not yet flushed to the graphics
          * pipeline), then [eglClientWaitSyncKHR] may wait forever. To help prevent this behavior,
          * if the [EGL_SYNC_FLUSH_COMMANDS_BIT_KHR] is set on the flags parameter and the [sync] is

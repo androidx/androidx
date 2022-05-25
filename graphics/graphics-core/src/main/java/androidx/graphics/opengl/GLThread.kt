@@ -69,7 +69,7 @@ internal class GLThread(
     @AnyThread
     fun attachSurface(
         token: Int,
-        surface: Surface,
+        surface: Surface?,
         width: Int,
         height: Int,
         renderer: RenderCallback
@@ -224,8 +224,20 @@ internal class GLThread(
      * creating one if it does not previously exist
      */
     @WorkerThread
-    private fun obtainEglSurfaceForSession(session: SurfaceSession): EGLSurface =
-        session.eglSurface ?: createEglSurfaceForSession(session)
+    private fun obtainEglSurfaceForSession(session: SurfaceSession): EGLSurface? {
+        return if (session.eglSurface != null) {
+            session.eglSurface
+        } else {
+            createEglSurfaceForSession(
+                session.surface,
+                session.width,
+                session.height,
+                session.surfaceRenderer
+            ).also {
+                session.eglSurface = it
+            }
+        }
+    }
 
     /**
      * Helper method to create the corresponding EGLSurface from the [SurfaceSession] instance
@@ -233,19 +245,24 @@ internal class GLThread(
      */
     @WorkerThread
     private fun createEglSurfaceForSession(
-        session: SurfaceSession
-    ): EGLSurface {
+        surface: Surface?,
+        width: Int,
+        height: Int,
+        surfaceRenderer: RenderCallback
+    ): EGLSurface? {
         with(obtainEglManager()) {
-            val eglSurface = session.surfaceRenderer.onSurfaceCreated(
-                eglSpec,
-                // Successful creation of EglManager ensures non null EGLConfig
-                eglConfig!!,
-                session.surface,
-                session.width,
-                session.height
-            )
-            session.eglSurface = eglSurface
-            return eglSurface
+            return if (surface != null) {
+                surfaceRenderer.onSurfaceCreated(
+                    eglSpec,
+                    // Successful creation of EglManager ensures non null EGLConfig
+                    eglConfig!!,
+                    surface,
+                    width,
+                    height
+                )
+            } else {
+                null
+            }
         }
     }
 
@@ -272,13 +289,22 @@ internal class GLThread(
         log("requesting render for token: $token")
         mSurfaceSessions[token]?.let { surfaceSession ->
             val eglManager = obtainEglManager()
-            eglManager.makeCurrent(obtainEglSurfaceForSession(surfaceSession))
+            val eglSurface = obtainEglSurfaceForSession(surfaceSession)
+            if (eglSurface != null) {
+                eglManager.makeCurrent(eglSurface)
+            } else {
+                eglManager.makeCurrent(eglManager.defaultSurface)
+            }
+
             val width = surfaceSession.width
             val height = surfaceSession.height
             if (width > 0 && height > 0) {
                 surfaceSession.surfaceRenderer.onDrawFrame(eglManager)
             }
-            eglManager.swapAndFlushBuffers()
+
+            if (eglSurface != null) {
+                eglManager.swapAndFlushBuffers()
+            }
         }
     }
 
@@ -346,9 +372,11 @@ internal class GLThread(
         val surfaceToken: Int,
 
         /**
-         * Target surface to render into
+         * Target surface to render into. Can be null for situations where GL is used to render
+         * into a frame buffer object provided from an AHardwareBuffer instance.
+         * In these cases the actual surface is never used.
          */
-        val surface: Surface,
+        val surface: Surface?,
 
         /**
          * Callback used to create an EGLSurface from the provided surface as well as

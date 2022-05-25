@@ -425,7 +425,6 @@ class EglManagerTest {
         testEglManager {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EGL_KHR_IMAGE_BASE)) {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
                 val hardwareBuffer = HardwareBuffer.create(
                     10,
                     10,
@@ -433,9 +432,9 @@ class EglManagerTest {
                     1,
                     HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
                 )
-                val image = EGLExt.eglCreateImageFromHardwareBuffer(display, hardwareBuffer)
+                val image = eglSpec.eglCreateImageFromHardwareBuffer(hardwareBuffer)
                 assertNotNull(image)
-                assertTrue(EGLExt.eglDestroyImageKHR(display, image!!))
+                assertTrue(eglSpec.eglDestroyImageKHR(image!!))
             }
         }
     }
@@ -476,15 +475,13 @@ class EglManagerTest {
         testEglManager {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLExt.eglCreateSyncKHR(display,
-                    EGL_SYNC_NATIVE_FENCE_ANDROID, null)
+                val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_NATIVE_FENCE_ANDROID, null)
                 assertNotNull(sync)
                 val syncAttr = IntArray(1)
                 assertTrue(
-                    EGLExt.eglGetSyncAttribKHR(display, sync!!, EGL_SYNC_TYPE_KHR, syncAttr, 0))
+                    eglSpec.eglGetSyncAttribKHR(sync!!, EGL_SYNC_TYPE_KHR, syncAttr, 0))
                 assertEquals(EGL_SYNC_NATIVE_FENCE_ANDROID, syncAttr[0])
-                assertTrue(EGLExt.eglDestroySyncKHR(display, sync))
+                assertTrue(eglSpec.eglDestroySyncKHR(sync))
             }
         }
     }
@@ -504,16 +501,14 @@ class EglManagerTest {
         testEglManager {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLExt.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
+                val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
                 val syncAttr = IntArray(1)
                 assertTrue(
-                    EGLExt.eglGetSyncAttribKHR(display, sync!!, EGL_SYNC_TYPE_KHR, syncAttr, 0))
+                    eglSpec.eglGetSyncAttribKHR(sync!!, EGL_SYNC_TYPE_KHR, syncAttr, 0))
                 assertEquals(EGL_SYNC_FENCE_KHR, syncAttr[0])
                 assertTrue(
-                    EGLExt.eglGetSyncAttribKHR(
-                        display,
+                    eglSpec.eglGetSyncAttribKHR(
                         sync,
                         EGL_SYNC_CONDITION_KHR,
                         syncAttr,
@@ -521,7 +516,7 @@ class EglManagerTest {
                     )
                 )
                 assertEquals(EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR, syncAttr[0])
-                assertTrue(EGLExt.eglDestroySyncKHR(display, sync))
+                assertTrue(eglSpec.eglDestroySyncKHR(sync))
             }
         }
     }
@@ -531,14 +526,12 @@ class EglManagerTest {
         testEglManager {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLExt.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
+                val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
                 val syncAttr = IntArray(1)
                 try {
                     assertFalse(
-                        EGLExt.eglGetSyncAttribKHR(
-                            display,
+                        eglSpec.eglGetSyncAttribKHR(
                             sync!!,
                             EGL_SYNC_TYPE_KHR,
                             syncAttr,
@@ -551,7 +544,7 @@ class EglManagerTest {
                 }
 
                 if (sync != null) {
-                    assertTrue(EGLExt.eglDestroySyncKHR(display, sync))
+                    assertTrue(eglSpec.eglDestroySyncKHR(sync))
                 }
             }
         }
@@ -562,14 +555,12 @@ class EglManagerTest {
         testEglManager {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLExt.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
+                val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
                 val syncAttr = IntArray(1)
                 try {
                     assertFalse(
-                        EGLExt.eglGetSyncAttribKHR(
-                            display,
+                        eglSpec.eglGetSyncAttribKHR(
                             sync!!,
                             EGL_SYNC_TYPE_KHR,
                             syncAttr,
@@ -582,7 +573,7 @@ class EglManagerTest {
                 }
 
                 if (sync != null) {
-                    assertTrue(EGLExt.eglDestroySyncKHR(display, sync))
+                    assertTrue(eglSpec.eglDestroySyncKHR(sync))
                 }
             }
         }
@@ -593,8 +584,7 @@ class EglManagerTest {
         testEglManager {
             initializeWithDefaultConfig()
             if (isExtensionSupported(EGL_KHR_FENCE_SYNC)) {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLExt.eglCreateSyncKHR(display, EGL_SYNC_FENCE_KHR, null)
+                val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_FENCE_KHR, null)
                 assertNotNull(sync)
 
                 assertEquals("eglCreateSync failed", EGL14.EGL_SUCCESS, eglSpec.eglGetError())
@@ -602,8 +592,7 @@ class EglManagerTest {
                 GLES20.glFlush()
                 assertEquals("glFlush failed", GLES20.GL_NO_ERROR, GLES20.glGetError())
 
-                val status = EGLExt.eglClientWaitSyncKHR(
-                    display,
+                val status = eglSpec.eglClientWaitSyncKHR(
                     sync!!,
                     0,
                     EGLExt.EGL_FOREVER_KHR
@@ -611,7 +600,7 @@ class EglManagerTest {
                 assertEquals("eglClientWaitSync failed",
                     EGLExt.EGL_CONDITION_SATISFIED_KHR, status)
                 assertEquals("eglClientWaitSyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
-                assertTrue(EGLExt.eglDestroySyncKHR(display, sync))
+                assertTrue(eglSpec.eglDestroySyncKHR(sync))
                 assertEquals("eglDestroySyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
             }
         }
@@ -623,8 +612,7 @@ class EglManagerTest {
         testEglManager {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLExt.eglCreateSyncKHR(display, EGL_SYNC_NATIVE_FENCE_ANDROID, null)
+                val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_NATIVE_FENCE_ANDROID, null)
                 assertNotNull(sync)
 
                 assertEquals("eglCreateSyncFailed", EGL14.EGL_SUCCESS, eglSpec.eglGetError())
@@ -632,11 +620,11 @@ class EglManagerTest {
                 GLES20.glFlush()
                 assertEquals("glFlush failed", GLES20.GL_NO_ERROR, GLES20.glGetError())
 
-                val syncFence = EGLExt.eglDupNativeFenceFDANDROID(display, sync!!)
+                val syncFence = eglSpec.eglDupNativeFenceFDANDROID(sync!!)
                 assertTrue(syncFence.isValid())
                 assertTrue(syncFence.await(TimeUnit.MILLISECONDS.toNanos(3000)))
 
-                assertTrue(EGLExt.eglDestroySyncKHR(display, sync))
+                assertTrue(eglSpec.eglDestroySyncKHR(sync))
                 assertEquals("eglDestroySyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
                 syncFence.close()
                 assertFalse(syncFence.isValid())
@@ -650,8 +638,7 @@ class EglManagerTest {
         testEglManager {
             initializeWithDefaultConfig()
             if (supportsNativeAndroidFence()) {
-                val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
-                val sync = EGLExt.eglCreateSyncKHR(display, EGL_SYNC_NATIVE_FENCE_ANDROID, null)
+                val sync = eglSpec.eglCreateSyncKHR(EGL_SYNC_NATIVE_FENCE_ANDROID, null)
                 assertNotNull(sync)
 
                 assertEquals("eglCreateSync failed", EGL14.EGL_SUCCESS, eglSpec.eglGetError())
@@ -659,12 +646,12 @@ class EglManagerTest {
                 GLES20.glFlush()
                 assertEquals("glFlush failed", GLES20.GL_NO_ERROR, GLES20.glGetError())
 
-                val syncFence = EGLExt.eglDupNativeFenceFDANDROID(display, sync!!)
+                val syncFence = eglSpec.eglDupNativeFenceFDANDROID(sync!!)
                 assertTrue(syncFence.isValid())
                 assertNotEquals(SyncFence.SIGNAL_TIME_INVALID, syncFence.getSignalTime())
                 assertTrue(syncFence.awaitForever())
 
-                assertTrue(EGLExt.eglDestroySyncKHR(display, sync))
+                assertTrue(eglSpec.eglDestroySyncKHR(sync))
                 assertEquals("eglDestroySyncKHR failed", EGL14.EGL_SUCCESS, EGL14.eglGetError())
                 syncFence.close()
                 assertFalse(syncFence.isValid())
