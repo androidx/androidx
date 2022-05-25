@@ -67,7 +67,6 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     // camera-core:1.0.0
     private CamcorderProfileProvider mCamcorderProfileProvider;
 
-    private boolean mIsYuvReprocessingSupported = false;
     private boolean mIsPrivateReprocessingSupported = false;
 
     @NonNull
@@ -198,11 +197,6 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     }
 
     @Override
-    public boolean isYuvReprocessingSupported() {
-        return mIsYuvReprocessingSupported;
-    }
-
-    @Override
     public boolean isPrivateReprocessingSupported() {
         return mIsPrivateReprocessingSupported;
     }
@@ -223,11 +217,6 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     public void setCamcorderProfileProvider(
             @NonNull CamcorderProfileProvider camcorderProfileProvider) {
         mCamcorderProfileProvider = Preconditions.checkNotNull(camcorderProfileProvider);
-    }
-
-    /** Set the isYuvReprocessingSupported flag for testing */
-    public void setYuvReprocessingSupported(boolean supported) {
-        mIsYuvReprocessingSupported = supported;
     }
 
     /** Set the isPrivateReprocessingSupported flag for testing */
