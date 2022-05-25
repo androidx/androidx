@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,29 +16,31 @@
 
 package androidx.wear.ambient;
 
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.rule.ActivityTestRule;
-import androidx.wear.widget.util.WakeLockRule;
 
 import com.google.android.wearable.compat.WearableActivityController;
 
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.annotation.internal.DoNotInstrument;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
+@DoNotInstrument
 public class AmbientModeResumeTest {
-    @Rule
-    public final WakeLockRule mWakeLock = new WakeLockRule();
+    private ActivityScenario<AmbientModeResumeTestActivity> mScenario;
 
-    @Rule
-    public final ActivityTestRule<AmbientModeResumeTestActivity> mActivityRule =
-            new ActivityTestRule<>(AmbientModeResumeTestActivity.class);
+    @Before
+    public void setUp() {
+        mScenario = AmbientTestActivityUtil.launchActivity(AmbientModeResumeTestActivity.class);
+    }
 
     @Test
     public void testActivityDefaults() throws Throwable {

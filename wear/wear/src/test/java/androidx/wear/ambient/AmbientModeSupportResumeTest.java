@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,26 @@ package androidx.wear.ambient;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.wear.widget.util.WakeLockRule;
 
 import com.google.android.wearable.compat.WearableActivityController;
 
-import org.junit.Rule;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class AmbientModeSupportResumeTest {
-    @Rule
-    public final WakeLockRule mWakeLock = new WakeLockRule();
+    private ActivityScenario<AmbientModeSupportResumeTestActivity> mScenario;
 
-    @Rule
-    public final ActivityScenarioRule<AmbientModeSupportResumeTestActivity> mActivityRule =
-            new ActivityScenarioRule<>(AmbientModeSupportResumeTestActivity.class);
+    @Before
+    public void setUp() {
+        mScenario =
+                AmbientTestActivityUtil.launchActivity(AmbientModeSupportResumeTestActivity.class);
+    }
 
     @Test
     public void testActivityDefaults()  {
@@ -52,7 +52,7 @@ public class AmbientModeSupportResumeTest {
 
         // Test disable/enable auto resume with ambient mode disabled
         assertFalse(WearableActivityController.getLastInstance().isAmbientEnabled());
-        mActivityRule.getScenario().onActivity(activity-> {
+        mScenario.onActivity(activity-> {
             activity.getAmbientController().setAutoResumeEnabled(false);
             assertFalse(WearableActivityController.getLastInstance().isAutoResumeEnabled());
 
