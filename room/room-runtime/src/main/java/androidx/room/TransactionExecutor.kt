@@ -13,52 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.room
 
-package androidx.room;
-
-import androidx.annotation.NonNull;
-
-import java.util.ArrayDeque;
-import java.util.concurrent.Executor;
+import android.annotation.SuppressLint
+import java.util.ArrayDeque
+import java.util.concurrent.Executor
 
 /**
  * Executor wrapper for performing database transactions serially.
- * <p>
+ *
  * Since database transactions are exclusive, this executor ensures that transactions are performed
  * in-order and one at a time, preventing threads from blocking each other when multiple concurrent
  * transactions are attempted.
  */
-class TransactionExecutor implements Executor {
-
-    private final Executor mExecutor;
-    private final ArrayDeque<Runnable> mTasks = new ArrayDeque<>();
-    private Runnable mActive;
-
-    TransactionExecutor(@NonNull Executor executor) {
-        mExecutor = executor;
-    }
-
-    @Override
-    public synchronized void execute(final Runnable command) {
-        mTasks.offer(new Runnable() {
-            @Override
-            public void run() {
+internal class TransactionExecutor(private val executor: Executor) : Executor {
+    private val tasks = ArrayDeque<Runnable>()
+    private var active: Runnable? = null
+    private val syncLock = Any()
+    override fun execute(command: Runnable) {
+        synchronized(syncLock) {
+            tasks.offer(Runnable {
                 try {
-                    command.run();
+                    command.run()
                 } finally {
-                    scheduleNext();
+                    scheduleNext()
                 }
+            })
+            if (active == null) {
+                scheduleNext()
             }
-        });
-        if (mActive == null) {
-            scheduleNext();
         }
     }
 
-    @SuppressWarnings("WeakerAccess")
-    synchronized void scheduleNext() {
-        if ((mActive = mTasks.poll()) != null) {
-            mExecutor.execute(mActive);
+    @SuppressLint("BanSynchronizedMethods")
+    @Synchronized
+    fun scheduleNext() {
+        synchronized(syncLock) {
+            if (tasks.poll().also { active = it } != null) {
+                executor.execute(active)
+            }
         }
     }
 }

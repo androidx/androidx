@@ -580,14 +580,14 @@ public class MigrationTestHelper extends TestWatcher {
         }
 
         @Override
-        protected void createAllTables(SupportSQLiteDatabase database) {
+        public void createAllTables(SupportSQLiteDatabase database) {
             throw new UnsupportedOperationException("Was expecting to migrate but received create."
                     + "Make sure you have created the database first.");
         }
 
         @NonNull
         @Override
-        protected RoomOpenHelper.ValidationResult onValidateSchema(
+        public RoomOpenHelper.ValidationResult onValidateSchema(
                 @NonNull SupportSQLiteDatabase db) {
             final Map<String, EntityBundle> tables = mDatabaseBundle.getEntitiesByTableName();
             for (EntityBundle entity : tables.values()) {
@@ -652,7 +652,7 @@ public class MigrationTestHelper extends TestWatcher {
         }
 
         @Override
-        protected void createAllTables(SupportSQLiteDatabase database) {
+        public void createAllTables(SupportSQLiteDatabase database) {
             for (String query : mDatabaseBundle.buildCreateQueries()) {
                 database.execSQL(query);
             }
@@ -660,7 +660,7 @@ public class MigrationTestHelper extends TestWatcher {
 
         @NonNull
         @Override
-        protected RoomOpenHelper.ValidationResult onValidateSchema(
+        public RoomOpenHelper.ValidationResult onValidateSchema(
                 @NonNull SupportSQLiteDatabase db) {
             throw new UnsupportedOperationException("This open helper just creates the database but"
                     + " it received a migration request.");
@@ -676,16 +676,16 @@ public class MigrationTestHelper extends TestWatcher {
         }
 
         @Override
-        protected void dropAllTables(SupportSQLiteDatabase database) {
+        public void dropAllTables(SupportSQLiteDatabase database) {
             throw new UnsupportedOperationException("cannot drop all tables in the test");
         }
 
         @Override
-        protected void onCreate(SupportSQLiteDatabase database) {
+        public void onCreate(SupportSQLiteDatabase database) {
         }
 
         @Override
-        protected void onOpen(SupportSQLiteDatabase database) {
+        public void onOpen(SupportSQLiteDatabase database) {
         }
     }
 }

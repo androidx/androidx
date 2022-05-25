@@ -147,7 +147,7 @@ public class CoroutinesRoom private constructor() {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RoomDatabase.getQueryDispatcher(): CoroutineDispatcher {
     return backingFieldMap.getOrPut("QueryDispatcher") {
-        queryExecutor.asCoroutineDispatcher()
+        getQueryExecutor().asCoroutineDispatcher()
     } as CoroutineDispatcher
 }
 
@@ -158,5 +158,5 @@ public fun RoomDatabase.getQueryDispatcher(): CoroutineDispatcher {
  */
 internal val RoomDatabase.transactionDispatcher: CoroutineDispatcher
     get() = backingFieldMap.getOrPut("TransactionDispatcher") {
-        transactionExecutor.asCoroutineDispatcher()
+        getTransactionExecutor().asCoroutineDispatcher()
     } as CoroutineDispatcher
