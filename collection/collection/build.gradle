@@ -15,7 +15,7 @@
  */
 
 
-import androidx.build.Multiplatform
+import androidx.build.KmpPlatformsKt
 import androidx.build.Publish
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -28,7 +28,7 @@ plugins {
     id("org.jetbrains.kotlin.multiplatform")
 }
 
-def enableNative = Multiplatform.isKotlinNativeEnabled(project)
+def enableNative = KmpPlatformsKt.enableNative(project)
 
 kotlin {
     jvm {
