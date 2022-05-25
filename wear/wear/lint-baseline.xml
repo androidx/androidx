@@ -2047,4 +2047,13 @@
             file="src/main/java/androidx/wear/widget/WearableRecyclerView.java"/>
     </issue>
 
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use @androidx.annotation.NonNull instead of @org.jetbrains.annotations.NotNull"
+        errorLine1="    void disable(@NotNull DismissibleFrameLayout layout) {"
+        errorLine2="                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/widget/BackButtonDismissController.java"/>
+    </issue>
+
 </issues>
