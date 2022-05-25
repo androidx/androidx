@@ -93,6 +93,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
     @GuardedBy("observerMap")
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @JvmField
+    @VisibleForTesting
     protected val observerMap = SafeIterableMap<Observer, ObserverWrapper>()
 
     private var multiInstanceInvalidationClient: MultiInstanceInvalidationClient? = null
