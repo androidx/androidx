@@ -41,8 +41,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
-// This test is testing that defaults of are set. More detailed tests that everything is in place
-// are in Scuba tests.
 public class CompactChipTest {
     private static final String MAIN_TEXT = "Action";
     private static final Clickable CLICKABLE =

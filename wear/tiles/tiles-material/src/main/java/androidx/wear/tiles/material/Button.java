@@ -24,8 +24,9 @@ import static androidx.wear.tiles.material.ButtonDefaults.EXTRA_LARGE_BUTTON_SIZ
 import static androidx.wear.tiles.material.ButtonDefaults.LARGE_BUTTON_SIZE;
 import static androidx.wear.tiles.material.ButtonDefaults.PRIMARY_BUTTON_COLORS;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.checkTag;
+import static androidx.wear.tiles.material.Helper.getMetadataTagName;
 import static androidx.wear.tiles.material.Helper.getTagBytes;
-import static androidx.wear.tiles.material.Helper.getTagName;
 import static androidx.wear.tiles.material.Helper.radiusOf;
 
 import android.content.Context;
@@ -241,8 +242,8 @@ public class Button implements LayoutElement {
         /**
          * Sets the content of this Button to be the given text with the given font. If you need
          * more font related customization, consider using {@link #setCustomContent} with {@link
-         * Text} component. Any previously added content will be overridden. Text should contain
-         * no more than 3 characters, otherwise it will overflow from the edges.
+         * Text} component. Any previously added content will be overridden. Text should contain no
+         * more than 3 characters, otherwise it will overflow from the edges.
          */
         @NonNull
         public Builder setTextContent(@NonNull String text, @TypographyName int typographyName) {
@@ -535,16 +536,7 @@ public class Button implements LayoutElement {
     /** Returns metadata tag set to this Button. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTag(checkNotNull(mElement.getModifiers()));
-    }
-
-    @NonNull
-    private static String getMetadataTag(Modifiers modifiers) {
-        return getTagName(checkNotNull(modifiers.getMetadata()).getTagData());
-    }
-
-    private static boolean isButtonTag(@NonNull String tag) {
-        return Builder.TYPE_TO_TAG.containsValue(tag);
+        return getMetadataTagName(checkNotNull(mElement.getModifiers()));
     }
 
     /**
@@ -557,10 +549,7 @@ public class Button implements LayoutElement {
             return null;
         }
         Box boxElement = (Box) element;
-        Modifiers modifiers = boxElement.getModifiers();
-        if (modifiers == null
-                || modifiers.getMetadata() == null
-                || !isButtonTag(getMetadataTag(modifiers))) {
+        if (!checkTag(boxElement.getModifiers(), Builder.TYPE_TO_TAG.values())) {
             return null;
         }
         // Now we are sure that this element is a Button.

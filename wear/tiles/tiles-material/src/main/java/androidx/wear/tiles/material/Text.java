@@ -20,8 +20,9 @@ import static androidx.wear.tiles.ColorBuilders.argb;
 import static androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_CENTER;
 import static androidx.wear.tiles.LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.checkTag;
+import static androidx.wear.tiles.material.Helper.getMetadataTagName;
 import static androidx.wear.tiles.material.Helper.getTagBytes;
-import static androidx.wear.tiles.material.Helper.getTagName;
 import static androidx.wear.tiles.material.Typography.TYPOGRAPHY_DISPLAY1;
 import static androidx.wear.tiles.material.Typography.getFontStyleBuilder;
 import static androidx.wear.tiles.material.Typography.getLineHeightForTypography;
@@ -284,12 +285,7 @@ public class Text implements LayoutElement {
     /** Returns metadata tag set to this Text, which should be {@link #METADATA_TAG}. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTag(checkNotNull(getModifiers()));
-    }
-
-    @NonNull
-    private static String getMetadataTag(Modifiers modifiers) {
-        return getTagName(checkNotNull(modifiers.getMetadata()).getTagData());
+        return getMetadataTagName(checkNotNull(getModifiers()));
     }
 
     /**
@@ -302,10 +298,7 @@ public class Text implements LayoutElement {
             return null;
         }
         LayoutElementBuilders.Text textElement = (LayoutElementBuilders.Text) element;
-        Modifiers modifiers = textElement.getModifiers();
-        if (modifiers == null
-                || modifiers.getMetadata() == null
-                || !METADATA_TAG.equals(getMetadataTag(modifiers))) {
+        if (!checkTag(textElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
         // Now we are sure that this element is a Material Text.

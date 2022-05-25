@@ -21,7 +21,7 @@ import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_PRIMARY_COLORS;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
-import static androidx.wear.tiles.material.Helper.getTagName;
+import static androidx.wear.tiles.material.Helper.checkTag;
 
 import android.content.Context;
 
@@ -34,7 +34,6 @@ import androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
 /**
@@ -155,10 +154,7 @@ public class CompactChip implements LayoutElement {
             return null;
         }
         Box boxElement = (Box) element;
-        Modifiers modifiers = boxElement.getModifiers();
-        if (modifiers == null
-                || modifiers.getMetadata() == null
-                || !METADATA_TAG.equals(getTagName(modifiers.getMetadata().getTagData()))) {
+        if (!checkTag(boxElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
         // Now we are sure that this element is a CompactChip.
