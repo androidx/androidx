@@ -24,9 +24,9 @@ import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Minute
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Second
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year
 
-/** Used to support common styles, similar to the ones defined in Closure / Boq / Material.
+/** Used to support common styles, similar to the ones defined in Closure / Material.
  *
- * The names here are the same as the ones in ICU4J, as Closure / Boq / Material have
+ * The names here are the same as the ones in ICU4J, as Closure / Material have
  * three different naming conventions, sometimes even internally inconsistent.
  * Will add mapping to the Material Design recommended date / time formats.
  *
