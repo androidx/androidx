@@ -900,6 +900,7 @@ includeProject(":internal-testutils-appcompat", "testutils/testutils-appcompat",
 includeProject(":internal-testutils-espresso", "testutils/testutils-espresso", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":internal-testutils-truth", "testutils/testutils-truth", [BuildType.MAIN, BuildType.GLANCE, BuildType.MEDIA, BuildType.FLAN, BuildType.COMPOSE, BuildType.WEAR])
 includeProject(":internal-testutils-ktx", "testutils/testutils-ktx")
+includeProject(":internal-testutils-kmp", "testutils/testutils-kmp", [BuildType.MAIN])
 includeProject(":internal-testutils-macrobenchmark", "testutils/testutils-macrobenchmark", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":internal-testutils-navigation", "testutils/testutils-navigation", [BuildType.MAIN, BuildType.COMPOSE, BuildType.FLAN])
 includeProject(":internal-testutils-paging", "testutils/testutils-paging", [BuildType.MAIN, BuildType.COMPOSE])
