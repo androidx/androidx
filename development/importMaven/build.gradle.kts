@@ -366,53 +366,55 @@ fun transformInternalPomFile(file: File): File {
 
 /**
  * Copies artifacts to the right locations.
+ * Returns true if the artifact is copied, false if it is skipped.
  */
-fun copyArtifact(artifact: ResolvedArtifactResult, internal: Boolean = false) {
+fun copyArtifact(artifact: ResolvedArtifactResult, internal: Boolean = false): Boolean {
     val folder = if (internal) internalFolder else externalFolder
     val file = artifact.file
     val component = artifact.id.componentIdentifier as? ModuleComponentIdentifier
-    if (component != null) {
-        val group = component.group
-        val moduleName = component.module
-        val moduleVersion = component.version
-        val groupPath = groupToPath(group)
-        val pathComponents = listOf(
-            prebuiltsLocation,
-            folder,
-            groupPath,
-            moduleName,
-            moduleVersion
-        )
-        val location = pathComponents.joinToString("/")
-        if (file.name.endsWith(".pom")) {
-            copyPomFile(group, moduleName, moduleVersion, file, internal)
-        } else {
-            println("Copying ${file.name} to $location")
-            copy {
-                from(
-                    file,
-                    digest(file, "MD5"),
-                    digest(file, "SHA1")
-                )
-                rename { fileName ->
-                    // see: https://issuetracker.google.com/issues/232656831#comment2
-                    // klib files lose version when they are downloaded, recover it.
-                    when {
-                        fileName.contains("cinterop-interop.klib") -> {
-                            "$moduleName-$moduleVersion-cinterop-interop.klib${fileName.substringAfter("cinterop-interop.klib")}"
-                        }
-                        fileName.contains(".klib") -> {
-                            "$moduleName-$moduleVersion.klib${fileName.substringAfter(".klib")}"
-                        }
-                        else -> fileName
-                    }
-                }
-                into(location)
-            }
-        }
-    } else {
+    if (component == null) {
         println("skipping $artifact because component is null")
+        return false
     }
+    val group = component.group
+    val moduleName = component.module
+    val moduleVersion = component.version
+    val groupPath = groupToPath(group)
+    val pathComponents = listOf(
+        prebuiltsLocation,
+        folder,
+        groupPath,
+        moduleName,
+        moduleVersion
+    )
+    val location = pathComponents.joinToString("/")
+    if (file.name.endsWith(".pom")) {
+        copyPomFile(group, moduleName, moduleVersion, file, internal)
+    } else {
+        println("Copying ${file.name} to $location")
+        copy {
+            from(
+                file,
+                digest(file, "MD5"),
+                digest(file, "SHA1")
+            )
+            rename { fileName ->
+                // see: https://issuetracker.google.com/issues/232656831#comment2
+                // klib files lose version when they are downloaded, recover it.
+                when {
+                    fileName.contains("cinterop-interop.klib") -> {
+                        "$moduleName-$moduleVersion-cinterop-interop.klib${fileName.substringAfter("cinterop-interop.klib")}"
+                    }
+                    fileName.contains(".klib") -> {
+                        "$moduleName-$moduleVersion.klib${fileName.substringAfter(".klib")}"
+                    }
+                    else -> fileName
+                }
+            }
+            into(location)
+        }
+    }
+    return true
 }
 
 /**
@@ -560,8 +562,9 @@ tasks.register("fetchArtifacts") {
             }.artifacts.filter {
                 copiedArtifacts.add(it.file)
             }.forEach {
-                copyArtifact(it, internal = isInternalArtifact(it))
-                numArtifactsFound++
+                if (copyArtifact(it, internal = isInternalArtifact(it))) {
+                    numArtifactsFound++
+                }
             }
         }
 
