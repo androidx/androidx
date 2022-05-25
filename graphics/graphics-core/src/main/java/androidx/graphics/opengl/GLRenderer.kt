@@ -311,7 +311,11 @@ class GLRenderer(
          * The default implementation will create a window surface with EGL_WIDTH and EGL_HEIGHT
          * set to [width] and [height] respectively.
          * Implementations can override this method to provide additional EglConfigAttributes
-         * for this surface (ex. [EGL14.EGL_SINGLE_BUFFER]
+         * for this surface (ex. [EGL14.EGL_SINGLE_BUFFER].
+         *
+         * Implementations can return null to indicate the default surface should be used.
+         * This is helpful in situations where content is to be rendered within a frame buffer
+         * object instead of to an [EGLSurface]
          *
          * @param spec EGLSpec used to create the corresponding EGLSurface
          * @param config EGLConfig used to create the corresponding EGLSurface
@@ -326,7 +330,7 @@ class GLRenderer(
             surface: Surface,
             width: Int,
             height: Int
-        ): EGLSurface =
+        ): EGLSurface? =
             // Always default to creating an EGL window surface
             // Despite having access to the width and height here, do not explicitly
             // pass in EGLConfigAttributes specifying the EGL_WIDTH and EGL_HEIGHT parameters
@@ -379,6 +383,37 @@ class GLRenderer(
         if (thread != null) {
             val token = sToken.getAndIncrement()
             thread.attachSurface(token, surface, width, height, renderer)
+            return RenderTarget(token, this).also { mRenderTargets.add(it) }
+        } else {
+            throw IllegalStateException("GLThread not started, did you forget to call start?")
+        }
+    }
+
+    /**
+     * Creates a new [RenderTarget] without a corresponding [android.view.Surface].
+     * This avoids creation of an [EGLSurface] which is useful in scenarios where only
+     * rendering to a frame buffer object is required.
+     *
+     * @param width Desired width of the [RenderTarget]
+     * @param height Desired height of the [RenderTarget]
+     * @param renderer Callbacks used to issue OpenGL commands to the [RenderTarget]
+     * @return [RenderTarget] used for subsequent requests to communicate
+     * with the provided Surface (ex. [requestRender] or [detach]).
+     *
+     * @throws IllegalStateException If this method was called when the GLThread has not started
+     * (i.e. start has not been called)
+     */
+    fun createRenderTarget(width: Int, height: Int, renderer: RenderCallback): RenderTarget {
+        val thread = mGLThread
+        if (thread != null) {
+            val token = sToken.getAndIncrement()
+            thread.attachSurface(
+                token,
+                null,
+                width,
+                height,
+                renderer
+            )
             return RenderTarget(token, this).also { mRenderTargets.add(it) }
         } else {
             throw IllegalStateException("GLThread not started, did you forget to call start?")

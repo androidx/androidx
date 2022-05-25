@@ -18,8 +18,10 @@ package androidx.graphics.opengl
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.ColorSpace
 import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
+import android.hardware.HardwareBuffer
 import android.media.Image
 import android.media.ImageReader
 import android.opengl.EGL14
@@ -31,15 +33,20 @@ import android.os.HandlerThread
 import android.view.PixelCopy
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.annotation.WorkerThread
+import androidx.graphics.lowlatency.RenderBuffer
+import androidx.graphics.lowlatency.RenderFence
 import androidx.graphics.opengl.egl.EglManager
 import androidx.graphics.opengl.egl.EglSpec
 import androidx.lifecycle.Lifecycle.State
+import androidx.opengl.EGLExt
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -634,6 +641,82 @@ class GLRendererTest {
 
         assertTrue(destroyedLatch.await(3000, TimeUnit.MILLISECONDS))
         assertEquals(0, destroyCount.get())
+    }
+
+    private fun EglManager.supportsNativeAndroidFence(): Boolean =
+        isExtensionSupported(EGLExt.EGL_KHR_FENCE_SYNC) &&
+            isExtensionSupported(EGLExt.EGL_ANDROID_NATIVE_FENCE_SYNC)
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testRenderBufferTarget() {
+        val width = 10
+        val height = 10
+        val renderLatch = CountDownLatch(1)
+        val teardownLatch = CountDownLatch(1)
+        val glRenderer = GLRenderer().apply { start() }
+        var renderBuffer: RenderBuffer? = null
+
+        val supportsNativeFence = AtomicBoolean(false)
+        glRenderer.createRenderTarget(width, height, object : GLRenderer.RenderCallback {
+
+            @WorkerThread
+            override fun onDrawFrame(eglManager: EglManager) {
+                if (eglManager.supportsNativeAndroidFence()) {
+                    supportsNativeFence.set(true)
+                    var renderFence: RenderFence? = null
+                    try {
+                        val egl = eglManager.eglSpec
+                        val buffer = RenderBuffer(
+                            egl,
+                            HardwareBuffer.create(
+                                width,
+                                height,
+                                HardwareBuffer.RGBA_8888,
+                                1,
+                                HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+                            )
+                        ).also { renderBuffer = it }
+                        buffer.makeCurrent()
+                        GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f)
+                        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                        GLES20.glFlush()
+                        renderFence = RenderFence(egl)
+                        renderFence.await(TimeUnit.SECONDS.toNanos(3))
+                    } finally {
+                        renderFence?.close()
+                    }
+                }
+                renderLatch.countDown()
+            }
+        }).requestRender()
+
+        var hardwareBuffer: HardwareBuffer? = null
+        try {
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+            if (supportsNativeFence.get()) {
+                hardwareBuffer = renderBuffer?.hardwareBuffer
+                if (hardwareBuffer != null) {
+                    val colorSpace = ColorSpace.get(ColorSpace.Named.LINEAR_SRGB)
+                    // Copy to non hardware bitmap to be able to sample pixels
+                    val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)
+                        ?.copy(Bitmap.Config.ARGB_8888, false)
+                    if (bitmap != null) {
+                        assertTrue(bitmap.isAllColor(Color.RED))
+                    } else {
+                        fail("Unable to obtain Bitmap from hardware buffer")
+                    }
+                } else {
+                    fail("Unable to obtain hardwarebuffer from RenderBuffer")
+                }
+            }
+        } finally {
+            hardwareBuffer?.close()
+            glRenderer.stop(true) {
+                teardownLatch.countDown()
+            }
+            assertTrue(teardownLatch.await(3000, TimeUnit.MILLISECONDS))
+        }
     }
 
     /**

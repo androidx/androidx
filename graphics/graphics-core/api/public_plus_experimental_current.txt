@@ -6,6 +6,7 @@ package androidx.graphics.opengl {
     method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.Surface surface, int width, int height, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
     method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.SurfaceView surfaceView, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
     method public androidx.graphics.opengl.GLRenderer.RenderTarget attach(android.view.TextureView textureView, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
+    method public androidx.graphics.opengl.GLRenderer.RenderTarget createRenderTarget(int width, int height, androidx.graphics.opengl.GLRenderer.RenderCallback renderer);
     method public void detach(androidx.graphics.opengl.GLRenderer.RenderTarget target, boolean cancelPending, optional @WorkerThread kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.GLRenderer.RenderTarget,kotlin.Unit>? onDetachComplete);
     method public void detach(androidx.graphics.opengl.GLRenderer.RenderTarget target, boolean cancelPending);
     method public boolean isRunning();
@@ -32,7 +33,7 @@ package androidx.graphics.opengl {
 
   public static interface GLRenderer.RenderCallback {
     method @WorkerThread public void onDrawFrame(androidx.graphics.opengl.egl.EglManager eglManager);
-    method @WorkerThread public default android.opengl.EGLSurface onSurfaceCreated(androidx.graphics.opengl.egl.EglSpec spec, android.opengl.EGLConfig config, android.view.Surface surface, int width, int height);
+    method @WorkerThread public default android.opengl.EGLSurface? onSurfaceCreated(androidx.graphics.opengl.egl.EglSpec spec, android.opengl.EGLConfig config, android.view.Surface surface, int width, int height);
   }
 
   public static final class GLRenderer.RenderTarget {
