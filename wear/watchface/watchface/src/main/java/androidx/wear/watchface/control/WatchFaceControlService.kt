@@ -119,18 +119,22 @@ public open class IWatchFaceInstanceServiceStub(
     ): IHeadlessWatchFace? = TraceEvent(
         "IWatchFaceInstanceServiceStub.createHeadlessWatchFaceInstance"
     ).use {
-        val engine = createHeadlessEngine(params.watchFaceName, context)
-        engine?.let {
+        createServiceAndHeadlessEngine(params.watchFaceName, context)?.let { serviceAndEngine ->
             // This is serviced on a background thread so it should be fine to block.
             uiThreadCoroutineScope.runBlockingWithTracing("createHeadlessInstance") {
                 // However the WatchFaceService.createWatchFace method needs to be run on the UI
                 // thread.
-                it.createHeadlessInstance(params)
+                serviceAndEngine.engine.createHeadlessInstance(params)
             }
         }
     }
 
-    private fun createHeadlessEngine(
+    private class ServiceAndEngine(
+        val service: WatchFaceService,
+        val engine: WatchFaceService.EngineWrapper
+    )
+
+    private fun createServiceAndHeadlessEngine(
         watchFaceName: ComponentName,
         context: Context
     ) = TraceEvent("IWatchFaceInstanceServiceStub.createEngine").use {
@@ -144,9 +148,10 @@ public open class IWatchFaceInstanceServiceStub(
                 val watchFaceService =
                     watchFaceServiceClass.getConstructor().newInstance() as WatchFaceService
                 watchFaceService.setContext(context)
+                watchFaceService.onCreate()
                 val engine =
                     watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
-                engine
+                ServiceAndEngine(watchFaceService, engine)
             }
         } catch (e: ClassNotFoundException) {
             null
@@ -190,15 +195,16 @@ public open class IWatchFaceInstanceServiceStub(
     ): Array<IdTypeAndDefaultProviderPolicyWireFormat>? = TraceEvent(
         "IWatchFaceInstanceServiceStub.getDefaultProviderPolicies"
     ).use {
-        createHeadlessEngine(params.watchFaceName, context)?.let { engine ->
+        createServiceAndHeadlessEngine(params.watchFaceName, context)?.let { serviceAndEngine ->
             try {
-                engine.getDefaultProviderPolicies()
+                serviceAndEngine.engine.getDefaultProviderPolicies()
             } catch (e: Exception) {
                 Log.e(TAG, "getDefaultProviderPolicies failed due to exception", e)
                 throw e
             } finally {
                 try {
-                    engine.onDestroy()
+                    serviceAndEngine.engine.onDestroy()
+                    serviceAndEngine.service.onDestroy()
                 } catch (e: Exception) {
                     Log.e(
                         TAG,
@@ -216,15 +222,16 @@ public open class IWatchFaceInstanceServiceStub(
     ): UserStyleSchemaWireFormat? = TraceEvent(
         "IWatchFaceInstanceServiceStub.getUserStyleSchema"
     ).use {
-        createHeadlessEngine(params.watchFaceName, context)?.let { engine ->
+        createServiceAndHeadlessEngine(params.watchFaceName, context)?.let { serviceAndEngine ->
             try {
-                engine.getUserStyleSchemaWireFormat()
+                serviceAndEngine.engine.getUserStyleSchemaWireFormat()
             } catch (e: Exception) {
                 Log.e(TAG, "getUserStyleSchema failed due to exception", e)
                 throw e
             } finally {
                 try {
-                    engine.onDestroy()
+                    serviceAndEngine.engine.onDestroy()
+                    serviceAndEngine.service.onDestroy()
                 } catch (e: Exception) {
                     Log.e(
                         TAG,
@@ -242,15 +249,16 @@ public open class IWatchFaceInstanceServiceStub(
     ): Array<ComplicationSlotMetadataWireFormat>? = TraceEvent(
         "IWatchFaceInstanceServiceStub.getComplicationSlotMetadata"
     ).use {
-        createHeadlessEngine(params.watchFaceName, context)?.let { engine ->
+        createServiceAndHeadlessEngine(params.watchFaceName, context)?.let { serviceAndEngine ->
             val result: Array<ComplicationSlotMetadataWireFormat>?
             try {
-                result = engine.getComplicationSlotMetadataWireFormats()
+                result = serviceAndEngine.engine.getComplicationSlotMetadataWireFormats()
             } catch (e: Exception) {
                 Log.e(TAG, "getComplicationSlotMetadata failed due to exception", e)
                 throw e
             }
-            engine.onDestroy()
+            serviceAndEngine.engine.onDestroy()
+            serviceAndEngine.service.onDestroy()
             result
         }
     }
@@ -262,15 +270,16 @@ public open class IWatchFaceInstanceServiceStub(
     ): UserStyleFlavorsWireFormat? = TraceEvent(
         "IWatchFaceInstanceServiceStub.getUserStyleFlavors"
     ).use {
-        createHeadlessEngine(params.watchFaceName, context)?.let { engine ->
+        createServiceAndHeadlessEngine(params.watchFaceName, context)?.let { serviceAndEngine ->
             try {
-                engine.getUserStyleFlavorsWireFormat()
+                serviceAndEngine.engine.getUserStyleFlavorsWireFormat()
             } catch (e: Exception) {
                 Log.e(TAG, "getUserStyleFlavors failed due to exception", e)
                 throw e
             } finally {
                 try {
-                    engine.onDestroy()
+                    serviceAndEngine.engine.onDestroy()
+                    serviceAndEngine.service.onDestroy()
                 } catch (e: Exception) {
                     Log.e(
                         TAG,

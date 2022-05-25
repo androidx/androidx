@@ -1626,6 +1626,31 @@ class WatchFaceControlClientTest {
             interactiveInstance.close()
         }
     }
+
+    @Test
+    fun headlessLifeCycle() {
+        val headlessInstance = service.createHeadlessWatchFaceClient(
+            "id",
+            ComponentName(
+                "androidx.wear.watchface.client.test",
+                "androidx.wear.watchface.client.test.TestLifeCycleWatchFaceService"
+            ),
+            deviceConfig,
+            400,
+            400
+        )!!
+
+        // Blocks until the headless instance has been fully constructed.
+        headlessInstance.userStyleSchema
+        headlessInstance.close()
+
+        assertThat(TestLifeCycleWatchFaceService.lifeCycleEvents).containsExactly(
+            "WatchFaceService.onCreate",
+            "Renderer.constructed",
+            "Renderer.onDestroy",
+            "WatchFaceService.onDestroy"
+        )
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
@@ -2051,6 +2076,51 @@ internal class TestEdgeComplicationWatchFaceService(
                 zonedDateTime: ZonedDateTime
             ) {
             }
+        }
+    )
+}
+
+internal class TestLifeCycleWatchFaceService : WatchFaceService() {
+    companion object {
+        val lifeCycleEvents = ArrayList<String>()
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        lifeCycleEvents.add("WatchFaceService.onCreate")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lifeCycleEvents.add("WatchFaceService.onDestroy")
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = WatchFace(
+        WatchFaceType.DIGITAL,
+        @Suppress("deprecation")
+        object : Renderer.GlesRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            16
+        ) {
+            init {
+                lifeCycleEvents.add("Renderer.constructed")
+            }
+
+            override fun onDestroy() {
+                super.onDestroy()
+                lifeCycleEvents.add("Renderer.onDestroy")
+            }
+
+            override fun render(zonedDateTime: ZonedDateTime) {}
+
+            override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {}
         }
     )
 }

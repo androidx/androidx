@@ -1789,7 +1789,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
             mutableWatchState.isVisible.value = true
             mutableWatchState.isAmbient.value = false
-            return HeadlessWatchFaceImpl(this)
+            return HeadlessWatchFaceImpl(this, this@WatchFaceService)
         }
 
         @UiThread
