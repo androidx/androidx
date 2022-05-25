@@ -62,7 +62,6 @@ HILT_NAVIGATION_COMPOSE = "1.1.0-alpha01"
 INK = "1.0.0-alpha01"
 INSPECTION = "1.0.0"
 INTERPOLATOR = "1.1.0-alpha01"
-JETIFIER = "1.0.0-beta11"
 LEANBACK = "1.2.0-alpha03"
 LEANBACK_GRID = "1.0.0-alpha02"
 LEANBACK_PAGING = "1.1.0-alpha10"
@@ -190,7 +189,6 @@ INK = { group = "androidx.ink", atomicGroupVersion = "versions.INK" }
 INSPECTION = { group = "androidx.inspection", atomicGroupVersion = "versions.INSPECTION" }
 INSPECTION_EXTENSIONS = { group = "androidx.inspection.extensions", atomicGroupVersion = "versions.SQLITE_INSPECTOR" }
 INTERPOLATOR = { group = "androidx.interpolator", atomicGroupVersion = "versions.INTERPOLATOR" }
-JETIFIER = { group = "com.android.tools.build.jetifier" }
 LEANBACK = { group = "androidx.leanback" }
 LEGACY = { group = "androidx.legacy" }
 LIBYUV = { group = "libyuv", atomicGroupVersion = "versions.LIBYUV" }
