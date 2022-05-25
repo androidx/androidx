@@ -13,11 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.impl.converters.records
 
+import androidx.annotation.RestrictTo
 import androidx.health.platform.client.proto.DataProto
 
-/** Provides conversion to proto value objects. */
+/**
+ * Provides conversion to proto value objects.
+ *
+ * @suppress
+ */
 internal fun longVal(value: Long): DataProto.Value =
     DataProto.Value.newBuilder().setLongVal(value).build()
 

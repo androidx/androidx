@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.impl.converters.records
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.metadata.Device
 import androidx.health.connect.client.metadata.Metadata
 import androidx.health.connect.client.records.InstantaneousRecord

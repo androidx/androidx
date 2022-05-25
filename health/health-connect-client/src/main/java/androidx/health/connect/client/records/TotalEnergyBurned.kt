@@ -24,6 +24,8 @@ import java.time.ZoneOffset
 /**
  * Total energy burned by the user (in kilocalories), including active & basal energy burned (BMR).
  * Each record represents the total kilocalories burned over a time interval.
+ *
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class TotalEnergyBurned(

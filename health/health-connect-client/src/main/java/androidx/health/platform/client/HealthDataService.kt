@@ -22,6 +22,8 @@ import androidx.health.platform.client.impl.ipc.ClientConfiguration
 /**
  * Entry point for connecting to Health Data Provider on the device and creating instances of
  * [HealthDataAsyncClient].
+ *
+ * @suppress
  */
 object HealthDataService {
 
