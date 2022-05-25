@@ -34,18 +34,19 @@ abstract class ConstraintController<T> internal constructor(
         /**
          * Called when a constraint is met.
          *
-         * @param workSpecIds A list of [WorkSpec] IDs that may have become eligible to run
+         * @param workSpecs A list of [WorkSpec] IDs that may have become eligible to run
          */
-        fun onConstraintMet(workSpecIds: List<String>)
+        fun onConstraintMet(workSpecs: List<WorkSpec>)
 
         /**
          * Called when a constraint is not met.
          *
-         * @param workSpecIds A list of [WorkSpec] IDs that have become ineligible to run
+         * @param workSpecs A list of [WorkSpec] IDs that have become ineligible to run
          */
-        fun onConstraintNotMet(workSpecIds: List<String>)
+        fun onConstraintNotMet(workSpecs: List<WorkSpec>)
     }
 
+    private val matchingWorkSpecs = mutableListOf<WorkSpec>()
     private val matchingWorkSpecIds = mutableListOf<String>()
     private var currentValue: T? = null
 
@@ -70,12 +71,12 @@ abstract class ConstraintController<T> internal constructor(
      * @param workSpecs A list of [WorkSpec]s to monitor constraints for
      */
     fun replace(workSpecs: Iterable<WorkSpec>) {
+        matchingWorkSpecs.clear()
         matchingWorkSpecIds.clear()
-        workSpecs.mapNotNullTo(matchingWorkSpecIds) {
-            if (hasConstraint(it)) it.id else null
-        }
+        workSpecs.filterTo(matchingWorkSpecs) { hasConstraint(it) }
+        matchingWorkSpecs.mapTo(matchingWorkSpecIds) { it.id }
 
-        if (matchingWorkSpecIds.isEmpty()) {
+        if (matchingWorkSpecs.isEmpty()) {
             tracker.removeListener(this)
         } else {
             tracker.addListener(this)
@@ -87,8 +88,8 @@ abstract class ConstraintController<T> internal constructor(
      * Clears all tracked [WorkSpec]s.
      */
     fun reset() {
-        if (matchingWorkSpecIds.isNotEmpty()) {
-            matchingWorkSpecIds.clear()
+        if (matchingWorkSpecs.isNotEmpty()) {
+            matchingWorkSpecs.clear()
             tracker.removeListener(this)
         }
     }
@@ -111,13 +112,13 @@ abstract class ConstraintController<T> internal constructor(
         // We pass copies of references (callback, currentValue) to updateCallback because public
         // APIs on ConstraintController may be called from any thread, and onConstraintChanged() is
         // called from the main thread.
-        if (matchingWorkSpecIds.isEmpty() || callback == null) {
+        if (matchingWorkSpecs.isEmpty() || callback == null) {
             return
         }
         if (currentValue == null || isConstrained(currentValue)) {
-            callback.onConstraintNotMet(matchingWorkSpecIds)
+            callback.onConstraintNotMet(matchingWorkSpecs)
         } else {
-            callback.onConstraintMet(matchingWorkSpecIds)
+            callback.onConstraintMet(matchingWorkSpecs)
         }
     }
 

@@ -120,14 +120,16 @@ public class DelayMetCommandHandler implements
     }
 
     @Override
-    public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
+    public void onAllConstraintsMet(@NonNull List<WorkSpec> workSpecs) {
         // WorkConstraintsTracker will call onAllConstraintsMet with list of workSpecs whose
         // constraints are met. Ensure the workSpecId we are interested is part of the list
         // before we call Processor#startWork().
-        if (!workSpecIds.contains(mWorkSpecId)) {
-            return;
+        for (WorkSpec spec: workSpecs) {
+            if (mWorkSpecId.equals(spec.id)) {
+                mSerialExecutor.execute(this::startWork);
+                return;
+            }
         }
-        mSerialExecutor.execute(this::startWork);
     }
 
     private void startWork() {
@@ -187,7 +189,7 @@ public class DelayMetCommandHandler implements
     }
 
     @Override
-    public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
+    public void onAllConstraintsNotMet(@NonNull List<WorkSpec> workSpecs) {
         mSerialExecutor.execute(this::stopWork);
     }
 
@@ -217,7 +219,7 @@ public class DelayMetCommandHandler implements
 
         if (!mHasConstraints) {
             Logger.get().debug(TAG, "No constraints for " + mWorkSpecId);
-            onAllConstraintsMet(Collections.singletonList(mWorkSpecId));
+            onAllConstraintsMet(Collections.singletonList(workSpec));
         } else {
             // Allow tracker to report constraint changes
             mWorkConstraintsTracker.replace(Collections.singletonList(workSpec));

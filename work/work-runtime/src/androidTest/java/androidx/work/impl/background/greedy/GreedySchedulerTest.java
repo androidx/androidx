@@ -56,9 +56,6 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class GreedySchedulerTest extends WorkManagerTest {
-
-    private static final String TEST_ID = "test";
-
     private Context mContext;
     private WorkManagerImpl mWorkManagerImpl;
     private Processor mMockProcessor;
@@ -148,21 +145,23 @@ public class GreedySchedulerTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testGreedyScheduler_startsWorkWhenConstraintsMet() {
-        mGreedyScheduler.onAllConstraintsMet(Collections.singletonList(TEST_ID));
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        mGreedyScheduler.onAllConstraintsMet(Collections.singletonList(work.getWorkSpec()));
         ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
         verify(mWorkManagerImpl).startWork(captor.capture());
-        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(TEST_ID);
+        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(work.getWorkSpec().id);
     }
 
     @Test
     @SmallTest
     public void testGreedyScheduler_stopsWorkWhenConstraintsNotMet() {
         // in order to stop the work, we should start it first.
-        mGreedyScheduler.onAllConstraintsMet(Collections.singletonList(TEST_ID));
-        mGreedyScheduler.onAllConstraintsNotMet(Collections.singletonList(TEST_ID));
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        mGreedyScheduler.onAllConstraintsMet(Collections.singletonList(work.getWorkSpec()));
+        mGreedyScheduler.onAllConstraintsNotMet(Collections.singletonList(work.getWorkSpec()));
         ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
         verify(mWorkManagerImpl).stopWork(captor.capture());
-        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(TEST_ID);
+        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(work.getWorkSpec().id);
     }
 
     @Test
