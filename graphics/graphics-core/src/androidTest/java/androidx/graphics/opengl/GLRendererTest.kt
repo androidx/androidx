@@ -34,6 +34,7 @@ import android.view.PixelCopy
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
+import androidx.graphics.lowlatency.FrontBufferedRenderer
 import androidx.graphics.lowlatency.RenderBuffer
 import androidx.graphics.lowlatency.RenderFence
 import androidx.graphics.opengl.egl.EglManager
@@ -717,6 +718,86 @@ class GLRendererTest {
             }
             assertTrue(teardownLatch.await(3000, TimeUnit.MILLISECONDS))
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testFrontBufferedRenderer() {
+        if (!deviceSupportsNativeAndroidFence()) {
+            // If the Android device does not support the corresponding
+            // EGL Extensions to obtain native Android fence objects from EGLSync
+            // instances then skip this test as we cannot guarantee consistency
+            // for front buffered rendering
+            return
+        }
+        val width = 10
+        val height = 10
+        val renderLatch = CountDownLatch(1)
+        val teardownLatch = CountDownLatch(1)
+        val glRenderer = GLRenderer().apply { start() }
+        var renderBuffer: RenderBuffer? = null
+
+        val callbacks = object : FrontBufferedRenderer.RenderCallbacks {
+            override fun obtainRenderBuffer(egl: EglSpec): RenderBuffer =
+                RenderBuffer(
+                    egl,
+                    HardwareBuffer.create(
+                        width,
+                        height,
+                        HardwareBuffer.RGBA_8888,
+                        1,
+                        HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE
+                    )
+                ).also { renderBuffer = it }
+
+            override fun onDraw(eglManager: EglManager) {
+                GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f)
+                GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+                GLES20.glFlush()
+            }
+
+            override fun onDrawComplete(frontBuffer: RenderBuffer) {
+                renderLatch.countDown()
+            }
+        }
+
+        glRenderer.createRenderTarget(
+            width,
+            height,
+            FrontBufferedRenderer(callbacks)
+        ).requestRender()
+
+        var hardwareBuffer: HardwareBuffer? = null
+        try {
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+            hardwareBuffer = renderBuffer?.hardwareBuffer
+            if (hardwareBuffer != null) {
+                val colorSpace = ColorSpace.get(ColorSpace.Named.LINEAR_SRGB)
+                // Copy to non hardware bitmap to be able to sample pixels
+                val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)
+                    ?.copy(Bitmap.Config.ARGB_8888, false)
+                if (bitmap != null) {
+                    assertTrue(bitmap.isAllColor(Color.RED))
+                } else {
+                    fail("Unable to obtain Bitmap from hardware buffer")
+                }
+            } else {
+                fail("Unable to obtain hardwarebuffer from RenderBuffer")
+            }
+        } finally {
+            hardwareBuffer?.close()
+            glRenderer.stop(true) {
+                teardownLatch.countDown()
+            }
+            assertTrue(teardownLatch.await(3000, TimeUnit.MILLISECONDS))
+        }
+    }
+
+    private fun deviceSupportsNativeAndroidFence(): Boolean {
+        val eglManager = EglManager().apply { initialize() }
+        val supportsAndroidFence = eglManager.supportsNativeAndroidFence()
+        eglManager.release()
+        return supportsAndroidFence
     }
 
     /**
