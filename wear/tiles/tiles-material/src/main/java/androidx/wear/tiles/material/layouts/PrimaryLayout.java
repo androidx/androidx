@@ -27,6 +27,8 @@ import static androidx.wear.tiles.material.Helper.getMetadataTagBytes;
 import static androidx.wear.tiles.material.Helper.getTagBytes;
 import static androidx.wear.tiles.material.Helper.isRoundDevice;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.DEFAULT_VERTICAL_SPACER_HEIGHT;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT;
@@ -202,22 +204,16 @@ public class PrimaryLayout implements LayoutElement {
         }
 
         /** Constructs and returns {@link PrimaryLayout} with the provided content and look. */
+        // The @Dimension(unit = DP) on dp() is seemingly being ignored, so lint complains that
+        // we're passing DP to something expecting PX. Just suppress the warning for now.
+        @SuppressLint("ResourceType")
         @NonNull
         @Override
         public PrimaryLayout build() {
-            float topPadding =
-                    mDeviceParameters.getScreenHeightDp()
-                            * (isRoundDevice(mDeviceParameters)
-                                    ? PRIMARY_LAYOUT_MARGIN_TOP_ROUND_PERCENT
-                                    : PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT);
-            float bottomPadding =
-                    mPrimaryChip != null
-                            ? (mDeviceParameters.getScreenHeightDp()
-                                    * (isRoundDevice(mDeviceParameters)
-                                            ? PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT
-                                            : PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT))
-                            : topPadding;
+            float topPadding = getTopPadding();
+            float bottomPadding = getBottomPadding();
             float horizontalPadding = getHorizontalPadding();
+            float horizontalChipPadding = getChipHorizontalPadding();
 
             float primaryChipHeight =
                     mPrimaryChip != null
@@ -230,17 +226,6 @@ public class PrimaryLayout implements LayoutElement {
                                     - primaryChipHeight
                                     - bottomPadding
                                     - topPadding);
-
-            Modifiers modifiers =
-                    new Modifiers.Builder()
-                            .setPadding(
-                                    new Padding.Builder()
-                                            .setTop(dp(topPadding))
-                                            .setBottom(dp(bottomPadding))
-                                            .setStart(dp(horizontalPadding))
-                                            .setEnd(dp(horizontalPadding))
-                                            .build())
-                            .build();
 
             Column.Builder innerContentBuilder =
                     new Column.Builder()
@@ -270,7 +255,16 @@ public class PrimaryLayout implements LayoutElement {
 
             Column.Builder layoutBuilder =
                     new Column.Builder()
-                            .setModifiers(modifiers)
+                            .setModifiers(
+                                    new Modifiers.Builder()
+                                            .setPadding(
+                                                    new Padding.Builder()
+                                                            .setStart(dp(horizontalPadding))
+                                                            .setEnd(dp(horizontalPadding))
+                                                            .setTop(dp(topPadding))
+                                                            .setBottom(dp(bottomPadding))
+                                                            .build())
+                                            .build())
                             .setWidth(expand())
                             .setHeight(expand())
                             .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
@@ -285,9 +279,22 @@ public class PrimaryLayout implements LayoutElement {
                                         .build())
                         .addContent(
                                 new Box.Builder()
-                                        .setVerticalAlignment(
-                                                LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
-                                        .setHeight(wrap())
+                                    .setVerticalAlignment(
+                                        LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
+                                    .setWidth(expand())
+                                    .setHeight(wrap())
+                                    .setModifiers(
+                                        new Modifiers.Builder()
+                                            .setPadding(
+                                                new Padding.Builder()
+                                                    .setStart(
+                                                        dp(
+                                                            horizontalChipPadding))
+                                                    .setEnd(
+                                                        dp(
+                                                            horizontalChipPadding))
+                                                    .build())
+                                            .build())
                                         .addContent(mPrimaryChip)
                                         .build());
             }
@@ -313,14 +320,51 @@ public class PrimaryLayout implements LayoutElement {
         }
 
         /**
+         * Returns the recommended bottom padding, based on percentage values in {@link
+         * LayoutDefaults}.
+         */
+        private float getBottomPadding() {
+            return mPrimaryChip != null
+                    ? (mDeviceParameters.getScreenHeightDp()
+                            * (isRoundDevice(mDeviceParameters)
+                                    ? PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT
+                                    : PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT))
+                    : getTopPadding();
+        }
+
+        /**
+         * Returns the recommended top padding, based on percentage values in {@link
+         * LayoutDefaults}.
+         */
+        @Dimension(unit = DP)
+        private float getTopPadding() {
+            return mDeviceParameters.getScreenHeightDp()
+                    * (isRoundDevice(mDeviceParameters)
+                            ? PRIMARY_LAYOUT_MARGIN_TOP_ROUND_PERCENT
+                            : PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT);
+        }
+
+        /**
          * Returns the recommended horizontal padding, based on percentage values in {@link
          * LayoutDefaults}.
          */
-        float getHorizontalPadding() {
+        @Dimension(unit = DP)
+        private float getHorizontalPadding() {
             return mDeviceParameters.getScreenWidthDp()
                     * (isRoundDevice(mDeviceParameters)
                             ? PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT
                             : PRIMARY_LAYOUT_MARGIN_HORIZONTAL_SQUARE_PERCENT);
+        }
+
+        /**
+         * Returns the recommended horizontal padding for primary chip, based on percentage values
+         * and DP values in {@link LayoutDefaults}.
+         */
+        @Dimension(unit = DP)
+        private float getChipHorizontalPadding() {
+            return isRoundDevice(mDeviceParameters)
+                    ? PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP
+                    : PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP;
         }
     }
 

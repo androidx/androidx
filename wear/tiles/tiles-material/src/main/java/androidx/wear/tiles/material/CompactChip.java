@@ -69,8 +69,7 @@ public class CompactChip implements LayoutElement {
          * Creates a builder for the {@link CompactChip} with associated action and the given text
          *
          * @param context The application's context.
-         * @param text The text to be displayed in this compact chip. It shouldn't contain more than
-         *     9 characters. Any extra characters will be deleted.
+         * @param text The text to be displayed in this compact chip.
          * @param clickable Associated {@link Clickable} for click events. When the CompactChip is
          *     clicked it will fire the associated action.
          * @param deviceParameters The device parameters used for styling text.
@@ -81,7 +80,7 @@ public class CompactChip implements LayoutElement {
                 @NonNull Clickable clickable,
                 @NonNull DeviceParameters deviceParameters) {
             this.mContext = context;
-            this.mText = text.substring(0, Math.min(text.length(), 9));
+            this.mText = text;
             this.mClickable = clickable;
             this.mDeviceParameters = deviceParameters;
         }
