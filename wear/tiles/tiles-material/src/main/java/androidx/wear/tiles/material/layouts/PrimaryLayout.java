@@ -21,6 +21,10 @@ import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.DimensionBuilders.expand;
 import static androidx.wear.tiles.DimensionBuilders.wrap;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT;
+import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.checkTag;
+import static androidx.wear.tiles.material.Helper.getMetadataTagBytes;
+import static androidx.wear.tiles.material.Helper.getTagBytes;
 import static androidx.wear.tiles.material.Helper.isRoundDevice;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.DEFAULT_VERTICAL_SPACER_HEIGHT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT;
@@ -34,6 +38,7 @@ import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT
 import android.annotation.SuppressLint;
 
 import androidx.annotation.Dimension;
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -46,20 +51,70 @@ import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.Column;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.LayoutElementBuilders.Spacer;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
 import androidx.wear.tiles.material.CompactChip;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Tiles layout that represents a suggested layout style for Material Tiles with the primary
  * (compact) chip at the bottom with the given content in the center and the recommended margin and
  * padding applied.
+ *
+ * <p>For additional examples and suggested layouts see <a
+ * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
  */
-// TODO(b/215323986): Link visuals.
 public class PrimaryLayout implements LayoutElement {
+    /**
+     * Prefix tool tag for Metadata in Modifiers, so we know that Box is actually a PrimaryLayout.
+     */
+    static final String METADATA_TAG_PREFIX = "PL_";
+
+    /** Index for byte array that contains bits to check whether the contents are present or not. */
+    static final int FLAG_INDEX = METADATA_TAG_PREFIX.length();
+
+    /**
+     * Base tool tag for Metadata in Modifiers, so we know that Box is actually a PrimaryLayout and
+     * what optional content is added.
+     */
+    static final byte[] METADATA_TAG_BASE =
+            Arrays.copyOf(getTagBytes(METADATA_TAG_PREFIX), FLAG_INDEX + 1);
+
+    /**
+     * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
+     * the primary chip is present or not.
+     */
+    static final int CHIP_PRESENT = 0x1;
+    /**
+     * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
+     * the primary label is present or not.
+     */
+    static final int PRIMARY_LABEL_PRESENT = 0x2;
+    /**
+     * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
+     * the secondary label is present or not.
+     */
+    static final int SECONDARY_LABEL_PRESENT = 0x4;
+    /**
+     * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
+     * the content is present or not.
+     */
+    static final int CONTENT_PRESENT = 0x8;
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(
+            flag = true,
+            value = {CHIP_PRESENT, PRIMARY_LABEL_PRESENT, SECONDARY_LABEL_PRESENT, CONTENT_PRESENT})
+    @interface ContentBits {}
+
     @NonNull private final Box mImpl;
 
     // This contains inner columns and primary chip.
@@ -76,13 +131,13 @@ public class PrimaryLayout implements LayoutElement {
 
     /** Builder class for {@link PrimaryLayout}. */
     public static final class Builder implements LayoutElement.Builder {
-
         @NonNull private final DeviceParameters mDeviceParameters;
         @Nullable private LayoutElement mPrimaryChip = null;
         @Nullable private LayoutElement mPrimaryLabelText = null;
         @Nullable private LayoutElement mSecondaryLabelText = null;
         @NonNull private LayoutElement mContent = new Box.Builder().build();
         @NonNull private DpProp mVerticalSpacerHeight = DEFAULT_VERTICAL_SPACER_HEIGHT;
+        private byte mMetadataContentByte = 0;
 
         /**
          * Creates a builder for the {@link PrimaryLayout} from the given content. Content inside of
@@ -101,6 +156,7 @@ public class PrimaryLayout implements LayoutElement {
         @NonNull
         public Builder setPrimaryChipContent(@NonNull LayoutElement compactChip) {
             this.mPrimaryChip = compactChip;
+            mMetadataContentByte = (byte) (mMetadataContentByte | CHIP_PRESENT);
             return this;
         }
 
@@ -108,6 +164,7 @@ public class PrimaryLayout implements LayoutElement {
         @NonNull
         public Builder setPrimaryLabelTextContent(@NonNull LayoutElement primaryLabelText) {
             this.mPrimaryLabelText = primaryLabelText;
+            mMetadataContentByte = (byte) (mMetadataContentByte | PRIMARY_LABEL_PRESENT);
             return this;
         }
 
@@ -118,6 +175,7 @@ public class PrimaryLayout implements LayoutElement {
         @NonNull
         public Builder setSecondaryLabelTextContent(@NonNull LayoutElement secondaryLabelText) {
             this.mSecondaryLabelText = secondaryLabelText;
+            mMetadataContentByte = (byte) (mMetadataContentByte | SECONDARY_LABEL_PRESENT);
             return this;
         }
 
@@ -125,6 +183,7 @@ public class PrimaryLayout implements LayoutElement {
         @NonNull
         public Builder setContent(@NonNull LayoutElement content) {
             this.mContent = content;
+            mMetadataContentByte = (byte) (mMetadataContentByte | CONTENT_PRESENT);
             return this;
         }
 
@@ -233,10 +292,20 @@ public class PrimaryLayout implements LayoutElement {
                                         .build());
             }
 
+            byte[] metadata = METADATA_TAG_BASE.clone();
+            metadata[FLAG_INDEX] = mMetadataContentByte;
+
             Box.Builder element =
                     new Box.Builder()
                             .setWidth(expand())
                             .setHeight(expand())
+                            .setModifiers(
+                                    new Modifiers.Builder()
+                                            .setMetadata(
+                                                    new ElementMetadata.Builder()
+                                                            .setTagData(metadata)
+                                                            .build())
+                                            .build())
                             .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
                             .addContent(layoutBuilder.build());
 
@@ -255,111 +324,95 @@ public class PrimaryLayout implements LayoutElement {
         }
     }
 
-    private int getFirstInnerSpacerPosition() {
-        for (int i = 0; i < mInnerColumn.size(); i++) {
-            LayoutElement element = mInnerColumn.get(i);
-            if (element instanceof Spacer) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    private int getLastInnerSpacerPosition() {
-        for (int i = mInnerColumn.size() - 1; i >= 0; i--) {
-            LayoutElement element = mInnerColumn.get(i);
-            if (element instanceof Spacer) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
     /** Get the primary label content from this layout. */
     @Nullable
     public LayoutElement getPrimaryLabelTextContent() {
-        if (mInnerColumn.size() >= 3) {
-            int spacerPosition = getFirstInnerSpacerPosition();
-            if (spacerPosition != -1) {
-                LayoutElement potentialLabel = mInnerColumn.get(spacerPosition - 1);
-                // Primary label is the one before the first spacer.
-                // TODO(b/231289666): Use tags to perform this check.
-                if (!(potentialLabel instanceof Box)) {
-                    return potentialLabel;
-                }
-            }
+        if (!areElementsPresent(PRIMARY_LABEL_PRESENT)) {
+            return null;
         }
-        return null;
+        // By tag we know that primary label exists, it will always be at position 0.
+        return mInnerColumn.get(0);
     }
 
     /** Get the secondary label content from this layout. */
     @Nullable
     public LayoutElement getSecondaryLabelTextContent() {
-        if (mInnerColumn.size() >= 3) {
-            int spacerPosition = getLastInnerSpacerPosition();
-            if (spacerPosition != -1) {
-                LayoutElement potentialLabel = mInnerColumn.get(spacerPosition + 1);
-                // Secondary label is the one after the last spacer.
-                // TODO(b/231289666): Use tags to perform this check.
-                if (!(potentialLabel instanceof Box)) {
-                    return potentialLabel;
-                }
-            }
+        if (!areElementsPresent(SECONDARY_LABEL_PRESENT)) {
+            return null;
         }
-        return null;
+        // By tag we know that secondary label exists, it will always be at last position.
+        return mInnerColumn.get(mInnerColumn.size() - 1);
     }
 
     /** Get the inner content from this layout. */
     @Nullable
     public LayoutElement getContent() {
-        if (mInnerColumn.size() == 1) {
-            return ((Box) mInnerColumn.get(0)).getContents().get(0);
-        } else {
-            int spacerPosition = getFirstInnerSpacerPosition();
-            if (spacerPosition != -1) {
-                // Here we found where the first spacer is. There are couple of cases: 1. Both label
-                // are present -> content is after found spacer. 2. Primary label is present ->
-                // content is after found spacer. 3. Secondary label is present -> content is before
-                // found spacer. Cases 2 & 3 are only differentiated by whether the element before
-                // or after spacer is Box
-                // (then we're fairly sure it's a content).
-                LayoutElement potentialContent = mInnerColumn.get(spacerPosition + 1);
-                if (potentialContent instanceof Box) {
-                    return ((Box) potentialContent).getContents().get(0);
-                } else {
-                    potentialContent = mInnerColumn.get(spacerPosition - 1);
-                    if (potentialContent instanceof Box) {
-                        return ((Box) potentialContent).getContents().get(0);
-                    }
-                }
-            }
+        if (!areElementsPresent(CONTENT_PRESENT)) {
+            return null;
         }
-        return null;
+        // By tag we know that content exists, it will at position 0 if there is no primary label,
+        // or at position 2 (primary label, spacer - content) otherwise.
+        int contentPosition = areElementsPresent(PRIMARY_LABEL_PRESENT) ? 2 : 0;
+        return ((Box) mInnerColumn.get(contentPosition)).getContents().get(0);
     }
 
     /** Get the primary chip content from this layout. */
     @Nullable
     public LayoutElement getPrimaryChipContent() {
-        if (mAllContent.size() == 3) {
+        if (areElementsPresent(CHIP_PRESENT)) {
             return ((Box) mAllContent.get(2)).getContents().get(0);
         }
         return null;
     }
 
-    /** Get the primary chip content from this layout. */
+    /** Get the vertical spacer height from this layout. */
     // The @Dimension(unit = DP) on getValue() is seemingly being ignored, so lint complains that
     // we're passing PX to something expecting DP. Just suppress the warning for now.
     @SuppressLint("ResourceType")
     @Dimension(unit = DP)
     public float getVerticalSpacerHeight() {
-        int spacerPosition = getFirstInnerSpacerPosition();
-        if (spacerPosition >= 0) {
-            SpacerDimension height = ((Spacer) mInnerColumn.get(spacerPosition)).getHeight();
-            if (height instanceof DpProp) {
-                return ((DpProp) height).getValue();
+        // We don't need special cases for primary or secondary label - if primary label is present,
+        // then the first spacer is at the position 1 and we can get height from it. However, if the
+        // primary label is not present, the spacer will be between content and secondary label (if
+        // there is secondary label) so its position is again 1.
+        if (areElementsPresent(PRIMARY_LABEL_PRESENT)
+                || areElementsPresent(SECONDARY_LABEL_PRESENT)) {
+            LayoutElement element = mInnerColumn.get(1);
+            if (element instanceof Spacer) {
+                SpacerDimension height = ((Spacer) element).getHeight();
+                if (height instanceof DpProp) {
+                    return ((DpProp) height).getValue();
+                }
             }
         }
         return DEFAULT_VERTICAL_SPACER_HEIGHT.getValue();
+    }
+
+    private boolean areElementsPresent(@ContentBits int elementFlag) {
+        return (getMetadataTag()[FLAG_INDEX] & elementFlag) == elementFlag;
+    }
+
+    /** Returns metadata tag set to this PrimaryLayout. */
+    @NonNull
+    byte[] getMetadataTag() {
+        return getMetadataTagBytes(checkNotNull(mImpl.getModifiers()));
+    }
+
+    /**
+     * Returns PrimaryLayout object from the given LayoutElement if that element can be converted to
+     * PrimaryLayout. Otherwise, returns null.
+     */
+    @Nullable
+    public static PrimaryLayout fromLayoutElement(@NonNull LayoutElement element) {
+        if (!(element instanceof Box)) {
+            return null;
+        }
+        Box boxElement = (Box) element;
+        if (!checkTag(boxElement.getModifiers(), METADATA_TAG_PREFIX, METADATA_TAG_BASE)) {
+            return null;
+        }
+        // Now we are sure that this element is a PrimaryLayout.
+        return new PrimaryLayout(boxElement);
     }
 
     /** @hide */

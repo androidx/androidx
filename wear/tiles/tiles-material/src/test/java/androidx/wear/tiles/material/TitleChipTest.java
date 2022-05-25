@@ -43,8 +43,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
-// This test is testing that defaults of are set. More detailed tests that everything is in place
-// are in Scuba tests.
 public class TitleChipTest {
     private static final String MAIN_TEXT = "Action";
     private static final Clickable CLICKABLE =
@@ -117,8 +115,7 @@ public class TitleChipTest {
         assertFromLayoutElementChipIsEqual(actualTitleChip, colors, width);
     }
 
-    private void assertChipIsEqual(
-            TitleChip actualTitleChip, ChipColors colors, DpProp width) {
+    private void assertChipIsEqual(TitleChip actualTitleChip, ChipColors colors, DpProp width) {
         assertThat(actualTitleChip.getMetadataTag()).isEqualTo(TitleChip.METADATA_TAG);
         assertThat(actualTitleChip.getClickable().toProto()).isEqualTo(CLICKABLE.toProto());
         assertThat(actualTitleChip.getWidth().toContainerDimensionProto())

@@ -19,11 +19,15 @@ package androidx.wear.tiles.material.layouts;
 import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.DimensionBuilders.expand;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.checkTag;
+import static androidx.wear.tiles.material.Helper.getMetadataTagBytes;
+import static androidx.wear.tiles.material.Helper.getTagBytes;
 import static androidx.wear.tiles.material.Helper.isRoundDevice;
 import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_PADDING;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
 
+import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -33,24 +37,70 @@ import androidx.wear.tiles.DimensionBuilders.DpProp;
 import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
 import androidx.wear.tiles.material.CircularProgressIndicator;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Tiles layout that represents the suggested layout style for Material Tiles with the progress
  * indicator around the edges of the screen and the given content inside of it and the recommended
  * margin and padding applied.
+ *
+ * <p>For additional examples and suggested layouts see <a
+ * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
  */
-// TODO(b/215323986): Link visuals.
 public class ProgressIndicatorLayout implements LayoutElement {
-    @NonNull private final Box mElement;
+    /**
+     * Prefix tool tag for Metadata in Modifiers, so we know that Box is actually a
+     * ProgressIndicatorLayout.
+     */
+    static final String METADATA_TAG_PREFIX = "PIL_";
+
+    /**
+     * Index for byte array that contains bits to check whether the content and indicator are
+     * present or not.
+     */
+    static final int FLAG_INDEX = METADATA_TAG_PREFIX.length();
+
+    /**
+     * Base tool tag for Metadata in Modifiers, so we know that Box is actually a
+     * ProgressIndicatorLayout and what optional content is added.
+     */
+    static final byte[] METADATA_TAG_BASE =
+            Arrays.copyOf(getTagBytes(METADATA_TAG_PREFIX), FLAG_INDEX + 1);
+
+    /**
+     * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
+     * the progress indicator is present or not.
+     */
+    static final int PROGRESS_INDICATOR_PRESENT = 0x1;
+    /**
+     * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
+     * the main content is present or not.
+     */
+    static final int CONTENT_PRESENT = 0x2;
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef(
+            flag = true,
+            value = {PROGRESS_INDICATOR_PRESENT, CONTENT_PRESENT})
+    @interface ContentBits {}
+
+    @NonNull private final Box mImpl;
+    @NonNull private final List<LayoutElement> mContents;
 
     ProgressIndicatorLayout(@NonNull Box layoutElement) {
-        this.mElement = layoutElement;
+        this.mImpl = layoutElement;
+        this.mContents = mImpl.getContents();
     }
 
     /** Builder class for {@link ProgressIndicatorLayout}. */
@@ -58,6 +108,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
         @NonNull private final DeviceParameters mDeviceParameters;
         @Nullable private LayoutElement mProgressIndicator = null;
         @Nullable private LayoutElement mContent = null;
+        private byte mMetadataContentByte = 0;
 
         /**
          * Creates a builder for the {@link ProgressIndicatorLayout}t. Custom content inside of it
@@ -71,6 +122,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
         @NonNull
         public Builder setProgressIndicatorContent(@NonNull LayoutElement progressIndicator) {
             this.mProgressIndicator = progressIndicator;
+            mMetadataContentByte = (byte) (mMetadataContentByte | PROGRESS_INDICATOR_PRESENT);
             return this;
         }
 
@@ -78,6 +130,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
         @NonNull
         public Builder setContent(@NonNull LayoutElement content) {
             this.mContent = content;
+            mMetadataContentByte = (byte) (mMetadataContentByte | CONTENT_PRESENT);
             return this;
         }
 
@@ -114,10 +167,19 @@ public class ProgressIndicatorLayout implements LayoutElement {
                                             .build())
                             .build();
 
+            byte[] metadata = METADATA_TAG_BASE.clone();
+            metadata[FLAG_INDEX] = mMetadataContentByte;
             Box.Builder boxBuilder =
                     new Box.Builder()
                             .setWidth(expand())
                             .setHeight(expand())
+                            .setModifiers(
+                                    new Modifiers.Builder()
+                                            .setMetadata(
+                                                    new ElementMetadata.Builder()
+                                                            .setTagData(metadata)
+                                                            .build())
+                                            .build())
                             .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
                             .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER);
 
@@ -142,17 +204,21 @@ public class ProgressIndicatorLayout implements LayoutElement {
         }
     }
 
+    private boolean isElementPresent(@ContentBits int elementBitPosition) {
+        return (getMetadataTag()[FLAG_INDEX] & elementBitPosition) == elementBitPosition;
+    }
+
+    /** Returns metadata tag set to this ProgressIndicatorLayout. */
+    @NonNull
+    byte[] getMetadataTag() {
+        return getMetadataTagBytes(checkNotNull(mImpl.getModifiers()));
+    }
+
     /** Returns the inner content from this layout. */
     @Nullable
     public LayoutElement getContent() {
-        List<LayoutElement> contents = mElement.getContents();
-        if (!contents.isEmpty()) {
-            // If content exists, it will always be the first one in the list. If that element is
-            // not Box, than this layout only has indicator, so we'll return null.
-            LayoutElement element = contents.get(0);
-            if (element instanceof Box) {
-                return checkNotNull(((Box) element).getContents().get(0));
-            }
+        if (isElementPresent(CONTENT_PRESENT)) {
+            return ((Box) mContents.get(0)).getContents().get(0);
         }
         return null;
     }
@@ -160,17 +226,27 @@ public class ProgressIndicatorLayout implements LayoutElement {
     /** Returns the progress indicator content from this layout. */
     @Nullable
     public LayoutElement getProgressIndicatorContent() {
-        List<LayoutElement> contents = mElement.getContents();
-        int size = contents.size();
-        if (size > 0) {
-            // If progress indicator exists, it will always be the last one in the list and not
-            // wrapped in the Box.
-            LayoutElement element = contents.get(size - 1);
-            if (!(element instanceof Box)) {
-                return element;
-            }
+        if (isElementPresent(PROGRESS_INDICATOR_PRESENT)) {
+            return mContents.get(isElementPresent(CONTENT_PRESENT) ? 1 : 0);
         }
         return null;
+    }
+
+    /**
+     * Returns ProgressIndicatorLayout object from the given LayoutElement if that element can be
+     * converted to ProgressIndicatorLayout. Otherwise, returns null.
+     */
+    @Nullable
+    public static ProgressIndicatorLayout fromLayoutElement(@NonNull LayoutElement element) {
+        if (!(element instanceof Box)) {
+            return null;
+        }
+        Box boxElement = (Box) element;
+        if (!checkTag(boxElement.getModifiers(), METADATA_TAG_PREFIX, METADATA_TAG_BASE)) {
+            return null;
+        }
+        // Now we are sure that this element is a ProgressIndicatorLayout.
+        return new ProgressIndicatorLayout(boxElement);
     }
 
     /** @hide */
@@ -178,6 +254,6 @@ public class ProgressIndicatorLayout implements LayoutElement {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     public LayoutElementProto.LayoutElement toLayoutElementProto() {
-        return mElement.toLayoutElementProto();
+        return mImpl.toLayoutElementProto();
     }
 }

@@ -26,8 +26,9 @@ import static androidx.wear.tiles.material.ChipDefaults.ICON_SIZE;
 import static androidx.wear.tiles.material.ChipDefaults.ICON_SPACER_WIDTH;
 import static androidx.wear.tiles.material.ChipDefaults.PRIMARY_COLORS;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.checkTag;
+import static androidx.wear.tiles.material.Helper.getMetadataTagName;
 import static androidx.wear.tiles.material.Helper.getTagBytes;
-import static androidx.wear.tiles.material.Helper.getTagName;
 import static androidx.wear.tiles.material.Helper.radiusOf;
 
 import android.content.Context;
@@ -621,16 +622,7 @@ public class Chip implements LayoutElement {
     /** Returns metadata tag set to this Chip. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTag(checkNotNull(mElement.getModifiers()));
-    }
-
-    @NonNull
-    private static String getMetadataTag(Modifiers modifiers) {
-        return getTagName(checkNotNull(modifiers.getMetadata()).getTagData());
-    }
-
-    private static boolean isChipTag(@NonNull String tag) {
-        return Builder.TYPE_TO_TAG.containsValue(tag);
+        return getMetadataTagName(checkNotNull(mElement.getModifiers()));
     }
 
     /**
@@ -643,10 +635,7 @@ public class Chip implements LayoutElement {
             return null;
         }
         Box boxElement = (Box) element;
-        Modifiers modifiers = boxElement.getModifiers();
-        if (modifiers == null
-                || modifiers.getMetadata() == null
-                || !isChipTag(getMetadataTag(modifiers))) {
+        if (!checkTag(boxElement.getModifiers(), Builder.TYPE_TO_TAG.values())) {
             return null;
         }
         // Now we are sure that this element is a Chip.

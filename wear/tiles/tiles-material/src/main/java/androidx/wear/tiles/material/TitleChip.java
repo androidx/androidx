@@ -23,7 +23,7 @@ import static androidx.wear.tiles.material.ChipDefaults.TITLE_HEIGHT;
 import static androidx.wear.tiles.material.ChipDefaults.TITLE_HORIZONTAL_PADDING;
 import static androidx.wear.tiles.material.ChipDefaults.TITLE_PRIMARY_COLORS;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
-import static androidx.wear.tiles.material.Helper.getTagName;
+import static androidx.wear.tiles.material.Helper.checkTag;
 
 import android.content.Context;
 
@@ -38,7 +38,6 @@ import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
 /**
@@ -95,7 +94,6 @@ public class TitleChip implements LayoutElement {
             this.mDeviceParameters = deviceParameters;
         }
 
-        // TODO(b/210846270): Add getChipColors.
         /**
          * Sets the colors for the {@link TitleChip}. If set, {@link
          * ChipColors#getBackgroundColor()} will be used for the background of the button and {@link
@@ -206,10 +204,7 @@ public class TitleChip implements LayoutElement {
             return null;
         }
         Box boxElement = (Box) element;
-        Modifiers modifiers = boxElement.getModifiers();
-        if (modifiers == null
-                || modifiers.getMetadata() == null
-                || !METADATA_TAG.equals(getTagName(modifiers.getMetadata().getTagData()))) {
+        if (!checkTag(boxElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
         // Now we are sure that this element is a TitleChip.
