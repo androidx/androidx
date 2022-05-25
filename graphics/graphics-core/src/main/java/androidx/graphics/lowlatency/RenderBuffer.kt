@@ -39,7 +39,7 @@ internal class RenderBuffer(
     private var eglImage: EGLImageKHR?
     private var texture: Int = -1
     private var frameBuffer: Int = -1
-    var isReleased = false
+    var isClosed = false
         private set
 
     // Int array used for creation of fbos/textures
@@ -61,7 +61,7 @@ internal class RenderBuffer(
     }
 
     fun makeCurrent() {
-        if (!isReleased) {
+        if (!isClosed) {
             GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, frameBuffer)
             GLES20.glFramebufferTexture2D(
                 GLES20.GL_FRAMEBUFFER,
@@ -85,6 +85,6 @@ internal class RenderBuffer(
         eglImage?.let { egl.eglDestroyImageKHR(it) }
         eglImage = null
         hardwareBuffer.close()
-        isReleased = true
+        isClosed = true
     }
 }
