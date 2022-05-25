@@ -1,5 +1,3 @@
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -10,23 +8,26 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation:annotation"))
-    api(project(":core:core"))
+    api("androidx.annotation:annotation:1.3.0")
+    api(projectOrArtifact(":core:core"))
 
-    implementation("androidx.emoji2:emoji2:1.0.0-beta01")
-    implementation("androidx.emoji2:emoji2-views-helper:1.0.0-beta01")
+    implementation("androidx.emoji2:emoji2:1.2.0-alpha04")
+    implementation("androidx.emoji2:emoji2-views-helper:1.2.0-alpha04")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.cursoradapter:cursoradapter:1.0.0")
-    api("androidx.activity:activity:1.2.4")
+    api(projectOrArtifact(":activity:activity"))
     api("androidx.fragment:fragment:1.3.6")
     api(project(":appcompat:appcompat-resources"))
     api("androidx.drawerlayout:drawerlayout:1.0.0")
     implementation("androidx.lifecycle:lifecycle-runtime:2.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.3.1")
-    implementation("androidx.resourceinspection:resourceinspection-annotation:1.0.0-beta01")
+    implementation("androidx.resourceinspection:resourceinspection-annotation:1.0.1")
     api("androidx.savedstate:savedstate:1.1.0")
 
-    kapt("androidx.resourceinspection:resourceinspection-processor:1.0.0-beta01")
+    // Due to experimental annotations used in core.
+    compileOnly(libs.kotlinStdlib)
+
+    kapt(projectOrArtifact(":resourceinspection:resourceinspection-processor"))
 
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
@@ -84,6 +85,7 @@ android {
     useLibrary "android.test.runner"
     useLibrary "android.test.base"
     useLibrary "android.test.mock"
+    namespace "androidx.appcompat"
 }
 
 androidx {

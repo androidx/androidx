@@ -39,6 +39,7 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.testing.workers.CountingTestWorker;
+import androidx.work.testing.workers.RetryWorker;
 import androidx.work.testing.workers.TestWorker;
 
 import org.junit.Before;
@@ -155,7 +156,7 @@ public class TestSchedulerTest {
 
     @Test
     public void testWorker_withPeriodDelay_shouldRun() {
-        PeriodicWorkRequest request = createWorkRequestWithPeriodDelay();
+        PeriodicWorkRequest request = createPeriodicWorkRequest();
         WorkManager workManager = WorkManager.getInstance(mContext);
         workManager.enqueue(request);
         assertThat(CountingTestWorker.COUNT.get(), is(1));
@@ -164,8 +165,7 @@ public class TestSchedulerTest {
     @Test
     public void testWorker_withPeriod_cancelAndResume_shouldRun()
             throws InterruptedException, ExecutionException {
-
-        PeriodicWorkRequest request = createWorkRequestWithPeriodDelay();
+        PeriodicWorkRequest request = createPeriodicWorkRequest();
         WorkManager workManager = WorkManager.getInstance(mContext);
         workManager.enqueue(request);
         workManager.cancelWorkById(request.getId());
@@ -177,8 +177,7 @@ public class TestSchedulerTest {
     @Test
     public void testWorker_withPeriodDelay_shouldRunAfterEachSetPeriodDelay()
             throws InterruptedException, ExecutionException {
-
-        PeriodicWorkRequest request = createWorkRequestWithPeriodDelay();
+        PeriodicWorkRequest request = createPeriodicWorkRequest();
         WorkManager workManager = WorkManager.getInstance(mContext);
         workManager.enqueue(request);
         assertThat(CountingTestWorker.COUNT.get(), is(1));
@@ -188,6 +187,24 @@ public class TestSchedulerTest {
             WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
             assertThat(requestStatus.getState().isFinished(), is(false));
         }
+    }
+
+    @Test
+    public void testWorker_withPeriodicWorkerWithInitialDelay_shouldRun() {
+        PeriodicWorkRequest request = createPeriodicWorkRequestWithInitialDelay();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        assertThat(CountingTestWorker.COUNT.get(), is(0));
+        mTestDriver.setInitialDelayMet(request.getId());
+        assertThat(CountingTestWorker.COUNT.get(), is(1));
+    }
+
+    @Test
+    public void testWorker_withPeriodicWorkerFlex_shouldRun() {
+        PeriodicWorkRequest request = createPeriodicWorkRequestWithFlex();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        assertThat(CountingTestWorker.COUNT.get(), is(1));
     }
 
     @Test
@@ -315,6 +332,27 @@ public class TestSchedulerTest {
         assertThat(latch.getCount(), is(0L));
     }
 
+    @Test
+    public void testOneTimeWorkerRetry() throws ExecutionException, InterruptedException {
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(RetryWorker.class).build();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        WorkInfo workInfo = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(workInfo.getRunAttemptCount(), is(1));
+        assertThat(workInfo.getState(), is(WorkInfo.State.ENQUEUED));
+    }
+
+    @Test
+    public void testPeriodicWorkerRetry() throws ExecutionException, InterruptedException {
+        PeriodicWorkRequest request =
+                new PeriodicWorkRequest.Builder(RetryWorker.class, 1, TimeUnit.DAYS).build();
+        WorkManager workManager = WorkManager.getInstance(mContext);
+        workManager.enqueue(request);
+        WorkInfo workInfo = workManager.getWorkInfoById(request.getId()).get();
+        assertThat(workInfo.getRunAttemptCount(), is(1));
+        assertThat(workInfo.getState(), is(WorkInfo.State.ENQUEUED));
+    }
+
     private static OneTimeWorkRequest createWorkRequest() {
         return new OneTimeWorkRequest.Builder(TestWorker.class).build();
     }
@@ -332,8 +370,19 @@ public class TestSchedulerTest {
                 .build();
     }
 
-    private static PeriodicWorkRequest createWorkRequestWithPeriodDelay() {
+    private static PeriodicWorkRequest createPeriodicWorkRequest() {
         return new PeriodicWorkRequest.Builder(CountingTestWorker.class, 10L, TimeUnit.DAYS)
                 .build();
+    }
+
+    private static PeriodicWorkRequest createPeriodicWorkRequestWithInitialDelay() {
+        return new PeriodicWorkRequest.Builder(CountingTestWorker.class, 10L, TimeUnit.DAYS)
+                .setInitialDelay(10L, TimeUnit.DAYS)
+                .build();
+    }
+
+    private static PeriodicWorkRequest createPeriodicWorkRequestWithFlex() {
+        return new PeriodicWorkRequest.Builder(CountingTestWorker.class, 10L, TimeUnit.DAYS,
+                5L, TimeUnit.HOURS).build();
     }
 }

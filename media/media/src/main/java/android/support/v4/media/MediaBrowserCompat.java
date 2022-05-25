@@ -2126,6 +2126,7 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         public void handleMessage(@NonNull Message msg) {
             if (mCallbacksMessengerRef == null || mCallbacksMessengerRef.get() == null ||
                     mCallbackImplRef.get() == null) {
@@ -2286,6 +2287,7 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultData != null) {
                 resultData = MediaSessionCompat.unparcelWithClassLoader(resultData);
@@ -2318,6 +2320,7 @@ public final class MediaBrowserCompat {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         protected void onReceiveResult(int resultCode, Bundle resultData) {
             if (resultData != null) {
                 resultData = MediaSessionCompat.unparcelWithClassLoader(resultData);

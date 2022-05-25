@@ -13,9 +13,12 @@ These project setups are only meant to be used for local development and
 all CI tasks run using the root AndroidX project.
 
 ## How it works?
-A playground project needs a `settings.gradle` file that applies
-`playground-common/playground-settings.gradle` which provides functionality
-to pull select projects from AndroidX.
+A playground project needs a `settings.gradle` file that includes the
+`playground-common/playground-plugin` build and applies the `playground` plugin.
+
+The `playground` plugin provides functionality allowing the playground project
+to be executed independently of the main AndroidX build, and to pull select projects
+from AndroidX.
 
 To share as much common configuration as possible, it is also recommended
 to symlink some common files like `gradle` and `.idea` configuration.
@@ -29,13 +32,13 @@ This script will create symbolic links for `gradle` and `.idea` files that are c
 to the git repository. It also force adds the `.idea` files to the git repository because
 by default any nested .idea folder is ignored from git.
 
-The `playground-settings.gradle` file sets a pre-defined build file (`playground-build.gradle`)
-for the root project and also provides `includeProject` and `selectProjectsFromAndroidX`
-methods.
+The `playground` plugin sets a pre-defined build file (`playground-build.gradle`) for 
+the root project and also provides a `playground` extension for `settings.gradle` with 
+useful configuration methods.
 
-The custom `settings.gradle` file should first call `setupPlayground(this, "..")` to
-run the main configuration. Here, the first argument is the `script` object itself and
-the second argument is the relative path to the main AndroidX project.
+The custom `settings.gradle` file should first call `setupPlayground("..")`  on the 
+`playground` extension to establish the main configuration, providing the relative
+path of the playground project to the main AndroidX project.
 
 After running `setupPlayground`, it can either include projects via `includeProject`
 method or filter projects from the main AndroidX settings gradle file using the
@@ -51,11 +54,11 @@ read at configuration time and we cannot set it dynamically.
 
 Properties that will be set dynamically are kept in `playground.properties` file while
 shared properties are kept in `androidx-shared.properties` file.
-The dynamic properties are read in the `playground-include-settings.gradle` file and set
-on each project.
+The dynamic properties are read in the `playground` plugin and set on each project.
 
-There is a `VerifyPlaygroundGradlePropertiesTask` task that validates the contents of
+There is a `VerifyPlaygroundGradleConfigurationTask` task that validates the contents of
 `androidx-shared.properties` file as part of the main AndroidX build.
+
 ### Optional Dependencies
 Even though sub-projects usually declare exact coordinates for their dependencies,
 for tests, it is a common practice to declare `project` dependencies. To avoid needing

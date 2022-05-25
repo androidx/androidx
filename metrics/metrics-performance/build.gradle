@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -38,7 +37,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(libs.espressoContrib)
+    androidTestImplementation(libs.bundles.espressoContrib)
     androidTestImplementation(project(':navigation:navigation-fragment-ktx'))
     androidTestImplementation(project(':navigation:navigation-ui-ktx'))
     androidTestImplementation(project(':appcompat:appcompat'))
@@ -55,6 +54,7 @@ android {
     defaultConfig {
         multiDexEnabled true
     }
+    namespace "androidx.metrics.performance"
 }
 
 androidx {
@@ -64,5 +64,4 @@ androidx {
     mavenGroup = LibraryGroups.METRICS
     inceptionYear = "2021"
     description = "Library for tracking and reporting various runtime metrics for applications"
-    runApiTasks = new RunApiTasks.No("Temporarily disabled pending Executor decision before alpha")
 }

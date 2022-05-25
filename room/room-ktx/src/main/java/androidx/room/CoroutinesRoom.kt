@@ -111,7 +111,7 @@ public class CoroutinesRoom private constructor() {
                 // Observer channel receives signals from the invalidation tracker to emit queries.
                 val observerChannel = Channel<Unit>(Channel.CONFLATED)
                 val observer = object : InvalidationTracker.Observer(tableNames) {
-                    override fun onInvalidated(tables: MutableSet<String>) {
+                    override fun onInvalidated(tables: Set<String>) {
                         observerChannel.trySend(Unit)
                     }
                 }
@@ -147,7 +147,7 @@ public class CoroutinesRoom private constructor() {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RoomDatabase.getQueryDispatcher(): CoroutineDispatcher {
     return backingFieldMap.getOrPut("QueryDispatcher") {
-        queryExecutor.asCoroutineDispatcher()
+        getQueryExecutor().asCoroutineDispatcher()
     } as CoroutineDispatcher
 }
 
@@ -158,5 +158,5 @@ public fun RoomDatabase.getQueryDispatcher(): CoroutineDispatcher {
  */
 internal val RoomDatabase.transactionDispatcher: CoroutineDispatcher
     get() = backingFieldMap.getOrPut("TransactionDispatcher") {
-        transactionExecutor.asCoroutineDispatcher()
+        getTransactionExecutor().asCoroutineDispatcher()
     } as CoroutineDispatcher

@@ -16,28 +16,28 @@
 
 package androidx.glance.layout
 
-import androidx.glance.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
-import androidx.glance.unit.dp
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class BoxTest {
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun createComposableBox() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableBox() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Box {}
         }
@@ -51,20 +51,20 @@ class BoxTest {
     }
 
     @Test
-    fun createComposableBoxWithModifier() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableBoxWithModifier() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
-            Box(modifier = Modifier.padding(1.dp)) {}
+            Box(modifier = GlanceModifier.padding(1.dp)) {}
         }
 
         val innerBox = assertIs<EmittableBox>(root.children[0])
         val paddingModifier = requireNotNull(innerBox.modifier.findModifier<PaddingModifier>())
 
         // Don't need to test all elements, that's covered in PaddingTest
-        assertThat(paddingModifier.top).isEqualTo(1.dp)
+        assertThat(paddingModifier.top).isEqualTo(PaddingDimension(1.dp))
     }
 
     @Test
-    fun createComposableBoxWithAlignment() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableBoxWithAlignment() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Box(contentAlignment = Alignment.Center) {}
         }
@@ -75,7 +75,7 @@ class BoxTest {
     }
 
     @Test
-    fun createComposableBoxWithChildren() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableBoxWithChildren() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Box(contentAlignment = Alignment.Center) {
                 Box(contentAlignment = Alignment.BottomCenter) {}

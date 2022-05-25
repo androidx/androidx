@@ -15,8 +15,7 @@
   limitations under the License.
   -->
 <manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.benchmark.junit4.test">
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:name="androidx.benchmark.junit4.ArgumentInjectingApplication">

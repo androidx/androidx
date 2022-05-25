@@ -40,6 +40,13 @@ android {
     buildFeatures {
         aidl = true
     }
+    buildTypes {
+        debug {
+            // Need to make sure androidx.tracing.Trace gets put in primary dex for legacy multidex
+            // as it is needed by androidx.test.runner.AndroidJUnitRunner
+            multiDexKeepFile file('multidex-config.txt')
+        }
+    }
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schemas".toString())
         androidTest.assets.srcDirs += files("$projectDir/databases".toString())
@@ -68,7 +75,20 @@ android {
                 }
             }
         }
+        withNullAwareTypeConverter {
+            dimension "processorConfiguration"
+            javaCompileOptions {
+                annotationProcessorOptions {
+                    arguments = [
+                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
+                            "room.expandProjection"  : "false",
+                            "room.useNullAwareTypeAnalysis": "true"
+                    ]
+                }
+            }
+        }
     }
+    namespace "androidx.room.integration.testapp"
 }
 
 dependencies {

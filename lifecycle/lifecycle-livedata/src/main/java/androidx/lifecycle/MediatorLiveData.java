@@ -83,6 +83,9 @@ public class MediatorLiveData<T> extends MutableLiveData<T> {
      */
     @MainThread
     public <S> void addSource(@NonNull LiveData<S> source, @NonNull Observer<? super S> onChanged) {
+        if (source == null) {
+            throw new NullPointerException("source cannot be null");
+        }
         Source<S> e = new Source<>(source, onChanged);
         Source<?> existing = mSources.putIfAbsent(source, e);
         if (existing != null && existing.mObserver != onChanged) {

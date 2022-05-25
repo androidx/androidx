@@ -89,6 +89,9 @@ abstract class BasePluginTest {
                 }
             """.trimIndent(),
             suffix = """
+                android {
+                    namespace 'androidx.navigation.testapp'
+                }
                 dependencies {
                     implementation "${projectSetup.props.navigationRuntime}"
                 }
@@ -98,6 +101,13 @@ abstract class BasePluginTest {
 
     internal fun setupMultiModuleBuildGradle() {
         testData("multimodule-project").copyRecursively(projectRoot())
+        val repositoriesBlock = buildString {
+            appendLine("repositories {")
+            projectSetup.allRepositoryPaths.forEach {
+                appendLine("""maven { url "$it" }""")
+            }
+            appendLine("}")
+        }
         val props = projectSetup.props
         projectSetup.buildFile.writeText(
             """
@@ -110,10 +120,7 @@ abstract class BasePluginTest {
             }
 
             allprojects {
-                repositories {
-                    maven { url "${props.prebuiltsRoot}/androidx/external" }
-                    maven { url "${props.prebuiltsRoot}/androidx/internal" }
-                }
+                $repositoriesBlock
             }
             """.trimIndent()
         )
@@ -130,6 +137,9 @@ abstract class BasePluginTest {
                 }
             """.trimIndent(),
             suffix = """
+                android {
+                    namespace 'androidx.navigation.testapp'
+                }
                 dependencies {
                     implementation "${projectSetup.props.kotlinStblib}"
                     implementation "${projectSetup.props.navigationRuntime}"

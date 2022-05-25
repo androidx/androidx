@@ -1,533 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-dev)" variant="all" version="7.1.0-dev">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.CameraCaptureSession#captureBurstRequests`"
-        errorLine1="        verify(mCaptureSession, times(1)).captureBurstRequests(any(List.class),"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraCaptureSessionCompatTest.java"
-            line="83"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.CameraCaptureSession#captureSingleRequest`"
-        errorLine1="        verify(mCaptureSession, times(1)).captureSingleRequest(any(CaptureRequest.class),"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraCaptureSessionCompatTest.java"
-            line="110"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.CameraCaptureSession#setRepeatingBurstRequests`"
-        errorLine1="        verify(mCaptureSession, times(1)).setRepeatingBurstRequests(any(List.class),"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraCaptureSessionCompatTest.java"
-            line="140"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.CameraCaptureSession#setSingleRepeatingRequest`"
-        errorLine1="        verify(mCaptureSession, times(1)).setSingleRepeatingRequest(any(CaptureRequest.class),"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraCaptureSessionCompatTest.java"
-            line="168"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `android.hardware.camera2.CameraDevice#createCaptureSessionByOutputConfigurations`"
-        errorLine1="        verify(mCameraDevice, times(1)).createCaptureSessionByOutputConfigurations("
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
-            line="105"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.CameraDevice#createCaptureSession`"
-        errorLine1="        verify(mCameraDevice, times(1)).createCaptureSession("
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
-            line="124"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 28 (current min is 21): `android.hardware.camera2.params.SessionConfiguration`"
-        errorLine1="                any(SessionConfiguration.class));"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
-            line="125"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 23 (current min is 21): `android.hardware.camera2.params.InputConfiguration`"
-        errorLine1="                InputConfigurationCompat.wrap(mock(InputConfiguration.class))));"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
-            line="168"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `android.hardware.camera2.CameraDevice#createReprocessableCaptureSession`"
-        errorLine1="        verify(mCameraDevice, times(1)).createReprocessableCaptureSession("
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
-            line="173"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 23 (current min is 21): `android.hardware.camera2.params.InputConfiguration`"
-        errorLine1="                any(InputConfiguration.class),"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
-            line="174"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 23 (current min is 21): `android.hardware.camera2.params.InputConfiguration`"
-        errorLine1="                InputConfigurationCompat.wrap(mock(InputConfiguration.class))));"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
-            line="193"
-            column="52"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `android.hardware.camera2.CameraDevice#createReprocessableCaptureSessionByConfigurations`"
-        errorLine1="        verify(mCameraDevice, times(1)).createReprocessableCaptureSessionByConfigurations("
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
-            line="198"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 23 (current min is 21): `android.hardware.camera2.params.InputConfiguration`"
-        errorLine1="                any(InputConfiguration.class),"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
-            line="199"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `android.hardware.camera2.CameraDevice#createConstrainedHighSpeedCaptureSession`"
-        errorLine1="        verify(mCameraDevice, times(1)).createConstrainedHighSpeedCaptureSession("
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/CameraDeviceCompatTest.java"
-            line="218"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
-        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
-            line="104"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
-        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
-            line="122"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
-        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
-            line="140"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
-        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
-            line="158"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
-        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
-            line="176"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
-        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
-            line="194"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
-        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
-            line="212"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
-        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
-            line="230"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
-        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
-            line="248"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
-        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
-            line="266"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 26 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ENABLE_ZSL`"
-        errorLine1="                CaptureRequest.CONTROL_ENABLE_ZSL, null))"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpackerTest.java"
-            line="284"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `new android.hardware.camera2.params.InputConfiguration`"
-        errorLine1="        InputConfiguration inputConfig = new InputConfiguration(WIDTH, HEIGHT, FORMAT);"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/InputConfigurationCompatTest.java"
-            line="52"
-            column="42"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `new android.hardware.camera2.params.InputConfiguration`"
-        errorLine1="        InputConfiguration config = new InputConfiguration(WIDTH, HEIGHT, FORMAT);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/InputConfigurationCompatTest.java"
-            line="84"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `new android.hardware.camera2.params.InputConfiguration`"
-        errorLine1="        InputConfiguration config = new InputConfiguration(WIDTH, HEIGHT, FORMAT);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/InputConfigurationCompatTest.java"
-            line="96"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 24 (current min is 21): `android.hardware.camera2.params.OutputConfiguration`"
-        errorLine1="        assertThat(outputConfig).isInstanceOf(OutputConfiguration.class);"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatTest.java"
-            line="172"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `new android.hardware.camera2.params.OutputConfiguration`"
-        errorLine1="        OutputConfiguration outputConfig = new OutputConfiguration(surface);"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatTest.java"
-            line="179"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `new android.hardware.camera2.params.OutputConfiguration`"
-        errorLine1="        OutputConfiguration outputConfig = new OutputConfiguration(TEST_GROUP_ID, surface);"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatTest.java"
-            line="189"
-            column="44"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `OutputConfigurationCompat`"
-        errorLine1="        OutputConfigurationCompat outputConfigCompat = new OutputConfigurationCompat("
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatTest.java"
-            line="198"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 24 (current min is 21): `android.hardware.camera2.params.OutputConfiguration`"
-        errorLine1="        OutputConfiguration outputConfig = mock(OutputConfiguration.class);"
-        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatTest.java"
-            line="218"
-            column="49"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.params.OutputConfiguration#setPhysicalCameraId`"
-        errorLine1="        verify(outputConfig, times(1)).setPhysicalCameraId(PHYSICAL_CAMERA_ID);"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatTest.java"
-            line="224"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 24 (current min is 21): `android.hardware.camera2.params.OutputConfiguration`"
-        errorLine1="            outputConfigs.add((OutputConfiguration) outputConfigCompat.unwrap());"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompatTest.java"
-            line="93"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 21): `new android.hardware.camera2.params.SessionConfiguration`"
-        errorLine1="        SessionConfiguration sessionConfig = new SessionConfiguration("
-        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompatTest.java"
-            line="96"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 21): `android.hardware.camera2.params.SessionConfiguration#getOutputConfigurations`"
-        errorLine1="                ((SessionConfiguration) sessionConfigCompat.unwrap()).getOutputConfigurations())"
-        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompatTest.java"
-            line="114"
-            column="71"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 28 (current min is 21): `android.hardware.camera2.params.SessionConfiguration`"
-        errorLine1="                ((SessionConfiguration) sessionConfigCompat.unwrap()).getOutputConfigurations())"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompatTest.java"
-            line="114"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.hardware.camera2.CameraCaptureSession.StateCallback#onCaptureQueueEmpty`"
-        errorLine1="        sessionConfigurationCompat.getStateCallback().onCaptureQueueEmpty(mMockCaptureSession);"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionBaseTest.java"
-            line="119"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `onCaptureQueueEmpty`"
-        errorLine1="        verify(mMockStateCallback).onCaptureQueueEmpty(any(SynchronizedCaptureSession.class));"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionBaseTest.java"
-            line="121"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `android.hardware.camera2.CameraCaptureSession.StateCallback#onSurfacePrepared`"
-        errorLine1="        sessionConfigurationCompat.getStateCallback().onSurfacePrepared(mMockCaptureSession,"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionBaseTest.java"
-            line="133"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `onSurfacePrepared`"
-        errorLine1="        verify(mMockStateCallback).onSurfacePrepared(any(SynchronizedCaptureSession.class),"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionBaseTest.java"
-            line="136"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `onCaptureQueueEmpty`"
-        errorLine1="        mStateCallback.onCaptureQueueEmpty(mCaptureSessionCompatBaseImpl);"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbackTest.java"
-            line="70"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `onCaptureQueueEmpty`"
-        errorLine1="        verify(mMockStateCallback).onCaptureQueueEmpty(any());"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbackTest.java"
-            line="71"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.hardware.camera2.CameraCaptureSession.StateCallback#onCaptureQueueEmpty`"
-        errorLine1="        verify(mMockCameraCaptureSessionStateCallback).onCaptureQueueEmpty(any());"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbackTest.java"
-            line="72"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `onSurfacePrepared`"
-        errorLine1="        mStateCallback.onSurfacePrepared(mCaptureSessionCompatBaseImpl, mock(Surface.class));"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbackTest.java"
-            line="79"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `onSurfacePrepared`"
-        errorLine1="        verify(mMockStateCallback).onSurfacePrepared(any(), any(Surface.class));"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbackTest.java"
-            line="80"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 23 (current min is 21): `android.hardware.camera2.CameraCaptureSession.StateCallback#onSurfacePrepared`"
-        errorLine1="        verify(mMockCameraCaptureSessionStateCallback).onSurfacePrepared(any(), any(Surface.class));"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/internal/SynchronizedCaptureSessionStateCallbackTest.java"
-            line="81"
-            column="56"/>
-    </issue>
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -535,9 +7,7 @@
         errorLine1="                CaptureRequest.CONTROL_ZOOM_RATIO, null);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/camera/camera2/internal/ZoomControlDeviceTest.java"
-            line="269"
-            column="17"/>
+            file="src/androidTest/java/androidx/camera/camera2/internal/ZoomControlDeviceTest.java"/>
     </issue>
 
     <issue
@@ -546,9 +16,7 @@
         errorLine1="                return (Size) getSurfaceSize.invoke(null, surface);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"
-            line="236"
-            column="31"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"/>
     </issue>
 
     <issue
@@ -557,9 +25,7 @@
         errorLine1="                return (int) detectSurfaceType.invoke(null, surface);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"
-            line="256"
-            column="30"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"/>
     </issue>
 
     <issue
@@ -568,9 +34,7 @@
         errorLine1="                return (int) getGenerationId.invoke(surface);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"
-            line="272"
-            column="30"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"/>
     </issue>
 
     <issue
@@ -579,9 +43,25 @@
         errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/AeFpsRange.java"
-            line="54"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/AeFpsRange.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/AeFpsRange.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    mAeTargetFpsRange);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/AeFpsRange.java"/>
     </issue>
 
     <issue
@@ -590,9 +70,25 @@
         errorLine1="        builder.setCaptureRequestOption(CaptureRequest.CONTROL_ZOOM_RATIO, mCurrentZoomRatio);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/AndroidRZoomImpl.java"
-            line="60"
-            column="17"/>
+            file="src/main/java/androidx/camera/camera2/internal/AndroidRZoomImpl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="        builder.setCaptureRequestOption(CaptureRequest.CONTROL_ZOOM_RATIO, mCurrentZoomRatio);"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/AndroidRZoomImpl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="        builder.setCaptureRequestOption(CaptureRequest.CONTROL_ZOOM_RATIO, mCurrentZoomRatio);"
+        errorLine2="                                                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/AndroidRZoomImpl.java"/>
     </issue>
 
     <issue
@@ -601,9 +97,25 @@
         errorLine1="            builder.setCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION,"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/CropRegionZoomImpl.java"
-            line="65"
-            column="21"/>
+            file="src/main/java/androidx/camera/camera2/internal/CropRegionZoomImpl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="            builder.setCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION,"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/CropRegionZoomImpl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    mCurrentCropRect);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/CropRegionZoomImpl.java"/>
     </issue>
 
     <issue
@@ -612,9 +124,25 @@
         errorLine1="        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/ExposureControl.java"
-            line="127"
-            column="23"/>
+            file="src/main/java/androidx/camera/camera2/internal/ExposureControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/ExposureControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                mExposureStateImpl.getExposureCompensationIndex());"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/ExposureControl.java"/>
     </issue>
 
     <issue
@@ -623,9 +151,25 @@
         errorLine1="        configBuilder.setCaptureRequestOption("
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="181"
-            column="23"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                CaptureRequest.CONTROL_AF_MODE, mCameraControl.getSupportedAfMode(afMode));"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                CaptureRequest.CONTROL_AF_MODE, mCameraControl.getSupportedAfMode(afMode));"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -634,9 +178,25 @@
         errorLine1="            configBuilder.setCaptureRequestOption("
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="185"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    CaptureRequest.CONTROL_AF_REGIONS, mAfRects);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    CaptureRequest.CONTROL_AF_REGIONS, mAfRects);"
+        errorLine2="                                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -645,9 +205,25 @@
         errorLine1="            configBuilder.setCaptureRequestOption("
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="189"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    CaptureRequest.CONTROL_AE_REGIONS, mAeRects);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    CaptureRequest.CONTROL_AE_REGIONS, mAeRects);"
+        errorLine2="                                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -656,9 +232,25 @@
         errorLine1="            configBuilder.setCaptureRequestOption("
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="193"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    CaptureRequest.CONTROL_AWB_REGIONS, mAwbRects);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    CaptureRequest.CONTROL_AWB_REGIONS, mAwbRects);"
+        errorLine2="                                                        ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -667,9 +259,7 @@
         errorLine1="        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="366"
-            column="51"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -678,9 +268,52 @@
         errorLine1="        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="367"
-            column="23"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                CaptureRequest.CONTROL_AF_TRIGGER_START);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    mCameraControl.getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -689,9 +322,7 @@
         errorLine1="        builder.addImplementationOptions(configBuilder.build());"
         errorLine2="                                                       ~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="369"
-            column="56"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -700,9 +331,7 @@
         errorLine1="        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="417"
-            column="51"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -711,9 +340,25 @@
         errorLine1="        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="418"
-            column="23"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -722,9 +367,7 @@
         errorLine1="        builder.addImplementationOptions(configBuilder.build());"
         errorLine2="                                                       ~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="420"
-            column="56"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -733,9 +376,7 @@
         errorLine1="        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="459"
-            column="51"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -744,9 +385,25 @@
         errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="461"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -755,9 +412,25 @@
         errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="465"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                    CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -766,9 +439,7 @@
         errorLine1="        builder.addImplementationOptions(configBuilder.build());"
         errorLine2="                                                       ~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="468"
-            column="56"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -777,9 +448,7 @@
         errorLine1="        Camera2ImplConfig.Builder camera2ConfigBuilder = new Camera2ImplConfig.Builder();"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpacker.java"
-            line="52"
-            column="58"/>
+            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpacker.java"/>
     </issue>
 
     <issue
@@ -788,9 +457,7 @@
         errorLine1="        builder.addImplementationOptions(camera2ConfigBuilder.build());"
         errorLine2="                                                              ~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpacker.java"
-            line="59"
-            column="63"/>
+            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpacker.java"/>
     </issue>
 
     <issue
@@ -799,9 +466,25 @@
         errorLine1="                builder.setCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, true);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"
-            line="53"
-            column="25"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                builder.setCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, true);"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                builder.setCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, true);"
+        errorLine2="                                                                                   ~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"/>
     </issue>
 
     <issue
@@ -810,9 +493,25 @@
         errorLine1="                builder.setCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, false);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"
-            line="57"
-            column="25"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                builder.setCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, false);"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                builder.setCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, false);"
+        errorLine2="                                                                                   ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"/>
     </issue>
 
     <issue
@@ -821,9 +520,7 @@
         errorLine1="        Camera2ImplConfig.Builder camera2ConfigBuilder = new Camera2ImplConfig.Builder();"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"
-            line="46"
-            column="58"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"/>
     </issue>
 
     <issue
@@ -832,9 +529,25 @@
         errorLine1="        camera2ConfigBuilder.setCaptureRequestOption(CaptureRequest.TONEMAP_MODE,"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"
-            line="47"
-            column="30"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="        camera2ConfigBuilder.setCaptureRequestOption(CaptureRequest.TONEMAP_MODE,"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.camera2.interop.ExperimentalCamera2Interop&apos; or &apos;@OptIn(markerClass = androidx.camera.camera2.interop.ExperimentalCamera2Interop.class)&apos;"
+        errorLine1="                CaptureRequest.TONEMAP_MODE_HIGH_QUALITY);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"/>
     </issue>
 
     <issue
@@ -843,86 +556,88 @@
         errorLine1="        sessionBuilder.addImplementationOptions(camera2ConfigBuilder.build());"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"
-            line="49"
-            column="70"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 24 from outer annotation (`@RequiresApi(24)`)"
+        errorLine1="    @RequiresApi(21)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatApi24Impl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 26 from outer annotation (`@RequiresApi(26)`)"
+        errorLine1="    @RequiresApi(21)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatApi26Impl.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static List&lt;OutputConfiguration> transformFromCompat("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="137"
-            column="19"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public List&lt;OutputConfigurationCompat> getOutputConfigurations() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="162"
-            column="12"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public CameraCaptureSession.StateCallback getStateCallback() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="171"
-            column="12"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Executor getExecutor() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="180"
-            column="12"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public InputConfigurationCompat getInputConfiguration() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="189"
-            column="12"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public CaptureRequest getSessionParameters() {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="211"
-            column="12"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setSessionParameters(CaptureRequest params) {"
         errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="233"
-            column="38"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
 </issues>

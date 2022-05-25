@@ -78,21 +78,24 @@ fun XType.implementsEqualsAndHashcode(): Boolean {
         return false
     }
 
+    if (typeElement.isDataClass()) {
+        return true
+    }
     val hasEquals = typeElement.getDeclaredMethods().any {
-        it.name == "equals" &&
+        it.jvmName == "equals" &&
             it.returnType.typeName == TypeName.BOOLEAN &&
             it.parameters.count() == 1 &&
             it.parameters[0].type.typeName == TypeName.OBJECT
     }
     val hasHashCode = typeElement.getDeclaredMethods().any {
-        it.name == "hashCode" &&
+        it.jvmName == "hashCode" &&
             it.returnType.typeName == TypeName.INT &&
             it.parameters.count() == 0
     }
 
     if (hasEquals && hasHashCode) return true
 
-    return typeElement.superType?.let { it.implementsEqualsAndHashcode() } ?: false
+    return typeElement.superClass?.implementsEqualsAndHashcode() ?: false
 }
 
 /**

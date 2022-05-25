@@ -1,0 +1,30 @@
+// Signature format: 4.0
+package androidx.wear.watchface {
+
+  public abstract class ListenableCanvasRenderer extends androidx.wear.watchface.Renderer.CanvasRenderer {
+    ctor public ListenableCanvasRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @androidx.wear.watchface.CanvasType int canvasType, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis);
+    method public suspend Object? init(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method @UiThread public com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> initFuture();
+  }
+
+  public abstract class ListenableGlesRenderer extends androidx.wear.watchface.Renderer.GlesRenderer {
+    ctor public ListenableGlesRenderer(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, androidx.wear.watchface.WatchState watchState, @IntRange(from=0, to=60000) long interactiveDrawModeUpdateDelayMillis, optional int[] eglConfigAttribList, optional int[] eglSurfaceAttribList);
+    method public suspend Object? onBackgroundThreadGlContextCreated(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method protected com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> onBackgroundThreadGlContextCreatedFuture();
+    method public suspend Object? onUiThreadGlSurfaceCreated(@Px int width, @Px int height, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
+    method @UiThread protected com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> onUiThreadGlSurfaceCreatedFuture(@Px int width, @Px int height);
+    method @WorkerThread public final void runBackgroundThreadGlCommands(Runnable runnable);
+    method @UiThread public final void runUiThreadGlCommands(Runnable runnable);
+  }
+
+  public final class ListenableGlesRendererKt {
+  }
+
+  public abstract class ListenableWatchFaceService extends androidx.wear.watchface.WatchFaceService {
+    ctor public ListenableWatchFaceService();
+    method protected suspend Object? createWatchFace(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository, kotlin.coroutines.Continuation<? super androidx.wear.watchface.WatchFace> p);
+    method protected abstract com.google.common.util.concurrent.ListenableFuture<androidx.wear.watchface.WatchFace> createWatchFaceFuture(android.view.SurfaceHolder surfaceHolder, androidx.wear.watchface.WatchState watchState, androidx.wear.watchface.ComplicationSlotsManager complicationSlotsManager, androidx.wear.watchface.style.CurrentUserStyleRepository currentUserStyleRepository);
+  }
+
+}
+

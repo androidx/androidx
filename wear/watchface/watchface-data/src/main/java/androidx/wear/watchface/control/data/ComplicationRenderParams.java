@@ -124,6 +124,7 @@ public class ComplicationRenderParams implements VersionedParcelable, Parcelable
 
     public static final Parcelable.Creator<ComplicationRenderParams> CREATOR =
             new Parcelable.Creator<ComplicationRenderParams>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public ComplicationRenderParams createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

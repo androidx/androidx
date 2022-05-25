@@ -264,7 +264,7 @@ public class AutoClosingRoomOpenHelperTest {
             AutoCloser(0, TimeUnit.MILLISECONDS, autoCloseExecutor)
         )
 
-        assertThat(autoClosing.getDelegate()).isSameInstanceAs(delegateOpenHelper)
+        assertThat(autoClosing.delegate).isSameInstanceAs(delegateOpenHelper)
     }
 
     // Older API versions didn't have Cursor implement Closeable

@@ -48,7 +48,7 @@ public class StaggeredGridDefaultTest extends GridTest {
         mStaggeredGrid.appendVisibleItems(100000);
         assertEquals(dump(mStaggeredGrid) + " Should fill 9 items",
                 9, mStaggeredGrid.mLocations.size());
-        int row_result1 = mStaggeredGrid.getLocation(8).row;
+        int row_result1 = mStaggeredGrid.getLocation(8).mRow;
         assertEquals(dump(mStaggeredGrid) + " last item should be placed on row 1",
                 1, row_result1);
 
@@ -60,7 +60,7 @@ public class StaggeredGridDefaultTest extends GridTest {
         mStaggeredGrid.appendVisibleItems(100000);
         assertEquals(dump(mStaggeredGrid) + " should fill 9 items",
                 9, mStaggeredGrid.mLocations.size());
-        int row_result2 = mStaggeredGrid.getLocation(8).row;
+        int row_result2 = mStaggeredGrid.getLocation(8).mRow;
 
         assertEquals(dump(mStaggeredGrid) + " last item should be placed on row 1",
                 1, row_result2);

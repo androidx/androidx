@@ -201,7 +201,6 @@ public final class ViewPort {
     /**
      * Builder for {@link ViewPort}.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder {
 
         private static final int DEFAULT_LAYOUT_DIRECTION = android.util.LayoutDirection.LTR;

@@ -44,12 +44,12 @@ interface InputModeManager {
 /**
  * This value is used to represent the InputMode that the system is currently in.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-inline class InputMode internal constructor (@Suppress("unused") private val value: Int) {
+@kotlin.jvm.JvmInline
+value class InputMode internal constructor(@Suppress("unused") private val value: Int) {
     override fun toString() = when (this) {
-        Touch -> "touch mode"
-        Keyboard -> "Keyboard mode"
-        else -> "invalid mode"
+        Touch -> "Touch"
+        Keyboard -> "Keyboard"
+        else -> "Error"
     }
 
     companion object {

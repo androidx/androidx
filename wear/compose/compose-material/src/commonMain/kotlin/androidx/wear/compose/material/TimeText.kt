@@ -26,13 +26,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ArcPaddingValues
-import androidx.wear.compose.foundation.BasicCurvedText
-import androidx.wear.compose.foundation.CurvedRow
-import androidx.wear.compose.foundation.CurvedRowScope
+import androidx.wear.compose.foundation.CurvedDirection
+import androidx.wear.compose.foundation.CurvedLayout
+import androidx.wear.compose.foundation.CurvedModifier
+import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.curvedRow
+import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.material.TimeTextDefaults.CurvedTextSeparator
 import androidx.wear.compose.material.TimeTextDefaults.TextSeparator
 import androidx.wear.compose.material.TimeTextDefaults.timeFormat
@@ -42,61 +46,75 @@ import androidx.wear.compose.material.TimeTextDefaults.timeFormat
  * If device has a round screen, then the time will be curved along the top edge of the screen,
  * if rectangular - then the text and the time will be straight
  *
- * This composable supports leading and trailing content - additional composable views to the left
- * and to the right of the clock.
- * [leadingCurvedContent], [trailingCurvedContent] and [textCurvedSeparator] are used
+ * This composable supports additional composable views to the left and to the right
+ * of the clock: Start Content and End Content.
+ * [startCurvedContent], [endCurvedContent] and [textCurvedSeparator] are used
  * for Round screens.
- * [leadingLinearContent], [trailingLinearContent] and [textLinearSeparator] are used
+ * [startLinearContent], [endLinearContent] and [textLinearSeparator] are used
  * for Square screens.
  * For proper support of Square and Round screens both Linear and Curved methods should
  * be implemented.
  *
- * The full customization for square and round devices can be checked here:
- * @sample androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
+ * Note that Wear Material UX guidance recommends that time text should not be larger than 90
+ * degrees of the screen edge on round devices and prefers short status messages be shown in start
+ * content only using the MaterialTheme.colors.primary color for the status message.
+ *
+ * For more information, see the
+ * [Curved Text](https://developer.android.com/training/wearables/components/curved-text)
+ * guide.
+ *
+ * A [TimeText] with a short app status message shown in the start content:
+ * @sample androidx.wear.compose.material.samples.TimeTextWithStatus
+ *
+ * An example of a [TimeText] with a different date and time format:
+ * @sample androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
+ *
+ * An example of a [TimeText] animating a message that is added or removed
+ * @sample androidx.wear.compose.material.samples.TimeTextAnimation
  *
  * @param modifier Current modifier.
- * @param timeSource [TimeSource] which retrieves the current time.
+ * @param timeSource [TimeSource] which retrieves the current time and formats it.
  * @param timeTextStyle Optional textStyle for the time text itself
  * @param contentPadding The spacing values between the container and the content
- * @param leadingLinearContent a slot before the time which is used only on Square screens
- * @param leadingCurvedContent a slot before the time which is used only on Round screens
- * @param trailingLinearContent a slot after the time which is used only on Square screens
- * @param trailingCurvedContent a slot after the time which is used only on Round screens
+ * @param startLinearContent a slot before the time which is used only on Square screens
+ * @param startCurvedContent a slot before the time which is used only on Round screens
+ * @param endLinearContent a slot after the time which is used only on Square screens
+ * @param endCurvedContent a slot after the time which is used only on Round screens
  * @param textLinearSeparator a separator slot which is used only on Square screens
  * @param textCurvedSeparator a separator slot which is used only on Round screens
  */
-@ExperimentalWearMaterialApi
 @Composable
-fun TimeText(
+public fun TimeText(
     modifier: Modifier = Modifier,
     timeSource: TimeSource = TimeTextDefaults.timeSource(timeFormat()),
     timeTextStyle: TextStyle = TimeTextDefaults.timeTextStyle(),
     contentPadding: PaddingValues = TimeTextDefaults.ContentPadding,
-    leadingLinearContent: (@Composable () -> Unit)? = null,
-    leadingCurvedContent: (@Composable CurvedRowScope.() -> Unit)? = null,
-    trailingLinearContent: (@Composable () -> Unit)? = null,
-    trailingCurvedContent: (@Composable CurvedRowScope.() -> Unit)? = null,
+    startLinearContent: (@Composable () -> Unit)? = null,
+    startCurvedContent: (CurvedScope.() -> Unit)? = null,
+    endLinearContent: (@Composable () -> Unit)? = null,
+    endCurvedContent: (CurvedScope.() -> Unit)? = null,
     textLinearSeparator: @Composable () -> Unit = { TextSeparator(textStyle = timeTextStyle) },
-    textCurvedSeparator: @Composable CurvedRowScope.() -> Unit = {
+    textCurvedSeparator: CurvedScope.() -> Unit = {
         CurvedTextSeparator(curvedTextStyle = CurvedTextStyle(timeTextStyle))
     },
 ) {
-
     val timeText = timeSource.currentTime
 
     if (isRoundDevice()) {
-        CurvedRow(modifier.padding(contentPadding)) {
-            leadingCurvedContent?.let {
-                it.invoke(this)
-                textCurvedSeparator()
-            }
-            BasicCurvedText(
-                text = timeText,
-                style = CurvedTextStyle(timeTextStyle)
-            )
-            trailingCurvedContent?.let {
-                textCurvedSeparator()
-                it.invoke(this)
+        CurvedLayout(modifier = modifier) {
+            curvedRow(modifier = CurvedModifier.padding(contentPadding.toArcPadding())) {
+                startCurvedContent?.let {
+                    it.invoke(this)
+                    textCurvedSeparator()
+                }
+                curvedText(
+                    text = timeText,
+                    style = CurvedTextStyle(timeTextStyle)
+                )
+                endCurvedContent?.let {
+                    textCurvedSeparator()
+                    it.invoke(this)
+                }
             }
         }
     } else {
@@ -107,15 +125,16 @@ fun TimeText(
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.Center
         ) {
-            leadingLinearContent?.let {
+            startLinearContent?.let {
                 it.invoke()
                 textLinearSeparator()
             }
             Text(
                 text = timeText,
+                maxLines = 1,
                 style = timeTextStyle,
             )
-            trailingLinearContent?.let {
+            endLinearContent?.let {
                 textLinearSeparator()
                 it.invoke()
             }
@@ -126,20 +145,19 @@ fun TimeText(
 /**
  * Contains the default values used by [TimeText]
  */
-@ExperimentalWearMaterialApi
 public object TimeTextDefaults {
 
-    private val Padding = 4.dp
+    private val Padding = 2.dp
 
     /**
      * Default format for 24h clock.
      */
-    const val Skeleton24Hr = "Hm"
+    const val TimeFormat24Hours = "HH:mm"
 
     /**
      * Default format for 12h clock.
      */
-    const val Skeleton12Hr = "hm"
+    const val TimeFormat12Hours = "h:mm a"
 
     /**
      * The default content padding used by [TimeText]
@@ -151,48 +169,26 @@ public object TimeTextDefaults {
      * 12h or 24h format
      */
     @Composable
-    public fun timeFormat(): String = if (is24HourFormat()) Skeleton24Hr else Skeleton12Hr
+    public fun timeFormat(): String = if (is24HourFormat()) TimeFormat24Hours else TimeFormat12Hours
 
     /**
      * Creates a [TextStyle] with default parameters used for showing time
-     * on square screens
+     * on square screens. By default a copy of MaterialTheme.typography.caption1 style is created
      *
-     * @param color The main color
      * @param background The background color
+     * @param color The main color
      * @param fontSize The font size
      */
     @Composable
     public fun timeTextStyle(
-        color: Color = Color.White,
-        background: Color = Color.Transparent,
-        fontSize: TextUnit = MaterialTheme.typography.button.fontSize,
-    ) = TextStyle(
-        color = color,
-        background = background,
-        fontSize = fontSize
-    )
+        background: Color = Color.Unspecified,
+        color: Color = Color.Unspecified,
+        fontSize: TextUnit = TextUnit.Unspecified,
+    ) = MaterialTheme.typography.caption1 +
+        TextStyle(color = color, background = background, fontSize = fontSize)
 
     /**
-     * Creates a [CurvedTextStyle] with default parameters used for showing time
-     * on round screens
-     *
-     * @param color The main color
-     * @param background The background color
-     * @param fontSize The font size
-     */
-    @Composable
-    public fun timeCurvedTextStyle(
-        color: Color = Color.White,
-        background: Color = Color.Transparent,
-        fontSize: TextUnit = MaterialTheme.typography.button.fontSize,
-    ) = CurvedTextStyle(
-        color = color,
-        background = background,
-        fontSize = fontSize
-    )
-
-    /**
-     * A default implementation of Separator shown between trailing/leading content and the time
+     * A default implementation of Separator shown between start/end content and the time
      * on square screens
      * @param modifier A default modifier for the separator
      * @param textStyle A [TextStyle] for the separator
@@ -212,40 +208,46 @@ public object TimeTextDefaults {
     }
 
     /**
-     * A default implementation of Separator shown between trailing/leading content and the time
+     * A default implementation of Separator shown between start/end content and the time
      * on round screens
-     * @param modifier Current modifier.
      * @param curvedTextStyle A [CurvedTextStyle] for the separator
      * @param contentArcPadding A [ArcPaddingValues] for the separator text
      */
-    @Composable
-    public fun CurvedRowScope.CurvedTextSeparator(
-        modifier: Modifier = Modifier,
-        curvedTextStyle: CurvedTextStyle = timeCurvedTextStyle(),
+    public fun CurvedScope.CurvedTextSeparator(
+        curvedTextStyle: CurvedTextStyle? = null,
         contentArcPadding: ArcPaddingValues = ArcPaddingValues(angular = 4.dp)
     ) {
-        BasicCurvedText(
-            modifier = modifier,
+        curvedText(
             text = "·",
-            contentArcPadding = contentArcPadding,
-            style = curvedTextStyle
+            style = curvedTextStyle,
+            modifier = CurvedModifier.padding(contentArcPadding)
         )
     }
 
     /**
      * A default implementation of [TimeSource].
-     * @param timeFormat Param for formatting time
+     * Once the system time changes, it triggers an update of the [TimeSource.currentTime]
+     * which is formatted before that using [timeFormat] param.
+     *
+     * Android implementation:
+     * [DefaultTimeSource] for Android uses [android.text.format.DateFormat]
+     * [timeFormat] should follow the standard
+     * [Date and Time patterns](https://developer.android.com/reference/java/text/SimpleDateFormat#date-and-time-patterns)
+     * Examples:
+     * "h:mm a" - 12:08 PM
+     * "yyyy.MM.dd HH:mm:ss" - 2021.11.01 14:08:56
+     * More examples can be found [here](https://developer.android.com/reference/java/text/SimpleDateFormat#examples)
+     *
+     * Desktop implementation: TBD
+     *
+     * @param timeFormat Date and time string pattern
      */
-    fun timeSource(timeFormat: String): TimeSource = DefaultTimeSource(timeFormat)
+    public fun timeSource(timeFormat: String): TimeSource = DefaultTimeSource(timeFormat)
 }
 
-@ExperimentalWearMaterialApi
-internal expect class DefaultTimeSource(timeFormat: String) : TimeSource
-
 /**
- *  An interface which is responsible for retrieving time and formatting it.
+ *  An interface which is responsible for retrieving a formatted time.
  */
-@ExperimentalWearMaterialApi
 public interface TimeSource {
 
     /**
@@ -255,3 +257,26 @@ public interface TimeSource {
     val currentTime: String
         @Composable get
 }
+
+/**
+ * An extension function, which converts PaddingValues into ArcPaddingValues
+ */
+private fun PaddingValues.toArcPadding() = object : ArcPaddingValues {
+    override fun calculateOuterPadding(radialDirection: CurvedDirection.Radial) =
+        calculateTopPadding()
+
+    override fun calculateInnerPadding(radialDirection: CurvedDirection.Radial) =
+        calculateBottomPadding()
+
+    override fun calculateAfterPadding(
+        layoutDirection: LayoutDirection,
+        angularDirection: CurvedDirection.Angular
+    ) = calculateRightPadding(layoutDirection)
+
+    override fun calculateBeforePadding(
+        layoutDirection: LayoutDirection,
+        angularDirection: CurvedDirection.Angular
+    ) = calculateLeftPadding(layoutDirection)
+}
+
+internal expect class DefaultTimeSource(timeFormat: String) : TimeSource

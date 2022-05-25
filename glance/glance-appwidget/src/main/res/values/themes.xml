@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault">
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
+    <style name="Glance.AppWidget.Theme.ListChildren" parent="">
+        <!--
+            AbsListView sets the drawable state of its child views when an item is pressed. This
+            has the effect of activating ripples for child views even when the child has no click
+            handler set. In order to prevent this, we must explicitly set focusable in order to
+            avoid having the drawable state set. See AbsListView.keyPressed() and
+            AbsListView.onTouchUp().
+        -->
+        <item name="android:focusable">true</item>
+    </style>
+</resources>

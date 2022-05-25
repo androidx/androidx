@@ -147,6 +147,7 @@ public class AutoCloserTest {
         assertThat(autoCloser.delegateDatabase).isNull()
     }
 
+    @FlakyTest(bugId = 189775887)
     @Test
     public fun getDelegatedDatabaseReturnsUnwrappedDatabase() {
         assertThat(autoCloser.delegateDatabase).isNull()

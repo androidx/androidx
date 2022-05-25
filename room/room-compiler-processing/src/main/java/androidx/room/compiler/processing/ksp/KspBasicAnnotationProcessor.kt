@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.CommonProcessorDelegate
 import androidx.room.compiler.processing.XBasicAnnotationProcessor
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingEnvConfig
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -30,16 +31,17 @@ import com.google.devtools.ksp.symbol.KSNode
  * KSP implementation of a [XBasicAnnotationProcessor] with built-in support for validating and
  * deferring symbols.
  */
-abstract class KspBasicAnnotationProcessor(
-    val symbolProcessorEnvironment: SymbolProcessorEnvironment
+abstract class KspBasicAnnotationProcessor @JvmOverloads constructor(
+    symbolProcessorEnvironment: SymbolProcessorEnvironment,
+    config: XProcessingEnvConfig = XProcessingEnvConfig.DEFAULT,
 ) : SymbolProcessor, XBasicAnnotationProcessor {
-
     private val logger = DelegateLogger(symbolProcessorEnvironment.logger)
 
     private val xEnv = KspProcessingEnv(
-        symbolProcessorEnvironment.options,
-        symbolProcessorEnvironment.codeGenerator,
-        logger
+        options = symbolProcessorEnvironment.options,
+        codeGenerator = symbolProcessorEnvironment.codeGenerator,
+        logger = logger,
+        config = config
     )
 
     // Cache and lazily get steps during the initial process() so steps initialization is done once.
@@ -47,10 +49,16 @@ abstract class KspBasicAnnotationProcessor(
 
     private val commonDelegate by lazy { CommonProcessorDelegate(this.javaClass, xEnv, steps) }
 
+    private var initialized = false
+
     final override val xProcessingEnv: XProcessingEnv get() = xEnv
 
     final override fun process(resolver: Resolver): List<KSAnnotated> {
         xEnv.resolver = resolver // Set the resolver at the beginning of each round
+        if (!initialized) {
+            initialize(xEnv)
+            initialized = true
+        }
         val xRoundEnv = KspRoundEnv(xEnv, false)
         commonDelegate.processRound(xRoundEnv)
         postRound(xEnv, xRoundEnv)
@@ -67,7 +75,7 @@ abstract class KspBasicAnnotationProcessor(
         val xRoundEnv = KspRoundEnv(xEnv, true)
         val missingElements = commonDelegate.processLastRound()
         postRound(xEnv, xRoundEnv)
-        if (!logger.hasError) {
+        if (!xProcessingEnv.config.disableAnnotatedElementValidation && !logger.hasError) {
             // Report missing elements if no error was raised to avoid being noisy.
             commonDelegate.reportMissingElements(missingElements)
         }

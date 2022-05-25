@@ -1,13 +1,6 @@
 // Signature format: 4.0
 package androidx.camera.video {
 
-  @RequiresApi(21) public final class ActiveRecording implements java.lang.AutoCloseable {
-    method public void close();
-    method public void pause();
-    method public void resume();
-    method public void stop();
-  }
-
   @RequiresApi(21) @com.google.auto.value.AutoValue public abstract class AudioStats {
     method public abstract int getAudioState();
     method public abstract Throwable? getErrorCause();
@@ -17,6 +10,13 @@ package androidx.camera.video {
     field public static final int AUDIO_STATE_DISABLED = 1; // 0x1
     field public static final int AUDIO_STATE_ENCODER_ERROR = 3; // 0x3
     field public static final int AUDIO_STATE_SOURCE_SILENCED = 2; // 0x2
+  }
+
+  @RequiresApi(21) public class FallbackStrategy {
+    method public static androidx.camera.video.FallbackStrategy higherQualityOrLowerThan(androidx.camera.video.Quality);
+    method public static androidx.camera.video.FallbackStrategy higherQualityThan(androidx.camera.video.Quality);
+    method public static androidx.camera.video.FallbackStrategy lowerQualityOrHigherThan(androidx.camera.video.Quality);
+    method public static androidx.camera.video.FallbackStrategy lowerQualityThan(androidx.camera.video.Quality);
   }
 
   @RequiresApi(21) public final class FileDescriptorOutputOptions extends androidx.camera.video.OutputOptions {
@@ -42,14 +42,14 @@ package androidx.camera.video {
   }
 
   @RequiresApi(21) public final class MediaStoreOutputOptions extends androidx.camera.video.OutputOptions {
-    method public android.net.Uri getCollection();
+    method public android.net.Uri getCollectionUri();
     method public android.content.ContentResolver getContentResolver();
     method public android.content.ContentValues getContentValues();
     method public long getFileSizeLimit();
     field public static final android.content.ContentValues EMPTY_CONTENT_VALUES;
   }
 
-  @RequiresApi(21) public static final class MediaStoreOutputOptions.Builder {
+  public static final class MediaStoreOutputOptions.Builder {
     ctor public MediaStoreOutputOptions.Builder(android.content.ContentResolver, android.net.Uri);
     method public androidx.camera.video.MediaStoreOutputOptions build();
     method public androidx.camera.video.MediaStoreOutputOptions.Builder setContentValues(android.content.ContentValues);
@@ -67,34 +67,27 @@ package androidx.camera.video {
   }
 
   @RequiresApi(21) public final class PendingRecording {
-    method @CheckResult public androidx.camera.video.ActiveRecording start();
+    method @CheckResult public androidx.camera.video.Recording start(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent!>);
     method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public androidx.camera.video.PendingRecording withAudioEnabled();
-    method public androidx.camera.video.PendingRecording withEventListener(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent!>);
   }
 
-  @RequiresApi(21) public class QualitySelector {
-    method public static androidx.camera.video.QualitySelector.Procedure firstTry(int);
-    method public static android.util.Size? getResolution(androidx.camera.core.CameraInfo, int);
-    method public static java.util.List<java.lang.Integer!> getSupportedQualities(androidx.camera.core.CameraInfo);
-    method public static boolean isQualitySupported(androidx.camera.core.CameraInfo, int);
-    method public static androidx.camera.video.QualitySelector of(int);
-    method public static androidx.camera.video.QualitySelector of(int, int);
-    field public static final int FALLBACK_STRATEGY_HIGHER = 1; // 0x1
-    field public static final int FALLBACK_STRATEGY_LOWER = 3; // 0x3
-    field public static final int FALLBACK_STRATEGY_STRICTLY_HIGHER = 2; // 0x2
-    field public static final int FALLBACK_STRATEGY_STRICTLY_LOWER = 4; // 0x4
-    field public static final int QUALITY_FHD = 6; // 0x6
-    field public static final int QUALITY_HD = 5; // 0x5
-    field public static final int QUALITY_HIGHEST = 1; // 0x1
-    field public static final int QUALITY_LOWEST = 0; // 0x0
-    field public static final int QUALITY_SD = 4; // 0x4
-    field public static final int QUALITY_UHD = 8; // 0x8
+  @RequiresApi(21) public class Quality {
+    field public static final androidx.camera.video.Quality FHD;
+    field public static final androidx.camera.video.Quality HD;
+    field public static final androidx.camera.video.Quality HIGHEST;
+    field public static final androidx.camera.video.Quality LOWEST;
+    field public static final androidx.camera.video.Quality SD;
+    field public static final androidx.camera.video.Quality UHD;
   }
 
-  @RequiresApi(21) public static class QualitySelector.Procedure {
-    method public androidx.camera.video.QualitySelector finallyTry(int);
-    method public androidx.camera.video.QualitySelector finallyTry(int, int);
-    method public androidx.camera.video.QualitySelector.Procedure thenTry(int);
+  @RequiresApi(21) public final class QualitySelector {
+    method public static androidx.camera.video.QualitySelector from(androidx.camera.video.Quality);
+    method public static androidx.camera.video.QualitySelector from(androidx.camera.video.Quality, androidx.camera.video.FallbackStrategy);
+    method public static androidx.camera.video.QualitySelector fromOrderedList(java.util.List<androidx.camera.video.Quality!>);
+    method public static androidx.camera.video.QualitySelector fromOrderedList(java.util.List<androidx.camera.video.Quality!>, androidx.camera.video.FallbackStrategy);
+    method public static android.util.Size? getResolution(androidx.camera.core.CameraInfo, androidx.camera.video.Quality);
+    method public static java.util.List<androidx.camera.video.Quality!> getSupportedQualities(androidx.camera.core.CameraInfo);
+    method public static boolean isQualitySupported(androidx.camera.core.CameraInfo, androidx.camera.video.Quality);
   }
 
   @RequiresApi(21) public final class Recorder implements androidx.camera.video.VideoOutput {
@@ -112,6 +105,13 @@ package androidx.camera.video {
     method public androidx.camera.video.Recorder build();
     method public androidx.camera.video.Recorder.Builder setExecutor(java.util.concurrent.Executor);
     method public androidx.camera.video.Recorder.Builder setQualitySelector(androidx.camera.video.QualitySelector);
+  }
+
+  @RequiresApi(21) public final class Recording implements java.lang.AutoCloseable {
+    method public void close();
+    method public void pause();
+    method public void resume();
+    method public void stop();
   }
 
   @RequiresApi(21) @com.google.auto.value.AutoValue public abstract class RecordingStats {

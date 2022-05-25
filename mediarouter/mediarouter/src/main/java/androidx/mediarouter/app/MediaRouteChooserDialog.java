@@ -190,7 +190,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
 
         mRoutes = new ArrayList<>();
         mAdapter = new RouteAdapter(getContext(), mRoutes);
-        mListView = (ListView)findViewById(R.id.mr_chooser_list);
+        mListView = findViewById(R.id.mr_chooser_list);
         mListView.setAdapter(mAdapter);
         mListView.setOnItemClickListener(mAdapter);
         mListView.setEmptyView(findViewById(android.R.id.empty));
@@ -296,8 +296,8 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
             }
 
             MediaRouter.RouteInfo route = getItem(position);
-            TextView text1 = (TextView) view.findViewById(R.id.mr_chooser_route_name);
-            TextView text2 = (TextView) view.findViewById(R.id.mr_chooser_route_desc);
+            TextView text1 = view.findViewById(R.id.mr_chooser_route_name);
+            TextView text2 = view.findViewById(R.id.mr_chooser_route_desc);
             text1.setText(route.getName());
             String description = route.getDescription();
             boolean isConnectedOrConnecting =
@@ -314,7 +314,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
             }
             view.setEnabled(route.isEnabled());
 
-            ImageView iconView = (ImageView) view.findViewById(R.id.mr_chooser_route_icon);
+            ImageView iconView = view.findViewById(R.id.mr_chooser_route_icon);
             if (iconView != null) {
                 iconView.setImageDrawable(getIconDrawable(route));
             }
@@ -376,22 +376,25 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
         }
 
         @Override
-        public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteAdded(@NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo info) {
             refreshRoutes();
         }
 
         @Override
-        public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteRemoved(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoutes();
         }
 
         @Override
-        public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteChanged(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoutes();
         }
 
         @Override
-        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo route) {
+        public void onRouteSelected(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo route) {
             dismiss();
         }
     }

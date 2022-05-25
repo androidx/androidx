@@ -87,7 +87,8 @@ public class InlineSuggestionUiTest {
         mContext = mInstrumentation.getContext();
         mLinearLayout = mActivityTestRule.getActivity().findViewById(
                 androidx.autofill.test.R.id.linear_layout);
-        mAttributionIntent = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+        mAttributionIntent = PendingIntent.getActivity(
+                mContext, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE);
     }
 
     /** Below are tests for the end to end style/content building and rendering */

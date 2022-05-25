@@ -32,8 +32,8 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.TokenLockImpl
 import androidx.camera.camera2.pipe.core.acquire
 import androidx.camera.camera2.pipe.core.acquireOrNull
-import kotlinx.atomicfu.atomic
 import javax.inject.Inject
+import kotlinx.atomicfu.atomic
 
 internal val cameraGraphIds = atomic(0)
 
@@ -52,7 +52,7 @@ internal class CameraGraphImpl @Inject constructor(
     // Only one session can be active at a time.
     private val sessionLock = TokenLockImpl(1)
 
-    private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
+    private val controller3A = Controller3A(graphProcessor, metadata, graphState3A, listener3A)
 
     init {
         // Log out the configuration of the camera graph when it is created.
@@ -96,6 +96,9 @@ internal class CameraGraphImpl @Inject constructor(
 
     override fun setSurface(stream: StreamId, surface: Surface?) {
         Debug.traceStart { "$stream#setSurface" }
+        check(surface == null || surface.isValid) {
+            "Failed to set $surface to $stream: The surface was not valid."
+        }
         streamGraph[stream] = surface
         Debug.traceStop()
     }

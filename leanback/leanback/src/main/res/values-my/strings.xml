@@ -47,7 +47,7 @@ limitations under the License.
     <string name="lb_playback_controls_high_quality_disable" msgid="1209119371486219736">"\'အရည်အသွေးမြင့်\' ပိတ်ထားရန်"</string>
     <string name="lb_playback_controls_closed_captioning_enable" msgid="2346334170216706076">"စာတမ်းများ ဖွင့်ရန်"</string>
     <string name="lb_playback_controls_closed_captioning_disable" msgid="8691966842977635128">"စာတမ်းများ ပိတ်ရန်"</string>
-    <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"\'တစ်ခုပေါ်တစ်ခုထပ်၍ ဖွင့်ခြင်းမုဒ်\' ကို ထည့်ရန်"</string>
+    <string name="lb_playback_controls_picture_in_picture" msgid="5770668162543767702">"\'နှစ်ခုထပ်၍ကြည့်ခြင်းမုဒ်\' ကို ထည့်ရန်"</string>
     <string name="lb_playback_time_separator" msgid="1471121602610716654">"/"</string>
     <string name="lb_playback_controls_shown" msgid="8690223891515602822">"မီဒီယာ ခလုတ်များကို ပြထားပါသည်"</string>
     <string name="lb_playback_controls_hidden" msgid="5859666950961624736">"မီဒီယာခလုတ်များကို ဖျောက်ထားပါသည်။ ပြရန် d ခလုတ်ခုံကို နှိပ်ပါ"</string>

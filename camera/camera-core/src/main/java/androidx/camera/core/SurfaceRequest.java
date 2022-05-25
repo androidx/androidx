@@ -27,6 +27,7 @@ import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -63,6 +64,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SurfaceRequest {
+    private final Object mLock = new Object();
 
     private final Size mResolution;
     private final boolean mRGBA8888Required;
@@ -84,11 +86,14 @@ public final class SurfaceRequest {
 
     private final DeferrableSurface mInternalDeferrableSurface;
 
+    @GuardedBy("mLock")
     @Nullable
     private TransformationInfo mTransformationInfo;
+    @GuardedBy("mLock")
     @Nullable
     private TransformationInfoListener mTransformationInfoListener;
     // Executor for calling TransformationUpdateListener.
+    @GuardedBy("mLock")
     @Nullable
     private Executor mTransformationInfoExecutor;
 
@@ -415,13 +420,15 @@ public final class SurfaceRequest {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void updateTransformationInfo(@NonNull TransformationInfo transformationInfo) {
-        mTransformationInfo = transformationInfo;
-        TransformationInfoListener listener = mTransformationInfoListener;
-        if (listener != null) {
-            mTransformationInfoExecutor.execute(
-                    () -> listener.onTransformationInfoUpdate(
-                            transformationInfo));
-
+        TransformationInfoListener listener;
+        Executor executor;
+        synchronized (mLock) {
+            mTransformationInfo = transformationInfo;
+            listener = mTransformationInfoListener;
+            executor = mTransformationInfoExecutor;
+        }
+        if (listener != null && executor != null) {
+            executor.execute(() -> listener.onTransformationInfoUpdate(transformationInfo));
         }
     }
 
@@ -439,12 +446,14 @@ public final class SurfaceRequest {
      */
     public void setTransformationInfoListener(@NonNull Executor executor,
             @NonNull TransformationInfoListener listener) {
-        mTransformationInfoListener = listener;
-        mTransformationInfoExecutor = executor;
-        TransformationInfo transformationInfo = mTransformationInfo;
+        TransformationInfo transformationInfo;
+        synchronized (mLock) {
+            mTransformationInfoListener = listener;
+            mTransformationInfoExecutor = executor;
+            transformationInfo = mTransformationInfo;
+        }
         if (transformationInfo != null) {
-            executor.execute(() -> listener.onTransformationInfoUpdate(
-                    transformationInfo));
+            executor.execute(() -> listener.onTransformationInfoUpdate(transformationInfo));
         }
     }
 
@@ -452,8 +461,10 @@ public final class SurfaceRequest {
      * Clears the {@link TransformationInfoListener} set via {@link #setTransformationInfoListener}.
      */
     public void clearTransformationInfoListener() {
-        mTransformationInfoListener = null;
-        mTransformationInfoExecutor = null;
+        synchronized (mLock) {
+            mTransformationInfoListener = null;
+            mTransformationInfoExecutor = null;
+        }
     }
 
     /**
@@ -476,7 +487,6 @@ public final class SurfaceRequest {
      * Listener that receives updates of the {@link TransformationInfo} associated with the
      * {@link SurfaceRequest}.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface TransformationInfoListener {
 
         /**
@@ -501,7 +511,6 @@ public final class SurfaceRequest {
      * Result of providing a surface to a {@link SurfaceRequest} via
      * {@link #provideSurface(Surface, Executor, Consumer)}.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @AutoValue
     public abstract static class Result {
 
@@ -655,7 +664,6 @@ public final class SurfaceRequest {
      * @see CameraCharacteristics#SENSOR_ORIENTATION
      * @see ViewPort
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     @AutoValue
     public abstract static class TransformationInfo {
 
@@ -710,16 +718,21 @@ public final class SurfaceRequest {
          * {@link #getRotationDegrees()} is a function of 1)
          * {@link CameraCharacteristics#SENSOR_ORIENTATION}, 2) camera lens facing direction and 3)
          * target rotation. {@link TextureView} handles 1) & 2) automatically,
-         * while still needs the target rotation to correct the display.
+         * while still needs the target rotation to correct the display.This is used when apps
+         * need to rotate the preview to non-display orientation.
          *
          * <p>The API is internal for PreviewView to use. For external users, the value
          * is usually {@link Display#getRotation()} in practice. If that's not the case, they can
          * always obtain the value from {@link Preview#getTargetRotation()}.
          *
+         * <p>Please note that if the value is {@link ImageOutputConfig#ROTATION_NOT_SPECIFIED}
+         * which means targetRotation is not specified for Preview, the user should always get
+         * up-to-date display rotation and re-calculate the rotationDegrees to correct the display.
+         *
          * @hide
          * @see CameraCharacteristics#SENSOR_ORIENTATION
          */
-        @ImageOutputConfig.RotationValue
+        @ImageOutputConfig.OptionalRotationValue
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public abstract int getTargetRotation();
 
@@ -734,7 +747,7 @@ public final class SurfaceRequest {
         @NonNull
         public static TransformationInfo of(@NonNull Rect cropRect,
                 @ImageOutputConfig.RotationDegreesValue int rotationDegrees,
-                @ImageOutputConfig.RotationValue int targetRotation) {
+                @ImageOutputConfig.OptionalRotationValue int targetRotation) {
             return new AutoValue_SurfaceRequest_TransformationInfo(cropRect, rotationDegrees,
                     targetRotation);
         }

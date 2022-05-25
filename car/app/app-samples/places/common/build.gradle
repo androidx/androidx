@@ -23,12 +23,17 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    namespace "androidx.car.app.sample.places.common"
 }
 
 dependencies {
     implementation(project(":car:app:app"))
 
     implementation(libs.guavaAndroid)
+    implementation project(path: ':annotation:annotation-experimental')
+    // There is an implicit compile-only dep due to :annotation-experimental
+    // Build will complain without this manual declaration.
+    compileOnly libs.kotlinStdlib
 
     implementation("androidx.core:core:1.5.0-alpha01")
 }

@@ -266,11 +266,11 @@ public final class GridTemplate implements Template {
          * {@link androidx.car.app.constraints.ConstraintManager#CONTENT_LIMIT_TYPE_GRID}. The
          * host will ignore any items over that limit.
          *
-         * <p>Either a header {@link Action} or title must be set on the template.
+         * <p>If none of the header {@link Action}, the header title or the action strip have been
+         * set on the template, the header is hidden.
          *
          * @throws IllegalStateException    if the template is in a loading state but there are
-         *                                  lists added, or vice versa, or if the template does not
-         *                                  have either a title or header {@link Action} set.
+         *                                  lists added, or vice versa.
          * @throws IllegalArgumentException if the added {@link ItemList} does not meet the
          *                                  template's requirements.
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
@@ -290,10 +290,6 @@ public final class GridTemplate implements Template {
                                 "All the items in grid template's item list must be grid items");
                     }
                 }
-            }
-
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
             }
 
             return new GridTemplate(this);

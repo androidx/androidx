@@ -17,6 +17,10 @@
 package androidx.window.embedding
 
 import android.util.LayoutDirection
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
+import androidx.core.util.Preconditions.checkArgument
+import androidx.core.util.Preconditions.checkArgumentNonnegative
 import androidx.window.core.ExperimentalWindowApi
 
 /**
@@ -28,54 +32,134 @@ import androidx.window.core.ExperimentalWindowApi
  * applied only to activities that will be started  after the rules were set.
  */
 @ExperimentalWindowApi
-class SplitPairRule(
-    /**
-     * Filters used to choose when to apply this rule.
-     */
-    filters: Set<SplitPairFilter>,
+class SplitPairRule : SplitRule {
 
     /**
-     * When all activities are finished in the secondary container, the activity in the primary
-     * container that created the split should also be finished.
+     * Filters used to choose when to apply this rule. The rule may be used if any one of the
+     * provided filters matches.
      */
-    val finishPrimaryWithSecondary: Boolean = false,
+    val filters: Set<SplitPairFilter>
 
     /**
-     * When all activities are finished in the primary container, the activities in the secondary
-     * container in the split should also be finished.
+     * Determines what happens with the primary container when all activities are finished in the
+     * associated secondary container.
+     * @see SplitRule.SplitFinishBehavior
      */
-    val finishSecondaryWithPrimary: Boolean = true,
+    @SplitFinishBehavior
+    val finishPrimaryWithSecondary: Int
+
+    /**
+     * Determines what happens with the secondary container when all activities are finished in the
+     * associated primary container.
+     * @see SplitRule.SplitFinishBehavior
+     */
+    @SplitFinishBehavior
+    val finishSecondaryWithPrimary: Int
 
     /**
      * If there is an existing split with the same primary container, indicates whether the
      * existing secondary container on top and all activities in it should be destroyed when a new
      * split is created using this rule. Otherwise the new secondary will appear on top by default.
      */
-    val clearTop: Boolean = false,
+    val clearTop: Boolean
 
-    minWidth: Int = 0,
-    minSmallestWidth: Int = 0,
-    splitRatio: Float = 0.5f,
-    @LayoutDir
-    layoutDir: Int = LayoutDirection.LOCALE,
-) : SplitRule(
-    minWidth,
-    minSmallestWidth,
-    splitRatio,
-    layoutDir
-) {
+    // TODO(b/229656253): Reduce visibility to remove from public API.
+    @Deprecated(
+        message = "Visibility of the constructor will be reduced.",
+        replaceWith = ReplaceWith("androidx.window.embedding.SplitPairRule.Builder")
+    )
+    constructor(
+        filters: Set<SplitPairFilter>,
+        @SplitFinishBehavior finishPrimaryWithSecondary: Int = FINISH_NEVER,
+        @SplitFinishBehavior finishSecondaryWithPrimary: Int = FINISH_ALWAYS,
+        clearTop: Boolean = false,
+        @IntRange(from = 0) minWidth: Int,
+        @IntRange(from = 0) minSmallestWidth: Int,
+        @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
+        @LayoutDir layoutDir: Int = LayoutDirection.LOCALE
+    ) : super(minWidth, minSmallestWidth, splitRatio, layoutDir) {
+        checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
+        checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
+        checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
+        this.filters = filters.toSet()
+        this.clearTop = clearTop
+        this.finishPrimaryWithSecondary = finishPrimaryWithSecondary
+        this.finishSecondaryWithPrimary = finishSecondaryWithPrimary
+    }
+
     /**
-     * Read-only filters used to choose when to apply this rule.
+     * Builder for [SplitPairRule].
+     * @param filters See [SplitPairRule.filters].
+     * @param minWidth See [SplitPairRule.minWidth].
+     * @param minSmallestWidth See [SplitPairRule.minSmallestWidth].
      */
-    val filters: Set<SplitPairFilter> = filters.toSet()
+    class Builder(
+        private val filters: Set<SplitPairFilter>,
+        @IntRange(from = 0)
+        private val minWidth: Int,
+        @IntRange(from = 0)
+        private val minSmallestWidth: Int
+    ) {
+        @SplitFinishBehavior
+        private var finishPrimaryWithSecondary: Int = FINISH_NEVER
+        @SplitFinishBehavior
+        private var finishSecondaryWithPrimary: Int = FINISH_ALWAYS
+        private var clearTop: Boolean = false
+        @FloatRange(from = 0.0, to = 1.0)
+        private var splitRatio: Float = 0.5f
+        @LayoutDir
+        private var layoutDir: Int = LayoutDirection.LOCALE
+
+        /**
+         * @see SplitPairRule.finishPrimaryWithSecondary
+         */
+        fun setFinishPrimaryWithSecondary(
+            @SplitFinishBehavior finishPrimaryWithSecondary: Int
+        ): Builder =
+            apply { this.finishPrimaryWithSecondary = finishPrimaryWithSecondary }
+
+        /**
+         * @see SplitPairRule.finishSecondaryWithPrimary
+         */
+        fun setFinishSecondaryWithPrimary(
+            @SplitFinishBehavior finishSecondaryWithPrimary: Int
+        ): Builder =
+            apply { this.finishSecondaryWithPrimary = finishSecondaryWithPrimary }
+
+        /**
+         * @see SplitPairRule.clearTop
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        fun setClearTop(clearTop: Boolean): Builder =
+            apply { this.clearTop = clearTop }
+
+        /**
+         * @see SplitPairRule.splitRatio
+         */
+        fun setSplitRatio(@FloatRange(from = 0.0, to = 1.0) splitRatio: Float): Builder =
+            apply { this.splitRatio = splitRatio }
+
+        /**
+         * @see SplitPairRule.layoutDirection
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        fun setLayoutDir(@LayoutDir layoutDir: Int): Builder =
+            apply { this.layoutDir = layoutDir }
+
+        @Suppress("DEPRECATION")
+        fun build() = SplitPairRule(filters, finishPrimaryWithSecondary, finishSecondaryWithPrimary,
+            clearTop, minWidth, minSmallestWidth, splitRatio, layoutDir)
+    }
 
     /**
      * Creates a new immutable instance by adding a filter to the set.
+     * @see filters
      */
     internal operator fun plus(filter: SplitPairFilter): SplitPairRule {
         val newSet = mutableSetOf<SplitPairFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
+        @Suppress("DEPRECATION")
         return SplitPairRule(
             newSet.toSet(),
             finishPrimaryWithSecondary,

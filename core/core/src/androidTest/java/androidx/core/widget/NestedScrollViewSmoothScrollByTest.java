@@ -83,21 +83,15 @@ public class NestedScrollViewSmoothScrollByTest extends
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         final int expectedTarget = TOTAL_SCROLL_DISTANCE + 20 + 30;
         final int scrollDistance = TOTAL_SCROLL_DISTANCE + 20 + 30;
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mNestedScrollView.setOnScrollChangeListener(
-                        new NestedScrollView.OnScrollChangeListener() {
-                            @Override
-                            public void onScrollChange(NestedScrollView v, int scrollX, int scrollY,
-                                    int oldScrollX, int oldScrollY) {
-                                if (scrollY == expectedTarget) {
-                                    countDownLatch.countDown();
-                                }
-                            }
-                        });
-                mNestedScrollView.smoothScrollBy(0, scrollDistance);
-            }
+        mActivityTestRule.runOnUiThread(() -> {
+            mNestedScrollView.setOnScrollChangeListener(
+                    (NestedScrollView.OnScrollChangeListener) (v, scrollX, scrollY,
+                            oldScrollX, oldScrollY) -> {
+                        if (scrollY == expectedTarget) {
+                            countDownLatch.countDown();
+                        }
+                    });
+            mNestedScrollView.smoothScrollBy(0, scrollDistance);
         });
         assertThat(countDownLatch.await(2, TimeUnit.SECONDS), is(true));
 
@@ -118,12 +112,7 @@ public class NestedScrollViewSmoothScrollByTest extends
         final TestContentView testContentView =
                 mActivityTestRule.getActivity().findViewById(R.id.testContentView);
         testContentView.expectLayouts(1);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                testContentView.addView(mNestedScrollView);
-            }
-        });
+        mActivityTestRule.runOnUiThread(() -> testContentView.addView(mNestedScrollView));
         testContentView.awaitLayouts(2);
     }
 }

@@ -51,24 +51,15 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
     private final CharSequence mTooltipText;
     private final int mHoverSlop;
 
-    private final Runnable mShowRunnable = new Runnable() {
-        @Override
-        public void run() {
-            show(false /* not from touch*/);
-        }
-    };
-    private final Runnable mHideRunnable = new Runnable() {
-        @Override
-        public void run() {
-            hide();
-        }
-    };
+    private final Runnable mShowRunnable = () -> show(false);
+    private final Runnable mHideRunnable = this::hide;
 
     private int mAnchorX;
     private int mAnchorY;
 
     private TooltipPopup mPopup;
     private boolean mFromTouch;
+    private boolean mForceNextChangeSignificant;
 
     // The handler currently scheduled to show a tooltip, triggered by a hover
     // (there can be only one).
@@ -80,7 +71,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
     /**
      * Set the tooltip text for the view.
      *
-     * @param view        view to set the tooltip on
+     * @param view view to set the tooltip on
      * @param tooltipText the tooltip text
      */
     public static void setTooltipText(View view, CharSequence tooltipText) {
@@ -110,7 +101,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
         mTooltipText = tooltipText;
         mHoverSlop = ViewConfigurationCompat.getScaledHoverSlop(
                 ViewConfiguration.get(mAnchor.getContext()));
-        clearAnchorPos();
+        forceNextChangeSignificant();
 
         mAnchor.setOnLongClickListener(this);
         mAnchor.setOnHoverListener(this);
@@ -120,7 +111,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
     public boolean onLongClick(View v) {
         mAnchorX = v.getWidth() / 2;
         mAnchorY = v.getHeight() / 2;
-        show(true /* from touch */);
+        show(true);
         return true;
     }
 
@@ -141,7 +132,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
                 }
                 break;
             case MotionEvent.ACTION_HOVER_EXIT:
-                clearAnchorPos();
+                forceNextChangeSignificant();
                 hide();
                 break;
         }
@@ -159,10 +150,12 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
         hide();
     }
 
+    @SuppressWarnings("deprecation")
     void show(boolean fromTouch) {
         if (!ViewCompat.isAttachedToWindow(mAnchor)) {
             return;
         }
+
         setPendingHandler(null);
         if (sActiveHandler != null) {
             sActiveHandler.hide();
@@ -194,7 +187,7 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
             if (mPopup != null) {
                 mPopup.hide();
                 mPopup = null;
-                clearAnchorPos();
+                forceNextChangeSignificant();
                 mAnchor.removeOnAttachStateChangeListener(this);
             } else {
                 Log.e(TAG, "sActiveHandler.mPopup == null");
@@ -234,20 +227,21 @@ class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverList
     private boolean updateAnchorPos(MotionEvent event) {
         final int newAnchorX = (int) event.getX();
         final int newAnchorY = (int) event.getY();
-        if (Math.abs(newAnchorX - mAnchorX) <= mHoverSlop
-                && Math.abs(newAnchorY - mAnchorY) <= mHoverSlop) {
-            return false;
+        if (mForceNextChangeSignificant
+                || Math.abs(newAnchorX - mAnchorX) > mHoverSlop
+                || Math.abs(newAnchorY - mAnchorY) > mHoverSlop) {
+            mAnchorX = newAnchorX;
+            mAnchorY = newAnchorY;
+            mForceNextChangeSignificant = false;
+            return true;
         }
-        mAnchorX = newAnchorX;
-        mAnchorY = newAnchorY;
-        return true;
+        return false;
     }
 
     /**
-     *  Clear the anchor position to ensure that the next change is considered significant.
+     * Ensure that the next change is considered significant.
      */
-    private void clearAnchorPos() {
-        mAnchorX = Integer.MAX_VALUE;
-        mAnchorY = Integer.MAX_VALUE;
+    private void forceNextChangeSignificant() {
+        mForceNextChangeSignificant = true;
     }
 }

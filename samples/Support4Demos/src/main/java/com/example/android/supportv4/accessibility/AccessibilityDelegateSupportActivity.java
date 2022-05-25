@@ -23,6 +23,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
@@ -73,7 +74,8 @@ public class AccessibilityDelegateSupportActivity extends Activity {
             // introduced the delegate off the developer.
             ViewCompat.setAccessibilityDelegate(this, new AccessibilityDelegateCompat() {
                 @Override
-                public void onPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
+                public void onPopulateAccessibilityEvent(
+                        @NonNull View host, @NonNull AccessibilityEvent event) {
                     super.onPopulateAccessibilityEvent(host, event);
                     // Note that View.onPopulateAccessibilityEvent was introduced in
                     // ICS and we would like to tweak a bit the text that is reported to
@@ -83,8 +85,8 @@ public class AccessibilityDelegateSupportActivity extends Activity {
                 }
 
                 @Override
-                public void onInitializeAccessibilityNodeInfo(View host,
-                        AccessibilityNodeInfoCompat info) {
+                public void onInitializeAccessibilityNodeInfo(@NonNull View host,
+                        @NonNull AccessibilityNodeInfoCompat info) {
                     super.onInitializeAccessibilityNodeInfo(host, info);
                     // Note that View.onInitializeAccessibilityNodeInfo was introduced in
                     // ICS and we would like to tweak a bit the text that is reported to

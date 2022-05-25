@@ -47,7 +47,7 @@ import androidx.compose.ui.semantics.SemanticsModifierCore
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
-import androidx.compose.ui.semantics.SemanticsWrapper
+import androidx.compose.ui.semantics.SemanticsEntity
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.copyText
@@ -56,6 +56,7 @@ import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.error
+import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.expand
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.getTextLayoutResult
@@ -71,6 +72,8 @@ import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.testTag
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.semantics.verticalScrollAxisRange
@@ -143,14 +146,18 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
+    @OptIn(ExperimentalComposeUiApi::class)
     fun testPopulateAccessibilityNodeInfoProperties_general() {
         val clickActionLabel = "click"
         val dismissActionLabel = "dismiss"
         val expandActionLabel = "expand"
         val collapseActionLabel = "collapse"
         val stateDescription = "checked"
+        val resourceName = "myResourceName"
         val semanticsNode = createSemanticsNodeWithProperties(1, true) {
             this.stateDescription = stateDescription
+            testTag = resourceName
+            testTagsAsResourceId = true
             heading()
             onClick(clickActionLabel) { true }
             dismiss(dismissActionLabel) { true }
@@ -209,6 +216,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             }
         }
         assertEquals(stateDescription, stateDescriptionResult)
+        assertEquals(resourceName, info.viewIdResourceName)
         assertTrue(info.isHeading)
         assertTrue(info.isClickable)
         assertTrue(info.isVisibleToUser)
@@ -240,7 +248,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
 
         val semanticsNode = createSemanticsNodeWithProperties(1, true) {
             disabled()
-            text = AnnotatedString("text")
+            editableText = AnnotatedString("text")
             horizontalScrollAxisRange = ScrollAxisRange({ 0f }, { 5f })
             onClick { true }
             onLongClick { true }
@@ -386,6 +394,16 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
+    fun nodeWithTextAndLayoutResult_className_textView() {
+        val semanticsNode = createSemanticsNodeWithProperties(1, true) {
+            text = AnnotatedString("")
+        }
+
+        accessibilityDelegate.populateAccessibilityNodeInfoProperties(1, info, semanticsNode)
+        assertEquals("android.widget.TextView", info.className)
+    }
+
+    @Test
     fun testPopulateAccessibilityNodeInfoProperties_liveRegion() {
         var semanticsNode = createSemanticsNodeWithProperties(1, true) {
             liveRegion = LiveRegionMode.Polite
@@ -437,7 +455,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         val setTextActionLabel = "setText"
         val text = "hello"
         val semanticsNode = createSemanticsNodeWithProperties(1, true) {
-            this.text = AnnotatedString(text)
+            this.editableText = AnnotatedString(text)
             this.textSelectionRange = TextRange(1)
             this.focused = true
             getTextLayoutResult { true }
@@ -493,7 +511,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     @Test
     fun testMovementGranularities_textField_focused() {
         val semanticsNode = createSemanticsNodeWithProperties(1, true) {
-            this.text = AnnotatedString("text")
+            this.editableText = AnnotatedString("text")
             this.textSelectionRange = TextRange(1)
             this.focused = true
             getTextLayoutResult { true }
@@ -515,7 +533,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     @Test
     fun testMovementGranularities_textField_notFocused() {
         val semanticsNode = createSemanticsNodeWithProperties(1, true) {
-            this.text = AnnotatedString("text")
+            this.editableText = AnnotatedString("text")
             this.textSelectionRange = TextRange(1)
             getTextLayoutResult { true }
             setText { true }
@@ -1247,7 +1265,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     ): SemanticsNode {
         val semanticsModifier = SemanticsModifierCore(id, mergeDescendants, false, properties)
         return SemanticsNode(
-            SemanticsWrapper(InnerPlaceable(LayoutNode()), semanticsModifier),
+            SemanticsEntity(InnerPlaceable(LayoutNode()), semanticsModifier),
             true
         )
     }

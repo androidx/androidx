@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -27,9 +26,8 @@ dependencies {
     annotationProcessor(libs.nullaway)
 
     implementation("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.annotation:annotation-experimental:1.1.0")
 
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
@@ -57,6 +55,7 @@ android {
     }
 
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.car.app.projected"
 }
 
 androidx {

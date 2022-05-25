@@ -20,6 +20,7 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -59,14 +60,17 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
 
     @Override
     public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {
-        return null;
+
+        //returns a placeholder SurfaceConfig
+        return SurfaceConfig.create(SurfaceConfig.ConfigType.PRIV,
+                SurfaceConfig.ConfigSize.PREVIEW);
     }
 
     @Override
     @NonNull
     public Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
             @NonNull String cameraId,
-            @NonNull List<SurfaceConfig> existingSurfaces,
+            @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
         Map<UseCaseConfig<?>, Size> suggestedSizes = new HashMap<>();
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {

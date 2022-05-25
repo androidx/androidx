@@ -18,6 +18,7 @@ package androidx.core.view;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.accessibilityservice.AccessibilityService;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.style.ClickableSpan;
@@ -29,6 +30,9 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
+import androidx.annotation.DoNotInline;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
@@ -45,14 +49,14 @@ import java.util.List;
  * Helper for accessing {@link AccessibilityDelegate}.
  * <p>
  * <strong>Note:</strong> On platform versions prior to
- * {@link android.os.Build.VERSION_CODES#M API 23}, delegate methods on
+ * {@link Build.VERSION_CODES#M API 23}, delegate methods on
  * views in the {@code android.widget.*} package are called <i>before</i>
  * host methods. This prevents certain properties such as class name from
  * being modified by overriding
  * {@link AccessibilityDelegateCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)},
  * as any changes will be overwritten by the host class.
  * <p>
- * Starting in {@link android.os.Build.VERSION_CODES#M API 23}, delegate
+ * Starting in {@link Build.VERSION_CODES#M API 23}, delegate
  * methods are called <i>after</i> host methods, which all properties to be
  * modified without being overwritten by the host class.
  */
@@ -144,7 +148,7 @@ public class AccessibilityDelegateCompat {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    public AccessibilityDelegateCompat(AccessibilityDelegate originalDelegate) {
+    public AccessibilityDelegateCompat(@NonNull AccessibilityDelegate originalDelegate) {
         mOriginalDelegate = originalDelegate;
         mBridge = new AccessibilityDelegateAdapter(this);
     }
@@ -170,7 +174,7 @@ public class AccessibilityDelegateCompat {
      *
      * @see View#sendAccessibilityEvent(int) View#sendAccessibilityEvent(int)
      */
-    public void sendAccessibilityEvent(View host, int eventType) {
+    public void sendAccessibilityEvent(@NonNull View host, int eventType) {
         mOriginalDelegate.sendAccessibilityEvent(host, eventType);
     }
 
@@ -192,7 +196,8 @@ public class AccessibilityDelegateCompat {
      * @see View#sendAccessibilityEventUnchecked(AccessibilityEvent)
      *      View#sendAccessibilityEventUnchecked(AccessibilityEvent)
      */
-    public void sendAccessibilityEventUnchecked(View host, AccessibilityEvent event) {
+    public void sendAccessibilityEventUnchecked(@NonNull View host,
+            @NonNull AccessibilityEvent event) {
         mOriginalDelegate.sendAccessibilityEventUnchecked(host, event);
     }
 
@@ -213,7 +218,8 @@ public class AccessibilityDelegateCompat {
      * @see View#dispatchPopulateAccessibilityEvent(AccessibilityEvent)
      *      View#dispatchPopulateAccessibilityEvent(AccessibilityEvent)
      */
-    public boolean dispatchPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
+    public boolean dispatchPopulateAccessibilityEvent(@NonNull View host,
+            @NonNull AccessibilityEvent event) {
         return mOriginalDelegate.dispatchPopulateAccessibilityEvent(host, event);
     }
 
@@ -233,7 +239,8 @@ public class AccessibilityDelegateCompat {
      * @see ViewCompat#onPopulateAccessibilityEvent(View ,AccessibilityEvent)
      *      ViewCompat#onPopulateAccessibilityEvent(View, AccessibilityEvent)
      */
-    public void onPopulateAccessibilityEvent(View host, AccessibilityEvent event) {
+    public void onPopulateAccessibilityEvent(@NonNull View host,
+            @NonNull AccessibilityEvent event) {
         mOriginalDelegate.onPopulateAccessibilityEvent(host, event);
     }
 
@@ -253,7 +260,8 @@ public class AccessibilityDelegateCompat {
      * @see ViewCompat#onInitializeAccessibilityEvent(View, AccessibilityEvent)
      *      ViewCompat#onInitializeAccessibilityEvent(View, AccessibilityEvent)
      */
-    public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
+    public void onInitializeAccessibilityEvent(@NonNull View host,
+            @NonNull AccessibilityEvent event) {
         mOriginalDelegate.onInitializeAccessibilityEvent(host, event);
     }
 
@@ -272,7 +280,8 @@ public class AccessibilityDelegateCompat {
      * @see ViewCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)
      *      ViewCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)
      */
-    public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
+    public void onInitializeAccessibilityNodeInfo(@NonNull View host,
+            @NonNull AccessibilityNodeInfoCompat info) {
         mOriginalDelegate.onInitializeAccessibilityNodeInfo(
                 host, info.unwrap());
     }
@@ -296,14 +305,14 @@ public class AccessibilityDelegateCompat {
      * @see ViewGroupCompat#onRequestSendAccessibilityEvent(ViewGroup, View, AccessibilityEvent)
      *      ViewGroupCompat#onRequestSendAccessibilityEvent(ViewGroup, View, AccessibilityEvent)
      */
-    public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
-            AccessibilityEvent event) {
+    public boolean onRequestSendAccessibilityEvent(@NonNull ViewGroup host, @NonNull View child,
+            @NonNull AccessibilityEvent event) {
         return mOriginalDelegate.onRequestSendAccessibilityEvent(host, child, event);
     }
 
     /**
      * Gets the provider for managing a virtual view hierarchy rooted at this View
-     * and reported to {@link android.accessibilityservice.AccessibilityService}s
+     * and reported to {@link AccessibilityService}s
      * that explore the window content.
      * <p>
      * The default implementation behaves as
@@ -315,9 +324,10 @@ public class AccessibilityDelegateCompat {
      *
      * @see AccessibilityNodeProviderCompat
      */
-    public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(View host) {
+    @Nullable
+    public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(@NonNull View host) {
         if (Build.VERSION.SDK_INT >= 16) {
-            Object provider = mOriginalDelegate.getAccessibilityNodeProvider(host);
+            Object provider = Api16Impl.getAccessibilityNodeProvider(mOriginalDelegate, host);
             if (provider != null) {
                 return new AccessibilityNodeProviderCompat(provider);
             }
@@ -335,13 +345,17 @@ public class AccessibilityDelegateCompat {
      *  no accessibility delegate been set.
      * </p>
      *
+     *
+     * @param host View on which to perform the action.
      * @param action The action to perform.
+     * @param args Optional action arguments.
      * @return Whether the action was performed.
      *
      * @see View#performAccessibilityAction(int, Bundle)
      *      View#performAccessibilityAction(int, Bundle)
      */
-    public boolean performAccessibilityAction(View host, int action, Bundle args) {
+    public boolean performAccessibilityAction(@NonNull View host, int action,
+            @Nullable Bundle args) {
         boolean success = false;
         List<AccessibilityActionCompat> actions = getActionList(host);
         for (int i = 0; i < actions.size(); i++) {
@@ -352,9 +366,9 @@ public class AccessibilityDelegateCompat {
             }
         }
         if (!success && Build.VERSION.SDK_INT >= 16) {
-            success = mOriginalDelegate.performAccessibilityAction(host, action, args);
+            success = Api16Impl.performAccessibilityAction(mOriginalDelegate, host, action, args);
         }
-        if (!success && action == R.id.accessibility_action_clickable_span) {
+        if (!success && action == R.id.accessibility_action_clickable_span && args != null) {
             success = performClickableSpanAction(
                     args.getInt(AccessibilityClickableSpanCompat.SPAN_ID, -1), host);
         }
@@ -396,6 +410,25 @@ public class AccessibilityDelegateCompat {
     static List<AccessibilityActionCompat> getActionList(View view) {
         List<AccessibilityActionCompat> actions = (List<AccessibilityActionCompat>)
                 view.getTag(R.id.tag_accessibility_actions);
-        return actions == null ? Collections.<AccessibilityActionCompat>emptyList() : actions;
+        return actions == null ? Collections.emptyList() : actions;
+    }
+
+    @RequiresApi(16)
+    static class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static AccessibilityNodeProvider getAccessibilityNodeProvider(
+                AccessibilityDelegate accessibilityDelegate, View host) {
+            return accessibilityDelegate.getAccessibilityNodeProvider(host);
+        }
+
+        @DoNotInline
+        static boolean performAccessibilityAction(AccessibilityDelegate accessibilityDelegate,
+                View host, int action, Bundle args) {
+            return accessibilityDelegate.performAccessibilityAction(host, action, args);
+        }
     }
 }

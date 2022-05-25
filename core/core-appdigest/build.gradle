@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -25,7 +23,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
-    implementation(project(":core:core"))
+    implementation("androidx.core:core:1.7.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -41,4 +39,8 @@ androidx {
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2020"
     description = "AndroidX AppDigest Library"
+}
+
+android {
+    namespace "androidx.core.appdigest"
 }

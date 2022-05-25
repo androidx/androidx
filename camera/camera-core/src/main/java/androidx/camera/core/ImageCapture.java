@@ -27,6 +27,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_FLASH_TYPE;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IMAGE_CAPTURE_MODE;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IMAGE_READER_PROXY_PROVIDER;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IO_EXECUTOR;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_JPEG_COMPRESSION_QUALITY;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_CAPTURE_STAGES;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SESSION_CONFIG_UNPACKER;
@@ -41,22 +42,19 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_SOFTWARE_JPEG_ENCODER;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
-import static androidx.camera.core.internal.utils.ImageUtil.min;
-import static androidx.camera.core.internal.utils.ImageUtil.sizeToVertexes;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.location.Location;
 import android.media.Image;
 import android.media.ImageReader;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Looper;
-import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Pair;
@@ -77,13 +75,7 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.ForwardingImageProxy.OnImageCloseListener;
 import androidx.camera.core.impl.CameraCaptureCallback;
-import androidx.camera.core.impl.CameraCaptureFailure;
-import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
-import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
-import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
-import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
-import androidx.camera.core.impl.CameraCaptureResult;
-import androidx.camera.core.impl.CameraCaptureResult.EmptyCameraCaptureResult;
+import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureBundle;
@@ -100,6 +92,7 @@ import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.MutableTagBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -109,7 +102,6 @@ import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
-import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
 import androidx.camera.core.internal.TargetConfig;
@@ -133,10 +125,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executor;
@@ -211,6 +201,15 @@ public final class ImageCapture extends UseCase {
      * reduced.
      */
     public static final int CAPTURE_MODE_MINIMIZE_LATENCY = 1;
+    /**
+     * Optimizes capture pipeline to prioritize latency over image quality. When the capture
+     * mode is set to ZERO_SHUTTER_LAG, the latency between the shutter button is clicked and the
+     * picture is recorded is minimized.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int CAPTURE_MODE_ZERO_SHUTTER_LAG = 2;
 
     /**
      * Auto flash. The flash will be used according to the camera system's determination when taking
@@ -247,8 +246,6 @@ public final class ImageCapture extends UseCase {
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "ImageCapture";
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    private static final long CHECK_3A_TIMEOUT_IN_MS = 1000L;
-    private static final long CHECK_3A_WITH_FLASH_TIMEOUT_IN_MS = 5000L;
     private static final int MAX_IMAGES = 2;
     // TODO(b/149336664) Move the quality to a compatibility class when there is a per device case.
     private static final byte JPEG_QUALITY_MAXIMIZE_QUALITY_MODE = 100;
@@ -258,7 +255,9 @@ public final class ImageCapture extends UseCase {
     @FlashMode
     private static final int DEFAULT_FLASH_MODE = FLASH_MODE_OFF;
 
-    private final CaptureCallbackChecker mSessionCallbackChecker = new CaptureCallbackChecker();
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    static final ExifRotationAvailability EXIF_ROTATION_AVAILABILITY =
+            new ExifRotationAvailability();
 
     private final ImageReaderProxy.OnImageAvailableListener mClosingListener = (imageReader -> {
         try (ImageProxy image = imageReader.acquireLatestImage()) {
@@ -273,15 +272,6 @@ public final class ImageCapture extends UseCase {
     final Executor mIoExecutor;
     @CaptureMode
     private final int mCaptureMode;
-
-    /**
-     * A flag to check 3A converged or not.
-     *
-     * <p>In order to speed up the taking picture process, trigger AF / AE should be skipped when
-     * the flag is disabled. Set it to be enabled in the maximum quality mode and disabled in the
-     * minimum latency mode.
-     */
-    private final boolean mEnableCheck3AConverged;
 
     @GuardedBy("mLockedFlashMode")
     private final AtomicReference<Integer> mLockedFlashMode = new AtomicReference<>(null);
@@ -337,13 +327,19 @@ public final class ImageCapture extends UseCase {
     @SuppressWarnings("WeakerAccess")
     ProcessingImageReader mProcessingImageReader;
 
+    private ListenableFuture<Void> mImageReaderCloseFuture = Futures.immediateFuture(null);
+
     /** Callback used to match the {@link ImageProxy} with the {@link ImageInfo}. */
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
+
     private DeferrableSurface mDeferrableSurface;
+
     private ImageCaptureRequestProcessor mImageCaptureRequestProcessor;
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     final Executor mSequentialIoExecutor;
+
+    private Matrix mSensorToBufferTransformMatrix = new Matrix();
 
     /**
      * Creates a new image capture use case from the given configuration.
@@ -368,11 +364,6 @@ public final class ImageCapture extends UseCase {
                 useCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor()));
         mSequentialIoExecutor = CameraXExecutors.newSequentialExecutor(mIoExecutor);
 
-        if (mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
-            mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
-        } else {
-            mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
-        }
     }
 
     @UiThread
@@ -381,7 +372,11 @@ public final class ImageCapture extends UseCase {
             @NonNull ImageCaptureConfig config, @NonNull Size resolution) {
         Threads.checkMainThread();
         SessionConfig.Builder sessionConfigBuilder = SessionConfig.Builder.createFrom(config);
-        sessionConfigBuilder.addRepeatingCameraCaptureCallback(mSessionCallbackChecker);
+        YuvToJpegProcessor softwareJpegProcessor = null;
+
+        if (Build.VERSION.SDK_INT >= 23 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {
+            getCameraControl().addZslConfig(sessionConfigBuilder);
+        }
 
         // Setup the ImageReader to do processing
         if (config.getImageReaderProxyProvider() != null) {
@@ -391,10 +386,51 @@ public final class ImageCapture extends UseCase {
                                     resolution.getHeight(), getImageFormat(), MAX_IMAGES, 0));
             mMetadataMatchingCaptureCallback = new CameraCaptureCallback() {
             };
+        } else if (isSessionProcessorEnabledInCurrentCamera()) {
+            ImageReaderProxy imageReader;
+            if (getImageFormat() == ImageFormat.JPEG) {
+                imageReader =
+                        new AndroidImageReaderProxy(ImageReader.newInstance(resolution.getWidth(),
+                                resolution.getHeight(), getImageFormat(), MAX_IMAGES));
+            } else if (getImageFormat() == ImageFormat.YUV_420_888) { // convert it into Jpeg
+                if (Build.VERSION.SDK_INT >= 26) {
+                    // Jpeg rotation / quality will be set to softwareJpegProcessor later in
+                    // ImageCaptureRequestProcessor.
+                    softwareJpegProcessor =
+                            new YuvToJpegProcessor(getJpegQualityInternal(), MAX_IMAGES);
+
+                    ModifiableImageReaderProxy inputReader =
+                            new ModifiableImageReaderProxy(
+                                    ImageReader.newInstance(resolution.getWidth(),
+                                            resolution.getHeight(),
+                                            ImageFormat.YUV_420_888,
+                                            MAX_IMAGES));
+
+                    CaptureBundle captureBundle = CaptureBundles.singleDefaultCaptureBundle();
+                    ProcessingImageReader processingImageReader = new ProcessingImageReader.Builder(
+                            inputReader,
+                            captureBundle,
+                            softwareJpegProcessor
+                    ).setPostProcessExecutor(mExecutor).setOutputFormat(ImageFormat.JPEG).build();
+
+                    // Ensure the ImageProxy contains the same capture stage id expected from the
+                    // ProcessingImageReader.
+                    MutableTagBundle tagBundle = MutableTagBundle.create();
+                    tagBundle.putTag(processingImageReader.getTagBundleKey(),
+                            captureBundle.getCaptureStages().get(0).getId());
+                    inputReader.setImageTagBundle(tagBundle);
+
+                    imageReader = processingImageReader;
+                } else {
+                    throw new UnsupportedOperationException("Does not support API level < 26");
+                }
+            } else {
+                throw new IllegalArgumentException("Unsupported image format:" + getImageFormat());
+            }
+            mMetadataMatchingCaptureCallback = new CameraCaptureCallback() {};
+            mImageReader = new SafeCloseImageReaderProxy(imageReader);
         } else if (mCaptureProcessor != null || mUseSoftwareJpeg) {
             // Capture processor set from configuration takes precedence over software JPEG.
-            YuvToJpegProcessor softwareJpegProcessor = null;
-            CaptureProcessorPipeline captureProcessorPipeline = null;
             CaptureProcessor captureProcessor = mCaptureProcessor;
             int inputFormat = getImageFormat();
             int outputFormat = getImageFormat();
@@ -404,14 +440,14 @@ public final class ImageCapture extends UseCase {
                     Logger.i(TAG, "Using software JPEG encoder.");
 
                     if (mCaptureProcessor != null) {
-                        softwareJpegProcessor = new YuvToJpegProcessor(getJpegQuality(),
+                        softwareJpegProcessor = new YuvToJpegProcessor(getJpegQualityInternal(),
                                 mMaxCaptureStages);
-                        captureProcessor = captureProcessorPipeline = new CaptureProcessorPipeline(
+                        captureProcessor = new CaptureProcessorPipeline(
                                 mCaptureProcessor, mMaxCaptureStages, softwareJpegProcessor,
                                 mExecutor);
                     } else {
                         captureProcessor = softwareJpegProcessor =
-                                new YuvToJpegProcessor(getJpegQuality(), mMaxCaptureStages);
+                                new YuvToJpegProcessor(getJpegQualityInternal(), mMaxCaptureStages);
                     }
 
                     outputFormat = ImageFormat.JPEG;
@@ -423,53 +459,75 @@ public final class ImageCapture extends UseCase {
             }
 
             // TODO: To allow user to use an Executor for the image processing.
-            mProcessingImageReader = new ProcessingImageReader.Builder(resolution.getWidth(),
-                    resolution.getHeight(), inputFormat, mMaxCaptureStages,
+            mProcessingImageReader = new ProcessingImageReader.Builder(
+                    resolution.getWidth(),
+                    resolution.getHeight(),
+                    inputFormat,
+                    mMaxCaptureStages,
                     getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle()),
-                    captureProcessor).setPostProcessExecutor(mExecutor).setOutputFormat(
-                    outputFormat).build();
+                    captureProcessor
+            ).setPostProcessExecutor(mExecutor).setOutputFormat(outputFormat).build();
 
             mMetadataMatchingCaptureCallback = mProcessingImageReader.getCameraCaptureCallback();
             mImageReader = new SafeCloseImageReaderProxy(mProcessingImageReader);
-            if (softwareJpegProcessor != null) {
-                // Close the JPEG processor once ProcessingImageReader is done.
-                // Processor is assigned to an effectively final variable here for the lambda.
-                YuvToJpegProcessor processorToClose = softwareJpegProcessor;
-                CaptureProcessorPipeline captureProcessorPipelineToClose = captureProcessorPipeline;
-                mProcessingImageReader.getCloseFuture().addListener(() -> {
-                    // API check to satisfy linter
-                    if (Build.VERSION.SDK_INT >= 26) {
-                        processorToClose.close();
-                        captureProcessorPipelineToClose.close();
-                    }
-                }, CameraXExecutors.directExecutor());
-            }
         } else {
             MetadataImageReader metadataImageReader = new MetadataImageReader(resolution.getWidth(),
                     resolution.getHeight(), getImageFormat(), MAX_IMAGES);
             mMetadataMatchingCaptureCallback = metadataImageReader.getCameraCaptureCallback();
             mImageReader = new SafeCloseImageReaderProxy(metadataImageReader);
         }
+
         if (mImageCaptureRequestProcessor != null) {
             mImageCaptureRequestProcessor.cancelRequests(
                     new CancellationException("Request is canceled."));
         }
+
+        final YuvToJpegProcessor finalSoftwareJpegProcessor = softwareJpegProcessor;
+
         mImageCaptureRequestProcessor = new ImageCaptureRequestProcessor(MAX_IMAGES,
-                request -> takePictureInternal(request));
+                request -> takePictureInternal(request), finalSoftwareJpegProcessor == null ? null :
+                new ImageCaptureRequestProcessor.RequestProcessCallback() {
+                    @Override
+                    public void onPreProcessRequest(
+                            @NonNull ImageCaptureRequest imageCaptureRequest) {
+                        if (Build.VERSION.SDK_INT >= 26) {
+                            // Updates output JPEG compression quality of YuvToJpegProcessor
+                            // according to current request. This was determined by whether the
+                            // final output image needs to be cropped (uncompress and recompress)
+                            // again when the capture request was created.
+                            finalSoftwareJpegProcessor.setJpegQuality(
+                                    imageCaptureRequest.mJpegQuality);
+
+                            // Updates output rotation degrees value to the YuvToJpegProcessor so
+                            // that it can write the correct value to the ExifData in the output
+                            // JPEG image file.
+                            finalSoftwareJpegProcessor.setRotationDegrees(
+                                    imageCaptureRequest.mRotationDegrees);
+                        }
+                    }
+                });
 
         // By default close images that come from the listener.
         mImageReader.setOnImageAvailableListener(mClosingListener,
                 CameraXExecutors.mainThreadExecutor());
 
-        SafeCloseImageReaderProxy imageReaderProxy = mImageReader;
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
         }
+
         mDeferrableSurface = new ImmediateSurface(
-                mImageReader.getSurface(), new Size(mImageReader.getWidth(),
-                mImageReader.getHeight()), mImageReader.getImageFormat());
-        mDeferrableSurface.getTerminationFuture().addListener(
-                imageReaderProxy::safeClose, CameraXExecutors.mainThreadExecutor());
+                mImageReader.getSurface(),
+                new Size(mImageReader.getWidth(),
+                mImageReader.getHeight()),
+                /* get the surface image format using getImageFormat */
+                getImageFormat());
+
+        mImageReaderCloseFuture =
+                mProcessingImageReader != null ? mProcessingImageReader.getCloseFuture()
+                        : Futures.immediateFuture(null);
+        mDeferrableSurface.getTerminationFuture().addListener(mImageReader::safeClose,
+                CameraXExecutors.mainThreadExecutor());
+
         sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
@@ -488,6 +546,14 @@ public final class ImageCapture extends UseCase {
         return sessionConfigBuilder;
     }
 
+    private boolean isSessionProcessorEnabledInCurrentCamera() {
+        if (getCamera() == null) {
+            return false;
+        }
+
+        CameraConfig cameraConfig = getCamera().getExtendedConfig();
+        return cameraConfig == null ? false : cameraConfig.getSessionProcessor(null) != null;
+    }
     /**
      * Clear the internal pipeline so that the pipeline can be set up again.
      */
@@ -504,6 +570,7 @@ public final class ImageCapture extends UseCase {
         mDeferrableSurface = null;
         mImageReader = null;
         mProcessingImageReader = null;
+        mImageReaderCloseFuture = Futures.immediateFuture(null);
 
         if (deferrableSurface != null) {
             deferrableSurface.close();
@@ -520,7 +587,9 @@ public final class ImageCapture extends UseCase {
     @Nullable
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
-        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE);
+        Config captureConfig = factory.getConfig(
+                UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE,
+                getCaptureMode());
 
         if (applyDefaultConfig) {
             captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
@@ -592,7 +661,21 @@ public final class ImageCapture extends UseCase {
                 builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                         ImageFormat.YUV_420_888);
             } else {
-                builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
+                List<Pair<Integer, Size[]>> supportedSizes =
+                        builder.getMutableConfig().retrieveOption(OPTION_SUPPORTED_RESOLUTIONS,
+                                null);
+                if (supportedSizes == null) {
+                    builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
+                } else {
+                    // Use Jpeg first if supported.
+                    if (isImageFormatSupported(supportedSizes, ImageFormat.JPEG)) {
+                        builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
+                                ImageFormat.JPEG);
+                    } else if (isImageFormatSupported(supportedSizes, ImageFormat.YUV_420_888)) {
+                        builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
+                                ImageFormat.YUV_420_888);
+                    }
+                }
             }
         }
 
@@ -603,6 +686,18 @@ public final class ImageCapture extends UseCase {
         return builder.getUseCaseConfig();
     }
 
+    private static boolean isImageFormatSupported(List<Pair<Integer, Size[]>> supportedSizes,
+            int imageFormat) {
+        if (supportedSizes == null) {
+            return false;
+        }
+        for (Pair<Integer, Size[]> supportedSize : supportedSizes) {
+            if (supportedSize.first.equals(imageFormat)) {
+                return true;
+            }
+        }
+        return false;
+    }
     /**
      * Configures flash mode to CameraControlInternal once it is ready.
      *
@@ -790,6 +885,20 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
+     * Returns the JPEG quality setting.
+     *
+     * <p>This is set when constructing an ImageCapture using
+     * {@link ImageCapture.Builder#setJpegQuality(int)}. If not set, a default value will be set
+     * according to the capture mode setting. JPEG compression quality 95 is set for
+     * {@link #CAPTURE_MODE_MINIMIZE_LATENCY} and 100 is set for
+     * {@link #CAPTURE_MODE_MAXIMIZE_QUALITY}. This is static for an instance of ImageCapture.
+     */
+    @IntRange(from = 1, to = 100)
+    public int getJpegQuality() {
+        return getJpegQualityInternal();
+    }
+
+    /**
      * Gets selected resolution information of the {@link ImageCapture}.
      *
      * <p>The returned {@link ResolutionInfo} will be expressed in the coordinates of the camera
@@ -811,6 +920,17 @@ public final class ImageCapture extends UseCase {
     @Override
     public ResolutionInfo getResolutionInfo() {
         return super.getResolutionInfo();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {
+        mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
     }
 
     /**
@@ -862,7 +982,7 @@ public final class ImageCapture extends UseCase {
             return;
         }
 
-        sendImageCaptureRequest(executor, callback);
+        sendImageCaptureRequest(executor, callback, /*saveImage=*/false);
     }
 
     /**
@@ -935,7 +1055,7 @@ public final class ImageCapture extends UseCase {
                     }
                 };
 
-        int jpegQuality = getJpegQuality();
+        int outputJpegQuality = getJpegQualityInternal();
 
         // Wrap the ImageCapture.OnImageSavedCallback with an OnImageCapturedCallback so it can
         // be put into the capture request queue
@@ -948,7 +1068,7 @@ public final class ImageCapture extends UseCase {
                                         image,
                                         outputFileOptions,
                                         image.getImageInfo().getRotationDegrees(),
-                                        jpegQuality,
+                                        outputJpegQuality,
                                         executor,
                                         mSequentialIoExecutor,
                                         imageSavedCallbackWrapper));
@@ -962,7 +1082,32 @@ public final class ImageCapture extends UseCase {
 
         // Always use the mainThreadExecutor for the initial callback so we don't need to double
         // post to another thread
-        sendImageCaptureRequest(CameraXExecutors.mainThreadExecutor(), imageCaptureCallbackWrapper);
+        sendImageCaptureRequest(CameraXExecutors.mainThreadExecutor(),
+                imageCaptureCallbackWrapper, /*saveImage=*/true);
+    }
+
+    @NonNull
+    static Rect computeDispatchCropRect(@Nullable Rect viewPortCropRect,
+            @Nullable Rational cropAspectRatio, int rotationDegrees,
+            @NonNull Size dispatchResolution, int dispatchRotationDegrees) {
+        if (viewPortCropRect != null) {
+            return ImageUtil.computeCropRectFromDispatchInfo(viewPortCropRect, rotationDegrees,
+                    dispatchResolution, dispatchRotationDegrees);
+        } else if (cropAspectRatio != null) {
+            // Fall back to crop aspect ratio if view port is not available.
+            Rational aspectRatio = cropAspectRatio;
+            if ((dispatchRotationDegrees % 180) != 0) {
+                aspectRatio = new Rational(
+                        /* invert the ratio numerator=*/ cropAspectRatio.getDenominator(),
+                        /* invert the ratio denominator=*/ cropAspectRatio.getNumerator());
+            }
+            if (ImageUtil.isAspectRatioValid(dispatchResolution, aspectRatio)) {
+                return ImageUtil.computeCropRectFromAspectRatio(dispatchResolution,
+                        aspectRatio);
+            }
+        }
+
+        return new Rect(0, 0, dispatchResolution.getWidth(), dispatchResolution.getHeight());
     }
 
     /**
@@ -986,8 +1131,8 @@ public final class ImageCapture extends UseCase {
     }
 
     @UiThread
-    private void sendImageCaptureRequest(
-            @NonNull Executor callbackExecutor, @NonNull OnImageCapturedCallback callback) {
+    private void sendImageCaptureRequest(@NonNull Executor callbackExecutor,
+            @NonNull OnImageCapturedCallback callback, boolean saveImage) {
 
         // TODO(b/143734846): From here on, the image capture request should be
         //  self-contained and use this camera for everything. Currently the pre-capture
@@ -1010,8 +1155,54 @@ public final class ImageCapture extends UseCase {
         }
 
         mImageCaptureRequestProcessor.sendRequest(new ImageCaptureRequest(
-                getRelativeRotation(attachedCamera), getJpegQuality(), mCropAspectRatio,
-                getViewPortCropRect(), callbackExecutor, callback));
+                getRelativeRotation(attachedCamera),
+                getJpegQualityForImageCaptureRequest(attachedCamera, saveImage),
+                mCropAspectRatio,
+                getViewPortCropRect(),
+                mSensorToBufferTransformMatrix,
+                callbackExecutor,
+                callback));
+    }
+
+    @UiThread
+    private int getJpegQualityForImageCaptureRequest(@NonNull CameraInternal cameraInternal,
+            boolean saveImage) {
+        int jpegQuality;
+        if (saveImage) {
+            int rotationDegrees = getRelativeRotation(cameraInternal);
+            Size dispatchResolution = getAttachedSurfaceResolution();
+            // At this point, we can't know whether HAL will rotate the captured image or not. No
+            // matter HAL will rotate the image byte array or not, it won't affect whether the final
+            // image needs cropping or not. Therefore, we can still use the attached surface
+            // resolution and its relative rotation degrees against to the target rotation
+            // setting to calculate the possible crop rectangle and then use it to determine
+            // whether the final image will need cropping or not.
+            Rect cropRect = computeDispatchCropRect(getViewPortCropRect(), mCropAspectRatio,
+                    rotationDegrees, dispatchResolution, rotationDegrees);
+            boolean shouldCropImage = ImageUtil.shouldCropImage(dispatchResolution.getWidth(),
+                    dispatchResolution.getHeight(), cropRect.width(), cropRect.height());
+            if (shouldCropImage) {
+                // When cropping is required, jpeg compression will occur twice:
+                // 1. Jpeg quality set to camera HAL by camera capture request.
+                // 2. Bitmap compression during cropping process in ImageSaver.
+                // Here we need to define the first compression value and be careful to lose too
+                // much quality due to double compression.
+                // Setting 100 for the first compression can minimize quality loss, but will result
+                // in poor performance during cropping than setting 95 (see b/206348741 for more
+                // detail). As a trade-off, max quality mode is set to 100, and the others are set
+                // to 95.
+                jpegQuality = mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY ? 100 : 95;
+            } else {
+                jpegQuality = getJpegQualityInternal();
+            }
+        } else {
+            // The captured image will be directly provided to the app via the
+            // OnImageCapturedCallback callback. It won't be uncompressed and compressed again
+            // after the image is captured. The JPEG quality setting will be directly provided to
+            // the HAL to compress the output JPEG image.
+            jpegQuality = getJpegQualityInternal();
+        }
+        return jpegQuality;
     }
 
     private void lockFlashMode() {
@@ -1024,7 +1215,7 @@ public final class ImageCapture extends UseCase {
         }
     }
 
-    private void unlockFlashMode() {
+    void unlockFlashMode() {
         synchronized (mLockedFlashMode) {
             Integer lockedFlashMode = mLockedFlashMode.getAndSet(null);
             if (lockedFlashMode == null) {
@@ -1056,11 +1247,18 @@ public final class ImageCapture extends UseCase {
      * @return Compression quality of the captured JPEG image.
      */
     @IntRange(from = 1, to = 100)
-    private int getJpegQuality() {
+    private int getJpegQualityInternal() {
+        ImageCaptureConfig imageCaptureConfig = (ImageCaptureConfig) getCurrentConfig();
+
+        if (imageCaptureConfig.containsOption(OPTION_JPEG_COMPRESSION_QUALITY)) {
+            return imageCaptureConfig.getJpegQuality();
+        }
+
         switch (mCaptureMode) {
             case CAPTURE_MODE_MAXIMIZE_QUALITY:
                 return JPEG_QUALITY_MAXIMIZE_QUALITY_MODE;
             case CAPTURE_MODE_MINIMIZE_LATENCY:
+            case CAPTURE_MODE_ZERO_SHUTTER_LAG:
                 return JPEG_QUALITY_MINIMIZE_LATENCY_MODE;
             default:
                 throw new IllegalStateException("CaptureMode " + mCaptureMode + " is invalid");
@@ -1103,20 +1301,19 @@ public final class ImageCapture extends UseCase {
                             },
                             CameraXExecutors.mainThreadExecutor());
 
-                    TakePictureState state = new TakePictureState();
-                    ListenableFuture<Void> future = FutureChain.from(preTakePicture(state))
-                            .transformAsync(v -> issueTakePicture(imageCaptureRequest), mExecutor);
+                    lockFlashMode();
+                    ListenableFuture<Void> future = issueTakePicture(imageCaptureRequest);
 
                     Futures.addCallback(future,
                             new FutureCallback<Void>() {
                                 @Override
                                 public void onSuccess(Void result) {
-                                    postTakePicture(state);
+                                    unlockFlashMode();
                                 }
 
                                 @Override
                                 public void onFailure(Throwable throwable) {
-                                    postTakePicture(state);
+                                    unlockFlashMode();
 
                                     completer.setException(throwable);
                                 }
@@ -1159,12 +1356,21 @@ public final class ImageCapture extends UseCase {
 
         private final int mMaxImages;
 
+        @Nullable
+        private final RequestProcessCallback mRequestProcessCallback;
+
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         final Object mLock = new Object();
 
         ImageCaptureRequestProcessor(int maxImages, @NonNull ImageCaptor imageCaptor) {
+            this(maxImages, imageCaptor, null);
+        }
+
+        ImageCaptureRequestProcessor(int maxImages, @NonNull ImageCaptor imageCaptor,
+                @Nullable RequestProcessCallback requestProcessCallback) {
             mMaxImages = maxImages;
             mImageCaptor = imageCaptor;
+            mRequestProcessCallback = requestProcessCallback;
         }
 
         /**
@@ -1234,6 +1440,9 @@ public final class ImageCapture extends UseCase {
                 }
 
                 mCurrentRequest = imageCaptureRequest;
+                if (mRequestProcessCallback != null) {
+                    mRequestProcessCallback.onPreProcessRequest(mCurrentRequest);
+                }
                 mCurrentRequestFuture = mImageCaptor.capture(imageCaptureRequest);
                 Futures.addCallback(mCurrentRequestFuture, new FutureCallback<ImageProxy>() {
                     @Override
@@ -1284,6 +1493,17 @@ public final class ImageCapture extends UseCase {
             @NonNull
             ListenableFuture<ImageProxy> capture(@NonNull ImageCaptureRequest imageCaptureRequest);
         }
+
+        /**
+         * An interface to provide callbacks when processing each capture request.
+         */
+        interface RequestProcessCallback {
+            /**
+             * This will be called before starting to process the
+             * ImageCaptureRequest.
+             */
+            void onPreProcessRequest(@NonNull ImageCaptureRequest imageCaptureRequest);
+        }
     }
 
     @NonNull
@@ -1297,8 +1517,8 @@ public final class ImageCapture extends UseCase {
     static int getError(Throwable throwable) {
         if (throwable instanceof CameraClosedException) {
             return ERROR_CAMERA_CLOSED;
-        } else if (throwable instanceof CaptureFailedException) {
-            return ERROR_CAPTURE_FAILED;
+        } else if (throwable instanceof ImageCaptureException) {
+            return ((ImageCaptureException) throwable).getImageCaptureError();
         } else {
             return ERROR_UNKNOWN;
         }
@@ -1344,10 +1564,18 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onDetached() {
+        ListenableFuture<Void> imageReaderCloseFuture = mImageReaderCloseFuture;
+
         abortImageCaptureRequests();
         clearPipeline();
         mUseSoftwareJpeg = false;
-        mExecutor.shutdown();
+
+        // Shutdowns the executor after mImageReader is closed. This can avoid
+        // RejectedExecutionException if a ProcessingImageReader is used to processing the
+        // captured images.
+        ExecutorService executorService = mExecutor;
+        imageReaderCloseFuture.addListener(() -> executorService.shutdown(),
+                CameraXExecutors.directExecutor());
     }
 
     /**
@@ -1413,183 +1641,6 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
-     * Routine before taking picture.
-     *
-     * <p>For example, trigger 3A scan, open torch and check 3A converged if necessary.
-     */
-    private ListenableFuture<Void> preTakePicture(final TakePictureState state) {
-        lockFlashMode();
-        return FutureChain.from(getPreCaptureStateIfNeeded())
-                .transformAsync(captureResult -> {
-                    state.mPreCaptureState = captureResult;
-                    triggerAfIfNeeded(state);
-                    if (isFlashRequired(state)) {
-                        return startFlashSequence(state);
-                    }
-                    return Futures.immediateFuture(null);
-                }, mExecutor)
-                .transformAsync(v -> check3AConverged(state), mExecutor)
-                // Ignore the 3A convergence result.
-                .transform(is3AConverged -> null, mExecutor);
-    }
-
-    /**
-     * Routine after picture was taken.
-     *
-     * <p>For example, cancel 3A scan, close torch if necessary.
-     */
-    void postTakePicture(final TakePictureState state) {
-        cancelAfAndFinishFlashSequence(state);
-        unlockFlashMode();
-    }
-
-    /**
-     * Gets a capture result or not according to current configuration.
-     *
-     * <p>Conditions to get a capture result.
-     *
-     * <p>(1) The enableCheck3AConverged is enabled because it needs to know current AF mode and
-     * state.
-     *
-     * <p>(2) The flashMode is AUTO because it needs to know the current AE state.
-     */
-    // Currently this method is used to prevent there is no repeating surface to get capture result.
-    // If app is in min-latency mode and flash ALWAYS/OFF mode, it can still take picture without
-    // checking the capture result. Remove this check once no repeating surface issue is fixed.
-    private ListenableFuture<CameraCaptureResult> getPreCaptureStateIfNeeded() {
-        if (mEnableCheck3AConverged || getFlashMode() == FLASH_MODE_AUTO) {
-            return mSessionCallbackChecker.checkCaptureResult(
-                    new CaptureCallbackChecker.CaptureResultChecker<CameraCaptureResult>() {
-                        @Override
-                        public CameraCaptureResult check(
-                                @NonNull CameraCaptureResult captureResult) {
-                            if (Logger.isDebugEnabled(TAG)) {
-                                Logger.d(TAG, "preCaptureState, AE=" + captureResult.getAeState()
-                                        + " AF =" + captureResult.getAfState()
-                                        + " AWB=" + captureResult.getAwbState());
-                            }
-                            return captureResult;
-                        }
-                    });
-        }
-        return Futures.immediateFuture(null);
-    }
-
-    boolean isFlashRequired(@NonNull TakePictureState state) {
-        switch (getFlashMode()) {
-            case FLASH_MODE_ON:
-                return true;
-            case FLASH_MODE_AUTO:
-                return state.mPreCaptureState.getAeState() == AeState.FLASH_REQUIRED;
-            case FLASH_MODE_OFF:
-                return false;
-        }
-        throw new AssertionError(getFlashMode());
-    }
-
-    ListenableFuture<Boolean> check3AConverged(TakePictureState state) {
-        if (!mEnableCheck3AConverged && !state.mIsFlashSequenceStarted) {
-            return Futures.immediateFuture(false);
-        }
-
-        long waitTimeout = CHECK_3A_TIMEOUT_IN_MS;
-        if (state.mIsFlashSequenceStarted) {
-            waitTimeout = CHECK_3A_WITH_FLASH_TIMEOUT_IN_MS;
-        }
-
-        return mSessionCallbackChecker.checkCaptureResult(
-                new CaptureCallbackChecker.CaptureResultChecker<Boolean>() {
-                    @Override
-                    public Boolean check(@NonNull CameraCaptureResult captureResult) {
-                        if (Logger.isDebugEnabled(TAG)) {
-                            Logger.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
-                                    + " AF =" + captureResult.getAfState()
-                                    + " AWB=" + captureResult.getAwbState());
-                        }
-
-                        if (is3AConverged(captureResult)) {
-                            return true;
-                        }
-                        // Return null to continue check.
-                        return null;
-                    }
-                },
-                waitTimeout,
-                false);
-    }
-
-    boolean is3AConverged(CameraCaptureResult captureResult) {
-        if (captureResult == null) {
-            return false;
-        }
-
-        // If afMode is OFF or UNKNOWN , no need for waiting.
-        // otherwise wait until af is locked or focused.
-        boolean isAfReady = captureResult.getAfMode() == AfMode.OFF
-                || captureResult.getAfMode() == AfMode.UNKNOWN
-                || captureResult.getAfState() == AfState.PASSIVE_FOCUSED
-                || captureResult.getAfState() == AfState.PASSIVE_NOT_FOCUSED
-                || captureResult.getAfState() == AfState.LOCKED_FOCUSED
-                || captureResult.getAfState() == AfState.LOCKED_NOT_FOCUSED;
-
-        // Unknown means cannot get valid state from CaptureResult
-        boolean isAeReady = captureResult.getAeState() == AeState.CONVERGED
-                || captureResult.getAeState() == AeState.FLASH_REQUIRED
-                || captureResult.getAeState() == AeState.UNKNOWN;
-
-        // Unknown means cannot get valid state from CaptureResult
-        boolean isAwbReady = captureResult.getAwbState() == AwbState.CONVERGED
-                || captureResult.getAwbState() == AwbState.UNKNOWN;
-
-        return (isAfReady && isAeReady && isAwbReady);
-    }
-
-    /**
-     * Issues the AF scan if needed.
-     *
-     * <p>If enableCheck3AConverged is disabled or it is in CAF mode, AF scan should not be
-     * triggered. Trigger AF scan only in {@link AfMode#ON_MANUAL_AUTO} and current AF state is
-     * {@link AfState#INACTIVE}. If the AF mode is {@link AfMode#ON_MANUAL_AUTO} and AF state is not
-     * inactive, it means that a manual or auto focus request may be in progress or completed.
-     */
-    void triggerAfIfNeeded(TakePictureState state) {
-        if (mEnableCheck3AConverged
-                && state.mPreCaptureState.getAfMode() == AfMode.ON_MANUAL_AUTO
-                && state.mPreCaptureState.getAfState() == AfState.INACTIVE) {
-            triggerAf(state);
-        }
-    }
-
-    /** Issues a request to start auto focus scan. */
-    private void triggerAf(TakePictureState state) {
-        Logger.d(TAG, "triggerAf");
-        state.mIsAfTriggered = true;
-        ListenableFuture<CameraCaptureResult> future = getCameraControl().triggerAf();
-        // Add listener to avoid FutureReturnValueIgnored error.
-        future.addListener(() -> {
-        }, CameraXExecutors.directExecutor());
-    }
-
-    /** Issues a request to start auto exposure scan. */
-    @NonNull
-    ListenableFuture<Void> startFlashSequence(@NonNull TakePictureState state) {
-        Logger.d(TAG, "startFlashSequence");
-        state.mIsFlashSequenceStarted = true;
-        return getCameraControl().startFlashSequence(mFlashType);
-    }
-
-    /** Issues a request to cancel auto focus and/or auto exposure scan. */
-    void cancelAfAndFinishFlashSequence(@NonNull TakePictureState state) {
-        if (!state.mIsAfTriggered && !state.mIsFlashSequenceStarted) {
-            return;
-        }
-        getCameraControl().cancelAfAndFinishFlashSequence(state.mIsAfTriggered,
-                state.mIsFlashSequenceStarted);
-        state.mIsAfTriggered = false;
-        state.mIsFlashSequenceStarted = false;
-    }
-
-    /**
      * Initiates a set of captures that will be used to create the output of
      * {@link #takePicture(OutputFileOptions, Executor, OnImageSavedCallback)} and its variants.
      *
@@ -1601,7 +1652,6 @@ public final class ImageCapture extends UseCase {
     ListenableFuture<Void> issueTakePicture(@NonNull ImageCaptureRequest imageCaptureRequest) {
         Logger.d(TAG, "issueTakePicture");
 
-        final List<ListenableFuture<Void>> futureList = new ArrayList<>();
         final List<CaptureConfig> captureConfigs = new ArrayList<>();
         String tagBundleKey = null;
 
@@ -1628,6 +1678,13 @@ public final class ImageCapture extends UseCase {
             }
 
             mProcessingImageReader.setCaptureBundle(captureBundle);
+            mProcessingImageReader.setOnProcessingErrorCallback(
+                    CameraXExecutors.directExecutor(),
+                    (message, cause) -> {
+                        Logger.e(TAG, "Processing image failed! " + message);
+                        imageCaptureRequest.notifyCallbackError(ERROR_CAPTURE_FAILED, message,
+                                cause);
+                    });
             tagBundleKey = mProcessingImageReader.getTagBundleKey();
         } else {
             captureBundle = getCaptureBundle(CaptureBundles.singleDefaultCaptureBundle());
@@ -1648,13 +1705,19 @@ public final class ImageCapture extends UseCase {
 
             builder.addSurface(mDeferrableSurface);
 
-            // Add the dynamic implementation options of ImageCapture
-            if (new ExifRotationAvailability().isRotationOptionSupported()) {
-                builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
-                        imageCaptureRequest.mRotationDegrees);
+            // Only sets the JPEG rotation and quality capture request options when capturing
+            // images in JPEG format. Some devices do not handle these CaptureRequest key values
+            // when capturing a non-JPEG image. Setting these capture requests and checking the
+            // returned capture results for specific purpose might cause problems. See b/204375890.
+            if (getImageFormat() == ImageFormat.JPEG) {
+                // Add the dynamic implementation options of ImageCapture
+                if (EXIF_ROTATION_AVAILABILITY.isRotationOptionSupported()) {
+                    builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
+                            imageCaptureRequest.mRotationDegrees);
+                }
+                builder.addImplementationOption(CaptureConfig.OPTION_JPEG_QUALITY,
+                        imageCaptureRequest.mJpegQuality);
             }
-            builder.addImplementationOption(CaptureConfig.OPTION_JPEG_QUALITY,
-                    imageCaptureRequest.mJpegQuality);
 
             // Add the implementation options required by the CaptureStage
             builder.addImplementationOptions(
@@ -1665,60 +1728,13 @@ public final class ImageCapture extends UseCase {
                 builder.addTag(tagBundleKey, captureStage.getId());
             }
             builder.addCameraCaptureCallback(mMetadataMatchingCaptureCallback);
-
-            ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(
-                    completer -> {
-                        CameraCaptureCallback completerCallback = new CameraCaptureCallback() {
-                            @Override
-                            public void onCaptureCompleted(
-                                    @NonNull CameraCaptureResult result) {
-                                completer.set(null);
-                            }
-
-                            @Override
-                            public void onCaptureFailed(
-                                    @NonNull CameraCaptureFailure failure) {
-                                String msg = "Capture request failed with reason "
-                                        + failure.getReason();
-                                completer.setException(new CaptureFailedException(msg));
-                            }
-
-                            @Override
-                            public void onCaptureCancelled() {
-                                String msg = "Capture request is cancelled because "
-                                        + "camera is closed";
-                                completer.setException(new CameraClosedException(msg));
-                            }
-                        };
-                        builder.addCameraCaptureCallback(completerCallback);
-
-                        captureConfigs.add(builder.build());
-                        return "issueTakePicture[stage=" + captureStage.getId() + "]";
-                    });
-            futureList.add(future);
-
+            captureConfigs.add(builder.build());
         }
 
-        getCameraControl().submitStillCaptureRequests(captureConfigs);
-        return Futures.transform(Futures.allAsList(futureList),
+        return Futures.transform(getCameraControl().submitStillCaptureRequests(
+                captureConfigs, mCaptureMode, mFlashType),
                 input -> null, CameraXExecutors.directExecutor());
     }
-
-    /** This exception is thrown when request is failed (reported by framework) */
-    static final class CaptureFailedException extends RuntimeException {
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        CaptureFailedException(String s, Throwable e) {
-            super(s, e);
-        }
-
-        /** @hide */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        CaptureFailedException(String s) {
-            super(s);
-        }
-    }
-
 
     private CaptureBundle getCaptureBundle(CaptureBundle defaultCaptureBundle) {
         List<CaptureStage> captureStages = mCaptureBundle.getCaptureStages();
@@ -1751,7 +1767,8 @@ public final class ImageCapture extends UseCase {
      *
      * @hide
      */
-    @IntDef({CAPTURE_MODE_MAXIMIZE_QUALITY, CAPTURE_MODE_MINIMIZE_LATENCY})
+    @IntDef({CAPTURE_MODE_MAXIMIZE_QUALITY, CAPTURE_MODE_MINIMIZE_LATENCY,
+            CAPTURE_MODE_ZERO_SHUTTER_LAG})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(Scope.LIBRARY_GROUP)
     public @interface CaptureMode {
@@ -1790,7 +1807,6 @@ public final class ImageCapture extends UseCase {
     }
 
     /** Listener containing callbacks for image file I/O events. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public interface OnImageSavedCallback {
         /** Called when an image has been successfully saved. */
         void onImageSaved(@NonNull OutputFileResults outputFileResults);
@@ -1807,7 +1823,6 @@ public final class ImageCapture extends UseCase {
     /**
      * Callback for when an image capture has completed.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public abstract static class OnImageCapturedCallback {
         /**
          * Callback for when the image has been captured.
@@ -1889,7 +1904,6 @@ public final class ImageCapture extends UseCase {
      * either a {@link File}, {@link MediaStore} or a {@link OutputStream}. The metadata will be
      * stored with the saved image. For JPEG this will be included in the EXIF.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class OutputFileOptions {
 
         @Nullable
@@ -1960,7 +1974,6 @@ public final class ImageCapture extends UseCase {
         /**
          * Builder class for {@link OutputFileOptions}.
          */
-        @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info
         public static final class Builder {
             @Nullable
             private File mFile;
@@ -2051,7 +2064,6 @@ public final class ImageCapture extends UseCase {
     /**
      * Info about the saved image file.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static class OutputFileResults {
         @Nullable
         private Uri mSavedUri;
@@ -2074,7 +2086,6 @@ public final class ImageCapture extends UseCase {
     }
 
     /** Holder class for metadata that will be saved with captured images. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Metadata {
         /**
          * Indicates a left-right mirroring (reflection).
@@ -2173,150 +2184,7 @@ public final class ImageCapture extends UseCase {
         }
     }
 
-    /**
-     * An intermediate action recorder while taking picture. It is used to restore certain states.
-     * For example, cancel AF/AE scan, and close flash light.
-     */
-    static final class TakePictureState {
-        CameraCaptureResult mPreCaptureState = EmptyCameraCaptureResult.create();
-        boolean mIsAfTriggered = false;
-        boolean mIsFlashSequenceStarted = false;
-    }
-
-    /**
-     * A helper class to check camera capture result.
-     *
-     * <p>CaptureCallbackChecker is an implementation of {@link CameraCaptureCallback} that checks a
-     * specified list of condition and sets a ListenableFuture when the conditions have been met. It
-     * is mainly used to continuously capture callbacks to detect specific conditions. It also
-     * handles the timeout condition if the check condition does not satisfy the given timeout, and
-     * returns the given default value if the timeout is met.
-     */
-    static final class CaptureCallbackChecker extends CameraCaptureCallback {
-        private static final long NO_TIMEOUT = 0L;
-
-        /** Capture listeners. */
-        private final Set<CaptureResultListener> mCaptureResultListeners = new HashSet<>();
-
-        @Override
-        public void onCaptureCompleted(@NonNull CameraCaptureResult cameraCaptureResult) {
-            deliverCaptureResultToListeners(cameraCaptureResult);
-        }
-
-        /**
-         * Check the capture results of current session capture callback by giving a {@link
-         * CaptureResultChecker}.
-         *
-         * @param checker a CaptureResult checker that returns an object with type T if the check is
-         *                complete, returning null to continue the check process.
-         * @param <T>     the type parameter for CaptureResult checker.
-         * @return a listenable future for capture result check process.
-         */
-        <T> ListenableFuture<T> checkCaptureResult(CaptureResultChecker<T> checker) {
-            return checkCaptureResult(checker, NO_TIMEOUT, null);
-        }
-
-        /**
-         * Check the capture results of current session capture callback with timeout limit by
-         * giving a {@link CaptureResultChecker}.
-         *
-         * @param checker     a CaptureResult checker that returns an object with type T if the
-         *                    check is
-         *                    complete, returning null to continue the check process.
-         * @param timeoutInMs used to force stop checking.
-         * @param defValue    the default return value if timeout occur.
-         * @param <T>         the type parameter for CaptureResult checker.
-         * @return a listenable future for capture result check process.
-         */
-        <T> ListenableFuture<T> checkCaptureResult(
-                final CaptureResultChecker<T> checker, final long timeoutInMs, final T defValue) {
-            if (timeoutInMs < NO_TIMEOUT) {
-                throw new IllegalArgumentException("Invalid timeout value: " + timeoutInMs);
-            }
-            final long startTimeInMs =
-                    (timeoutInMs != NO_TIMEOUT) ? SystemClock.elapsedRealtime() : 0L;
-
-            return CallbackToFutureAdapter.getFuture(
-                    completer -> {
-                        addListener(
-                                new CaptureResultListener() {
-                                    @Override
-                                    public boolean onCaptureResult(
-                                            @NonNull CameraCaptureResult captureResult) {
-                                        T result = checker.check(captureResult);
-                                        if (result != null) {
-                                            completer.set(result);
-                                            return true;
-                                        } else if (startTimeInMs > 0
-                                                && SystemClock.elapsedRealtime() - startTimeInMs
-                                                > timeoutInMs) {
-                                            completer.set(defValue);
-                                            return true;
-                                        }
-                                        // Return false to continue check.
-                                        return false;
-                                    }
-                                });
-                        return "checkCaptureResult";
-                    });
-        }
-
-        /**
-         * Delivers camera capture result to {@link CaptureCallbackChecker#mCaptureResultListeners}.
-         */
-        private void deliverCaptureResultToListeners(@NonNull CameraCaptureResult captureResult) {
-            synchronized (mCaptureResultListeners) {
-                Set<CaptureResultListener> removeSet = null;
-                for (CaptureResultListener listener : new HashSet<>(mCaptureResultListeners)) {
-                    // Remove listener if the callback return true
-                    if (listener.onCaptureResult(captureResult)) {
-                        if (removeSet == null) {
-                            removeSet = new HashSet<>();
-                        }
-                        removeSet.add(listener);
-                    }
-                }
-                if (removeSet != null) {
-                    mCaptureResultListeners.removeAll(removeSet);
-                }
-            }
-        }
-
-        /** Add capture result listener. */
-        void addListener(CaptureResultListener listener) {
-            synchronized (mCaptureResultListeners) {
-                mCaptureResultListeners.add(listener);
-            }
-        }
-
-        /** An interface to check camera capture result. */
-        public interface CaptureResultChecker<T> {
-
-            /**
-             * The callback to check camera capture result.
-             *
-             * @param captureResult the camera capture result.
-             * @return the check result, return null to continue checking.
-             */
-            @Nullable
-            T check(@NonNull CameraCaptureResult captureResult);
-        }
-
-        /** An interface to listen to camera capture results. */
-        private interface CaptureResultListener {
-
-            /**
-             * Callback to handle camera capture results.
-             *
-             * @param captureResult camera capture result.
-             * @return true to finish listening, false to continue listening.
-             */
-            boolean onCaptureResult(@NonNull CameraCaptureResult captureResult);
-        }
-    }
-
     @VisibleForTesting
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     static class ImageCaptureRequest {
         @RotationValue
         final int mRotationDegrees;
@@ -2333,11 +2201,21 @@ public final class ImageCapture extends UseCase {
 
         private final Rect mViewPortCropRect;
 
+        @NonNull
+        private final Matrix mSensorToBufferTransformMatrix;
+
         /**
+         *
          * @param rotationDegrees The degrees to rotate the image buffer from sensor
          *                        coordinates into the final output coordinate space.
-         * @param targetRatio     The aspect ratio of the image in final output coordinate space.
-         *                        This must be a non-negative, non-zero value.
+         * @param jpegQuality The requested output JPEG image compression quality. The value must
+         *                    be in range [1..100] which larger is higher quality.
+         * @param targetRatio The aspect ratio of the image in final output coordinate space.
+         *                    This must be a non-negative, non-zero value.
+         * @param viewPortCropRect The cropped rect of the field of view.
+         * @param sensorToBufferTransformMatrix The sensor to buffer transform matrix.
+         * @param executor The {@link Executor} which will be used for the listener.
+         * @param callback The {@link OnImageCapturedCallback} for the quest.
          * @throws IllegalArgumentException If targetRatio is not a valid value.
          */
         ImageCaptureRequest(
@@ -2345,6 +2223,7 @@ public final class ImageCapture extends UseCase {
                 @IntRange(from = 1, to = 100) int jpegQuality,
                 Rational targetRatio,
                 @Nullable Rect viewPortCropRect,
+                @NonNull Matrix sensorToBufferTransformMatrix,
                 @NonNull Executor executor,
                 @NonNull OnImageCapturedCallback callback) {
             mRotationDegrees = rotationDegrees;
@@ -2356,6 +2235,7 @@ public final class ImageCapture extends UseCase {
             }
             mTargetRatio = targetRatio;
             mViewPortCropRect = viewPortCropRect;
+            mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
             mListenerExecutor = executor;
             mCallback = callback;
         }
@@ -2372,7 +2252,7 @@ public final class ImageCapture extends UseCase {
 
             // Retrieve the dimension and rotation values from the embedded EXIF data in the
             // captured image only if those information is available.
-            if (new ExifRotationAvailability().shouldUseExifOrientation(image)) {
+            if (EXIF_ROTATION_AVAILABILITY.shouldUseExifOrientation(image)) {
                 // JPEG needs to have rotation/crop based on the EXIF
                 try {
                     ImageProxy.PlaneProxy[] planes = image.getPlanes();
@@ -2402,34 +2282,18 @@ public final class ImageCapture extends UseCase {
             // Construct the ImageProxy with the updated rotation & crop for the output
             ImageInfo imageInfo = ImmutableImageInfo.create(
                     image.getImageInfo().getTagBundle(),
-                    image.getImageInfo().getTimestamp(), dispatchRotationDegrees);
+                    image.getImageInfo().getTimestamp(),
+                    dispatchRotationDegrees,
+                    mSensorToBufferTransformMatrix);
 
             final ImageProxy dispatchedImageProxy = new SettableImageProxy(image,
-                    dispatchResolution,
-                    imageInfo);
+                    dispatchResolution, imageInfo);
 
             // Update the crop rect aspect ratio after it has been rotated into the buffer
             // orientation
-            if (mViewPortCropRect != null) {
-                // If Viewport is present, use the Viewport-based crop rect.
-                dispatchedImageProxy.setCropRect(getDispatchCropRect(mViewPortCropRect,
-                        mRotationDegrees, dispatchResolution, dispatchRotationDegrees));
-            } else if (mTargetRatio != null) {
-                // Fall back to crop aspect ratio if view port is not available.
-                Rational dispatchRatio = mTargetRatio;
-                if ((dispatchRotationDegrees % 180) != 0) {
-                    dispatchRatio = new Rational(
-                            /* invert the ratio numerator=*/ mTargetRatio.getDenominator(),
-                            /* invert the ratio denominator=*/ mTargetRatio.getNumerator());
-                }
-                Size sourceSize = new Size(dispatchedImageProxy.getWidth(),
-                        dispatchedImageProxy.getHeight());
-                if (ImageUtil.isAspectRatioValid(sourceSize, dispatchRatio)) {
-                    dispatchedImageProxy.setCropRect(
-                            ImageUtil.computeCropRectFromAspectRatio(sourceSize,
-                                    dispatchRatio));
-                }
-            }
+            Rect cropRect = computeDispatchCropRect(mViewPortCropRect, mTargetRatio,
+                    mRotationDegrees, dispatchResolution, dispatchRotationDegrees);
+            dispatchedImageProxy.setCropRect(cropRect);
 
             try {
                 mListenerExecutor.execute(() -> {
@@ -2441,50 +2305,6 @@ public final class ImageCapture extends UseCase {
                 // Unable to execute on the supplied executor, close the image.
                 image.close();
             }
-        }
-
-        /**
-         * Corrects crop rect based on JPEG exif rotation.
-         *
-         * <p> The original crop rect is calculated based on camera sensor buffer. On some devices,
-         * the buffer is rotated before being passed to users, in which case the crop rect also
-         * needs additional transformations.
-         *
-         * <p> There are two most common scenarios: 1) exif rotation is 0, or 2) exif rotation
-         * equals output rotation. 1) means the HAL rotated the buffer based on target
-         * rotation. 2) means HAL no-oped on the rotation. Theoretically only 1) needs
-         * additional transformations, but this method is also generic enough to handle all possible
-         * HAL rotations.
-         */
-        @NonNull
-        static Rect getDispatchCropRect(@NonNull Rect surfaceCropRect, int surfaceToOutputDegrees,
-                @NonNull Size dispatchResolution, int dispatchToOutputDegrees) {
-            // There are 3 coordinate systems: surface, dispatch and output. Surface is where
-            // the original crop rect is defined. We need to figure out what HAL
-            // has done to the buffer (the surface->dispatch mapping) and apply the same
-            // transformation to the crop rect.
-            // The surface->dispatch mapping is calculated by inverting a dispatch->surface mapping.
-
-            Matrix matrix = new Matrix();
-            // Apply the dispatch->surface rotation.
-            matrix.setRotate(dispatchToOutputDegrees - surfaceToOutputDegrees);
-            // Apply the dispatch->surface translation. The translation is calculated by
-            // compensating for the offset caused by the dispatch->surface rotation.
-            float[] vertexes = sizeToVertexes(dispatchResolution);
-            matrix.mapPoints(vertexes);
-            float left = min(vertexes[0], vertexes[2], vertexes[4], vertexes[6]);
-            float top = min(vertexes[1], vertexes[3], vertexes[5], vertexes[7]);
-            matrix.postTranslate(-left, -top);
-            // Inverting the dispatch->surface mapping to get the surface->dispatch mapping.
-            matrix.invert(matrix);
-
-            // Apply the surface->dispatch mapping to surface crop rect.
-            RectF dispatchCropRectF = new RectF();
-            matrix.mapRect(dispatchCropRectF, new RectF(surfaceCropRect));
-            dispatchCropRectF.sort();
-            Rect dispatchCropRect = new Rect();
-            dispatchCropRectF.round(dispatchCropRect);
-            return dispatchCropRect;
         }
 
         void notifyCallbackError(final @ImageCaptureError int imageCaptureError,
@@ -2505,7 +2325,6 @@ public final class ImageCapture extends UseCase {
 
     /** Builder for an {@link ImageCapture}. */
     @SuppressWarnings("ObjectToString")
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder implements
             UseCaseConfig.Builder<ImageCapture, ImageCaptureConfig, Builder>,
             ImageOutputConfig.Builder<Builder>,
@@ -2969,6 +2788,33 @@ public final class ImageCapture extends UseCase {
             return this;
         }
 
+        /**
+         * Sets the output JPEG image compression quality.
+         *
+         * <p>This is used for the {@link ImageProxy} which is returned by
+         * {@link #takePicture(Executor, OnImageCapturedCallback)} or the output JPEG image which
+         * is saved by {@link #takePicture(OutputFileOptions, Executor, OnImageSavedCallback)}.
+         * The saved JPEG image might be cropped according to the {@link ViewPort} setting or
+         * the crop aspect ratio set by {@link #setCropAspectRatio(Rational)}. The JPEG quality
+         * setting will also be used to compress the cropped output image.
+         *
+         * <p>If not set, a default value will be used according to the capture mode setting.
+         * JPEG compression quality 95 is used for {@link #CAPTURE_MODE_MINIMIZE_LATENCY} and 100
+         * is used for {@link #CAPTURE_MODE_MAXIMIZE_QUALITY}.
+         *
+         * @param jpegQuality The requested output JPEG image compression quality. The value must
+         *                   be in range [1..100] which larger is higher quality.
+         * @return The current Builder.
+         * @throws IllegalArgumentException if the input value is not in range [1..100].
+         */
+        @NonNull
+        public Builder setJpegQuality(@IntRange(from = 1, to = 100) int jpegQuality) {
+            Preconditions.checkArgumentInRange(jpegQuality, 1, 100, "jpegQuality");
+            getMutableConfig().insertOption(OPTION_JPEG_COMPRESSION_QUALITY,
+                    jpegQuality);
+            return this;
+        }
+
         // Implementations of IoConfig.Builder default methods
 
         /**
@@ -3054,6 +2900,18 @@ public final class ImageCapture extends UseCase {
         public Builder setUseCaseEventCallback(
                 @NonNull UseCase.EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
+            return this;
+        }
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setZslDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_ZSL_DISABLED, disabled);
             return this;
         }
     }

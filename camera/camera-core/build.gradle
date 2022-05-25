@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -66,17 +65,6 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-truth"))
 }
 
-// Needed for the above compileOnly(project(':external:libyuv')) dep to work around b/194735614
-afterEvaluate {
-    tasks.named("configureCMakeDebug").configure {
-        dependsOn(":external:libyuv:prefabDebugPackage")
-    }
-
-    tasks.named("configureCMakeRelWithDebInfo").configure {
-        dependsOn(":external:libyuv:prefabReleasePackage")
-    }
-}
-
 android {
     defaultConfig {
         multiDexEnabled = true
@@ -96,9 +84,13 @@ android {
 
     externalNativeBuild {
         cmake {
-            version "3.10.2"
+            version libs.versions.cmake.get()
             path "src/main/cpp/CMakeLists.txt"
         }
+    }
+
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
     }
 
     // Use Robolectric 4.+
@@ -107,6 +99,7 @@ android {
     packagingOptions {
         pickFirst "META-INF/support.camera_camera-core.version"
     }
+    namespace "androidx.camera.core"
 }
 
 androidx {
@@ -117,5 +110,9 @@ androidx {
     description = "Core components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
-}
 
+    license {
+        name = "BSD License"
+        url = "https://chromium.googlesource.com/libyuv/libyuv/+/refs/heads/main/README.chromium"
+    }
+}

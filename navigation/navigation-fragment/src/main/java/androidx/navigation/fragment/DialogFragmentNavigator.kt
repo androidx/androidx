@@ -45,7 +45,17 @@ public class DialogFragmentNavigator(
 ) : Navigator<Destination>() {
     private val restoredTagsAwaitingAttach = mutableSetOf<String>()
     private val observer = LifecycleEventObserver { source, event ->
-        if (event == Lifecycle.Event.ON_STOP) {
+        if (event == Lifecycle.Event.ON_CREATE) {
+            val dialogFragment = source as DialogFragment
+            val dialogOnBackStack = state.backStack.value.any { it.id == dialogFragment.tag }
+            if (!dialogOnBackStack) {
+                // If the Fragment is no longer on the back stack, it must have been
+                // been popped before it was actually attached to the FragmentManager
+                // (i.e., popped in the same frame as the navigate() call that added it). For
+                // that case, we need to dismiss the dialog to ensure the states stay in sync
+                dialogFragment.dismiss()
+            }
+        } else if (event == Lifecycle.Event.ON_STOP) {
             val dialogFragment = source as DialogFragment
             if (!dialogFragment.requireDialog().isShowing) {
                 val beforePopList = state.backStack.value

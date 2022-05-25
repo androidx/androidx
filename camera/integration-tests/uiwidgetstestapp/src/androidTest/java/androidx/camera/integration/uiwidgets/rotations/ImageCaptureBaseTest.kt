@@ -16,13 +16,15 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Environment
 import android.view.View
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.integration.uiwidgets.R
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
@@ -33,12 +35,11 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.TimeUnit
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.BeforeClass
 import org.junit.Rule
-import org.junit.rules.TestRule
-import java.util.concurrent.TimeUnit
 
 /**
  * Base class for rotation image capture tests.
@@ -55,7 +56,9 @@ import java.util.concurrent.TimeUnit
 abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
     @get:Rule
-    val mUseCameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule)
+    val useCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        testCameraRule, CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val mCameraActivityRules: GrantPermissionRule =
@@ -70,6 +73,10 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
         assumeFalse(
             "Cuttlefish does not correctly handle rotating. Unable to test.",
             Build.MODEL.contains("Cuttlefish")
+        )
+        assumeFalse(
+            "Known issue on this device. Please see b/199115443",
+            Build.MODEL.contains("k61v1_basic_ref")
         )
 
         CoreAppTestUtil.assumeCompatibleDevice()
@@ -88,7 +95,9 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
     }
 
     protected fun tearDown() {
-        CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+        cameraProvider.shutdown()[10, TimeUnit.SECONDS]
         mDevice.unfreezeRotation()
     }
 

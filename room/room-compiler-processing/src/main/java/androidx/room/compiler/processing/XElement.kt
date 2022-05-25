@@ -20,7 +20,7 @@ import androidx.room.compiler.processing.javac.JavacElement
 import androidx.room.compiler.processing.ksp.KSFileAsOriginatingElement
 import androidx.room.compiler.processing.ksp.KspElement
 import androidx.room.compiler.processing.ksp.KspMemberContainer
-import androidx.room.compiler.processing.ksp.containingFileAsOriginatingElement
+import androidx.room.compiler.processing.ksp.wrapAsOriginatingElement
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import javax.lang.model.element.Element
 import kotlin.contracts.contract
@@ -54,6 +54,21 @@ interface XElement : XAnnotated {
      * Returns true if all types referenced by this element are valid, i.e. resolvable.
      */
     fun validate(): Boolean
+
+    /**
+     * Returns the immediate enclosing element. This uses Element.getEnclosingElement() on the
+     * Java side, and KSNode.parent on the KSP side. For non-nested classes we return null as we
+     * don't model packages yet. For fields declared in primary constructors in Kotlin we return
+     * the enclosing type, not the constructor. For top-level properties or functions in Kotlin
+     * we return JavacTypeElement on the Java side and KspFileMemberContainer or
+     * KspSyntheticFileMemberContainer on the KSP side.
+     */
+    val enclosingElement: XElement?
+
+    /**
+     * Returns the closest member container. Could be the element if it's itself a member container.
+     */
+    val closestMemberContainer: XMemberContainer
 }
 
 /**
@@ -65,6 +80,16 @@ fun XElement.isTypeElement(): Boolean {
         returns(true) implies (this@isTypeElement is XTypeElement)
     }
     return this is XTypeElement
+}
+
+/**
+ * Checks whether this element represents an [XEnumTypeElement].
+ */
+fun XElement.isEnum(): Boolean {
+    contract {
+        returns(true) implies (this@isEnum is XEnumTypeElement)
+    }
+    return this is XEnumTypeElement
 }
 
 /**
@@ -129,13 +154,13 @@ internal fun XElement.originatingElementForPoet(): Element? {
     return when (this) {
         is JavacElement -> element
         is KspElement -> {
-            declaration.containingFileAsOriginatingElement()
+            declaration.wrapAsOriginatingElement()
         }
         is KspSyntheticPropertyMethodElement -> {
-            field.declaration.containingFileAsOriginatingElement()
+            field.declaration.wrapAsOriginatingElement()
         }
         is KspMemberContainer -> {
-            declaration?.containingFileAsOriginatingElement()
+            declaration?.wrapAsOriginatingElement()
         }
         else -> error("Originating element is not implemented for ${this.javaClass}")
     }

@@ -16,6 +16,7 @@
 
 package androidx.lifecycle
 
+import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
 import org.gradle.tooling.GradleConnector
 import org.gradle.tooling.ProjectConnection
@@ -23,13 +24,11 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.Properties
 
 @RunWith(JUnit4::class)
 class IncrementalAnnotationProcessingTest {
@@ -46,7 +45,7 @@ class IncrementalAnnotationProcessingTest {
     }
 
     @get:Rule
-    val testProjectDir = TemporaryFolder()
+    val projectSetup = ProjectSetupRule()
 
     private lateinit var projectRoot: File
     private lateinit var fooObserver: File
@@ -60,18 +59,10 @@ class IncrementalAnnotationProcessingTest {
     private lateinit var genFooAdapterClass: File
     private lateinit var genBarAdapterClass: File
     private lateinit var projectConnection: ProjectConnection
-    private lateinit var prebuiltsRoot: String
-    private lateinit var compileSdkVersion: String
-    private lateinit var buildToolsVersion: String
-    private lateinit var minSdkVersion: String
-    private lateinit var debugKeystore: String
-    private lateinit var agpDependency: String
-    private lateinit var gradleDistributionUrl: String
-    private lateinit var supportRepo: String
 
     @Before
     fun setup() {
-        projectRoot = testProjectDir.root
+        projectRoot = projectSetup.rootDir
         fooObserver = File(projectRoot, "$SOURCE_DIR/FooObserver.java")
         barObserver = File(projectRoot, "$SOURCE_DIR/BarObserver.java")
         genFooAdapter = File(
@@ -107,17 +98,13 @@ class IncrementalAnnotationProcessingTest {
                 "/BarObserver_LifecycleAdapter.class"
         )
         projectRoot.mkdirs()
-        setProperties()
         setupProjectBuildGradle()
-        setupProjectGradleProperties()
         setupAppBuildGradle()
-        setupLocalProperties()
         setupSettingsGradle()
         setupAndroidManifest()
         addSource()
 
         projectConnection = GradleConnector.newConnector()
-            .useDistribution(File(gradleDistributionUrl).toURI())
             .forProjectDirectory(projectRoot).connect()
     }
 
@@ -222,45 +209,26 @@ class IncrementalAnnotationProcessingTest {
         projectConnection.close()
     }
 
-    private fun setupLocalProperties() {
-        val commonProperties = File("../../../local.properties")
-        commonProperties.copyTo(File(projectRoot, "local.properties"), overwrite = true)
-    }
-
-    private fun setupProjectGradleProperties() {
-        addFileWithContent(
-            "gradle.properties",
-            "android.useAndroidX=true"
-        )
-    }
-
     private fun setupProjectBuildGradle() {
+        val repositoriesBlock = buildString {
+            appendLine("repositories {")
+            projectSetup.allRepositoryPaths.forEach {
+                appendLine("""maven { url "$it" }""")
+            }
+            appendLine("}")
+        }
         addFileWithContent(
             "build.gradle",
             """
             buildscript {
-                repositories {
-                    maven { url "$prebuiltsRoot/androidx/external" }
-                    maven { url "$prebuiltsRoot/androidx/internal" }
-                }
+                ${repositoriesBlock.prependIndent("    ")}
                 dependencies {
-                    classpath "$agpDependency"
+                    classpath "${projectSetup.props.agpDependency}"
                 }
             }
 
             allprojects {
-                repositories {
-                    // Provide a maven repo containing necessary artifacts built from tip of tree
-                    maven { url "$supportRepo" }
-                    maven { url "$prebuiltsRoot/androidx/external" }
-                    maven {
-                        url "$prebuiltsRoot/androidx/internal"
-                        // Get artifacts to be tested from provided repo instead of prebuiltsRepo
-                        content {
-                            excludeModule("androidx.lifecycle", "lifecycle-compiler")
-                        }
-                    }
-                }
+                $repositoriesBlock
             }
 
             task clean(type: Delete) {
@@ -277,16 +245,16 @@ class IncrementalAnnotationProcessingTest {
             apply plugin: 'com.android.application'
 
             android {
-                compileSdkVersion $compileSdkVersion
-                buildToolsVersion "$buildToolsVersion"
+                compileSdkVersion ${projectSetup.props.compileSdkVersion}
+                buildToolsVersion "${projectSetup.props.buildToolsVersion}"
 
                 defaultConfig {
-                    minSdkVersion $minSdkVersion
+                    minSdkVersion ${projectSetup.props.minSdkVersion}
                 }
 
                 signingConfigs {
                     debug {
-                        storeFile file("$debugKeystore")
+                        storeFile file("${projectSetup.props.debugKeystore}")
                     }
                 }
             }
@@ -377,21 +345,5 @@ class IncrementalAnnotationProcessingTest {
         val content = String(Files.readAllBytes(file))
         val newContent = content.replace(search, replace)
         Files.write(file, newContent.toByteArray())
-    }
-
-    private fun setProperties() {
-        // copy sdk.prop (created by generateSdkResource task in build.gradle)
-        IncrementalAnnotationProcessingTest::class.java.classLoader
-            .getResourceAsStream("sdk.prop").use { input ->
-                val properties = Properties().apply { load(input) }
-                prebuiltsRoot = properties.getProperty("prebuiltsRoot")
-                compileSdkVersion = properties.getProperty("compileSdkVersion")
-                buildToolsVersion = properties.getProperty("buildToolsVersion")
-                minSdkVersion = properties.getProperty("minSdkVersion")
-                debugKeystore = properties.getProperty("debugKeystore")
-                agpDependency = properties.getProperty("agpDependency")
-                gradleDistributionUrl = properties.getProperty("gradleDistributionUrl")
-                supportRepo = properties.getProperty("localSupportRepo")
-            }
     }
 }

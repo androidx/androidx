@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -31,9 +29,9 @@ dependencies {
     kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
-    api("androidx.compose.foundation:foundation:1.0.2")
+    api("androidx.compose.foundation:foundation:1.0.5")
     api(project(":paging:paging-common"))
-    api("androidx.compose.runtime:runtime:1.0.2")
+    api("androidx.compose.runtime:runtime:1.0.5")
 
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
@@ -54,4 +52,8 @@ androidx {
     description = "Compose integration with Paging"
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
+}
+
+android {
+    namespace "androidx.paging.compose"
 }

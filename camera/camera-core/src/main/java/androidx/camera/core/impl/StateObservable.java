@@ -182,7 +182,6 @@ public abstract class StateObservable<T> implements Observable<T> {
         }
     }
 
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     private static final class ObserverWrapper<T> implements Runnable {
         private static final Object NOT_SET = new Object();
         private static final int NO_VERSION = -1;

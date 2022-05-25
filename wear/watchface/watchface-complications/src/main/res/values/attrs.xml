@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <!-- ComplicationSlotBounds may not have any child nodes.
+    Either top, bottom, left, right or center_x, center_y, width, height should be specified.
+    The coordinates should be specified either in floating point form (0..1)
+    or as a reference to dimension resource. -->
+    <declare-styleable name="ComplicationSlotBounds">
+        <!-- The type of complication. Required if per-complication type bounds are used. -->
+        <attr name="complicationType"/>
+        <!-- Complication top bound coordinate. -->
+        <attr name="top" format="float|reference|dimension" />
+        <!-- Complication bottom bound coordinate. -->
+        <attr name="bottom" format="float|reference|dimension" />
+        <!-- Complication left bound coordinate. -->
+        <attr name="left" format="float|reference|dimension" />
+        <!-- Complication right bound coordinate. -->
+        <attr name="right" format="float|reference|dimension" />
+
+        <!-- Complication center X position. -->
+        <attr name="center_x" format="float|reference|dimension" />
+        <!-- Complication center Y position. -->
+        <attr name="center_y" format="float|reference|dimension" />
+        <!-- Complication width. -->
+        <attr name="size_x" format="float|reference|dimension" />
+        <!-- Complication height. -->
+        <attr name="size_y" format="float|reference|dimension" />
+    </declare-styleable>
+</resources>

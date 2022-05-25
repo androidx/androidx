@@ -19,8 +19,8 @@ package androidx.glance.text
 /**
  * Describes the style of the font: [Normal]] or [Italic].
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-public inline class FontStyle private constructor(private val style: Int) {
+@JvmInline
+public value class FontStyle private constructor(private val style: Int) {
     public companion object {
         /** Use the upright glyphs */
         public val Normal: FontStyle = FontStyle(0)

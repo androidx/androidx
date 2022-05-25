@@ -25,8 +25,11 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.CallSuper
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.launch
 
 /**
  * [AppWidgetProvider] using the given [GlanceAppWidget] to generate the remote views when needed.
@@ -40,6 +43,10 @@ import kotlinx.coroutines.awaitAll
  *
  * Note: If you override any of the [AppWidgetProvider] methods, ensure you call their super-class
  * implementation.
+ *
+ * Important: if you override any of the methods of this class, you must call the super
+ * implementation, and you must not call [AppWidgetProvider.goAsync], as it will be called by the
+ * super implementation. This means your processing time must be short.
  */
 abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
 
@@ -66,6 +73,7 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
             )
         }
         goAsync {
+            updateManager(context)
             appWidgetIds.map { async { glanceAppWidget.update(context, appWidgetManager, it) } }
                 .awaitAll()
         }
@@ -79,22 +87,52 @@ abstract class GlanceAppWidgetReceiver : AppWidgetProvider() {
         newOptions: Bundle
     ) {
         goAsync {
+            updateManager(context)
             glanceAppWidget.resize(context, appWidgetManager, appWidgetId, newOptions)
         }
     }
 
-    override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action == Intent.ACTION_LOCALE_CHANGED) {
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val componentName =
-                ComponentName(context.packageName, checkNotNull(javaClass.canonicalName))
-            onUpdate(
-                context,
-                appWidgetManager,
-                appWidgetManager.getAppWidgetIds(componentName)
-            )
-            return
+    @CallSuper
+    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
+        goAsync {
+            updateManager(context)
+            appWidgetIds.forEach { glanceAppWidget.deleted(context, it) }
         }
-        super.onReceive(context, intent)
+    }
+
+    private fun CoroutineScope.updateManager(context: Context) {
+        launch {
+            runAndLogExceptions {
+                GlanceAppWidgetManager(context)
+                    .updateReceiver(this@GlanceAppWidgetReceiver, glanceAppWidget)
+            }
+        }
+    }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        runAndLogExceptions {
+            if (intent.action == Intent.ACTION_LOCALE_CHANGED) {
+                val appWidgetManager = AppWidgetManager.getInstance(context)
+                val componentName =
+                    ComponentName(context.packageName, checkNotNull(javaClass.canonicalName))
+                onUpdate(
+                    context,
+                    appWidgetManager,
+                    appWidgetManager.getAppWidgetIds(componentName)
+                )
+                return
+            }
+            super.onReceive(context, intent)
+        }
+    }
+}
+
+private inline fun runAndLogExceptions(block: () -> Unit) {
+    try {
+        block()
+    } catch (ex: CancellationException) {
+        // Nothing to do
+    } catch (throwable: Throwable) {
+        logException(throwable)
     }
 }

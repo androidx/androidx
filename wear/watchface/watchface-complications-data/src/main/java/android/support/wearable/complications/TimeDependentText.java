@@ -23,13 +23,15 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
+import java.io.Serializable;
+
 /**
  * Interface for any object that returns different text depending on the given timestamp.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface TimeDependentText extends  Parcelable {
+public interface TimeDependentText extends Parcelable, Serializable {
     /**
      * Returns the text that should be displayed for the given timestamp.
      *

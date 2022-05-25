@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="SyntheticAccessor"
@@ -7,9 +7,7 @@
         errorLine1="                TransitionManager.beginDelayedTransition(mRoot, mTransition);"
         errorLine2="                                                         ~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"
-            line="58"
-            column="58"/>
+            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                TransitionManager.beginDelayedTransition(mRoot, mTransition);"
         errorLine2="                                                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"
-            line="58"
-            column="65"/>
+            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mTarget.getLayoutParams();"
         errorLine2="                                                                         ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"
-            line="59"
-            column="74"/>
+            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                mTarget.setLayoutParams(lp);"
         errorLine2="                ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"
-            line="65"
-            column="17"/>
+            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                toggle();"
         errorLine2="                ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/BeginDelayedUsage.java"
-            line="46"
-            column="17"/>
+            file="src/main/java/com/example/android/support/transition/widget/BeginDelayedUsage.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                TransitionManager.beginDelayedTransition(mRoot, TRANSITION);"
         errorLine2="                                                                ~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
-            line="54"
-            column="65"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                TransitionManager.beginDelayedTransition(mRoot, TRANSITION);"
         errorLine2="                                                         ~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
-            line="54"
-            column="58"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                        mPhoto.setScaleType(ImageView.ScaleType.FIT_XY);"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
-            line="57"
-            column="25"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="                        mPhoto.setScaleType(ImageView.ScaleType.CENTER);"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
-            line="60"
-            column="25"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="                        mPhoto.setScaleType(ImageView.ScaleType.CENTER_CROP);"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
-            line="63"
-            column="25"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="                        mPhoto.setScaleType(ImageView.ScaleType.FIT_START);"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
-            line="66"
-            column="25"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="                        mPhoto.setScaleType(ImageView.ScaleType.FIT_END);"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
-            line="69"
-            column="25"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="                        mPhoto.setScaleType(ImageView.ScaleType.MATRIX);"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
-            line="72"
-            column="25"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="                        mPhoto.setImageMatrix(matrix);"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
-            line="76"
-            column="25"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="                TransitionManager.beginDelayedTransition(mRoot, mChangeTransform);"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeTransformUsage.java"
-            line="59"
-            column="65"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeTransformUsage.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="                TransitionManager.beginDelayedTransition(mRoot, mChangeTransform);"
         errorLine2="                                                         ~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeTransformUsage.java"
-            line="59"
-            column="58"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeTransformUsage.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="                TransitionManager.beginDelayedTransition(mRoot, mExplode);"
         errorLine2="                                                                ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
-            line="69"
-            column="65"/>
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="                TransitionManager.beginDelayedTransition(mRoot, mExplode);"
         errorLine2="                                                         ~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
-            line="69"
-            column="58"/>
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="                int vis = mViews.get(0).getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE;"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
-            line="70"
-            column="27"/>
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="                for (View view : mViews) {"
         errorLine2="                                 ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
-            line="71"
-            column="34"/>
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="            setSharedElementEnterTransition(SHARED_TRANSITION);"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
-            line="93"
-            column="45"/>
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="            setSharedElementReturnTransition(SHARED_TRANSITION);"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
-            line="94"
-            column="46"/>
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="            setExitTransition(NON_SHARED_TRANSITION);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
-            line="95"
-            column="31"/>
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="            setEnterTransition(NON_SHARED_TRANSITION);"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
-            line="96"
-            column="32"/>
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="            setReenterTransition(NON_SHARED_TRANSITION);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
-            line="97"
-            column="34"/>
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="            setReturnTransition(NON_SHARED_TRANSITION);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
-            line="98"
-            column="33"/>
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="                TransitionManager.beginDelayedTransition(mRecyclerView,"
         errorLine2="                                                         ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/RecyclerViewUsage.java"
-            line="74"
-            column="58"/>
+            file="src/main/java/com/example/android/support/transition/widget/RecyclerViewUsage.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="                    addImageView(mOuterFrame, ImageView.ScaleType.CENTER_CROP, mPhotoSize);"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ReparentImageUsage.java"
-            line="64"
-            column="21"/>
+            file="src/main/java/com/example/android/support/transition/widget/ReparentImageUsage.java"/>
     </issue>
 
     <issue
@@ -315,317 +259,241 @@
         errorLine1="                    addImageView(mInnerFrame, ImageView.ScaleType.FIT_XY,"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ReparentImageUsage.java"
-            line="67"
-            column="21"/>
+            file="src/main/java/com/example/android/support/transition/widget/ReparentImageUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"
-            line="47"
-            column="29"/>
+            file="src/main/java/com/example/android/support/transition/widget/ArcMotionUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/BeginDelayedUsage.java"
-            line="39"
-            column="29"/>
+            file="src/main/java/com/example/android/support/transition/widget/BeginDelayedUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeClipBoundsUsage.java"
-            line="49"
-            column="29"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeClipBoundsUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"
-            line="47"
-            column="29"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeImageTransformUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ChangeTransformUsage.java"
-            line="48"
-            column="29"/>
+            file="src/main/java/com/example/android/support/transition/widget/ChangeTransformUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/CustomUsage.java"
-            line="37"
-            column="29"/>
+            file="src/main/java/com/example/android/support/transition/widget/CustomUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"
-            line="50"
-            column="29"/>
+            file="src/main/java/com/example/android/support/transition/widget/ExplodeUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
-            line="61"
-            column="29"/>
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,"
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
-            line="112"
-            column="34"/>
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
-            line="118"
-            column="35"/>
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,"
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
-            line="141"
-            column="34"/>
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"
-            line="147"
-            column="35"/>
+            file="src/main/java/com/example/android/support/transition/widget/FragmentTransitionUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/RecyclerViewUsage.java"
-            line="46"
-            column="29"/>
+            file="src/main/java/com/example/android/support/transition/widget/RecyclerViewUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/ReparentImageUsage.java"
-            line="47"
-            column="29"/>
+            file="src/main/java/com/example/android/support/transition/widget/ReparentImageUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/widget/SidePropagationUsage.java"
-            line="48"
-            column="29"/>
+            file="src/main/java/com/example/android/support/transition/widget/SidePropagationUsage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="39"
-            column="26"/>
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="55"
-            column="15"/>
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected List&lt;Map&lt;String, Object>> getData(String prefix) {"
         errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="55"
-            column="49"/>
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
         errorLine2="              ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="120"
-            column="15"/>
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
         errorLine2="                                    ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="120"
-            column="37"/>
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected Intent activityIntent(String pkg, String componentName) {"
         errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="120"
-            column="49"/>
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected Intent browseIntent(String path) {"
         errorLine2="              ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="126"
-            column="15"/>
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected Intent browseIntent(String path) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="126"
-            column="35"/>
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="133"
-            column="28"/>
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
         errorLine2="                                                           ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="133"
-            column="60"/>
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void addItem(List&lt;Map&lt;String, Object>> data, String name, Intent intent) {"
         errorLine2="                                                                        ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="133"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onListItemClick(ListView l, View v, int position, long id) {"
-        errorLine2="                                   ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="142"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onListItemClick(ListView l, View v, int position, long id) {"
-        errorLine2="                                               ~~~~">
-        <location
-            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"
-            line="142"
-            column="48"/>
+            file="src/main/java/com/example/android/support/transition/SupportTransitionDemos.java"/>
     </issue>
 
 </issues>

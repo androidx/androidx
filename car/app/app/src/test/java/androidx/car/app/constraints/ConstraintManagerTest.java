@@ -87,7 +87,7 @@ public class ConstraintManagerTest {
         assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_GRID)).isEqualTo(6);
         assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_PLACE_LIST)).isEqualTo(6);
         assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_ROUTE_LIST)).isEqualTo(3);
-        assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_PANE)).isEqualTo(2);
+        assertThat(mConstraintManager.getContentLimit(CONTENT_LIMIT_TYPE_PANE)).isEqualTo(4);
     }
 
     @Test

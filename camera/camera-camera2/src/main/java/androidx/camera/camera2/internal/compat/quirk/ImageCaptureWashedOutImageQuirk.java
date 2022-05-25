@@ -31,15 +31,15 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Quirk that prevents from getting washed out image while taking picture with flash ON/AUTO mode.
- *
- * <p>See b/176399765 and b/181966663.
+ * <p>QuirkSummary
+ *     Bug Id: 176399765, 181966663
+ *     Description: Quirk that prevents from getting washed out image while taking picture with
+ *                  flash ON/AUTO mode.
+ *     Device(s): Galaxy S7, Galaxy S7+
+ *     @see UseTorchAsFlashQuirk
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ImageCaptureWashedOutImageQuirk implements UseTorchAsFlashQuirk {
-
-    @VisibleForTesting
-    public static final String BUILD_BRAND = "SAMSUNG";
 
     @VisibleForTesting
     // List of devices with the issue. See b/181966663.
@@ -66,8 +66,7 @@ public class ImageCaptureWashedOutImageQuirk implements UseTorchAsFlashQuirk {
     );
 
     static boolean load(@NonNull CameraCharacteristicsCompat cameraCharacteristics) {
-        return BUILD_BRAND.equals(Build.BRAND.toUpperCase(Locale.US))
-                && BUILD_MODELS.contains(Build.MODEL.toUpperCase(Locale.US))
+        return BUILD_MODELS.contains(Build.MODEL.toUpperCase(Locale.US))
                 && cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == LENS_FACING_BACK;
     }
 }

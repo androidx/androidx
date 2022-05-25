@@ -26,8 +26,15 @@ internal actual fun isRoundDevice(): Boolean {
 }
 
 @Composable
-internal actual fun imageResource(res: String): Painter =
-    painterResource(res)
+internal actual fun imageResource(image: ImageResources): Painter =
+    painterResource(
+        when (image) {
+            ImageResources.CircularVignetteBottom -> "circular_vignette_bottom"
+            ImageResources.CircularVignetteTop -> "circular_vignette_top"
+            ImageResources.RectangularVignetteBottom -> "rectangular_vignette_bottom"
+            ImageResources.RectangularVignetteTop -> "rectangular_vignette_top"
+        }
+    )
 
 @Composable
 internal actual fun is24HourFormat(): Boolean {
@@ -35,3 +42,5 @@ internal actual fun is24HourFormat(): Boolean {
 }
 
 internal actual fun currentTimeMillis(): Long = System.currentTimeMillis()
+
+internal actual fun isLeftyModeEnabled() = false

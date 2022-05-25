@@ -27,7 +27,7 @@ import androidx.compose.ui.inspection.inspector.LayoutInspectorTree
 import androidx.compose.ui.inspection.inspector.NodeParameterReference
 import androidx.compose.ui.inspection.proto.StringTable
 import androidx.compose.ui.inspection.proto.convert
-import androidx.compose.ui.inspection.proto.toComposableNodes
+import androidx.compose.ui.inspection.proto.toComposableRoot
 import androidx.compose.ui.inspection.util.ThreadUtils
 import androidx.compose.ui.unit.IntOffset
 import androidx.inspection.Connection
@@ -37,7 +37,6 @@ import androidx.inspection.InspectorFactory
 import com.google.protobuf.ByteString
 import com.google.protobuf.InvalidProtocolBufferException
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Command
-import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableRoot
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetAllParametersCommand
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetAllParametersResponse
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetComposablesCommand
@@ -48,6 +47,8 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetPara
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.GetParametersResponse
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Response
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.UnknownCommandResponse
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.UpdateSettingsCommand
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.UpdateSettingsResponse
 
 private const val LAYOUT_INSPECTION_ID = "layoutinspector.compose.inspection"
 private const val MAX_RECURSIONS = 2
@@ -66,27 +67,41 @@ class ComposeLayoutInspectorFactory :
 
 class ComposeLayoutInspector(
     connection: Connection,
-    private val environment: InspectorEnvironment
+    environment: InspectorEnvironment
 ) : Inspector(connection) {
 
     /** Cache data which allows us to reuse previously queried inspector nodes */
     private class CacheData(
         val rootView: View,
+        val trees: List<CacheTree>
+    ) {
+        /** The cached nodes as a map from node id to InspectorNode */
+        val lookup: Map<Long, InspectorNode>
+            get() = _lookup ?: trees.flatMap { it.nodes }
+                .flatMap { it.flatten() }
+                .associateBy { it.id }
+                .also { _lookup = it }
+
+        private var _lookup: Map<Long, InspectorNode>? = null
+    }
+
+    /** Cache data for a tree of [InspectorNode]s under a [viewParent] */
+    internal class CacheTree(
         val viewParent: View,
         val nodes: List<InspectorNode>,
         val viewsToSkip: List<Long>
-    ) {
-        /** The cached nodes as a map from node id to InspectorNode */
-        val lookup = nodes.flatMap { it.flatten() }.associateBy { it.id }
-    }
+    )
 
     private val layoutInspectorTree = LayoutInspectorTree()
+    private val recompositionHandler = RecompositionHandler(environment.artTooling())
+    private var delayParameterExtractions = false
 
     // Sidestep threading concerns by only ever accessing cachedNodes on the inspector thread
     private val inspectorThread = Thread.currentThread()
     private val _cachedNodes = mutableMapOf<Long, CacheData>()
     private var cachedGeneration = 0
     private var cachedSystemComposablesSkipped = false
+    private var cachedHasAllParameters = false
     private val cachedNodes: MutableMap<Long, CacheData>
         get() {
             check(Thread.currentThread() == inspectorThread)
@@ -114,6 +129,9 @@ class ComposeLayoutInspector(
             Command.SpecializedCase.GET_PARAMETER_DETAILS_COMMAND -> {
                 handleGetParameterDetailsCommand(command.getParameterDetailsCommand, callback)
             }
+            Command.SpecializedCase.UPDATE_SETTINGS_COMMAND -> {
+                handleUpdateSettingsCommand(command.updateSettingsCommand, callback)
+            }
             else -> handleUnknownCommand(data, callback)
         }
     }
@@ -133,6 +151,7 @@ class ComposeLayoutInspector(
         val data = getComposableNodes(
             getComposablesCommand.rootViewId,
             getComposablesCommand.skipSystemComposables,
+            getComposablesCommand.extractAllParameters || !delayParameterExtractions,
             getComposablesCommand.generation,
             getComposablesCommand.generation == 0
         )
@@ -142,21 +161,13 @@ class ComposeLayoutInspector(
         val windowPos = IntOffset(location[0], location[1])
 
         val stringTable = StringTable()
-        val nodes = data?.nodes ?: emptyList()
-        val composeNodes = nodes.toComposableNodes(stringTable, windowPos)
+        val trees = data?.trees ?: emptyList()
+        val roots = trees.map { it.toComposableRoot(stringTable, windowPos, recompositionHandler) }
 
         callback.reply {
             getComposablesResponse = GetComposablesResponse.newBuilder().apply {
                 addAllStrings(stringTable.toStringEntries())
-                addRoots(
-                    ComposableRoot.newBuilder().apply {
-                        if (data != null) {
-                            viewId = data.viewParent.uniqueDrawingId
-                            addAllNodes(composeNodes)
-                            addAllViewsToSkip(data.viewsToSkip)
-                        }
-                    }
-                )
+                addAllRoots(roots)
             }.build()
         }
     }
@@ -165,12 +176,17 @@ class ComposeLayoutInspector(
         getParametersCommand: GetParametersCommand,
         callback: CommandCallback
     ) {
-        val foundComposable =
+
+        val foundComposable = if (delayParameterExtractions && !cachedHasAllParameters) {
+            getComposableFromAnchor(getParametersCommand.anchorHash)
+        } else {
             getComposableNodes(
                 getParametersCommand.rootViewId,
                 getParametersCommand.skipSystemComposables,
+                true,
                 getParametersCommand.generation
             )?.lookup?.get(getParametersCommand.composableId)
+        }
 
         callback.reply {
             getParametersResponse = if (foundComposable != null) {
@@ -199,6 +215,7 @@ class ComposeLayoutInspector(
             getComposableNodes(
                 getAllParametersCommand.rootViewId,
                 getAllParametersCommand.skipSystemComposables,
+                true,
                 getAllParametersCommand.generation
             )?.lookup?.values ?: emptyList()
 
@@ -226,18 +243,24 @@ class ComposeLayoutInspector(
         getParameterDetailsCommand: GetParameterDetailsCommand,
         callback: CommandCallback
     ) {
-        val composables = getComposableNodes(
-            getParameterDetailsCommand.rootViewId,
-            getParameterDetailsCommand.skipSystemComposables,
-            getParameterDetailsCommand.generation
-        )?.lookup ?: emptyMap()
         val reference = NodeParameterReference(
             getParameterDetailsCommand.reference.composableId,
+            getParameterDetailsCommand.reference.anchorHash,
             getParameterDetailsCommand.reference.kind.convert(),
             getParameterDetailsCommand.reference.parameterIndex,
             getParameterDetailsCommand.reference.compositeIndexList
         )
-        val expanded = composables[reference.nodeId]?.let { composable ->
+        val foundComposable = if (delayParameterExtractions && !cachedHasAllParameters) {
+            getComposableFromAnchor(reference.anchorHash)
+        } else {
+            getComposableNodes(
+                getParameterDetailsCommand.rootViewId,
+                getParameterDetailsCommand.skipSystemComposables,
+                true,
+                getParameterDetailsCommand.generation
+            )?.lookup?.get(reference.nodeId)
+        }
+        val expanded = foundComposable?.let { composable ->
             layoutInspectorTree.expandParameter(
                 getParameterDetailsCommand.rootViewId,
                 composable,
@@ -263,6 +286,22 @@ class ComposeLayoutInspector(
         }
     }
 
+    private fun handleUpdateSettingsCommand(
+        updateSettingsCommand: UpdateSettingsCommand,
+        callback: CommandCallback
+    ) {
+        recompositionHandler.changeCollectionMode(
+            updateSettingsCommand.includeRecomposeCounts,
+            updateSettingsCommand.keepRecomposeCounts
+        )
+        delayParameterExtractions = updateSettingsCommand.delayParameterExtractions
+        callback.reply {
+            updateSettingsResponse = UpdateSettingsResponse.newBuilder().apply {
+                canDelayParameterExtractions = true
+            }.build()
+        }
+    }
+
     /**
      * Get all [InspectorNode]s found under the layout tree rooted by [rootViewId]. They will be
      * mapped with their ID as the key.
@@ -273,30 +312,51 @@ class ComposeLayoutInspector(
     private fun getComposableNodes(
         rootViewId: Long,
         skipSystemComposables: Boolean,
+        includeAllParameters: Boolean,
         generation: Int,
         forceRegeneration: Boolean = false
     ): CacheData? {
         if (!forceRegeneration && generation == cachedGeneration &&
-            skipSystemComposables == cachedSystemComposablesSkipped
+            skipSystemComposables == cachedSystemComposablesSkipped &&
+            (!includeAllParameters || cachedHasAllParameters)
         ) {
             return cachedNodes[rootViewId]
         }
 
         val data = ThreadUtils.runOnMainThread {
             layoutInspectorTree.resetAccumulativeState()
-            val data = getAndroidComposeViews(rootViewId, skipSystemComposables, generation).map {
-                CacheData(it.rootView, it.viewParent, it.createNodes(), it.viewsToSkip)
+            layoutInspectorTree.includeAllParameters = includeAllParameters
+            val composeViews = getAndroidComposeViews(rootViewId, skipSystemComposables, generation)
+            val composeViewsByRoot = composeViews.groupBy { it.rootView.uniqueDrawingId }
+            val data = composeViewsByRoot.mapValues { (_, composeViews) ->
+                CacheData(
+                    composeViews.first().rootView,
+                    composeViews.map { CacheTree(it.viewParent, it.createNodes(), it.viewsToSkip) }
+                )
             }
             layoutInspectorTree.resetAccumulativeState()
             data
         }.get()
 
         cachedNodes.clear()
-        data.associateByTo(cachedNodes) { it.rootView.uniqueDrawingId }
+        cachedNodes.putAll(data)
         cachedGeneration = generation
         cachedSystemComposablesSkipped = skipSystemComposables
+        cachedHasAllParameters = includeAllParameters
         return cachedNodes[rootViewId]
     }
+
+    /**
+     * Find an [InspectorNode] with extracted parameters that represent the composable with the
+     * specified anchor hash.
+     */
+    private fun getComposableFromAnchor(anchorHash: Int): InspectorNode? =
+        ThreadUtils.runOnMainThread {
+            layoutInspectorTree.resetAccumulativeState()
+            layoutInspectorTree.includeAllParameters = false
+            val composeViews = getAndroidComposeViews(-1L, false, 1)
+            composeViews.firstNotNullOfOrNull { it.findParameters(anchorHash) }
+        }.get()
 
     /**
      * Get all AndroidComposeView instances found within the layout tree rooted by [rootViewId].

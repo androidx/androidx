@@ -18,14 +18,16 @@ package androidx.wear.compose.integration.demos
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -48,6 +50,8 @@ import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipColors
 import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
+import androidx.wear.compose.material.Icon
+import androidx.wear.compose.material.ListHeader
 import androidx.wear.compose.material.LocalContentColor
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.ScalingLazyColumn
@@ -61,15 +65,9 @@ fun StandardChips() {
     var enabled by remember { mutableStateOf(true) }
     var chipStyle by remember { mutableStateOf(ChipStyle.Primary) }
 
-    ScalingLazyColumn(
+    ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-        contentPadding = PaddingValues(
-            start = 8.dp,
-            end = 8.dp,
-            top = 15.dp,
-            bottom = 50.dp
-        )
     ) {
         item {
             Text(
@@ -195,7 +193,13 @@ fun SmallChips() {
             CompactChip(
                 onClick = {},
                 colors = chipColors(chipStyle),
-                label = { Text("Label") },
+                label = {
+                    Text(
+                        text = "Label",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
                 enabled = enabled,
             )
         }
@@ -205,8 +209,11 @@ fun SmallChips() {
                 colors = chipColors(chipStyle),
                 label = {
                     Text(
-                        "Long label to show truncation which does not fit into 1 line",
-                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                        text = "Long label to show truncation which does not fit into 1 line",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 },
                 enabled = enabled,
@@ -219,7 +226,13 @@ fun SmallChips() {
                 label = {
                     Text("Label with icon", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
-                icon = { DemoIcon(resourceId = R.drawable.ic_accessibility_24px) },
+                icon = {
+                    DemoIcon(
+                        resourceId = R.drawable.ic_accessibility_24px,
+                        modifier = Modifier.size(ChipDefaults.SmallIconSize)
+                            .wrapContentSize(align = Alignment.Center)
+                    )
+                 },
                 enabled = enabled,
             )
         }
@@ -234,7 +247,13 @@ fun SmallChips() {
                     )
                 },
                 enabled = enabled,
-                icon = { DemoIcon(resourceId = R.drawable.ic_accessibility_24px) },
+                icon = {
+                    DemoIcon(
+                        resourceId = R.drawable.ic_accessibility_24px,
+                        modifier = Modifier.size(ChipDefaults.SmallIconSize)
+                            .wrapContentSize(align = Alignment.Center)
+                    )
+                },
             )
         }
         item {
@@ -255,20 +274,11 @@ fun AvatarChips() {
     ScalingLazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-        contentPadding = PaddingValues(
-            start = 8.dp,
-            end = 8.dp,
-            top = 15.dp,
-            bottom = 50.dp
-        )
     ) {
         item {
-            Text(
-                text = "Chips with avatars",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.body2,
-                color = Color.White
-            )
+            ListHeader {
+                Text(text = "Chips with avatars")
+            }
         }
         item {
             DemoIconChip(
@@ -298,12 +308,9 @@ fun AvatarChips() {
             }
         }
         item {
-            Text(
-                text = "Small Avatar Chips",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.body2,
-                color = Color.White
-            )
+            ListHeader {
+                Text(text = "Small Avatar Chips")
+            }
         }
         item {
             DemoIconChip(
@@ -329,9 +336,9 @@ fun AvatarChips() {
             DemoIconChip(
                 label = "Custom Gradient Color",
                 secondaryLabel = "Matching Secondary Label Color",
-                secondaryLabelColor = Color(0x775FB2FF),
+                secondaryLabelColor = AlternatePrimaryColor3,
                 colors = ChipDefaults.gradientBackgroundChipColors(
-                    startBackgroundColor = Color(0x775FB2FF).copy(alpha = 0.325f)
+                    startBackgroundColor = AlternatePrimaryColor3.copy(alpha = 0.325f)
                         .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f)),
                 ),
                 enabled = enabled,
@@ -346,8 +353,17 @@ fun AvatarChips() {
                 label = {
                     Text("Chips enabled")
                 },
-                toggleIcon = {
-                    ToggleChipDefaults.SwitchIcon(checked = enabled)
+                // For Switch  toggle controls the Wear Material UX guidance is to set the
+                // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
+                // rather than the default.
+                colors = ToggleChipDefaults.toggleChipColors(
+                    uncheckedToggleControlColor = ToggleChipDefaults.SwitchUncheckedIconColor
+                ),
+                toggleControl = {
+                    Icon(
+                        imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
+                        contentDescription = if (enabled) "On" else "Off"
+                    )
                 }
             )
         }
@@ -405,7 +421,12 @@ fun RtlChips() {
                             overflow = TextOverflow.Ellipsis
                         )
                     },
-                    icon = { DemoIcon(resourceId = R.drawable.ic_accessibility_24px) },
+                    icon = {
+                        DemoIcon(
+                            resourceId = R.drawable.ic_accessibility_24px,
+                            modifier = Modifier.size(ChipDefaults.SmallIconSize)
+                        )
+                    },
                 )
             }
             item {
@@ -449,59 +470,12 @@ fun CustomChips() {
         )
     ) {
         item {
-            MaterialTheme(colors = MaterialTheme.colors.copy(primary = Color.Cyan)) {
+            MaterialTheme(colors = MaterialTheme.colors.copy(primary = AlternatePrimaryColor1)) {
                 DemoIconChip(
                     label = "Overridden Theme Primary + Icon",
                     colors = ChipDefaults.primaryChipColors(),
                     enabled = enabled,
                 ) { DemoIcon(resourceId = R.drawable.ic_accessibility_24px) }
-            }
-        }
-        item {
-            DemoLabelChip(
-                label = "Custom background",
-                secondaryLabel = "With secondary label",
-                colors = ChipDefaults.primaryChipColors(
-                    backgroundColor = Color.Yellow.copy(alpha = 0.5f)
-                ),
-                enabled = enabled,
-            )
-        }
-        item {
-            Chip(
-                onClick = { },
-                colors = ChipDefaults.primaryChipColors(),
-                label = {
-                    Text(
-                        text = "Custom label color", maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = Color.Yellow,
-                    )
-                },
-                secondaryLabel = {
-                    Text(
-                        text = "Custom secondary label color",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        color = Color.Yellow,
-                    )
-                },
-                icon = { DemoIcon(resourceId = R.drawable.ic_accessibility_24px) },
-                enabled = enabled
-            )
-        }
-        item {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-            ) {
-                DemoLabelChip(
-                    label = "Chip with fixed width",
-                    modifier = Modifier.width(100.dp),
-                    colors = ChipDefaults.primaryChipColors(),
-                    enabled = enabled,
-                )
             }
         }
         item {
@@ -513,18 +487,17 @@ fun CustomChips() {
                 CompactChip(
                     onClick = {
                         Toast.makeText(
-                            applicationContext, "Wrap content chip with custom background color",
+                            applicationContext, "Compact chip with custom color",
                             Toast.LENGTH_LONG
                         ).show()
                     },
-                    colors = ChipDefaults.primaryChipColors(
-                        backgroundColor = Color.Yellow,
-                        contentColor = MaterialTheme.colors.surface
+                    colors = ChipDefaults.secondaryChipColors(
+                        contentColor = AlternatePrimaryColor2
                     ),
                     icon = {
                         DemoIcon(
                             resourceId = R.drawable.ic_accessibility_24px,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.size(ChipDefaults.IconSize)
                         )
                     },
                     enabled = enabled,
@@ -545,11 +518,13 @@ fun CustomChips() {
                         ).show()
                     },
                     modifier = Modifier.width(100.dp),
-                    colors = ChipDefaults.secondaryChipColors(contentColor = Color.Yellow),
+                    colors = ChipDefaults.secondaryChipColors(
+                        contentColor = AlternatePrimaryColor3
+                    ),
                     icon = {
                         DemoIcon(
                             resourceId = R.drawable.ic_accessibility_24px,
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.size(ChipDefaults.IconSize)
                         )
                     },
                     enabled = enabled,
@@ -563,8 +538,17 @@ fun CustomChips() {
                 label = {
                     Text("Chips enabled")
                 },
-                toggleIcon = {
-                    ToggleChipDefaults.SwitchIcon(checked = enabled)
+                // For Switch  toggle controls the Wear Material UX guidance is to set the
+                // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
+                // rather than the default.
+                colors = ToggleChipDefaults.toggleChipColors(
+                    uncheckedToggleControlColor = ToggleChipDefaults.SwitchUncheckedIconColor
+                ),
+                toggleControl = {
+                    Icon(
+                        imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
+                        contentDescription = if (enabled) "On" else "Off"
+                    )
                 }
             )
         }
@@ -611,8 +595,17 @@ fun ImageBackgroundChips() {
                 label = {
                     Text("Chips enabled")
                 },
-                toggleIcon = {
-                    ToggleChipDefaults.SwitchIcon(checked = enabled)
+                // For Switch  toggle controls the Wear Material UX guidance is to set the
+                // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
+                // rather than the default.
+                colors = ToggleChipDefaults.toggleChipColors(
+                    uncheckedToggleControlColor = ToggleChipDefaults.SwitchUncheckedIconColor
+                ),
+                toggleControl = {
+                    Icon(
+                        imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
+                        contentDescription = if (enabled) "On" else "Off"
+                    )
                 }
             )
         }
@@ -660,8 +653,17 @@ private fun ChipCustomizer(
             label = {
                 Text("Chips enabled")
             },
-            toggleIcon = {
-                ToggleChipDefaults.SwitchIcon(checked = enabled)
+            // For Switch  toggle controls the Wear Material UX guidance is to set the
+            // unselected toggle control color to ToggleChipDefaults.switchUncheckedIconColor()
+            // rather than the default.
+            colors = ToggleChipDefaults.toggleChipColors(
+                uncheckedToggleControlColor = ToggleChipDefaults.SwitchUncheckedIconColor
+            ),
+            toggleControl = {
+                Icon(
+                    imageVector = ToggleChipDefaults.switchIcon(checked = enabled),
+                    contentDescription = if (enabled) "On" else "Off"
+                )
             }
         )
     }
@@ -682,7 +684,7 @@ enum class ChipStyle {
 }
 
 @Composable
-private fun DemoIconChip(
+internal fun DemoIconChip(
     colors: ChipColors,
     label: String,
     modifier: Modifier = Modifier,
@@ -690,7 +692,7 @@ private fun DemoIconChip(
     secondaryLabelColor: Color? = null,
     enabled: Boolean = true,
     onClick: (() -> Unit) = {},
-    content: @Composable (() -> Unit)? = null
+    content: @Composable (BoxScope.() -> Unit)? = null
 ) {
     val maxLabelLines = if (secondaryLabel != null) 1 else 2
     Chip(

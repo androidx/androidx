@@ -48,4 +48,13 @@ class SplitInfo internal constructor(
         result = 31 * result + splitRatio.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return buildString {
+            append("SplitInfo:{")
+            append("primaryActivityStack=$primaryActivityStack,")
+            append("secondaryActivityStack=$secondaryActivityStack,")
+            append("splitRatio=$splitRatio}")
+        }
+    }
 }

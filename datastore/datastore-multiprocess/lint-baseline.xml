@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 7.3.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha08)" variant="all" version="7.3.0-alpha08">
+
+    <issue
+        id="NewApi"
+        message="Implicit cast from `ParcelFileDescriptor` to `Closeable` requires API level 16 (current min is 14)"
+        errorLine1="            ).use {"
+        errorLine2="              ~~~">
+        <location
+            file="src/main/java/androidx/datastore/multiprocess/SharedCounter.kt"/>
+    </issue>
+
+</issues>

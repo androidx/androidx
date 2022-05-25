@@ -16,11 +16,19 @@
 
 package androidx.glance.appwidget
 
+import android.content.Context
 import android.util.DisplayMetrics
 import android.util.TypedValue
+import android.view.View
 import android.widget.RemoteViews
-import androidx.glance.unit.Dp
-import androidx.glance.unit.dp
+import androidx.annotation.IdRes
+import androidx.annotation.LayoutRes
+import androidx.core.widget.RemoteViewsCompat.setViewStubInflatedId
+import androidx.core.widget.RemoteViewsCompat.setViewStubLayoutResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+
+internal fun Dp.toPixels(context: Context) = toPixels(context.resources.displayMetrics)
 
 internal fun Dp.toPixels(displayMetrics: DisplayMetrics) =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics).toInt()
@@ -35,3 +43,28 @@ internal fun Int.pixelsToDp(displayMetrics: DisplayMetrics) =
 internal fun RemoteViews.setViewEnabled(viewId: Int, enabled: Boolean) {
     setBoolean(viewId, "setEnabled", enabled)
 }
+
+/**
+ * Inflates a ViewStub with [viewStubId] using [layoutId] and returns the new view id. [inflatedId]
+ * is used for the inflated view, if unspecified a new view id will be generated.
+ */
+@IdRes
+internal fun RemoteViews.inflateViewStub(
+    translationContext: TranslationContext,
+    @IdRes viewStubId: Int,
+    @LayoutRes layoutId: Int = 0,
+    @IdRes inflatedId: Int? = null
+): Int {
+    require(viewStubId != View.NO_ID) { "viewStubId must not be View.NO_ID" }
+    val viewId = inflatedId ?: translationContext.nextViewId()
+    if (viewId != View.NO_ID) {
+        setViewStubInflatedId(viewStubId, viewId)
+    }
+    if (layoutId != 0) {
+        setViewStubLayoutResource(viewStubId, layoutId)
+    }
+    setViewVisibility(viewStubId, View.VISIBLE)
+    return viewId
+}
+
+internal const val GlanceAppWidgetTag = "GlanceAppWidget"

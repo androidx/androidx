@@ -150,11 +150,13 @@ class DaoWriterTest {
                     ?: invocation.context.processingEnv
                         .requireTypeElement(RoomTypeNames.ROOM_DB)
                 val dbType = db.type
+                val dbVerifier = createVerifierFromEntitiesAndViews(invocation)
+                invocation.context.attachDatabaseVerifier(dbVerifier)
                 val parser = DaoProcessor(
                     baseContext = invocation.context,
                     element = dao,
                     dbType = dbType,
-                    dbVerifier = createVerifierFromEntitiesAndViews(invocation)
+                    dbVerifier = dbVerifier
                 )
                 val parsedDao = parser.process()
                 DaoWriter(parsedDao, db, invocation.processingEnv)

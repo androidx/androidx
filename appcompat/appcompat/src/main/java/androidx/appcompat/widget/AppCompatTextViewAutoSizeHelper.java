@@ -34,8 +34,10 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -661,7 +663,7 @@ class AppCompatTextViewAutoSizeHelper {
 
             boolean isInLayout = false;
             if (Build.VERSION.SDK_INT >= 18) {
-                isInLayout = mTextView.isInLayout();
+                isInLayout = Api18Impl.isInLayout(mTextView);
             }
 
             if (mTextView.getLayout() != null) {
@@ -729,12 +731,19 @@ class AppCompatTextViewAutoSizeHelper {
     }
 
     @VisibleForTesting
-    StaticLayout createLayout(CharSequence text, Layout.Alignment alignment, int availableWidth,
-            int maxLines) {
+    @NonNull
+    StaticLayout createLayout(
+            @NonNull CharSequence text,
+            @NonNull Layout.Alignment alignment,
+            int availableWidth,
+            int maxLines
+    ) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return createStaticLayoutForMeasuring(text, alignment, availableWidth, maxLines);
+            return Api23Impl.createStaticLayoutForMeasuring(
+                    text, alignment, availableWidth, maxLines, mTextView, mTempTextPaint, mImpl);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            return createStaticLayoutForMeasuringPre23(text, alignment, availableWidth);
+            return Api16Impl.createStaticLayoutForMeasuring(
+                    text, alignment, availableWidth, mTextView, mTempTextPaint);
         } else {
             return createStaticLayoutForMeasuringPre16(text, alignment, availableWidth);
         }
@@ -750,7 +759,7 @@ class AppCompatTextViewAutoSizeHelper {
             }
         }
 
-        final int maxLines = Build.VERSION.SDK_INT >= 16 ? mTextView.getMaxLines() : -1;
+        final int maxLines = Build.VERSION.SDK_INT >= 16 ? Api16Impl.getMaxLines(mTextView) : -1;
         initTempTextPaint(suggestedSizeInPx);
 
         // Needs reflection call due to being private.
@@ -772,48 +781,6 @@ class AppCompatTextViewAutoSizeHelper {
         return true;
     }
 
-    @RequiresApi(23)
-    private StaticLayout createStaticLayoutForMeasuring(CharSequence text,
-            Layout.Alignment alignment, int availableWidth, int maxLines) {
-
-        final StaticLayout.Builder layoutBuilder = StaticLayout.Builder.obtain(
-                text, 0, text.length(),  mTempTextPaint, availableWidth);
-
-        layoutBuilder.setAlignment(alignment)
-                .setLineSpacing(
-                        mTextView.getLineSpacingExtra(),
-                        mTextView.getLineSpacingMultiplier())
-                .setIncludePad(mTextView.getIncludeFontPadding())
-                .setBreakStrategy(mTextView.getBreakStrategy())
-                .setHyphenationFrequency(mTextView.getHyphenationFrequency())
-                .setMaxLines(maxLines == -1 ? Integer.MAX_VALUE : maxLines);
-
-        try {
-            // Can use the StaticLayout.Builder (along with TextView params added in or after
-            // API 23) to construct the layout.
-            mImpl.computeAndSetTextDirection(layoutBuilder, mTextView);
-        } catch (ClassCastException e) {
-            // On some devices this exception happens, details: b/127137059.
-            Log.w(TAG, "Failed to obtain TextDirectionHeuristic, auto size may be incorrect");
-        }
-        return layoutBuilder.build();
-    }
-
-    @RequiresApi(16)
-    private StaticLayout createStaticLayoutForMeasuringPre23(CharSequence text,
-            Layout.Alignment alignment, int availableWidth) {
-        final float lineSpacingMultiplier = mTextView.getLineSpacingMultiplier();
-        final float lineSpacingAdd = mTextView.getLineSpacingExtra();
-        final boolean includePad = mTextView.getIncludeFontPadding();
-
-        // The layout could not be constructed using the builder so fall back to the
-        // most broad constructor.
-        return new StaticLayout(text, mTempTextPaint, availableWidth,
-                alignment,
-                lineSpacingMultiplier,
-                lineSpacingAdd,
-                includePad);
-    }
 
     private StaticLayout createStaticLayoutForMeasuringPre16(CharSequence text,
             Layout.Alignment alignment, int availableWidth) {
@@ -930,5 +897,92 @@ class AppCompatTextViewAutoSizeHelper {
     private boolean supportsAutoSizeText() {
         // Auto-size only supports TextView and all siblings but EditText.
         return !(mTextView instanceof AppCompatEditText);
+    }
+
+    @RequiresApi(23)
+    private static final class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        @NonNull
+        static StaticLayout createStaticLayoutForMeasuring(
+                @NonNull CharSequence text,
+                @NonNull Layout.Alignment alignment,
+                int availableWidth,
+                int maxLines,
+                @NonNull TextView textView,
+                @NonNull TextPaint tempTextPaint,
+                @NonNull Impl impl
+        ) {
+            final StaticLayout.Builder layoutBuilder = StaticLayout.Builder.obtain(
+                    text, 0, text.length(),  tempTextPaint, availableWidth);
+
+            layoutBuilder.setAlignment(alignment)
+                    .setLineSpacing(
+                            textView.getLineSpacingExtra(),
+                            textView.getLineSpacingMultiplier())
+                    .setIncludePad(textView.getIncludeFontPadding())
+                    .setBreakStrategy(textView.getBreakStrategy())
+                    .setHyphenationFrequency(textView.getHyphenationFrequency())
+                    .setMaxLines(maxLines == -1 ? Integer.MAX_VALUE : maxLines);
+
+            try {
+                // Can use the StaticLayout.Builder (along with TextView params added in or after
+                // API 23) to construct the layout.
+                impl.computeAndSetTextDirection(layoutBuilder, textView);
+            } catch (ClassCastException e) {
+                // On some devices this exception happens, details: b/127137059.
+                Log.w(TAG, "Failed to obtain TextDirectionHeuristic, auto size may be incorrect");
+            }
+            return layoutBuilder.build();
+        }
+    }
+
+    @RequiresApi(18)
+    private static final class Api18Impl {
+        private Api18Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean isInLayout(@NonNull View view) {
+            return view.isInLayout();
+        }
+    }
+
+    @RequiresApi(16)
+    private static final class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getMaxLines(@NonNull TextView textView) {
+            return textView.getMaxLines();
+        }
+
+        @DoNotInline
+        @NonNull
+        static StaticLayout createStaticLayoutForMeasuring(
+                @NonNull CharSequence text,
+                @NonNull Layout.Alignment alignment,
+                int availableWidth,
+                @NonNull TextView textView,
+                @NonNull TextPaint tempTextPaint
+        ) {
+            final float lineSpacingMultiplier = textView.getLineSpacingMultiplier();
+            final float lineSpacingAdd = textView.getLineSpacingExtra();
+            final boolean includePad = textView.getIncludeFontPadding();
+
+            // The layout could not be constructed using the builder so fall back to the
+            // most broad constructor.
+            return new StaticLayout(text, tempTextPaint, availableWidth,
+                    alignment,
+                    lineSpacingMultiplier,
+                    lineSpacingAdd,
+                    includePad);
+        }
     }
 }

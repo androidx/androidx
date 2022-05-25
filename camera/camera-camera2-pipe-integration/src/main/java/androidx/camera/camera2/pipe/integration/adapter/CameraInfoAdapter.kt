@@ -120,4 +120,19 @@ class CameraInfoAdapter @Inject constructor(
         Log.warn { "TODO: isFocusAndMeteringSupported are not yet supported." }
         return false
     }
+
+    override fun isZslSupported(): Boolean {
+        Log.warn { "TODO: isZslSupported are not yet supported." }
+        return false
+    }
+
+    override fun isYuvReprocessingSupported(): Boolean {
+        Log.warn { "TODO: isYuvReprocessingSupported are not yet supported." }
+        return false
+    }
+
+    override fun isPrivateReprocessingSupported(): Boolean {
+        Log.warn { "TODO: isPrivateReprocessingSupported are not yet supported." }
+        return false
+    }
 }

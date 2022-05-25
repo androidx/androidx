@@ -20,10 +20,7 @@ import androidx.room.compiler.processing.InternalXAnnotation
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XAnnotationValue
-import androidx.room.compiler.processing.isArray
-import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 
 internal class KspAnnotation(
@@ -44,18 +41,7 @@ internal class KspAnnotation(
     }
 
     override val annotationValues: List<XAnnotationValue> by lazy {
-        ksAnnotated.arguments.map { arg ->
-            KspAnnotationValue(
-                env, arg,
-                isListType = {
-                    (ksType.declaration as KSClassDeclaration).getConstructors()
-                        .singleOrNull()
-                        ?.parameters
-                        ?.firstOrNull { it.name == arg.name }
-                        ?.let { env.wrap(it.type).isArray() } == true
-                }
-            )
-        }
+        ksAnnotated.arguments.map { KspAnnotationValue(env, this, it) }
     }
 
     override fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T> {

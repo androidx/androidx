@@ -40,9 +40,9 @@ import com.google.auto.value.AutoValue;
  * contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "NEW_VIDEO");
  * contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
  *
- * MediaStoreOutputOptions options = MediaStoreOutputOptions.builder()
- *         .setContentResolver(contentResolver)
- *         .setCollection(MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+ * MediaStoreOutputOptions options =
+ *         new MediaStoreOutputOptions.Builder(
+ *             contentResolver, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
  *         .setContentValues(contentValues)
  *         .build();
  *
@@ -91,8 +91,8 @@ public final class MediaStoreOutputOptions extends OutputOptions {
      * @see Builder#Builder(ContentResolver, Uri)
      */
     @NonNull
-    public Uri getCollection() {
-        return mMediaStoreOutputOptionsInternal.getCollection();
+    public Uri getCollectionUri() {
+        return mMediaStoreOutputOptionsInternal.getCollectionUri();
     }
 
     /**
@@ -141,7 +141,6 @@ public final class MediaStoreOutputOptions extends OutputOptions {
     }
 
     /** The builder of the {@link MediaStoreOutputOptions} object. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder implements
             OutputOptions.Builder<MediaStoreOutputOptions, Builder> {
         private final MediaStoreOutputOptionsInternal.Builder mInternalBuilder =
@@ -174,7 +173,7 @@ public final class MediaStoreOutputOptions extends OutputOptions {
         public Builder(@NonNull ContentResolver contentResolver, @NonNull Uri collectionUri) {
             Preconditions.checkNotNull(contentResolver, "Content resolver can't be null.");
             Preconditions.checkNotNull(collectionUri, "Collection Uri can't be null.");
-            mInternalBuilder.setContentResolver(contentResolver).setCollection(collectionUri);
+            mInternalBuilder.setContentResolver(contentResolver).setCollectionUri(collectionUri);
         }
 
         /**
@@ -229,7 +228,7 @@ public final class MediaStoreOutputOptions extends OutputOptions {
         @NonNull
         abstract ContentResolver getContentResolver();
         @NonNull
-        abstract Uri getCollection();
+        abstract Uri getCollectionUri();
         @NonNull
         abstract ContentValues getContentValues();
         abstract long getFileSizeLimit();
@@ -239,7 +238,7 @@ public final class MediaStoreOutputOptions extends OutputOptions {
             @NonNull
             abstract Builder setContentResolver(@NonNull ContentResolver contentResolver);
             @NonNull
-            abstract Builder setCollection(@NonNull Uri collectionUri);
+            abstract Builder setCollectionUri(@NonNull Uri collectionUri);
             @NonNull
             abstract Builder setContentValues(@NonNull ContentValues contentValues);
             @NonNull

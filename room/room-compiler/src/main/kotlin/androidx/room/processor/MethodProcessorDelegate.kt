@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XSuspendMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.isSuspendFunction
+import androidx.room.ext.DEFERRED_TYPES
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
@@ -125,6 +126,21 @@ abstract class MethodProcessorDelegate(
     }
 }
 
+fun MethodProcessorDelegate.isSuspendAndReturnsDeferredType(): Boolean {
+    if (!executableElement.isSuspendFunction()) {
+        return false
+    }
+
+    val deferredTypes = DEFERRED_TYPES.mapNotNull { context.processingEnv.findType(it) }
+
+    val returnType = extractReturnType()
+    val hasDeferredReturnType = deferredTypes.any { deferredType ->
+        deferredType.rawType.isAssignableFrom(returnType.rawType)
+    }
+
+    return hasDeferredReturnType
+}
+
 /**
  * Default delegate for DAO methods.
  */
@@ -162,7 +178,7 @@ class DefaultMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         InstantTransactionMethodBinder(
-            TransactionMethodAdapter(executableElement.name, callType)
+            TransactionMethodAdapter(executableElement.jvmName, callType)
         )
 }
 
@@ -256,7 +272,8 @@ class SuspendMethodProcessorDelegate(
 
     override fun findTransactionMethodBinder(callType: TransactionMethod.CallType) =
         CoroutineTransactionMethodBinder(
-            adapter = TransactionMethodAdapter(executableElement.name, callType),
-            continuationParamName = continuationParam.name
+            adapter = TransactionMethodAdapter(executableElement.jvmName, callType),
+            continuationParamName = continuationParam.name,
+            useLambdaSyntax = context.processingEnv.jvmVersion >= 8
         )
 }

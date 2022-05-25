@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,16 +33,19 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+
+import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.mockito.invocation.InvocationOnMock;
+import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoRule;
 import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
@@ -54,12 +57,10 @@ import java.util.concurrent.Executor;
 @DoNotInstrument
 @SuppressWarnings("deprecation")
 public class BiometricFragmentTest {
-    private static final Executor EXECUTOR = new Executor() {
-        @Override
-        public void execute(@NonNull Runnable runnable) {
-            runnable.run();
-        }
-    };
+    private static final Executor EXECUTOR = MoreExecutors.directExecutor();
+
+    @Rule
+    public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock private BiometricPrompt.AuthenticationCallback mAuthenticationCallback;
     @Mock private Context mContext;
@@ -69,16 +70,14 @@ public class BiometricFragmentTest {
     @Captor private ArgumentCaptor<BiometricPrompt.AuthenticationResult> mResultCaptor;
 
     private BiometricFragment mFragment;
-    private BiometricViewModel mViewModel;
+    private BiometricViewModel mViewModel = new BiometricViewModel();
 
     @Before
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
         prepareMockHandler(mHandler);
-        mFragment = BiometricFragment.newInstance();
-        mViewModel = new BiometricViewModel();
-        mFragment.mHandler = mHandler;
-        mFragment.mViewModel = mViewModel;
+        mFragment = BiometricFragment.newInstance(mHandler, mViewModel,
+                true /* hostedInActivity */, true /* hasFingerprint */,
+                true /* hasFace */, true /* hasIris */);
     }
 
     @Test
@@ -157,6 +156,7 @@ public class BiometricFragmentTest {
 
     @Test
     @Config(minSdk = Build.VERSION_CODES.P)
+    @RequiresApi(Build.VERSION_CODES.P)
     public void testAuthenticateWithBiometricPrompt_DoesShowErrorAndDismiss_WhenNPEThrown() {
         final int errMsgId = BiometricPrompt.ERROR_HW_UNAVAILABLE;
         final String errString = "test string";
@@ -181,15 +181,12 @@ public class BiometricFragmentTest {
     private static void prepareMockHandler(Handler mockHandler) {
         // Immediately invoke any scheduled callbacks.
         when(mockHandler.postDelayed(any(Runnable.class), anyLong()))
-                .thenAnswer(new Answer<Boolean>() {
-                    @Override
-                    public Boolean answer(InvocationOnMock invocation) {
-                        final Runnable runnable = invocation.getArgument(0);
-                        if (runnable != null) {
-                            runnable.run();
-                        }
-                        return true;
+                .thenAnswer((Answer<Boolean>) invocation -> {
+                    final Runnable runnable = invocation.getArgument(0);
+                    if (runnable != null) {
+                        runnable.run();
                     }
+                    return true;
                 });
     }
 }

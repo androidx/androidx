@@ -97,8 +97,7 @@ public class RangedValueLayoutHelper extends LayoutHelper {
     @Override
     public void getRangedValueBounds(@NonNull Rect outRect) {
         getBounds(outRect);
-        ComplicationData data = getComplicationData();
-        if (data.getShortText() == null || !isWideRectangle(outRect)) {
+        if (!hasShortText() || !isWideRectangle(outRect)) {
             getCentralSquare(outRect, outRect);
             scaledAroundCenter(outRect, outRect, RANGED_VALUE_SIZE_FRACTION);
         } else {
@@ -109,12 +108,11 @@ public class RangedValueLayoutHelper extends LayoutHelper {
 
     @Override
     public void getIconBounds(@NonNull Rect outRect) {
-        ComplicationData data = getComplicationData();
-        if (data.getIcon() == null) {
+        if (!hasIcon()) {
             outRect.setEmpty();
         } else {
             getBounds(outRect);
-            if (data.getShortText() == null || isWideRectangle(outRect)) {
+            if (!hasShortText() || isWideRectangle(outRect)) {
                 // Show only an icon inside ranged value indicator
                 scaledAroundCenter(outRect, mRangedValueInnerSquare, 1 - ICON_PADDING_FRACTION * 2);
             } else {
@@ -139,10 +137,9 @@ public class RangedValueLayoutHelper extends LayoutHelper {
 
     @Override
     public int getShortTextGravity() {
-        ComplicationData data = getComplicationData();
         getBounds(mBounds);
         if (isWideRectangle(mBounds)) {
-            if (data.getShortTitle() != null) {
+            if (hasShortTitle()) {
                 return Gravity.BOTTOM;
             } else {
                 return Gravity.CENTER_VERTICAL;
@@ -155,13 +152,12 @@ public class RangedValueLayoutHelper extends LayoutHelper {
 
     @Override
     public void getShortTextBounds(@NonNull Rect outRect) {
-        ComplicationData data = getComplicationData();
-        if (data.getShortText() == null) {
+        if (!hasShortText()) {
             outRect.setEmpty();
         } else {
             getBounds(outRect);
             if (isWideRectangle(outRect)) {
-                if (data.getShortTitle() == null || data.getIcon() != null) {
+                if (!hasShortTitle() || hasIcon()) {
                     getRightPart(outRect, outRect);
                 } else {
                     getRightPart(outRect, outRect);
@@ -188,9 +184,8 @@ public class RangedValueLayoutHelper extends LayoutHelper {
 
     @Override
     public void getShortTitleBounds(@NonNull Rect outRect) {
-        ComplicationData data = getComplicationData();
         // As title is meaningless without text, return empty rectangle in that case too.
-        if (data.getShortTitle() == null || data.getShortText() == null) {
+        if (!hasShortTitle() || !hasShortText()) {
             outRect.setEmpty();
         } else {
             getBounds(outRect);

@@ -61,7 +61,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.AbstractResolvableFuture;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaBrowserServiceCompat;
@@ -185,7 +184,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             }
             mbrComponent = sServiceComponentName;
         }
-        int pendingIntentFlagMutable = BuildCompat.isAtLeastS() ? PendingIntent.FLAG_MUTABLE : 0;
+        int pendingIntentFlagMutable = Build.VERSION.SDK_INT >= 31 ? PendingIntent.FLAG_MUTABLE : 0;
         if (mbrComponent == null) {
             // No service to revive playback after it's dead.
             // Create a PendingIntent that points to the runtime broadcast receiver.
@@ -1154,6 +1153,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     private ComponentName getServiceComponentByAction(@NonNull String action) {
         PackageManager pm = mContext.getPackageManager();
         Intent queryIntent = new Intent(action);

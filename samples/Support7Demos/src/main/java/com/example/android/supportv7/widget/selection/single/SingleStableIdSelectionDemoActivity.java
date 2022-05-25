@@ -99,6 +99,7 @@ public class SingleStableIdSelectionDemoActivity extends AppCompatActivity {
         mSelectionTracker.onRestoreInstanceState(state);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
         if (mSelectionTracker.clearSelection()) {

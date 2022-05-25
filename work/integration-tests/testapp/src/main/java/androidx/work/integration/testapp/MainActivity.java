@@ -54,6 +54,7 @@ import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.impl.background.systemjob.SystemJobService;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
+import androidx.work.impl.workers.ConstraintTrackingWorkerKt;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
 import androidx.work.multiprocess.RemoteWorkerService;
@@ -376,7 +377,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(View v) {
                         Data inputData = new Data.Builder()
-                                .putString(ConstraintTrackingWorker.ARGUMENT_CLASS_NAME,
+                                .putString(ConstraintTrackingWorkerKt.ARGUMENT_CLASS_NAME,
                                         ForegroundWorker.class.getName())
                                 .build();
 

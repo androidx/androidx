@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha08" type="baseline" client="cli" dependencies="false" name="AGP (7.1.0-alpha08)" variant="all" version="7.1.0-alpha08">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -7,9 +7,7 @@
         errorLine1="        assertEquals(StaticIconResourceId, received.staticIcon.resId)"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="64"
-            column="64"/>
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        assertEquals(AnimatedIconResourceId, received.animatedIcon!!.resId)"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="90"
-            column="70"/>
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        assertEquals(StaticIconResourceId, received.staticIcon.resId)"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="91"
-            column="64"/>
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        assertEquals(AnimatedIconResourceId, received.animatedIcon!!.resId)"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="127"
-            column="70"/>
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        assertEquals(StaticIconResourceId, received.staticIcon.resId)"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="128"
-            column="64"/>
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        assertEquals(AnimatedIconResourceId, received.animatedIcon!!.resId)"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="212"
-            column="70"/>
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        assertEquals(StaticIconResourceId, received.staticIcon.resId)"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="213"
-            column="64"/>
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="        assertEquals(AnimatedIconResourceId, received.animatedIcon!!.resId)"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="248"
-            column="70"/>
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="        assertEquals(StaticIconResourceId, received.staticIcon.resId)"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="249"
-            column="64"/>
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        assertEquals(StaticIconResourceId, received.staticIcon.resId)"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="276"
-            column="64"/>
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        assertEquals(newAnimatedIconResourceId, received.animatedIcon!!.resId)"
         errorLine2="                                                                        ~~~~~">
         <location
-            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="309"
-            column="73"/>
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="        assertEquals(newStaticIconResourceId, received.staticIcon.resId)"
         errorLine2="                                                                  ~~~~~">
         <location
-            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"
-            line="310"
-            column="67"/>
+            file="src/test/java/androidx/wear/ongoing/OngoingActivityTest.kt"/>
     </issue>
 
 </issues>

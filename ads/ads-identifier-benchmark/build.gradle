@@ -26,7 +26,7 @@ dependencies {
     androidTestImplementation(project(":ads:ads-identifier"))
     androidTestImplementation(project(":ads:ads-identifier-provider"))
     androidTestImplementation(project(":ads:ads-identifier-testing"))
-    androidTestImplementation("androidx.work:work-runtime:2.2.0")
+    androidTestImplementation("androidx.work:work-runtime:2.7.0")
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.testExtJunit)
@@ -34,4 +34,8 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+}
+
+android {
+    namespace "androidx.ads.identifier.benchmark"
 }

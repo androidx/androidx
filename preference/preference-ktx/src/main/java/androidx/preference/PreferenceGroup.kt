@@ -30,7 +30,6 @@ public inline operator fun <T : Preference> PreferenceGroup.get(key: CharSequenc
  * @throws IndexOutOfBoundsException if index is less than 0 or greater than or equal to the count.
  */
 public operator fun PreferenceGroup.get(index: Int): Preference = getPreference(index)
-    ?: throw IndexOutOfBoundsException("Index: $index, Size: $preferenceCount")
 
 /** Returns `true` if `preference` is found in this preference group. */
 public operator fun PreferenceGroup.contains(preference: Preference): Boolean {
@@ -85,7 +84,7 @@ public operator fun PreferenceGroup.iterator(): Iterator<Preference> =
     object : MutableIterator<Preference> {
         private var index = 0
         override fun hasNext() = index < size
-        override fun next() = getPreference(index++) ?: throw IndexOutOfBoundsException()
+        override fun next() = getPreference(index++)
         override fun remove() {
             removePreference(getPreference(--index))
         }

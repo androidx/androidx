@@ -98,6 +98,14 @@ class TypeConverterStoreTest {
                 findConverter("Type1_Super", "Type2_Super")
             ).isEqualTo(
                 "Type1_Super -> JumpType_2 : JumpType_2 -> JumpType_3 : JumpType_3 -> Type2_Sub"
+                    .let { tillSub ->
+                        if (invocation.context.useNullAwareConverter) {
+                            // new type converter will have a step for upcasts too
+                            "$tillSub : Type2_Sub -> Type2_Super"
+                        } else {
+                            tillSub
+                        }
+                    }
             )
             assertThat(
                 findConverter("Type1", "Type2_Sub")
@@ -107,7 +115,14 @@ class TypeConverterStoreTest {
             assertThat(
                 findConverter("Type1_Sub", "Type2_Sub")
             ).isEqualTo(
-                "Type1 -> JumpType_1 : JumpType_1 -> Type2_Sub"
+                "Type1 -> JumpType_1 : JumpType_1 -> Type2_Sub".let { end ->
+                    if (invocation.context.useNullAwareConverter) {
+                        // new type converter will have a step for upcasts too
+                        "Type1_Sub -> Type1 : $end"
+                    } else {
+                        end
+                    }
+                }
             )
             assertThat(
                 findConverter("Type2", "Type2_Sub")

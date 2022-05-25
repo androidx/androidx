@@ -1,34 +1,14 @@
 // Signature format: 4.0
 package androidx.core.widget {
 
+  public final class AppWidgetManagerCompat {
+    method public static android.widget.RemoteViews createExactSizeAppWidget(android.appwidget.AppWidgetManager appWidgetManager, int appWidgetId, kotlin.jvm.functions.Function1<? super androidx.core.util.SizeFCompat,? extends android.widget.RemoteViews> factory);
+    method public static android.widget.RemoteViews createResponsiveSizeAppWidget(android.appwidget.AppWidgetManager appWidgetManager, int appWidgetId, java.util.Collection<androidx.core.util.SizeFCompat> dpSizes, kotlin.jvm.functions.Function1<? super androidx.core.util.SizeFCompat,? extends android.widget.RemoteViews> factory);
+    method public static void updateAppWidget(android.appwidget.AppWidgetManager, int appWidgetId, kotlin.jvm.functions.Function1<? super androidx.core.util.SizeFCompat,? extends android.widget.RemoteViews> factory);
+    method public static void updateAppWidget(android.appwidget.AppWidgetManager, int appWidgetId, java.util.Collection<androidx.core.util.SizeFCompat> dpSizes, kotlin.jvm.functions.Function1<? super androidx.core.util.SizeFCompat,? extends android.widget.RemoteViews> factory);
+  }
+
   public final class RemoteViewsCompat {
-    method public static void setRemoteAdapter(android.content.Context context, android.widget.RemoteViews remoteViews, int appWidgetId, @IdRes int viewId, androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems items);
-    field public static final androidx.core.widget.RemoteViewsCompat INSTANCE;
-  }
-
-  public static final class RemoteViewsCompat.RemoteCollectionItems {
-    method public int getItemCount();
-    method public long getItemId(int position);
-    method public android.widget.RemoteViews getItemView(int position);
-    method public int getViewTypeCount();
-    method public boolean hasStableIds();
-    property public final int itemCount;
-    property public final int viewTypeCount;
-  }
-
-  public static final class RemoteViewsCompat.RemoteCollectionItems.Builder {
-    ctor public RemoteViewsCompat.RemoteCollectionItems.Builder();
-    method public androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems.Builder addItem(long id, android.widget.RemoteViews view);
-    method public androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems build();
-    method public androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems.Builder setHasStableIds(boolean hasStableIds);
-    method public androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems.Builder setViewTypeCount(int viewTypeCount);
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class RemoteViewsCompatService extends android.widget.RemoteViewsService {
-    method public android.widget.RemoteViewsService.RemoteViewsFactory onGetViewFactory(android.content.Intent intent);
-  }
-
-  public final class RemoteViewsKt {
     method public static void setChronometerBase(android.widget.RemoteViews, @IdRes int viewId, long base);
     method public static void setChronometerFormat(android.widget.RemoteViews, @IdRes int viewId, String? format);
     method @RequiresApi(31) public static void setCompoundButtonDrawable(android.widget.RemoteViews, @IdRes int viewId, @DrawableRes int resId);
@@ -114,6 +94,7 @@ package androidx.core.widget {
     method public static void setRelativeLayoutHorizontalGravity(android.widget.RemoteViews, @IdRes int viewId, int horizontalGravity);
     method public static void setRelativeLayoutIgnoreGravity(android.widget.RemoteViews, @IdRes int viewId, @IdRes int childViewId);
     method public static void setRelativeLayoutVerticalGravity(android.widget.RemoteViews, @IdRes int viewId, int verticalGravity);
+    method public static void setRemoteAdapter(android.content.Context context, android.widget.RemoteViews remoteViews, int appWidgetId, @IdRes int viewId, androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems items);
     method @RequiresApi(31) public static void setSwitchMinWidth(android.widget.RemoteViews, @IdRes int viewId, float value, int unit);
     method @RequiresApi(31) public static void setSwitchMinWidthDimen(android.widget.RemoteViews, @IdRes int viewId, @DimenRes int resId);
     method @RequiresApi(31) public static void setSwitchMinWidthDimenAttr(android.widget.RemoteViews, @IdRes int viewId, @AttrRes int resId);
@@ -234,7 +215,7 @@ package androidx.core.widget {
     method public static void setViewBackgroundColor(android.widget.RemoteViews, @IdRes int viewId, @ColorInt int color);
     method @RequiresApi(31) public static void setViewBackgroundColor(android.widget.RemoteViews, @IdRes int viewId, @ColorInt int notNight, @ColorInt int night);
     method @RequiresApi(31) public static void setViewBackgroundColorAttr(android.widget.RemoteViews, @IdRes int viewId, @AttrRes int resId);
-    method @RequiresApi(31) public static void setViewBackgroundColorResource(android.widget.RemoteViews, @IdRes int viewId, @ColorRes int resId);
+    method public static void setViewBackgroundColorResource(android.widget.RemoteViews, @IdRes int viewId, @ColorRes int resId);
     method public static void setViewBackgroundResource(android.widget.RemoteViews, @IdRes int viewId, @DrawableRes int resId);
     method @RequiresApi(31) public static void setViewBackgroundTintBlendMode(android.widget.RemoteViews, @IdRes int viewId, android.graphics.BlendMode? blendMode);
     method @RequiresApi(31) public static void setViewBackgroundTintList(android.widget.RemoteViews, @IdRes int viewId, android.content.res.ColorStateList? tint);
@@ -288,6 +269,29 @@ package androidx.core.widget {
     method @RequiresApi(31) public static void setViewTranslationZDimen(android.widget.RemoteViews, @IdRes int viewId, float value, int unit);
     method @RequiresApi(31) public static void setViewTranslationZDimen(android.widget.RemoteViews, @IdRes int viewId, @DimenRes int resId);
     method @RequiresApi(31) public static void setViewTranslationZDimenAttr(android.widget.RemoteViews, @IdRes int viewId, @AttrRes int resId);
+    field public static final androidx.core.widget.RemoteViewsCompat INSTANCE;
+  }
+
+  public static final class RemoteViewsCompat.RemoteCollectionItems {
+    method public int getItemCount();
+    method public long getItemId(int position);
+    method public android.widget.RemoteViews getItemView(int position);
+    method public int getViewTypeCount();
+    method public boolean hasStableIds();
+    property public final int itemCount;
+    property public final int viewTypeCount;
+  }
+
+  public static final class RemoteViewsCompat.RemoteCollectionItems.Builder {
+    ctor public RemoteViewsCompat.RemoteCollectionItems.Builder();
+    method public androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems.Builder addItem(long id, android.widget.RemoteViews view);
+    method public androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems build();
+    method public androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems.Builder setHasStableIds(boolean hasStableIds);
+    method public androidx.core.widget.RemoteViewsCompat.RemoteCollectionItems.Builder setViewTypeCount(int viewTypeCount);
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public final class RemoteViewsCompatService extends android.widget.RemoteViewsService {
+    method public android.widget.RemoteViewsService.RemoteViewsFactory onGetViewFactory(android.content.Intent intent);
   }
 
 }

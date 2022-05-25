@@ -16,13 +16,11 @@
 
 package androidx.health.services.client.data
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.Keep
 import java.time.Duration
-import java.util.ArrayList
 
-/** Helper class to facilitate working with [DataPoint] s. */
+/** Helper class to facilitate working with [DataPoint]s. */
 // TODO(b/177504986): Remove all @Keep annotations once we figure out why this class gets stripped
 // away by proguard.
 @Keep
@@ -58,30 +56,6 @@ public object DataPoints {
 
     /** Name of intent extra containing whether permissions are granted or not. */
     private const val EXTRA_PERMISSIONS_GRANTED: String = "hs.data_points_has_permissions"
-
-    /** Retrieves the [DataPoint] s that are contained in the given [Intent], if any. */
-    @JvmStatic
-    @Keep
-    public fun getDataPoints(intent: Intent): List<DataPoint> =
-        intent.getParcelableArrayListExtra(EXTRA_DATA_POINTS) ?: listOf()
-
-    /** Puts the given [DataPoint] s in the given [Intent]. */
-    @JvmStatic
-    public fun putDataPoints(intent: Intent, dataPoints: Collection<DataPoint>) {
-        val copy = ArrayList(dataPoints)
-        intent.putParcelableArrayListExtra(EXTRA_DATA_POINTS, copy)
-    }
-
-    /** Sets whether [DataPoint] permissions are `granted` in the given [Intent]. */
-    @JvmStatic
-    public fun putPermissionsGranted(intent: Intent, granted: Boolean) {
-        intent.putExtra(EXTRA_PERMISSIONS_GRANTED, granted)
-    }
-
-    /** Retrieves whether permissions are granted in this [Intent]. */
-    @JvmStatic
-    public fun getPermissionsGranted(intent: Intent): Boolean =
-        intent.getBooleanExtra(EXTRA_PERMISSIONS_GRANTED, true)
 
     /** Creates a new [DataPoint] of type [DataType.STEPS] with the given `steps`. */
     @JvmStatic
@@ -129,7 +103,14 @@ public object DataPoints {
             metadata ?: Bundle()
         )
 
-    /** Creates a new [DataPoint] of type [DataType.ELEVATION_GAIN] with the given `meters`. */
+    /**
+     * Creates a new [DataPoint] of type [DataType.ELEVATION_GAIN] with the given `meters`.
+     *
+     * @param meters meters gained between [startDurationFromBoot] and [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     * @param metadata optional OEM specific data, not intended for broad consumption
+     */
     @JvmStatic
     @JvmOverloads
     public fun elevationGain(
@@ -140,6 +121,30 @@ public object DataPoints {
     ): DataPoint =
         DataPoint.createInterval(
             DataType.ELEVATION_GAIN,
+            Value.ofDouble(meters),
+            startDurationFromBoot,
+            endDurationFromBoot,
+            metadata ?: Bundle()
+        )
+
+    /**
+     * Create a new [DataPoint] of type [DataType.ELEVATION_LOSS] with the given `meters`.
+     *
+     * @param meters meters lost between [startDurationFromBoot] and [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     * @param metadata optional OEM specific data, not intended for broad consumption
+     */
+    @JvmStatic
+    @JvmOverloads
+    public fun elevationLoss(
+        meters: Double,
+        startDurationFromBoot: Duration,
+        endDurationFromBoot: Duration,
+        metadata: Bundle? = null
+    ): DataPoint =
+        DataPoint.createInterval(
+            DataType.ELEVATION_LOSS,
             Value.ofDouble(meters),
             startDurationFromBoot,
             endDurationFromBoot,
@@ -210,6 +215,30 @@ public object DataPoints {
         )
 
     /**
+     * Creates a new [DataPoint] of type [DataType.GOLF_SHOT_COUNT] with the given [shots].
+     *
+     * @param shots golf shots made between [startDurationFromBoot] and [endDurationFromBoot]
+     * @param startDurationFromBoot the point in time this data point begins
+     * @param endDurationFromBoot the point in time this data point ends
+     * @param metadata optional OEM specific data, not intended for broad consumption
+     */
+    @JvmStatic
+    @JvmOverloads
+    public fun golfShotCount(
+        shots: Long,
+        startDurationFromBoot: Duration,
+        endDurationFromBoot: Duration,
+        metadata: Bundle? = null
+    ): DataPoint =
+        DataPoint.createInterval(
+            DataType.GOLF_SHOT_COUNT,
+            Value.ofLong(shots),
+            startDurationFromBoot,
+            endDurationFromBoot,
+            metadata ?: Bundle()
+        )
+
+    /**
      * Creates a new [DataPoint] of type [DataType.LOCATION] with the given `latitude`, `longitude`,
      * `altitude`, `bearing`, and `accuracy`.
      */
@@ -247,8 +276,12 @@ public object DataPoints {
 
     /** Creates a new [DataPoint] of type [DataType.PACE] with the given `millisPerKm`. */
     @JvmStatic
-    public fun pace(millisPerKm: Double, durationFromBoot: Duration): DataPoint =
-        DataPoint.createSample(DataType.PACE, Value.ofDouble(millisPerKm), durationFromBoot)
+    public fun pace(millisPerKm: Duration, durationFromBoot: Duration): DataPoint =
+        DataPoint.createSample(
+            DataType.PACE,
+            Value.ofDouble((millisPerKm.toMillis()).toDouble()),
+            durationFromBoot
+        )
 
     /**
      * Creates a new [DataPoint] of type [DataType.HEART_RATE_BPM] with the given `bpm` and
@@ -259,7 +292,7 @@ public object DataPoints {
     public fun heartRate(
         bpm: Double,
         durationFromBoot: Duration,
-        accuracy: HrAccuracy? = null
+        accuracy: HeartRateAccuracy? = null
     ): DataPoint =
         DataPoint.createSample(
             DataType.HEART_RATE_BPM,
@@ -310,16 +343,16 @@ public object DataPoints {
             endDurationFromBoot
         )
 
-    /** Creates a new [DataPoint] of type [DataType.DAILY_DISTANCE] with the given `distance`. */
+    /** Creates a new [DataPoint] of type [DataType.DAILY_DISTANCE] with the given `meters`. */
     @JvmStatic
     public fun dailyDistance(
-        distance: Double,
+        meters: Double,
         startDurationFromBoot: Duration,
         endDurationFromBoot: Duration
     ): DataPoint =
         DataPoint.createInterval(
             DataType.DAILY_DISTANCE,
-            Value.ofDouble(distance),
+            Value.ofDouble(meters),
             startDurationFromBoot,
             endDurationFromBoot
         )

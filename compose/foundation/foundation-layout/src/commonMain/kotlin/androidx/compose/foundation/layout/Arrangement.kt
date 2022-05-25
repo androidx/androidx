@@ -299,11 +299,16 @@ object Arrangement {
      * the main axis. The spacing will be subtracted from the available space that the children
      * can occupy. The [space] can be negative, in which case children will overlap.
      *
+     * To change alignment of the spaced children horizontally or vertically, use [spacedBy]
+     * overloads with `alignment` parameter.
+     *
      * @param space The space between adjacent children.
      */
     @Stable
     fun spacedBy(space: Dp): HorizontalOrVertical =
-        SpacedAligned(space, true, null)
+        SpacedAligned(space, true) { size, layoutDirection ->
+            Alignment.Start.align(0, size, layoutDirection)
+        }
 
     /**
      * Place children horizontally such that each two adjacent ones are spaced by a fixed [space]

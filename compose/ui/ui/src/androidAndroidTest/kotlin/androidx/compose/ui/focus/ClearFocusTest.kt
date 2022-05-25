@@ -18,10 +18,12 @@ package androidx.compose.ui.focus
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusStateImpl.Active
 import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
 import androidx.compose.ui.focus.FocusStateImpl.Captured
-import androidx.compose.ui.focus.FocusStateImpl.Disabled
+import androidx.compose.ui.focus.FocusStateImpl.Deactivated
+import androidx.compose.ui.focus.FocusStateImpl.DeactivatedParent
 import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.filters.SmallTest
@@ -48,12 +50,12 @@ class ClearFocusTest(private val forced: Boolean) {
         // Arrange.
         val modifier = FocusModifier(Active)
         rule.setFocusableContent {
-            Box(modifier = modifier)
+            Box(Modifier.focusTarget(modifier))
         }
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forced)
+            modifier.clearFocus(forced)
         }
 
         // Assert.
@@ -69,17 +71,17 @@ class ClearFocusTest(private val forced: Boolean) {
         val parent = FocusModifier(ActiveParent)
         val modifier = FocusModifier(Active)
         rule.setFocusableContent {
-            Box(modifier = parent) {
-                Box(modifier = modifier)
+            Box(Modifier.focusTarget(parent)) {
+                Box(Modifier.focusTarget(modifier))
             }
             SideEffect {
-                parent.focusedChild = modifier.focusNode
+                parent.focusedChild = modifier
             }
         }
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forced)
+            modifier.clearFocus(forced)
         }
 
         // Assert.
@@ -94,12 +96,12 @@ class ClearFocusTest(private val forced: Boolean) {
         // Arrange.
         val modifier = FocusModifier(ActiveParent)
         rule.setFocusableContent {
-            Box(modifier = modifier)
+            Box(Modifier.focusTarget(modifier))
         }
 
         // Act.
         rule.runOnIdle {
-            modifier.focusNode.clearFocus(forced)
+            modifier.clearFocus(forced)
         }
     }
 
@@ -110,20 +112,20 @@ class ClearFocusTest(private val forced: Boolean) {
         val modifier = FocusModifier(ActiveParent)
         val child = FocusModifier(Active)
         rule.setFocusableContent {
-            Box(modifier = parent) {
-                Box(modifier = modifier) {
-                    Box(modifier = child)
+            Box(Modifier.focusTarget(parent)) {
+                Box(Modifier.focusTarget(modifier)) {
+                    Box(Modifier.focusTarget(child))
                 }
             }
             SideEffect {
-                parent.focusedChild = modifier.focusNode
-                modifier.focusedChild = child.focusNode
+                parent.focusedChild = modifier
+                modifier.focusedChild = child
             }
         }
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forced)
+            modifier.clearFocus(forced)
         }
 
         // Assert.
@@ -142,23 +144,23 @@ class ClearFocusTest(private val forced: Boolean) {
         val grandchild = FocusModifier(ActiveParent)
         val greatGrandchild = FocusModifier(Active)
         rule.setFocusableContent {
-            Box(modifier = modifier) {
-                Box(modifier = child) {
-                    Box(modifier = grandchild) {
-                        Box(modifier = greatGrandchild)
+            Box(Modifier.focusTarget(modifier)) {
+                Box(Modifier.focusTarget(child)) {
+                    Box(Modifier.focusTarget(grandchild)) {
+                        Box(Modifier.focusTarget(greatGrandchild))
                     }
                 }
             }
             SideEffect {
-                modifier.focusedChild = child.focusNode
-                child.focusedChild = grandchild.focusNode
-                grandchild.focusedChild = greatGrandchild.focusNode
+                modifier.focusedChild = child
+                child.focusedChild = grandchild
+                grandchild.focusedChild = greatGrandchild
             }
         }
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forced)
+            modifier.clearFocus(forced)
         }
 
         // Assert.
@@ -179,12 +181,12 @@ class ClearFocusTest(private val forced: Boolean) {
         // Arrange.
         val modifier = FocusModifier(Captured)
         rule.setFocusableContent {
-            Box(modifier = modifier)
+            Box(Modifier.focusTarget(modifier))
         }
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forced)
+            modifier.clearFocus(forced)
         }
 
         // Assert.
@@ -208,17 +210,17 @@ class ClearFocusTest(private val forced: Boolean) {
         val parent = FocusModifier(ActiveParent)
         val modifier = FocusModifier(Captured)
         rule.setFocusableContent {
-            Box(modifier = parent) {
-                Box(modifier = modifier)
+            Box(Modifier.focusTarget(parent)) {
+                Box(Modifier.focusTarget(modifier))
             }
             SideEffect {
-                parent.focusedChild = modifier.focusNode
+                parent.focusedChild = modifier
             }
         }
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forced)
+            modifier.clearFocus(forced)
         }
 
         // Assert.
@@ -241,12 +243,12 @@ class ClearFocusTest(private val forced: Boolean) {
         // Arrange.
         val modifier = FocusModifier(Inactive)
         rule.setFocusableContent {
-            Box(modifier = modifier)
+            Box(Modifier.focusTarget(modifier))
         }
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forced)
+            modifier.clearFocus(forced)
         }
 
         // Assert.
@@ -257,22 +259,163 @@ class ClearFocusTest(private val forced: Boolean) {
     }
 
     @Test
-    fun Disabled_isUnchanged() {
+    fun Deactivated_isUnchanged() {
         // Arrange.
-        val modifier = FocusModifier(Disabled)
+        val modifier = FocusModifier(Inactive)
         rule.setFocusableContent {
-            Box(modifier = modifier)
+            Box(
+                Modifier
+                    .focusProperties { canFocus = false }
+                    .focusTarget(modifier)
+            )
         }
 
         // Act.
         val cleared = rule.runOnIdle {
-            modifier.focusNode.clearFocus(forced)
+            modifier.clearFocus(forced)
         }
 
         // Assert.
         rule.runOnIdle {
             assertThat(cleared).isTrue()
-            assertThat(modifier.focusState).isEqualTo(Disabled)
+            assertThat(modifier.focusState.isDeactivated).isTrue()
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun deactivatedParent_noFocusedChild_throwsException() {
+        // Arrange.
+        val modifier = FocusModifier(DeactivatedParent)
+        rule.setFocusableContent {
+            Box(Modifier.focusTarget(modifier))
+        }
+
+        // Act.
+        rule.runOnIdle {
+            modifier.clearFocus(forced)
+        }
+    }
+
+    @Test
+    fun deactivatedParent_isClearedAndRemovedFromParentsFocusedChild() {
+        // Arrange.
+        val parent = FocusModifier(ActiveParent)
+        val modifier = FocusModifier(ActiveParent)
+        val child = FocusModifier(Active)
+        rule.setFocusableContent {
+            Box(Modifier.focusTarget(parent)) {
+                Box(
+                    Modifier
+                        .focusProperties { canFocus = false }
+                        .focusTarget(modifier)
+                ) {
+                    Box(Modifier.focusTarget(child))
+                }
+            }
+            SideEffect {
+                parent.focusedChild = modifier
+                modifier.focusedChild = child
+            }
+        }
+
+        // Act.
+        val cleared = rule.runOnIdle {
+            modifier.clearFocus(forced)
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(cleared).isTrue()
+            assertThat(modifier.focusedChild).isNull()
+            assertThat(modifier.focusState.isDeactivated).isTrue()
+        }
+    }
+
+    @Test
+    fun deactivatedParent_withDeactivatedGrandParent_isClearedAndRemovedFromParentsFocusedChild() {
+        // Arrange.
+        val parent = FocusModifier(ActiveParent)
+        val modifier = FocusModifier(ActiveParent)
+        val child = FocusModifier(Active)
+        rule.setFocusableContent {
+            Box(Modifier
+                .focusProperties { canFocus = false }
+                .focusTarget(parent)
+            ) {
+                Box(Modifier
+                    .focusProperties { canFocus = false }
+                    .focusTarget(modifier)
+                ) {
+                    Box(Modifier.focusTarget(child))
+                }
+            }
+            SideEffect {
+                parent.focusedChild = modifier
+                modifier.focusedChild = child
+            }
+        }
+
+        // Act.
+        val cleared = rule.runOnIdle {
+            modifier.clearFocus(forced)
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(cleared).isTrue()
+            assertThat(modifier.focusedChild).isNull()
+            assertThat(modifier.focusState.isDeactivated).isTrue()
+        }
+    }
+
+    @Test
+    fun deactivatedParent_clearsEntireHierarchy() {
+        // Arrange.
+        val modifier = FocusModifier(ActiveParent)
+        val child = FocusModifier(ActiveParent)
+        val grandchild = FocusModifier(ActiveParent)
+        val greatGrandchild = FocusModifier(ActiveParent)
+        val greatGreatGrandchild = FocusModifier(Active)
+        rule.setFocusableContent {
+            Box(Modifier
+                .focusProperties { canFocus = false }
+                .focusTarget(modifier)
+            ) {
+                Box(modifier = Modifier.focusTarget(child)) {
+                    Box(Modifier
+                        .focusProperties { canFocus = false }
+                        .focusTarget(grandchild)
+                    ) {
+                        Box(Modifier.focusTarget(greatGrandchild)) {
+                            Box(Modifier.focusTarget(greatGreatGrandchild))
+                        }
+                    }
+                }
+            }
+            SideEffect {
+                modifier.focusedChild = child
+                child.focusedChild = grandchild
+                grandchild.focusedChild = greatGrandchild
+                greatGrandchild.focusedChild = greatGreatGrandchild
+            }
+        }
+
+        // Act.
+        val cleared = rule.runOnIdle {
+            modifier.clearFocus(forced)
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(cleared).isTrue()
+            assertThat(modifier.focusedChild).isNull()
+            assertThat(child.focusedChild).isNull()
+            assertThat(grandchild.focusedChild).isNull()
+            assertThat(modifier.focusState).isEqualTo(Deactivated)
+            assertThat(child.focusState).isEqualTo(Inactive)
+            assertThat(grandchild.focusState).isEqualTo(Deactivated)
+            assertThat(greatGrandchild.focusState).isEqualTo(Inactive)
+            assertThat(greatGreatGrandchild.focusState).isEqualTo(Inactive)
         }
     }
 }

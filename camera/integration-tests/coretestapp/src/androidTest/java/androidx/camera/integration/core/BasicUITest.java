@@ -27,6 +27,7 @@ import static org.junit.Assume.assumeTrue;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
 import androidx.camera.testing.CameraUtil;
@@ -67,7 +68,9 @@ public final class BasicUITest {
             new ActivityTestRule<>(CameraXActivity.class, true, false);
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     @Rule
     public GrantPermissionRule mStoragePermissionRule =

@@ -260,6 +260,22 @@ class NavGraphAndroidTest {
     }
 
     @Test
+    fun startDestDisplayNameWithRoute() {
+        val navigatorProvider = NavigatorProvider().apply {
+            addNavigator(NavGraphNavigator(this))
+            addNavigator(NoOpNavigator())
+        }
+        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
+            .createDestination().apply {
+                route = GRAPH_ROUTE
+                id = GRAPH_ID
+                label = GRAPH_LABEL
+                setStartDestination(DESTINATION_ROUTE)
+            }
+        assertThat(graph.startDestDisplayName).isEqualTo(DESTINATION_ROUTE)
+    }
+
+    @Test
     fun toStringStartDestInNodes() {
         val navigatorProvider = NavigatorProvider().apply {
             addNavigator(NavGraphNavigator(this))

@@ -26,6 +26,7 @@ import androidx.room.integration.kotlintestapp.vo.Publisher
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.base.Optional
+import com.google.common.truth.Truth
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.TestSubscriber
@@ -412,6 +413,16 @@ class BooksDaoTest : TestDatabaseTest() {
         runBlocking {
             assertEquals("", booksDao.concreteSuspendFunction())
             assertEquals("2 - hi", booksDao.concreteSuspendFunctionWithParams(2, "hi"))
+        }
+    }
+
+    @Test
+    fun multimapDataClassKey() {
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+
+        booksDao.getBooksByPublisher().let { result ->
+            Truth.assertThat(result[TestUtil.PUBLISHER]).containsExactly(TestUtil.BOOK_1)
         }
     }
 }

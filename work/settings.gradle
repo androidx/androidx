@@ -15,18 +15,22 @@
  */
 
 // see ../playground-common/README.md for details on how this works
-rootProject.name = "work-playground"
-apply from: "../playground-common/playground-include-settings.gradle"
-setupPlayground(this, "..")
-selectProjectsFromAndroidX({ name ->
-    if (name.startsWith(":work")) return true
-    if (name.startsWith(":internal-testutils-runtime")) return true
-    return false
-})
+pluginManagement {
+    includeBuild "../playground-common/playground-plugin"
+}
+plugins {
+    id "playground"
+}
 
-includeProject(":inspection:inspection",
-    new File(supportRootDir, "inspection/inspection"))
-includeProject(":inspection:inspection-testing",
-    new File(supportRootDir, "inspection/inspection-testing"))
-includeProject(":inspection:inspection-gradle-plugin",
-    new File(supportRootDir, "inspection/inspection-testing"))
+rootProject.name = "work-playground"
+
+playground {
+    setupPlayground("..")
+    selectProjectsFromAndroidX({ name ->
+        if (name == ":work:work-inspection") return false
+        if (name.startsWith(":work")) return true
+        if (name.startsWith(":internal-testutils-runtime")) return true
+        return false
+    })
+    includeProject(":inspection:inspection-gradle-plugin", "inspection/inspection-gradle-plugin")
+}

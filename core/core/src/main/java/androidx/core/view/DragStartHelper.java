@@ -21,6 +21,8 @@ import android.graphics.Point;
 import android.view.MotionEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 /**
  * DragStartHelper is a utility class for implementing drag and drop support.
  * <p>
@@ -84,7 +86,7 @@ public class DragStartHelper {
          * @param helper The DragStartHelper object which detected the gesture.
          * @return True if the listener has started the drag operation, false otherwise.
          */
-        boolean onDragStart(View v, DragStartHelper helper);
+        boolean onDragStart(@NonNull View v, @NonNull DragStartHelper helper);
     }
 
     /**
@@ -93,7 +95,7 @@ public class DragStartHelper {
      * called explicitly.
      * @param view A View
      */
-    public DragStartHelper(View view, OnDragStartListener listener) {
+    public DragStartHelper(@NonNull View view, @NonNull OnDragStartListener listener) {
         mView = view;
         mListener = listener;
     }
@@ -125,7 +127,7 @@ public class DragStartHelper {
      *        the event.
      * @return True if the listener has consumed the event, false otherwise.
      */
-    public boolean onTouch(View v, MotionEvent event) {
+    public boolean onTouch(@NonNull View v, @NonNull MotionEvent event) {
         final int x = (int) event.getX();
         final int y = (int) event.getY();
         switch (event.getAction()) {
@@ -166,7 +168,7 @@ public class DragStartHelper {
      * @param v The view that was clicked and held.
      * @return true if the callback consumed the long click, false otherwise.
      */
-    public boolean onLongClick(View v) {
+    public boolean onLongClick(@NonNull View v) {
         return mListener.onDragStart(v, this);
     }
 
@@ -174,22 +176,13 @@ public class DragStartHelper {
      * Compute the position of the touch event that started the drag operation.
      * @param point The position of the touch event that started the drag operation.
      */
-    public void getTouchPosition(Point point) {
+    public void getTouchPosition(@NonNull Point point) {
         point.set(mLastTouchX, mLastTouchY);
     }
 
-    private final View.OnLongClickListener mLongClickListener = new View.OnLongClickListener() {
-        @Override
-        public boolean onLongClick(View v) {
-            return DragStartHelper.this.onLongClick(v);
-        }
-    };
+    private final View.OnLongClickListener mLongClickListener =
+            DragStartHelper.this::onLongClick;
 
-    private final View.OnTouchListener mTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            return DragStartHelper.this.onTouch(v, event);
-        }
-    };
+    private final View.OnTouchListener mTouchListener = DragStartHelper.this::onTouch;
 }
 

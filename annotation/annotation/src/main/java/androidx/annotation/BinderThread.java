@@ -31,10 +31,10 @@ import java.lang.annotation.Target;
  * on the binder thread.
  * <p>
  * Example:
- * <pre><code>
+ * <pre>
  *  &#64;BinderThread
  *  public BeamShareData createBeamShareData() { ... }
- * </code></pre>
+ * </pre>
  */
 @Documented
 @Retention(CLASS)

@@ -18,7 +18,7 @@ package androidx.car.app.navigation.model;
 
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_HEADER;
 import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_MAP;
-import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_SIMPLE;
+import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONSTRAINTS_NAVIGATION;
 import static androidx.car.app.model.constraints.RowListConstraints.ROW_LIST_CONSTRAINTS_ROUTE_PREVIEW;
 
 import static java.util.Objects.requireNonNull;
@@ -31,13 +31,13 @@ import androidx.annotation.Nullable;
 import androidx.car.app.Screen;
 import androidx.car.app.SurfaceCallback;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DistanceSpan;
 import androidx.car.app.model.DurationSpan;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.ModelUtils;
 import androidx.car.app.model.OnClickListener;
@@ -87,8 +87,13 @@ import java.util.Objects;
 public final class RoutePreviewNavigationTemplate implements Template {
     @Keep
     private final boolean mIsLoading;
+    /**
+     * @deprecated Use the Header to set up the Title.
+     */
+    // TODO(b/225914724): remove after hosts switch over to setHeader().
     @Keep
     @Nullable
+    @Deprecated
     private final CarText mTitle;
     @Keep
     @Nullable
@@ -98,6 +103,14 @@ public final class RoutePreviewNavigationTemplate implements Template {
     private final ItemList mItemList;
     @Keep
     @Nullable
+    private final Header mHeader;
+    /**
+     * @deprecated Use the Header to set up the HeaderAction.
+     */
+    // TODO(b/225914724): remove after hosts switch over to setHeader().
+    @Keep
+    @Nullable
+    @Deprecated
     private final Action mHeaderAction;
     @Keep
     @Nullable
@@ -113,10 +126,24 @@ public final class RoutePreviewNavigationTemplate implements Template {
      * Returns the title of the template or {@code null} if not set.
      *
      * @see Builder#setTitle(CharSequence)
+     * @deprecated use {@link #getHeader()}
      */
+    // TODO(b/225914724): remove after hosts switch over to getHeader().
     @Nullable
+    @Deprecated
     public CarText getTitle() {
         return mTitle;
+    }
+
+    /**
+     * Returns the {@link Header} to display in this template.
+     *
+     * @see Builder#setHeader(Header)
+     */
+    @Nullable
+    @RequiresCarApi(5)
+    public Header getHeader() {
+        return mHeader;
     }
 
     /**
@@ -124,8 +151,11 @@ public final class RoutePreviewNavigationTemplate implements Template {
      * {@code null} if not set.
      *
      * @see Builder#setHeaderAction(Action)
+     * @deprecated use {@link #getHeader()}
      */
+    // TODO(b/225914724): remove after hosts switch over to getHeader().
     @Nullable
+    @Deprecated
     public Action getHeaderAction() {
         return mHeaderAction;
     }
@@ -145,7 +175,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
      *
      * @see Builder#setMapActionStrip(ActionStrip)
      */
-    @ExperimentalCarApi
     @RequiresCarApi(4)
     @Nullable
     public ActionStrip getMapActionStrip() {
@@ -156,7 +185,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
      * Returns the {@link PanModeDelegate} that should be called when the user interacts with
      * pan mode on this template, or {@code null} if a {@link PanModeListener} was not set.
      */
-    @ExperimentalCarApi
     @RequiresCarApi(4)
     @Nullable
     public PanModeDelegate getPanModeDelegate() {
@@ -203,7 +231,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
     @Override
     public int hashCode() {
         return Objects.hash(mTitle, mIsLoading, mNavigateAction, mItemList, mHeaderAction,
-                mActionStrip, mMapActionStrip, mPanModeDelegate == null);
+                mActionStrip, mMapActionStrip, mPanModeDelegate == null, mHeader);
     }
 
     @Override
@@ -223,7 +251,8 @@ public final class RoutePreviewNavigationTemplate implements Template {
                 && Objects.equals(mHeaderAction, otherTemplate.mHeaderAction)
                 && Objects.equals(mActionStrip, otherTemplate.mActionStrip)
                 && Objects.equals(mMapActionStrip, otherTemplate.mMapActionStrip)
-                && Objects.equals(mPanModeDelegate == null, otherTemplate.mPanModeDelegate == null);
+                && Objects.equals(mPanModeDelegate == null, otherTemplate.mPanModeDelegate == null)
+                && Objects.equals(mHeader, otherTemplate.mHeader);
     }
 
     RoutePreviewNavigationTemplate(Builder builder) {
@@ -231,6 +260,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
         mIsLoading = builder.mIsLoading;
         mNavigateAction = builder.mNavigateAction;
         mItemList = builder.mItemList;
+        mHeader = builder.mHeader;
         mHeaderAction = builder.mHeaderAction;
         mActionStrip = builder.mActionStrip;
         mMapActionStrip = builder.mMapActionStrip;
@@ -243,6 +273,7 @@ public final class RoutePreviewNavigationTemplate implements Template {
         mIsLoading = false;
         mNavigateAction = null;
         mItemList = null;
+        mHeader = null;
         mHeaderAction = null;
         mActionStrip = null;
         mMapActionStrip = null;
@@ -258,6 +289,8 @@ public final class RoutePreviewNavigationTemplate implements Template {
         Action mNavigateAction;
         @Nullable
         ItemList mItemList;
+        @Nullable
+        Header mHeader;
         @Nullable
         Action mHeaderAction;
         @Nullable
@@ -276,8 +309,11 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * @throws NullPointerException     if {@code title} is {@code null}
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
+         * @deprecated use {@link #setHeader(Header)}
          */
+        // TODO(b/225914724): remove after hosts switch over to setHeader().
         @NonNull
+        @Deprecated
         public Builder setTitle(@NonNull CharSequence title) {
             mTitle = CarText.create(requireNonNull(title));
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
@@ -293,8 +329,11 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * @throws NullPointerException     if {@code title} is null
          * @throws IllegalArgumentException if {@code title} contains unsupported spans
          * @see CarText
+         * @deprecated use {@link #setHeader(Header)}
          */
+        // TODO(b/225914724): remove after hosts switch over to setHeader().
         @NonNull
+        @Deprecated
         public Builder setTitle(@NonNull CarText title) {
             mTitle = requireNonNull(title);
             CarTextConstraints.TEXT_ONLY.validateOrThrow(mTitle);
@@ -329,8 +368,12 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * @throws IllegalArgumentException if {@code headerAction} does not meet the template's
          *                                  requirements
          * @throws NullPointerException     if {@code headerAction} is {@code null}
+         *
+         * @deprecated use {@link #setHeader(Header)}
          */
+        // TODO(b/225914724): remove after hosts switch over to setHeader().
         @NonNull
+        @Deprecated
         public Builder setHeaderAction(@NonNull Action headerAction) {
             ACTIONS_CONSTRAINTS_HEADER.validateOrThrow(
                     Collections.singletonList(requireNonNull(headerAction)));
@@ -359,6 +402,18 @@ public final class RoutePreviewNavigationTemplate implements Template {
 
             mNavigateAction = requireNonNull(navigateAction);
 
+            return this;
+        }
+
+        /**
+         * Sets the {@link Header} for this template.
+         *
+         * @throws NullPointerException if {@code header} is null
+         */
+        @NonNull
+        @RequiresCarApi(5)
+        public Builder setHeader(@NonNull Header header) {
+            mHeader = requireNonNull(header);
             return this;
         }
 
@@ -401,23 +456,30 @@ public final class RoutePreviewNavigationTemplate implements Template {
         }
 
         /**
-         * Sets the {@link ActionStrip} for this template, or {@code null} to not display an {@link
-         * ActionStrip}.
+         * Sets the {@link ActionStrip} for this template.
          *
          * <p>Unless set with this method, the template will not have an action strip.
          *
+         * <p>The {@link Action} buttons in Map Based Template are automatically adjusted based
+         * on the screen size. On narrow width screen, icon {@link Action}s show by
+         * default. If no icon specify, showing title {@link Action}s instead. On wider width
+         * screen, title {@link Action}s show by default. If no title specify, showing icon
+         * {@link Action}s instead.
+         *
          * <h4>Requirements</h4>
          *
-         * This template allows up to 2 {@link Action}s in its {@link ActionStrip}. Of the 2 allowed
-         * {@link Action}s, one of them can contain a title as set via
-         * {@link Action.Builder#setTitle}. Otherwise, only {@link Action}s with icons are allowed.
+         * This template allows up to 4 {@link Action}s in its {@link ActionStrip}. Of the 4
+         * allowed {@link Action}s, it can either be a title {@link Action} as set via
+         * {@link Action.Builder#setTitle}, or a icon {@link Action} as set via
+         * {@link Action.Builder#setIcon}.
          *
          * @throws IllegalArgumentException if {@code actionStrip} does not meet the requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
         @NonNull
         public Builder setActionStrip(@NonNull ActionStrip actionStrip) {
-            ACTIONS_CONSTRAINTS_SIMPLE.validateOrThrow(requireNonNull(actionStrip).getActions());
+            ACTIONS_CONSTRAINTS_NAVIGATION
+                    .validateOrThrow(requireNonNull(actionStrip).getActions());
             mActionStrip = actionStrip;
             return this;
         }
@@ -442,7 +504,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
          *                                  requirements
          * @throws NullPointerException     if {@code actionStrip} is {@code null}
          */
-        @ExperimentalCarApi
         @RequiresCarApi(4)
         @NonNull
         public Builder setMapActionStrip(@NonNull ActionStrip actionStrip) {
@@ -464,7 +525,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
          * @throws NullPointerException if {@code panModeListener} is {@code null}
          */
         @SuppressLint({"MissingGetterMatchingBuilder", "ExecutorRegistration"})
-        @ExperimentalCarApi
         @RequiresCarApi(4)
         @NonNull
         public Builder setPanModeListener(@NonNull PanModeListener panModeListener) {
@@ -478,12 +538,12 @@ public final class RoutePreviewNavigationTemplate implements Template {
          *
          * <h4>Requirements</h4>
          *
-         * Either a header {@link Action} or title must be set on the template.
+         * <p>If neither header {@link Action} nor title have been set on the template, the
+         * header is hidden.
          *
          * @throws IllegalStateException if the template is in a loading state but the list is
-         *                               set or vice versa, if the template is not loading and
-         *                               the navigation action is not set, or if the template
-         *                               does not have either a title or header {@link Action} set
+         *                               set or vice versa, or if the template is not loading and
+         *                               the navigation action is not set.
          */
         @NonNull
         public RoutePreviewNavigationTemplate build() {
@@ -499,10 +559,6 @@ public final class RoutePreviewNavigationTemplate implements Template {
                             "The navigation action cannot be null when the list is not in a "
                                     + "loading state");
                 }
-            }
-
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
             }
 
             return new RoutePreviewNavigationTemplate(this);

@@ -13,6 +13,8 @@
 # limitations under the License.
 
 # Prevent Parcelizer objects from being removed or renamed.
+-keep public class androidx.wear.watchface.complications.data.**Parcelizer { *; }
+-keep public class androidx.wear.watchface.complications.data.DefaultComplicationDataSourcePolicyWireFormat { *; }
 -keep public class android.support.wearable.complications.ComplicationData { *; }
 -keep public class android.support.wearable.complications.ComplicationProviderInfo  { *; }
 -keep public class android.support.wearable.complications.ComplicationText { *; }
@@ -20,5 +22,8 @@
 -keep public class android.support.wearable.complications.TimeDependentText { *; }
 -keep public class android.support.wearable.complications.TimeDifferenceText { *; }
 -keep public class android.support.wearable.complications.TimeFormatText { *; }
+
+# Ensure our sanitizing of EditorSession.usr_style doesn't break due to renames.
+-keep public class kotlinx.coroutines.flow.MutableStateFlow { *; }
 
 

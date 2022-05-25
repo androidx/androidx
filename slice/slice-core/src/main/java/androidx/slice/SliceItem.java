@@ -434,6 +434,7 @@ public final class SliceItem extends CustomVersionedParcelable {
         }
     }
 
+    @SuppressWarnings("deprecation")
     private static Object readObj(String type, Bundle in) {
         switch (type) {
             case FORMAT_IMAGE:

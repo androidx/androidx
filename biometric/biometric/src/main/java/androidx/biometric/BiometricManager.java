@@ -16,8 +16,10 @@
 
 package androidx.biometric;
 
+import android.Manifest;
 import android.app.KeyguardManager;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Build;
 import android.util.Log;
 
@@ -25,6 +27,8 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresPermission;
+import androidx.annotation.StringRes;
 import androidx.annotation.VisibleForTesting;
 
 import java.lang.annotation.Retention;
@@ -151,11 +155,363 @@ public class BiometricManager {
     @Retention(RetentionPolicy.SOURCE)
     @interface AuthenticatorTypes {}
 
+    private static final int AUTH_MODALITY_NONE = 0;
+    private static final int AUTH_MODALITY_CREDENTIAL = 1;
+    private static final int AUTH_MODALITY_UNKNOWN_BIOMETRIC = 1 << 1;
+    private static final int AUTH_MODALITY_FINGERPRINT = 1 << 2;
+    private static final int AUTH_MODALITY_FACE = 1 << 3;
+
+    @IntDef(flag = true, value = {
+        AUTH_MODALITY_NONE,
+        AUTH_MODALITY_CREDENTIAL,
+        AUTH_MODALITY_UNKNOWN_BIOMETRIC,
+        AUTH_MODALITY_FINGERPRINT,
+        AUTH_MODALITY_FACE
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @interface AuthModalities {}
+
+    /**
+     * Provides localized strings for an application that uses {@link BiometricPrompt} to
+     * authenticate the user.
+     */
+    public static class Strings {
+        /**
+         * The framework strings instance. Non-null on Android 12 (API 31) and above.
+         */
+        @Nullable private final android.hardware.biometrics.BiometricManager.Strings mStrings;
+
+        /**
+         * The compatibility strings instance. Non-null on Android 11 (API 30) and below.
+         */
+        @Nullable private final StringsCompat mStringsCompat;
+
+        @RequiresApi(Build.VERSION_CODES.S)
+        Strings(@NonNull android.hardware.biometrics.BiometricManager.Strings strings) {
+            mStrings = strings;
+            mStringsCompat = null;
+        }
+
+        Strings(@NonNull StringsCompat stringsCompat) {
+            mStrings = null;
+            mStringsCompat = stringsCompat;
+        }
+
+        /**
+         * Provides a localized string that can be used as the label for a button that invokes
+         * {@link BiometricPrompt}.
+         *
+         * <p>When possible, this method should use the given authenticator requirements to more
+         * precisely specify the authentication type that will be used. For example, if
+         * <strong>Class 3</strong> biometric authentication is requested on a device with a
+         * <strong>Class 3</strong> fingerprint sensor and a <strong>Class 2</strong> face sensor,
+         * the returned string should indicate that fingerprint authentication will be used.
+         *
+         * <p>This method should also try to specify which authentication method(s) will be used in
+         * practice when multiple authenticators meet the given requirements. For example, if
+         * biometric authentication is requested on a device with both face and fingerprint sensors
+         * but the user has selected face as their preferred method, the returned string should
+         * indicate that face authentication will be used.
+         *
+         * <p>This method may return {@code null} if none of the requested authenticator types are
+         * available, but this should <em>not</em> be relied upon for checking the status of
+         * authenticators. Instead, use {@link #canAuthenticate(int)}.
+         *
+         * @return The label for a button that invokes {@link BiometricPrompt} for authentication.
+         */
+        @RequiresPermission(Manifest.permission.USE_BIOMETRIC)
+        @Nullable
+        public CharSequence getButtonLabel() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && mStrings != null) {
+                return Api31Impl.getButtonLabel(mStrings);
+            } else if (mStringsCompat != null) {
+                return mStringsCompat.getButtonLabel();
+            } else {
+                Log.e(TAG, "Failure in Strings.getButtonLabel(). No available string provider.");
+                return null;
+            }
+        }
+
+        /**
+         * Provides a localized string that can be shown while the user is authenticating with
+         * {@link BiometricPrompt}.
+         *
+         * <p>When possible, this method should use the given authenticator requirements to more
+         * precisely specify the authentication type that will be used. For example, if
+         * <strong>Class 3</strong> biometric authentication is requested on a device with a
+         * <strong>Class 3</strong> fingerprint sensor and a <strong>Class 2</strong> face sensor,
+         * the returned string should indicate that fingerprint authentication will be used.
+         *
+         * <p>This method should also try to specify which authentication method(s) will be used in
+         * practice when multiple authenticators meet the given requirements. For example, if
+         * biometric authentication is requested on a device with both face and fingerprint sensors
+         * but the user has selected face as their preferred method, the returned string should
+         * indicate that face authentication will be used.
+         *
+         * <p>This method may return {@code null} if none of the requested authenticator types are
+         * available, but this should <em>not</em> be relied upon for checking the status of
+         * authenticators. Instead, use {@link #canAuthenticate(int)}.
+         *
+         * @return A message to be shown on {@link BiometricPrompt} during authentication.
+         */
+        @RequiresPermission(Manifest.permission.USE_BIOMETRIC)
+        @Nullable
+        public CharSequence getPromptMessage() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && mStrings != null) {
+                return Api31Impl.getPromptMessage(mStrings);
+            } else if (mStringsCompat != null) {
+                return mStringsCompat.getPromptMessage();
+            } else {
+                Log.e(TAG, "Failure in Strings.getPromptMessage(). No available string provider.");
+                return null;
+            }
+        }
+
+        /**
+         * Provides a localized string that can be shown as the title for an app setting that
+         * allows authentication with {@link BiometricPrompt}.
+         *
+         * <p>When possible, this method should use the given authenticator requirements to more
+         * precisely specify the authentication type that will be used. For example, if
+         * <strong>Class 3</strong> biometric authentication is requested on a device with a
+         * <strong>Class 3</strong> fingerprint sensor and a <strong>Class 2</strong> face sensor,
+         * the returned string should indicate that fingerprint authentication will be used.
+         *
+         * <p>This method should <em>not</em> try to specify which authentication method(s) will be
+         * used in practice when multiple authenticators meet the given requirements. For example,
+         * if biometric authentication is requested on a device with both face and fingerprint
+         * sensors, the returned string should indicate that either face or fingerprint
+         * authentication may be used, regardless of whether the user has enrolled or selected
+         * either as their preferred method.
+         *
+         * <p>This method may return {@code null} if none of the requested authenticator types are
+         * supported by the system, but this should <em>not</em> be relied upon for checking the
+         * status of authenticators. Instead, use {@link #canAuthenticate(int)} or
+         * {@link android.content.pm.PackageManager#hasSystemFeature(String)}.
+         *
+         * @return The name for a setting that allows authentication with {@link BiometricPrompt}.
+         */
+        @RequiresPermission(Manifest.permission.USE_BIOMETRIC)
+        @Nullable
+        public CharSequence getSettingName() {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && mStrings != null) {
+                return Api31Impl.getSettingName(mStrings);
+            } else if (mStringsCompat != null) {
+                return mStringsCompat.getSettingName();
+            } else {
+                Log.e(TAG, "Failure in Strings.getSettingName(). No available string provider.");
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Compatibility wrapper for the {@link Strings} class on Android 11 (API 30) and below.
+     */
+    private class StringsCompat {
+        @NonNull private final Resources mResources;
+        @AuthenticatorTypes private final int mAuthenticators;
+        @AuthModalities private final int mPossibleModalities;
+
+        StringsCompat(
+                @NonNull Resources resources,
+                @AuthenticatorTypes int authenticators,
+                boolean isFingerprintSupported,
+                boolean isFaceSupported,
+                boolean isIrisSupported,
+                boolean isDeviceSecured) {
+
+            mResources = resources;
+            mAuthenticators = authenticators;
+
+            @AuthModalities int possibleModalities =
+                    isDeviceSecured && AuthenticatorUtils.isDeviceCredentialAllowed(authenticators)
+                            ? AUTH_MODALITY_CREDENTIAL
+                            : AUTH_MODALITY_NONE;
+
+            if (AuthenticatorUtils.isSomeBiometricAllowed(authenticators)) {
+                if (isFingerprintSupported) {
+                    possibleModalities |= AUTH_MODALITY_FINGERPRINT;
+                }
+                if (isFaceSupported) {
+                    possibleModalities |= AUTH_MODALITY_FACE;
+                }
+                if (isIrisSupported) {
+                    possibleModalities |= AUTH_MODALITY_UNKNOWN_BIOMETRIC;
+                }
+            }
+            mPossibleModalities = possibleModalities;
+        }
+
+        /**
+         * Provides a localized string that can be used as the label for a button that invokes
+         * {@link BiometricPrompt}.
+         *
+         * This is a backwards-compatible implementation of the {@link Strings#getButtonLabel()}
+         * method for Android 11 (API 30) and below.
+         *
+         * @return The label for a button that invokes {@link BiometricPrompt} for authentication.
+         */
+        @Nullable
+        CharSequence getButtonLabel() {
+            @AuthenticatorTypes final int biometricAuthenticators =
+                    AuthenticatorUtils.getBiometricAuthenticators(mAuthenticators);
+            if (canAuthenticate(biometricAuthenticators) == BIOMETRIC_SUCCESS) {
+                switch (mPossibleModalities & ~AUTH_MODALITY_CREDENTIAL) {
+                    case AUTH_MODALITY_FINGERPRINT:
+                        // Fingerprint is the only supported and available biometric.
+                        return mResources.getString(R.string.use_fingerprint_label);
+                    case AUTH_MODALITY_FACE:
+                        // Face is the only supported and available biometric.
+                        return mResources.getString(R.string.use_face_label);
+                    default:
+                        // 1+ biometric types are supported and available.
+                        return mResources.getString(R.string.use_biometric_label);
+                }
+            }
+
+            if ((mPossibleModalities & AUTH_MODALITY_CREDENTIAL) != 0) {
+                // Only screen lock is supported and available.
+                return mResources.getString(R.string.use_screen_lock_label);
+            }
+
+            // Authentication is not supported or not available.
+            return null;
+        }
+
+        /**
+         * Provides a localized string that can be shown while the user is authenticating with
+         * {@link BiometricPrompt}.
+         *
+         * This is a backwards-compatible implementation of the {@link Strings#getPromptMessage()}
+         * method for Android 11 (API 30) and below.
+         *
+         * @return A message to be shown on {@link BiometricPrompt} during authentication.
+         */
+        @Nullable
+        CharSequence getPromptMessage() {
+            @AuthenticatorTypes final int biometricAuthenticators =
+                    AuthenticatorUtils.getBiometricAuthenticators(mAuthenticators);
+
+            if (canAuthenticate(biometricAuthenticators) == BIOMETRIC_SUCCESS) {
+                @StringRes final int messageRes;
+                switch (mPossibleModalities & ~AUTH_MODALITY_CREDENTIAL) {
+                    case AUTH_MODALITY_FINGERPRINT:
+                        // Fingerprint is the only supported and available biometric.
+                        messageRes = AuthenticatorUtils.isDeviceCredentialAllowed(mAuthenticators)
+                                ? R.string.fingerprint_or_screen_lock_prompt_message
+                                : R.string.fingerprint_prompt_message;
+                        break;
+
+                    case AUTH_MODALITY_FACE:
+                        // Face is the only supported and available biometric.
+                        messageRes = AuthenticatorUtils.isDeviceCredentialAllowed(mAuthenticators)
+                                ? R.string.face_or_screen_lock_prompt_message
+                                : R.string.face_prompt_message;
+                        break;
+
+                    default:
+                        // 1+ biometric types are supported and available.
+                        messageRes = AuthenticatorUtils.isDeviceCredentialAllowed(mAuthenticators)
+                                ? R.string.biometric_or_screen_lock_prompt_message
+                                : R.string.biometric_prompt_message;
+                        break;
+                }
+
+                return mResources.getString(messageRes);
+            }
+
+            if ((mPossibleModalities & AUTH_MODALITY_CREDENTIAL) != 0) {
+                // Only screen lock is supported and available.
+                return mResources.getString(R.string.screen_lock_prompt_message);
+            }
+
+            // Authentication is not supported or not available.
+            return null;
+        }
+
+        /**
+         * Provides a localized string that can be shown as the title for an app setting that
+         * allows authentication with {@link BiometricPrompt}.
+         *
+         * This is a backwards-compatible implementation of the {@link Strings#getSettingName()}
+         * method for Android 11 (API 30) and below.
+         *
+         * @return The name for a setting that allows authentication with {@link BiometricPrompt}.
+         */
+        @Nullable
+        CharSequence getSettingName() {
+            CharSequence settingName;
+            switch (mPossibleModalities) {
+                case AUTH_MODALITY_NONE:
+                    // Authentication is not supported.
+                    settingName = null;
+                    break;
+
+                case AUTH_MODALITY_CREDENTIAL:
+                    // Only screen lock is supported.
+                    settingName = mResources.getString(R.string.use_screen_lock_label);
+                    break;
+
+                case AUTH_MODALITY_UNKNOWN_BIOMETRIC:
+                    // Only an unknown biometric type(s) is supported.
+                    settingName = mResources.getString(R.string.use_biometric_label);
+                    break;
+
+                case AUTH_MODALITY_FINGERPRINT:
+                    // Only fingerprint is supported.
+                    settingName = mResources.getString(R.string.use_fingerprint_label);
+                    break;
+
+                case AUTH_MODALITY_FACE:
+                    // Only face is supported.
+                    settingName = mResources.getString(R.string.use_face_label);
+                    break;
+
+                default:
+                    if ((mPossibleModalities & AUTH_MODALITY_CREDENTIAL) == 0) {
+                        // 2+ biometric types are supported (but not screen lock).
+                        settingName = mResources.getString(R.string.use_biometric_label);
+                    } else {
+                        switch (mPossibleModalities & ~AUTH_MODALITY_CREDENTIAL) {
+                            case AUTH_MODALITY_FINGERPRINT:
+                                // Only fingerprint and screen lock are supported.
+                                settingName = mResources.getString(
+                                        R.string.use_fingerprint_or_screen_lock_label);
+                                break;
+
+                            case AUTH_MODALITY_FACE:
+                                // Only face and screen lock are supported.
+                                settingName = mResources.getString(
+                                        R.string.use_face_or_screen_lock_label);
+                                break;
+
+                            default:
+                                // 1+ biometric types and screen lock are supported.
+                                settingName = mResources.getString(
+                                        R.string.use_biometric_or_screen_lock_label);
+                                break;
+                        }
+                    }
+                    break;
+            }
+            return settingName;
+        }
+    }
+
     /**
      * An injector for various class and method dependencies. Used for testing.
      */
     @VisibleForTesting
     interface Injector {
+        /**
+         * Provides the application {@link Resources} object.
+         *
+         * @return An instance of {@link Resources}.
+         */
+        @NonNull
+        Resources getResources();
+
         /**
          * Provides the framework biometric manager that may be used on Android 10 (API 29) and
          * above.
@@ -198,6 +554,22 @@ public class BiometricManager {
         boolean isFingerprintHardwarePresent();
 
         /**
+         * Checks if the current device has a hardware sensor that may be used for face
+         * authentication.
+         *
+         * @return Whether the device has a face sensor.
+         */
+        boolean isFaceHardwarePresent();
+
+        /**
+         * Checks if the current device has a hardware sensor that may be used for iris
+         * authentication.
+         *
+         * @return Whether the device has an iris sensor.
+         */
+        boolean isIrisHardwarePresent();
+
+        /**
          * Checks if all biometric sensors on the device are known to meet or exceed the security
          * requirements for <strong>Class 3</strong> (formerly <strong>Strong</strong>).
          *
@@ -219,6 +591,12 @@ public class BiometricManager {
          */
         DefaultInjector(@NonNull Context context) {
             mContext = context.getApplicationContext();
+        }
+
+        @Override
+        @NonNull
+        public Resources getResources() {
+            return mContext.getResources();
         }
 
         @Override
@@ -247,6 +625,16 @@ public class BiometricManager {
         @Override
         public boolean isFingerprintHardwarePresent() {
             return PackageUtils.hasSystemFeatureFingerprint(mContext);
+        }
+
+        @Override
+        public boolean isFaceHardwarePresent() {
+            return PackageUtils.hasSystemFeatureFace(mContext);
+        }
+
+        @Override
+        public boolean isIrisHardwarePresent() {
+            return PackageUtils.hasSystemFeatureIris(mContext);
         }
 
         @Override
@@ -504,6 +892,112 @@ public class BiometricManager {
             return BIOMETRIC_ERROR_NONE_ENROLLED;
         }
         return BIOMETRIC_SUCCESS;
+    }
+
+    /**
+     * Produces an instance of the {@link Strings} class, which provides localized strings for an
+     * application, given a set of allowed authenticator types.
+     *
+     * @param authenticators A bit field representing the types of {@link Authenticators} that may
+     *                       be used for authentication.
+     * @return A {@link Strings} collection for the given allowed authenticator types.
+     */
+    @RequiresPermission(Manifest.permission.USE_BIOMETRIC)
+    @Nullable
+    public Strings getStrings(@AuthenticatorTypes int authenticators) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            if (mBiometricManager == null) {
+                Log.e(TAG, "Failure in getStrings(). BiometricManager was null.");
+                return null;
+            }
+            return new Strings(Api31Impl.getStrings(mBiometricManager, authenticators));
+        }
+
+        final StringsCompat stringsCompat = new StringsCompat(
+                mInjector.getResources(),
+                authenticators,
+                mInjector.isFingerprintHardwarePresent(),
+                mInjector.isFaceHardwarePresent(),
+                mInjector.isIrisHardwarePresent(),
+                mInjector.isDeviceSecuredWithCredential());
+
+        return new Strings(stringsCompat);
+    }
+
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 12 (API 31).
+     */
+    @RequiresApi(Build.VERSION_CODES.S)
+    private static class Api31Impl {
+        // Prevent instantiation.
+        private Api31Impl() {}
+
+        /**
+         * Gets an instance of the framework
+         * {@link android.hardware.biometrics.BiometricManager.Strings} class.
+         *
+         * @param biometricManager An instance of
+         *                         {@link android.hardware.biometrics.BiometricManager}.
+         * @param authenticators   A bit field representing the types of {@link Authenticators} that
+         *                         may be used for authentication.
+         * @return An instance of {@link android.hardware.biometrics.BiometricManager.Strings}.
+         */
+        @RequiresPermission(Manifest.permission.USE_BIOMETRIC)
+        @NonNull
+        static android.hardware.biometrics.BiometricManager.Strings getStrings(
+                @NonNull android.hardware.biometrics.BiometricManager biometricManager,
+                @AuthenticatorTypes int authenticators) {
+            return biometricManager.getStrings(authenticators);
+        }
+
+        /**
+         * Calls {@link android.hardware.biometrics.BiometricManager.Strings#getButtonLabel()} for
+         * the given framework strings instance.
+         *
+         * @param strings An instance of
+         *                {@link android.hardware.biometrics.BiometricManager.Strings}.
+         * @return The result of
+         * {@link android.hardware.biometrics.BiometricManager.Strings#getButtonLabel()}.
+         */
+        @RequiresPermission(Manifest.permission.USE_BIOMETRIC)
+        @Nullable
+        static CharSequence getButtonLabel(
+                @NonNull android.hardware.biometrics.BiometricManager.Strings strings) {
+            return strings.getButtonLabel();
+        }
+
+        /**
+         * Calls {@link android.hardware.biometrics.BiometricManager.Strings#getPromptMessage()} for
+         * the given framework strings instance.
+         *
+         * @param strings An instance of
+         *                {@link android.hardware.biometrics.BiometricManager.Strings}.
+         * @return The result of
+         * {@link android.hardware.biometrics.BiometricManager.Strings#getPromptMessage()}.
+         */
+        @RequiresPermission(Manifest.permission.USE_BIOMETRIC)
+        @Nullable
+        static CharSequence getPromptMessage(
+                @NonNull android.hardware.biometrics.BiometricManager.Strings strings) {
+            return strings.getPromptMessage();
+        }
+
+        /**
+         * Calls {@link android.hardware.biometrics.BiometricManager.Strings#getSettingName()} for
+         * the given framework strings instance.
+         *
+         * @param strings An instance of
+         *                {@link android.hardware.biometrics.BiometricManager.Strings}.
+         * @return The result of
+         * {@link android.hardware.biometrics.BiometricManager.Strings#getSettingName()}.
+         */
+        @RequiresPermission(Manifest.permission.USE_BIOMETRIC)
+        @Nullable
+        static CharSequence getSettingName(
+                @NonNull android.hardware.biometrics.BiometricManager.Strings strings) {
+            return strings.getSettingName();
+        }
     }
 
     /**

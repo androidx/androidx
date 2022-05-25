@@ -18,8 +18,9 @@ package androidx.paging
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -449,10 +450,10 @@ class PositionalDataSourceTest {
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun verifyRefreshIsTerminal(counted: Boolean): Unit = testScope.runBlockingTest {
+    private fun verifyRefreshIsTerminal(counted: Boolean): Unit = testScope.runTest {
         val dataSource = ListDataSource(list = listOf(0, 1, 2), counted = counted)
         dataSource.load(
             DataSource.Params(

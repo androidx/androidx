@@ -73,16 +73,28 @@ class FragmentStateManager {
      * @param fragmentStore FragmentStore handling all Fragments
      * @param classLoader ClassLoader used to instantiate the Fragment
      * @param fragmentFactory FragmentFactory used to instantiate the Fragment
-     * @param fs FragmentState used to restore the state correctly
+     * @param state Bundle used to restore the state correctly
      */
+    @SuppressWarnings("deprecation")
     FragmentStateManager(@NonNull FragmentLifecycleCallbacksDispatcher dispatcher,
             @NonNull FragmentStore fragmentStore,
             @NonNull ClassLoader classLoader,
             @NonNull FragmentFactory fragmentFactory,
-            @NonNull FragmentState fs) {
+            @NonNull Bundle state) {
         mDispatcher = dispatcher;
         mFragmentStore = fragmentStore;
+
+        // Instantiate the fragment's library states in FragmentState
+        FragmentState fs = state.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
         mFragment = fs.instantiate(fragmentFactory, classLoader);
+
+        // Instantiate the fragment's arguments
+        Bundle arguments = state.getBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG);
+        if (arguments != null) {
+            arguments.setClassLoader(classLoader);
+        }
+        mFragment.setArguments(arguments);
+
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(TAG, "Instantiated fragment " + mFragment);
         }
@@ -95,12 +107,13 @@ class FragmentStateManager {
      * @param dispatcher Dispatcher for any lifecycle callbacks triggered by this class
      * @param fragmentStore FragmentStore handling all Fragments
      * @param retainedFragment A retained fragment
-     * @param fs FragmentState used to restore the state correctly
+     * @param state Bundle used to restore the state correctly
      */
+    @SuppressWarnings("deprecation")
     FragmentStateManager(@NonNull FragmentLifecycleCallbacksDispatcher dispatcher,
             @NonNull FragmentStore fragmentStore,
             @NonNull Fragment retainedFragment,
-            @NonNull FragmentState fs) {
+            @NonNull Bundle state) {
         mDispatcher = dispatcher;
         mFragmentStore = fragmentStore;
         mFragment = retainedFragment;
@@ -111,6 +124,8 @@ class FragmentStateManager {
         mFragment.mAdded = false;
         mFragment.mTargetWho = mFragment.mTarget != null ? mFragment.mTarget.mWho : null;
         mFragment.mTarget = null;
+
+        FragmentState fs = state.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
         if (fs.mSavedFragmentState != null) {
             mFragment.mSavedFragmentState = fs.mSavedFragmentState;
         } else {
@@ -119,6 +134,8 @@ class FragmentStateManager {
             // when the Fragment is being restored
             mFragment.mSavedFragmentState = new Bundle();
         }
+
+        mFragment.mArguments = state.getBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG);
     }
 
     @NonNull
@@ -373,6 +390,7 @@ class FragmentStateManager {
                 }
                 mFragment.mHiddenChanged = false;
                 mFragment.onHiddenChanged(mFragment.mHidden);
+                mFragment.mChildFragmentManager.dispatchOnHiddenChanged();
             }
         } finally {
             mMovingToState = false;
@@ -398,6 +416,7 @@ class FragmentStateManager {
         }
     }
 
+    @SuppressWarnings("deprecation")
     void restoreState(@NonNull ClassLoader classLoader) {
         if (mFragment.mSavedFragmentState == null) {
             return;
@@ -661,7 +680,11 @@ class FragmentStateManager {
         } else {
             fs.mSavedFragmentState = mFragment.mSavedFragmentState;
         }
-        mFragmentStore.setSavedState(mFragment.mWho, fs);
+
+        Bundle stateBundle = new Bundle();
+        stateBundle.putParcelable(FragmentManager.FRAGMENT_STATE_TAG, fs);
+        stateBundle.putBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG, mFragment.mArguments);
+        mFragmentStore.setSavedState(mFragment.mWho, stateBundle);
     }
 
     @Nullable

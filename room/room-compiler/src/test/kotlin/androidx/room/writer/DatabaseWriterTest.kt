@@ -17,11 +17,12 @@
 package androidx.room.writer
 
 import COMMON
-import androidx.room.DatabaseProcessingStep
+import androidx.room.RoomKspProcessor
+import androidx.room.RoomProcessor
+import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
-import androidx.room.testing.asTestInvocationHandler
+import androidx.testutils.generateAllEnumerations
 import loadTestSource
 import org.junit.Test
 import org.junit.experimental.runners.Enclosed
@@ -45,14 +46,12 @@ class DatabaseWriterTest {
                     qName = "foo.bar.ComplexDao"
                 )
             ) {
-                it.assertCompilationResult {
-                    generatedSource(
-                        loadTestSource(
-                            fileName = "databasewriter/output/ComplexDatabase.java",
-                            qName = "foo.bar.ComplexDatabase_Impl"
-                        )
+                it.generatedSource(
+                    loadTestSource(
+                        fileName = "databasewriter/output/ComplexDatabase.java",
+                        qName = "foo.bar.ComplexDatabase_Impl"
                     )
-                }
+                )
             }
         }
     }
@@ -123,22 +122,17 @@ class DatabaseWriterTest {
         companion object {
             @Parameterized.Parameters(name = "(maxStatementCount, valuesPerEntity)={0}")
             @JvmStatic
-            fun getParams(): List<Pair<Int, Int>> {
-                val result = arrayListOf<Pair<Int, Int>>()
-                arrayListOf(500, 1000, 3000).forEach { maxStatementCount ->
-                    arrayListOf(50, 100, 200).forEach { valuesPerEntity ->
-                        result.add(maxStatementCount to valuesPerEntity)
-                    }
+            fun getParams(): List<Pair<Int, Int>> =
+                generateAllEnumerations(listOf(500, 1000, 3000), listOf(50, 100, 200)).map {
+                    it[0] as Int to it[1] as Int
                 }
-                return result
-            }
         }
     }
 }
 
 private fun singleDb(
     vararg inputs: Source,
-    handler: (XTestInvocation) -> Unit
+    onCompilationResult: (CompilationResultSubject) -> Unit
 ) {
     val sources = listOf(
         COMMON.USER, COMMON.USER_SUMMARY, COMMON.LIVE_DATA, COMMON.COMPUTABLE_LIVE_DATA,
@@ -147,6 +141,8 @@ private fun singleDb(
     ) + inputs
     runProcessorTest(
         sources = sources,
-        handler = DatabaseProcessingStep().asTestInvocationHandler(handler)
+        javacProcessors = listOf(RoomProcessor()),
+        symbolProcessorProviders = listOf(RoomKspProcessor.Provider()),
+        onCompilationResult = onCompilationResult
     )
 }

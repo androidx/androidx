@@ -16,13 +16,4 @@
 
 package androidx.wear.compose.integration.macrobenchmark.test
 
-import androidx.benchmark.macro.CompilationMode
-
-internal val COMPOSE_COMPILATION_MODES = listOf(
-    CompilationMode.None,
-    CompilationMode.Interpreted,
-    CompilationMode.SpeedProfile(),
-    CompilationMode.BaselineProfile,
-)
-
 internal val CONTENT_DESCRIPTION = "find-me"

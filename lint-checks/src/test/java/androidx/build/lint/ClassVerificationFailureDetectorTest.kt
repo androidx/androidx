@@ -20,7 +20,6 @@ package androidx.build.lint
 
 import androidx.build.lint.Stubs.Companion.RequiresApi
 import androidx.build.lint.Stubs.Companion.IntRange
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -35,9 +34,6 @@ class ClassVerificationFailureDetectorTest : AbstractLintDetectorTest(
     ),
 ) {
 
-    // Started failing with AGP 7.1.0-alpha03 upgrade. When fixing this, also create a Kotlin
-    // version of this test (see b/188048904 for details).
-    @Ignore
     @Test
     fun `Detection of unsafe references in Java sources`() {
         val input = arrayOf(
@@ -57,10 +53,7 @@ src/androidx/ClassVerificationFailureFromJava.java:46: Error: This call referenc
 src/androidx/ClassVerificationFailureFromJava.java:56: Error: This call references a method added in API level 23; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
         return view.getAccessibilityClassName();
                     ~~~~~~~~~~~~~~~~~~~~~~~~~
-src/androidx/ClassVerificationFailureFromJava.java:78: Error: This call references a method added in API level 28; however, the containing class androidx.ClassVerificationFailureFromJava.Api28Impl is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
-            return view.getAccessibilityPaneTitle();
-                        ~~~~~~~~~~~~~~~~~~~~~~~~~
-4 errors, 0 warnings
+3 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -144,6 +137,50 @@ src/androidx/sample/core/widget/ListViewCompatKotlin.kt:58: Error: This call ref
             listView.canScrollList(direction)
                      ~~~~~~~~~~~~~
 2 errors, 0 warnings
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun `Detection of RequiresApi annotation in outer class in Java source`() {
+        val input = arrayOf(
+            javaSample("androidx.RequiresApiJava"),
+            RequiresApi
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+No warnings.
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected)
+    }
+
+    @Test
+    fun `Detection of RequiresApi annotation in outer class in Kotlin source`() {
+        val input = arrayOf(
+            ktSample("androidx.RequiresApiKotlin"),
+            RequiresApi
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/RequiresApiKotlinOuter19Passes.kt:67: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinNoAnnotationFails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            Character.isSurrogate(c)
+                      ~~~~~~~~~~~
+src/androidx/RequiresApiKotlinOuter19Passes.kt:77: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinOuter16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            Character.isSurrogate(c)
+                      ~~~~~~~~~~~
+src/androidx/RequiresApiKotlinOuter19Passes.kt:87: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinInner16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            Character.isSurrogate(c)
+                      ~~~~~~~~~~~
+src/androidx/RequiresApiKotlinOuter19Passes.kt:98: Error: This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinInner16Outer16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            Character.isSurrogate(c)
+                      ~~~~~~~~~~~
+4 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
@@ -314,5 +351,68 @@ Fix for src/androidx/AutofixUnsafeReferenceWithExistingClassJava.java line 36: E
         /* ktlint-enable max-line-length */
 
         check(*input).expectFixDiffs(expectedFix)
+    }
+
+    @Test
+    fun `Detection and auto-fix for qualified expressions (issue 205026874)`() {
+        val input = arrayOf(
+            javaSample("androidx.sample.appcompat.widget.ActionBarBackgroundDrawable"),
+            RequiresApi
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java:71: Error: This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                mContainer.mSplitBackground.getOutline(outline);
+                                            ~~~~~~~~~~
+src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java:76: Error: This call references a method added in API level 21; however, the containing class androidx.sample.appcompat.widget.ActionBarBackgroundDrawable is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+                mContainer.mBackground.getOutline(outline);
+                                       ~~~~~~~~~~
+2 errors, 0 warnings
+        """.trimIndent()
+
+        val expectedFix = """
+Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java line 71: Extract to static inner class:
+@@ -71 +71
+-                 mContainer.mSplitBackground.getOutline(outline);
++                 Api21Impl.getOutline(mContainer.mSplitBackground, outline);
+@@ -90 +90
+- }
++ @RequiresApi(21)
++ static class Api21Impl {
++     private Api21Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static void getOutline(Drawable drawable, Outline outline) {
++         drawable.getOutline(outline);
++     }
+@@ -92 +101
++ }}
++
+Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java line 76: Extract to static inner class:
+@@ -76 +76
+-                 mContainer.mBackground.getOutline(outline);
++                 Api21Impl.getOutline(mContainer.mBackground, outline);
+@@ -90 +90
+- }
++ @RequiresApi(21)
++ static class Api21Impl {
++     private Api21Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static void getOutline(Drawable drawable, Outline outline) {
++         drawable.getOutline(outline);
++     }
+@@ -92 +101
++ }}
++
+        """.trimIndent()
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected).expectFixDiffs(expectedFix)
     }
 }

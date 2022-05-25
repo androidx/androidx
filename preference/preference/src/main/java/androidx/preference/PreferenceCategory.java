@@ -23,6 +23,8 @@ import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.TypedArrayUtils;
 
@@ -39,20 +41,22 @@ import androidx.core.content.res.TypedArrayUtils;
 public class PreferenceCategory extends PreferenceGroup {
 
     public PreferenceCategory(
-            Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+            @NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public PreferenceCategory(Context context, AttributeSet attrs, int defStyleAttr) {
+    public PreferenceCategory(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
-    public PreferenceCategory(Context context, AttributeSet attrs) {
+    public PreferenceCategory(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.preferenceCategoryStyle,
                 android.R.attr.preferenceCategoryStyle));
     }
 
-    public PreferenceCategory(Context context) {
+    public PreferenceCategory(@NonNull Context context) {
         this(context, null);
     }
 
@@ -67,7 +71,7 @@ public class PreferenceCategory extends PreferenceGroup {
     }
 
     @Override
-    public void onBindViewHolder(PreferenceViewHolder holder) {
+    public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
         if (Build.VERSION.SDK_INT >= VERSION_CODES.P) {
             holder.itemView.setAccessibilityHeading(true);

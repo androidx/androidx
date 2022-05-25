@@ -17,7 +17,6 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.car.app.sample.showcase"
     android:versionCode="1"
     android:versionName="1.0">
 
@@ -35,7 +34,6 @@
   <!-- For Access to Car Hardware. -->
   <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
   <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-  <uses-permission android:name="android.car.permission.CAR_MILEAGE"/>
   <uses-permission android:name="android.car.permission.CAR_SPEED"/>
   <uses-permission android:name="android.car.permission.CAR_INFO"/>
   <uses-permission android:name="android.car.permission.CAR_ENERGY"/>
@@ -62,7 +60,8 @@
   <application
       android:label="@string/app_name"
       android:icon="@drawable/ic_launcher"
-      android:extractNativeLibs="false">
+      android:extractNativeLibs="false"
+      android:supportsRtl="true">
 
     <meta-data
         android:name="com.android.automotive"
@@ -108,10 +107,14 @@
         android:exported="true"
         android:launchMode="singleTask"
         android:label="Showcase">
-
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+      <intent-filter>
+        <action android:name="androidx.car.app.action.NAVIGATE" />
+        <category android:name="android.intent.category.DEFAULT"/>
+        <data android:scheme="geo" />
       </intent-filter>
       <meta-data android:name="distractionOptimized" android:value="true"/>
     </activity>
@@ -122,7 +125,6 @@
         android:exported="true"
         android:launchMode="singleTask"
         android:label="Showcase - Debug">
-
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />

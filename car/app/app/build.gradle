@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.Release
 import androidx.build.checkapi.LibraryApiTaskConfig
 import androidx.build.metalava.MetalavaRunnerKt
@@ -52,18 +50,20 @@ dependencies {
     // OnBackPressedDispatcher is part of the API
     api("androidx.activity:activity:1.2.0")
     implementation("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.core:core:1.5.0-rc01")
+    implementation("androidx.core:core:1.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
     // Session and Screen both implement LifeCycleOwner so this needs to be exposed.
     api("androidx.lifecycle:lifecycle-common-java8:2.2.0")
-    implementation("androidx.annotation:annotation-experimental:1.1.0")
-    implementation libs.kotlinStdlib // Due to :annotation-experimental
+    api("androidx.annotation:annotation-experimental:1.1.0")
+    // There is an implicit compile-only dep due to :annotation-experimental
+    // Build will complain without this manual declaration.
+    api(libs.kotlinStdlib) // Added for annotation-experimental
 
     annotationProcessor(libs.nullaway)
 
     // TODO(shiufai): We need this for assertThrows. Point back to the AndroidX shared version if
     // it is ever upgraded.
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
@@ -74,7 +74,7 @@ dependencies {
 }
 
 project.ext {
-    latestCarAppApiLevel = "3"
+    latestCarAppApiLevel = "5"
 }
 
 android {
@@ -87,7 +87,7 @@ android {
         multiDexEnabled = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        resValue "string", "car_app_library_version", LibraryVersions.CAR_APP.toString()
+        resValue "string", "car_app_library_version", androidx.LibraryVersions.CAR_APP.toString()
         consumerProguardFiles "proguard-rules.pro"
     }
     lintOptions {
@@ -96,6 +96,7 @@ android {
     }
 
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.car.app"
 }
 
 androidx {

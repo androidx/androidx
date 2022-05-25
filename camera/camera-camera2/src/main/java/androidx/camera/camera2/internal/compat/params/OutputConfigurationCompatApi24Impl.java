@@ -38,6 +38,10 @@ class OutputConfigurationCompatApi24Impl extends OutputConfigurationCompatBaseIm
         this(new OutputConfigurationParamsApi24(new OutputConfiguration(surface)));
     }
 
+    OutputConfigurationCompatApi24Impl(int surfaceGroupId, @NonNull Surface surface) {
+        this(new OutputConfigurationParamsApi24(new OutputConfiguration(surfaceGroupId, surface)));
+    }
+
     OutputConfigurationCompatApi24Impl(@NonNull Object outputConfiguration) {
         super(outputConfiguration);
     }

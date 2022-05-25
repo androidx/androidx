@@ -104,6 +104,7 @@ public final class CarAppPermission {
      *
      * @throws SecurityException if the app does not have the required permission declared
      */
+    @SuppressWarnings("deprecation")
     public static void checkHasLibraryPermission(
             @NonNull Context context, @NonNull @LibraryPermission String permission) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {

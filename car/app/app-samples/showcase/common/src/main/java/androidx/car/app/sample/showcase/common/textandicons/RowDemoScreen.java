@@ -44,21 +44,37 @@ public final class RowDemoScreen extends Screen implements DefaultLifecycleObser
         getLifecycle().addObserver(this);
     }
 
+    private static CharSequence getRatingsString(Double ratings) {
+        String s;
+        double r;
+        for (s = "", r = ratings; r > 0; --r) {
+            s += r < 1 ? HALF_STAR : FULL_STAR;
+        }
+        SpannableString ss = new SpannableString(s + " ratings: " + ratings);
+        if (!s.isEmpty()) {
+            Utils.colorize(ss, YELLOW, 0, s.length());
+        }
+        return ss;
+    }
+
     @NonNull
     @Override
     public Template onGetTemplate() {
         ItemList.Builder listBuilder = new ItemList.Builder();
 
-        listBuilder.addItem(new Row.Builder().setTitle("Just a title").build());
+        listBuilder.addItem(new Row.Builder()
+                .setTitle(getCarContext().getString(R.string.just_row_title))
+                .build());
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Title with app icon")
+                        .setTitle(getCarContext().getString(R.string.title_with_app_icon_row_title))
                         .setImage(CarIcon.APP_ICON)
                         .build());
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Title with resource ID image")
+                        .setTitle(getCarContext().getString(
+                                R.string.title_with_res_id_image_row_title))
                         .setImage(
                                 new CarIcon.Builder(
                                         IconCompat.createWithResource(
@@ -70,7 +86,8 @@ public final class RowDemoScreen extends Screen implements DefaultLifecycleObser
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Title with SVG image")
+                        .setTitle(
+                                getCarContext().getString(R.string.title_with_svg_image_row_title))
                         .setImage(
                                 new CarIcon.Builder(
                                         IconCompat.createWithResource(
@@ -83,34 +100,24 @@ public final class RowDemoScreen extends Screen implements DefaultLifecycleObser
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Title with multiple secondary text lines")
-                        .addText("Err and err and err again, but less and less and less.")
-                        .addText("- Piet Hein")
+                        .setTitle(getCarContext().getString(
+                                R.string.title_with_secondary_lines_row_title))
+                        .addText(getCarContext().getString(
+                                R.string.title_with_secondary_lines_row_text_1))
+                        .addText(getCarContext().getString(
+                                R.string.title_with_secondary_lines_row_text_2))
                         .build());
 
         listBuilder.addItem(
                 new Row.Builder()
-                        .setTitle("Colored secondary text")
+                        .setTitle(getCarContext().getString(R.string.colored_secondary_row_title))
                         .addText(getRatingsString(3.5))
                         .build());
 
         return new ListTemplate.Builder()
                 .setSingleList(listBuilder.build())
-                .setTitle("Rows Demo")
+                .setTitle(getCarContext().getString(R.string.rows_demo_title))
                 .setHeaderAction(BACK)
                 .build();
-    }
-
-    private static CharSequence getRatingsString(Double ratings) {
-        String s;
-        double r;
-        for (s = "", r = ratings; r > 0; --r) {
-            s += r < 1 ? HALF_STAR : FULL_STAR;
-        }
-        SpannableString ss = new SpannableString(s + " ratings: " + ratings);
-        if (!s.isEmpty()) {
-            Utils.colorize(ss, YELLOW, 0, s.length());
-        }
-        return ss;
     }
 }

@@ -277,15 +277,12 @@ public class PropertyManager {
         // TODO(b/190869722): handle AreaId to VehicleZone map in V1.2
         List<CarPropertyResponse<?>> carResponses = new ArrayList<>();
         for (CarPropertyValue<?> value : propertyValues) {
-            int statusCode = PropertyUtils.mapToStatusCodeInCarValue(value.getStatus());
-            long timeInMillis = TimeUnit.MILLISECONDS.convert(value.getTimestamp(),
-                    TimeUnit.NANOSECONDS);
-            carResponses.add(CarPropertyResponse.create(
-                    value.getPropertyId(), statusCode, timeInMillis, value.getValue()));
+            carResponses.add(PropertyUtils.convertPropertyValueToPropertyResponse(value));
         }
         for (CarInternalError error: propertyErrors) {
-            carResponses.add(CarPropertyResponse.createErrorResponse(error.getPropertyId(),
-                    error.getErrorCode()));
+            carResponses.add(CarPropertyResponse.builder()
+                    .setPropertyId(error.getPropertyId())
+                    .setStatus(error.getErrorCode()).build());
         }
         return carResponses;
     }

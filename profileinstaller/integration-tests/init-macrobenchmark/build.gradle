@@ -22,8 +22,9 @@ plugins {
 
 android {
     defaultConfig {
-        minSdkVersion 28
+        minSdkVersion 23
     }
+    namespace "androidx.profileinstaller.integration.macrobenchmark"
 }
 
 dependencies {

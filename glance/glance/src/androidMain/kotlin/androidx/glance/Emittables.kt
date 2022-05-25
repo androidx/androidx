@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Emittable {
-    public var modifier: Modifier
+    public var modifier: GlanceModifier
 }
 
 /** @suppress */

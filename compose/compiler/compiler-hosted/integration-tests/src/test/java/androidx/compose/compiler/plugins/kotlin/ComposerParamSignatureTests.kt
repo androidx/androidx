@@ -59,7 +59,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               public synthetic bridge invoke(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
               static <clinit>()V
               public final static LComposableSingletons%TestKt%lambda-1%1; INSTANCE
-              OUTERCLASS ComposableSingletons%TestKt <clinit> ()V
+              OUTERCLASS ComposableSingletons%TestKt null
               final static INNERCLASS ComposableSingletons%TestKt%lambda-1%1 null null
             }
             public final class TestKt {
@@ -131,7 +131,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
             override val size: Int
                 get() = super.size
         }
-        """, dumpClasses = true
+        """
     ) {
         assertTrue(it.contains("INVOKESPECIAL java/util/ArrayList.size ()I"))
         assertFalse(it.contains("INVOKESPECIAL java/util/ArrayList.getSize ()I"))
@@ -162,6 +162,25 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
                         callback()
                         continue
                     }
+                }
+            }
+        """
+    )
+
+    @Test
+    fun testCaptureIssue23(): Unit = codegen(
+        """
+            import androidx.compose.animation.AnimatedContent
+            import androidx.compose.animation.ExperimentalAnimationApi
+            import androidx.compose.runtime.Composable
+
+            @OptIn(ExperimentalAnimationApi::class)
+            @Composable
+            fun SimpleAnimatedContentSample() {
+                @Composable fun Foo() {}
+
+                AnimatedContent(1f) {
+                    Foo()
                 }
             }
         """
@@ -470,7 +489,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               public synthetic bridge invoke()Ljava/lang/Object;
               static <clinit>()V
               public final static LTestKt%a%1; INSTANCE
-              OUTERCLASS TestKt <clinit> ()V
+              OUTERCLASS TestKt null
               final static INNERCLASS TestKt%a%1 null null
             }
         """
@@ -806,7 +825,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               public synthetic bridge invoke(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
               static <clinit>()V
               public final static LComposableSingletons%TestKt%lambda-1%1; INSTANCE
-              OUTERCLASS ComposableSingletons%TestKt <clinit> ()V
+              OUTERCLASS ComposableSingletons%TestKt null
               final static INNERCLASS ComposableSingletons%TestKt%lambda-1%1 null null
             }
             public final class TestKt {
@@ -851,7 +870,7 @@ class ComposerParamSignatureTests : AbstractCodegenSignatureTest() {
               public synthetic bridge invoke(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
               static <clinit>()V
               public final static LComposableSingletons%TestKt%lambda-1%1; INSTANCE
-              OUTERCLASS ComposableSingletons%TestKt <clinit> ()V
+              OUTERCLASS ComposableSingletons%TestKt null
               final static INNERCLASS ComposableSingletons%TestKt%lambda-1%1 null null
             }
             public final class TestKt {

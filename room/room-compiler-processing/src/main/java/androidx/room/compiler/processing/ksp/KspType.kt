@@ -25,6 +25,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Nullability
+import com.squareup.javapoet.TypeName
 import kotlin.reflect.KClass
 
 /**
@@ -37,11 +38,32 @@ import kotlin.reflect.KClass
  */
 internal abstract class KspType(
     val env: KspProcessingEnv,
-    val ksType: KSType
+    val ksType: KSType,
+    /**
+     * Type resolver to convert KSType into its JVM representation.
+     */
+    protected val jvmTypeResolver: KspJvmTypeResolver?
 ) : XType, XEquality {
     override val rawType by lazy {
         KspRawType(this)
     }
+
+    final override val typeName: TypeName by lazy {
+        jvmWildcardType?.typeName ?: resolveTypeName()
+    }
+
+    /**
+     * A Kotlin type might have a sligtly different type in JVM due to wildcards.
+     * This fields holds onto that value which will be used when creating JVM types.
+     */
+    private val jvmWildcardType by lazy {
+        jvmTypeResolver?.resolveJvmType(env)
+    }
+
+    val jvmWildcardTypeOrSelf
+        get() = jvmWildcardType ?: this
+
+    protected abstract fun resolveTypeName(): TypeName
 
     override val nullability by lazy {
         when (ksType.nullability) {
@@ -49,6 +71,16 @@ internal abstract class KspType(
             Nullability.NOT_NULL -> XNullability.NONNULL
             else -> XNullability.UNKNOWN
         }
+    }
+
+    override val superTypes: List<XType> by lazy {
+        val declaration = ksType.declaration as? KSClassDeclaration
+        declaration?.superTypes?.toList()?.map {
+            env.wrap(
+                ksType = it.resolve(),
+                allowPrimitives = false
+            )
+        } ?: emptyList()
     }
 
     override val typeElement by lazy {
@@ -85,8 +117,9 @@ internal abstract class KspType(
         val builtIns = env.resolver.builtIns
         return when (ksType) {
             builtIns.booleanType -> "false"
-            builtIns.byteType, builtIns.shortType, builtIns.intType, builtIns.longType, builtIns
+            builtIns.byteType, builtIns.shortType, builtIns.intType, builtIns
                 .charType -> "0"
+            builtIns.longType -> "0L"
             builtIns.floatType -> "0f"
             builtIns.doubleType -> "0.0"
             else -> "null"
@@ -142,6 +175,21 @@ internal abstract class KspType(
     }
 
     abstract override fun boxed(): KspType
+
+    fun withJvmTypeResolver(
+        jvmTypeResolver: KspJvmTypeResolutionScope
+    ): KspType {
+        return copyWithJvmTypeResolver(
+            KspJvmTypeResolver(
+                scope = jvmTypeResolver,
+                delegate = this
+            )
+        )
+    }
+
+    abstract fun copyWithJvmTypeResolver(
+        jvmTypeResolver: KspJvmTypeResolver
+    ): KspType
 
     /**
      * Create a copy of this type with the given nullability.

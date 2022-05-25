@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="SyntheticAccessor"
@@ -7,9 +7,7 @@
         errorLine1="        mAdapter = new Adapter(mPager, PAGE_SIZE);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="61"
-            column="20"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        mAdapter.reset(UnpagedDemoDataProvider.URI);"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="112"
-            column="9"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            mCurrentPage = page;"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="170"
-            column="13"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="            int offset = mCurrentPage * mPageSize;"
         errorLine2="                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="171"
-            column="26"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="            return new Holder(new TextView(ContentPagerDemoActivity.this));"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="177"
-            column="20"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                    mCurrentPage,"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="189"
-            column="21"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                msg(&quot;Content query returned a null cursor: &quot; + query.getUri());"
         errorLine2="                ~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="203"
-            column="17"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"/>
     </issue>
 
     <issue
@@ -84,240 +70,187 @@
         errorLine1="            mCurrentPage = query.getOffset() / mPageSize;"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="206"
-            column="13"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="55"
-            column="29"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onCreateOptionsMenu(Menu menu) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="77"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
         errorLine2="                                         ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"
-            line="85"
-            column="42"/>
+            file="src/main/java/com/example/android/support/content/demos/ContentPagerDemoActivity.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Cursor query(Uri uri, String[] projection, String selection,"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="46"
-            column="12"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Cursor query(Uri uri, String[] projection, String selection,"
         errorLine2="                        ~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="46"
-            column="25"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Cursor query(Uri uri, String[] projection, String selection,"
         errorLine2="                                 ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="46"
-            column="34"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Cursor query(Uri uri, String[] projection, String selection,"
         errorLine2="                                                      ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="46"
-            column="55"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            String[] selectionArgs, String sortOrder) {"
         errorLine2="            ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="47"
-            column="13"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            String[] selectionArgs, String sortOrder) {"
         errorLine2="                                    ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="47"
-            column="37"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
         errorLine2="                      ~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="62"
-            column="23"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
         errorLine2="                               ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="62"
-            column="32"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int delete(Uri uri, String selection, String[] selectionArgs) {"
         errorLine2="                                                 ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="62"
-            column="50"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public String getType(Uri uri) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="67"
-            column="12"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public String getType(Uri uri) {"
         errorLine2="                          ~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="67"
-            column="27"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Uri insert(Uri uri, ContentValues values) {"
         errorLine2="           ~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="72"
-            column="12"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Uri insert(Uri uri, ContentValues values) {"
         errorLine2="                      ~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="72"
-            column="23"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public Uri insert(Uri uri, ContentValues values) {"
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="72"
-            column="32"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int update(Uri uri, ContentValues values, String selection,"
         errorLine2="                      ~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="77"
-            column="23"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int update(Uri uri, ContentValues values, String selection,"
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="77"
-            column="32"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public int update(Uri uri, ContentValues values, String selection,"
         errorLine2="                                                     ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="77"
-            column="54"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            String[] selectionArgs) {"
         errorLine2="            ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"
-            line="78"
-            column="13"/>
+            file="src/main/java/com/example/android/support/content/demos/UnpagedDemoDataProvider.java"/>
     </issue>
 
 </issues>

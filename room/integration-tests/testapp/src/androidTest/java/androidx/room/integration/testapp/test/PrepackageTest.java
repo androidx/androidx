@@ -19,7 +19,7 @@ package androidx.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipInputStream;
@@ -570,17 +571,27 @@ public class PrepackageTest {
     public void onCreateFromAsset_calledOnOpenPrepackagedDatabase() {
         Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase("products.db");
-        TestPrepackagedDatabaseCallback callback = new TestPrepackagedDatabaseCallback();
+        final AtomicInteger openPrepackagedDatabaseCount = new AtomicInteger();
+        RoomDatabase.PrepackagedDatabaseCallback callback =
+                new RoomDatabase.PrepackagedDatabaseCallback() {
+                    @Override
+                    public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
+                        db.execSQL("INSERT INTO products (name) VALUES ('Mofongo')");
+                        openPrepackagedDatabaseCount.getAndIncrement();
+                    }
+                };
         ProductsDatabase database = Room.databaseBuilder(
                 context, ProductsDatabase.class, "products.db")
                 .createFromAsset("databases/products_v1.db", callback)
                 .build();
 
-        assertThat(callback.mOpenPrepackagedDatabaseCount, is(0));
+        assertThat(openPrepackagedDatabaseCount.get(), is(0));
 
-        database.getProductDao().countProducts();
+        // Assert 3 products since pre-package had 2 and we inserted one in callback, this verifies
+        // statements executed during callback are committed.
+        assertThat(database.getProductDao().countProducts(), is(3));
 
-        assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
+        assertThat(openPrepackagedDatabaseCount.get(), is(1));
         database.close();
     }
 
@@ -633,6 +644,24 @@ public class PrepackageTest {
 
         assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
 
+        database.close();
+    }
+
+    @Test
+    public void versionZero_calledOnOpenPrepackagedDatabase() throws IOException {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+        TestPrepackagedDatabaseCallback callback = new TestPrepackagedDatabaseCallback();
+        ProductsDatabase database = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products.db")
+                .createFromAsset("databases/products_v0.db", callback)
+                .build();
+
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(0));
+
+        database.getProductDao().countProducts();
+
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
         database.close();
     }
 

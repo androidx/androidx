@@ -20,9 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
 
-import androidx.annotation.OptIn;
-import androidx.car.app.annotations.ExperimentalCarApi;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -34,21 +31,18 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class QRCodeSignInMethodTest {
     private final Uri mUri = Uri.parse("http://www.youtube.com/watch?v=dQw4w9WgXcQ");
 
-    @OptIn(markerClass = ExperimentalCarApi.class)
     @Test
     public void create_defaultValues() {
         QRCodeSignInMethod signIn = new QRCodeSignInMethod(mUri);
         assertThat(signIn.getUri()).isEqualTo(mUri);
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class)
     @Test
     public void equals() {
         QRCodeSignInMethod signIn = new QRCodeSignInMethod(mUri);
         assertThat(signIn).isEqualTo(new QRCodeSignInMethod(mUri));
     }
 
-    @OptIn(markerClass = ExperimentalCarApi.class)
     @Test
     public void notEquals_differentUri() {
         QRCodeSignInMethod signIn = new QRCodeSignInMethod(mUri);

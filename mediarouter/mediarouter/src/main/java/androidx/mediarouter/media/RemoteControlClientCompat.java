@@ -19,6 +19,7 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
@@ -90,11 +91,11 @@ abstract class RemoteControlClientCompat {
          * Called when the volume should be increased or decreased.
          *
          * @param direction An integer indicating whether the volume is to be increased
-         * (positive value) or decreased (negative value).
-         * For bundled changes, the absolute value indicates the number of changes
-         * in the same direction, e.g. +3 corresponds to three "volume up" changes.
+         *                  (positive value) or decreased (negative value).
+         *                  For bundled changes, the absolute value indicates the number of changes
+         *                  in the same direction, e.g. +3 corresponds to three "volume up" changes.
          */
-        public void onVolumeUpdateRequest(int direction);
+        void onVolumeUpdateRequest(int direction);
 
         /**
          * Called when the volume for the route should be set to the given value.
@@ -102,7 +103,7 @@ abstract class RemoteControlClientCompat {
          * @param volume An integer indicating the new volume value that should be used,
          * always between 0 and the value set by {@link PlaybackInfo#volumeMax}.
          */
-        public void onVolumeSetRequest(int volume);
+        void onVolumeSetRequest(int volume);
     }
 
     /**
@@ -175,7 +176,7 @@ abstract class RemoteControlClientCompat {
             }
 
             @Override
-            public void onVolumeUpdateRequest(Object routeObj, int direction) {
+            public void onVolumeUpdateRequest(@NonNull Object routeObj, int direction) {
                 JellybeanImpl impl = mImplWeak.get();
                 if (impl != null && impl.mVolumeCallback != null) {
                     impl.mVolumeCallback.onVolumeUpdateRequest(direction);
@@ -183,7 +184,7 @@ abstract class RemoteControlClientCompat {
             }
 
             @Override
-            public void onVolumeSetRequest(Object routeObj, int volume) {
+            public void onVolumeSetRequest(@NonNull Object routeObj, int volume) {
                 JellybeanImpl impl = mImplWeak.get();
                 if (impl != null && impl.mVolumeCallback != null) {
                     impl.mVolumeCallback.onVolumeSetRequest(volume);

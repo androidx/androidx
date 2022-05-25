@@ -24,11 +24,14 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 internal class KspEnumEntry(
     env: KspProcessingEnv,
     element: KSClassDeclaration,
-    override val enumTypeElement: XEnumTypeElement,
+    override val enclosingElement: XEnumTypeElement
 ) : KspTypeElement(env, element), XEnumEntry {
 
     override val name: String
         get() = declaration.simpleName.asString()
+
+    override val closestMemberContainer: XEnumTypeElement
+        get() = enclosingElement
 
     companion object {
         fun create(

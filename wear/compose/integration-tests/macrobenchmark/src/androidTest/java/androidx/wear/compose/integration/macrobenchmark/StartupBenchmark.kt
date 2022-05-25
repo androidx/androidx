@@ -48,13 +48,6 @@ class StartupBenchmark(
     companion object {
         @Parameterized.Parameters(name = "startup={0},compilation={1}")
         @JvmStatic
-        fun parameters() = createStartupCompilationParams(
-            compilationModes = listOf(
-                CompilationMode.None,
-                CompilationMode.Interpreted,
-                CompilationMode.SpeedProfile(),
-                CompilationMode.BaselineProfile,
-            )
-        )
+        fun parameters() = createStartupCompilationParams()
     }
 }

@@ -22,6 +22,7 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+import androidx.paging.internal.BUGANIZER_URL
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
@@ -63,6 +64,12 @@ internal class PageFetcher<Key : Any, Value : Any>(
             }
             .simpleScan(null) { previousGeneration: GenerationInfo<Key, Value>?,
                 triggerRemoteRefresh: Boolean ->
+                // Enable refresh if this is the first generation and we have LAUNCH_INITIAL_REFRESH
+                // or if this generation was started due to [refresh] being invoked.
+                if (triggerRemoteRefresh) {
+                    remoteMediatorAccessor?.allowRefresh()
+                }
+
                 val pagingSource = generateNewPagingSource(
                     previousPagingSource = previousGeneration?.snapshot?.pagingSource
                 )
@@ -88,8 +95,10 @@ internal class PageFetcher<Key : Any, Value : Any>(
                     previousPagingState = previousGeneration.state
                 }
 
-                val initialKey: Key? = previousPagingState?.let { pagingSource.getRefreshKey(it) }
-                    ?: initialKey
+                val initialKey: Key? = when (previousPagingState) {
+                    null -> initialKey
+                    else -> pagingSource.getRefreshKey(previousPagingState)
+                }
 
                 previousGeneration?.snapshot?.close()
                 previousGeneration?.job?.cancel()
@@ -102,7 +111,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
                         retryFlow = retryEvents.flow,
                         // Only trigger remote refresh on refresh signals that do not originate from
                         // initialization or PagingSource invalidation.
-                        triggerRemoteRefresh = triggerRemoteRefresh,
                         remoteMediatorConnection = remoteMediatorAccessor,
                         invalidate = this@PageFetcher::refresh,
                         previousPagingState = previousPagingState,
@@ -168,6 +176,17 @@ internal class PageFetcher<Key : Any, Value : Any>(
                                 LoadStateUpdate(
                                     source = sourceEvent.source,
                                     mediator = remoteState,
+                                )
+                            }
+                            is PageEvent.StaticList -> {
+
+                                throw IllegalStateException(
+                                    """Paging generated an event to display a static list that
+                                        | originated from a paginated source. If you see this
+                                        | exception, it is most likely a bug in the library.
+                                        | Please file a bug so we can fix it at:
+                                        | $BUGANIZER_URL"""
+                                        .trimMargin()
                                 )
                             }
                         }

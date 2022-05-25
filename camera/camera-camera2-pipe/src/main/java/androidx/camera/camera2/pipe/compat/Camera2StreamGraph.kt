@@ -41,8 +41,8 @@ import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Log
-import kotlinx.atomicfu.atomic
 import javax.inject.Inject
+import kotlinx.atomicfu.atomic
 
 private val streamIds = atomic(0)
 internal fun nextStreamId(): StreamId = StreamId(streamIds.incrementAndGet())
@@ -56,8 +56,8 @@ internal fun nextConfigId(): CameraConfigId = CameraConfigId(configIds.increment
 private val groupIds = atomic(0)
 internal fun nextGroupId(): Int = groupIds.incrementAndGet()
 
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-internal inline class CameraConfigId(val value: Int) {
+@JvmInline
+public value class CameraConfigId(val value: Int) {
     override fun toString(): String = "OutputConfig-$value"
 }
 

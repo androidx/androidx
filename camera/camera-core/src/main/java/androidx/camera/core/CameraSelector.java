@@ -28,6 +28,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -74,43 +75,46 @@ public final class CameraSelector {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public CameraInternal select(@NonNull LinkedHashSet<CameraInternal> cameras) {
-        return filter(cameras).iterator().next();
+        Iterator<CameraInternal> cameraInternalIterator = filter(cameras).iterator();
+        if (cameraInternalIterator.hasNext()) {
+            return cameraInternalIterator.next();
+        } else {
+            throw new IllegalArgumentException("No available camera can be found");
+        }
     }
 
     /**
      * Filters the input {@link CameraInfo}s using the {@link CameraFilter}s assigned to the
      * selector.
      *
-     * <p>The camera infos filtered must be contained in the input set. Otherwise it will throw an
-     * exception.
+     * <p>If the {@link CameraFilter}s assigned to this selector produce a camera info that
+     * is not part of the input list, the output list will be empty.
+     *
+     * <p>An example use case for using this function is when you want to get all
+     * {@link CameraInfo}s for all available back facing cameras.
+     * <pre>
+     * eg.
+     * {@code
+     * CameraInfo defaultBackCameraInfo = null;
+     * CameraSelector selector = new CameraSelector.Builder()
+     *      .requireLensFacing(LENS_FACING_BACK).build();
+     * List<CameraInfo> cameraInfos = selector.filter(cameraProvider.getAvailableCameraInfos());
+     * }
+     * </pre>
      *
      * @param cameraInfos The camera infos list being filtered.
-     * @return The remain list of camera infos.
-     * @throws IllegalArgumentException      If there's no available camera infos after being
-     * filtered or
-     *                                       the filtered camera infos aren't contained in the input
-     *                                       list.
+     * @return The remaining list of camera infos.
      * @throws UnsupportedOperationException If the {@link CameraFilter}s assigned to the selector
-     *                                       try to modify the input camera infos.
-     * @hide
+     *                                       try to modify the input camera infos list.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {
-        List<CameraInfo> input = new ArrayList<>(cameraInfos);
         List<CameraInfo> output = new ArrayList<>(cameraInfos);
         for (CameraFilter filter : mCameraFilterSet) {
             output = filter.filter(Collections.unmodifiableList(output));
-            // If the result is empty or has extra camera that isn't contained in the input,
-            // throws an exception.
-            if (output.isEmpty()) {
-                throw new IllegalArgumentException("No available camera can be found.");
-            } else if (!input.containsAll(output)) {
-                throw new IllegalArgumentException("The output isn't contained in the input.");
-            }
-            input.retainAll(output);
         }
 
+        output.retainAll(cameraInfos);
         return output;
     }
 
@@ -121,9 +125,8 @@ public final class CameraSelector {
      * exception.
      *
      * @param cameras The camera set being filtered.
-     * @return The remain set of cameras.
-     * @throws IllegalArgumentException If there's no available camera after being filtered or
-     *                                  the filtered cameras aren't contained in the input set.
+     * @return The remaining set of cameras.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -191,7 +194,6 @@ public final class CameraSelector {
     }
 
     /** Builder for a {@link CameraSelector}. */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Builder {
         private final LinkedHashSet<CameraFilter> mCameraFilterSet;
 

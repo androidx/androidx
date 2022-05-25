@@ -336,6 +336,7 @@ public final class HostValidator {
 
         @DoNotInline
         @NonNull
+        @SuppressWarnings("deprecation")
         static PackageInfo getPackageInfo(@NonNull PackageManager packageManager,
                 @NonNull String packageName) throws PackageManager.NameNotFoundException {
             return packageManager.getPackageInfo(packageName,

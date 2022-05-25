@@ -241,6 +241,23 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testCantRead_isGetterNonBoolean() {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty private int price;\n"
+                        + "  int isPrice() { return price; }"
+                        + "  void setPrice(int price) {}"
+                        + "}\n");
+
+        assertThat(compilation).hadErrorContaining(
+                "Field cannot be read: it is private and we failed to find a suitable getter "
+                        + "for field \"price\"");
+    }
+
+    @Test
     public void testRead_MultipleGetters() throws Exception {
         Compilation compilation = compile(
                 "@Document\n"
@@ -251,6 +268,22 @@ public class AppSearchCompilerTest {
                         + "  int getPrice(int n) { return 0; }\n"
                         + "  int getPrice() { return 0; }\n"
                         + "  void setPrice(int n) {}\n"
+                        + "}\n");
+
+        assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testRead_isGetterForBoolean() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.BooleanProperty private boolean forSale;\n"
+                        + "  boolean isForSale() { return forSale; }"
+                        + "  void setForSale(boolean forSale) {}"
                         + "}\n");
 
         assertThat(compilation).succeededWithoutWarnings();

@@ -34,9 +34,9 @@ limitations under the License.
     <string name="lb_playback_controls_skip_next" msgid="8117512422682146745">"Avançar para o seguinte"</string>
     <string name="lb_playback_controls_skip_previous" msgid="3481218248309447059">"Avançar para o anterior"</string>
     <string name="lb_playback_controls_more_actions" msgid="8730341244454469032">"Mais ações"</string>
-    <string name="lb_playback_controls_thumb_up" msgid="3458671378107738666">"Desselecionar Gosto"</string>
+    <string name="lb_playback_controls_thumb_up" msgid="3458671378107738666">"Desmarcar Gosto"</string>
     <string name="lb_playback_controls_thumb_up_outline" msgid="1385865732502550659">"Selecionar Gosto"</string>
-    <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"Desselecionar Não gosto"</string>
+    <string name="lb_playback_controls_thumb_down" msgid="3544533410444618518">"Desmarcar Não gosto"</string>
     <string name="lb_playback_controls_thumb_down_outline" msgid="8475278766138652105">"Selecionar Não gosto"</string>
     <string name="lb_playback_controls_repeat_none" msgid="1614290959784265209">"Não repetir"</string>
     <string name="lb_playback_controls_repeat_all" msgid="8429099206716245199">"Repetir tudo"</string>

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -28,6 +27,7 @@ android {
     defaultConfig {
         multiDexEnabled true
     }
+    namespace "androidx.paging.runtime"
 }
 
 dependencies {
@@ -35,13 +35,13 @@ dependencies {
     // Ensure that the -ktx dependency graph mirrors the Java dependency graph
     api(project(":paging:paging-common-ktx"))
 
-    api("androidx.lifecycle:lifecycle-livedata-ktx:2.2.0")
-    api("androidx.lifecycle:lifecycle-runtime-ktx:2.2.0")
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0")
-    api("androidx.recyclerview:recyclerview:1.2.0-rc01")
+    api("androidx.lifecycle:lifecycle-livedata-ktx:2.4.0")
+    api("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0")
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0")
+    api("androidx.recyclerview:recyclerview:1.2.1")
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
-    implementation("androidx.core:core-ktx:1.2.0")
+    implementation("androidx.core:core-ktx:1.7.0")
 
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation(project(":internal-testutils-ktx"))
@@ -72,6 +72,6 @@ androidx {
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }

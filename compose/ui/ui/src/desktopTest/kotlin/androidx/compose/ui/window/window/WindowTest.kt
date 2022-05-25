@@ -16,8 +16,10 @@
 
 package androidx.compose.ui.window.window
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Button
 import androidx.compose.material.Slider
@@ -41,16 +43,16 @@ import androidx.compose.ui.window.launchApplication
 import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
+import java.awt.Dimension
+import java.awt.GraphicsEnvironment
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.swing.Swing
 import org.junit.Assume.assumeFalse
 import org.junit.Test
-import java.awt.Dimension
-import java.awt.GraphicsEnvironment
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
 
 @OptIn(ExperimentalComposeUiApi::class)
 class WindowTest {
@@ -305,21 +307,24 @@ class WindowTest {
     fun `pass composition local to windows`() = runApplicationTest {
         var actualValue1: Int? = null
         var actualValue2: Int? = null
+        var actualValue3: Int? = null
 
         var isOpen by mutableStateOf(true)
-        var testValue by mutableStateOf(0)
-        val localTestValue = compositionLocalOf { testValue }
+        val local1TestValue = compositionLocalOf { 0 }
+        val local2TestValue = compositionLocalOf { 0 }
+        var locals by mutableStateOf(arrayOf(local1TestValue provides 1))
 
         launchApplication {
             if (isOpen) {
-                CompositionLocalProvider(localTestValue provides testValue) {
+                CompositionLocalProvider(*locals) {
                     Window(
                         onCloseRequest = {},
                         state = rememberWindowState(
                             size = DpSize(600.dp, 600.dp),
                         )
                     ) {
-                        actualValue1 = localTestValue.current
+                        actualValue1 = local1TestValue.current
+                        actualValue2 = local2TestValue.current
                         Box(Modifier.size(32.dp).background(Color.Red))
 
                         Window(
@@ -328,7 +333,7 @@ class WindowTest {
                                 size = DpSize(300.dp, 300.dp),
                             )
                         ) {
-                            actualValue2 = localTestValue.current
+                            actualValue3 = local1TestValue.current
                             Box(Modifier.size(32.dp).background(Color.Blue))
                         }
                     }
@@ -337,13 +342,33 @@ class WindowTest {
         }
 
         awaitIdle()
-        assertThat(actualValue1).isEqualTo(0)
+        assertThat(actualValue1).isEqualTo(1)
         assertThat(actualValue2).isEqualTo(0)
+        assertThat(actualValue3).isEqualTo(1)
 
-        testValue = 42
+        locals = arrayOf(local1TestValue provides 42)
         awaitIdle()
         assertThat(actualValue1).isEqualTo(42)
-        assertThat(actualValue2).isEqualTo(42)
+        assertThat(actualValue2).isEqualTo(0)
+        assertThat(actualValue3).isEqualTo(42)
+
+        locals = arrayOf(local1TestValue provides 43)
+        awaitIdle()
+        assertThat(actualValue1).isEqualTo(43)
+        assertThat(actualValue2).isEqualTo(0)
+        assertThat(actualValue3).isEqualTo(43)
+
+        locals = arrayOf(local1TestValue provides 43, local2TestValue provides 12)
+        awaitIdle()
+        assertThat(actualValue1).isEqualTo(43)
+        assertThat(actualValue2).isEqualTo(12)
+        assertThat(actualValue3).isEqualTo(43)
+
+        locals = emptyArray()
+        awaitIdle()
+        assertThat(actualValue1).isEqualTo(0)
+        assertThat(actualValue2).isEqualTo(0)
+        assertThat(actualValue3).isEqualTo(0)
 
         isOpen = false
     }
@@ -405,5 +430,35 @@ class WindowTest {
 
             assertThat(leakDetector.noLeak()).isTrue()
         }
+    }
+
+    @Test(timeout = 30000)
+    fun `should draw before window is visible`() = runApplicationTest {
+        var isComposed = false
+        var isDrawn = false
+        var isVisibleOnFirstComposition = false
+        var isVisibleOnFirstDraw = false
+
+        launchApplication {
+            Window(onCloseRequest = ::exitApplication) {
+                if (!isComposed) {
+                    isVisibleOnFirstComposition = window.isVisible
+                    isComposed = true
+                }
+
+                Canvas(Modifier.fillMaxSize()) {
+                    if (!isDrawn) {
+                        isVisibleOnFirstDraw = window.isVisible
+                        isDrawn = true
+                    }
+                }
+            }
+        }
+
+        awaitIdle()
+        assertThat(isVisibleOnFirstComposition).isFalse()
+        assertThat(isVisibleOnFirstDraw).isFalse()
+
+        exitApplication()
     }
 }

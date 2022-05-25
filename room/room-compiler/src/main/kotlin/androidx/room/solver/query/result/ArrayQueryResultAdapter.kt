@@ -16,6 +16,7 @@
 
 package androidx.room.solver.query.result
 
+import androidx.room.compiler.processing.isArray
 import androidx.room.ext.L
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
@@ -28,13 +29,22 @@ class ArrayQueryResultAdapter(
     val type = rowAdapter.out
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            rowAdapter.onCursorReady(cursorVarName, scope)
+            rowAdapter.onCursorReady(cursorVarName = cursorVarName, scope = scope)
 
             val arrayType = ArrayTypeName.of(type.typeName)
-            addStatement(
-                "final $T $L = new $T[$L.getCount()]",
-                arrayType, outVarName, type.typeName, cursorVarName
-            )
+
+            if (type.isArray()) {
+                addStatement(
+                    "final $T $L = new $T[$L.getCount()][]",
+                    arrayType, outVarName, type.componentType.typeName, cursorVarName
+                )
+            } else {
+                addStatement(
+                    "final $T $L = new $T[$L.getCount()]",
+                    arrayType, outVarName, type.typeName, cursorVarName
+                )
+            }
+
             val tmpVarName = scope.getTmpVar("_item")
             val indexVar = scope.getTmpVar("_index")
             addStatement("$T $L = 0", TypeName.INT, indexVar)
@@ -45,7 +55,6 @@ class ArrayQueryResultAdapter(
                 addStatement("$L ++", indexVar)
             }
             endControlFlow()
-            rowAdapter.onCursorFinished()?.invoke(scope)
         }
     }
 }

@@ -51,6 +51,11 @@ internal class KspMessager(
             // pick first node with a location, if possible
             it.location != NonExistLocation
         } ?: nodes.firstOrNull() // fallback to the first non-null argument
+
+        // TODO: 10/8/21 Consider checking if the KspAnnotationValue is for an item in a value's
+        //  list and adding that information to the error message if so (currently, we have to
+        //  report an error on the list itself, so the information about the particular item is
+        //  lost). https://github.com/google/ksp/issues/656
         if (ksNode == null || ksNode.location == NonExistLocation) {
             internalPrintMessage(kind, "$msg - ${element.fallbackLocationText}", ksNode)
         } else {

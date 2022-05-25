@@ -55,6 +55,9 @@ public final class ImageAnalysisConfig
     public static final Option<Boolean> OPTION_ONE_PIXEL_SHIFT_ENABLED =
             Option.create("camerax.core.imageAnalysis.onePixelShiftEnabled",
                     Boolean.class);
+    public static final Option<Boolean> OPTION_OUTPUT_IMAGE_ROTATION_ENABLED =
+            Option.create("camerax.core.imageAnalysis.outputImageRotationEnabled",
+                    Boolean.class);
 
     // *********************************************************************************************
 
@@ -155,6 +158,17 @@ public final class ImageAnalysisConfig
     @Nullable
     public Boolean getOnePixelShiftEnabled(@Nullable Boolean valueIfMissing) {
         return retrieveOption(OPTION_ONE_PIXEL_SHIFT_ENABLED, valueIfMissing);
+    }
+
+    /**
+     * Gets if output image rotation is enabled or not.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    public Boolean isOutputImageRotationEnabled(@Nullable Boolean valueIfMissing) {
+        return retrieveOption(OPTION_OUTPUT_IMAGE_ROTATION_ENABLED, valueIfMissing);
     }
 
     /**

@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraManager
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.CameraPipe.CameraMetadataConfig
 import androidx.camera.camera2.pipe.compat.Camera2CameraDevices
 import dagger.Binds
 import dagger.Component
@@ -60,6 +61,10 @@ internal abstract class Camera2CameraPipeModules {
     companion object {
         @Provides
         fun provideContext(config: CameraPipe.Config): Context = config.appContext
+
+        @Provides
+        fun provideCameraMetadataConfig(config: CameraPipe.Config): CameraMetadataConfig =
+            config.cameraMetadataConfig
 
         @Reusable
         @Provides

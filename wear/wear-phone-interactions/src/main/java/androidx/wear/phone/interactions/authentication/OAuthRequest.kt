@@ -234,10 +234,10 @@ public class OAuthRequest internal constructor(
     }
 
     /**
-     * The redirect url the companion app is registered to.
+     * The redirect url the companion app is registered to. If it doesn't exist, an empty string
+     * will be returned.
      */
-    // It is save to put non-null check here as it is always set in the builder.
-    public val redirectUrl: String = requestUrl.getQueryParameter(REDIRECT_URI_KEY)!!
+    public val redirectUrl: String = requestUrl.getQueryParameter(REDIRECT_URI_KEY) ?: ""
 
     internal fun toBundle(): Bundle = Bundle().apply {
         putParcelable(RemoteAuthClient.KEY_REQUEST_URL, requestUrl)

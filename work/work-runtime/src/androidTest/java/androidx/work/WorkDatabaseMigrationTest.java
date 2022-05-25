@@ -19,27 +19,23 @@ package androidx.work;
 import static android.content.Context.MODE_PRIVATE;
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL;
 
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_11_12;
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_3_4;
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_4_5;
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_6_7;
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_7_8;
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_8_9;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_1;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_10;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_11;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_12;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_4;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_5;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_6;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_7;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_8;
-import static androidx.work.impl.WorkDatabaseMigrations.VERSION_9;
-import static androidx.work.impl.utils.IdGenerator.NEXT_ALARM_MANAGER_ID_KEY;
-import static androidx.work.impl.utils.IdGenerator.NEXT_JOB_SCHEDULER_ID_KEY;
-import static androidx.work.impl.utils.IdGenerator.PREFERENCE_FILE_KEY;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_1;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_10;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_11;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_12;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_14;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_15;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_2;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_3;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_4;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_5;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_6;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_7;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_8;
+import static androidx.work.impl.WorkDatabaseVersions.VERSION_9;
+import static androidx.work.impl.utils.IdGeneratorKt.NEXT_ALARM_MANAGER_ID_KEY;
+import static androidx.work.impl.utils.IdGeneratorKt.NEXT_JOB_SCHEDULER_ID_KEY;
+import static androidx.work.impl.utils.IdGeneratorKt.PREFERENCE_FILE_KEY;
 import static androidx.work.impl.utils.PreferenceUtils.KEY_LAST_CANCEL_ALL_TIME_MS;
 import static androidx.work.impl.utils.PreferenceUtils.KEY_RESCHEDULE_NEEDED;
 import static androidx.work.impl.utils.PreferenceUtils.PREFERENCES_FILE_NAME;
@@ -52,23 +48,34 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
+import android.net.Uri;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.room.testing.MigrationTestHelper;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.work.Constraints.ContentUriTrigger;
+import androidx.work.impl.Migration_11_12;
+import androidx.work.impl.Migration_12_13;
+import androidx.work.impl.Migration_1_2;
+import androidx.work.impl.Migration_3_4;
+import androidx.work.impl.Migration_4_5;
+import androidx.work.impl.Migration_6_7;
+import androidx.work.impl.Migration_7_8;
+import androidx.work.impl.Migration_8_9;
+import androidx.work.impl.RescheduleMigration;
 import androidx.work.impl.WorkDatabase;
-import androidx.work.impl.WorkDatabaseMigrations;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.WorkMigration9To10;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkTypeConverters;
 import androidx.work.worker.TestWorker;
 
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -76,6 +83,9 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @RunWith(AndroidJUnit4.class)
@@ -110,15 +120,14 @@ public class WorkDatabaseMigrationTest {
     private static final String NAME = "name";
     private static final String TRIGGER_CONTENT_UPDATE_DELAY = "trigger_content_update_delay";
     private static final String TRIGGER_MAX_CONTENT_DELAY = "trigger_max_content_delay";
-
+    private static final String REQUIRED_NETWORK_TYPE = "required_network_type";
+    private static final String CONTENT_URI_TRIGGERS = "content_uri_triggers";
     private Context mContext;
     private File mDatabasePath;
 
     @Rule
     public MigrationTestHelper mMigrationTestHelper = new MigrationTestHelper(
-            InstrumentationRegistry.getInstrumentation(),
-            WorkDatabase.class.getCanonicalName(),
-            new FrameworkSQLiteOpenHelperFactory());
+            InstrumentationRegistry.getInstrumentation(), WorkDatabase.class);
 
     @Before
     public void setUp() {
@@ -141,7 +150,7 @@ public class WorkDatabaseMigrationTest {
                 UUID.randomUUID().toString()
         };
         for (String workSpecId : prepopulatedWorkSpecIds) {
-            ContentValues contentValues = contentValues(workSpecId);
+            ContentValues contentValues = contentValuesPre8(workSpecId);
             database.insert("workspec", CONFLICT_FAIL, contentValues);
 
             if (workSpecId.equals(prepopulatedWorkSpecIds[0])) {
@@ -165,7 +174,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_2,
                 VALIDATE_DROPPED_TABLES,
-                WorkDatabaseMigrations.MIGRATION_1_2);
+                Migration_1_2.INSTANCE);
 
         Cursor tagCursor = database.query("SELECT * FROM worktag");
         assertThat(tagCursor.getCount(), is(prepopulatedWorkSpecIds.length));
@@ -209,8 +218,8 @@ public class WorkDatabaseMigrationTest {
     public void testMigrationVersion2To3() throws IOException {
         SupportSQLiteDatabase database =
                 mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_2);
-        WorkDatabaseMigrations.RescheduleMigration migration2To3 =
-                new WorkDatabaseMigrations.RescheduleMigration(mContext, VERSION_2, VERSION_3);
+        RescheduleMigration migration2To3 =
+                new RescheduleMigration(mContext, VERSION_2, VERSION_3);
 
         database = mMigrationTestHelper.runMigrationsAndValidate(
                 TEST_DATABASE,
@@ -232,11 +241,11 @@ public class WorkDatabaseMigrationTest {
 
         String oneTimeWorkSpecId = UUID.randomUUID().toString();
         long scheduleRequestedAt = System.currentTimeMillis();
-        ContentValues oneTimeWorkSpecContentValues = contentValues(oneTimeWorkSpecId);
+        ContentValues oneTimeWorkSpecContentValues = contentValuesPre8(oneTimeWorkSpecId);
         oneTimeWorkSpecContentValues.put("schedule_requested_at", scheduleRequestedAt);
 
         String periodicWorkSpecId = UUID.randomUUID().toString();
-        ContentValues periodicWorkSpecContentValues = contentValues(periodicWorkSpecId);
+        ContentValues periodicWorkSpecContentValues = contentValuesPre8(periodicWorkSpecId);
         periodicWorkSpecContentValues.put("interval_duration", 15 * 60 * 1000L);
 
         database.insert("workspec", CONFLICT_FAIL, oneTimeWorkSpecContentValues);
@@ -246,7 +255,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_4,
                 VALIDATE_DROPPED_TABLES,
-                MIGRATION_3_4);
+                Migration_3_4.INSTANCE);
 
         Cursor cursor = database.query("SELECT * from workspec");
         assertThat(cursor.getCount(), is(2));
@@ -277,7 +286,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_5,
                 VALIDATE_DROPPED_TABLES,
-                MIGRATION_4_5);
+                Migration_4_5.INSTANCE);
         assertThat(checkExists(database, TABLE_WORKSPEC), is(true));
         assertThat(
                 checkColumnExists(database, TABLE_WORKSPEC, TRIGGER_CONTENT_UPDATE_DELAY),
@@ -293,8 +302,7 @@ public class WorkDatabaseMigrationTest {
     public void testMigrationVersion5To6() throws IOException {
         SupportSQLiteDatabase database =
                 mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_5);
-        WorkDatabaseMigrations.RescheduleMigration migration5To6 =
-                new WorkDatabaseMigrations.RescheduleMigration(mContext, VERSION_5, VERSION_6);
+        RescheduleMigration migration5To6 = new RescheduleMigration(mContext, VERSION_5, VERSION_6);
 
         database = mMigrationTestHelper.runMigrationsAndValidate(
                 TEST_DATABASE,
@@ -317,7 +325,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_7,
                 VALIDATE_DROPPED_TABLES,
-                MIGRATION_6_7);
+                Migration_6_7.INSTANCE);
         assertThat(checkExists(database, TABLE_WORKPROGRESS), is(true));
         database.close();
     }
@@ -331,7 +339,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_8,
                 VALIDATE_DROPPED_TABLES,
-                MIGRATION_7_8);
+                Migration_7_8.INSTANCE);
 
         assertThat(checkIndexExists(database, INDEX_PERIOD_START_TIME, TABLE_WORKSPEC), is(true));
         database.close();
@@ -346,7 +354,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_9,
                 VALIDATE_DROPPED_TABLES,
-                MIGRATION_8_9);
+                Migration_8_9.INSTANCE);
 
         assertThat(checkColumnExists(database, TABLE_WORKSPEC, COLUMN_RUN_IN_FOREGROUND),
                 is(true));
@@ -378,7 +386,7 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_10,
                 VALIDATE_DROPPED_TABLES,
-                new WorkDatabaseMigrations.WorkMigration9To10(mContext));
+                new WorkMigration9To10(mContext));
 
         assertThat(checkExists(database, TABLE_PREFERENCE), is(true));
         String query = "SELECT * FROM `Preference` where `key`=@key";
@@ -411,8 +419,8 @@ public class WorkDatabaseMigrationTest {
     public void testMigrationVersion10To11() throws IOException {
         SupportSQLiteDatabase database =
                 mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_10);
-        WorkDatabaseMigrations.RescheduleMigration migration10To11 =
-                new WorkDatabaseMigrations.RescheduleMigration(mContext, VERSION_10, VERSION_11);
+        RescheduleMigration migration10To11 =
+                new RescheduleMigration(mContext, VERSION_10, VERSION_11);
         database = mMigrationTestHelper.runMigrationsAndValidate(
                 TEST_DATABASE,
                 VERSION_11,
@@ -448,15 +456,116 @@ public class WorkDatabaseMigrationTest {
                 TEST_DATABASE,
                 VERSION_12,
                 VALIDATE_DROPPED_TABLES,
-                MIGRATION_11_12);
+                Migration_11_12.INSTANCE);
 
         assertThat(checkColumnExists(database, TABLE_WORKSPEC, COLUMN_OUT_OF_QUOTA_POLICY),
                 is(true));
         database.close();
     }
 
+    @Test
+    @MediumTest
+    public void testMigrationVersion12To14Network() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_12);
+        String nullNetworkTypeRequestId = UUID.randomUUID().toString();
+        ContentValues nullRequiredNetworkTypeRequest = contentValuesPre15(nullNetworkTypeRequestId);
+        nullRequiredNetworkTypeRequest.put(REQUIRED_NETWORK_TYPE, (String) null);
+
+        String connectedRequestId = UUID.randomUUID().toString();
+        ContentValues connectedRequest = contentValuesPre15(connectedRequestId);
+        connectedRequest.put(REQUIRED_NETWORK_TYPE, 1);
+
+        database.insert("workspec", CONFLICT_FAIL, nullRequiredNetworkTypeRequest);
+        database.insert("workspec", CONFLICT_FAIL, connectedRequest);
+
+        mMigrationTestHelper.runMigrationsAndValidate(TEST_DATABASE, VERSION_14,
+                true, Migration_12_13.INSTANCE);
+
+        assertThat(queryRequiredNetworkType(database, nullNetworkTypeRequestId), is(0));
+        assertThat(queryRequiredNetworkType(database, connectedRequestId), is(1));
+        database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion12To14NetworkContentUris() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_12);
+        String nullContentUrisId = UUID.randomUUID().toString();
+        ContentValues nullContentUris = contentValuesPre15(nullContentUrisId);
+        nullContentUris.put(CONTENT_URI_TRIGGERS, (String) null);
+
+        String contentUrisId = UUID.randomUUID().toString();
+        Set<ContentUriTrigger> triggers = new HashSet<>();
+        triggers.add(new ContentUriTrigger(Uri.parse("http://cs.android.com"), false));
+        ContentValues contentUrisRequest = contentValuesPre15(contentUrisId);
+        contentUrisRequest.put(CONTENT_URI_TRIGGERS,
+                WorkTypeConverters.setOfTriggersToByteArray(triggers));
+
+        database.insert("workspec", CONFLICT_FAIL, nullContentUris);
+        database.insert("workspec", CONFLICT_FAIL, contentUrisRequest);
+
+        mMigrationTestHelper.runMigrationsAndValidate(TEST_DATABASE, VERSION_14,
+                true, Migration_12_13.INSTANCE);
+
+        assertThat(queryContentUris(database, nullContentUrisId).size(), is(0));
+        assertThat(queryContentUris(database, contentUrisId), is(triggers));
+        database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion14To15EnqueueTime() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_14);
+
+        String firstPeriodId = UUID.randomUUID().toString();
+        ContentValues firstPeriod = contentValuesPre15(firstPeriodId);
+        firstPeriod.put("period_start_time", 0L);
+        firstPeriod.put("interval_duration", 1000L);
+        database.insert("workspec", CONFLICT_FAIL, firstPeriod);
+
+        String secondPeriodId = UUID.randomUUID().toString();
+        ContentValues secondPeriod = contentValuesPre15(secondPeriodId);
+        secondPeriod.put("period_start_time", 1000L);
+        secondPeriod.put("interval_duration", 1000L);
+        database.insert("workspec", CONFLICT_FAIL, secondPeriod);
+
+        String oneTimeId = UUID.randomUUID().toString();
+        ContentValues oneTime = contentValuesPre15(oneTimeId);
+        // could be the case if work is blocked by another one
+        oneTime.put("period_start_time", 0L);
+        oneTime.put("interval_duration", 0L);
+        database.insert("workspec", CONFLICT_FAIL, oneTime);
+        long beforeMigration = System.currentTimeMillis();
+        mMigrationTestHelper.runMigrationsAndValidate(TEST_DATABASE, VERSION_15, true);
+        HashMap<String, Long> enqueueTimes = new HashMap<>();
+        HashMap<String, Integer> periodCounts = new HashMap<>();
+        try (Cursor cursor = database.query(
+                "SELECT id, last_enqueue_time, period_count FROM workspec")) {
+            int idColumn = cursor.getColumnIndex("id");
+            int lastEnqueueTimeColumn = cursor.getColumnIndex("last_enqueue_time");
+            int periodCount = cursor.getColumnIndex("period_count");
+            while (cursor.moveToNext()) {
+                String id = cursor.getString(idColumn);
+                enqueueTimes.put(id, cursor.getLong(lastEnqueueTimeColumn));
+                periodCounts.put(id, cursor.getInt(periodCount));
+            }
+        }
+        assertThat(enqueueTimes.get(oneTimeId), is(0L));
+        assertThat(enqueueTimes.get(firstPeriodId), Matchers.greaterThan(beforeMigration));
+        assertThat(enqueueTimes.get(secondPeriodId), is(1000L));
+
+        assertThat(periodCounts.get(oneTimeId), is(0));
+        assertThat(periodCounts.get(firstPeriodId),  is(0));
+        assertThat(periodCounts.get(secondPeriodId), is(1));
+        database.close();
+    }
+
+    // doesn't have COLUMN_RUN_IN_FOREGROUND
     @NonNull
-    private ContentValues contentValues(String workSpecId) {
+    private ContentValues contentValuesPre8(String workSpecId) {
         ContentValues contentValues = new ContentValues();
         contentValues.put("id", workSpecId);
         contentValues.put("state", WorkTypeConverters.StateIds.ENQUEUED);
@@ -472,15 +581,25 @@ public class WorkDatabaseMigrationTest {
         contentValues.put("requires_device_idle", false);
         contentValues.put("requires_battery_not_low", false);
         contentValues.put("requires_storage_not_low", false);
-        contentValues.put("content_uri_triggers",
-                WorkTypeConverters.contentUriTriggersToByteArray(new ContentUriTriggers()));
+        contentValues.put("content_uri_triggers", new byte[0]);
         contentValues.put("run_attempt_count", 0);
         contentValues.put("backoff_policy",
                 WorkTypeConverters.backoffPolicyToInt(BackoffPolicy.EXPONENTIAL));
         contentValues.put("backoff_delay_duration", WorkRequest.DEFAULT_BACKOFF_DELAY_MILLIS);
+        // pre 14 last_enqueue_time was called period_start_time
         contentValues.put("period_start_time", 0L);
         contentValues.put("minimum_retention_duration", 0L);
         contentValues.put("schedule_requested_at", WorkSpec.SCHEDULE_NOT_REQUESTED_YET);
+        return contentValues;
+    }
+
+    private ContentValues contentValuesPre15(String workSpecId) {
+        ContentValues contentValues = contentValuesPre8(workSpecId);
+        contentValues.put(REQUIRED_NETWORK_TYPE, 0);
+        contentValues.put(COLUMN_RUN_IN_FOREGROUND, false);
+        contentValues.put(COLUMN_OUT_OF_QUOTA_POLICY, 0);
+        contentValues.put(TRIGGER_CONTENT_UPDATE_DELAY, -1);
+        contentValues.put(TRIGGER_MAX_CONTENT_DELAY, -1);
         return contentValues;
     }
 
@@ -549,5 +668,26 @@ public class WorkDatabaseMigrationTest {
                 cursor.close();
             }
         }
+    }
+
+    private static int queryRequiredNetworkType(SupportSQLiteDatabase db, String workSpecId) {
+        Cursor migratedNull = db.query(
+                "SELECT required_network_type FROM workspec where id = ?",
+                new Object[]{workSpecId});
+        migratedNull.moveToFirst();
+        int networkType = migratedNull.getInt(migratedNull.getColumnIndex(REQUIRED_NETWORK_TYPE));
+        migratedNull.close();
+        return networkType;
+    }
+
+    private static Set<ContentUriTrigger> queryContentUris(
+            SupportSQLiteDatabase db, String workSpecId) {
+        Cursor migratedNull = db.query(
+                "SELECT content_uri_triggers FROM workspec where id = ?",
+                new Object[]{workSpecId});
+        migratedNull.moveToFirst();
+        byte[] blob = migratedNull.getBlob(migratedNull.getColumnIndex(CONTENT_URI_TRIGGERS));
+        migratedNull.close();
+        return WorkTypeConverters.byteArrayToSetOfTriggers(blob);
     }
 }

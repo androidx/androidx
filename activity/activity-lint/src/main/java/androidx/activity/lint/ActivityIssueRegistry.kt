@@ -17,16 +17,23 @@
 package androidx.activity.lint
 
 import com.android.tools.lint.client.api.IssueRegistry
+import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
 
 /**
  * Issue Registry containing Activity specific lint Issues.
  */
+@Suppress("UnstableApiUsage")
 class ActivityIssueRegistry : IssueRegistry() {
     // tests are run with this version. We ensure that with ApiLintVersionsTest
-    override val api = 11
+    override val api = 13
     override val minApi = CURRENT_API
     override val issues get() = listOf(
         ActivityResultFragmentVersionDetector.ISSUE
+    )
+    override val vendor = Vendor(
+        feedbackUrl = "https://issuetracker.google.com/issues/new?component=527362",
+        identifier = "androidx.activity",
+        vendorName = "Android Open Source Project",
     )
 }

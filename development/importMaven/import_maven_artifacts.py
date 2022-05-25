@@ -23,19 +23,25 @@ NAME_HELP = '''
   E.g. android.arch.work:work-runtime-ktx:1.0.0-alpha07
 '''
 
+ANDROIDX_BUILD_ID_HELP = '''
+  The build id of https://ci.android.com/builds/branches/aosp-androidx-main/grid?
+  to use for fetching androidx prebuilts.
+'''
+
 METALAVA_BUILD_ID_HELP = '''
   The build id of https://ci.android.com/builds/branches/aosp-metalava-master/grid?
   to use for metalava prebuilt fetching.
 '''
 
-ALLOW_BINTRAY_HELP = '''
-  Whether or not to allow artifacts to be fetched from bintray in addition to jcenter, mavenCentral, etc
-  E.g. https://dl.bintray.com/kotlin/kotlin-dev/ and https://dl.bintray.com/kotlin/kotlinx/
-'''
-
 ALLOW_JETBRAINS_DEV_HELP = '''
   Whether or not to allow artifacts to be fetched from Jetbrains' dev repository
   E.g. https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev
+'''
+
+FETCH_KMP_ARTIFACTS_HELP = '''
+  If set, we'll fetch all KMP artifacts as well
+  E.g. passing -n "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1" will fetch native targets
+  of coroutines-core as well.
 '''
 
 if sys.version_info[0] < 3: raise Exception("Python 2 is not supported by this script. If your system python calls python 2 after python 2 end-of-life on Jan 1 2020, you should probably change it.")
@@ -49,32 +55,48 @@ def main():
         description='Helps download maven artifacts to prebuilts.')
     parser.add_argument('-n', '--name', help=NAME_HELP,
                         required=True, dest='name')
+    parser.add_argument('-ab', '--androidx-build-id', help=ANDROIDX_BUILD_ID_HELP,
+                        required=False, dest='androidx_build_id')
     parser.add_argument('-mb', '--metalava-build-id', help=METALAVA_BUILD_ID_HELP,
                         required=False, dest='metalava_build_id')
-    parser.add_argument('-ab', '--allow-bintray', help=ALLOW_BINTRAY_HELP,
-                        required=False, action='store_true')
     parser.add_argument('-ajd', '--allow-jetbrains-dev', help=ALLOW_JETBRAINS_DEV_HELP,
+                        required=False, action='store_true')
+    parser.add_argument('-kmp', '--fetch-kmp-artifacts', help=FETCH_KMP_ARTIFACTS_HELP,
                         required=False, action='store_true')
     parse_result = parser.parse_args()
     artifact_name = parse_result.name
-    if ("kotlin-native-linux" in artifact_name): artifact_name = fix_kotlin_native(artifact_name)
+    if ("kotlin-native-linux" in artifact_name or "kotlin-native-prebuilt-linux" in artifact_name):
+        artifact_name = fix_kotlin_native(artifact_name)
 
     # Add -Dorg.gradle.debug=true to debug or --stacktrace to see the stack trace
-    command = './gradlew --build-file build.gradle.kts --no-configuration-cache -PartifactName=%s' % (
+    command = './gradlew --build-file build.gradle.kts --no-configuration-cache -PartifactNames=%s' % (
         artifact_name)
+    # AndroidX Build Id
+    androidx_build_id = parse_result.androidx_build_id
+    if (androidx_build_id):
+      command = command + ' -PandroidxBuildId=%s' % (androidx_build_id)
+    # Metalava Build Id
     metalava_build_id = parse_result.metalava_build_id
     if (metalava_build_id):
       command = command + ' -PmetalavaBuildId=%s' % (metalava_build_id)
-    if (parse_result.allow_bintray):
-      command = command + ' -PallowBintray'
     if (parse_result.allow_jetbrains_dev):
       command = command + ' -PallowJetbrainsDev'
-
+    if (parse_result.fetch_kmp_artifacts):
+      command = command + ' -PkmpBuild=true'
+    print(command)
+    
     process = subprocess.Popen(command,
                                shell=True,
                                stdin=subprocess.PIPE)
     process.communicate()
     assert not process.returncode
+
+    # TODO(b/223642687) automate the updating of signature information
+    COLOR_YELLOW="\u001B[33m"
+    COLOR_CLEAR="\u001B[0m"
+    print("")
+    print(COLOR_YELLOW + "You may also need to update signature information. See gradle/README.md" + COLOR_CLEAR)
+    print("")
 
     # Generate our own .pom file so Gradle will use this artifact without also checking the internet.
     # This can be removed once https://youtrack.jetbrains.com/issue/KT-35049 is resolved

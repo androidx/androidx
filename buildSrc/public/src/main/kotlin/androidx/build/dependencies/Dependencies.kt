@@ -16,24 +16,17 @@
 
 package androidx.build.dependencies
 
-import org.gradle.api.artifacts.MinimalExternalModuleDependency
-import org.gradle.api.provider.Provider
-
-internal lateinit var guavaVersion: String
+lateinit var guavaVersion: String
 val GUAVA_VERSION get() = guavaVersion
 
-internal lateinit var kspVersion: String
+lateinit var kspVersion: String
 val KSP_VERSION get() = kspVersion
 
-internal lateinit var kotlinVersion: String
+lateinit var kotlinVersion: String
 val KOTLIN_VERSION get() = kotlinVersion
+lateinit var kotlinNativeVersion: String
+val KOTLIN_NATIVE_VERSION get() = kotlinNativeVersion
 val KOTLIN_STDLIB get() = "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
-internal lateinit var agpVersion: String
+lateinit var agpVersion: String
 val AGP_LATEST get() = "com.android.tools.build:gradle:$agpVersion"
-
-@Suppress("UnstableApiUsage")
-fun getDependencyAsString(dependencyProvider: Provider<MinimalExternalModuleDependency>): String {
-    val dependency = dependencyProvider.get()
-    return dependency.module.toString() + ":" + dependency.versionConstraint.toString()
-}

@@ -26,8 +26,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,7 +46,7 @@ class LoadFullListTest(
     private val reverse: Boolean
 ) {
 
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope()
 
     @get:Rule
     val dispatcherRule = MainDispatcherRule(
@@ -121,50 +122,48 @@ class LoadFullListTest(
     private fun loadAll(
         sourceSize: Int = 100,
         testFilter: (Int) -> Boolean
-    ) = testScope.runBlockingTest {
+    ) = testScope.runTest {
         val expectedFinalSize = (0 until sourceSize).count(testFilter)
-        pauseDispatcher {
-            val pager = Pager(
-                config = pageConfig,
-                initialKey = if (reverse) {
-                    sourceSize - 1
-                } else {
-                    0
-                }
-            ) {
-                TestPagingSource(
-                    items = List(sourceSize) { it }
-                )
+        val pager = Pager(
+            config = pageConfig,
+            initialKey = if (reverse) {
+                sourceSize - 1
+            } else {
+                0
             }
-
-            val job = launch {
-                pager.flow.map { pagingData ->
-                    pagingData.filter {
-                        testFilter(it)
-                    }
-                }.collectLatest {
-                    differ.submitData(it)
-                }
-            }
-
-            advanceUntilIdle()
-            // repeatedly load pages until all of the list is loaded
-            while (differ.itemCount < expectedFinalSize) {
-                val startSize = differ.itemCount
-                if (reverse) {
-                    differ.getItem(0)
-                } else {
-                    differ.getItem(differ.itemCount - 1)
-                }
-                advanceUntilIdle()
-                if (differ.itemCount == startSize) {
-                    break
-                }
-            }
-            assertThat(differ.itemCount).isEqualTo(expectedFinalSize)
-
-            job.cancel()
+        ) {
+            TestPagingSource(
+                items = List(sourceSize) { it }
+            )
         }
+
+        val job = launch {
+            pager.flow.map { pagingData ->
+                pagingData.filter {
+                    testFilter(it)
+                }
+            }.collectLatest {
+                differ.submitData(it)
+            }
+        }
+
+        advanceUntilIdle()
+        // repeatedly load pages until all of the list is loaded
+        while (differ.itemCount < expectedFinalSize) {
+            val startSize = differ.itemCount
+            if (reverse) {
+                differ.getItem(0)
+            } else {
+                differ.getItem(differ.itemCount - 1)
+            }
+            advanceUntilIdle()
+            if (differ.itemCount == startSize) {
+                break
+            }
+        }
+        assertThat(differ.itemCount).isEqualTo(expectedFinalSize)
+
+        job.cancel()
     }
 
     companion object {

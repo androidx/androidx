@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<XmlWatchFace xmlns:app="http://schemas.android.com/apk/res-auto">
+    <UserStyleSchema>
+        <ListUserStyleSetting
+            app:parent="@xml/xml_time_style"
+            app:defaultOptionIndex="1"/>
+        <BooleanUserStyleSetting
+            app:affectedWatchFaceLayers="BASE"
+            app:defaultBoolean="false"
+            app:description="description"
+            app:displayName="displayName"
+            app:id="BooleanId"/>
+        <DoubleRangeUserStyleSetting
+            app:affectedWatchFaceLayers="BASE"
+            app:description="description"
+            app:displayName="displayName"
+            app:minDouble="-10.0"
+            app:maxDouble="10.0"
+            app:defaultDouble="7.0"
+            app:id="DoubleId"/>
+        <LongRangeUserStyleSetting
+            app:affectedWatchFaceLayers="BASE"
+            app:description="description"
+            app:displayName="displayName"
+            app:minLong="-20"
+            app:maxLong="20"
+            app:defaultLong="8"
+            app:id="LongId"/>
+    </UserStyleSchema>
+    <ComplicationSlot
+        app:slotId="@integer/complication_slot_10"
+        app:name="@string/complication_name_one"
+        app:screenReaderName="@string/complication_screen_reader_name_one"
+        app:boundsType="ROUND_RECT"
+        app:supportedTypes="SHORT_TEXT|RANGED_VALUE|SMALL_IMAGE"
+        app:systemDataSourceFallback="DATA_SOURCE_WATCH_BATTERY"
+        app:systemDataSourceFallbackDefaultType="RANGED_VALUE">
+        <ComplicationSlotBounds app:left="0.3" app:top="0.7" app:right="0.7" app:bottom="0.9"/>
+    </ComplicationSlot>
+    <ComplicationSlot
+        app:slotId="@integer/complication_slot_20"
+        app:name="@string/complication_name_two"
+        app:screenReaderName="@string/complication_screen_reader_name_two"
+        app:boundsType="BACKGROUND"
+        app:supportedTypes="LONG_TEXT|SHORT_TEXT"
+        app:primaryDataSource="com.package/com.app"
+        app:primaryDataSourceDefaultType="SHORT_TEXT"
+        app:systemDataSourceFallback="DATA_SOURCE_SUNRISE_SUNSET"
+        app:systemDataSourceFallbackDefaultType="LONG_TEXT">
+        <ComplicationSlotBounds app:left="0.1" app:top="0.2" app:right="0.3" app:bottom="0.4"/>
+    </ComplicationSlot>
+    <ComplicationSlot
+        app:slotId="@integer/complication_slot_30"
+        app:name="@string/complication_name_two"
+        app:boundsType="ROUND_RECT"
+        app:supportedTypes="SHORT_TEXT"
+        app:systemDataSourceFallback="NO_DATA_SOURCE"
+        app:systemDataSourceFallbackDefaultType="NOT_CONFIGURED">
+        <ComplicationSlotBounds app:left="0.1" app:top="0.2" app:right="0.3" app:bottom="0.4"/>
+    </ComplicationSlot>
+    <UserStyleFlavors>
+        <UserStyleFlavor app:id="@string/flavor_id_0">
+            <StyleOption app:id="@string/setting_time_style"
+                app:value="@string/option_time_style_minimal"/>
+            <StyleOption app:id="BooleanId" app:value="true"/>
+            <StyleOption app:id="DoubleId" app:value="1.0"/>
+            <StyleOption app:id="LongId" app:value="2"/>
+            <ComplicationPolicy
+                app:slotId="@integer/complication_slot_10"
+                app:primaryDataSource="com.package/com.app"
+                app:primaryDataSourceDefaultType="SHORT_TEXT"
+                app:systemDataSourceFallback="DATA_SOURCE_DAY_AND_DATE"
+                app:systemDataSourceFallbackDefaultType="SHORT_TEXT"/>
+        </UserStyleFlavor>
+    </UserStyleFlavors>
+</XmlWatchFace>

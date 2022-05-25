@@ -18,15 +18,17 @@ package androidx.car.app.hardware.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import android.car.hardware.CarPropertyValue;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
+import androidx.car.app.annotations.ExperimentalCarApi;
 
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Container class for information about property value and status.
@@ -40,49 +42,6 @@ import java.util.concurrent.TimeUnit;
 @RestrictTo(LIBRARY)
 @AutoValue
 public abstract class CarPropertyResponse<T> {
-    /**
-     * Creates a response for {@link androidx.car.app.hardware.info.AutomotiveCarInfo}.
-     *
-     * @param propertyId        one of the values in {@link android.car.VehiclePropertyIds}.
-     * @param status            one of the values in {@link CarValue.StatusCode}
-     * @param timestampMillis   timestamp in milliseconds
-     * @param value             the same value in {@link CarPropertyValue#getValue()}
-     * @param <T>               the value type of {@link CarPropertyResponse}
-     */
-    @NonNull
-    public static <T> CarPropertyResponse<T> create(int propertyId,
-            @CarValue.StatusCode int status, long timestampMillis, @Nullable T value) {
-        return new AutoValue_CarPropertyResponse<>(propertyId, status, timestampMillis,
-                value);
-    }
-
-    /**
-     * Creates a response from {@link CarPropertyValue}.
-     *
-     * @see #create(int, int, long, Object)
-     */
-    @SuppressWarnings("unchecked")
-    @NonNull
-    public static <T> CarPropertyResponse<T> createFromPropertyValue(
-            @NonNull CarPropertyValue<T> propertyValue) {
-        int status = PropertyUtils.mapToStatusCodeInCarValue(propertyValue.getStatus());
-        long timestamp = TimeUnit.MILLISECONDS.convert(propertyValue.getTimestamp(),
-                TimeUnit.NANOSECONDS);
-        return create(propertyValue.getPropertyId(), status, timestamp,
-                propertyValue.getValue());
-    }
-
-
-    /**
-     * Creates an error response. The timestamp is always 0 and the value is always {@code null}.
-     *
-     * @see #create(int, int, long, Object)
-     */
-    @NonNull
-    public static <T> CarPropertyResponse<T> createErrorResponse(int propertyId,
-            @CarValue.StatusCode int status) {
-        return create(propertyId, status, 0, null);
-    }
 
     /** Returns one of the values in {@link android.car.VehiclePropertyIds}. */
     public abstract int getPropertyId();
@@ -101,4 +60,51 @@ public abstract class CarPropertyResponse<T> {
     /** Returns response's value. */
     @Nullable
     public abstract T getValue();
+
+
+    /** Returns a list of {@link CarZone}s. */
+    @NonNull
+    public abstract ImmutableList<CarZone> getCarZones();
+
+    /** Get a builder class for {@link CarPropertyResponse}*/
+    @NonNull
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    public static <T> Builder<T> builder() {
+        return new AutoValue_CarPropertyResponse.Builder<T>()
+                .setCarZones(Collections.singletonList(CarZone.CAR_ZONE_GLOBAL))
+                .setValue(null)
+                .setTimestampMillis(0);
+    }
+
+    /**
+     * A builder for {@link CarPropertyResponse}
+     *
+     * @param <T> is the value type of {@link CarPropertyResponse#getValue()}
+     */
+    @AutoValue.Builder
+    public abstract static class Builder<T> {
+        /** Sets a property ID for the {@link CarPropertyResponse}. */
+        @NonNull
+        public abstract Builder<T> setPropertyId(int propertyId);
+
+        /** Sets a timestamp for the {@link CarPropertyResponse}. */
+        @NonNull
+        public abstract Builder<T> setTimestampMillis(long timestampMillis);
+
+        /** Sets a value for the {@link CarPropertyResponse}. */
+        @NonNull
+        public abstract Builder<T> setValue(@Nullable T value);
+
+        /** Sets a status code for the {@link CarPropertyResponse}. */
+        @NonNull
+        public abstract Builder<T> setStatus(@CarValue.StatusCode int status);
+
+        /** Sets the list of {@link CarZone}s for the {@link CarPropertyResponse}. */
+        @NonNull
+        public abstract Builder<T> setCarZones(@NonNull List<CarZone> carZones);
+
+        /** Create an instance of {@link CarPropertyResponse}. */
+        @NonNull
+        public abstract CarPropertyResponse<T> build();
+    }
 }

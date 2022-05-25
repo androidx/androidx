@@ -221,5 +221,12 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
             getMutableConfig().insertOption(OPTION_INPUT_FORMAT, imageFormat);
             return this;
         }
+
+        @NonNull
+        @Override
+        public Builder setZslDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_ZSL_DISABLED, disabled);
+            return this;
+        }
     }
 }

@@ -30,8 +30,9 @@ import androidx.work.WorkRequest
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkContinuationImpl
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.SynchronousExecutor
+import androidx.work.impl.utils.taskexecutor.SerialExecutor
 import androidx.work.multiprocess.parcelable.ParcelConverters.marshall
 import androidx.work.multiprocess.parcelable.ParcelConverters.unmarshall
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl
@@ -85,20 +86,13 @@ public class ParcelableWorkContinuationImplTest {
                     val executor = Executor {
                         it.run()
                     }
-                    val serialExecutor = SerialExecutor(executor)
-                    override fun postToMainThread(runnable: Runnable) {
-                        serialExecutor.execute(runnable)
-                    }
+                    val serialExecutor = SerialExecutorImpl(executor)
 
                     override fun getMainThreadExecutor(): Executor {
                         return serialExecutor
                     }
 
-                    override fun executeOnBackgroundThread(runnable: Runnable) {
-                        serialExecutor.execute(runnable)
-                    }
-
-                    override fun getBackgroundExecutor(): SerialExecutor {
+                    override fun getSerialTaskExecutor(): SerialExecutor {
                         return serialExecutor
                     }
                 }

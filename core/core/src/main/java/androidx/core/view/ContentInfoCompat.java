@@ -36,6 +36,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 /**
@@ -127,6 +128,7 @@ public final class ContentInfoCompat {
     /**
      * Flag requesting that the content should be converted to plain text prior to inserting.
      */
+    @SuppressWarnings("PointlessBitwiseExpression")
     public static final int FLAG_CONVERT_TO_PLAIN_TEXT = 1 << 0;
 
     /**
@@ -177,7 +179,7 @@ public final class ContentInfoCompat {
     @RequiresApi(31)
     @NonNull
     public ContentInfo toContentInfo() {
-        return mCompat.getWrapped();
+        return Objects.requireNonNull(mCompat.getWrapped());
     }
 
     @NonNull
@@ -436,6 +438,7 @@ public final class ContentInfoCompat {
         }
     }
 
+    @RequiresApi(31)
     private static final class Compat31Impl implements Compat {
         @NonNull
         private final ContentInfo mWrapped;

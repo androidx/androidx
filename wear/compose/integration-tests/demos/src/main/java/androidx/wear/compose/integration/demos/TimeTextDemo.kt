@@ -16,119 +16,101 @@
 
 package androidx.wear.compose.integration.demos
 
-import androidx.compose.foundation.layout.PaddingValues
+import android.text.format.DateFormat
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.BasicCurvedText
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.basicCurvedText
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TimeText
 import androidx.wear.compose.material.TimeTextDefaults
+import java.util.Locale
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun TimeTextClockOnly() {
     TimeText()
 }
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
 fun TimeTextWithLeadingText() {
+    val textStyle = TimeTextDefaults.timeTextStyle(color = AlternatePrimaryColor1)
     TimeText(
-        leadingLinearContent = {
+        startLinearContent = {
             Text(
-                text = "Leading content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Green)
+                text = "ETA 12:48",
+                style = textStyle
             )
         },
-        leadingCurvedContent = {
-            BasicCurvedText(
-                text = "Leading content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Green)
+        startCurvedContent = {
+            basicCurvedText(
+                text = "ETA 12:48",
+                style = CurvedTextStyle(textStyle)
             )
         }
     )
 }
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun TimeTextWithTrailingText() {
-    TimeText(
-        trailingLinearContent = {
-            Text(
-                text = "Trailing content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
-            )
-        },
-        trailingCurvedContent = {
-            BasicCurvedText(
-                text = "Trailing content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
+fun TimeTextWithShadow() {
+    val textStyle = TimeTextDefaults.timeTextStyle(color = AlternatePrimaryColor1)
+    val radiusCoeff = 0.8f
+    val linearGradientHeight = 30.dp
+    val timeTextModifier = if (LocalConfiguration.current.isScreenRound) {
+        Modifier.drawBehind {
+            drawRect(
+                Brush
+                    .radialGradient(
+                        0.8f to Color.Transparent,
+                        1.0f to Color.Black,
+                        center = Offset(size.width / 2, size.height * radiusCoeff),
+                        radius = size.height * radiusCoeff
+                    )
             )
         }
-    )
-}
-
-@OptIn(ExperimentalWearMaterialApi::class)
-@Composable
-fun TimeTextWithLeadingAndTrailingText() {
-    TimeText(
-        leadingLinearContent = {
-            Text(
-                text = "Leading content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Green)
-            )
-        },
-        leadingCurvedContent = {
-            BasicCurvedText(
-                text = "Leading content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Green)
-            )
-        },
-        trailingLinearContent = {
-            Text(
-                text = "Trailing content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
-            )
-        },
-        trailingCurvedContent = {
-            BasicCurvedText(
-                text = "Trailing content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
+    } else {
+        Modifier.drawBehind {
+            drawRect(
+                Brush.linearGradient(
+                    colors = listOf(Color.Black, Color.Transparent),
+                    start = Offset(x = size.width / 2, y = 0f),
+                    end = Offset(x = size.width / 2, y = linearGradientHeight.toPx())
+                )
             )
         }
-    )
+    }
+
+    Box(modifier = Modifier.background(Color.Red)) {
+        TimeText(
+            modifier = timeTextModifier,
+            startLinearContent = {
+                Text(
+                    text = "ETA 12:48",
+                    style = textStyle
+                )
+            },
+            startCurvedContent = {
+                basicCurvedText(
+                    text = "ETA 12:48",
+                    style = CurvedTextStyle(textStyle)
+                )
+            }
+        )
+    }
 }
 
-@OptIn(ExperimentalWearMaterialApi::class)
 @Composable
-fun TimeTextWithPadding() {
+fun TimeTextWithLocalisedFormat() {
     TimeText(
-        leadingLinearContent = {
-            Text(
-                text = "Leading content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Green)
-            )
-        },
-        leadingCurvedContent = {
-            BasicCurvedText(
-                text = "Leading content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Green)
-            )
-        },
-        trailingLinearContent = {
-            Text(
-                text = "Trailing content",
-                style = TimeTextDefaults.timeTextStyle(color = Color.Yellow)
-            )
-        },
-        trailingCurvedContent = {
-            BasicCurvedText(
-                text = "Trailing content",
-                style = TimeTextDefaults.timeCurvedTextStyle(color = Color.Yellow)
-            )
-        },
-        contentPadding = PaddingValues(8.dp)
+        timeSource = TimeTextDefaults.timeSource(
+            DateFormat.getBestDateTimePattern(Locale.getDefault(), "yyyy.MM.dd HH:mm")
+        )
     )
 }

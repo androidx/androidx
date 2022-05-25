@@ -43,4 +43,6 @@ internal interface EmbeddingBackend {
     )
 
     fun isSplitSupported(): Boolean
+
+    fun isActivityEmbedded(activity: Activity): Boolean
 }

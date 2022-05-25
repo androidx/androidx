@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -11,8 +10,8 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.core:core:1.1.0")
     api("androidx.customview:customview:1.1.0")
-    implementation(project(":window:window"))
-    implementation ("androidx.transition:transition:1.4.1")
+    implementation("androidx.window:window:1.0.0")
+    implementation("androidx.transition:transition:1.4.1")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
@@ -29,4 +28,8 @@ androidx {
     mavenGroup = LibraryGroups.SLIDINGPANELAYOUT
     inceptionYear = "2018"
     description = "SlidingPaneLayout offers a responsive, two pane layout that automatically switches between overlapping panes on smaller devices to a side by side view on larger devices."
+}
+
+android {
+    namespace "androidx.slidingpanelayout"
 }

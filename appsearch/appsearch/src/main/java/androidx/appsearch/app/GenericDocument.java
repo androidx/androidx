@@ -138,6 +138,7 @@ public class GenericDocument {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressWarnings("deprecation")
     public GenericDocument(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
         mBundle = bundle;
@@ -275,6 +276,18 @@ public class GenericDocument {
      * one of the typed versions of this method instead, such as {@link #getPropertyString} or
      * {@link #getPropertyStringArray}.
      *
+     * <p>If the property was assigned as an empty array using one of the
+     * {@code Builder#setProperty} functions, this method will return an empty array. If no such
+     * property exists at all, this method returns {@code null}.
+     *
+     * <!--@exportToFramework:ifJetpack()--><!--@exportToFramework:else()
+     *   <p>Note: If the property is an empty {@link GenericDocument}[] or {@code byte[][]},
+     *   this method will return a {@code null} value in versions of Android prior to
+     *   {@link android.os.Build.VERSION_CODES#TIRAMISU Android T}. Starting in Android T it will
+     *   return an empty array if the property has been set as an empty array, matching the
+     *   behavior of other property types.
+     * -->
+     *
      * @param path The path to look for.
      * @return The entry with the given path as an object or {@code null} if there is no such path.
      *   The returned object will be one of the following types: {@code String[]}, {@code long[]},
@@ -298,9 +311,6 @@ public class GenericDocument {
             // entry: BYTE_ARRAY_FIELD -> byte[].
             @SuppressWarnings("unchecked")
             List<Bundle> bundles = (List<Bundle>) rawValue;
-            if (bundles.size() == 0) {
-                return null;
-            }
             byte[][] bytes = new byte[bundles.size()][];
             for (int i = 0; i < bundles.size(); i++) {
                 Bundle bundle = bundles.get(i);
@@ -322,9 +332,6 @@ public class GenericDocument {
             // The underlying Bundle of nested GenericDocuments is packed into a Parcelable array.
             // We must unpack it into GenericDocument instances.
             Parcelable[] bundles = (Parcelable[]) rawValue;
-            if (bundles.length == 0) {
-                return null;
-            }
             GenericDocument[] documents = new GenericDocument[bundles.length];
             for (int i = 0; i < bundles.length; i++) {
                 if (bundles[i] == null) {
@@ -352,6 +359,7 @@ public class GenericDocument {
      * (String[], long[], double[], boolean[], ArrayList&lt;Bundle&gt;, Parcelable[]).
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     private static Object getRawPropertyFromRawDocument(
             @NonNull String path, @NonNull Bundle documentBundle) {
         Preconditions.checkNotNull(path);
@@ -743,6 +751,12 @@ public class GenericDocument {
      *
      * <p>See {@link #getProperty} for a detailed description of the path syntax.
      *
+     * <p>If the property has not been set via {@link Builder#setPropertyString}, this method
+     * returns {@code null}.
+     *
+     * <p>If it has been set via {@link Builder#setPropertyString} to an empty
+     * {@code String[]}, this method returns an empty {@code String[]}.
+     *
      * @param path The path to look for.
      * @return The {@code String[]} associated with the given path, or {@code null} if no value is
      * set or the value is of a different type.
@@ -758,6 +772,12 @@ public class GenericDocument {
      * Retrieves a repeated {@code long[]} property by path.
      *
      * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * <p>If the property has not been set via {@link Builder#setPropertyLong}, this method
+     * returns {@code null}.
+     *
+     * <p>If it has been set via {@link Builder#setPropertyLong} to an empty
+     * {@code long[]}, this method returns an empty {@code long[]}.
      *
      * @param path The path to look for.
      * @return The {@code long[]} associated with the given path, or {@code null} if no value is
@@ -775,6 +795,12 @@ public class GenericDocument {
      *
      * <p>See {@link #getProperty} for a detailed description of the path syntax.
      *
+     * <p>If the property has not been set via {@link Builder#setPropertyDouble}, this method
+     * returns {@code null}.
+     *
+     * <p>If it has been set via {@link Builder#setPropertyDouble} to an empty
+     * {@code double[]}, this method returns an empty {@code double[]}.
+     *
      * @param path The path to look for.
      * @return The {@code double[]} associated with the given path, or {@code null} if no value is
      * set or the value is of a different type.
@@ -790,6 +816,12 @@ public class GenericDocument {
      * Retrieves a repeated {@code boolean} property by path.
      *
      * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * <p>If the property has not been set via {@link Builder#setPropertyBoolean}, this method
+     * returns {@code null}.
+     *
+     * <p>If it has been set via {@link Builder#setPropertyBoolean} to an empty
+     * {@code boolean[]}, this method returns an empty {@code boolean[]}.
      *
      * @param path The path to look for.
      * @return The {@code boolean[]} associated with the given path, or {@code null} if no value
@@ -807,6 +839,19 @@ public class GenericDocument {
      *
      * <p>See {@link #getProperty} for a detailed description of the path syntax.
      *
+     * <p>If the property has not been set via {@link Builder#setPropertyBytes}, this method
+     * returns {@code null}.
+     *
+     * <!--@exportToFramework:ifJetpack()-->
+     *   <p>If it has been set via {@link Builder#setPropertyBytes} to an empty {@code byte[][]},
+     *   this method returns an empty {@code byte[][]}.
+     * <!--@exportToFramework:else()
+     *   <p>If it has been set via {@link Builder#setPropertyBytes} to an empty {@code byte[][]},
+     *   this method returns an empty {@code byte[][]} starting in
+     *   {@link android.os.Build.VERSION_CODES#TIRAMISU Android T} and {@code null} in earlier
+     *   versions of Android.
+     * -->
+     *
      * @param path The path to look for.
      * @return The {@code byte[][]} associated with the given path, or {@code null} if no value is
      * set or the value is of a different type.
@@ -823,6 +868,19 @@ public class GenericDocument {
      * Retrieves a repeated {@link GenericDocument} property by path.
      *
      * <p>See {@link #getProperty} for a detailed description of the path syntax.
+     *
+     * <p>If the property has not been set via {@link Builder#setPropertyDocument}, this method
+     * returns {@code null}.
+     *
+     * <!--@exportToFramework:ifJetpack()-->
+     *   <p>If it has been set via {@link Builder#setPropertyDocument} to an empty
+     *   {@code GenericDocument[]}, this method returns an empty {@code GenericDocument[]}.
+     * <!--@exportToFramework:else()
+     *   <p>If it has been set via {@link Builder#setPropertyDocument} to an empty
+     *   {@code GenericDocument[]}, this method returns an empty {@code GenericDocument[]} starting
+     *   in {@link android.os.Build.VERSION_CODES#TIRAMISU Android T} and {@code null} in earlier
+     *   versions of Android.
+     * -->
      *
      * @param path The path to look for.
      * @return The {@link GenericDocument}[] associated with the given path, or {@code null} if no

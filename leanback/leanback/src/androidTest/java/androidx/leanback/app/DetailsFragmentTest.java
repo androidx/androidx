@@ -18,12 +18,15 @@
  */
 package androidx.leanback.app;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.animation.PropertyValuesHolder;
+import android.app.UiAutomation;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -61,6 +64,8 @@ import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -123,6 +128,29 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
 
         DetailsParallaxDrawable getParallaxDrawable() {
             return mParallaxDrawable;
+        }
+    }
+
+    @BeforeClass
+    public static void setUp() {
+        if (SDK_INT >= 31) {
+            UiAutomation uiAutomation =
+                    InstrumentationRegistry.getInstrumentation().getUiAutomation();
+            uiAutomation.adoptShellPermissionIdentity("android.permission.WRITE_SECURE_SETTINGS");
+            uiAutomation.executeShellCommand("settings put secure immersive_mode_confirmations "
+                    + "confirmed");
+            uiAutomation.dropShellPermissionIdentity();
+        }
+    }
+
+    @AfterClass
+    public static void tearDown() {
+        if (SDK_INT >= 31) {
+            UiAutomation uiAutomation =
+                    InstrumentationRegistry.getInstrumentation().getUiAutomation();
+            uiAutomation.adoptShellPermissionIdentity("android.permission.WRITE_SECURE_SETTINGS");
+            uiAutomation.executeShellCommand("settings delete secure immersive_mode_confirmations");
+            uiAutomation.dropShellPermissionIdentity();
         }
     }
 
@@ -1138,7 +1166,7 @@ public class DetailsFragmentTest extends SingleFragmentTestBase {
                 (DetailsFragmentEntranceTransition)
                         activity.getTestFragment();
 
-        if (Build.VERSION.SDK_INT < 21) {
+        if (SDK_INT < 21) {
             // when enter transition is not supported, mCanUseHost is immmediately true
             assertTrue(detailsFragment.mDetailsBackgroundController.mCanUseHost);
         } else {

@@ -18,12 +18,11 @@ import androidx.build.BuildServerConfigurationKt
 
 plugins {
     id("java-library")
+    id("com.google.protobuf")
 }
 
-apply(plugin: "com.google.protobuf")
-
 dependencies {
-    implementation(libs.protobuf)
+    implementation(libs.protobufLite)
 }
 
 tasks.withType(Jar) {
@@ -32,14 +31,32 @@ tasks.withType(Jar) {
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.7.1"
+        artifact = libs.protobufCompiler.get()
     }
 
     generateProtoTasks {
         all().each { task ->
             task.builtins {
-                java { }
+                java {
+                    option "lite"
+                }
             }
         }
     }
 }
+
+// Create export artifact for for JarJaring
+def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
+    archiveBaseName.set("export")
+    from(sourceSets.main.output)
+    // The proto-lite dependency includes .proto files, which are not used by screenshots. When apps
+    // depend on screenshot as well as proto-lite directly, these files conflict since jarjar only
+    // renames the java classes. Remove them here since they are unused.
+    exclude("**/*.proto")
+
+    from(zipTree(configurations.detachedConfiguration(
+            dependencies.create(libs.protobufLite.get())).getSingleFile()))
+}
+
+def jarjarConf = configurations.register("export")
+artifacts.add(jarjarConf.name, preferencesProtoJarJarTask.flatMap { it.archiveFile })

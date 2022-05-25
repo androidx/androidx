@@ -48,70 +48,18 @@ private const val ENABLE_FLAG_NAME = VERIFY_UP_TO_DATE
 val ALLOW_RERUNNING_TASKS = setOf(
     "buildOnServer",
     "checkExternalLicenses",
-    "createArchive",
     "createDiffArchiveForAll",
-    "createProjectZip",
     "externalNativeBuildDebug",
     "externalNativeBuildRelease",
     "generateDebugUnitTestConfig",
     "generateJsonModelDebug",
     "generateJsonModelRelease",
-    "generateMetadataFileForAndroidDebugPublication",
-    "generateMetadataFileForAndroidReleasePublication",
-    "generateMetadataFileForDesktopPublication",
-    "generateMetadataFileForJvmPublication",
-    "generateMetadataFileForJvmlinux-x64Publication",
-    "generateMetadataFileForJvmlinux-arm64Publication",
-    "generateMetadataFileForJvmmacos-x64Publication",
-    "generateMetadataFileForJvmmacos-arm64Publication",
-    "generateMetadataFileForJvmwindows-x64Publication",
-    "generateMetadataFileForJvmallPublication",
-    "generateMetadataFileForMavenPublication",
-    "generateMetadataFileForMetadataPublication",
-    "generateMetadataFileForKotlinMultiplatformPublication",
-    "generateMetadataFileForPluginMavenPublication",
-    "generatePomFileForBenchmarkPluginMarkerMavenPublication",
-    "generatePomFileForAndroidDebugPublication",
-    "generatePomFileForAndroidReleasePublication",
-    "generatePomFileForDesktopPublication",
-    "generatePomFileForJvmlinux-x64Publication",
-    "generatePomFileForJvmlinux-arm64Publication",
-    "generatePomFileForJvmmacos-x64Publication",
-    "generatePomFileForJvmmacos-arm64Publication",
-    "generatePomFileForJvmwindows-x64Publication",
-    "generatePomFileForJvmallPublication",
-    "generatePomFileForJvmPublication",
-    "generatePomFileForKotlinMultiplatformPublication",
-    "generatePomFileForMavenPublication",
-    "generatePomFileForPluginMavenPublication",
-    "generatePomFileForMetadataPublication",
-    "generatePomFileForSafeargsJavaPluginMarkerMavenPublication",
-    "generatePomFileForSafeargsKotlinPluginMarkerMavenPublication",
-    "partiallyDejetifyArchive",
-    "publishBenchmarkPluginMarkerMavenPublicationToMavenRepository",
-    "publishAndroidDebugPublicationToMavenRepository",
-    "publishAndroidReleasePublicationToMavenRepository",
-    "publishDesktopPublicationToMavenRepository",
-    "publishJvmPublicationToMavenRepository",
-    "publishJvmlinux-x64PublicationToMavenRepository",
-    "publishJvmlinux-arm64PublicationToMavenRepository",
-    "publishJvmmacos-x64PublicationToMavenRepository",
-    "publishJvmmacos-arm64PublicationToMavenRepository",
-    "publishJvmwindows-x64PublicationToMavenRepository",
-    "publishJvmallPublicationToMavenRepository",
-    "publishKotlinMultiplatformPublicationToMavenRepository",
-    "publishMavenPublicationToMavenRepository",
-    "publishMetadataPublicationToMavenRepository",
-    "publishPluginMavenPublicationToMavenRepository",
-    "publishSafeargsJavaPluginMarkerMavenPublicationToMavenRepository",
-    "publishSafeargsKotlinPluginMarkerMavenPublicationToMavenRepository",
     /**
      * relocateShadowJar is used to configure the ShadowJar hence it does not have any outputs.
      * https://github.com/johnrengelman/shadow/issues/561
      */
     "relocateShadowJar",
     "testDebugUnitTest",
-    "stripArchiveForPartialDejetification",
     "verifyDependencyVersions",
     "zipConstrainedTestConfigsWithApks",
     "zipTestConfigsWithApks",
@@ -131,14 +79,38 @@ val ALLOW_RERUNNING_TASKS = setOf(
     ":camera:integration-tests:camera-testapp-view:GenerateTestConfigurationdebugAndroidTest",
     ":camera:integration-tests:camera-testapp-view:mergeLibDexDebug",
     ":camera:integration-tests:camera-testapp-view:packageDebug",
-    "configureCMakeDebug",
-    "buildCMakeDebug",
-    "configureCMakeRelWithDebInfo",
-    "buildCMakeRelWithDebInfo",
-    ":appsearch:appsearch-local-storage:buildCMakeDebug[icing]",
-    ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[icing]",
-    ":external:libyuv:buildCMakeDebug[yuv]",
-    ":external:libyuv:buildCMakeRelWithDebInfo[yuv]",
+    "configureCMakeDebug[armeabi-v7a]",
+    "configureCMakeDebug[arm64-v8a]",
+    "configureCMakeDebug[x86]",
+    "configureCMakeDebug[x86_64]",
+    "buildCMakeDebug[armeabi-v7a]",
+    "buildCMakeDebug[arm64-v8a]",
+    "buildCMakeDebug[x86]",
+    "buildCMakeDebug[x86_64]",
+    "configureCMakeRelWithDebInfo[armeabi-v7a]",
+    "configureCMakeRelWithDebInfo[arm64-v8a]",
+    "configureCMakeRelWithDebInfo[x86]",
+    "configureCMakeRelWithDebInfo[x86_64]",
+    "buildCMakeRelWithDebInfo[armeabi-v7a]",
+    "buildCMakeRelWithDebInfo[arm64-v8a]",
+    "buildCMakeRelWithDebInfo[x86]",
+    "buildCMakeRelWithDebInfo[x86_64]",
+    ":appsearch:appsearch-local-storage:buildCMakeDebug[armeabi-v7a][icing]",
+    ":appsearch:appsearch-local-storage:buildCMakeDebug[arm64-v8a][icing]",
+    ":appsearch:appsearch-local-storage:buildCMakeDebug[x86][icing]",
+    ":appsearch:appsearch-local-storage:buildCMakeDebug[x86_64][icing]",
+    ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[armeabi-v7a][icing]",
+    ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[arm64-v8a][icing]",
+    ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[x86][icing]",
+    ":appsearch:appsearch-local-storage:buildCMakeRelWithDebInfo[x86_64][icing]",
+    ":external:libyuv:buildCMakeDebug[armeabi-v7a][yuv]",
+    ":external:libyuv:buildCMakeDebug[arm64-v8a][yuv]",
+    ":external:libyuv:buildCMakeDebug[x86][yuv]",
+    ":external:libyuv:buildCMakeDebug[x86_64][yuv]",
+    ":external:libyuv:buildCMakeRelWithDebInfo[armeabi-v7a][yuv]",
+    ":external:libyuv:buildCMakeRelWithDebInfo[arm64-v8a][yuv]",
+    ":external:libyuv:buildCMakeRelWithDebInfo[x86][yuv]",
+    ":external:libyuv:buildCMakeRelWithDebInfo[x86_64][yuv]",
     ":hilt:hilt-navigation-compose:kaptGenerateStubsDebugKotlin",
     ":hilt:hilt-navigation-compose:kaptGenerateStubsReleaseKotlin",
     ":lint-checks:integration-tests:copyDebugAndroidLintReports",
@@ -157,19 +129,6 @@ val DONT_TRY_RERUNNING_TASKS = setOf(
     "validateProperties",
     "tasks",
 
-    ":benchmark:benchmark-common:generateReleaseProtos",
-    ":benchmark:benchmark-common:generateDebugProtos",
-    ":benchmark:benchmark-common:compileReleaseKotlin",
-    ":benchmark:benchmark-common:compileDebugKotlin",
-    ":benchmark:benchmark-common:compileReleaseJavaWithJavac",
-    ":benchmark:benchmark-common:compileDebugJavaWithJavac",
-    ":benchmark:benchmark-common:extractReleaseAnnotations",
-    ":benchmark:benchmark-common:extractDebugAnnotations",
-    ":benchmark:benchmark-common:generateApi",
-    ":benchmark:benchmark-common:runErrorProne",
-    ":benchmark:benchmark-common:lintAnalyzeDebug",
-    ":benchmark:benchmark-common:lintDebug",
-
     // More information about the fact that these dokka tasks rerun can be found at b/167569304
     "dokkaKotlinDocs",
     "zipDokkaDocs",
@@ -178,23 +137,30 @@ val DONT_TRY_RERUNNING_TASKS = setOf(
     // Flakily not up-to-date, b/176120659
     "doclavaDocs",
 
-    // We should be able to remove these entries when b/160392650 is fixed
-    "lint",
-    "lintAnalyzeDebug",
-    "lintDebug",
-    "lintVitalDebug",
-    "lintWithExpandProjectionDebug",
-    "lintWithoutExpandProjectionDebug",
-    "lintWithKaptDebug",
-    "lintWithKspDebug",
-
-    // https://github.com/johnrengelman/shadow/issues/707
-    "embeddedPlugin",
-    "repackageBundledJars",
-    "repackageCompiler",
-    "shadowJar"
+    // We know that these tasks are never up to date due to maven-metadata.xml changing
+    // https://github.com/gradle/gradle/issues/11203
+    "partiallyDejetifyArchive",
+    "stripArchiveForPartialDejetification",
+    "createArchive"
 )
 
+val DONT_TRY_RERUNNING_TASK_TYPES = setOf(
+    "com.android.build.gradle.internal.lint.AndroidLintTextOutputTask_Decorated",
+    // lint report tasks
+    "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated",
+    // lint analysis tasks b/223287425
+    "com.android.build.gradle.internal.lint.AndroidLintAnalysisTask_Decorated",
+    // https://github.com/gradle/gradle/issues/11717
+    "org.gradle.api.publish.tasks.GenerateModuleMetadata_Decorated",
+    "org.gradle.api.publish.maven.tasks.GenerateMavenPom_Decorated",
+    // due to GenerateModuleMetadata re-running
+    "androidx.build.GMavenZipTask_Decorated",
+    "org.gradle.api.publish.maven.tasks.PublishToMavenRepository_Decorated",
+    // This task is not cacheable by design due to large number of inputs
+    "androidx.build.license.CheckExternalDependencyLicensesTask_Decorated",
+)
+
+@Suppress("UnstableApiUsage") // usage of BuildService that's incubating
 abstract class TaskUpToDateValidator :
     BuildService<TaskUpToDateValidator.Parameters>, OperationCompletionListener {
     interface Parameters : BuildServiceParameters {
@@ -205,7 +171,7 @@ abstract class TaskUpToDateValidator :
     }
 
     override fun onFinish(event: FinishEvent) {
-        if (!getParameters().validate.get()) {
+        if (!parameters.validate.get()) {
             return
         }
         val result = event.result
@@ -232,8 +198,7 @@ abstract class TaskUpToDateValidator :
     companion object {
         // Tells whether to create a TaskUpToDateValidator listener
         private fun shouldEnable(project: Project): Boolean {
-            return project.providers.gradleProperty(ENABLE_FLAG_NAME)
-                .forUseAtConfigurationTime().isPresent()
+            return project.providers.gradleProperty(ENABLE_FLAG_NAME).isPresent
         }
 
         private fun isAllowedToRerunTask(taskPath: String): Boolean {
@@ -253,7 +218,8 @@ abstract class TaskUpToDateValidator :
         private fun shouldTryRerunningTask(task: Task): Boolean {
             return !(
                 DONT_TRY_RERUNNING_TASKS.contains(task.name) ||
-                    DONT_TRY_RERUNNING_TASKS.contains(task.path)
+                    DONT_TRY_RERUNNING_TASKS.contains(task.path) ||
+                    DONT_TRY_RERUNNING_TASK_TYPES.contains(task::class.qualifiedName)
                 )
         }
 
@@ -262,14 +228,13 @@ abstract class TaskUpToDateValidator :
                 return
             }
             val validate = rootProject.providers.gradleProperty(DISALLOW_TASK_EXECUTION_FLAG_NAME)
-                .map({ _ -> true }).orElse(false)
+                .map { true }.orElse(false)
             // create listener for validating that any task that reran was expected to rerun
-            val validatorProvider = rootProject.getGradle().getSharedServices()
+            val validatorProvider = rootProject.gradle.sharedServices
                 .registerIfAbsent(
                     "TaskUpToDateValidator",
-                    TaskUpToDateValidator::class.java,
-                    { spec -> spec.getParameters().validate = validate }
-                )
+                    TaskUpToDateValidator::class.java
+                ) { spec -> spec.parameters.validate = validate }
             registry.onTaskCompletion(validatorProvider)
 
             // skip rerunning tasks that are known to be unnecessary to rerun

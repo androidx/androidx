@@ -18,7 +18,6 @@ package androidx.work.impl.background.gcm;
 
 import android.content.Context;
 
-import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.work.Logger;
 import androidx.work.impl.Scheduler;
@@ -33,7 +32,6 @@ import com.google.android.gms.gcm.Task;
  * The {@link androidx.work.WorkManager} scheduler which uses
  * {@link com.google.android.gms.gcm.GcmNetworkManager}.
  */
-@Keep
 public class GcmScheduler implements Scheduler {
     private static final String TAG = Logger.tagWithPrefix("GcmScheduler");
 
@@ -54,14 +52,14 @@ public class GcmScheduler implements Scheduler {
     public void schedule(@NonNull WorkSpec... workSpecs) {
         for (WorkSpec workSpec : workSpecs) {
             Task task = mTaskConverter.convert(workSpec);
-            Logger.get().debug(TAG, String.format("Scheduling %s with %s", workSpec, task));
+            Logger.get().debug(TAG, "Scheduling " + workSpec + "with " + task);
             mNetworkManager.schedule(task);
         }
     }
 
     @Override
     public void cancel(@NonNull String workSpecId) {
-        Logger.get().debug(TAG, String.format("Cancelling %s", workSpecId));
+        Logger.get().debug(TAG, "Cancelling " + workSpecId);
         mNetworkManager.cancelTask(workSpecId, WorkManagerGcmService.class);
     }
 

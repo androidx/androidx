@@ -17,6 +17,8 @@
 package androidx.glance.appwidget
 
 import android.content.BroadcastReceiver
+import android.util.Log
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -41,6 +43,10 @@ internal fun BroadcastReceiver.goAsync(
         try {
             try {
                 block()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (t: Throwable) {
+                Log.e(GlanceAppWidgetTag, "BroadcastReceiver execution failed", t)
             } finally {
                 // Nothing can be in the `finally` block after this, as this throws a
                 // `CancellationException`

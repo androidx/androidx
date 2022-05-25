@@ -27,6 +27,32 @@ public class TimeRange internal constructor(
     public operator fun contains(dateTimeMillis: Instant): Boolean =
         (dateTimeMillis >= startDateTimeMillis) and (dateTimeMillis <= endDateTimeMillis)
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TimeRange
+
+        if (startDateTimeMillis != other.startDateTimeMillis) return false
+        if (endDateTimeMillis != other.endDateTimeMillis) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = startDateTimeMillis.hashCode()
+        result = 31 * result + endDateTimeMillis.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        if (WireComplicationData.shouldRedact()) {
+            return "TimeRange(REDACTED)"
+        }
+        return "TimeRange(startDateTimeMillis=$startDateTimeMillis, " +
+            "endDateTimeMillis=$endDateTimeMillis)"
+    }
+
     public companion object {
         /** The [TimeRange] that includes every point in time. */
         @JvmField

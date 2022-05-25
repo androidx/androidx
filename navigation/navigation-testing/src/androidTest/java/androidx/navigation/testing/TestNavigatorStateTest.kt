@@ -17,11 +17,14 @@
 package androidx.navigation.testing
 
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
+import androidx.navigation.navOptions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -190,6 +193,41 @@ class TestNavigatorStateTest {
             .isEqualTo(Lifecycle.State.DESTROYED)
     }
 
+    @Test
+    fun testNewInstanceBeforeComplete() {
+        val navigator = TestTransitionNavigator()
+        navigator.onAttach(state)
+        val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        firstEntry.destination.route = "first"
+
+        navigator.navigate(listOf(firstEntry), null, null)
+        state.markTransitionComplete(firstEntry)
+
+        val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        secondEntry.destination.route = "second"
+        navigator.navigate(listOf(secondEntry), navOptions {
+            popUpTo("first") { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }, null)
+
+        val viewModel = ViewModelProvider(secondEntry).get(TestViewModel::class.java)
+
+        navigator.popBackStack(secondEntry, true)
+        val restoredSecondEntry = state.restoreBackStackEntry(secondEntry)
+        navigator.navigate(listOf(restoredSecondEntry), navOptions {
+            popUpTo("first") { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }, null)
+
+        state.transitionsInProgress.value.forEach {
+            state.markTransitionComplete(it)
+        }
+
+        assertThat(viewModel.wasCleared).isFalse()
+    }
+
     @Navigator.Name("test")
     internal class TestNavigator : Navigator<NavDestination>() {
         override fun createDestination(): NavDestination = NavDestination(this)
@@ -222,4 +260,13 @@ class TestNavigatorStateTest {
     internal class FloatingTestDestination(
         navigator: Navigator<out NavDestination>
     ) : NavDestination(navigator), FloatingWindow
+
+    class TestViewModel : ViewModel() {
+        var wasCleared = false
+
+        override fun onCleared() {
+            super.onCleared()
+            wasCleared = true
+        }
+    }
 }

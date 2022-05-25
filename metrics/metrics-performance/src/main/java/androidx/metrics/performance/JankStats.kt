@@ -15,11 +15,12 @@
  */
 package androidx.metrics.performance
 
-import android.app.Activity
-import android.content.ContextWrapper
 import android.os.Build
 import android.view.View
+import android.view.Window
 import androidx.annotation.UiThread
+import java.lang.IllegalStateException
+import java.util.concurrent.Executor
 
 /**
  * This class is used to both accumulate and report information about UI "jank" (runtime
@@ -37,10 +38,11 @@ import androidx.annotation.UiThread
  * understand not only when problems occurred, but what the user was doing at the time,
  * to help identify problem areas in the application that can then be addressed. Some
  * of this state is provided automatically, and internally, by various AndroidX libraries.
- * But developers are encouraged to provide their own app-specific state as well.
+ * But developers are encouraged to provide their own app-specific state as well. See
+ * [PerformanceMetricsState] for more information on logging this state information.
  *
- * **Reporting Results**: On every frame, the JankStats client is notified via the listener
- * they supplied with information about that frame, including how long the frame took to
+ * **Reporting Results**: On every frame, the JankStats client is notified via a listener
+ * with information about that frame, including how long the frame took to
  * complete, whether it was considered jank, and what the UI context was during that frame.
  * Clients are encouraged to aggregate and upload the data as they see fit for analysis that
  * can help debug overall performance problems.
@@ -57,41 +59,14 @@ import androidx.annotation.UiThread
  * of JankStats should at least provide useful information about performance problems, along
  * with the state of the application during those frames, but the timing data will be necessarily
  * more accurate for later releases, as described above.
- *
- * @param view Any view in the hierarchy which this JankStats object will track. A JankStats
- * instance is specific to each window in an application, since the timining metrics are tracked
- * on a per-window basis internally, and the view hiearchy can be used as a proxy for that window.
- * @param frameListener This listener will be called on any frame in which jank is detected.
  */
-@Suppress("SingletonConstructor", "ExecutorRegistration")
-class JankStats @UiThread constructor(
-    view: View,
+@Suppress("SingletonConstructor")
+class JankStats private constructor(
+    window: Window,
+    private val executor: Executor,
     private val frameListener: OnFrameListener
 ) {
-
-    /**
-     * Whether this JankStats instance is enabled for tracking and reporting jank data.
-     * @see [.setTrackingEnabled]
-     */
-    private var trackingEnabled = false
-
-    /**
-     * Data to track UI and user state in this JankStats object.
-     *
-     * @see addState
-     * @see markStateForRemoval
-     */
-    private var states = mutableListOf<StateData>()
-
-    /**
-     * Temporary per-frame to track UI and user state.
-     * Unlike the states tracked in `states`, any state in this structure is only valid until
-     * the next frame, at which point it is cleared. Any state data added here is automatically
-     * removed; there is no matching "remove" method for [.addSingleFrameState]
-     *
-     * @see addSingleFrameState
-     */
-    private var singleFrameStates = mutableListOf<StateData>()
+    private val holder: PerformanceMetricsState.Holder
 
     /**
      * JankStats uses the platform FrameMetrics API internally when it is available to track frame
@@ -103,306 +78,100 @@ class JankStats @UiThread constructor(
      * based on the runtime OS version. The JankStats API is basically a think wrapper around
      * the implementations in these classes.
      */
-    private val implementation =
-        when {
-            Build.VERSION.SDK_INT >= 31 -> {
-                JankStatsApi31Impl(this, view)
-            }
-            Build.VERSION.SDK_INT >= 26 -> {
-                JankStatsApi26Impl(this, view)
-            }
-            Build.VERSION.SDK_INT >= 24 -> {
-                JankStatsApi24Impl(this, view)
-            }
-            Build.VERSION.SDK_INT >= 22 -> {
-                JankStatsApi22Impl(this, view)
-            }
-            Build.VERSION.SDK_INT >= 16 -> {
-                JankStatsApi16Impl(this, view)
-            }
-            else -> {
-                JankStatsBaseImpl(this)
-            }
-        }
+    private val implementation: JankStatsBaseImpl
 
+    init {
+        val decorView: View? = window.peekDecorView()
+        if (decorView == null) {
+            throw IllegalStateException(
+                "window.peekDecorView() is null: " +
+                    "JankStats can only be created with a Window that has a non-null DecorView"
+            )
+        }
+        holder = PerformanceMetricsState.create(decorView)
+        implementation =
+            when {
+                Build.VERSION.SDK_INT >= 31 -> {
+                    JankStatsApi31Impl(this, decorView, window)
+                }
+                Build.VERSION.SDK_INT >= 26 -> {
+                    JankStatsApi26Impl(this, decorView, window)
+                }
+                Build.VERSION.SDK_INT >= 24 -> {
+                    JankStatsApi24Impl(this, decorView, window)
+                }
+                Build.VERSION.SDK_INT >= 22 -> {
+                    JankStatsApi22Impl(this, decorView)
+                }
+                Build.VERSION.SDK_INT >= 16 -> {
+                    JankStatsApi16Impl(this, decorView)
+                }
+                else -> {
+                    JankStatsBaseImpl(this)
+                }
+            }
+        implementation.setupFrameTimer(true)
+    }
     /**
+     * Whether this JankStats instance is enabled for tracking and reporting jank data.
      * Enabling tracking causes JankStats to listen to system frame-timing information and
      * record data on a per-frame basis that can later be reported to the JankStats listener.
-     *
-     * @param enabled true to enable tracking, false otherwise
+     * Tracking is enabled by default at creation time.
      */
-    @UiThread
-    fun setTrackingEnabled(enabled: Boolean) {
-        implementation.setupFrameTimer(enabled)
-        trackingEnabled = enabled
-    }
-
-    fun isTrackingEnabled(): Boolean {
-        return trackingEnabled
-    }
-
-    private fun addFrameState(
-        frameStartTime: Long,
-        frameEndTime: Long,
-        frameStates: MutableList<StateInfo>,
-        activeStates: MutableList<StateData>
-    ) {
-        synchronized(activeStates) {
-            for (i in activeStates.indices.reversed()) {
-                // idea: add state if state was active during this frame
-                // so state start time must be before vsync+duration
-                // also, if state end time < vsync, delete it
-                val item = activeStates[i]
-                if (item.timeRemoved > 0 && item.timeRemoved < frameStartTime) {
-                    activeStates.removeAt(i)
-                } else if (item.timeAdded < frameEndTime) {
-                    // Only add unique state. There may be several states added in
-                    // a given frame (especially during heavy jank periods), but it is
-                    // only necessary/helpful to log one of those items
-                    var add = true
-                    for (pair in frameStates) {
-                        if (pair == item.state) {
-                            add = false
-                            break
-                        }
-                    }
-                    if (add) {
-                        frameStates.add(item.state)
-                        // Single-frame states should only be logged once
-                        if (activeStates == singleFrameStates) {
-                            activeStates.removeAt(i)
-                        }
-                    }
-                }
-            }
+    var isTrackingEnabled: Boolean = true
+        /**
+         * Enabling tracking causes JankStats to listen to system frame-timing information and
+         * record data on a per-frame basis that can later be reported to the JankStats listener.
+         * Tracking is enabled by default at creation time.
+         */
+        @UiThread
+        set(value) {
+            implementation.setupFrameTimer(value)
+            field = value
         }
-    }
 
     /**
-     * This method doesn't actually remove it from the
-     * given list of states, but instead logs the time at which removal was requested.
-     * This enables more accurate sync'ing of states with specific frames, depending on
-     * when states are added/removed and when frames start/end. States will actually be removed
-     * from the list later, as they fall out of the current frame start times and stop being
-     * a factor in logging.
+     * This multiplier is used to determine when frames are exhibiting jank.
      *
-     * @param stateName   The name used for this state, should match the name used when
-     * [adding][addState] the state previously.
-     * @param states      The list of states to remove this from (either the regular state
-     * info or the singleFrame info)
-     * @param removalTime The timestamp of this request. This will be used to log the time that
-     * this state stopped being active, which will be used later to sync
-     * states with frame boundaries.
+     * The factor is multiplied by the current refresh rate to calculate a frame
+     * duration beyond which frames are considered, and reported, as having jank.
+     * For example, an app wishing to ignore smaller-duration jank events should
+     * increase the multiplier. Setting the value to 0, while not recommended for
+     * production usage, causes all frames to be regarded as jank, which can be
+     * used in tests to verify correct instrumentation behavior.
+     *
+     * By default, the multiplier is 2.
      */
-    private fun markStateForRemoval(
-        stateName: String,
-        states: List<StateData>,
-        removalTime: Long
-    ) {
-        for (i in states.indices) {
-            val item = states[i]
-            if (item.state.stateName == stateName && item.timeRemoved < 0) {
-                item.timeRemoved = removalTime
-            }
+    var jankHeuristicMultiplier: Float = 2.0f
+        set(value) {
+            // reset calculated value to force recalculation based on new heuristic
+            JankStatsBaseImpl.frameDuration = -1
+            field = value
         }
-    }
 
     /**
-     * Adds information about the state of the application that may be useful in
-     * future JankStats report logs.
-     *
-     * State information can be about UI elements that are currently active (such as the current
-     * [Activity] or layout) or a user interaction like flinging a list.
-     *
-     * Some state may be provided automatically by other AndroidX libraries.
-     * But applications are encouraged to add user state specific to those applications
-     * to provide more context and more actionable information in JankStats logs.
-     *
-     * For example, an app that wanted to track jank data about a specific transition
-     * in a picture-gallery view might provide state like this:
-     *
-     * `JankStats.addState("GalleryTransition", "Running")`
-     *
-     * @param stateName An arbitrary name used for this state, used as a key for storing
-     * the state value.
-     * @param state The value of this state.
-     * @see JankStats.removeState
+     * Called internally (by Impl classes) with the frame data, which is passed onto the client.
      */
-    fun addState(stateName: String, state: String) {
-        synchronized(states) {
-            val nowTime = System.nanoTime()
-            markStateForRemoval(stateName, states, nowTime)
-            states.add(
-                StateData(
-                    nowTime, -1,
-                    StateInfo(stateName, state)
-                )
-            )
-        }
-        // TODO: consider pooled Pair objects that we reuse here instead of creating new
-        // ones every time
-    }
-
-    /**
-     * [addSingleFrameState] is like [addState], except it persists only for the
-     * current frame and will be automatically removed after it is logged for that frame.
-     *
-     * This method can be used for very short-lived state, or state for which it may be
-     * difficult to determine when it should be removed (leading to erroneous data if state
-     * is left present long after it actually stopped happening in the app).
-     *
-     * @param stateName An arbitrary name used for this state, used as a key for storing
-     * the state value.
-     * @param state The value of this state.
-     * @see JankStats.addState
-     */
-    fun addSingleFrameState(
-        stateName: String,
-        state: String
-    ) {
-        synchronized(singleFrameStates) {
-            val nowTime = System.nanoTime()
-            markStateForRemoval(stateName, singleFrameStates, nowTime)
-            singleFrameStates.add(
-                StateData(
-                    nowTime, -1,
-                    StateInfo(stateName, state)
-                )
-            )
-        }
-    }
-
-    private fun markStateForRemoval(stateName: String) {
-        markStateForRemoval(stateName, states, System.nanoTime())
-    }
-
-    private fun markSingleFrameStateForRemoval(stateName: String) {
-        markStateForRemoval(stateName, singleFrameStates, System.nanoTime())
-    }
-
-    /**
-     * Removes all states (including singleFrame states).
-     */
-    fun clearStates() {
-        for (stateData in states) {
-            markStateForRemoval(stateData.state.stateName)
-        }
-        for (stateData in singleFrameStates) {
-            markStateForRemoval(stateData.state.stateName)
-        }
-    }
-
-    /**
-     * Internal representation of state information. timeAdded/Removed allows synchronizing states
-     * with frame boundaries during the FrameMetrics callback, when we can compare which states
-     * were active during any given frame start/end period.
-     */
-    internal inner class StateData(
-        var timeAdded: Long,
-        var timeRemoved: Long,
-        var state: StateInfo
-    )
-
-    /**
-     * Removes information about a specified state.
-     *
-     * [removeState] is typically called when
-     * the user stops being in that state, either leaving a container previously added to
-     * the state, or stopping some interaction that was added.
-     *
-     * @param stateName The name used for this state, should match the name used when
-     * [adding][addState] the state previously.
-     * @see JankStats.addState
-     */
-    fun removeState(stateName: String) {
-        markStateForRemoval(stateName)
-    }
-
-    internal fun logFrameData(startTime: Long, actualDuration: Long, expectedDuration: Long) {
-        val endTime = startTime + actualDuration
-        val frameStates = ArrayList<StateInfo>(
-            states.size +
-                singleFrameStates.size
-        )
-        addFrameState(
-            startTime, endTime, frameStates,
-            states
-        )
-        addFrameState(
-            startTime, endTime,
-            frameStates, singleFrameStates
-        )
-        val frameData = FrameData(
-            startTime, actualDuration, (actualDuration > expectedDuration), frameStates
-        )
-        frameListener.onJankStatsFrame(frameData)
-        // Remove any states intended for just one frame
-        if (singleFrameStates.size > 0) {
-            synchronized(singleFrameStates) {
-                for (state in singleFrameStates) {
-                    markSingleFrameStateForRemoval(state.state.stateName)
-                }
-            }
+    internal fun logFrameData(frameData: FrameData) {
+        executor.execute {
+            frameListener.onFrame(frameData)
         }
     }
 
     companion object {
         /**
-         * Gets a JankStats object for the given View.
-         *
-         * There is only ever one JankStats object per View hierarchy; those singleton objects are
-         * retrieved by calling this method. The View used can be any view currently attached in
-         * the hierarchy; the JankStats object is cached at the root level of the hierarchy.
-         * If no such object exists, null will be returned.
-         *
-         * This accessor is provided as a utility to simplify accessing a shared JankStats object
-         * from different places in an application. It is used by other AndroidX library code
-         * which can set information on an existing JankStats object if it exists.
-         *
-         * Because this method takes a View instance, it should only be called on the UI
-         * thread, to ensure that that View is usable at this time, since it will be used
-         * internally to set up hierarchy-specific JankStats logging.
-         *
-         * @param view The View for which the JankStats object is requested.
-         * @return A JankStatus object for the given View's hierarchy, or null if no such object
-         * exists.
+         * Creates a new JankStats object and starts tracking jank metrics for the given
+         * window.
+         * @see isTrackingEnabled
+         * @throws IllegalStateException `window` must be active, with a non-null DecorView. See
+         * [Window.peekDecorView].
          */
         @JvmStatic
         @UiThread
-        fun getInstance(view: View): JankStats? {
-            val activity: Activity? = generateSequence(view.context) {
-                if (it is ContextWrapper) {
-                    it.baseContext
-                } else null
-            }.firstOrNull { it is Activity } as Activity?
-
-            return activity?.window?.decorView?.getTag(R.id.jankstats) as JankStats?
+        fun createAndTrack(window: Window, executor: Executor, frameListener: OnFrameListener):
+                JankStats {
+            return JankStats(window, executor, frameListener)
         }
-
-        /**
-         * This multiplier is used to determine when frames are exhibiting jank.
-         *
-         * The factor is multiplied by the current refresh rate to calculate a frame
-         * duration beyond which frames are considered, and reported, as having jank.
-         * By default, the multiplier is 2.
-         */
-        @JvmStatic
-        var jankHeuristicMultiplier: Float = 2.0f
-            set(value) {
-                // reset calculated value to force recalculation based on new heuristic
-                JankStatsBaseImpl.frameDuration = -1
-                field = value
-            }
-    }
-
-    init {
-        val activity: Activity? = generateSequence(view.context) {
-            if (it is ContextWrapper) {
-                it.baseContext
-            } else null
-        }.firstOrNull { it is Activity } as Activity?
-
-        activity?.window?.decorView?.setTag(R.id.jankstats, this)
     }
 
     /**
@@ -415,18 +184,12 @@ class JankStats @UiThread constructor(
     fun interface OnFrameListener {
 
         /**
-         * The implementation of this method will be called on every frame.
+         * The implementation of this method will be called on every frame when an
+         * OnFrameListener is set on this JankStats object.
          *
-         * Note that this method will be called synchronously on whatever thread
-         * JankStats receives frame data on, including possibly the UI thread.
-         * Therefore, apps should minimize processing during this callback and offload
-         * work to a different thread or later time to return as quickly as possible.
-         *
-         * @param frameData The data for the frame which just occurred. This data should be
-         * copied elsewhere if it will be used after the call returns, as the data structure
-         * is mutable and may be recycled with future frame data.
+         * @param frameData The data for the frame which just occurred.
          */
-        fun onJankStatsFrame(
+        fun onFrame(
             frameData: FrameData
         )
     }

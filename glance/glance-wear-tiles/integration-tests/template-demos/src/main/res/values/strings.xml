@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Glance Wear Tiles Templates Demo</string>
+    <string name="demo_tile_name">Template Demo Tile</string>
+    <string name="tiles_preview_name">Template Tiles Preview</string>
+</resources>

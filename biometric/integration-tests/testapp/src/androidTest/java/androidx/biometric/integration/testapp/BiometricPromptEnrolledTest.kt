@@ -126,6 +126,9 @@ class BiometricPromptEnrolledTest {
 
     @Test
     fun testBiometricOrCredentialAuth_SendsError_WhenCanceledOnConfigurationChange() {
+        // Prompt isn't canceled on configuration change for some devices on API 29 (b/202975762).
+        assumeFalse(Build.VERSION.SDK_INT == Build.VERSION_CODES.Q)
+
         onView(withId(R.id.allow_device_credential_checkbox)).perform(click())
         testBiometricOnlyAuth_SendsError_WhenCanceledOnConfigurationChange()
     }
@@ -142,7 +145,7 @@ class BiometricPromptEnrolledTest {
 
     @Test
     fun testBiometricOrCredentialAuth_SendsError_WhenActivityBackgrounded() {
-        // TODO(b/162022588): Fix this for Pixel devices on API 29.
+        // Prompt is not dismissed when backgrounded for Pixel devices on API 29 (b/162022588).
         assumeFalse(Build.VERSION.SDK_INT == Build.VERSION_CODES.Q)
 
         onView(withId(R.id.allow_device_credential_checkbox)).perform(click())

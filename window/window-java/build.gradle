@@ -15,9 +15,7 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -43,15 +41,18 @@ dependencies {
 androidx {
     name = "WindowManager Java Support"
     type = LibraryType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.WINDOW
     mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2021"
     description = "WindowManager Java Support"
 }
 
+android {
+    namespace "androidx.window.java"
+}
+
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }

@@ -17,18 +17,23 @@
 package androidx.camera.video.internal.workaround;
 
 import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.MediaFormat;
 import android.os.Build;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.Logger;
 import androidx.camera.video.internal.DebugUtils;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.video.internal.compat.quirk.ExcludeKeyFrameRateInFindEncoderQuirk;
 import androidx.camera.video.internal.compat.quirk.MediaCodecInfoReportIncorrectInfoQuirk;
+import androidx.camera.video.internal.compat.quirk.MediaFormatMustNotUseFrameRateToFindEncoderQuirk;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
+import androidx.core.util.Preconditions;
 
 import java.io.IOException;
 
@@ -37,16 +42,18 @@ import java.io.IOException;
  *
  * <p>The workaround is to check the quirks to fix the selection of video encoder.
  *
- * @see ExcludeKeyFrameRateInFindEncoderQuirk
+ * @see MediaFormatMustNotUseFrameRateToFindEncoderQuirk
  * @see MediaCodecInfoReportIncorrectInfoQuirk
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class EncoderFinder {
+    private static final String TAG = "EncoderFinder";
+
     private final boolean mShouldRemoveKeyFrameRate;
 
     public EncoderFinder() {
-        final ExcludeKeyFrameRateInFindEncoderQuirk quirk =
-                DeviceQuirks.get(ExcludeKeyFrameRateInFindEncoderQuirk.class);
+        final MediaFormatMustNotUseFrameRateToFindEncoderQuirk quirk =
+                DeviceQuirks.get(MediaFormatMustNotUseFrameRateToFindEncoderQuirk.class);
 
         mShouldRemoveKeyFrameRate = (quirk != null);
     }
@@ -66,28 +73,32 @@ public class EncoderFinder {
     public MediaCodec findEncoder(@NonNull MediaFormat mediaFormat,
             @NonNull MediaCodecList mediaCodecList) throws InvalidConfigException {
         MediaCodec codec;
-        if (shouldCreateCodecByType(mediaFormat)) {
-            String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
-            try {
+        String encoderName = findEncoderForFormat(mediaFormat, mediaCodecList);
+        try {
+            if (TextUtils.isEmpty(encoderName)) {
+                String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
                 codec = MediaCodec.createEncoderByType(mimeType);
-            } catch (IOException e) {
-                throw new InvalidConfigException(
-                        "Cannot create encoder by mime type: " + mimeType, e);
-            }
-        } else {
-            String encoderName = findEncoderForFormat(mediaFormat, mediaCodecList);
-            try {
+
+                String msg = DebugUtils.dumpCodecCapabilities(mimeType, codec, mediaFormat);
+                Logger.w(TAG, String.format("No encoder found that supports requested MediaFormat "
+                                + "%s. Create encoder by MIME type. Dump codec info:\n%s",
+                        mediaFormat, msg));
+            } else {
                 codec = MediaCodec.createByCodecName(encoderName);
-            } catch (IOException | NullPointerException | IllegalArgumentException e) {
-                DebugUtils.dumpMediaCodecListForFormat(mediaCodecList, mediaFormat);
-                throw new InvalidConfigException("Encoder cannot created: " + encoderName, e);
             }
+        } catch (IOException | NullPointerException | IllegalArgumentException e) {
+            boolean isMediaFormatInQuirk = shouldCreateCodecByType(mediaFormat);
+            String msg = DebugUtils.dumpMediaCodecListForFormat(mediaCodecList, mediaFormat);
+            throw new InvalidConfigException(
+                    "Encoder cannot created: " + encoderName + ", isMediaFormatInQuirk: "
+                            + isMediaFormatInQuirk + "\n" + msg, e);
         }
         return codec;
     }
 
+    @VisibleForTesting
     @Nullable
-    private String findEncoderForFormat(@NonNull MediaFormat mediaFormat,
+    String findEncoderForFormat(@NonNull MediaFormat mediaFormat,
             @NonNull MediaCodecList mediaCodecList) {
         Integer tempFrameRate = null;
         Integer tempAacProfile = null;
@@ -110,7 +121,12 @@ public class EncoderFinder {
                 mediaFormat.setString(MediaFormat.KEY_AAC_PROFILE, null);
             }
 
-            return mediaCodecList.findEncoderForFormat(mediaFormat);
+            String name = mediaCodecList.findEncoderForFormat(mediaFormat);
+            if (name == null) {
+                name = findEncoderWithNearestCompatibleBitrate(mediaFormat,
+                        mediaCodecList.getCodecInfos());
+            }
+            return name;
         } finally {
             // Restore the frame rate value.
             if (tempFrameRate != null) {
@@ -124,10 +140,58 @@ public class EncoderFinder {
         }
     }
 
-    private boolean shouldCreateCodecByType(@NonNull MediaFormat mediaFormat) {
-        String mimeType = mediaFormat.getString(MediaFormat.KEY_MIME);
+    @Nullable
+    private String findEncoderWithNearestCompatibleBitrate(@NonNull MediaFormat mediaFormat,
+            @NonNull MediaCodecInfo[] codecInfoList) {
+        String mime = mediaFormat.getString(MediaFormat.KEY_MIME);
+        if (mime == null) {
+            Logger.w(TAG, "MediaFormat does not contain mime info.");
+            return null;
+        }
 
-        return DeviceQuirks.get(MediaCodecInfoReportIncorrectInfoQuirk.class) != null
-                && MediaCodecInfoReportIncorrectInfoQuirk.isProblematicMimeType(mimeType);
+        for (MediaCodecInfo info : codecInfoList) {
+            if (!info.isEncoder()) {
+                continue;
+            }
+            Integer origBitrate = null;
+            try {
+                MediaCodecInfo.CodecCapabilities caps = info.getCapabilitiesForType(mime);
+                Preconditions.checkArgument(caps != null, "MIME type is not supported");
+
+                int newBitrate = -1;
+                if (mediaFormat.containsKey(MediaFormat.KEY_BIT_RATE)) {
+
+                    // We only handle video bitrate issues at this moment.
+                    MediaCodecInfo.VideoCapabilities videoCaps = caps.getVideoCapabilities();
+                    Preconditions.checkArgument(videoCaps != null, "Not video codec");
+
+                    origBitrate = mediaFormat.getInteger(MediaFormat.KEY_BIT_RATE);
+                    newBitrate =  videoCaps.getBitrateRange().clamp(origBitrate);
+                    mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, newBitrate);
+                }
+                if (caps.isFormatSupported(mediaFormat)) {
+                    Logger.w(TAG, String.format("No encoder found that supports requested bitrate"
+                            + ". Adjusting bitrate to nearest supported bitrate [requested: "
+                            + "%dbps, nearest: %dbps]", origBitrate, newBitrate));
+                    return info.getName();
+                }
+            } catch (IllegalArgumentException e) {
+                // Not supported case.
+            } finally {
+                if (origBitrate != null) {
+                    mediaFormat.setInteger(MediaFormat.KEY_BIT_RATE, origBitrate);
+                }
+            }
+        }
+        return null;
+    }
+
+    private boolean shouldCreateCodecByType(@NonNull MediaFormat mediaFormat) {
+        MediaCodecInfoReportIncorrectInfoQuirk quirk =
+                DeviceQuirks.get(MediaCodecInfoReportIncorrectInfoQuirk.class);
+        if (quirk == null) {
+            return false;
+        }
+        return quirk.isUnSupportMediaCodecInfo(mediaFormat);
     }
 }

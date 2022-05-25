@@ -155,6 +155,7 @@ import java.util.List;
         stopForegroundServiceIfNeeded();
     }
 
+    @SuppressWarnings("deprecation")
     private void stopForegroundServiceIfNeeded() {
         List<MediaSession> sessions = mServiceInstance.getSessions();
         for (int i = 0; i < sessions.size(); i++) {

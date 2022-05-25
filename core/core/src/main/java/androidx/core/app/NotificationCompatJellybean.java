@@ -133,7 +133,8 @@ class NotificationCompatJellybean {
         }
         return new NotificationCompat.Action(icon, title, actionIntent, extras, remoteInputs,
                 dataOnlyRemoteInputs, allowGeneratedReplies,
-                NotificationCompat.Action.SEMANTIC_ACTION_NONE, true, false /* isContextual */);
+                NotificationCompat.Action.SEMANTIC_ACTION_NONE, true, false /* isContextual */,
+                false /* authRequired */);
     }
 
     public static Bundle writeActionAndGetExtras(
@@ -164,6 +165,7 @@ class NotificationCompatJellybean {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static NotificationCompat.Action getAction(Notification notif, int actionIndex) {
         synchronized (sActionsLock) {
             try {
@@ -231,6 +233,7 @@ class NotificationCompatJellybean {
         return !sActionsAccessFailed;
     }
 
+    @SuppressWarnings("deprecation")
     static NotificationCompat.Action getActionFromBundle(Bundle bundle) {
         Bundle extras = bundle.getBundle(KEY_EXTRAS);
         boolean allowGeneratedReplies = false;
@@ -247,7 +250,8 @@ class NotificationCompatJellybean {
                 allowGeneratedReplies,
                 bundle.getInt(KEY_SEMANTIC_ACTION),
                 bundle.getBoolean(KEY_SHOWS_USER_INTERFACE),
-                false /* is_contextual is only supported for Q+ devices */);
+                false /* is_contextual is only supported for Q+ devices */,
+                false /* authRequired */);
     }
 
     static Bundle getBundleForAction(NotificationCompat.Action action) {
@@ -335,6 +339,7 @@ class NotificationCompatJellybean {
      * Update the bundle to have a typed array so fetches in the future don't need
      * to do an array copy.
      */
+    @SuppressWarnings("deprecation")
     private static Bundle[] getBundleArrayFromBundle(Bundle bundle, String key) {
         Parcelable[] array = bundle.getParcelableArray(key);
         if (array instanceof Bundle[] || array == null) {

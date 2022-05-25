@@ -16,6 +16,8 @@
 
 package androidx.camera.core.internal;
 
+import android.graphics.Matrix;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageInfo;
@@ -47,6 +49,12 @@ public final class CameraCaptureResultImageInfo implements ImageInfo {
     @Override
     public int getRotationDegrees() {
         return 0;
+    }
+
+    @NonNull
+    @Override
+    public Matrix getSensorToBufferTransformMatrix() {
+        return new Matrix();
     }
 
     @Override

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2020 The Android Open Source Project
  *
@@ -17,6 +16,7 @@
 
 package androidx.camera.integration.view
 
+import android.content.ContentResolver
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
@@ -24,8 +24,8 @@ import android.graphics.PointF
 import android.net.Uri
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -33,18 +33,19 @@ import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FAILED
-import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_STARTED
-import androidx.camera.view.CameraController.TAP_TO_FOCUS_STARTED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FOCUSED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_FOCUSED
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_NOT_STARTED
+import androidx.camera.view.CameraController.TAP_TO_FOCUS_STARTED
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.withId
@@ -57,20 +58,17 @@ import androidx.test.uiautomator.UiSelector
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
 import org.junit.After
+import org.junit.Assert
 import org.junit.Assume
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.ExpectedException
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
-import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
-
-const val TIMEOUT_SECONDS = 3L
 
 /**
  * Instrument tests for [CameraControllerFragment].
@@ -90,13 +88,15 @@ class CameraControllerFragmentTest {
 
         @JvmField
         val testCameraRule = CameraUtil.PreTestCamera()
+
+        const val TIMEOUT_SECONDS = 10L
     }
 
     @get:Rule
-    val thrown: ExpectedException = ExpectedException.none()
-
-    @get:Rule
-    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest(testCameraRule)
+    val useCameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        testCameraRule,
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    )
 
     @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
@@ -105,6 +105,7 @@ class CameraControllerFragmentTest {
     )
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var fragment: CameraControllerFragment
     private lateinit var fragmentScenario: FragmentScenario<CameraControllerFragment>
     private lateinit var uiDevice: UiDevice
@@ -114,6 +115,9 @@ class CameraControllerFragmentTest {
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(instrumentation)
+        cameraProvider = ProcessCameraProvider.getInstance(
+            ApplicationProvider.getApplicationContext()
+        )[10000, TimeUnit.MILLISECONDS]
         fragmentScenario = createFragmentScenario()
         fragment = fragmentScenario.getFragment()
         uiDevice = UiDevice.getInstance(instrumentation)
@@ -123,7 +127,10 @@ class CameraControllerFragmentTest {
     fun tearDown() {
         if (::fragmentScenario.isInitialized) {
             fragmentScenario.moveToState(Lifecycle.State.DESTROYED)
-            CameraX.shutdown().get(10, TimeUnit.SECONDS)
+        }
+
+        if (::cameraProvider.isInitialized) {
+            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
         }
     }
 
@@ -148,19 +155,18 @@ class CameraControllerFragmentTest {
         var finalState = TAP_TO_FOCUS_NOT_STARTED
         instrumentation.runOnMainSync {
             fragment.cameraController.tapToFocusState.observe(
-                fragment,
-                {
-                    // Make sure the LiveData receives STARTED first and then another update.
-                    if (it == TAP_TO_FOCUS_STARTED) {
-                        started = true
-                        return@observe
-                    }
-                    if (started) {
-                        finalState = it
-                        focused.release()
-                    }
+                fragment
+            ) {
+                // Make sure the LiveData receives STARTED first and then another update.
+                if (it == TAP_TO_FOCUS_STARTED) {
+                    started = true
+                    return@observe
                 }
-            )
+                if (started) {
+                    finalState = it
+                    focused.release()
+                }
+            }
         }
 
         // Act: click PreviewView.
@@ -168,7 +174,7 @@ class CameraControllerFragmentTest {
         uiDevice.findObject(UiSelector().resourceId(previewViewId)).click()
 
         // Assert: got a LiveData update
-        assertThat(focused.tryAcquire(6 /* focus time out is 5s */, TimeUnit.SECONDS)).isTrue()
+        assertThat(focused.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
         assertThat(finalState).isAnyOf(
             TAP_TO_FOCUS_FOCUSED,
             TAP_TO_FOCUS_FAILED,
@@ -373,13 +379,13 @@ class CameraControllerFragmentTest {
     @Test
     fun captureDisabled_cannotTakePicture() {
         // Arrange.
-        thrown.expectMessage("ImageCapture disabled")
-
-        // Act.
         onView(withId(R.id.capture_enabled)).perform(click())
 
-        // Assert.
-        fragment.assertCanTakePicture()
+        // Act and assert.
+        val exception = Assert.assertThrows(IllegalStateException::class.java) {
+            fragment.assertCanTakePicture()
+        }
+        assertThat(exception).hasMessageThat().isEqualTo("ImageCapture disabled.")
     }
 
     @Test
@@ -520,17 +526,19 @@ class CameraControllerFragmentTest {
                 }
 
                 override fun onError(exception: ImageCaptureException) {
-                    imageCallbackSemaphore.release()
+                    throw exception
                 }
             })
         }
         assertThat(imageCallbackSemaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+        assertThat(uri).isNotNull()
+        val contentResolver: ContentResolver = this.activity!!.contentResolver
 
         // Read bitmap and exif rotation to return.
-        val bitmap = this.activity!!.contentResolver.openInputStream(uri!!)!!.use {
+        val bitmap = contentResolver.openInputStream(uri!!)!!.use {
             BitmapFactory.decodeStream(it)
         }
-        val rotationAndFlip = this.activity!!.contentResolver.openInputStream(uri!!)!!.use {
+        val rotationAndFlip = contentResolver.openInputStream(uri!!)!!.use {
             val exif = Exif.createFromInputStream(it)
             Triple(exif.rotation, exif.isFlippedHorizontally, exif.isFlippedVertically)
         }
@@ -567,13 +575,12 @@ class CameraControllerFragmentTest {
         val previewStreaming = Semaphore(0)
         instrumentation.runOnMainSync {
             previewView.previewStreamState.observe(
-                this,
-                Observer {
-                    if (it == state) {
-                        previewStreaming.release()
-                    }
+                this
+            ) {
+                if (it == state) {
+                    previewStreaming.release()
                 }
-            )
+            }
         }
         assertThat(previewStreaming.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
     }

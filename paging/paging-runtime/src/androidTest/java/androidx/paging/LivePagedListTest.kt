@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/220884819
+
 package androidx.paging
 
 import android.view.View
@@ -40,6 +42,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.advanceUntilIdle
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest

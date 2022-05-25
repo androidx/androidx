@@ -123,6 +123,7 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
         (all as ArrayList<*>).forEach { lmLibrary ->
             lmLibrary::class.memberProperties.forEach { libraryMembers ->
                 if (libraryMembers.name == "resolvedCoordinates") {
+                    libraryMembers.isAccessible = true
                     reportIssue(libraryMembers.call(lmLibrary).toString(), context, false)
                 }
             }
@@ -164,6 +165,7 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
     private fun getMemberWithReflection(caller: Any, memberName: String): Any {
         caller::class.memberProperties.forEach { member ->
             if (member.name == memberName) {
+                member.getter.isAccessible = true
                 return member.getter.call(caller)!!
             }
         }

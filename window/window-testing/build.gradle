@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -29,6 +27,7 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+    namespace "androidx.window.testing"
 }
 
 dependencies {
@@ -48,8 +47,7 @@ dependencies {
 
 androidx {
     name = "WindowManager Test Library"
-    type = LibraryType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.WINDOW
+    type = LibraryType.PUBLISHED_TEST_LIBRARY
     mavenGroup = LibraryGroups.WINDOW
     inceptionYear = "2021"
     description = "WindowManager Test Library"
@@ -58,6 +56,6 @@ androidx {
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }

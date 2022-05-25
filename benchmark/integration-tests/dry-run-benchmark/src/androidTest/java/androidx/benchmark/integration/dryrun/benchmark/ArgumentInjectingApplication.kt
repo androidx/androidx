@@ -41,9 +41,9 @@ class ArgumentInjectingApplication : Application() {
         super.onCreate()
 
         argumentSource = Bundle().apply {
-            putString("androidx.benchmark.output.enable", "true")
             putString("androidx.benchmark.startupMode.enable", "true") // this should be ignored
             putString("androidx.benchmark.dryRunMode.enable", "true")
+            putString("androidx.benchmark.profiling.mode", "none") // noop, tests "none" arg parsing
         }
     }
 }

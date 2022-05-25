@@ -46,7 +46,7 @@ public class TestForegroundUpdater implements ForegroundUpdater {
             @NonNull UUID id,
             @NonNull ForegroundInfo foregroundInfo) {
 
-        Logger.get().info(TAG, String.format("setForegroundAsync for %s", id));
+        Logger.get().info(TAG, "setForegroundAsync for " + id);
         SettableFuture<Void> future = SettableFuture.create();
         future.set(null);
         return future;

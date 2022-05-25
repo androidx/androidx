@@ -31,6 +31,7 @@ import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraXUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
@@ -80,7 +81,7 @@ class PreviewTest {
             FakeAppConfig.create()
         ).setCameraFactoryProvider(cameraFactoryProvider).build()
         val context = ApplicationProvider.getApplicationContext<Context>()
-        CameraX.initialize(context, cameraXConfig).get()
+        CameraXUtil.initialize(context, cameraXConfig).get()
     }
 
     @After
@@ -90,7 +91,7 @@ class PreviewTest {
             this?.removeUseCases(useCases)
         }
         cameraUseCaseAdapter = null
-        CameraX.shutdown().get()
+        CameraXUtil.shutdown().get()
     }
 
     @Test

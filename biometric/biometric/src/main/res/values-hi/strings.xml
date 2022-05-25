@@ -30,4 +30,18 @@
     <string name="generic_error_no_device_credential" msgid="3791785319221634505">"पिन, पैटर्न या पासवर्ड सेट नहीं है."</string>
     <string name="generic_error_no_keyguard" msgid="1807436368654974044">"इस डिवाइस को पिन, पैटर्न या पासवर्ड की मदद से लॉक/अनलॉक नहीं किया जा सकता."</string>
     <string name="fingerprint_dialog_icon_description" msgid="5462024216548165325">"फ़िंगरप्रिंट आइकॉन"</string>
+    <string name="use_fingerprint_label" msgid="6961788485681412417">"फ़िंगरप्रिंट का इस्तेमाल करें"</string>
+    <string name="use_face_label" msgid="6533512708069459542">"चेहरा दिखाएं"</string>
+    <string name="use_biometric_label" msgid="6524145989441579428">"बायोमेट्रिक्स का इस्तेमाल करें"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
+    <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"फ़िंगरप्रिंट या स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
+    <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"चेहरा दिखाएं या स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
+    <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"बायोमेट्रिक्स या स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
+    <string name="fingerprint_prompt_message" msgid="7449360011861769080">"जारी रखने के लिए, फ़िंगरप्रिंट का इस्तेमाल करें"</string>
+    <string name="face_prompt_message" msgid="2282389249605674226">"जारी रखने के लिए, अपना चेहरा दिखाएं"</string>
+    <string name="biometric_prompt_message" msgid="1160635338192065472">"जारी रखने के लिए, बायोमेट्रिक का इस्तेमाल करें"</string>
+    <string name="screen_lock_prompt_message" msgid="5659570757430909869">"जारी रखने के लिए, अपना स्क्रीन लॉक क्रेडेंशियल डालें"</string>
+    <string name="fingerprint_or_screen_lock_prompt_message" msgid="8382576858490514495">"जारी रखने के लिए, फ़िंगरप्रिंट या स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
+    <string name="face_or_screen_lock_prompt_message" msgid="4562557128765735254">"जारी रखने के लिए, अपना चेहरा दिखाएं या स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
+    <string name="biometric_or_screen_lock_prompt_message" msgid="2102429900219199821">"जारी रखने के लिए, बायोमेट्रिक या स्क्रीन लॉक क्रेडेंशियल का इस्तेमाल करें"</string>
 </resources>

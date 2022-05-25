@@ -28,6 +28,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.File
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -40,7 +41,7 @@ class ShellTest {
     @Before
     @After
     fun setup() {
-        if (Build.VERSION.SDK_INT >= 21) {
+        if (Build.VERSION.SDK_INT >= 23) {
             // ensure we don't leak background processes
             Shell.terminateProcessesAndWait(
                 KILL_WAIT_POLL_PERIOD_MS,
@@ -336,23 +337,29 @@ class ShellTest {
         assertFalse(backgroundProcess2.isAlive())
     }
 
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun getRunningSubPackages() {
+        assertEquals(emptyList(), Shell.getRunningProcessesForPackage("not.a.real.packagename"))
+        assertEquals(listOf(Packages.TEST), Shell.getRunningProcessesForPackage(Packages.TEST))
+    }
+
+    @SdkSuppress(minSdkVersion = 21)
+    @Test
+    fun checkRootStatus() {
+        if (Shell.isSessionRooted()) {
+            assertContains(Shell.executeCommand("id"), "uid=0(root)")
+        } else {
+            assertFalse(
+                Shell.executeCommand("id").contains("uid=0(root)"),
+                "Shell.isSessionRooted() is false so user should not be root"
+            )
+        }
+    }
+
     @RequiresApi(21)
     private fun pidof(packageName: String): Int? {
-        if (Build.VERSION.SDK_INT >= 24) {
-            // On API 23 (first version to offer it) we observe that 'pidof'
-            // returns list of all processes :|
-            return Shell.executeCommand("pidof $packageName").trim().toIntOrNull()
-        }
-        val psLineForPackage: String? = Shell.executeScript("ps | grep $packageName")
-            .split("\r?\n")
-            .firstOrNull { it.trim().endsWith(" $packageName") }
-
-        // e.g.
-        // "root      8803  1173  3696   864   813fcf0c b0144fea S logcat"
-        return psLineForPackage
-            ?.split(Regex("\\s+"))
-            ?.get(1)
-            ?.toIntOrNull()
+        return Shell.getPidsForProcess(packageName).firstOrNull()
     }
 
     companion object {

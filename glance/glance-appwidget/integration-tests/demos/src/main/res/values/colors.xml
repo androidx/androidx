@@ -16,4 +16,6 @@
 
 <resources>
     <color name="light_gray">#FFCCCCCC</color>
+    <color name="dark_gray">#FF444444</color>
+    <color name="default_widget_background">@color/light_gray</color>
 </resources>

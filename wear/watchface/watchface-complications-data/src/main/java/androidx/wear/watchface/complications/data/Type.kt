@@ -18,7 +18,13 @@ package androidx.wear.watchface.complications.data
 
 import androidx.annotation.RestrictTo
 
-/** The possible complication data types. */
+/**
+ * The possible complication data types.
+ *
+ * See also wear/watchface/watchface-complications-data/src/main/res/values/attrs.xml for the XML
+ * definition. And supportedTypes in wear/watchface/watchface/src/main/res/values/attrs.xml.
+ * And wear/watchface/watchface/src/main/res/values/attrs.xml which defines a subset.
+ */
 public enum class ComplicationType(private val wireType: Int) {
     NO_DATA(WireComplicationData.TYPE_NO_DATA),
     EMPTY(WireComplicationData.TYPE_EMPTY),
@@ -29,7 +35,13 @@ public enum class ComplicationType(private val wireType: Int) {
     MONOCHROMATIC_IMAGE(WireComplicationData.TYPE_ICON),
     SMALL_IMAGE(WireComplicationData.TYPE_SMALL_IMAGE),
     PHOTO_IMAGE(WireComplicationData.TYPE_LARGE_IMAGE),
-    NO_PERMISSION(WireComplicationData.TYPE_NO_PERMISSION);
+    NO_PERMISSION(WireComplicationData.TYPE_NO_PERMISSION),
+
+    @ComplicationExperimental
+    PROTO_LAYOUT(WireComplicationData.TYPE_PROTO_LAYOUT),
+
+    @ComplicationExperimental
+    LIST(WireComplicationData.TYPE_LIST);
 
     /**
      * Converts this value to the integer value used for serialization.
@@ -51,7 +63,8 @@ public enum class ComplicationType(private val wireType: Int) {
          *
          * @hide
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @OptIn(ComplicationExperimental::class)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
         public fun fromWireType(wireType: Int): ComplicationType =
             when (wireType) {
@@ -65,6 +78,8 @@ public enum class ComplicationType(private val wireType: Int) {
                 SMALL_IMAGE.wireType -> SMALL_IMAGE
                 PHOTO_IMAGE.wireType -> PHOTO_IMAGE
                 NO_PERMISSION.wireType -> NO_PERMISSION
+                PROTO_LAYOUT.wireType -> PROTO_LAYOUT
+                LIST.wireType -> LIST
                 else -> EMPTY
             }
 

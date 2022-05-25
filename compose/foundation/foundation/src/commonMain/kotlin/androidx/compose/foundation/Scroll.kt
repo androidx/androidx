@@ -42,11 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.LayoutModifier
@@ -61,11 +57,9 @@ import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
+import kotlinx.coroutines.launch
 
 /**
  * Create and [remember] the [ScrollState] based on the currently appropriate scroll
@@ -254,6 +248,7 @@ fun Modifier.horizontalScroll(
     isVertical = false
 )
 
+@OptIn(ExperimentalFoundationApi::class)
 private fun Modifier.scroll(
     state: ScrollState,
     reverseScrolling: Boolean,
@@ -265,17 +260,17 @@ private fun Modifier.scroll(
         val overScrollController = rememberOverScrollController()
         val coroutineScope = rememberCoroutineScope()
         val semantics = Modifier.semantics {
+            val accessibilityScrollState = ScrollAxisRange(
+                value = { state.value.toFloat() },
+                maxValue = { state.maxValue.toFloat() },
+                reverseScrolling = reverseScrolling
+            )
+            if (isVertical) {
+                this.verticalScrollAxisRange = accessibilityScrollState
+            } else {
+                this.horizontalScrollAxisRange = accessibilityScrollState
+            }
             if (isScrollable) {
-                val accessibilityScrollState = ScrollAxisRange(
-                    value = { state.value.toFloat() },
-                    maxValue = { state.maxValue.toFloat() },
-                    reverseScrolling = reverseScrolling
-                )
-                if (isVertical) {
-                    this.verticalScrollAxisRange = accessibilityScrollState
-                } else {
-                    this.horizontalScrollAxisRange = accessibilityScrollState
-                }
                 // when b/156389287 is fixed, this should be proper scrollTo with reverse handling
                 scrollBy(
                     action = { x: Float, y: Float ->
@@ -381,76 +376,27 @@ private data class ScrollingLayoutModifier(
 internal fun Constraints.assertNotNestingScrollableContainers(isVertical: Boolean) {
     if (isVertical) {
         check(maxHeight != Constraints.Infinity) {
-            "Nesting scrollable in the same direction layouts like LazyColumn and Column(Modifier" +
-                ".verticalScroll()) is not allowed. If you want to add a header before the list " +
-                "of items please take a look on LazyColumn component which has a DSL api which" +
-                " allows to first add a header via item() function and then the list of " +
-                "items via items()."
+            "Vertically scrollable component was measured with an infinity maximum height " +
+                "constraints, which is disallowed. One of the common reasons is nesting layouts " +
+                "like LazyColumn and Column(Modifier.verticalScroll()). If you want to add a " +
+                "header before the list of items please add a header as a separate item() before " +
+                "the main items() inside the LazyColumn scope. There are could be other reasons " +
+                "for this to happen: your ComposeView was added into a LinearLayout with some " +
+                "weight, you applied Modifier.wrapContentSize(unbounded = true) or wrote a " +
+                "custom layout. Please try to remove the source of infinite constraints in the " +
+                "hierarchy above the scrolling container."
         }
     } else {
         check(maxWidth != Constraints.Infinity) {
-            "Nesting scrollable in the same direction layouts like LazyRow and Row(Modifier" +
-                ".horizontalScroll() is not allowed. If you want to add a header before the list " +
-                "of items please take a look on LazyRow component which has a DSL api which " +
-                "allows to first add a fixed element via item() function and then the " +
-                "list of items via items()."
+            "Horizontally scrollable component was measured with an infinity maximum width " +
+                "constraints, which is disallowed. One of the common reasons is nesting layouts " +
+                "like LazyRow and Row(Modifier.horizontalScroll()). If you want to add a " +
+                "header before the list of items please add a header as a separate item() before " +
+                "the main items() inside the LazyRow scope. There are could be other reasons " +
+                "for this to happen: your ComposeView was added into a LinearLayout with some " +
+                "weight, you applied Modifier.wrapContentSize(unbounded = true) or wrote a " +
+                "custom layout. Please try to remove the source of infinite constraints in the " +
+                "hierarchy above the scrolling container."
         }
     }
 }
-
-/**
- * In the scrollable containers we want to clip the main axis sides in order to not display the
- * content which is scrolled out. But once we apply clipToBounds() modifier on such containers it
- * causes unexpected behavior as we also clip the content on the cross axis sides. It is
- * unexpected as Compose components are not clipping by default. The most common case how it
- * could be reproduced is a horizontally scrolling list of Cards. Cards have the elevation by
- * default and such Cards will be drawn with clipped shadows on top and bottom. This was harder
- * to reproduce in the Views system as usually scrolling containers like RecyclerView didn't have
- * an opaque background which means the ripple was drawn on the surface on the first parent with
- * background. In Compose as we don't clip by default we draw shadows right in place.
- * We faced similar issue in Compose already with Androids Popups and Dialogs where we decided to
- * just predefine some constant with a maximum elevation size we are not going to clip. We are
- * going to reuse this technique here. This will improve how it works in most common cases. If the
- * user will need to have a larger unclipped area for some reason they can always add the needed
- * padding inside the scrollable area.
- */
-internal fun Modifier.clipScrollableContainer(isVertical: Boolean) =
-    then(if (isVertical) VerticalScrollableClipModifier else HorizontalScrollableClipModifier)
-
-private val MaxSupportedElevation = 30.dp
-
-private val HorizontalScrollableClipModifier = Modifier.clip(object : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline {
-        val inflateSize = with(density) { MaxSupportedElevation.roundToPx().toFloat() }
-        return Outline.Rectangle(
-            Rect(
-                left = 0f,
-                top = -inflateSize,
-                right = size.width,
-                bottom = size.height + inflateSize
-            )
-        )
-    }
-})
-
-private val VerticalScrollableClipModifier = Modifier.clip(object : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline {
-        val inflateSize = with(density) { MaxSupportedElevation.roundToPx().toFloat() }
-        return Outline.Rectangle(
-            Rect(
-                left = -inflateSize,
-                top = 0f,
-                right = size.width + inflateSize,
-                bottom = size.height
-            )
-        )
-    }
-})

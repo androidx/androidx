@@ -31,7 +31,7 @@ import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.CoreMatchers.nullValue
-import org.junit.Assert.assertThat
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -262,6 +262,9 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
                         currentPosition, isBetweenInInMinMax(prevPosition, target.toDouble())
                     )
                     prevPosition = currentPosition
+                }
+                is OnPageScrollStateChangedEvent -> {
+                    // Nothing
                 }
             }
         }

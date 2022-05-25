@@ -18,6 +18,9 @@ package androidx.wear.watchface
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.ComplicationType.LONG_TEXT
@@ -25,8 +28,24 @@ import androidx.wear.watchface.complications.data.ComplicationType.MONOCHROMATIC
 import androidx.wear.watchface.complications.data.ComplicationType.SHORT_TEXT
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.verify
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+
+const val TIME_OUT_MILLIS = 500L
 
 public class ComplicationHelperActivityTest {
+    private val mainThreadHandler = Handler(Looper.getMainLooper())
+
+    private val scenarios = mapOf(
+        ComplicationHelperActivity.PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER to createIntent(),
+
+        ComplicationHelperActivity.PERMISSION_REQUEST_CODE_REQUEST_ONLY to
+            createPermissionOnlyIntent()
+    )
 
     @Test
     public fun createProviderChooserHelperIntent_action() {
@@ -80,18 +99,205 @@ public class ComplicationHelperActivityTest {
         ).isEqualTo("ID-1")
     }
 
-    /** Creates an intent with default values for unspecified parameters. */
+    fun runOnMainThread(task: () -> Unit) {
+        val latch = CountDownLatch(1)
+        mainThreadHandler.post {
+            task()
+            latch.countDown()
+        }
+        latch.await(TIME_OUT_MILLIS, TimeUnit.MILLISECONDS)
+    }
+
+    @Test
+    public fun complicationRationaleDialogFragment_shown_if_needed() {
+        runOnMainThread {
+            scenarios.forEach { (_, intent) ->
+                val helper = ComplicationHelperActivity()
+                helper.intent = intent
+                helper.mDelegate = mock() {
+                    on { shouldShowRequestPermissionRationale() } doReturn true
+                }
+
+                helper.start(true)
+                verify(helper.mDelegate).launchComplicationRationaleActivity()
+            }
+        }
+    }
+
+    @Test
+    public fun complicationRationaleDialogFragment_not_shown_if_not_needed() {
+        runOnMainThread {
+            scenarios.forEach { (_, intent) ->
+                val helper = ComplicationHelperActivity()
+                helper.intent = intent
+                helper.mDelegate = mock() {
+                    on { shouldShowRequestPermissionRationale() } doReturn false
+                }
+
+                helper.start(true)
+                verify(helper.mDelegate, never()).launchComplicationRationaleActivity()
+            }
+        }
+    }
+
+    @Test
+    public fun complicationRationaleDialogFragment_not_shown_if_not_requested() {
+        runOnMainThread {
+            scenarios.forEach { (_, intent) ->
+                val helper = ComplicationHelperActivity()
+                helper.intent = intent
+                helper.mDelegate = mock() {
+                    on { shouldShowRequestPermissionRationale() } doReturn true
+                }
+
+                helper.start(false)
+                verify(helper.mDelegate, never()).launchComplicationRationaleActivity()
+            }
+        }
+    }
+
+    @Test
+    public fun permissions_requested_if_needed() {
+        runOnMainThread {
+            scenarios.forEach { (requestId, intent) ->
+                val helper = ComplicationHelperActivity()
+                helper.intent = intent
+                helper.mDelegate = mock() {
+                    on { shouldShowRequestPermissionRationale() } doReturn false
+                    on { checkPermission() } doReturn false
+                }
+
+                helper.start(true)
+                verify(helper.mDelegate).requestPermissions(requestId)
+            }
+        }
+    }
+
+    @Test
+    public fun permissions_not_requested_if_not_needed() {
+        runOnMainThread {
+            scenarios.forEach { (requestId, intent) ->
+                val helper = ComplicationHelperActivity()
+                helper.intent = intent
+                helper.mDelegate = mock() {
+                    on { shouldShowRequestPermissionRationale() } doReturn false
+                    on { checkPermission() } doReturn true
+                }
+
+                helper.start(true)
+                verify(helper.mDelegate, never()).requestPermissions(requestId)
+            }
+        }
+    }
+
+    @Test
+    public fun onRequestPermissionsResult_permission_granted() {
+        runOnMainThread {
+            val helper = ComplicationHelperActivity()
+            helper.intent = createIntent()
+            helper.mDelegate = mock()
+
+            helper.onRequestPermissionsResult(
+                ComplicationHelperActivity.PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER,
+                emptyArray(),
+                intArrayOf(PackageManager.PERMISSION_GRANTED)
+            )
+
+            verify(helper.mDelegate).startComplicationDataSourceChooser()
+            verify(helper.mDelegate).requestUpdateAll()
+        }
+    }
+
+    @Test
+    public fun onRequestPermissionsResult_permission_only_permission_granted() {
+        runOnMainThread {
+            val helper = ComplicationHelperActivity()
+            helper.intent = createIntent()
+            helper.mDelegate = mock()
+
+            helper.onRequestPermissionsResult(
+                ComplicationHelperActivity.PERMISSION_REQUEST_CODE_REQUEST_ONLY,
+                emptyArray(),
+                intArrayOf(PackageManager.PERMISSION_GRANTED)
+            )
+
+            verify(helper.mDelegate, never()).startComplicationDataSourceChooser()
+            verify(helper.mDelegate).requestUpdateAll()
+        }
+    }
+
+    @Test
+    public fun complicationDeniedActivity_launched_if_permission_denied() {
+        runOnMainThread {
+            scenarios.forEach { (requestId, intent) ->
+                val helper = ComplicationHelperActivity()
+                helper.intent = intent
+                helper.mDelegate = mock()
+
+                helper.onRequestPermissionsResult(
+                    requestId,
+                    emptyArray(),
+                    intArrayOf(PackageManager.PERMISSION_DENIED)
+                )
+
+                verify(helper.mDelegate).launchComplicationDeniedActivity()
+            }
+        }
+    }
+
+    @Test
+    public fun complicationDeniedActivity_not_launched_if_permission_denied_with_dont_show() {
+        val deniedScenarios = mapOf(
+            ComplicationHelperActivity.PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER_NO_DENIED_INTENT to
+                createIntent(),
+
+            ComplicationHelperActivity.PERMISSION_REQUEST_CODE_REQUEST_ONLY_NO_DENIED_INTENT to
+                createPermissionOnlyIntent()
+        )
+        runOnMainThread {
+            deniedScenarios.forEach { (requestId, intent) ->
+                val helper = ComplicationHelperActivity()
+                helper.intent = intent
+                helper.mDelegate = mock()
+
+                helper.onRequestPermissionsResult(
+                    requestId,
+                    emptyArray(),
+                    intArrayOf(PackageManager.PERMISSION_DENIED)
+                )
+
+                verify(helper.mDelegate, never()).launchComplicationDeniedActivity()
+            }
+        }
+    }
+
+    /** Creates an intent with default xml for unspecified parameters. */
     private fun createIntent(
         watchFaceComponentName: ComponentName = defaultWatchFaceComponentName,
         complicationSlotId: Int = defaultComplicationSlotId,
         instanceId: String? = null,
-        vararg supportedTypes: ComplicationType = defaultSupportedTypes
+        vararg supportedTypes: ComplicationType = defaultSupportedTypes,
+        complicationDeniedIntent: Intent? = Intent(),
+        complicationRationalIntent: Intent? = Intent()
     ) = ComplicationHelperActivity.createComplicationDataSourceChooserHelperIntent(
         context,
         watchFaceComponentName,
         complicationSlotId,
         supportedTypes.asList(),
-        instanceId
+        instanceId,
+        complicationDeniedIntent,
+        complicationRationalIntent
+    )
+
+    private fun createPermissionOnlyIntent(
+        watchFaceComponentName: ComponentName = defaultWatchFaceComponentName,
+        complicationDeniedIntent: Intent? = Intent(),
+        complicationRationalIntent: Intent? = Intent()
+    ) = ComplicationHelperActivity.createPermissionRequestHelperIntent(
+        context,
+        watchFaceComponentName,
+        complicationDeniedIntent,
+        complicationRationalIntent
     )
 
     private companion object {

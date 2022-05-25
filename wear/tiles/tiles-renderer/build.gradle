@@ -16,9 +16,7 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -34,7 +32,7 @@ dependencies {
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation "androidx.concurrent:concurrent-futures-ktx:1.1.0"
     implementation "androidx.core:core:1.3.2"
-    implementation "androidx.wear:wear:1.2.0-beta01"
+    implementation "androidx.wear:wear:1.2.0"
 
     implementation(project(":wear:tiles:tiles"))
     implementation(project(":wear:tiles:tiles-proto"))
@@ -46,7 +44,7 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation("com.google.protobuf:protobuf-java:3.10.0")
+    androidTestImplementation(libs.protobuf)
 
     // I'm not 100% sure why, but androidTestImplementation doesn't appear to use the standard
     // results of a project build. This leads to it not using the shadow configuration from
@@ -83,18 +81,19 @@ android {
     sourceSets {
         androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-tiles-renderer"
     }
+    namespace "androidx.wear.tiles.renderer"
 }
 
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }
 
 protobuf {
     protoc {
-        artifact = "com.google.protobuf:protoc:3.10.0"
+        artifact = libs.protobufCompiler.get()
     }
 
     // Generates the java proto-lite code for the protos in this project. See
@@ -117,3 +116,4 @@ androidx {
     description = "Android Wear Tiles Renderer components. These components can be used to parse " +
             "and render an already constructed Wear Tile."
 }
+

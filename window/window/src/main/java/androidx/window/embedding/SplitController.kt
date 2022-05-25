@@ -116,6 +116,15 @@ class SplitController private constructor() {
         embeddingBackend.setSplitRules(staticRules)
     }
 
+    /**
+     * Checks if an activity is embedded and its presentation may be customized by its or any other
+     * process.
+     */
+    // TODO(b/204399167) Migrate to a Flow
+    fun isActivityEmbedded(activity: Activity): Boolean {
+        return embeddingBackend.isActivityEmbedded(activity)
+    }
+
     companion object {
         @Volatile
         private var globalInstance: SplitController? = null

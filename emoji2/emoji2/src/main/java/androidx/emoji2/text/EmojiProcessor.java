@@ -120,26 +120,70 @@ final class EmojiProcessor {
         mEmojiAsDefaultStyleExceptions = emojiAsDefaultStyleExceptions;
     }
 
-    EmojiMetadata getEmojiMetadata(@NonNull final CharSequence charSequence) {
+    @EmojiCompat.CodepointSequenceMatchResult
+    int getEmojiMatch(@NonNull final CharSequence charSequence) {
+        return getEmojiMatch(charSequence, mMetadataRepo.getMetadataVersion());
+    }
+
+    @EmojiCompat.CodepointSequenceMatchResult
+    int getEmojiMatch(@NonNull final CharSequence charSequence,
+            final int metadataVersion) {
         final ProcessorSm sm = new ProcessorSm(mMetadataRepo.getRootNode(),
                 mUseEmojiAsDefaultStyle, mEmojiAsDefaultStyleExceptions);
         final int end = charSequence.length();
         int currentOffset = 0;
+        int potentialSubsequenceMatch = 0;
+        int subsequenceMatch = 0;
 
         while (currentOffset < end) {
             final int codePoint = Character.codePointAt(charSequence, currentOffset);
             final int action = sm.check(codePoint);
-            if (action != ACTION_ADVANCE_END) {
-                return null;
+            EmojiMetadata currentNode = sm.getCurrentMetadata();
+            switch (action) {
+                case ACTION_FLUSH: {
+                    // this happens when matching new unknown ZWJ sequences that are comprised of
+                    // known emoji
+                    currentNode = sm.getFlushMetadata();
+                    if (currentNode.getCompatAdded() <= metadataVersion) {
+                        subsequenceMatch++;
+                    }
+                    break;
+                }
+                case ACTION_ADVANCE_BOTH: {
+                    currentOffset += Character.charCount(codePoint);
+                    // state machine decided to skip previous entries
+                    potentialSubsequenceMatch = 0;
+                    break;
+                } case ACTION_ADVANCE_END: {
+                    currentOffset += Character.charCount(codePoint);
+                    break;
+                }
             }
-            currentOffset += Character.charCount(codePoint);
+            if (currentNode != null && currentNode.getCompatAdded() <= metadataVersion) {
+                potentialSubsequenceMatch++;
+            }
+        }
+
+        if (subsequenceMatch != 0) {
+            // if we matched multiple emoji on the first pass, then the current emoji font
+            // doesn't know about the codepoint sequence, and will decompose when REPLACE_ALL = true
+            return EmojiCompat.EMOJI_FALLBACK;
         }
 
         if (sm.isInFlushableState()) {
-            return sm.getCurrentMetadata();
+            // We matched exactly one emoji
+            // EmojiCompat can completely handle this sequence
+            EmojiMetadata exactMatch = sm.getCurrentMetadata();
+            if (exactMatch.getCompatAdded() <= metadataVersion) {
+                return EmojiCompat.EMOJI_SUPPORTED;
+            }
         }
-
-        return null;
+        // if we get here than we definitely do not know the emoji, decide if we will decompose
+        if (potentialSubsequenceMatch == 0) {
+            return EmojiCompat.EMOJI_UNSUPPORTED;
+        } else {
+            return EmojiCompat.EMOJI_FALLBACK;
+        }
     }
 
     /**
@@ -172,12 +216,12 @@ final class EmojiProcessor {
         }
 
         try {
-            Spannable spannable = null;
+            UnprecomputeTextOnModificationSpannable spannable = null;
             // if it is a spannable already, use the same instance to add/remove EmojiSpans.
             // otherwise wait until the first EmojiSpan found in order to change the result
             // into a Spannable.
             if (isSpannableBuilder || charSequence instanceof Spannable) {
-                spannable = (Spannable) charSequence;
+                spannable = new UnprecomputeTextOnModificationSpannable((Spannable) charSequence);
             } else if (charSequence instanceof Spanned) {
                 // check if there are any EmojiSpans as cheap as possible
                 // start-1, end+1 will return emoji span that starts/ends at start/end indices
@@ -185,7 +229,7 @@ final class EmojiProcessor {
                         start - 1, end + 1, EmojiSpan.class);
 
                 if (nextSpanTransition <= end) {
-                    spannable = new SpannableString(charSequence);
+                    spannable = new UnprecomputeTextOnModificationSpannable(charSequence);
                 }
             }
 
@@ -250,7 +294,8 @@ final class EmojiProcessor {
                         if (replaceAll || !hasGlyph(charSequence, start, currentOffset,
                                 sm.getFlushMetadata())) {
                             if (spannable == null) {
-                                spannable = new SpannableString(charSequence);
+                                spannable = new UnprecomputeTextOnModificationSpannable(
+                                        new SpannableString(charSequence));
                             }
                             addEmoji(spannable, sm.getFlushMetadata(), start, currentOffset);
                             addedCount++;
@@ -268,13 +313,18 @@ final class EmojiProcessor {
                 if (replaceAll || !hasGlyph(charSequence, start, currentOffset,
                         sm.getCurrentMetadata())) {
                     if (spannable == null) {
-                        spannable = new SpannableString(charSequence);
+                        spannable = new UnprecomputeTextOnModificationSpannable(charSequence);
                     }
                     addEmoji(spannable, sm.getCurrentMetadata(), start, currentOffset);
                     addedCount++;
                 }
             }
-            return spannable == null ? charSequence : spannable;
+            // if nothing was written, always return the source
+            if (spannable != null) {
+                return spannable.getUnwrappedSpannable();
+            } else {
+                return charSequence;
+            }
         } finally {
             if (isSpannableBuilder) {
                 ((SpannableBuilder) charSequence).endBatchEdit();

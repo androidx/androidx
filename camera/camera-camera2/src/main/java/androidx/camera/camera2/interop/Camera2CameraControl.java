@@ -215,15 +215,15 @@ public final class Camera2CameraControl {
     }
 
     /**
-     * Clears all capture request options.
+     * Clears all capture request options that is currently applied by the
+     * {@link Camera2CameraControl}.
      *
      * @return a {@link ListenableFuture} which completes when the repeating
      * {@link android.hardware.camera2.CaptureResult} shows the options have be submitted
      * completely. The future fails with {@link CameraControl.OperationCanceledException} if newer
      * options are set or camera is closed before the current request completes.
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY)
+    @SuppressWarnings("AsyncSuffixFuture")
     @NonNull
     public ListenableFuture<Void> clearCaptureRequestOptions() {
         clearCaptureRequestOptionsInternal();
@@ -323,7 +323,6 @@ public final class Camera2CameraControl {
                 updateSession();
             }
         } else {
-            clearCaptureRequestOptionsInternal();
             if (mCompleter != null) {
                 mCompleter.setException(new CameraControl.OperationCanceledException(
                         "The camera control has became inactive."));

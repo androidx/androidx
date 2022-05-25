@@ -38,6 +38,7 @@ import androidx.room.testing.MigrationTestHelper;
 import androidx.room.util.TableInfo;
 import androidx.room.util.ViewInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
+import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -558,6 +559,62 @@ public class MigrationTest {
         } catch (IllegalStateException ex) {
             Truth.assertThat(ex).hasMessageThat().contains(
                     "Migration didn't properly handle"
+            );
+        }
+    }
+
+    // Verifies that even with allowDataLossOnRecovery, bad migrations are propagated and the DB
+    // is not silently deleted.
+    @Test
+    public void badMigration_allowDataLossOnRecovery() throws IOException {
+        // Create DB at version 1
+        helper.createDatabase(TEST_DB, 1).close();
+
+        // Create DB at latest version, but no migrations and with allowDataLossOnRecovery, it
+        // should fail to open.
+        Context targetContext = ApplicationProvider.getApplicationContext();
+        MigrationDb db = Room.databaseBuilder(targetContext, MigrationDb.class, TEST_DB)
+                .openHelperFactory(configuration -> {
+                    SupportSQLiteOpenHelper.Configuration config =
+                            SupportSQLiteOpenHelper.Configuration.builder(targetContext)
+                                    .name(configuration.name)
+                                    .callback(configuration.callback)
+                                    .allowDataLossOnRecovery(true)
+                                    .build();
+                    return new FrameworkSQLiteOpenHelperFactory().create(config);
+                })
+                .build();
+        try {
+            db.getOpenHelper().getWritableDatabase();
+            Assert.fail("Expected a missing migration exception");
+        } catch (IllegalStateException ex) {
+            // Verifies exception is not wrapped
+            Truth.assertThat(ex).hasMessageThat()
+                    .containsMatch("A migration from \\d+ to \\d+ was required but not found.");
+        }
+    }
+
+    @Test
+    public void invalid_hash() throws IOException {
+        // Create DB at version 1
+        SupportSQLiteDatabase db = helper.createDatabase(TEST_DB, 1);
+        // Set its version to 2
+        db.setVersion(2);
+        db.close();
+
+        // Open the database again at version 2 and it should fail identity, replicating the
+        // scenario of 1. bumping version code without schema changes, 2. making schema changes and
+        // 3. opening the DB again.
+        try {
+            helper.runMigrationsAndValidate(TEST_DB, 2, false);
+            Assert.fail("Expected a room cannot verify the data integrity exception");
+        } catch (IllegalStateException ex) {
+            Truth.assertThat(ex).hasMessageThat().contains(
+                    "Room cannot verify the data integrity"
+            );
+            Truth.assertThat(ex).hasMessageThat().contains(
+                    "Expected identity hash: aee9a6eed720c059df0f2ee0d6e96d89, "
+                            + "found: 2f3557e56d7f665363f3e20d14787a59"
             );
         }
     }

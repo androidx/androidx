@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+@file:SuppressLint("ClassVerificationFailure") // Entire file is RequiresApi(26)
 @file:Suppress("NOTHING_TO_INLINE") // Aliases to public API.
 
 package androidx.core.graphics.drawable
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.net.Uri

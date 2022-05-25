@@ -27,61 +27,72 @@ import android.text.style.StrikethroughSpan
 import android.text.style.StyleSpan
 import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.widget.RemoteViews
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.core.widget.setTextViewGravity
-import androidx.glance.appwidget.LayoutSelector
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.widget.RemoteViewsCompat.setTextViewGravity
+import androidx.core.widget.RemoteViewsCompat.setTextViewMaxLines
+import androidx.core.widget.RemoteViewsCompat.setTextViewTextColor
+import androidx.core.widget.RemoteViewsCompat.setTextViewTextColorResource
+import androidx.glance.appwidget.GlanceAppWidgetTag
+import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
-import androidx.glance.appwidget.remoteViews
-import androidx.glance.appwidget.selectLayout
-import androidx.glance.layout.EmittableText
+import androidx.glance.appwidget.insertView
+import androidx.glance.appwidget.unit.DayNightColorProvider
+import androidx.glance.text.EmittableText
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.FixedColorProvider
+import androidx.glance.unit.ResourceColorProvider
 
-internal fun translateEmittableText(
+internal fun RemoteViews.translateEmittableText(
     translationContext: TranslationContext,
     element: EmittableText
-): RemoteViews {
-    val layoutDef = selectLayout(translationContext, LayoutSelector.Type.Text, element.modifier)
-    return remoteViews(translationContext, layoutDef.layoutId)
-        .also { rv ->
-            rv.setText(
-                translationContext,
-                layoutDef.mainViewId,
-                element.text,
-                element.style
-            )
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                element.style?.textAlign?.let { align ->
-                    TextTranslatorApi31Impl
-                        .setTextViewGravity(rv, layoutDef.mainViewId, align.toGravity())
-                }
-            }
-            applyModifiers(translationContext, rv, element.modifier, layoutDef)
-        }
+) {
+    val viewDef = insertView(translationContext, LayoutType.Text, element.modifier)
+    setText(
+        translationContext,
+        viewDef.mainViewId,
+        element.text,
+        element.style,
+        maxLines = element.maxLines,
+    )
+    applyModifiers(translationContext, this, element.modifier, viewDef)
 }
 
 internal fun RemoteViews.setText(
     translationContext: TranslationContext,
     resId: Int,
     text: String,
-    style: TextStyle?
+    style: TextStyle?,
+    maxLines: Int,
+    verticalTextGravity: Int = Gravity.TOP,
 ) {
+    if (maxLines != Int.MAX_VALUE) {
+        setTextViewMaxLines(resId, maxLines)
+    }
+
     if (style == null) {
         setTextViewText(resId, text)
         return
     }
     val content = SpannableString(text)
     val length = content.length
+
+    // TODO(b/203656358): Can we support Em here too?
     style.fontSize?.let {
+        if (!it.isSp) {
+            throw IllegalArgumentException("Only Sp is currently supported for font sizes")
+        }
         setTextViewTextSize(resId, TypedValue.COMPLEX_UNIT_SP, it.value)
     }
     val spans = mutableListOf<ParcelableSpan>()
@@ -104,8 +115,14 @@ internal fun RemoteViews.setText(
         }
         spans.add(TextAppearanceSpan(translationContext.context, textAppearance))
     }
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
-        style.textAlign?.let { align ->
+    style.textAlign?.let { align ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            TextTranslatorApi31Impl.setTextViewGravity(
+                this,
+                resId,
+                align.toGravity() or verticalTextGravity
+            )
+        } else {
             spans.add(AlignmentSpan.Standard(align.toAlignment(translationContext.isRtl)))
         }
     }
@@ -113,6 +130,30 @@ internal fun RemoteViews.setText(
         content.setSpan(span, 0, length, Spanned.SPAN_INCLUSIVE_EXCLUSIVE)
     }
     setTextViewText(resId, content)
+
+    when (val colorProvider = style.color) {
+        is FixedColorProvider -> setTextColor(resId, colorProvider.color.toArgb())
+        is ResourceColorProvider -> {
+            if (Build.VERSION.SDK_INT >= 31) {
+                setTextViewTextColorResource(resId, colorProvider.resId)
+            } else {
+                setTextColor(resId, colorProvider.resolve(translationContext.context).toArgb())
+            }
+        }
+        is DayNightColorProvider -> {
+            if (Build.VERSION.SDK_INT >= 31) {
+                setTextViewTextColor(
+                    resId,
+                    notNight = colorProvider.day.toArgb(),
+                    night = colorProvider.night.toArgb()
+                )
+            } else {
+                setTextColor(resId, colorProvider.resolve(translationContext.context).toArgb())
+            }
+        }
+        null -> {}
+        else -> Log.w(GlanceAppWidgetTag, "Unexpected text color: $colorProvider")
+    }
 }
 
 private fun TextAlign.toGravity(): Int =
@@ -122,7 +163,10 @@ private fun TextAlign.toGravity(): Int =
         TextAlign.Right -> Gravity.RIGHT
         TextAlign.Start -> Gravity.START
         TextAlign.End -> Gravity.END
-        else -> throw IllegalArgumentException("Unknown TextAlign: $this")
+        else -> {
+            Log.w(GlanceAppWidgetTag, "Unknown TextAlign: $this")
+            Gravity.START
+        }
     }
 
 private fun TextAlign.toAlignment(isRtl: Boolean): Alignment =
@@ -132,7 +176,10 @@ private fun TextAlign.toAlignment(isRtl: Boolean): Alignment =
         TextAlign.Right -> if (isRtl) Alignment.ALIGN_NORMAL else Alignment.ALIGN_OPPOSITE
         TextAlign.Start -> Alignment.ALIGN_NORMAL
         TextAlign.End -> Alignment.ALIGN_OPPOSITE
-        else -> throw IllegalArgumentException("Unknown TextAlign: $this")
+        else -> {
+            Log.w(GlanceAppWidgetTag, "Unknown TextAlign: $this")
+            Alignment.ALIGN_NORMAL
+        }
     }
 
 @RequiresApi(Build.VERSION_CODES.S)

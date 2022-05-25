@@ -62,7 +62,7 @@ class AutoValuePojoProcessorDelegate(
         // Check that certain Room annotations with @Target(METHOD) are not used in methods other
         // than the auto value abstract getters.
         (allMethods - autoValueAbstractGetters)
-            .filter { it.hasAnyOf(*TARGET_METHOD_ANNOTATIONS) }
+            .filter { it.hasAnyAnnotation(*TARGET_METHOD_ANNOTATIONS) }
             .forEach { method ->
                 val annotationName = TARGET_METHOD_ANNOTATIONS.first { method.hasAnnotation(it) }
                     .java.simpleName

@@ -39,7 +39,7 @@ import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 
-internal interface DesktopInputComponent {
+internal actual interface PlatformInputComponent {
     fun enableInput(inputMethodRequests: InputMethodRequests)
     fun disableInput()
     // Input service needs to know this information to implement Input Method support
@@ -47,7 +47,7 @@ internal interface DesktopInputComponent {
     val density: Density
 }
 
-internal class DesktopPlatformInput(val component: DesktopComponent) :
+internal actual class PlatformInput actual constructor(val component: PlatformComponent) :
     PlatformTextInputService {
     data class CurrentInput(
         var value: TextFieldValue,
@@ -97,6 +97,7 @@ internal class DesktopPlatformInput(val component: DesktopComponent) :
         }
     }
 
+    @Deprecated("This method should not be called, used BringIntoViewRequester instead.")
     override fun notifyFocusedRect(rect: Rect) {
         currentInput?.let { input ->
             input.focusedRect = rect
@@ -199,7 +200,7 @@ internal class DesktopPlatformInput(val component: DesktopComponent) :
 
                 val comp = input.value.composition
                 val text = input.value.text
-                val range = TextRange(beginIndex, endIndex)
+                val range = TextRange(beginIndex, endIndex.coerceAtMost(text.length))
                 if (comp == null) {
                     val res = text.substring(range)
                     return AttributedString(res).iterator

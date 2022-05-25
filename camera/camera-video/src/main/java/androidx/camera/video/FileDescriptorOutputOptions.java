@@ -30,7 +30,7 @@ import com.google.auto.value.AutoValue;
  *
  * <p>The file descriptor must be seekable and writable. The caller is responsible for closing
  * the file descriptor, which can be safely closed after the recording starts. That is, after
- * {@link PendingRecording#start()} returns. Application should not use the file referenced by
+ * {@link PendingRecording#start(java.util.concurrent.Executor, androidx.core.util.Consumer)} returns. Application should not use the file referenced by
  * this file descriptor until the recording is complete.
  *
  * <p>To use a {@link java.io.File} as an output destination instead of a file descriptor, use

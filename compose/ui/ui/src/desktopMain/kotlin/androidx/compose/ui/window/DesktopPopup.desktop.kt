@@ -31,7 +31,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.DesktopOwner
+import androidx.compose.ui.platform.SkiaBasedOwner
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Dp
@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import java.awt.MouseInfo
+import javax.swing.SwingUtilities.convertPointFromScreen
 
 /**
  * Opens a popup with the given content.
@@ -166,8 +168,9 @@ private fun PopupLayout(
 
     val parentComposition = rememberCompositionContext()
     val (owner, composition) = remember {
-        val owner = DesktopOwner(
+        val owner = SkiaBasedOwner(
             platformInputService = scene.platformInputService,
+            component = scene.component,
             density = density,
             isPopup = true,
             isFocusable = focusable,
@@ -183,17 +186,12 @@ private fun PopupLayout(
                     val width = constraints.maxWidth
                     val height = constraints.maxHeight
 
-                    val windowSize = IntSize(
-                        width = width,
-                        height = height
-                    )
-
                     layout(constraints.maxWidth, constraints.maxHeight) {
                         measurables.forEach {
                             val placeable = it.measure(constraints)
                             val position = popupPositionProvider.calculatePosition(
                                 anchorBounds = parentBounds,
-                                windowSize = windowSize,
+                                windowSize = IntSize(width, height),
                                 layoutDirection = layoutDirection,
                                 popupContentSize = IntSize(placeable.width, placeable.height)
                             )
@@ -228,7 +226,6 @@ private fun PopupLayout(
  * @param alignment The alignment of the popup relative to the current cursor position.
  * @param windowMargin Defines the area within the window that limits the placement of the popup.
  */
-@ExperimentalComposeUiApi
 @Composable
 fun rememberCursorPositionProvider(
     offset: DpOffset = DpOffset.Zero,
@@ -237,10 +234,11 @@ fun rememberCursorPositionProvider(
 ): PopupPositionProvider = with(LocalDensity.current) {
     val component = LocalLayerContainer.current
     val cursorPoint = remember {
-        val awtMousePosition = component.mousePosition
+        val awtMousePosition = MouseInfo.getPointerInfo().location
+        convertPointFromScreen(awtMousePosition, component)
         IntOffset(
-            (awtMousePosition.x * density).toInt(),
-            (awtMousePosition.y * density).toInt()
+            (awtMousePosition.x * component.density.density).toInt(),
+            (awtMousePosition.y * component.density.density).toInt()
         )
     }
     val offsetPx = IntOffset(offset.x.roundToPx(), offset.y.roundToPx())
@@ -290,7 +288,6 @@ fun rememberCursorPositionProvider(
  * @param alignment The alignment of the popup relative to the [anchor] point.
  * @param offset [DpOffset] to be added to the position of the popup.
  */
-@ExperimentalComposeUiApi
 @Composable
 fun rememberComponentRectPositionProvider(
     anchor: Alignment = Alignment.BottomCenter,

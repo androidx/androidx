@@ -132,7 +132,7 @@ fun <S> AnimatedContent(
         modifier,
         transitionSpec,
         contentAlignment,
-        content
+        content = content
     )
 }
 
@@ -298,9 +298,9 @@ class AnimatedContentScope<S> internal constructor(
      * [SlideDirection] defines the direction of the slide in/out for [slideIntoContainer] and
      * [slideOutOfContainer]. The supported directions are: [Left], [Right], [Up] and [Down].
      */
-    @Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
     @Immutable
-    inline class SlideDirection internal constructor(private val value: Int) {
+    @kotlin.jvm.JvmInline
+    value class SlideDirection internal constructor(private val value: Int) {
         companion object {
             val Left = SlideDirection(0)
             val Right = SlideDirection(1)
@@ -559,6 +559,12 @@ class AnimatedContentScope<S> internal constructor(
  * via [AnimatedVisibilityScope.animateEnterExit] and [AnimatedVisibilityScope.transition]. These
  * custom enter/exit animations will be triggered as the content enters/leaves the container.
  *
+ * [contentKey] can be used to specify a key for each targetState. There will be no animation
+ * when switching between target states that share the same same key. By default,
+ * the key will be the same as the targetState object. [contentKey] can be particularly useful if
+ * target state object gets recreated across save & restore while a more persistent key is needed
+ * to properly restore the internal states of the content.
+ *
  * @sample androidx.compose.animation.samples.TransitionExtensionAnimatedContentSample
  *
  * @see ContentTransform
@@ -574,6 +580,7 @@ fun <S> Transition<S>.AnimatedContent(
             fadeOut(animationSpec = tween(90))
     },
     contentAlignment: Alignment = Alignment.TopStart,
+    contentKey: (targetState: S) -> Any? = { it },
     content: @Composable() AnimatedVisibilityScope.(targetState: S) -> Unit
 ) {
     val layoutDirection = LocalLayoutDirection.current
@@ -603,10 +610,17 @@ fun <S> Transition<S>.AnimatedContent(
     // the targetState get placed last, so the target composable will be displayed on top of
     // content associated with other states, unless zIndex is specified.
     if (currentState != targetState && !currentlyVisible.contains(targetState)) {
-        currentlyVisible.add(targetState)
+        // Replace the target with the same key if any
+        val id = currentlyVisible.indexOfFirst { contentKey(it) == contentKey(targetState) }
+        if (id == -1) {
+            currentlyVisible.add(targetState)
+        } else {
+            currentlyVisible[id] = targetState
+        }
     }
 
     if (!contentMap.containsKey(targetState)) {
+        contentMap.clear()
         currentlyVisible.fastForEach { stateForContent ->
             contentMap[stateForContent] = {
                 val specOnEnter = remember { transitionSpec(rootScope) }
@@ -653,7 +667,7 @@ fun <S> Transition<S>.AnimatedContent(
         modifier = modifier.then(sizeModifier),
         content = {
             currentlyVisible.forEach {
-                key(it) {
+                key(contentKey(it)) {
                     contentMap[it]?.invoke()
                 }
             }

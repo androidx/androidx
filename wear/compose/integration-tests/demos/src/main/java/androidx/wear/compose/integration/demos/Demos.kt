@@ -16,16 +16,46 @@
 
 package androidx.wear.compose.integration.demos
 
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
+import androidx.wear.compose.material.Text
+
+val Info = DemoCategory(
+    "App Info",
+    listOf(
+        ComposableDemo("App Version") {
+            val version =
+                @Suppress("DEPRECATION")
+                LocalContext.current.packageManager
+                    .getPackageInfo(LocalContext.current.packageName, 0).versionName
+
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Version: $version",
+                    textAlign = TextAlign.Center,
+                )
+            }
+        }
+    ),
+)
 
 /**
  * [DemoCategory] containing all the top level demo categories.
  */
-@ExperimentalWearMaterialApi
 val WearComposeDemos = DemoCategory(
     "Wear Compose Demos",
     listOf(
         WearFoundationDemos,
         WearMaterialDemos,
+        Info
     )
 )

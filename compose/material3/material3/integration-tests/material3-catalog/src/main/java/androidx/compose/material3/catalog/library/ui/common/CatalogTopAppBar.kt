@@ -18,20 +18,25 @@ package androidx.compose.material3.catalog.library.ui.common
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.AppBarDefaults
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.primarySurface
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SmallTopAppBar
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.catalog.library.R
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,15 +48,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.navigationBarsPadding
-import com.google.accompanist.insets.statusBarsPadding
 
-// TODO: Use components/values from Material3 when available
 @Composable
 fun CatalogTopAppBar(
     title: String,
     showBackNavigationIcon: Boolean = false,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
     onBackClick: () -> Unit = {},
     onThemeClick: () -> Unit = {},
     onGuidelinesClick: () -> Unit = {},
@@ -63,18 +65,23 @@ fun CatalogTopAppBar(
     onLicensesClick: () -> Unit = {}
 ) {
     var moreMenuExpanded by remember { mutableStateOf(false) }
+    val backgroundColors = TopAppBarDefaults.smallTopAppBarColors()
+    val backgroundColor = backgroundColors.containerColor(
+        scrollFraction = scrollBehavior?.scrollFraction ?: 0f
+    ).value
+    val foregroundColors = TopAppBarDefaults.smallTopAppBarColors(
+        containerColor = Color.Transparent,
+        scrolledContainerColor = Color.Transparent
+    )
     // Wrapping in a Surface to handle window insets
     // https://issuetracker.google.com/issues/183161866
-    Surface(
-        color = MaterialTheme.colors.primarySurface,
-        elevation = AppBarDefaults.TopAppBarElevation
-    ) {
-        TopAppBar(
+    Surface(color = backgroundColor) {
+        SmallTopAppBar(
             title = {
                 Text(
                     text = title,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
                 )
             },
             actions = {
@@ -127,8 +134,8 @@ fun CatalogTopAppBar(
                     )
                 }
             },
-            navigationIcon = if (showBackNavigationIcon) {
-                {
+            navigationIcon = {
+                if (showBackNavigationIcon) {
                     IconButton(onClick = onBackClick) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -136,14 +143,14 @@ fun CatalogTopAppBar(
                         )
                     }
                 }
-            } else {
-                null
             },
-            backgroundColor = Color.Transparent,
-            elevation = 0.dp,
-            modifier = Modifier
-                .statusBarsPadding()
-                .navigationBarsPadding(bottom = false)
+            scrollBehavior = scrollBehavior,
+            colors = foregroundColors,
+            modifier = Modifier.windowInsetsPadding(
+                WindowInsets.safeDrawing.only(
+                    WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+                )
+            )
         )
     }
 }
@@ -160,6 +167,7 @@ private fun MoreMenu(
     onPrivacyClick: () -> Unit,
     onLicensesClick: () -> Unit,
 ) {
+    // TODO: Replace with M3 DropdownMenu, DropdownMenuItem and Divider when available
     DropdownMenu(
         expanded = expanded,
         onDismissRequest = onDismissRequest
@@ -173,11 +181,11 @@ private fun MoreMenu(
         DropdownMenuItem(onClick = onSourceClick) {
             Text(stringResource(id = R.string.view_source_code))
         }
-        Divider()
+        Divider(color = MaterialTheme.colorScheme.outline)
         DropdownMenuItem(onClick = onIssueClick) {
             Text(stringResource(id = R.string.report_an_issue))
         }
-        Divider()
+        Divider(color = MaterialTheme.colorScheme.outline)
         DropdownMenuItem(onClick = onTermsClick) {
             Text(stringResource(id = R.string.terms_of_service))
         }

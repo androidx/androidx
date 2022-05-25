@@ -17,22 +17,23 @@
 package androidx.glance.appwidget.demos
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
-import androidx.glance.Modifier
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.background
+import androidx.glance.appwidget.background
+import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.unit.ColorProvider
 import androidx.glance.layout.Column
-import androidx.glance.layout.Text
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.text.FontWeight
+import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.Color
-import androidx.glance.unit.dp
 import java.text.DecimalFormat
 
 class ExactAppWidget : GlanceAppWidget() {
@@ -41,13 +42,20 @@ class ExactAppWidget : GlanceAppWidget() {
     @Composable
     override fun Content() {
         val context = LocalContext.current
-        Column(modifier = Modifier.fillMaxSize().background(Color.LightGray).padding(8.dp)) {
+        Column(
+            modifier = GlanceModifier
+                .fillMaxSize()
+                .background(day = Color.LightGray, night = Color.DarkGray)
+                .padding(R.dimen.external_padding)
+                .cornerRadius(R.dimen.corner_radius)
+        ) {
             Text(
                 context.getString(R.string.exact_widget_title),
                 style = TextStyle(
+                    color = ColorProvider(day = Color.DarkGray, night = Color.LightGray),
                     fontWeight = FontWeight.Bold,
                     textDecoration = TextDecoration.Underline
-                )
+                ),
             )
             val size = LocalSize.current
             val dec = DecimalFormat("#.##")

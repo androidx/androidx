@@ -18,7 +18,9 @@ package androidx.compose.ui.inspection.proto
 
 import android.view.inspector.WindowInspector
 import androidx.annotation.VisibleForTesting
+import androidx.compose.ui.inspection.ComposeLayoutInspector.CacheTree
 import androidx.compose.ui.inspection.LambdaLocation
+import androidx.compose.ui.inspection.RecompositionHandler
 import androidx.compose.ui.inspection.inspector.InspectorNode
 import androidx.compose.ui.inspection.inspector.NodeParameter
 import androidx.compose.ui.inspection.inspector.NodeParameterReference
@@ -28,21 +30,28 @@ import androidx.compose.ui.inspection.inspector.systemPackages
 import androidx.compose.ui.unit.IntOffset
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Bounds
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode
+import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableRoot
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.LambdaValue
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Parameter
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ParameterReference
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Quad
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Rect
 
-fun InspectorNode.toComposableNode(stringTable: StringTable, windowPos: IntOffset): ComposableNode {
-    return toComposableNodeImpl(stringTable, windowPos).resetSystemFlag().build()
+fun InspectorNode.toComposableNode(
+    stringTable: StringTable,
+    windowPos: IntOffset,
+    recompositionHandler: RecompositionHandler
+): ComposableNode {
+    return toComposableNodeImpl(stringTable, windowPos, recompositionHandler).resetSystemFlag()
+        .build()
 }
 
 private val SELECTOR_EXPR = Regex("(\\\$(lambda-)?[0-9]+)+$")
 
 private fun InspectorNode.toComposableNodeImpl(
     stringTable: StringTable,
-    windowPos: IntOffset
+    windowPos: IntOffset,
+    recompositionHandler: RecompositionHandler
 ): ComposableNode.Builder {
     val inspectorNode = this
     return ComposableNode.newBuilder().apply {
@@ -78,10 +87,16 @@ private fun InspectorNode.toComposableNodeImpl(
 
         flags = flags()
         viewId = inspectorNode.viewId
+        recompositionHandler.getCounts(inspectorNode.key, inspectorNode.anchorHash)?.let {
+            recomposeCount = it.count
+            recomposeSkips = it.skips
+        }
 
         children.forEach { child ->
-            addChildren(child.toComposableNodeImpl(stringTable, windowPos))
+            addChildren(child.toComposableNodeImpl(stringTable, windowPos, recompositionHandler))
         }
+
+        anchorHash = inspectorNode.anchorHash
     }
 }
 
@@ -228,17 +243,23 @@ fun NodeParameterReference.convert(): ParameterReference {
     return ParameterReference.newBuilder().apply {
         kind = reference.kind.convert()
         composableId = reference.nodeId
+        anchorHash = reference.anchorHash
         parameterIndex = reference.parameterIndex
         addAllCompositeIndex(reference.indices.asIterable())
     }.build()
 }
 
-fun Iterable<InspectorNode>.toComposableNodes(
+internal fun CacheTree.toComposableRoot(
     stringTable: StringTable,
-    windowPos: IntOffset
-): List<ComposableNode> {
-    return this.map { it.toComposableNode(stringTable, windowPos) }
-}
+    windowPos: IntOffset,
+    recompositionHandler: RecompositionHandler
+): ComposableRoot = ComposableRoot.newBuilder().also { root ->
+    root.viewId = viewParent.uniqueDrawingId
+    root.addAllNodes(nodes.map {
+        it.toComposableNode(stringTable, windowPos, recompositionHandler)
+    })
+    root.addAllViewsToSkip(viewsToSkip)
+}.build()
 
 fun Iterable<NodeParameter>.convertAll(stringTable: StringTable): List<Parameter> {
     return this.map { it.convert(stringTable) }

@@ -16,9 +16,10 @@
 
 package androidx.wear.compose.foundation
 
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 
 internal actual class CurvedTextDelegate {
     actual var textWidth = 0f
@@ -29,13 +30,19 @@ internal actual class CurvedTextDelegate {
         text: String,
         clockwise: Boolean,
         fontSizePx: Float,
-        arcPaddingPx: ArcPaddingPx
+        fontWeight: FontWeight?
     ) {
         // TODO(b/194653251): Implement
         throw java.lang.RuntimeException("Not implemented")
     }
 
-    actual fun doDraw(canvas: Canvas, size: Size, color: Color, background: Color) {
+    actual fun DrawScope.doDraw(
+        layoutInfo: CurvedLayoutInfo,
+        parentSweepRadians: Float,
+        overflow: TextOverflow,
+        color: Color,
+        background: Color
+    ) {
         // TODO(b/194653251): Implement
         throw java.lang.RuntimeException("Not implemented")
     }

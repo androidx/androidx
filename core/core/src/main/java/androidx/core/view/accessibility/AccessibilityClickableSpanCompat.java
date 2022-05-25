@@ -52,7 +52,7 @@ public final class AccessibilityClickableSpanCompat extends ClickableSpan {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public AccessibilityClickableSpanCompat(int originalClickableSpanId,
-            AccessibilityNodeInfoCompat nodeInfoCompat, int clickableSpanActionId) {
+            @NonNull AccessibilityNodeInfoCompat nodeInfoCompat, int clickableSpanActionId) {
         mOriginalClickableSpanId = originalClickableSpanId;
         mNodeInfoCompat = nodeInfoCompat;
         mClickableSpanActionId = clickableSpanActionId;

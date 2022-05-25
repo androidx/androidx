@@ -86,6 +86,6 @@ public final class Accelerometer {
 
     /** Constructs an empty instance, used by serialization code. */
     private Accelerometer() {
-        mForces = CarValue.UNIMPLEMENTED_FLOAT_LIST;
+        mForces = CarValue.UNKNOWN_FLOAT_LIST;
     }
 }

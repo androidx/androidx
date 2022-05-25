@@ -73,6 +73,7 @@ public final class WatchUiState implements VersionedParcelable, Parcelable {
 
     public static final Parcelable.Creator<WatchUiState> CREATOR =
             new Parcelable.Creator<WatchUiState>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public WatchUiState createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

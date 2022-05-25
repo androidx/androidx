@@ -154,15 +154,11 @@ public final class FakeCameraFactory implements CameraFactory {
             }
             try {
                 final CameraInternal camera = callable.call();
-                try {
-                    // CameraSelector.filter() throws an exception if all the cameras it takes
-                    // are filtered out. In the scenario below, only one camera is processed, so
-                    // if an exception isn't thrown, it's safe to add the camera id.
-                    mAvailableCamerasSelector.filter(
-                            new LinkedHashSet<>(Collections.singleton(camera)));
+                LinkedHashSet<CameraInternal> filteredCameraInternals =
+                        mAvailableCamerasSelector.filter(
+                                new LinkedHashSet<>(Collections.singleton(camera)));
+                if (!filteredCameraInternals.isEmpty()) {
                     filteredCameraIds.add(entry.getKey());
-                } catch (IllegalArgumentException exception) {
-                    // No op. The camera was not selected by the selector
                 }
             } catch (Exception exception) {
                 Logger.e(TAG, "Failed to get access to the camera instance.", exception);

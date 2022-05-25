@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo.Scope.TESTS
  *
  * Only the features that are present within the current window bounds are reported. Their
  * positions and sizes can change if the window is moved or resized on screen.
- * @see WindowInfoRepository.windowLayoutInfo
+ * @see WindowInfoTracker.windowLayoutInfo
  */
 public class WindowLayoutInfo {
 

@@ -21,12 +21,15 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -94,9 +97,16 @@ public final class CarValue<T> {
     @Keep
     @StatusCode
     private final int mStatus;
+    @Keep
+    @NonNull
+    private final List<CarZone> mCarZones;
 
     private static <T> CarValue<T> unimplemented() {
         return new CarValue<>(null, 0, CarValue.STATUS_UNIMPLEMENTED);
+    }
+
+    private static <T> CarValue<T> unknown() {
+        return new CarValue<>(null, 0, CarValue.STATUS_UNKNOWN);
     }
 
     /** @hide */
@@ -105,15 +115,19 @@ public final class CarValue<T> {
 
     /** @hide */
     @RestrictTo(LIBRARY)
-    public static final CarValue<Boolean> UNIMPLEMENTED_BOOLEAN = unimplemented();
+    public static final CarValue<Integer> UNKNOWN_INTEGER = unknown();
 
     /** @hide */
     @RestrictTo(LIBRARY)
-    public static final CarValue<Float> UNIMPLEMENTED_FLOAT = unimplemented();
+    public static final CarValue<Boolean> UNKNOWN_BOOLEAN = unknown();
 
     /** @hide */
     @RestrictTo(LIBRARY)
-    public static final CarValue<String> UNIMPLEMENTED_STRING = unimplemented();
+    public static final CarValue<Float> UNKNOWN_FLOAT = unknown();
+
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    public static final CarValue<String> UNKNOWN_STRING = unknown();
 
     /** @hide */
     @RestrictTo(LIBRARY)
@@ -121,7 +135,11 @@ public final class CarValue<T> {
 
     /** @hide */
     @RestrictTo(LIBRARY)
-    public static final CarValue<List<Integer>> UNIMPLEMENTED_INTEGER_LIST = unimplemented();
+    public static final CarValue<List<Float>> UNKNOWN_FLOAT_LIST = unknown();
+
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    public static final CarValue<List<Integer>> UNKNOWN_INTEGER_LIST = unknown();
 
     /**
      * Returns a the data value or {@code null} if the status is not successful.
@@ -151,6 +169,22 @@ public final class CarValue<T> {
         return mStatus;
     }
 
+    /**
+     * Returns a list of car zones associated with this {@link CarValue}.
+     *
+     * <p>For a global vehicle function, the list will only contain {@link CarZone#GLOBAL_ZONE}.
+     * Returns an empty list when {@link CarValue#getStatus()} is
+     * {@link CarValue#STATUS_UNIMPLEMENTED}.
+     */
+    @ExperimentalCarApi
+    @NonNull
+    public List<CarZone> getCarZones() {
+        if (mStatus == STATUS_UNIMPLEMENTED) {
+            return Collections.emptyList();
+        }
+        return mCarZones;
+    }
+
     @Override
     @NonNull
     public String toString() {
@@ -160,14 +194,17 @@ public final class CarValue<T> {
                 + mTimestampMillis
                 + ", Status: "
                 + mStatus
+                + ", CarZones: "
+                + mCarZones
                 + "]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mValue, mTimestampMillis, mStatus);
+        return Objects.hash(mValue, mTimestampMillis, mStatus, mCarZones);
     }
 
+    @OptIn(markerClass = ExperimentalCarApi.class)
     @Override
     public boolean equals(@Nullable Object other) {
         if (this == other) {
@@ -179,7 +216,25 @@ public final class CarValue<T> {
         CarValue<?> otherCarValue = (CarValue<?>) other;
         return Objects.equals(mValue, otherCarValue.mValue)
                 && mTimestampMillis == otherCarValue.mTimestampMillis
-                && mStatus == otherCarValue.mStatus;
+                && mStatus == otherCarValue.mStatus
+                && Objects.equals(mCarZones, otherCarValue.getCarZones());
+    }
+
+    /**
+     * Constructs a new instance of a {@link CarValue}. Uses {@link CarZone#CAR_ZONE_GLOBAL} as the
+     * zone for this instance.
+     *
+     * @param value           data to be returned with the result
+     * @param timestampMillis the time in milliseconds when the value was generated (see
+     * {@link #getTimestampMillis})
+     * @param status          the status code associated with this value
+     */
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    public CarValue(@Nullable T value, long timestampMillis, @StatusCode int status) {
+        mValue = value;
+        mTimestampMillis = timestampMillis;
+        mStatus = status;
+        mCarZones = Collections.singletonList(CarZone.CAR_ZONE_GLOBAL);
     }
 
     /**
@@ -189,11 +244,15 @@ public final class CarValue<T> {
      * @param timestampMillis the time in milliseconds when the value was generated (see
      * {@link #getTimestampMillis})
      * @param status          the status code associated with this value
+     * @param zones           the car zones associated with this value
      */
-    public CarValue(@Nullable T value, long timestampMillis, @StatusCode int status) {
+    @ExperimentalCarApi
+    public CarValue(@Nullable T value, long timestampMillis, @StatusCode int status,
+            @NonNull List<CarZone> zones) {
         mValue = value;
         mTimestampMillis = timestampMillis;
         mStatus = status;
+        mCarZones = zones;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -201,5 +260,6 @@ public final class CarValue<T> {
         mValue = null;
         mTimestampMillis = 0;
         mStatus = STATUS_UNKNOWN;
+        mCarZones = Collections.emptyList();
     }
 }

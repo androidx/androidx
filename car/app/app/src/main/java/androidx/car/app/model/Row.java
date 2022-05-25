@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
@@ -91,6 +92,8 @@ public final class Row implements Item {
      */
     public static final int IMAGE_TYPE_ICON = (1 << 2);
 
+    @Keep
+    private final boolean mIsEnabled;
     @Keep
     @Nullable
     private final CarText mTitle;
@@ -211,6 +214,14 @@ public final class Row implements Item {
         return this;
     }
 
+    /**
+     * Returns {@code true} if the row is enabled.
+     */
+    @RequiresCarApi(5)
+    public boolean isEnabled() {
+        return mIsEnabled;
+    }
+
     @Override
     @NonNull
     public String toString() {
@@ -222,6 +233,8 @@ public final class Row implements Item {
                 + mImage
                 + ", isBrowsable: "
                 + mIsBrowsable
+                + ", isEnabled: "
+                + mIsEnabled
                 + "]";
     }
 
@@ -235,7 +248,8 @@ public final class Row implements Item {
                 mOnClickDelegate == null,
                 mMetadata,
                 mIsBrowsable,
-                mRowImageType);
+                mRowImageType,
+                mIsEnabled);
     }
 
     @Override
@@ -256,7 +270,8 @@ public final class Row implements Item {
                 && Objects.equals(mOnClickDelegate == null, otherRow.mOnClickDelegate == null)
                 && Objects.equals(mMetadata, otherRow.mMetadata)
                 && mIsBrowsable == otherRow.mIsBrowsable
-                && mRowImageType == otherRow.mRowImageType;
+                && mRowImageType == otherRow.mRowImageType
+                && mIsEnabled == otherRow.isEnabled();
     }
 
     Row(Builder builder) {
@@ -268,6 +283,7 @@ public final class Row implements Item {
         mMetadata = builder.mMetadata;
         mIsBrowsable = builder.mIsBrowsable;
         mRowImageType = builder.mRowImageType;
+        mIsEnabled = builder.mIsEnabled;
     }
 
     /** Constructs an empty instance, used by serialization code. */
@@ -280,10 +296,12 @@ public final class Row implements Item {
         mMetadata = EMPTY_METADATA;
         mIsBrowsable = false;
         mRowImageType = IMAGE_TYPE_SMALL;
+        mIsEnabled = true;
     }
 
     /** A builder of {@link Row}. */
     public static final class Builder {
+        boolean mIsEnabled = true;
         @Nullable
         CarText mTitle;
         final List<CarText> mTexts = new ArrayList<>();
@@ -314,7 +332,7 @@ public final class Row implements Item {
             if (titleText.isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
-            CarTextConstraints.TEXT_ONLY.validateOrThrow(titleText);
+            CarTextConstraints.TEXT_AND_ICON.validateOrThrow(titleText);
             mTitle = titleText;
             return this;
         }
@@ -334,7 +352,7 @@ public final class Row implements Item {
             if (requireNonNull(title).isEmpty()) {
                 throw new IllegalArgumentException("The title cannot be null or empty");
             }
-            CarTextConstraints.TEXT_ONLY.validateOrThrow(title);
+            CarTextConstraints.TEXT_AND_ICON.validateOrThrow(title);
             mTitle = title;
             return this;
         }
@@ -410,7 +428,7 @@ public final class Row implements Item {
         @NonNull
         public Builder addText(@NonNull CharSequence text) {
             CarText carText = CarText.create(requireNonNull(text));
-            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(carText);
+            CarTextConstraints.TEXT_WITH_COLORS_AND_ICON.validateOrThrow(carText);
             mTexts.add(CarText.create(requireNonNull(text)));
             return this;
         }
@@ -424,7 +442,7 @@ public final class Row implements Item {
          */
         @NonNull
         public Builder addText(@NonNull CarText text) {
-            CarTextConstraints.TEXT_WITH_COLORS.validateOrThrow(requireNonNull(text));
+            CarTextConstraints.TEXT_WITH_COLORS_AND_ICON.validateOrThrow(requireNonNull(text));
             mTexts.add(text);
             return this;
         }
@@ -520,6 +538,18 @@ public final class Row implements Item {
         @NonNull
         public Builder setMetadata(@NonNull Metadata metadata) {
             mMetadata = metadata;
+            return this;
+        }
+
+        /**
+         * Sets the initial enabled state for {@link Row}.
+         *
+         * <p>The default state of a {@link Row} is enabled.
+         */
+        @NonNull
+        @RequiresCarApi(5)
+        public Builder setEnabled(boolean enabled) {
+            mIsEnabled = enabled;
             return this;
         }
 

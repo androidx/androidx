@@ -47,29 +47,42 @@ internal class TestWatchFaceService(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
-    ) -> TestRenderer,
+    ) -> Renderer,
     private val userStyleSchema: UserStyleSchema,
-    private val watchState: MutableWatchState,
+    private val watchState: MutableWatchState?,
     private val handler: Handler,
     private val tapListener: WatchFace.TapListener?,
     private val preAndroidR: Boolean,
-    private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?
+    private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?,
+    private val choreographer: ChoreographerWrapper,
+    var mockSystemTimeMillis: Long = 0L,
+    private val mainThreadPriorityDelegate: MainThreadPriorityDelegate =
+        object : MainThreadPriorityDelegate {
+            override fun setNormalPriority() {}
+
+            override fun setInteractivePriority() {}
+        },
+    private val complicationCache: MutableMap<String, ByteArray>? = null,
+    private val forceIsVisible: Boolean = false
 ) : WatchFaceService() {
     /** The ids of the [ComplicationSlot]s that have been tapped. */
     val tappedComplicationSlotIds: List<Int>
         get() = mutableTappedComplicationIds
     var complicationSelected: Int? = null
-    var mockSystemTimeMillis = 0L
     var mockZoneId: ZoneId = ZoneId.of("UTC")
-    var renderer: TestRenderer? = null
+    var renderer: Renderer? = null
 
     /** A mutable list of the ids of the complicationSlots that have been tapped. */
     private val mutableTappedComplicationIds: MutableList<Int> = ArrayList()
 
+    override fun forceIsVisibleForTesting() = forceIsVisible
+
     fun reset() {
         clearTappedState()
         complicationSelected = null
-        renderer?.lastOnDrawZonedDateTime = null
+        if (renderer is TestRenderer) {
+            (renderer as TestRenderer).lastOnDrawZonedDateTime = null
+        }
         mockSystemTimeMillis = 0L
     }
 
@@ -98,6 +111,8 @@ internal class TestWatchFaceService(
         return complicationSlotsManager
     }
 
+    override fun getMainThreadPriorityDelegate() = mainThreadPriorityDelegate
+
     override suspend fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchState: WatchState,
@@ -105,12 +120,16 @@ internal class TestWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): WatchFace {
         renderer = rendererFactory(surfaceHolder, currentUserStyleRepository, watchState)
-        return WatchFace(watchFaceType, renderer!!)
+        val watchFace = WatchFace(watchFaceType, renderer!!)
             .setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
                 override fun getSystemTimeMillis() = mockSystemTimeMillis
 
                 override fun getSystemTimeZoneId() = mockZoneId
-            }).setTapListener(tapListener)
+            })
+        tapListener?.let {
+            watchFace.setTapListener(it)
+        }
+        return watchFace
     }
 
     override fun getUiThreadHandlerImpl() = handler
@@ -119,11 +138,9 @@ internal class TestWatchFaceService(
     // handler.
     override fun getBackgroundThreadHandlerImpl() = handler
 
-    override fun getMutableWatchState() = watchState
+    override fun getMutableWatchState() = watchState ?: MutableWatchState()
 
-    fun setIsVisible(isVisible: Boolean) {
-        watchState.isVisible.value = isVisible
-    }
+    override fun getChoreographer() = choreographer
 
     override fun readDirectBootPrefs(
         context: Context,
@@ -134,7 +151,19 @@ internal class TestWatchFaceService(
         context: Context,
         fileName: String,
         prefs: WallpaperInteractiveWatchFaceInstanceParams
+    ) {}
+
+    override fun readComplicationDataCacheByteArray(
+        context: Context,
+        fileName: String
+    ): ByteArray? = complicationCache?.get(fileName)
+
+    override fun writeComplicationDataCacheByteArray(
+        context: Context,
+        fileName: String,
+        byteArray: ByteArray
     ) {
+        complicationCache?.set(fileName, byteArray)
     }
 
     override fun expectPreRInitFlow() = preAndroidR
@@ -200,6 +229,7 @@ public class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceServi
     }
 }
 
+@Suppress("deprecation")
 public open class TestRenderer(
     surfaceHolder: SurfaceHolder,
     currentUserStyleRepository: CurrentUserStyleRepository,
@@ -213,7 +243,7 @@ public open class TestRenderer(
     interactiveFrameRateMs
 ) {
     public var lastOnDrawZonedDateTime: ZonedDateTime? = null
-    public var lastRenderParameters: RenderParameters = RenderParameters.DEFAULT_INTERACTIVE
+    public var lastRenderWasForScreenshot: Boolean? = null
 
     override fun render(
         canvas: Canvas,
@@ -221,7 +251,7 @@ public open class TestRenderer(
         zonedDateTime: ZonedDateTime
     ) {
         lastOnDrawZonedDateTime = zonedDateTime
-        lastRenderParameters = renderParameters
+        lastRenderWasForScreenshot = renderParameters.isForScreenshot
     }
 
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {
@@ -248,8 +278,10 @@ public fun createComplicationData(): androidx.wear.watchface.complications.data.
         .setShortText(ComplicationText.plainText("Test Text"))
         .setTapAction(
             PendingIntent.getActivity(
-                ApplicationProvider.getApplicationContext(), 0,
-                Intent("Fake intent"), 0
+                ApplicationProvider.getApplicationContext(),
+                0,
+                Intent("Fake intent"),
+                PendingIntent.FLAG_IMMUTABLE
             )
         ).build().toApiComplicationData()
 

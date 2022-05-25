@@ -16,7 +16,7 @@
 
 package androidx.room.vo
 
-import androidx.annotation.NonNull
+import androidx.room.compiler.processing.XNullability
 
 /**
  * Used when a field is embedded inside an Entity or Pojo.
@@ -29,7 +29,7 @@ data class EmbeddedField(
 ) {
     val getter by lazy { field.getter }
     val setter by lazy { field.setter }
-    val nonNull = field.element.hasAnnotation(NonNull::class)
+    val nonNull = field.type.nullability == XNullability.NONNULL
     lateinit var pojo: Pojo
     val mRootParent: EmbeddedField by lazy {
         parent?.mRootParent ?: this

@@ -25,11 +25,9 @@ import androidx.wear.watchface.control.WatchFaceControlService
 import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * [ListenableFuture]-based compatibility wrapper around
- * [WatchFaceMetadataClient.createWatchFaceMetadataClient].
+ * [ListenableFuture]-based compatibility wrapper around [WatchFaceMetadataClient.create].
  */
-@WatchFaceClientExperimental
-public class ListenableWatchFaceMetadataClient {
+public class ListenableWatchFaceMetadataClient private constructor() {
     public companion object {
         /**
          * Constructs a [WatchFaceMetadataClient] for fetching metadata for the specified watch
@@ -44,29 +42,31 @@ public class ListenableWatchFaceMetadataClient {
          */
         @Suppress("AsyncSuffixFuture")
         @JvmStatic
-        public fun createListenableWatchFaceMetadataClient(
+        public fun create(
             context: Context,
             watchFaceName: ComponentName
-        ): ListenableFuture<WatchFaceMetadataClient> =
-            createListenableWatchFaceMetadataClientImpl(
-                context,
-                Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
-                    setPackage(watchFaceName.packageName)
-                },
-                watchFaceName
-            )
+        ): ListenableFuture<WatchFaceMetadataClient> = createImpl(
+            context,
+            Intent(WatchFaceControlService.ACTION_WATCHFACE_CONTROL_SERVICE).apply {
+                setPackage(watchFaceName.packageName)
+            },
+            watchFaceName,
+            WatchFaceMetadataClient.Companion.ParserProvider()
+        )
 
-        internal fun createListenableWatchFaceMetadataClientImpl(
+        internal fun createImpl(
             context: Context,
             intent: Intent,
-            watchFaceName: ComponentName
+            watchFaceName: ComponentName,
+            parserProvider: WatchFaceMetadataClient.Companion.ParserProvider
         ) = ListenableWatchFaceControlClient.launchFutureCoroutine(
             "ListenableWatchFaceMetadataClient.listenableCreateWatchFaceMetadataClient"
         ) {
-            WatchFaceMetadataClient.createWatchFaceMetadataClientImpl(
+            WatchFaceMetadataClient.createImpl(
                 context,
                 intent,
-                watchFaceName
+                watchFaceName,
+                parserProvider
             )
         }
     }

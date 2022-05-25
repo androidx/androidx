@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="ClassVerificationFailure"
@@ -7,9 +7,7 @@
         errorLine1="            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="85"
-            column="17"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                requestPermissions(new String[] {Manifest.permission.READ_EXTERNAL_STORAGE},"
         errorLine2="                ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="89"
-            column="17"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            showErrorDialogIfFailed(controller.setMediaItem(mUri.toString()),"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoPlayerActivity.java"
-            line="334"
-            column="13"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoPlayerActivity.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="            showErrorDialogIfFailed(controller.prepare(), &quot;failed to prepare &quot; + mUri);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoPlayerActivity.java"
-            line="336"
-            column="13"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoPlayerActivity.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                Intent launch = createLaunchIntent("
         errorLine2="                                ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="99"
-            column="33"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                        mUrlText.getText().toString());"
         errorLine2="                        ~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="101"
-            column="25"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="            if ((position >= 0) &amp;&amp; (position &lt; mSelectItems.getCount())) {"
         errorLine2="                                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="203"
-            column="48"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                VideoItem item = mSelectItems.getItem(position);"
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="204"
-            column="34"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="                    Intent launch = createLaunchIntent("
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="208"
-            column="37"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        VideoItemList retVal = new VideoItemList(p, is_root);"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="250"
-            column="32"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="            return createVil(mPath);"
         errorLine2="                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="314"
-            column="20"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="                mSelectItems = items;"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="320"
-            column="17"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="                mSelectList.setAdapter(mSelectItems);"
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="321"
-            column="40"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="                mSelectList.setAdapter(mSelectItems);"
         errorLine2="                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="321"
-            column="17"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="            mMediaPlayer.reset();"
         errorLine2="            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSessionService.java"
-            line="144"
-            column="13"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSessionService.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="            showToastIfFailed(mMediaPlayer.setAudioAttributes(mAudioAttributes),"
         errorLine2="                                                              ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSessionService.java"
-            line="145"
-            column="63"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSessionService.java"/>
     </issue>
 
     <issue
@@ -183,64 +151,43 @@
         errorLine1="            showToastIfFailed(mMediaPlayer.setAudioAttributes(mAudioAttributes),"
         errorLine2="                              ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSessionService.java"
-            line="145"
-            column="31"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSessionService.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoPlayerActivity.java"
-            line="84"
-            column="26"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoPlayerActivity.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
-        errorLine2="                                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoPlayerActivity.java"
-            line="171"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="70"
-            column="26"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {"
         errorLine2="                                                            ~~~~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="121"
-            column="61"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] results) {"
         errorLine2="                                                                                  ~~~~~">
         <location
-            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"
-            line="121"
-            column="83"/>
+            file="src/main/java/androidx/media2/integration/testapp/VideoSelectorActivity.java"/>
     </issue>
 
 </issues>

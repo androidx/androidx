@@ -110,7 +110,7 @@ class StateListDrawable extends DrawableContainer {
     }
 
     @Override
-    protected boolean onStateChange(int[] stateSet) {
+    protected boolean onStateChange(@NonNull int[] stateSet) {
         final boolean changed = super.onStateChange(stateSet);
         int idx = mStateListState.indexOfStateSet(stateSet);
         if (DEBUG) {

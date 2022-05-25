@@ -19,8 +19,7 @@
      supplies a unique name for the application.  When writing your
      own application, the package name must be changed from "com.example.*"
      to come from a domain that you own or have control over. -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.supportv7">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- Permission for INTERNET is required for streaming video content
          from the web, it's not required otherwise. -->
     <application
@@ -93,6 +92,18 @@
             android:configChanges="orientation|screenSize"
             android:exported="true"
             android:label="@string/sample_media_router_activity_output_switcher"
+            android:theme="@style/Theme.SampleMediaRouter">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.supportv7.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".media.SampleMediaRouterActivity$LegacyMediaRouterActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:label="@string/sample_media_router_activity_legacy"
             android:theme="@style/Theme.SampleMediaRouter">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

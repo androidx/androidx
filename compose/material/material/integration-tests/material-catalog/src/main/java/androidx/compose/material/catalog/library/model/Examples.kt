@@ -18,6 +18,9 @@
 
 package androidx.compose.material.catalog.library.model
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.catalog.library.util.SampleSourceUrl
 import androidx.compose.material.samples.AlertDialogSample
 import androidx.compose.material.samples.BackdropScaffoldSample
@@ -30,10 +33,14 @@ import androidx.compose.material.samples.ButtonSample
 import androidx.compose.material.samples.ButtonWithIconSample
 import androidx.compose.material.samples.CardSample
 import androidx.compose.material.samples.CheckboxSample
+import androidx.compose.material.samples.ChipGroupSingleLineSample
+import androidx.compose.material.samples.ChipSample
 import androidx.compose.material.samples.CircularProgressIndicatorSample
+import androidx.compose.material.samples.ClickableCardSample
 import androidx.compose.material.samples.ClickableListItems
 import androidx.compose.material.samples.CompactNavigationRailSample
 import androidx.compose.material.samples.CustomAlertDialogSample
+import androidx.compose.material.samples.ExposedDropdownMenuSample
 import androidx.compose.material.samples.FancyIndicatorContainerTabs
 import androidx.compose.material.samples.FancyIndicatorTabs
 import androidx.compose.material.samples.FancyTabs
@@ -50,6 +57,7 @@ import androidx.compose.material.samples.NavigationRailWithOnlySelectedLabelsSam
 import androidx.compose.material.samples.OneLineListItems
 import androidx.compose.material.samples.OneLineRtlLtrListItems
 import androidx.compose.material.samples.OutlinedButtonSample
+import androidx.compose.material.samples.OutlinedChipWithIconSample
 import androidx.compose.material.samples.OutlinedTextFieldSample
 import androidx.compose.material.samples.PasswordTextField
 import androidx.compose.material.samples.RadioButtonSample
@@ -72,6 +80,7 @@ import androidx.compose.material.samples.StepRangeSliderSample
 import androidx.compose.material.samples.StepsSliderSample
 import androidx.compose.material.samples.SwitchSample
 import androidx.compose.material.samples.TextAndIconTabs
+import androidx.compose.material.samples.TextArea
 import androidx.compose.material.samples.TextButtonSample
 import androidx.compose.material.samples.TextFieldSample
 import androidx.compose.material.samples.TextFieldWithErrorState
@@ -86,6 +95,8 @@ import androidx.compose.material.samples.TriStateCheckboxSample
 import androidx.compose.material.samples.TwoLineListItems
 import androidx.compose.material.samples.TwoLineRtlLtrListItems
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 data class Example(
     val name: String,
@@ -237,6 +248,13 @@ val CardsExamples = listOf(
         sourceUrl = CardsExampleSourceUrl
     ) {
         CardSample()
+    },
+    Example(
+        name = ::ClickableCardSample.name,
+        description = CardsExampleDescription,
+        sourceUrl = CardsExampleSourceUrl
+    ) {
+        ClickableCardSample()
     }
 )
 
@@ -256,6 +274,32 @@ val CheckboxesExamples = listOf(
         sourceUrl = CheckboxesExampleSourceUrl
     ) {
         TriStateCheckboxSample()
+    }
+)
+
+private const val ChipsExampleDescription = "Chips examples"
+private const val ChipsExampleSourceUrl = "$SampleSourceUrl/ChipSamples.kt"
+val ChipsExamples = listOf(
+    Example(
+        name = ::ChipSample.name,
+        description = ChipsExampleDescription,
+        sourceUrl = ChipsExampleSourceUrl
+    ) {
+        ChipSample()
+    },
+    Example(
+        name = ::OutlinedChipWithIconSample.name,
+        description = ChipsExampleDescription,
+        sourceUrl = ChipsExampleSourceUrl
+    ) {
+        OutlinedChipWithIconSample()
+    },
+    Example(
+        name = ::ChipGroupSingleLineSample.name,
+        description = ChipsExampleDescription,
+        sourceUrl = ChipsExampleSourceUrl
+    ) {
+        ChipGroupSingleLineSample()
     }
 )
 
@@ -344,6 +388,13 @@ val MenusExamples = listOf(
         sourceUrl = MenusExampleSourceUrl
     ) {
         MenuSample()
+    },
+    Example(
+        name = ::ExposedDropdownMenuSample.name,
+        description = MenusExampleDescription,
+        sourceUrl = MenusExampleSourceUrl
+    ) {
+        ExposedDropdownMenuSample()
     }
 )
 
@@ -638,8 +689,22 @@ val TextFieldsExamples = listOf(
         sourceUrl = TextFieldsExampleSourceUrl
     ) {
         TextFieldWithHideKeyboardOnImeAction()
+    },
+    Example(
+        name = ::TextArea.name,
+        description = TextFieldsExampleDescription,
+        sourceUrl = TextFieldsExampleSourceUrl
+    ) {
+       TextArea()
     }
-)
+).map {
+    // By default text field samples are minimal and don't have a `width` modifier to restrict the
+    // width. As a result, they grow horizontally if enough text is typed. To prevent this behavior
+    // in Catalog app the code below restricts the width of every text field sample
+    it.copy(content = {
+        Box(Modifier.wrapContentWidth().width(280.dp)) { it.content() }
+    })
+}
 
 private const val NavigationRailExampleDescription = "Navigation Rail examples"
 private const val NavigationRailExampleSourceUrl = "$SampleSourceUrl/NavigationRailSamples.kt"

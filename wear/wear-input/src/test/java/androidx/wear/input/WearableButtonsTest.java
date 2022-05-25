@@ -56,52 +56,52 @@ public class WearableButtonsTest {
         // Wolfram Alpha was helpful:  x=240*(1+cos(a)), y=240*(1-sin(a)), a=pi/8.0
 
         assertEquals(
-                WearableButtons.LOC_EAST,
+                WearableButtons.LOCATION_EAST,
                 WearableButtons.getLocationZone(true, mScreenSize, 480, 240));
         assertEquals(
-                WearableButtons.LOC_ENE,
+                WearableButtons.LOCATION_ENE,
                 WearableButtons.getLocationZone(true, mScreenSize, 461.731f, 148.156f));
         assertEquals(
-                WearableButtons.LOC_NE,
+                WearableButtons.LOCATION_NE,
                 WearableButtons.getLocationZone(true, mScreenSize, 409.706f, 70.294f));
         assertEquals(
-                WearableButtons.LOC_NNE,
+                WearableButtons.LOCATION_NNE,
                 WearableButtons.getLocationZone(true, mScreenSize, 331.844f, 18.269f));
         assertEquals(
-                WearableButtons.LOC_NORTH,
+                WearableButtons.LOCATION_NORTH,
                 WearableButtons.getLocationZone(true, mScreenSize, 240, 0));
         assertEquals(
-                WearableButtons.LOC_NNW,
+                WearableButtons.LOCATION_NNW,
                 WearableButtons.getLocationZone(true, mScreenSize, 148.156f, 18.269f));
         assertEquals(
-                WearableButtons.LOC_NW,
+                WearableButtons.LOCATION_NW,
                 WearableButtons.getLocationZone(true, mScreenSize, 70.294f, 70.294f));
         assertEquals(
-                WearableButtons.LOC_WNW,
+                WearableButtons.LOCATION_WNW,
                 WearableButtons.getLocationZone(true, mScreenSize, 18.269f, 148.156f));
         assertEquals(
-                WearableButtons.LOC_WEST,
+                WearableButtons.LOCATION_WEST,
                 WearableButtons.getLocationZone(true, mScreenSize, 0, 240));
         assertEquals(
-                WearableButtons.LOC_WSW,
+                WearableButtons.LOCATION_WSW,
                 WearableButtons.getLocationZone(true, mScreenSize, 18.269f, 331.844f));
         assertEquals(
-                WearableButtons.LOC_SW,
+                WearableButtons.LOCATION_SW,
                 WearableButtons.getLocationZone(true, mScreenSize, 70.294f, 409.706f));
         assertEquals(
-                WearableButtons.LOC_SSW,
+                WearableButtons.LOCATION_SSW,
                 WearableButtons.getLocationZone(true, mScreenSize, 148.156f, 461.731f));
         assertEquals(
-                WearableButtons.LOC_SOUTH,
+                WearableButtons.LOCATION_SOUTH,
                 WearableButtons.getLocationZone(true, mScreenSize, 240, 480));
         assertEquals(
-                WearableButtons.LOC_SSE,
+                WearableButtons.LOCATION_SSE,
                 WearableButtons.getLocationZone(true, mScreenSize, 331.844f, 461.731f));
         assertEquals(
-                WearableButtons.LOC_SE,
+                WearableButtons.LOCATION_SE,
                 WearableButtons.getLocationZone(true, mScreenSize, 409.706f, 409.706f));
         assertEquals(
-                WearableButtons.LOC_ESE,
+                WearableButtons.LOCATION_ESE,
                 WearableButtons.getLocationZone(true, mScreenSize, 461.731f, 331.844f));
     }
 
@@ -115,110 +115,110 @@ public class WearableButtonsTest {
 
         // Exact +1 degree
         assertEquals(
-                WearableButtons.LOC_ESE,
+                WearableButtons.LOCATION_ESE,
                 WearableButtons.getLocationZone(true, mScreenSize, 463.3f, 327.96f));
         // Exact -1 degree
         assertEquals(
-                WearableButtons.LOC_ESE,
+                WearableButtons.LOCATION_ESE,
                 WearableButtons.getLocationZone(true, mScreenSize, 460.094f, 335.7f));
 
         // Exact +5 degrees
         assertEquals(
-                WearableButtons.LOC_WNW,
+                WearableButtons.LOCATION_WNW,
                 WearableButtons.getLocationZone(true, mScreenSize, 16.7f, 152.04f));
         // Exact -5 degrees
         assertEquals(
-                WearableButtons.LOC_WNW,
+                WearableButtons.LOCATION_WNW,
                 WearableButtons.getLocationZone(true, mScreenSize, 19.906f, 144.3f));
 
         // Exactly between SE and ESE
         assertEquals(
-                WearableButtons.LOC_ESE,
+                WearableButtons.LOCATION_ESE,
                 WearableButtons.getLocationZone(true, mScreenSize, 439.553f, 373.337f));
 
         // Exactly between SSE and SE
         assertEquals(
-                WearableButtons.LOC_SE,
+                WearableButtons.LOCATION_SE,
                 WearableButtons.getLocationZone(true, mScreenSize, 373.337f, 439.553f));
     }
 
     @Test
     public void testEdgePoints_rect() {
         assertEquals(
-                WearableButtons.LOC_LEFT_TOP,
+                WearableButtons.LOCATION_LEFT_TOP,
                 WearableButtons.getLocationZone(false, mScreenSize, 0, 160));
         assertEquals(
-                WearableButtons.LOC_LEFT_CENTER,
+                WearableButtons.LOCATION_LEFT_CENTER,
                 WearableButtons.getLocationZone(false, mScreenSize, 0, 320));
         assertEquals(
-                WearableButtons.LOC_LEFT_BOTTOM,
+                WearableButtons.LOCATION_LEFT_BOTTOM,
                 WearableButtons.getLocationZone(false, mScreenSize, 0, 480));
         assertEquals(
-                WearableButtons.LOC_RIGHT_TOP,
+                WearableButtons.LOCATION_RIGHT_TOP,
                 WearableButtons.getLocationZone(false, mScreenSize, 480, 160));
         assertEquals(
-                WearableButtons.LOC_RIGHT_CENTER,
+                WearableButtons.LOCATION_RIGHT_CENTER,
                 WearableButtons.getLocationZone(false, mScreenSize, 480, 320));
         assertEquals(
-                WearableButtons.LOC_RIGHT_BOTTOM,
+                WearableButtons.LOCATION_RIGHT_BOTTOM,
                 WearableButtons.getLocationZone(false, mScreenSize, 480, 480));
         assertEquals(
-                WearableButtons.LOC_TOP_LEFT,
+                WearableButtons.LOCATION_TOP_LEFT,
                 WearableButtons.getLocationZone(false, mScreenSize, 160, 0));
         assertEquals(
-                WearableButtons.LOC_TOP_CENTER,
+                WearableButtons.LOCATION_TOP_CENTER,
                 WearableButtons.getLocationZone(false, mScreenSize, 320, 0));
         assertEquals(
-                WearableButtons.LOC_TOP_RIGHT,
+                WearableButtons.LOCATION_TOP_RIGHT,
                 WearableButtons.getLocationZone(false, mScreenSize, 479, 0));
         assertEquals(
-                WearableButtons.LOC_BOTTOM_LEFT,
+                WearableButtons.LOCATION_BOTTOM_LEFT,
                 WearableButtons.getLocationZone(false, mScreenSize, 160, 480));
         assertEquals(
-                WearableButtons.LOC_BOTTOM_CENTER,
+                WearableButtons.LOCATION_BOTTOM_CENTER,
                 WearableButtons.getLocationZone(false, mScreenSize, 320, 480));
         assertEquals(
-                WearableButtons.LOC_BOTTOM_RIGHT,
+                WearableButtons.LOCATION_BOTTOM_RIGHT,
                 WearableButtons.getLocationZone(false, mScreenSize, 479, 480));
     }
 
     @Test
     public void testNonEdgePoints_rect() {
         assertEquals(
-                WearableButtons.LOC_LEFT_TOP,
+                WearableButtons.LOCATION_LEFT_TOP,
                 WearableButtons.getLocationZone(false, mScreenSize, 50, 100));
         assertEquals(
-                WearableButtons.LOC_LEFT_CENTER,
+                WearableButtons.LOCATION_LEFT_CENTER,
                 WearableButtons.getLocationZone(false, mScreenSize, 80, 300));
         assertEquals(
-                WearableButtons.LOC_LEFT_BOTTOM,
+                WearableButtons.LOCATION_LEFT_BOTTOM,
                 WearableButtons.getLocationZone(false, mScreenSize, 100, 350));
         assertEquals(
-                WearableButtons.LOC_RIGHT_TOP,
+                WearableButtons.LOCATION_RIGHT_TOP,
                 WearableButtons.getLocationZone(false, mScreenSize, 460, 120));
         assertEquals(
-                WearableButtons.LOC_RIGHT_CENTER,
+                WearableButtons.LOCATION_RIGHT_CENTER,
                 WearableButtons.getLocationZone(false, mScreenSize, 450, 270));
         assertEquals(
-                WearableButtons.LOC_RIGHT_BOTTOM,
+                WearableButtons.LOCATION_RIGHT_BOTTOM,
                 WearableButtons.getLocationZone(false, mScreenSize, 430, 400));
         assertEquals(
-                WearableButtons.LOC_TOP_LEFT,
+                WearableButtons.LOCATION_TOP_LEFT,
                 WearableButtons.getLocationZone(false, mScreenSize, 130, 20));
         assertEquals(
-                WearableButtons.LOC_TOP_CENTER,
+                WearableButtons.LOCATION_TOP_CENTER,
                 WearableButtons.getLocationZone(false, mScreenSize, 280, 30));
         assertEquals(
-                WearableButtons.LOC_TOP_RIGHT,
+                WearableButtons.LOCATION_TOP_RIGHT,
                 WearableButtons.getLocationZone(false, mScreenSize, 429, 40));
         assertEquals(
-                WearableButtons.LOC_BOTTOM_LEFT,
+                WearableButtons.LOCATION_BOTTOM_LEFT,
                 WearableButtons.getLocationZone(false, mScreenSize, 140, 470));
         assertEquals(
-                WearableButtons.LOC_BOTTOM_CENTER,
+                WearableButtons.LOCATION_BOTTOM_CENTER,
                 WearableButtons.getLocationZone(false, mScreenSize, 290, 460));
         assertEquals(
-                WearableButtons.LOC_BOTTOM_RIGHT,
+                WearableButtons.LOCATION_BOTTOM_RIGHT,
                 WearableButtons.getLocationZone(false, mScreenSize, 439, 450));
     }
 
@@ -226,29 +226,30 @@ public class WearableButtonsTest {
     public void testSimpleStrings() {
         assertEquals(
                 R.string.buttons_round_bottom_right,
-                WearableButtons.getFriendlyLocationZoneStringId(WearableButtons.LOC_ESE, 1));
+                WearableButtons.getFriendlyLocationZoneStringId(WearableButtons.LOCATION_ESE, 1));
         assertEquals(
                 R.string.buttons_round_bottom_left_upper,
-                WearableButtons.getFriendlyLocationZoneStringId(WearableButtons.LOC_ESE, 2));
+                WearableButtons.getFriendlyLocationZoneStringId(WearableButtons.LOCATION_ESE, 2));
         assertEquals(
                 R.string.buttons_rect_bottom_left,
                 WearableButtons.getFriendlyLocationZoneStringId(
-                        WearableButtons.LOC_BOTTOM_LEFT, 1));
+                        WearableButtons.LOCATION_BOTTOM_LEFT, 1));
         assertEquals(
                 R.string.buttons_rect_bottom_left,
                 WearableButtons.getFriendlyLocationZoneStringId(
-                        WearableButtons.LOC_BOTTOM_LEFT, 2));
+                        WearableButtons.LOCATION_BOTTOM_LEFT, 2));
     }
 
     @Test
     public void testSimpleIcons() {
-        testRotateDrawable(WearableButtons.LOC_ESE, R.drawable.ic_cc_settings_button_e, 45);
-        testRotateDrawable(WearableButtons.LOC_WNW, R.drawable.ic_cc_settings_button_e, -135);
+        testRotateDrawable(WearableButtons.LOCATION_ESE, R.drawable.ic_cc_settings_button_e, 45);
+        testRotateDrawable(WearableButtons.LOCATION_WNW, R.drawable.ic_cc_settings_button_e, -135);
         testRotateDrawable(
-                WearableButtons.LOC_BOTTOM_LEFT, R.drawable.ic_cc_settings_button_bottom, 90);
+                WearableButtons.LOCATION_BOTTOM_LEFT, R.drawable.ic_cc_settings_button_bottom, 90);
         testRotateDrawable(
-                WearableButtons.LOC_TOP_CENTER, R.drawable.ic_cc_settings_button_center, -90);
-        testRotateDrawable(WearableButtons.LOC_TOP_LEFT, R.drawable.ic_cc_settings_button_top, -90);
+                WearableButtons.LOCATION_TOP_CENTER, R.drawable.ic_cc_settings_button_center, -90);
+        testRotateDrawable(
+                WearableButtons.LOCATION_TOP_LEFT, R.drawable.ic_cc_settings_button_top, -90);
     }
 
     @Test

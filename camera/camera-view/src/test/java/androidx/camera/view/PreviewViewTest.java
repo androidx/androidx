@@ -26,6 +26,7 @@ import androidx.camera.core.SurfaceRequest;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.view.internal.compat.quirk.QuirkInjector;
+import androidx.camera.view.internal.compat.quirk.SurfaceViewNotCroppedByParentQuirk;
 import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
 
 import org.junit.After;
@@ -55,9 +56,20 @@ public class PreviewViewTest {
     }
 
     @Test
-    public void surfaceViewHasQuirk_useTextureView() {
+    public void surfaceViewStretchedQuirk_useTextureView() {
         // Arrange:
         QuirkInjector.inject(new SurfaceViewStretchedQuirk());
+
+        // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
+        assertThat(PreviewView.shouldUseTextureView(
+                createSurfaceRequestCompatibleWithSurfaceView(),
+                PreviewView.ImplementationMode.PERFORMANCE)).isTrue();
+    }
+
+    @Test
+    public void surfaceViewNotCroppedQuirk_useTextureView() {
+        // Arrange:
+        QuirkInjector.inject(new SurfaceViewNotCroppedByParentQuirk());
 
         // Assert: TextureView is used even the SurfaceRequest is compatible with SurfaceView.
         assertThat(PreviewView.shouldUseTextureView(

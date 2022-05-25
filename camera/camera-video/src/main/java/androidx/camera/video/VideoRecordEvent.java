@@ -34,8 +34,9 @@ import java.util.concurrent.Executor;
 /**
  * VideoRecordEvent is used to report video recording events and status.
  *
- * <p>Upon starting a recording by {@link PendingRecording#start()}, recording events will start to
- * be sent to the listener set in {@link PendingRecording#withEventListener(Executor, Consumer)}.
+ * <p>Upon starting a recording by {@link PendingRecording#start(Executor, Consumer)}, recording
+ * events will start to be sent to the listener passed to
+ * {@link PendingRecording#start(Executor, Consumer)}.
  *
  * <p>There are {@link Start}, {@link Finalize}, {@link Status}, {@link Pause} and {@link Resume}
  * events.
@@ -45,8 +46,8 @@ import java.util.concurrent.Executor;
  *
  * <pre>{@code
  *
- * ActiveRecording activeRecording = recorder.prepareRecording(context, outputOptions)
- *     .withEventListener(ContextCompat.getMainExecutor(context), videoRecordEvent -> {
+ * Recording recording = recorder.prepareRecording(context, outputOptions)
+ *     .start(ContextCompat.getMainExecutor(context), videoRecordEvent -> {
  *         if (videoRecordEvent instanceof VideoRecordEvent.Start) {
  *             // Handle the start of a new active recording
  *             ...
@@ -70,7 +71,7 @@ import java.util.concurrent.Executor;
  *         // This can be used to update the UI or track the recording duration.
  *         RecordingStats recordingStats = videoRecordEvent.getRecordingStats();
  *         ...
- *     }).start();
+ *     });
  *
  * }</pre>
  *
@@ -129,8 +130,9 @@ public abstract class VideoRecordEvent {
     /**
      * Indicates the start of recording.
      *
-     * <p>When a video recording is successfully requested by {@link PendingRecording#start()},
-     * a {@code Start} event will be the first event.
+     * <p>When a video recording is successfully requested by
+     * {@link PendingRecording#start(Executor, Consumer)}, a {@code Start} event will be the
+     * first event.
      */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Start extends VideoRecordEvent {
@@ -392,6 +394,24 @@ public abstract class VideoRecordEvent {
         public Throwable getCause() {
             return mCause;
         }
+
+        @NonNull
+        static String errorToString(@VideoRecordError int error) {
+            switch (error) {
+                case ERROR_NONE: return "ERROR_NONE";
+                case ERROR_UNKNOWN: return "ERROR_UNKNOWN";
+                case ERROR_FILE_SIZE_LIMIT_REACHED: return "ERROR_FILE_SIZE_LIMIT_REACHED";
+                case ERROR_INSUFFICIENT_STORAGE: return "ERROR_INSUFFICIENT_STORAGE";
+                case ERROR_INVALID_OUTPUT_OPTIONS: return "ERROR_INVALID_OUTPUT_OPTIONS";
+                case ERROR_ENCODING_FAILED: return "ERROR_ENCODING_FAILED";
+                case ERROR_RECORDER_ERROR: return "ERROR_RECORDER_ERROR";
+                case ERROR_NO_VALID_DATA: return "ERROR_NO_VALID_DATA";
+                case ERROR_SOURCE_INACTIVE: return "ERROR_SOURCE_INACTIVE";
+            }
+
+            // Should never reach here, but just in case...
+            return "Unknown(" + error + ")";
+        }
     }
 
     @NonNull
@@ -421,7 +441,7 @@ public abstract class VideoRecordEvent {
     /**
      * Indicates the pause event of recording.
      *
-     * <p>A {@code Pause} event will be triggered after calling {@link ActiveRecording#pause()}.
+     * <p>A {@code Pause} event will be triggered after calling {@link Recording#pause()}.
      */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Pause extends VideoRecordEvent {
@@ -441,7 +461,7 @@ public abstract class VideoRecordEvent {
     /**
      * Indicates the resume event of recording.
      *
-     * <p>A {@code Resume} event will be triggered after calling {@link ActiveRecording#resume()}.
+     * <p>A {@code Resume} event will be triggered after calling {@link Recording#resume()}.
      */
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     public static final class Resume extends VideoRecordEvent {

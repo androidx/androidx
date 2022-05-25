@@ -62,6 +62,7 @@ public class SharedMemoryImage {
         /**
          * Deserializes a [Bundle] containing a [Bitmap] serialized by [ashmemWriteImageBundle].
          */
+        @Suppress("DEPRECATION")
         public fun ashmemReadImageBundle(
             bundle: Bundle
         ): Bitmap = TraceEvent("SharedMemoryImage.ashmemReadImageBundle").use {

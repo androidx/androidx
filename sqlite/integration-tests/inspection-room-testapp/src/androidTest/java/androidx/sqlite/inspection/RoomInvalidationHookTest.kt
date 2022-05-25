@@ -93,7 +93,7 @@ class RoomInvalidationHookTest {
         )
         val invalidatedTables = CompletableDeferred<List<String>>()
         db.invalidationTracker.addObserver(object : InvalidationTracker.Observer("TestEntity") {
-            override fun onInvalidated(tables: MutableSet<String>) {
+            override fun onInvalidated(tables: Set<String>) {
                 invalidatedTables.complete(tables.toList())
             }
         })
@@ -129,7 +129,7 @@ class RoomInvalidationHookTest {
  * extract the framework sqlite database instance from a room database via reflection.
  */
 private fun RoomDatabase.getSqliteDb(): SQLiteDatabase {
-    val supportDb = this.openHelper.writableDatabase
+    val supportDb = this.getOpenHelper().writableDatabase
     // this runs with defaults so we can extract db from it until inspection supports support
     // instances directly
     return supportDb::class.java.getDeclaredField("mDelegate").let {

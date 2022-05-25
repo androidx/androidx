@@ -246,15 +246,15 @@ public open class NavDestination(
      *
      * In addition to a direct Uri match, the following features are supported:
      *
-     * Uris without a scheme are assumed as http and https. For example,
+     * - Uris without a scheme are assumed as http and https. For example,
      * `www.example.com` will match `http://www.example.com` and
      * `https://www.example.com`.
-     * Placeholders in the form of `{placeholder_name}` matches 1 or more
-     * characters. The String value of the placeholder will be available in the arguments
+     * - Placeholders in the form of `{placeholder_name}` matches 1 or more
+     * characters. The parsed value of the placeholder will be available in the arguments
      * [Bundle] with a key of the same name. For example,
      * `http://www.example.com/users/{id}` will match
      * `http://www.example.com/users/4`.
-     * The `.*` wildcard can be used to match 0 or more characters.
+     * - The `.*` wildcard can be used to match 0 or more characters.
      *
      * These Uris can be declared in your navigation XML files by adding one or more
      * `<deepLink app:uri="uriPattern" />` elements as
@@ -315,9 +315,10 @@ public open class NavDestination(
      * @see NavController.navigate
      */
     public fun addDeepLink(navDeepLink: NavDeepLink) {
-        val missingRequiredArguments = arguments.filterValues { !it.isDefaultValuePresent }
-            .keys
-            .filter { it !in navDeepLink.argumentsNames }
+        val missingRequiredArguments =
+            arguments.filterValues { !it.isNullable && !it.isDefaultValuePresent }
+                .keys
+                .filter { it !in navDeepLink.argumentsNames }
         require(missingRequiredArguments.isEmpty()) {
             "Deep link ${navDeepLink.uriPattern} can't be used to open destination $this.\n" +
                 "Following required arguments are missing: $missingRequiredArguments"
@@ -555,6 +556,7 @@ public open class NavDestination(
             equalArguments
     }
 
+    @Suppress("DEPRECATION")
     override fun hashCode(): Int {
         var result = id
         result = 31 * result + route.hashCode()

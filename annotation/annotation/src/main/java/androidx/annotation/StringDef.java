@@ -26,12 +26,12 @@ import java.lang.annotation.Target;
  * type and that its value should be one of the explicitly named constants.
  * <p>
  * Example:
- * <pre><code>
+ * <pre>
  *  &#64;Retention(SOURCE)
  *  &#64;StringDef({
- *     POWER_SERVICE,
- *     WINDOW_SERVICE,
- *     LAYOUT_INFLATER_SERVICE
+ *    POWER_SERVICE,
+ *    WINDOW_SERVICE,
+ *    LAYOUT_INFLATER_SERVICE
  *  })
  *  public @interface ServiceName {}
  *  public static final String POWER_SERVICE = "power";
@@ -39,7 +39,7 @@ import java.lang.annotation.Target;
  *  public static final String LAYOUT_INFLATER_SERVICE = "layout_inflater";
  *  ...
  *  public abstract Object getSystemService(@ServiceName String name);
- * </code></pre>
+ * </pre>
  */
 @Retention(SOURCE)
 @Target({ANNOTATION_TYPE})

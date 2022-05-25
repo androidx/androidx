@@ -22,6 +22,7 @@ import android.content.res.Configuration;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
@@ -173,9 +174,17 @@ public abstract class Session implements LifecycleOwner {
      * events with respect to the {@link Session} and {@link Screen} lifecycles in the correct
      * order.
      */
+    @VisibleForTesting
     @NonNull
     Lifecycle getLifecycleInternal() {
         return mRegistry;
+    }
+
+    /**
+     * Updates the {@link Session}'s lifecycle.
+     */
+    void handleLifecycleEvent(Lifecycle.Event event) {
+        mRegistry.handleLifecycleEvent(event);
     }
 
     /**

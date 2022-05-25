@@ -23,8 +23,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.CallSuper
 import androidx.core.content.res.use
@@ -145,17 +143,10 @@ abstract class AbstractListDetailFragment : Fragment() {
             id = R.id.sliding_pane_layout
         }
 
-        // Set up the list container
-        val listContainer = FrameLayout(inflater.context).apply {
-            id = R.id.sliding_pane_list_container
-        }
-        val listLayoutParams = SlidingPaneLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
-        slidingPaneLayout.addView(listContainer, listLayoutParams)
-
-        // Now create and add the list pane itself
-        val listPaneView = onCreateListPaneView(inflater, listContainer, savedInstanceState)
-        if (listPaneView.parent != listContainer) {
-            listContainer.addView(listPaneView)
+        // Create and add the list pane
+        val listPaneView = onCreateListPaneView(inflater, slidingPaneLayout, savedInstanceState)
+        if (listPaneView != slidingPaneLayout && listPaneView.parent != slidingPaneLayout) {
+            slidingPaneLayout.addView(listPaneView)
         }
 
         // Set up the detail container
@@ -235,8 +226,7 @@ abstract class AbstractListDetailFragment : Fragment() {
     @CallSuper
     final override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val listContainer = view.findViewById<FrameLayout>(R.id.sliding_pane_list_container)
-        val listPaneView = listContainer.getChildAt(0)
+        val listPaneView = slidingPaneLayout.getChildAt(0)
         onListPaneViewCreated(listPaneView, savedInstanceState)
     }
 

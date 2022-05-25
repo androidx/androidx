@@ -31,6 +31,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
+import androidx.camera.camera2.internal.compat.workaround.MeteringRegionCorrection;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -40,6 +41,7 @@ import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
@@ -85,6 +87,8 @@ class FocusMeteringControl {
     private volatile boolean mIsActive = false;
     private volatile Rational mPreviewAspectRatio = null;
     private static final MeteringRectangle[] EMPTY_RECTANGLES = new MeteringRectangle[0];
+    @NonNull
+    private final MeteringRegionCorrection mMeteringRegionCorrection;
 
     //******************** Should only be accessed by executor (WorkThread) ****************//
     private boolean mIsInAfAutoMode = false;
@@ -121,12 +125,13 @@ class FocusMeteringControl {
      */
     FocusMeteringControl(@NonNull Camera2CameraControlImpl cameraControl,
             @NonNull ScheduledExecutorService scheduler,
-            @NonNull @CameraExecutor Executor executor) {
+            @NonNull @CameraExecutor Executor executor,
+            @NonNull Quirks cameraQuirks) {
         mCameraControl = cameraControl;
         mExecutor = executor;
         mScheduler = scheduler;
+        mMeteringRegionCorrection = new MeteringRegionCorrection(cameraQuirks);
     }
-
 
     /**
      * Set current active state. Set active if it is ready to accept focus/metering operations.
@@ -203,17 +208,17 @@ class FocusMeteringControl {
 
     private static PointF getFovAdjustedPoint(@NonNull MeteringPoint meteringPoint,
             @NonNull Rational cropRegionAspectRatio,
-            @NonNull Rational defaultAspectRatio) {
+            @NonNull Rational defaultAspectRatio,
+            @FocusMeteringAction.MeteringMode int meteringMode,
+            MeteringRegionCorrection correction) {
         // Use default aspect ratio unless there is a custom aspect ratio in MeteringPoint.
         Rational fovAspectRatio = defaultAspectRatio;
         if (meteringPoint.getSurfaceAspectRatio() != null) {
             fovAspectRatio = meteringPoint.getSurfaceAspectRatio();
         }
 
-        PointF adjustedPoint = new PointF(meteringPoint.getX(),
-                meteringPoint.getY());
+        PointF adjustedPoint = correction.getCorrectedPoint(meteringPoint, meteringMode);
         if (!fovAspectRatio.equals(cropRegionAspectRatio)) {
-
             if (fovAspectRatio.compareTo(cropRegionAspectRatio) > 0) {
                 // FOV is more narrow than crop region, top and down side of FOV is cropped.
                 float heightOfCropRegion =
@@ -268,11 +273,12 @@ class FocusMeteringControl {
     }
 
     @NonNull
-    private static List<MeteringRectangle> getMeteringRectangles(
+    private List<MeteringRectangle> getMeteringRectangles(
             @NonNull List<MeteringPoint> meteringPoints,
             int maxRegionCount,
             @NonNull Rational defaultAspectRatio,
-            @NonNull Rect cropSensorRegion) {
+            @NonNull Rect cropSensorRegion,
+            @FocusMeteringAction.MeteringMode int meteringMode) {
         if (meteringPoints.isEmpty() || maxRegionCount == 0) {
             return Collections.emptyList();
         }
@@ -290,7 +296,7 @@ class FocusMeteringControl {
             }
 
             PointF adjustedPoint = getFovAdjustedPoint(meteringPoint, cropRegionAspectRatio,
-                    defaultAspectRatio);
+                    defaultAspectRatio, meteringMode, mMeteringRegionCorrection);
             MeteringRectangle meteringRectangle = getMeteringRect(meteringPoint, adjustedPoint,
                     cropSensorRegion);
             if (meteringRectangle.getWidth() == 0 || meteringRectangle.getHeight() == 0) {
@@ -316,15 +322,15 @@ class FocusMeteringControl {
         List<MeteringRectangle> rectanglesAf =
                 getMeteringRectangles(action.getMeteringPointsAf(),
                         mCameraControl.getMaxAfRegionCount(),
-                        defaultAspectRatio, cropSensorRegion);
+                        defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AF);
         List<MeteringRectangle> rectanglesAe =
                 getMeteringRectangles(action.getMeteringPointsAe(),
                         mCameraControl.getMaxAeRegionCount(),
-                        defaultAspectRatio, cropSensorRegion);
+                        defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AE);
         List<MeteringRectangle> rectanglesAwb =
                 getMeteringRectangles(action.getMeteringPointsAwb(),
                         mCameraControl.getMaxAwbRegionCount(),
-                        defaultAspectRatio, cropSensorRegion);
+                        defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AWB);
 
         if (rectanglesAf.isEmpty() && rectanglesAe.isEmpty() && rectanglesAwb.isEmpty()) {
             completer.setException(
@@ -351,9 +357,11 @@ class FocusMeteringControl {
      *
      * @param completer used to complete the associated {@link ListenableFuture} when the
      *                  operation succeeds or fails. Passing null to simply ignore the result.
+     * @param overrideAeMode true for overriding AE_MODE to CONTROL_AE_MODE_ON
+     *
      */
     @ExecutedBy("mExecutor")
-    void triggerAf(@Nullable Completer<CameraCaptureResult> completer) {
+    void triggerAf(@Nullable Completer<CameraCaptureResult> completer, boolean overrideAeMode) {
         if (!mIsActive) {
             if (completer != null) {
                 completer.setException(
@@ -368,6 +376,15 @@ class FocusMeteringControl {
         Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();
         configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,
                 CaptureRequest.CONTROL_AF_TRIGGER_START);
+
+        if (overrideAeMode) {
+            // This option will override the AE_MODE option in repeating request.
+            // On many devices, triggering Af with CONTROL_AE_MODE_ON_ALWAYS_FLASH or
+            // CONTROL_AE_MODE_ON_AUTO_FLASH will fire the flash when it's low light.
+            // Override it to AE_MODE_ON to prevent from this issue.
+            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
+                    mCameraControl.getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));
+        }
         builder.addImplementationOptions(configBuilder.build());
         builder.addCameraCaptureCallback(new CameraCaptureCallback() {
             @Override
@@ -554,7 +571,7 @@ class FocusMeteringControl {
             mIsAutoFocusCompleted = false;
             mIsFocusSuccessful = false;
             sessionUpdateId = mCameraControl.updateSessionConfigSynchronous();
-            triggerAf(null);
+            triggerAf(null, /* overrideAeMode */ true);
         } else {
             mIsInAfAutoMode = false;
             mIsAutoFocusCompleted = true; // Don't need to wait for auto-focus
@@ -676,15 +693,15 @@ class FocusMeteringControl {
         List<MeteringRectangle> rectanglesAf =
                 getMeteringRectangles(action.getMeteringPointsAf(),
                         mCameraControl.getMaxAfRegionCount(),
-                        defaultAspectRatio, cropSensorRegion);
+                        defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AF);
         List<MeteringRectangle> rectanglesAe =
                 getMeteringRectangles(action.getMeteringPointsAe(),
                         mCameraControl.getMaxAeRegionCount(),
-                        defaultAspectRatio, cropSensorRegion);
+                        defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AE);
         List<MeteringRectangle> rectanglesAwb =
                 getMeteringRectangles(action.getMeteringPointsAwb(),
                         mCameraControl.getMaxAwbRegionCount(),
-                        defaultAspectRatio, cropSensorRegion);
+                        defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AWB);
         if (rectanglesAf.isEmpty() && rectanglesAe.isEmpty() && rectanglesAwb.isEmpty()) {
             return false;
         }

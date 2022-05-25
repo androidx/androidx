@@ -18,6 +18,8 @@ package androidx.core.view;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 /**
  * This adapter class provides empty implementations of the methods from
  * {@link ViewPropertyAnimatorListener}. Any custom listener that cares only about a subset of
@@ -30,20 +32,21 @@ public class ViewPropertyAnimatorListenerAdapter implements ViewPropertyAnimator
      * {@inheritDoc}
      */
     @Override
-    public void onAnimationStart(View view) {
+    public void onAnimationStart(@NonNull View view) {
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void onAnimationEnd(View view) {
+    public void onAnimationEnd(@NonNull View view) {
     }
 
     /**
      * {@inheritDoc}
+     * @param view
      */
     @Override
-    public void onAnimationCancel(View view) {
+    public void onAnimationCancel(@NonNull View view) {
     }
 }

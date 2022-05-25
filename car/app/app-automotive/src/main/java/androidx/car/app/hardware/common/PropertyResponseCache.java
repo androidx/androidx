@@ -73,8 +73,8 @@ final class PropertyResponseCache {
                 // add an init value if needed
                 if (mPropertyIdToResponse.get(propertyId) == null) {
                     mPropertyIdToResponse.put(propertyId,
-                            CarPropertyResponse.createErrorResponse(propertyId,
-                                    CarValue.STATUS_UNAVAILABLE));
+                            CarPropertyResponse.builder().setPropertyId(propertyId)
+                                    .setStatus(CarValue.STATUS_UNKNOWN).build());
                 }
             }
         }
@@ -107,10 +107,10 @@ final class PropertyResponseCache {
                 return values;
             }
             for (int propertyId : propertyIds) {
-                // return a response with unavailable status if can not find in cache
+                // return a response with unknown status if can not find in cache
                 CarPropertyResponse<?> propertyResponse = mPropertyIdToResponse.get(propertyId,
-                        CarPropertyResponse.createErrorResponse(propertyId,
-                                CarValue.STATUS_UNAVAILABLE));
+                        CarPropertyResponse.builder().setPropertyId(propertyId)
+                                .setStatus(CarValue.STATUS_UNKNOWN).build());
                 values.add(propertyResponse);
             }
         }
@@ -159,7 +159,7 @@ final class PropertyResponseCache {
             if (responseInCache.getTimestampMillis() <= timestampMs) {
                 // In V1.1, all properties are global properties.
                 CarPropertyResponse<?> response =
-                        CarPropertyResponse.createFromPropertyValue(propertyValue);
+                        PropertyUtils.convertPropertyValueToPropertyResponse(propertyValue);
                 mPropertyIdToResponse.put(propertyId, response);
                 return true;
             }
@@ -169,8 +169,9 @@ final class PropertyResponseCache {
 
     /** Updates the error event in cache */
     void updateInternalError(CarInternalError internalError) {
-        CarPropertyResponse<?> response = CarPropertyResponse.createErrorResponse(
-                internalError.getPropertyId(), internalError.getErrorCode());
+        CarPropertyResponse<?> response = CarPropertyResponse.builder()
+                .setPropertyId(internalError.getPropertyId())
+                .setStatus(internalError.getErrorCode()).build();
         synchronized (mLock) {
             mPropertyIdToResponse.put(internalError.getPropertyId(), response);
         }

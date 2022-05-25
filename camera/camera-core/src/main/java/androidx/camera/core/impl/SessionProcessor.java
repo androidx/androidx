@@ -16,12 +16,15 @@
 
 package androidx.camera.core.impl;
 
+import android.hardware.camera2.CaptureResult;
 import android.media.ImageReader;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
+
+import java.util.Map;
 
 /**
  * A processor for (1) transforming the surfaces used in Preview/ImageCapture/ImageAnalysis
@@ -171,5 +174,30 @@ public interface SessionProcessor {
          * @param captureSequenceId id of the current capture sequence
          */
         void onCaptureSequenceAborted(int captureSequenceId);
+
+        /**
+         * Capture result callback that needs to be called when the process capture results are
+         * ready as part of frame post-processing.
+         *
+         * This callback will fire after {@link #onCaptureStarted}, {@link #onCaptureProcessStarted}
+         * and before {@link #onCaptureSequenceCompleted}. The callback is not expected to fire
+         * in case of capture failure  {@link #onCaptureFailed} or capture abort
+         * {@link #onCaptureSequenceAborted}.
+         *
+         * @param timestamp            The timestamp at start of capture. The same timestamp value
+         *                             passed to {@link #onCaptureStarted}.
+         * @param captureSequenceId    the capture id of the request that generated the capture
+         *                             results. This is the return value of either
+         *                             {@link #startRepeating} or {@link #startCapture}.
+         * @param result               Map containing the supported capture results. Do note
+         *                             that if results 'android.jpeg.quality' and
+         *                             'android.jpeg.orientation' are present in the process
+         *                             capture input results, then the values must also be passed
+         *                             as part of this callback. Both Camera2 and CameraX guarantee
+         *                             that those two settings and results are always supported and
+         *                             applied by the corresponding framework.
+         */
+        void onCaptureCompleted(long timestamp, int captureSequenceId,
+                @NonNull Map<CaptureResult.Key, Object> result);
     }
 }

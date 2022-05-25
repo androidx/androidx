@@ -76,7 +76,7 @@ public class DragStartHelperTest {
     private DragStartHelper createDragStartHelper(final DragStartListener listener) {
         return new DragStartHelper(mDragSource, new DragStartHelper.OnDragStartListener() {
             @Override
-            public boolean onDragStart(View v, DragStartHelper helper) {
+            public boolean onDragStart(@NonNull View v, @NonNull DragStartHelper helper) {
                 Point touchPosition = new Point();
                 helper.getTouchPosition(touchPosition);
                 return listener.onDragStart(v, helper, touchPosition);

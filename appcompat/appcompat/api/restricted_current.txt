@@ -327,11 +327,11 @@ package androidx.appcompat.app {
   @IntDef({androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_AUTO_TIME, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_UNSPECIFIED, androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface AppCompatDelegate.NightMode {
   }
 
-  public class AppCompatDialog extends android.app.Dialog implements androidx.appcompat.app.AppCompatCallback {
-    ctor public AppCompatDialog(android.content.Context!);
-    ctor public AppCompatDialog(android.content.Context!, int);
-    ctor protected AppCompatDialog(android.content.Context!, boolean, android.content.DialogInterface.OnCancelListener!);
-    method public androidx.appcompat.app.AppCompatDelegate! getDelegate();
+  public class AppCompatDialog extends androidx.activity.ComponentDialog implements androidx.appcompat.app.AppCompatCallback {
+    ctor public AppCompatDialog(android.content.Context);
+    ctor public AppCompatDialog(android.content.Context, int);
+    ctor protected AppCompatDialog(android.content.Context, boolean, android.content.DialogInterface.OnCancelListener?);
+    method public androidx.appcompat.app.AppCompatDelegate getDelegate();
     method public androidx.appcompat.app.ActionBar! getSupportActionBar();
     method public void onSupportActionModeFinished(androidx.appcompat.view.ActionMode!);
     method public void onSupportActionModeStarted(androidx.appcompat.view.ActionMode!);
@@ -575,6 +575,7 @@ package androidx.appcompat.view {
     ctor public ContextThemeWrapper();
     ctor public ContextThemeWrapper(android.content.Context!, @StyleRes int);
     ctor public ContextThemeWrapper(android.content.Context!, android.content.res.Resources.Theme!);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public ContextThemeWrapper(android.content.Context!, int, boolean);
     method public void applyOverrideConfiguration(android.content.res.Configuration!);
     method public int getThemeResId();
     method protected void onApplyThemeResource(android.content.res.Resources.Theme!, int, boolean);
@@ -701,12 +702,12 @@ package androidx.appcompat.view.menu {
     method public boolean requiresActionButton();
     method public boolean requiresOverflow();
     method public android.view.MenuItem! setActionProvider(android.view.ActionProvider!);
-    method public androidx.core.internal.view.SupportMenuItem! setActionView(android.view.View!);
-    method public androidx.core.internal.view.SupportMenuItem! setActionView(int);
+    method public androidx.core.internal.view.SupportMenuItem setActionView(android.view.View!);
+    method public androidx.core.internal.view.SupportMenuItem setActionView(int);
     method public android.view.MenuItem! setAlphabeticShortcut(char);
     method public android.view.MenuItem! setCheckable(boolean);
     method public android.view.MenuItem! setChecked(boolean);
-    method public androidx.core.internal.view.SupportMenuItem! setContentDescription(CharSequence!);
+    method public androidx.core.internal.view.SupportMenuItem setContentDescription(CharSequence!);
     method public android.view.MenuItem! setEnabled(boolean);
     method public androidx.appcompat.view.menu.ActionMenuItem! setExclusiveCheckable(boolean);
     method public android.view.MenuItem! setIcon(android.graphics.drawable.Drawable!);
@@ -717,12 +718,12 @@ package androidx.appcompat.view.menu {
     method public android.view.MenuItem! setOnMenuItemClickListener(android.view.MenuItem.OnMenuItemClickListener!);
     method public android.view.MenuItem! setShortcut(char, char);
     method public void setShowAsAction(int);
-    method public androidx.core.internal.view.SupportMenuItem! setShowAsActionFlags(int);
-    method public androidx.core.internal.view.SupportMenuItem! setSupportActionProvider(androidx.core.view.ActionProvider!);
+    method public androidx.core.internal.view.SupportMenuItem setShowAsActionFlags(int);
+    method public androidx.core.internal.view.SupportMenuItem setSupportActionProvider(androidx.core.view.ActionProvider!);
     method public android.view.MenuItem! setTitle(CharSequence!);
     method public android.view.MenuItem! setTitle(int);
     method public android.view.MenuItem! setTitleCondensed(CharSequence!);
-    method public androidx.core.internal.view.SupportMenuItem! setTooltipText(CharSequence!);
+    method public androidx.core.internal.view.SupportMenuItem setTooltipText(CharSequence!);
     method public android.view.MenuItem! setVisible(boolean);
   }
 
@@ -960,14 +961,14 @@ package androidx.appcompat.view.menu {
     method public boolean requiresActionButton();
     method public boolean requiresOverflow();
     method public android.view.MenuItem! setActionProvider(android.view.ActionProvider!);
-    method public androidx.core.internal.view.SupportMenuItem! setActionView(android.view.View!);
-    method public androidx.core.internal.view.SupportMenuItem! setActionView(int);
+    method public androidx.core.internal.view.SupportMenuItem setActionView(android.view.View!);
+    method public androidx.core.internal.view.SupportMenuItem setActionView(int);
     method public void setActionViewExpanded(boolean);
     method public android.view.MenuItem! setAlphabeticShortcut(char);
     method public android.view.MenuItem! setCallback(Runnable!);
     method public android.view.MenuItem! setCheckable(boolean);
     method public android.view.MenuItem! setChecked(boolean);
-    method public androidx.core.internal.view.SupportMenuItem! setContentDescription(CharSequence!);
+    method public androidx.core.internal.view.SupportMenuItem setContentDescription(CharSequence!);
     method public android.view.MenuItem! setEnabled(boolean);
     method public void setExclusiveCheckable(boolean);
     method public android.view.MenuItem! setIcon(android.graphics.drawable.Drawable!);
@@ -979,13 +980,13 @@ package androidx.appcompat.view.menu {
     method public android.view.MenuItem! setOnMenuItemClickListener(android.view.MenuItem.OnMenuItemClickListener!);
     method public android.view.MenuItem! setShortcut(char, char);
     method public void setShowAsAction(int);
-    method public androidx.core.internal.view.SupportMenuItem! setShowAsActionFlags(int);
+    method public androidx.core.internal.view.SupportMenuItem setShowAsActionFlags(int);
     method public void setSubMenu(androidx.appcompat.view.menu.SubMenuBuilder!);
-    method public androidx.core.internal.view.SupportMenuItem! setSupportActionProvider(androidx.core.view.ActionProvider!);
+    method public androidx.core.internal.view.SupportMenuItem setSupportActionProvider(androidx.core.view.ActionProvider!);
     method public android.view.MenuItem! setTitle(CharSequence!);
     method public android.view.MenuItem! setTitle(int);
     method public android.view.MenuItem! setTitleCondensed(CharSequence!);
-    method public androidx.core.internal.view.SupportMenuItem! setTooltipText(CharSequence!);
+    method public androidx.core.internal.view.SupportMenuItem setTooltipText(CharSequence!);
     method public android.view.MenuItem! setVisible(boolean);
     method public boolean shouldShowIcon();
     method public boolean showsTextAsAction();
@@ -1276,6 +1277,7 @@ package androidx.appcompat.widget {
     method public void onDetachedFromWindow();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.appcompat.view.menu.MenuBuilder! peekMenu();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setExpandedActionViewsExclusive(boolean);
+    method public void setIconTint(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setMenuCallbacks(androidx.appcompat.view.menu.MenuPresenter.Callback!, androidx.appcompat.view.menu.MenuBuilder.Callback!);
     method public void setOnMenuItemClickListener(androidx.appcompat.widget.ActionMenuView.OnMenuItemClickListener!);
     method public void setOverflowIcon(android.graphics.drawable.Drawable?);
@@ -1329,17 +1331,21 @@ package androidx.appcompat.widget {
     ctor public AlertDialogLayout(android.content.Context?, android.util.AttributeSet?);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatAutoCompleteTextView extends android.widget.AutoCompleteTextView implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatAutoCompleteTextView extends android.widget.AutoCompleteTextView implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatAutoCompleteTextView(android.content.Context);
     ctor public AppCompatAutoCompleteTextView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatAutoCompleteTextView(android.content.Context, android.util.AttributeSet?, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportCompoundDrawablesTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportCompoundDrawablesTintMode();
     method public boolean isEmojiCompatEnabled();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
     method public void setEmojiCompatEnabled(boolean);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintMode(android.graphics.PorterDuff.Mode?);
     method public void setTextAppearance(android.content.Context!, int);
   }
 
@@ -1364,7 +1370,7 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatCheckBox extends android.widget.CheckBox implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatCheckBox extends android.widget.CheckBox implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatCheckBox(android.content.Context);
     ctor public AppCompatCheckBox(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatCheckBox(android.content.Context, android.util.AttributeSet?, int);
@@ -1372,6 +1378,8 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportButtonTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportButtonTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportCompoundDrawablesTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportCompoundDrawablesTintMode();
     method public boolean isEmojiCompatEnabled();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
     method public void setEmojiCompatEnabled(boolean);
@@ -1379,9 +1387,11 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportButtonTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatCheckedTextView extends android.widget.CheckedTextView implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCheckedTextView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatCheckedTextView extends android.widget.CheckedTextView implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCheckedTextView androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatCheckedTextView(android.content.Context);
     ctor public AppCompatCheckedTextView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatCheckedTextView(android.content.Context, android.util.AttributeSet?, int);
@@ -1389,6 +1399,8 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportCheckMarkTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportCheckMarkTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportCompoundDrawablesTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportCompoundDrawablesTintMode();
     method public boolean isEmojiCompatEnabled();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
     method public void setEmojiCompatEnabled(boolean);
@@ -1396,6 +1408,8 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCheckMarkTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCheckMarkTintMode(android.graphics.PorterDuff.Mode?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintMode(android.graphics.PorterDuff.Mode?);
     method public void setTextAppearance(android.content.Context, int);
   }
 
@@ -1408,18 +1422,22 @@ package androidx.appcompat.widget {
     method public static void preload();
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatEditText extends android.widget.EditText implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.OnReceiveContentViewBehavior androidx.core.view.TintableBackgroundView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatEditText extends android.widget.EditText implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.OnReceiveContentViewBehavior androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatEditText(android.content.Context);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatEditText(android.content.Context, android.util.AttributeSet?, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportCompoundDrawablesTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportCompoundDrawablesTintMode();
     method public boolean isEmojiCompatEnabled();
     method public androidx.core.view.ContentInfoCompat? onReceiveContent(androidx.core.view.ContentInfoCompat);
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
     method public void setEmojiCompatEnabled(boolean);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintMode(android.graphics.PorterDuff.Mode?);
     method public void setTextAppearance(android.content.Context!, int);
   }
 
@@ -1459,21 +1477,25 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportImageTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatMultiAutoCompleteTextView extends android.widget.MultiAutoCompleteTextView implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context);
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatMultiAutoCompleteTextView(android.content.Context, android.util.AttributeSet?, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportCompoundDrawablesTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportCompoundDrawablesTintMode();
     method public boolean isEmojiCompatEnabled();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
     method public void setEmojiCompatEnabled(boolean);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintMode(android.graphics.PorterDuff.Mode?);
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatRadioButton extends android.widget.RadioButton implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatRadioButton extends android.widget.RadioButton implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatRadioButton(android.content.Context!);
     ctor public AppCompatRadioButton(android.content.Context!, android.util.AttributeSet?);
     ctor public AppCompatRadioButton(android.content.Context!, android.util.AttributeSet?, int);
@@ -1481,6 +1503,8 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportButtonTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportButtonTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportCompoundDrawablesTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportCompoundDrawablesTintMode();
     method public boolean isEmojiCompatEnabled();
     method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
     method public void setEmojiCompatEnabled(boolean);
@@ -1488,6 +1512,8 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportButtonTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintMode(android.graphics.PorterDuff.Mode?);
   }
 
   public class AppCompatRatingBar extends android.widget.RatingBar {
@@ -1540,16 +1566,20 @@ package androidx.appcompat.widget {
     method public void setTextMetricsParamsCompat(androidx.core.text.PrecomputedTextCompat.Params);
   }
 
-  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatToggleButton extends android.widget.ToggleButton implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView {
+  @androidx.resourceinspection.annotation.AppCompatShadowedAttributes public class AppCompatToggleButton extends android.widget.ToggleButton implements androidx.appcompat.widget.EmojiCompatConfigurationView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatToggleButton(android.content.Context);
     ctor public AppCompatToggleButton(android.content.Context, android.util.AttributeSet?);
     ctor public AppCompatToggleButton(android.content.Context, android.util.AttributeSet?, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.res.ColorStateList? getSupportCompoundDrawablesTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.PorterDuff.Mode? getSupportCompoundDrawablesTintMode();
     method public boolean isEmojiCompatEnabled();
     method public void setEmojiCompatEnabled(boolean);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setSupportCompoundDrawablesTintMode(android.graphics.PorterDuff.Mode?);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ButtonBarLayout extends android.widget.LinearLayout {
@@ -1894,6 +1924,7 @@ package androidx.appcompat.widget {
     method public boolean isSubmitButtonEnabled();
     method public void onActionViewCollapsed();
     method public void onActionViewExpanded();
+    method protected void onQueryRefine(CharSequence?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setAppSearchData(android.os.Bundle!);
     method public void setIconified(boolean);
     method public void setIconifiedByDefault(boolean);
@@ -1957,6 +1988,7 @@ package androidx.appcompat.widget {
     method @androidx.resourceinspection.annotation.Attribute("android:textOff") public CharSequence! getTextOff();
     method @androidx.resourceinspection.annotation.Attribute("android:textOn") public CharSequence! getTextOn();
     method @androidx.resourceinspection.annotation.Attribute("android:thumb") public android.graphics.drawable.Drawable! getThumbDrawable();
+    method @FloatRange(from=0.0, to=1.0) protected final float getThumbPosition();
     method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:thumbTextPadding") public int getThumbTextPadding();
     method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:thumbTint") public android.content.res.ColorStateList? getThumbTintList();
     method @androidx.resourceinspection.annotation.Attribute("androidx.appcompat:thumbTintMode") public android.graphics.PorterDuff.Mode? getThumbTintMode();
@@ -1966,6 +1998,7 @@ package androidx.appcompat.widget {
     method public boolean isEmojiCompatEnabled();
     method public void onMeasure(int, int);
     method public void setEmojiCompatEnabled(boolean);
+    method protected final void setEnforceSwitchWidth(boolean);
     method public void setShowText(boolean);
     method public void setSplitTrack(boolean);
     method public void setSwitchMinWidth(int);
@@ -2092,6 +2125,7 @@ package androidx.appcompat.widget {
     method public void setContentInsetStartWithNavigation(int);
     method public void setContentInsetsAbsolute(int, int);
     method public void setContentInsetsRelative(int, int);
+    method public void setIconTint(android.content.res.ColorStateList?);
     method public void setLogo(@DrawableRes int);
     method public void setLogo(android.graphics.drawable.Drawable!);
     method public void setLogoDescription(@StringRes int);

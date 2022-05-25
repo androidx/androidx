@@ -24,6 +24,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.ImageReaderProxy;
@@ -45,9 +46,13 @@ import java.util.concurrent.Executor;
  * ImageProxy is responsible for closing it after use. A limited number of ImageProxy may be
  * acquired at one time as defined by <code>maxImages</code> in the constructor. Any ImageProxy
  * produced after that will be dropped unless one of the ImageProxy currently acquired is closed.
+ *
+ * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnImageCloseListener {
+public class MetadataImageReader implements ImageReaderProxy,
+        ForwardingImageProxy.OnImageCloseListener {
     private static final String TAG = "MetadataImageReader";
     private final Object mLock = new Object();
 
@@ -105,7 +110,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
      * @param format    Image format
      * @param maxImages Maximum Image number the ImageReader can hold.
      */
-    MetadataImageReader(int width, int height, int format, int maxImages) {
+    public MetadataImageReader(int width, int height, int format, int maxImages) {
         this(createImageReaderProxy(width, height, format, maxImages));
     }
 
@@ -256,7 +261,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
     }
 
     @Override
-    public void onImageClose(ImageProxy image) {
+    public void onImageClose(@NonNull ImageProxy image) {
         synchronized (mLock) {
             dequeImageProxy(image);
         }
@@ -301,7 +306,8 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
     }
 
     // Return the necessary CameraCaptureCallback, which needs to register to capture session.
-    CameraCaptureCallback getCameraCaptureCallback() {
+    @NonNull
+    public CameraCaptureCallback getCameraCaptureCallback() {
         return mCameraCaptureCallback;
     }
 

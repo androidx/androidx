@@ -21,6 +21,7 @@ package androidx.build.lint
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
@@ -49,10 +50,12 @@ class BanParcelableUsage : Detector(), Detector.UastScanner {
         // lint will also examine the entire inheritance and implementation chain.
         for (superclass in declaration.uastSuperTypes) {
             if (superclass.type.canonicalText == PARCELABLE_INTERFACE_CANONICAL_NAME) {
-                context.report(
-                    ISSUE, declaration, context.getNameLocation(declaration),
-                    "Class implements android.os.Parcelable"
-                )
+                val incident = Incident(context)
+                    .issue(ISSUE)
+                    .location(context.getNameLocation(declaration))
+                    .message("Class implements android.os.Parcelable")
+                    .scope(declaration)
+                context.report(incident)
             }
         }
     }

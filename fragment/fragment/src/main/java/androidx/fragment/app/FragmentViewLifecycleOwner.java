@@ -16,20 +16,26 @@
 
 package androidx.fragment.app;
 
+import static androidx.lifecycle.SavedStateHandleSupport.enableSavedStateHandles;
+
 import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Bundle;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.SavedStateHandleSupport;
 import androidx.lifecycle.SavedStateViewModelFactory;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
+import androidx.lifecycle.viewmodel.CreationExtras;
+import androidx.lifecycle.viewmodel.MutableCreationExtras;
 import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.SavedStateRegistryController;
 import androidx.savedstate.SavedStateRegistryOwner;
@@ -63,6 +69,8 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
         if (mLifecycleRegistry == null) {
             mLifecycleRegistry = new LifecycleRegistry(this);
             mSavedStateRegistryController = SavedStateRegistryController.create(this);
+            mSavedStateRegistryController.performAttach();
+            enableSavedStateHandles(this);
         }
     }
 
@@ -124,6 +132,31 @@ class FragmentViewLifecycleOwner implements HasDefaultViewModelProviderFactory,
         }
 
         return mDefaultFactory;
+    }
+
+    @NonNull
+    @Override
+    @CallSuper
+    public CreationExtras getDefaultViewModelCreationExtras() {
+        Application application = null;
+        Context appContext = mFragment.requireContext().getApplicationContext();
+        while (appContext instanceof ContextWrapper) {
+            if (appContext instanceof Application) {
+                application = (Application) appContext;
+                break;
+            }
+            appContext = ((ContextWrapper) appContext).getBaseContext();
+        }
+        MutableCreationExtras extras = new MutableCreationExtras();
+        if (application != null) {
+            extras.set(ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY, application);
+        }
+        extras.set(SavedStateHandleSupport.SAVED_STATE_REGISTRY_OWNER_KEY, this);
+        extras.set(SavedStateHandleSupport.VIEW_MODEL_STORE_OWNER_KEY, this);
+        if (mFragment.getArguments() != null) {
+            extras.set(SavedStateHandleSupport.DEFAULT_ARGS_KEY, mFragment.getArguments());
+        }
+        return extras;
     }
 
     @NonNull
