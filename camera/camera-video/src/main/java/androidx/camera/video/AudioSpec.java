@@ -43,11 +43,11 @@ public abstract class AudioSpec {
     /**
      * The audio source format representing no preference for audio source format.
      */
-    static final int SOURCE_FORMAT_AUTO = -1;
+    public static final int SOURCE_FORMAT_AUTO = -1;
     /**
      * The PCM 16 bit per sample audio source format. Guaranteed to be supported by all devices.
      */
-    static final int SOURCE_FORMAT_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
+    public static final int SOURCE_FORMAT_PCM_16BIT = AudioFormat.ENCODING_PCM_16BIT;
 
     @IntDef({SOURCE_FORMAT_AUTO, SOURCE_FORMAT_PCM_16BIT})
     @Retention(RetentionPolicy.SOURCE)
@@ -141,7 +141,7 @@ public abstract class AudioSpec {
 
     /** Gets the audio format. */
     @SourceFormat
-    abstract int getSourceFormat();
+    public abstract int getSourceFormat();
 
     /** Gets the audio source. */
     @Source
@@ -195,7 +195,7 @@ public abstract class AudioSpec {
          * <p>If not set, defaults to {@link #SOURCE_FORMAT_AUTO}.
          */
         @NonNull
-        abstract Builder setSourceFormat(@SourceFormat int audioFormat);
+        public abstract Builder setSourceFormat(@SourceFormat int audioFormat);
 
         /**
          * Sets the audio source.

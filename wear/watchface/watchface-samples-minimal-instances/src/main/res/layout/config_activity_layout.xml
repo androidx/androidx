@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+  <androidx.wear.widget.CurvedTextView
+      android:id="@+id/instance_id"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      tools:text="instance-id"
+      android:background="#66FF0000"
+      android:textAlignment="textStart"
+      android:textSize="10sp"
+      app:clockwise="true"
+      app:minSweepDegrees="10"
+      />
+
+  <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginBottom="30dp"
+      tools:text="instance-id"
+      android:textSize="9sp"
+      android:textColor="@android:color/white"
+      android:textFontWeight="800" />
+
+  <LinearLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:gravity="center"
+      android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/style_header"
+        android:textColor="@android:color/white"
+        android:textFontWeight="800" />
+
+    <TextView
+        android:id="@+id/style_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:id="@+id/style_change"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/style_change" />
+  </LinearLayout>
+</FrameLayout>

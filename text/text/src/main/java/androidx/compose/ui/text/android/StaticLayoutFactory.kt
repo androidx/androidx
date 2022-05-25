@@ -23,6 +23,7 @@ import android.text.TextDirectionHeuristic
 import android.text.TextPaint
 import android.text.TextUtils.TruncateAt
 import android.util.Log
+import androidx.annotation.DoNotInline
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
@@ -132,12 +133,15 @@ private class StaticLayoutParams constructor(
 }
 
 private interface StaticLayoutFactoryImpl {
+
+    @DoNotInline // API level specific, do not inline to prevent ART class verification breakages
     fun create(params: StaticLayoutParams): StaticLayout
 }
 
 @RequiresApi(23)
 private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
 
+    @DoNotInline
     override fun create(params: StaticLayoutParams): StaticLayout {
         return Builder.obtain(params.text, params.start, params.end, params.paint, params.width)
             .apply {
@@ -166,6 +170,7 @@ private class StaticLayoutFactory23 : StaticLayoutFactoryImpl {
 
 @RequiresApi(26)
 private object StaticLayoutFactory26 {
+    @DoNotInline
     fun setJustificationMode(builder: Builder, justificationMode: Int) {
         builder.setJustificationMode(justificationMode)
     }
@@ -173,6 +178,7 @@ private object StaticLayoutFactory26 {
 
 @RequiresApi(28)
 private object StaticLayoutFactory28 {
+    @DoNotInline
     fun setUseLineSpacingFromFallbacks(builder: Builder, useFallbackLineSpacing: Boolean) {
         builder.setUseLineSpacingFromFallbacks(useFallbackLineSpacing)
     }
@@ -213,6 +219,7 @@ private class StaticLayoutFactoryPre21 : StaticLayoutFactoryImpl {
         }
     }
 
+    @DoNotInline
     override fun create(params: StaticLayoutParams): StaticLayout {
         // On API 21 to 23, try to call the StaticLayoutConstructor which supports the
         // textDir and maxLines.

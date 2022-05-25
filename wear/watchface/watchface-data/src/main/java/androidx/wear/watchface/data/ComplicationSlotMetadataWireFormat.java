@@ -31,6 +31,7 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
+import androidx.wear.watchface.complications.data.ComplicationExperimental;
 
 import java.util.List;
 
@@ -68,7 +69,7 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
 
     @ParcelField(8)
     @ComplicationData.ComplicationType
-    int mDefaultDataSourceType;
+    int mDefaultType;
 
     @ParcelField(9)
     boolean mIsInitiallyEnabled;
@@ -80,10 +81,92 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
     @NonNull
     Bundle mComplicationConfigExtras;
 
+    // Not supported in library v1.0.
+    @ParcelField(12)
+    @ComplicationData.ComplicationType
+    int mPrimaryDataSourceDefaultType = ComplicationData.TYPE_NOT_CONFIGURED;
+
+    // Not supported in library v1.0.
+    @ParcelField(13)
+    @ComplicationData.ComplicationType
+    int mSecondaryDataSourceDefaultType = ComplicationData.TYPE_NOT_CONFIGURED;
+
+    // Only valid for edge complications. Not supported in library v1.0.
+    @ParcelField(14)
+    @Nullable
+    BoundingArcWireFormat mBoundingArc;
+
     /** Used by VersionedParcelable. */
     ComplicationSlotMetadataWireFormat() {
     }
 
+    @ComplicationExperimental
+    public ComplicationSlotMetadataWireFormat(
+            int id,
+            @NonNull int[] complicationBoundsType,
+            @NonNull RectF[] complicationBounds,
+            int boundsType,
+            @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
+            @Nullable List<ComponentName> defaultDataSourcesToTry,
+            int fallbackSystemDataSource,
+            @ComplicationData.ComplicationType int defaultDataSourceType,
+            @ComplicationData.ComplicationType int primaryDataSourceDefaultType,
+            @ComplicationData.ComplicationType int secondaryDataSourceDefaultType,
+            boolean isInitiallyEnabled,
+            boolean fixedComplicationDataSource,
+            @NonNull Bundle complicationConfigExtras,
+            @Nullable BoundingArcWireFormat boundingArc) {
+        mId = id;
+        mComplicationBoundsType = complicationBoundsType;
+        mComplicationBounds = complicationBounds;
+        mBoundsType = boundsType;
+        mSupportedTypes = supportedTypes;
+        mDefaultDataSourcesToTry = defaultDataSourcesToTry;
+        mPrimaryDataSourceDefaultType = primaryDataSourceDefaultType;
+        mSecondaryDataSourceDefaultType = secondaryDataSourceDefaultType;
+        mFallbackSystemDataSource = fallbackSystemDataSource;
+        mDefaultType = defaultDataSourceType;
+        mIsInitiallyEnabled = isInitiallyEnabled;
+        mFixedComplicationDataSource = fixedComplicationDataSource;
+        mComplicationConfigExtras = complicationConfigExtras;
+        mBoundingArc = boundingArc;
+    }
+
+    // TODO(b/230364881): Deprecate when BoundingArc is no longer experimental.
+    public ComplicationSlotMetadataWireFormat(
+            int id,
+            @NonNull int[] complicationBoundsType,
+            @NonNull RectF[] complicationBounds,
+            int boundsType,
+            @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
+            @Nullable List<ComponentName> defaultDataSourcesToTry,
+            int fallbackSystemDataSource,
+            @ComplicationData.ComplicationType int defaultDataSourceType,
+            @ComplicationData.ComplicationType int primaryDataSourceDefaultType,
+            @ComplicationData.ComplicationType int secondaryDataSourceDefaultType,
+            boolean isInitiallyEnabled,
+            boolean fixedComplicationDataSource,
+            @NonNull Bundle complicationConfigExtras) {
+        mId = id;
+        mComplicationBoundsType = complicationBoundsType;
+        mComplicationBounds = complicationBounds;
+        mBoundsType = boundsType;
+        mSupportedTypes = supportedTypes;
+        mDefaultDataSourcesToTry = defaultDataSourcesToTry;
+        mPrimaryDataSourceDefaultType = primaryDataSourceDefaultType;
+        mSecondaryDataSourceDefaultType = secondaryDataSourceDefaultType;
+        mFallbackSystemDataSource = fallbackSystemDataSource;
+        mDefaultType = defaultDataSourceType;
+        mIsInitiallyEnabled = isInitiallyEnabled;
+        mFixedComplicationDataSource = fixedComplicationDataSource;
+        mComplicationConfigExtras = complicationConfigExtras;
+    }
+
+    /**
+     * @deprecated Use the other constructor with primaryDataSourceDefaultType &
+     * secondaryDataSourceDefaultType instead.
+     */
+    @Deprecated
     public ComplicationSlotMetadataWireFormat(
             int id,
             @NonNull int[] complicationBoundsType,
@@ -103,7 +186,7 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
         mSupportedTypes = supportedTypes;
         mDefaultDataSourcesToTry = defaultDataSourcesToTry;
         mFallbackSystemDataSource = fallbackSystemDataSource;
-        mDefaultDataSourceType = defaultDataSourceType;
+        mDefaultType = defaultDataSourceType;
         mIsInitiallyEnabled = isInitiallyEnabled;
         mFixedComplicationDataSource = fixedComplicationDataSource;
         mComplicationConfigExtras = complicationConfigExtras;
@@ -150,9 +233,37 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
         return mFallbackSystemDataSource;
     }
 
+    /**
+     * @return The {@link ComplicationData.ComplicationType} for
+     * {@link #getFallbackSystemDataSource}.
+     */
     @ComplicationData.ComplicationType
     public int getDefaultDataSourceType() {
-        return mDefaultDataSourceType;
+        return mDefaultType;
+    }
+
+    /**
+     * @return The {@link ComplicationData.ComplicationType} for the first entry from
+     * {@link #getDefaultDataSourcesToTry}.
+     */
+    @ComplicationData.ComplicationType
+    public int getPrimaryDataSourceDefaultType() {
+        // Not supported in library v1.0. TYPE_NOT_CONFIGURED is not a valid API choice indicating
+        // and old client.
+        return (mPrimaryDataSourceDefaultType == ComplicationData.TYPE_NOT_CONFIGURED)
+                ? mDefaultType : mPrimaryDataSourceDefaultType;
+    }
+
+    /**
+     * @return The {@link ComplicationData.ComplicationType} for the second entry from
+     * {@link #getDefaultDataSourcesToTry}.
+     */
+    @ComplicationData.ComplicationType
+    public int getSecondaryDataSourceDefaultType() {
+        // Not supported in library v1.0. TYPE_NOT_CONFIGURED is not a valid API choice indicating
+        // and old client.
+        return (mSecondaryDataSourceDefaultType == ComplicationData.TYPE_NOT_CONFIGURED)
+                ? mDefaultType : mSecondaryDataSourceDefaultType;
     }
 
     public boolean isInitiallyEnabled() {
@@ -168,6 +279,12 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
         return mComplicationConfigExtras;
     }
 
+    @Nullable
+    @ComplicationExperimental
+    public BoundingArcWireFormat getBoundingArc() {
+        return mBoundingArc;
+    }
+
     /** Serializes this ComplicationDetails to the specified {@link Parcel}. */
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
@@ -181,6 +298,7 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
 
     public static final Parcelable.Creator<ComplicationSlotMetadataWireFormat> CREATOR =
             new Parcelable.Creator<ComplicationSlotMetadataWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public ComplicationSlotMetadataWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

@@ -189,7 +189,6 @@ public interface CameraControl {
      * {@link Future#cancel(boolean)}, {@link OperationCanceledException} occurs when there is
      * something wrong inside CameraControl and it has to cancel the operation.
      */
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     final class OperationCanceledException extends Exception {
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

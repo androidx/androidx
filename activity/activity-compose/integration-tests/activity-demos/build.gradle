@@ -36,3 +36,7 @@ androidx {
     inceptionYear = "2020"
     description = "This is a project for Activity demos."
 }
+
+android {
+    namespace "androidx.activity.compose.demos"
+}

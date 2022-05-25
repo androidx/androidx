@@ -15,10 +15,12 @@
  */
 package androidx.camera.extensions.impl;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
@@ -38,6 +40,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 /**
  * Implementation for beauty image capture use case.
@@ -48,6 +51,7 @@ import java.util.Map;
  * @since 1.0
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@SuppressLint("UnknownNullness")
 public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtenderImpl {
     private static final String TAG = "BeautyICExtender";
     private static final int DEFAULT_STAGE_ID = 0;
@@ -222,6 +226,11 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         }
 
         @Override
+        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                ProcessResultImpl resultCallback, Executor executor) {
+        }
+
+        @Override
         public void onResolutionUpdate(Size size) {
 
         }
@@ -230,5 +239,15 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         public void onImageFormatUpdate(int imageFormat) {
 
         }
+    }
+
+    @Override
+    public List<CaptureRequest.Key> getAvailableCaptureRequestKeys() {
+        return null;
+    }
+
+    @Override
+    public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
+        return null;
     }
 }

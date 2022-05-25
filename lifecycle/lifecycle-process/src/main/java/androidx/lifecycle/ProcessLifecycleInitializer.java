@@ -19,6 +19,7 @@ package androidx.lifecycle;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.startup.AppInitializer;
 import androidx.startup.Initializer;
 
 import java.util.Collections;
@@ -32,6 +33,16 @@ public final class ProcessLifecycleInitializer implements Initializer<LifecycleO
     @NonNull
     @Override
     public LifecycleOwner create(@NonNull Context context) {
+        AppInitializer appInitializer = AppInitializer.getInstance(context);
+        if (!appInitializer.isEagerlyInitialized(getClass())) {
+            throw new IllegalStateException(
+                    "ProcessLifecycleInitializer cannot be initialized lazily. \n"
+                            + "Please ensure that you have: \n"
+                            + "<meta-data\n"
+                            + "    android:name='androidx.lifecycle.ProcessLifecycleInitializer' \n"
+                            + "    android:value='androidx.startup' /> \n"
+                            + "under InitializationProvider in your AndroidManifest.xml");
+        }
         LifecycleDispatcher.init(context);
         ProcessLifecycleOwner.init(context);
         return ProcessLifecycleOwner.get();

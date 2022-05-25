@@ -31,7 +31,7 @@ dependencies {
     androidTestImplementation(project(":room:room-runtime"))
     androidTestImplementation(project(":sqlite:sqlite-inspection"))
     androidTestImplementation(project(":inspection:inspection-testing"))
-    androidTestImplementation("com.google.protobuf:protobuf-javalite:3.10.0")
+    androidTestImplementation(libs.protobufLite)
     kaptAndroidTest(project(":room:room-compiler"))
 
 }
@@ -41,4 +41,5 @@ android {
         // studio pipeline works only starting with Android O
         minSdkVersion 26
     }
+    namespace "androidx.sqlite.inspection.roomtestapp"
 }

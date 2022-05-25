@@ -24,8 +24,6 @@ import android.graphics.Bitmap;
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
-import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.CameraUtil;
@@ -65,7 +63,9 @@ public class PreviewViewBitmapTest {
             FakeActivity.class);
 
     @Rule
-    public final TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     private static final int CAMERA_LENS = CameraSelector.LENS_FACING_BACK;
     private ProcessCameraProvider mCameraProvider;
@@ -80,8 +80,6 @@ public class PreviewViewBitmapTest {
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CAMERA_LENS));
 
         final Context context = ApplicationProvider.getApplicationContext();
-        final CameraXConfig config = Camera2Config.defaultConfig();
-        CameraX.initialize(context, config);
         mCameraProvider = ProcessCameraProvider.getInstance(context).get();
     }
 

@@ -16,7 +16,7 @@
 
 package androidx.compose.foundation.lazy
 
-import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachIndexed
 
 /**
  * This method finds the sticky header in composedItems list or composes the header item if needed.
@@ -25,15 +25,16 @@ import androidx.compose.ui.util.fastForEach
  * header wasn't in this list but is needed the header will be added as the first item in this list.
  * @param itemProvider the provider so we can compose a header if it wasn't composed already
  * @param headerIndexes list of indexes of headers. Must be sorted.
- * @param startContentPadding the padding before the first item in the list
+ * @param beforeContentPadding the padding before the first item in the list
  */
 internal fun findOrComposeLazyListHeader(
-    composedVisibleItems: MutableList<LazyMeasuredItem>,
+    composedVisibleItems: MutableList<LazyListPositionedItem>,
     itemProvider: LazyMeasuredItemProvider,
     headerIndexes: List<Int>,
-    startContentPadding: Int
-): LazyMeasuredItem? {
-    var alreadyVisibleHeaderItem: LazyMeasuredItem? = null
+    beforeContentPadding: Int,
+    layoutWidth: Int,
+    layoutHeight: Int,
+): LazyListPositionedItem? {
     var currentHeaderOffset: Int = Int.MIN_VALUE
     var nextHeaderOffset: Int = Int.MIN_VALUE
 
@@ -52,9 +53,10 @@ internal fun findOrComposeLazyListHeader(
         }
     }
 
-    composedVisibleItems.fastForEach { item ->
+    var indexInComposedVisibleItems = -1
+    composedVisibleItems.fastForEachIndexed { index, item ->
         if (item.index == currentHeaderListPosition) {
-            alreadyVisibleHeaderItem = item
+            indexInComposedVisibleItems = index
             currentHeaderOffset = item.offset
         } else {
             if (item.index == nextHeaderListPosition) {
@@ -68,22 +70,24 @@ internal fun findOrComposeLazyListHeader(
         return null
     }
 
-    val headerItem = alreadyVisibleHeaderItem
-        ?: itemProvider.getAndMeasure(DataIndex(currentHeaderListPosition)).also {
-            composedVisibleItems.add(0, it)
-        }
+    val measuredHeaderItem = itemProvider.getAndMeasure(DataIndex(currentHeaderListPosition))
 
     var headerOffset = if (currentHeaderOffset != Int.MIN_VALUE) {
-        maxOf(-startContentPadding, currentHeaderOffset)
+        maxOf(-beforeContentPadding, currentHeaderOffset)
     } else {
-        -startContentPadding
+        -beforeContentPadding
     }
     // if we have a next header overlapping with the current header, the next one will be
     // pushing the current one away from the viewport.
     if (nextHeaderOffset != Int.MIN_VALUE) {
-        headerOffset = minOf(headerOffset, nextHeaderOffset - headerItem.size)
+        headerOffset = minOf(headerOffset, nextHeaderOffset - measuredHeaderItem.size)
     }
 
-    headerItem.offset = headerOffset
-    return headerItem
+    return measuredHeaderItem.position(headerOffset, layoutWidth, layoutHeight).also {
+        if (indexInComposedVisibleItems != -1) {
+            composedVisibleItems[indexInComposedVisibleItems] = it
+        } else {
+            composedVisibleItems.add(0, it)
+        }
+    }
 }

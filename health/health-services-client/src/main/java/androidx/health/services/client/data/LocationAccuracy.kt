@@ -24,26 +24,44 @@ import androidx.health.services.client.proto.DataProto.DataPointAccuracy.Locatio
 @Suppress("ParcelCreator")
 public class LocationAccuracy(
     /** Represents the estimated horizontal accuracy of the location, radial, in meters. */
-    public val horizontalPositionError: Double
+    public val horizontalPositionErrorMeters: Double,
+
+    /**
+     * Represents the estimated vertical accuracy of the location, radial, in meters, or it will
+     * be `null` if it cannot be provided.
+     */
+    public val verticalPositionErrorMeters: Double?,
 ) : DataPointAccuracy() {
 
     internal constructor(
         proto: DataProto.DataPointAccuracy
-    ) : this(proto.locationAccuracy.horizontalPositionError)
+    ) : this(
+        proto.locationAccuracy.horizontalPositionError,
+        if (proto.locationAccuracy.hasVerticalPositionError()) {
+            proto.locationAccuracy.verticalPositionError
+        } else {
+            null
+        }
+    )
 
     /** @hide */
     override val proto: DataProto.DataPointAccuracy by lazy {
+        val locationAccuracyProtoBuilder =
+            LocationAccuracyProto.newBuilder()
+                .setHorizontalPositionError(horizontalPositionErrorMeters)
+
+        verticalPositionErrorMeters?.let {
+            locationAccuracyProtoBuilder.verticalPositionError = it
+        }
+
         DataProto.DataPointAccuracy.newBuilder()
-            .setLocationAccuracy(
-                LocationAccuracyProto.newBuilder()
-                    .setHorizontalPositionError(horizontalPositionError)
-                    .build()
-            )
+            .setLocationAccuracy(locationAccuracyProtoBuilder)
             .build()
     }
 
     override fun toString(): String =
-        "LocationAccuracy(horizontalPositionError=$horizontalPositionError)"
+        "LocationAccuracy(horizontalPositionErrorMeters=$horizontalPositionErrorMeters," +
+            "verticalPositionErrorMeters=$verticalPositionErrorMeters)"
 
     public companion object {
         @JvmField

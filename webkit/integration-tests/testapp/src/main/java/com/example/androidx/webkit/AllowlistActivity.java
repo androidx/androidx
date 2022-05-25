@@ -41,7 +41,7 @@ public class AllowlistActivity extends AppCompatActivity {
     private WebView mAllowlistWebView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_allowlist);
         setTitle(R.string.allowlist_activity_title);
@@ -82,6 +82,7 @@ public class AllowlistActivity extends AppCompatActivity {
         clearAllowlist();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
         if (mAllowlistWebView.canGoBack()) {

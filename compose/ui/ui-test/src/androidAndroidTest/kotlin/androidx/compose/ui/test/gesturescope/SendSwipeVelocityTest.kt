@@ -122,8 +122,8 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
 
         rule.runOnIdle {
             recorder.run {
-                val durationMs = duration
-                val minimumEventSize = max(2, (durationMs / eventPeriodMillis).toInt())
+                // The last 100ms is guaranteed to have velocity
+                val minimumEventSize = max(2, (100 / eventPeriodMillis).toInt())
                 assertThat(events.size).isAtLeast(minimumEventSize)
                 assertOnlyLastEventIsUp()
 
@@ -137,8 +137,8 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
                 assertThat(recordedDurationMillis).isEqualTo(duration)
 
                 // Check velocity
-                assertThat(recordedVelocity.x).isWithin(.1f).of(expectedXVelocity)
-                assertThat(recordedVelocity.y).isWithin(.1f).of(expectedYVelocity)
+                assertThat(recordedVelocity.x).isWithin(1f).of(expectedXVelocity)
+                assertThat(recordedVelocity.y).isWithin(1f).of(expectedYVelocity)
             }
         }
     }

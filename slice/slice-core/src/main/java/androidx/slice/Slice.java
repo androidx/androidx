@@ -185,6 +185,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
+    @SuppressWarnings("deprecation")
     public Slice(Bundle in) {
         mHints = in.getStringArray(HINTS);
         Parcelable[] items = in.getParcelableArray(ITEMS);

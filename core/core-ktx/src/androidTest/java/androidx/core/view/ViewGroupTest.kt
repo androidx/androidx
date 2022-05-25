@@ -155,6 +155,16 @@ class ViewGroupTest {
         assertThat(views).containsExactly(view1, view2)
     }
 
+    @Test fun indices() {
+        assertEquals(0 until 0, viewGroup.indices)
+
+        viewGroup.addView(View(context))
+        assertEquals(0 until 1, viewGroup.indices)
+
+        viewGroup.addView(View(context))
+        assertEquals(0 until 2, viewGroup.indices)
+    }
+
     @Test fun iterator() {
         val view1 = View(context)
         viewGroup.addView(view1)

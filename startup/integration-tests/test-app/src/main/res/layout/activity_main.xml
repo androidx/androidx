@@ -32,4 +32,14 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Preview Some Text" />
 
+    <Button
+        android:id="@+id/btnSecondary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/launch_secondary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtNotice" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

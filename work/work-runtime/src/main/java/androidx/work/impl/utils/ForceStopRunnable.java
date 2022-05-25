@@ -46,7 +46,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.os.BuildCompat;
 import androidx.work.Configuration;
 import androidx.work.InitializationExceptionHandler;
 import androidx.work.Logger;
@@ -86,11 +85,13 @@ public class ForceStopRunnable implements Runnable {
 
     private final Context mContext;
     private final WorkManagerImpl mWorkManager;
+    private final PreferenceUtils mPreferenceUtils;
     private int mRetryCount;
 
     public ForceStopRunnable(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
         mContext = context.getApplicationContext();
         mWorkManager = workManager;
+        mPreferenceUtils = workManager.getPreferenceUtils();
         mRetryCount = 0;
     }
 
@@ -141,7 +142,7 @@ public class ForceStopRunnable implements Runnable {
                     } else {
                         long duration = mRetryCount * BACKOFF_DURATION_MS;
                         Logger.get()
-                                .debug(TAG, String.format("Retrying after %s", duration),
+                                .debug(TAG, "Retrying after " + duration,
                                         exception);
                         sleep(mRetryCount * BACKOFF_DURATION_MS);
                     }
@@ -164,7 +165,7 @@ public class ForceStopRunnable implements Runnable {
         // something different.
         try {
             int flags = FLAG_NO_CREATE;
-            if (BuildCompat.isAtLeastS()) {
+            if (Build.VERSION.SDK_INT >= 31) {
                 flags |= FLAG_MUTABLE;
             }
             PendingIntent pendingIntent = getPendingIntent(mContext, flags);
@@ -183,9 +184,11 @@ public class ForceStopRunnable implements Runnable {
                         );
 
                 if (exitInfoList != null && !exitInfoList.isEmpty()) {
+                    long timestamp = mPreferenceUtils.getLastForceStopEventMillis();
                     for (int i = 0; i < exitInfoList.size(); i++) {
                         ApplicationExitInfo info = exitInfoList.get(i);
-                        if (info.getReason() == REASON_USER_REQUESTED) {
+                        if (info.getReason() == REASON_USER_REQUESTED
+                                && info.getTimestamp() >= timestamp) {
                             return true;
                         }
                     }
@@ -221,6 +224,8 @@ public class ForceStopRunnable implements Runnable {
         } else if (isForceStopped()) {
             Logger.get().debug(TAG, "Application was force-stopped, rescheduling.");
             mWorkManager.rescheduleEligibleWork();
+            // Update the last known force-stop event timestamp.
+            mPreferenceUtils.setLastForceStopEventMillis(System.currentTimeMillis());
         } else if (needsScheduling) {
             Logger.get().debug(TAG, "Found unfinished work, scheduling it.");
             Schedulers.schedule(
@@ -282,7 +287,7 @@ public class ForceStopRunnable implements Runnable {
      * @return {@code true} If we need to reschedule Workers.
      */
     @VisibleForTesting
-    boolean shouldRescheduleWorkers() {
+    public boolean shouldRescheduleWorkers() {
         return mWorkManager.getPreferenceUtils().getNeedsReschedule();
     }
 
@@ -304,7 +309,7 @@ public class ForceStopRunnable implements Runnable {
             return true;
         }
         boolean isDefaultProcess = ProcessUtils.isDefaultProcess(mContext, configuration);
-        Logger.get().debug(TAG, String.format("Is default app process = %s", isDefaultProcess));
+        Logger.get().debug(TAG, "Is default app process = " + isDefaultProcess);
         return isDefaultProcess;
     }
 
@@ -346,7 +351,7 @@ public class ForceStopRunnable implements Runnable {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         // Using FLAG_UPDATE_CURRENT, because we only ever want once instance of this alarm.
         int flags = FLAG_UPDATE_CURRENT;
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             flags |= FLAG_MUTABLE;
         }
         PendingIntent pendingIntent = getPendingIntent(context, flags);

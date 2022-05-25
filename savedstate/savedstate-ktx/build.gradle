@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -24,6 +23,11 @@ plugins {
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":savedstate:savedstate"))
+    }
+
     api(project(":savedstate:savedstate"))
     api(libs.kotlinStdlib)
 
@@ -39,4 +43,8 @@ androidx {
     mavenGroup = LibraryGroups.SAVEDSTATE
     inceptionYear = "2020"
     description = "Kotlin extensions for 'savedstate' artifact"
+}
+
+android {
+    namespace "androidx.savedstate.ktx"
 }

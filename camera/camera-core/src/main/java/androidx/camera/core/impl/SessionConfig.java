@@ -20,12 +20,15 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.CaptureRequest;
-import android.view.Surface;
+import android.hardware.camera2.params.InputConfiguration;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Logger;
 import androidx.camera.core.internal.compat.workaround.SurfaceSorter;
+
+import com.google.auto.value.AutoValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,9 +47,8 @@ import java.util.Set;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SessionConfig {
-
-    /** The set of {@link Surface} that data from the camera will be put into. */
-    private final List<DeferrableSurface> mSurfaces;
+    /** The set of {@link OutputConfig} that data from the camera will be put into. */
+    private final List<OutputConfig> mOutputConfigs;
     /** The state callback for a {@link CameraDevice}. */
     private final List<CameraDevice.StateCallback> mDeviceStateCallbacks;
     /** The state callback for a {@link CameraCaptureSession}. */
@@ -58,47 +60,176 @@ public final class SessionConfig {
     private final CaptureConfig mRepeatingCaptureConfig;
 
     /**
+     * Immutable class to store an input configuration that is used to create a reprocessable
+     * capture session.
+     */
+    @Nullable
+    private InputConfiguration mInputConfiguration;
+
+    /**
+     * The output configuration associated with the {@link DeferrableSurface} that will be used to
+     * create the configuration needed to open a camera session. In camera2 this will be used to
+     * create the corresponding {@link android.hardware.camera2.params.OutputConfiguration}.
+     */
+    @SuppressWarnings("AutoValueImmutableFields")  // avoid extra dependency for ImmutableList.
+    @AutoValue
+    public abstract static class OutputConfig {
+        public static final int SURFACE_GROUP_ID_NONE = -1;
+
+        /**
+         * Returns the surface associated with the {@link OutputConfig}.
+         */
+        @NonNull
+        public abstract DeferrableSurface getSurface();
+
+        /**
+         * Returns the shared surfaces. If non-empty, surface sharing will be enabled and the
+         * shared surfaces will share the same memory buffer as the main surface returned in
+         * {@link #getSurface()}.
+         */
+        @NonNull
+        public abstract List<DeferrableSurface> getSharedSurfaces();
+
+        /**
+         * Returns the physical camera ID. By default it would be null. For cameras consisting of
+         * multiple physical cameras, this allows output to be redirected to specific physical
+         * camera.
+         */
+        @Nullable
+        public abstract String getPhysicalCameraId();
+
+        /**
+         * Returns the surface group ID. Default value is {@link #SURFACE_GROUP_ID_NONE} meaning
+         * it doesn't belong to any surface group. A surface group ID is used to identify which
+         * surface group this output surface belongs to. Output streams with the same
+         * non-negative group ID won't receive the camera output simultaneously therefore it
+         * could reduce the overall memory footprint.
+         */
+        public abstract int getSurfaceGroupId();
+
+        /**
+         * Creates the {@link Builder} instance with specified {@link DeferrableSurface}.
+         */
+        @NonNull
+        public static Builder builder(@NonNull DeferrableSurface surface) {
+            return new AutoValue_SessionConfig_OutputConfig.Builder()
+                    .setSurface(surface)
+                    .setSharedSurfaces(Collections.emptyList())
+                    .setPhysicalCameraId(null)
+                    .setSurfaceGroupId(SURFACE_GROUP_ID_NONE);
+        }
+
+        /**
+         * Builder to create the {@link OutputConfig}
+         */
+        @AutoValue.Builder
+        public abstract static class Builder {
+            /**
+             * Sets the surface associated with the {@link OutputConfig}.
+             */
+            @NonNull
+            public abstract Builder setSurface(@NonNull DeferrableSurface surface);
+
+            /**
+             * Sets the shared surfaces. After being set, surface sharing will be enabled and the
+             * shared surfaces will share the same memory buffer as the main surface returned in
+             * {@link #getSurface()}.
+             */
+            @NonNull
+            public abstract Builder setSharedSurfaces(@NonNull List<DeferrableSurface> surface);
+
+            /**
+             * Sets the physical camera ID. For cameras consisting of multiple physical cameras,
+             * this allows output to be redirected to specific physical camera.
+             */
+            @NonNull
+            public abstract Builder setPhysicalCameraId(@Nullable String cameraId);
+
+            /**
+             * Sets the surface group ID. A surface group ID is used to identify which surface group
+             * this output surface belongs to. Output streams with the same non-negative group ID
+             * won't receive the camera output simultaneously therefore it could be used to reduce
+             * the overall memory footprint.
+             */
+            @NonNull
+            public abstract Builder setSurfaceGroupId(int surfaceGroupId);
+
+            /**
+             * Creates the instance.
+             */
+            @NonNull
+            public abstract OutputConfig build();
+        }
+    }
+    /**
      * Private constructor for a SessionConfig.
      *
      * <p>In practice, the {@link SessionConfig.BaseBuilder} will be used to construct a
      * SessionConfig.
      *
-     * @param surfaces               The set of {@link Surface} where data will be put into.
+     * @param outputConfigs          The list of {@link OutputConfig} where data will be put into.
      * @param deviceStateCallbacks   The state callbacks for a {@link CameraDevice}.
      * @param sessionStateCallbacks  The state callbacks for a {@link CameraCaptureSession}.
      * @param repeatingCaptureConfig The configuration for building the {@link CaptureRequest}.
+     * @param inputConfiguration     The input configuration to create a reprocessable capture
+     *                               session.
      */
     SessionConfig(
-            List<DeferrableSurface> surfaces,
+            List<OutputConfig> outputConfigs,
             List<StateCallback> deviceStateCallbacks,
             List<CameraCaptureSession.StateCallback> sessionStateCallbacks,
             List<CameraCaptureCallback> singleCameraCaptureCallbacks,
             List<ErrorListener> errorListeners,
-            CaptureConfig repeatingCaptureConfig) {
-        mSurfaces = surfaces;
+            CaptureConfig repeatingCaptureConfig,
+            @Nullable InputConfiguration inputConfiguration) {
+        mOutputConfigs = outputConfigs;
         mDeviceStateCallbacks = Collections.unmodifiableList(deviceStateCallbacks);
         mSessionStateCallbacks = Collections.unmodifiableList(sessionStateCallbacks);
         mSingleCameraCaptureCallbacks =
                 Collections.unmodifiableList(singleCameraCaptureCallbacks);
         mErrorListeners = Collections.unmodifiableList(errorListeners);
         mRepeatingCaptureConfig = repeatingCaptureConfig;
+        mInputConfiguration = inputConfiguration;
     }
 
     /** Returns an instance of a session configuration with minimal configurations. */
     @NonNull
     public static SessionConfig defaultEmptySessionConfig() {
         return new SessionConfig(
-                new ArrayList<DeferrableSurface>(),
+                new ArrayList<OutputConfig>(),
                 new ArrayList<CameraDevice.StateCallback>(0),
                 new ArrayList<CameraCaptureSession.StateCallback>(0),
                 new ArrayList<CameraCaptureCallback>(0),
                 new ArrayList<>(0),
-                new CaptureConfig.Builder().build());
+                new CaptureConfig.Builder().build(),
+                /* inputConfiguration */ null);
+    }
+
+    @Nullable
+    public InputConfiguration getInputConfiguration() {
+        return mInputConfiguration;
+    }
+
+    /**
+     * Returns all {@link DeferrableSurface}s that are used to configure the session. It includes
+     * both the {@link DeferrableSurface} of the all {@link OutputConfig}s and its shared
+     * surfaces.
+     */
+    @NonNull
+    public List<DeferrableSurface> getSurfaces() {
+        List<DeferrableSurface> deferrableSurfaces = new ArrayList<>();
+        for (OutputConfig outputConfig : mOutputConfigs) {
+            deferrableSurfaces.add(outputConfig.getSurface());
+            for (DeferrableSurface sharedSurface : outputConfig.getSharedSurfaces()) {
+                deferrableSurfaces.add(sharedSurface);
+            }
+        }
+        return Collections.unmodifiableList(deferrableSurfaces);
     }
 
     @NonNull
-    public List<DeferrableSurface> getSurfaces() {
-        return Collections.unmodifiableList(mSurfaces);
+    public List<OutputConfig> getOutputConfigs() {
+        return mOutputConfigs;
     }
 
     @NonNull
@@ -191,12 +322,13 @@ public final class SessionConfig {
      */
     static class BaseBuilder {
         // Use LinkedHashSet to preserve the adding order for bug fixing and testing.
-        final Set<DeferrableSurface> mSurfaces = new LinkedHashSet<>();
+        final Set<OutputConfig> mOutputConfigs = new LinkedHashSet<>();
         final CaptureConfig.Builder mCaptureConfigBuilder = new CaptureConfig.Builder();
         final List<CameraDevice.StateCallback> mDeviceStateCallbacks = new ArrayList<>();
         final List<CameraCaptureSession.StateCallback> mSessionStateCallbacks = new ArrayList<>();
         final List<ErrorListener> mErrorListeners = new ArrayList<>();
         final List<CameraCaptureCallback> mSingleCameraCaptureCallbacks = new ArrayList<>();
+        @Nullable InputConfiguration mInputConfiguration;
     }
 
     /**
@@ -225,6 +357,17 @@ public final class SessionConfig {
         }
 
         /**
+         * Set the input configuration for reprocessable capture session.
+         *
+         * @param inputConfiguration The input configuration.
+         */
+        @NonNull
+        public Builder setInputConfiguration(@Nullable InputConfiguration inputConfiguration) {
+            mInputConfiguration = inputConfiguration;
+            return this;
+        }
+
+        /**
          * Set the template characteristics of the SessionConfig.
          *
          * @param templateType Template constant that must match those defined by {@link
@@ -232,77 +375,93 @@ public final class SessionConfig {
          *                     <p>TODO(b/120949879): This is camera2 implementation detail that
          *                     should be moved
          */
-        public void setTemplateType(int templateType) {
+        @NonNull
+        public Builder setTemplateType(int templateType) {
             mCaptureConfigBuilder.setTemplateType(templateType);
+            return this;
         }
 
         /**
          * Adds a tag to the SessionConfig with a key. For tracking the source.
          */
-        public void addTag(@NonNull String key, @NonNull Object tag) {
+        @NonNull
+        public Builder addTag(@NonNull String key, @NonNull Object tag) {
             mCaptureConfigBuilder.addTag(key, tag);
+            return this;
         }
 
         /**
          * Adds a {@link CameraDevice.StateCallback} callback.
          */
         // TODO(b/120949879): This is camera2 implementation detail that should be moved
-        public void addDeviceStateCallback(
+        @NonNull
+        public Builder addDeviceStateCallback(
                 @NonNull CameraDevice.StateCallback deviceStateCallback) {
             if (mDeviceStateCallbacks.contains(deviceStateCallback)) {
-                return;
+                return this;
             }
             mDeviceStateCallbacks.add(deviceStateCallback);
+            return this;
         }
 
         /**
          * Adds all {@link CameraDevice.StateCallback} callbacks.
          */
-        public void addAllDeviceStateCallbacks(@NonNull
+        @NonNull
+        public Builder addAllDeviceStateCallbacks(@NonNull
                 Collection<CameraDevice.StateCallback> deviceStateCallbacks) {
             for (CameraDevice.StateCallback callback : deviceStateCallbacks) {
                 addDeviceStateCallback(callback);
             }
+            return this;
         }
 
         /**
          * Adds a {@link CameraCaptureSession.StateCallback} callback.
          */
         // TODO(b/120949879): This is camera2 implementation detail that should be moved
-        public void addSessionStateCallback(@NonNull
+        @NonNull
+        public Builder addSessionStateCallback(@NonNull
                 CameraCaptureSession.StateCallback sessionStateCallback) {
             if (mSessionStateCallbacks.contains(sessionStateCallback)) {
-                return;
+                return this;
             }
             mSessionStateCallbacks.add(sessionStateCallback);
+            return this;
         }
 
         /**
          * Adds all {@link CameraCaptureSession.StateCallback} callbacks.
          */
-        public void addAllSessionStateCallbacks(@NonNull
+        @NonNull
+        public Builder addAllSessionStateCallbacks(@NonNull
                 List<CameraCaptureSession.StateCallback> sessionStateCallbacks) {
             for (CameraCaptureSession.StateCallback callback : sessionStateCallbacks) {
                 addSessionStateCallback(callback);
             }
+            return this;
         }
 
         /**
          * Adds a {@link CameraCaptureCallback} callback for repeating requests.
          * <p>This callback does not call for single requests.
          */
-        public void addRepeatingCameraCaptureCallback(
+        @NonNull
+        public Builder addRepeatingCameraCaptureCallback(
                 @NonNull CameraCaptureCallback cameraCaptureCallback) {
             mCaptureConfigBuilder.addCameraCaptureCallback(cameraCaptureCallback);
+            return this;
         }
 
         /**
          * Adds all {@link CameraCaptureCallback} callbacks.
          * <p>These callbacks do not call for single requests.
          */
-        public void addAllRepeatingCameraCaptureCallbacks(@NonNull
+        @NonNull
+        public Builder addAllRepeatingCameraCaptureCallbacks(@NonNull
                 Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
             mCaptureConfigBuilder.addAllCameraCaptureCallbacks(cameraCaptureCallbacks);
+            return this;
         }
 
         /**
@@ -311,11 +470,14 @@ public final class SessionConfig {
          * {@link #getRepeatingCameraCaptureCallbacks()} and
          * {@link #getSingleCameraCaptureCallbacks()} methods.
          */
-        public void addCameraCaptureCallback(@NonNull CameraCaptureCallback cameraCaptureCallback) {
+        @NonNull
+        public Builder addCameraCaptureCallback(
+                @NonNull CameraCaptureCallback cameraCaptureCallback) {
             mCaptureConfigBuilder.addCameraCaptureCallback(cameraCaptureCallback);
             if (!mSingleCameraCaptureCallbacks.contains(cameraCaptureCallback)) {
                 mSingleCameraCaptureCallbacks.add(cameraCaptureCallback);
             }
+            return this;
         }
 
         /**
@@ -324,7 +486,8 @@ public final class SessionConfig {
          * {@link #getRepeatingCameraCaptureCallbacks()} and
          * {@link #getSingleCameraCaptureCallbacks()} methods.
          */
-        public void addAllCameraCaptureCallbacks(@NonNull
+        @NonNull
+        public Builder addAllCameraCaptureCallbacks(@NonNull
                 Collection<CameraCaptureCallback> cameraCaptureCallbacks) {
             for (CameraCaptureCallback c : cameraCaptureCallbacks) {
                 mCaptureConfigBuilder.addCameraCaptureCallback(c);
@@ -332,6 +495,23 @@ public final class SessionConfig {
                     mSingleCameraCaptureCallbacks.add(c);
                 }
             }
+            return this;
+        }
+
+        /**
+         * Removes a previously added {@link CameraCaptureCallback} callback for single and/or
+         * repeating requests.
+         * @param cameraCaptureCallback The callback to remove.
+         * @return {@code true} if the callback was successfully removed. {@code false} if the
+         * callback wasn't present in this builder.
+         */
+        public boolean removeCameraCaptureCallback(
+                @NonNull CameraCaptureCallback cameraCaptureCallback) {
+            boolean removedFromRepeating =
+                    mCaptureConfigBuilder.removeCameraCaptureCallback(cameraCaptureCallback);
+            boolean removedFromSingle =
+                    mSingleCameraCaptureCallbacks.remove(cameraCaptureCallback);
+            return removedFromRepeating || removedFromSingle;
         }
 
         /** Obtain all {@link CameraCaptureCallback} callbacks for single requests. */
@@ -343,42 +523,82 @@ public final class SessionConfig {
         /**
          * Adds all {@link ErrorListener} listeners repeating requests.
          */
-        public void addErrorListener(@NonNull ErrorListener errorListener) {
+        @NonNull
+        public Builder addErrorListener(@NonNull ErrorListener errorListener) {
             mErrorListeners.add(errorListener);
+            return this;
         }
 
 
         /** Add a surface to the set that the session repeatedly writes data to. */
-        public void addSurface(@NonNull DeferrableSurface surface) {
-            mSurfaces.add(surface);
+        @NonNull
+        public Builder addSurface(@NonNull DeferrableSurface surface) {
+            OutputConfig outputConfig = OutputConfig.builder(surface).build();
+            mOutputConfigs.add(outputConfig);
             mCaptureConfigBuilder.addSurface(surface);
+            return this;
+        }
+
+        /**
+         * Adds an {@link OutputConfig} to create the capture session with. The surface set in
+         * the {@link OutputConfig} will be added to the repeating request.
+         */
+        @NonNull
+        public Builder addOutputConfig(@NonNull OutputConfig outputConfig) {
+            mOutputConfigs.add(outputConfig);
+            mCaptureConfigBuilder.addSurface(outputConfig.getSurface());
+            for (DeferrableSurface sharedSurface : outputConfig.getSharedSurfaces()) {
+                mCaptureConfigBuilder.addSurface(sharedSurface);
+            }
+            return this;
         }
 
         /** Add a surface for the session which only used for single captures. */
-        public void addNonRepeatingSurface(@NonNull DeferrableSurface surface) {
-            mSurfaces.add(surface);
+        @NonNull
+        public Builder addNonRepeatingSurface(@NonNull DeferrableSurface surface) {
+            OutputConfig outputConfig = OutputConfig.builder(surface).build();
+            mOutputConfigs.add(outputConfig);
+            return this;
         }
 
         /** Remove a surface from the set which the session repeatedly writes to. */
-        public void removeSurface(@NonNull DeferrableSurface surface) {
-            mSurfaces.remove(surface);
+        @NonNull
+        public Builder removeSurface(@NonNull DeferrableSurface surface) {
+            OutputConfig outputConfigToRemove = null;
+            for (OutputConfig config : mOutputConfigs) {
+                if (config.getSurface().equals(surface)) {
+                    outputConfigToRemove = config;
+                    break;
+                }
+            }
+
+            if (outputConfigToRemove != null) {
+                mOutputConfigs.remove(outputConfigToRemove);
+            }
             mCaptureConfigBuilder.removeSurface(surface);
+            return this;
         }
 
         /** Clears all surfaces from the set which the session writes to. */
-        public void clearSurfaces() {
-            mSurfaces.clear();
+        @NonNull
+        public Builder clearSurfaces() {
+            mOutputConfigs.clear();
             mCaptureConfigBuilder.clearSurfaces();
+            return this;
         }
 
         /** Set the {@link Config} for options that are implementation specific. */
-        public void setImplementationOptions(@NonNull Config config) {
+        @NonNull
+        public Builder setImplementationOptions(@NonNull Config config) {
             mCaptureConfigBuilder.setImplementationOptions(config);
+            return this;
         }
 
         /** Add a set of {@link Config} to the implementation specific options. */
-        public void addImplementationOptions(@NonNull Config config) {
+        @NonNull
+        public Builder addImplementationOptions(@NonNull Config config) {
             mCaptureConfigBuilder.addImplementationOptions(config);
+            return this;
         }
 
         /**
@@ -388,12 +608,13 @@ public final class SessionConfig {
         @NonNull
         public SessionConfig build() {
             return new SessionConfig(
-                    new ArrayList<>(mSurfaces),
+                    new ArrayList<>(mOutputConfigs),
                     mDeviceStateCallbacks,
                     mSessionStateCallbacks,
                     mSingleCameraCaptureCallbacks,
                     mErrorListeners,
-                    mCaptureConfigBuilder.build());
+                    mCaptureConfigBuilder.build(),
+                    mInputConfiguration);
         }
     }
 
@@ -402,9 +623,13 @@ public final class SessionConfig {
      * the parameters for the {@link SessionConfig} are compatible with each other
      */
     public static final class ValidatingBuilder extends BaseBuilder {
-        // Current supported session template values and prioritize from small to large.
+        // Current supported session template values and the bigger index in the list, the
+        // priority is higher.
         private static final List<Integer> SUPPORTED_TEMPLATE_PRIORITY = Arrays.asList(
                 CameraDevice.TEMPLATE_PREVIEW,
+                // TODO(230673983): Based on the framework assumptions, we prioritize video capture
+                //  and disable ZSL (fallback to regular) if both use cases are bound.
+                CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG,
                 CameraDevice.TEMPLATE_RECORD
         );
 
@@ -446,13 +671,18 @@ public final class SessionConfig {
 
             mErrorListeners.addAll(sessionConfig.getErrorListeners());
 
+            // Check input configuration for reprocessable capture session.
+            if (sessionConfig.getInputConfiguration() != null) {
+                mInputConfiguration = sessionConfig.getInputConfiguration();
+            }
+
             // Check surfaces
-            mSurfaces.addAll(sessionConfig.getSurfaces());
+            mOutputConfigs.addAll(sessionConfig.getOutputConfigs());
 
             // Check capture request surfaces
             mCaptureConfigBuilder.getSurfaces().addAll(captureConfig.getSurfaces());
 
-            if (!mSurfaces.containsAll(mCaptureConfigBuilder.getSurfaces())) {
+            if (!getSurfaces().containsAll(mCaptureConfigBuilder.getSurfaces())) {
                 String errorMessage =
                         "Invalid configuration due to capture request surfaces are not a subset "
                                 + "of surfaces";
@@ -466,9 +696,20 @@ public final class SessionConfig {
                     captureConfig.getImplementationOptions());
         }
 
+        private List<DeferrableSurface> getSurfaces() {
+            List<DeferrableSurface> surfaces = new ArrayList<>();
+            for (OutputConfig outputConfig : mOutputConfigs) {
+                surfaces.add(outputConfig.getSurface());
+                for (DeferrableSurface sharedSurface : outputConfig.getSharedSurfaces()) {
+                    surfaces.add(sharedSurface);
+                }
+            }
+            return surfaces;
+        }
+
         /** Clears all surfaces from the set which the session writes to. */
         public void clearSurfaces() {
-            mSurfaces.clear();
+            mOutputConfigs.clear();
             mCaptureConfigBuilder.clearSurfaces();
         }
 
@@ -487,16 +728,17 @@ public final class SessionConfig {
                 throw new IllegalArgumentException("Unsupported session configuration combination");
             }
 
-            List<DeferrableSurface> surfaces = new ArrayList<>(mSurfaces);
-            mSurfaceSorter.sort(surfaces);
+            List<OutputConfig> outputConfigs = new ArrayList<>(mOutputConfigs);
+            mSurfaceSorter.sort(outputConfigs);
 
             return new SessionConfig(
-                    surfaces,
+                    outputConfigs,
                     mDeviceStateCallbacks,
                     mSessionStateCallbacks,
                     mSingleCameraCaptureCallbacks,
                     mErrorListeners,
-                    mCaptureConfigBuilder.build());
+                    mCaptureConfigBuilder.build(),
+                    mInputConfiguration);
         }
 
         private int selectTemplateType(int type1, int type2) {

@@ -21,6 +21,15 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
 import android.os.Build
+import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_HOVER_ENTER
+import android.view.MotionEvent.ACTION_HOVER_EXIT
+import android.view.MotionEvent.ACTION_HOVER_MOVE
+import android.view.MotionEvent.ACTION_MOVE
+import android.view.MotionEvent.ACTION_POINTER_DOWN
+import android.view.MotionEvent.ACTION_POINTER_UP
+import android.view.MotionEvent.ACTION_UP
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
@@ -46,7 +55,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Align
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
@@ -65,11 +73,14 @@ import androidx.compose.ui.node.ComposeUiNode
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -82,6 +93,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withClassName
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertNotNull
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.allOf
@@ -106,6 +118,8 @@ import kotlin.math.roundToInt
 class AndroidViewCompatTest {
     @get:Rule
     val rule = createAndroidComposeRule<TestActivity>()
+
+    private val tag = "TestTag"
 
     @Test
     fun simpleLayoutTest() {
@@ -509,14 +523,18 @@ class AndroidViewCompatTest {
             Box(Modifier.onGloballyPositioned { outer = it.positionInWindow() }) {
                 val paddingDp = with(LocalDensity.current) { padding.toDp() }
                 Box(Modifier.padding(paddingDp)) {
-                    AndroidView(::ComposeView) {
-                        it.setContent {
-                            Box(
-                                Modifier.padding(paddingDp)
-                                    .onGloballyPositioned { inner = it.positionInWindow() }
-                            )
+                    AndroidView(
+                        {
+                            ComposeView(it).apply {
+                                setContent {
+                                    Box(
+                                        Modifier.padding(paddingDp)
+                                            .onGloballyPositioned { inner = it.positionInWindow() }
+                                    )
+                                }
+                            }
                         }
-                    }
+                    )
                 }
             }
         }
@@ -549,14 +567,18 @@ class AndroidViewCompatTest {
                 Box {
                     val paddingDp = with(LocalDensity.current) { padding.toDp() }
                     Box(Modifier.padding(paddingDp)) {
-                        AndroidView(::ComposeView) {
-                            it.setContent {
-                                Box(
-                                    Modifier.padding(paddingDp)
-                                        .onGloballyPositioned { coordinates = it }
-                                )
+                        AndroidView(
+                            {
+                                ComposeView(it).apply {
+                                    setContent {
+                                        Box(
+                                            Modifier.padding(paddingDp)
+                                                .onGloballyPositioned { coordinates = it }
+                                        )
+                                    }
+                                }
                             }
-                        }
+                        )
                     }
                 }
             }
@@ -756,31 +778,24 @@ class AndroidViewCompatTest {
         rule.runOnIdle { assertEquals(invalidatesDuringScroll + 1, view!!.draws) }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     fun testWebViewIsRelaidOut_afterPageLoad() {
         var boxY = 0
-        var pageFinished = false
-        val latch = CountDownLatch(2)
+        val latch = CountDownLatch(1)
         rule.setContent {
             Column {
                 AndroidView(
                     factory = {
                         val webView = WebView(it)
                         webView.webViewClient = object : WebViewClient() {
-                            override fun onPageFinished(view: WebView?, url: String?) {
-                                super.onPageFinished(view, url)
+                            override fun onPageCommitVisible(view: WebView?, url: String?) {
+                                super.onPageCommitVisible(view, url)
                                 latch.countDown()
-                                pageFinished = true
                             }
                         }
                         webView.loadData("This is a test text", "text/html", "UTF-8")
                         webView
-                    },
-                    modifier = Modifier.drawBehind {
-                        // We would like to use onPageCommitVisible instead of onPageFinished,
-                        // such that this modifier would not be needed at all, but
-                        // onPageCommitVisible was only added in API 23.
-                        if (pageFinished) latch.countDown()
                     }
                 )
                 Box(Modifier.onGloballyPositioned { boxY = it.positionInRoot().y.roundToInt() })
@@ -804,6 +819,70 @@ class AndroidViewCompatTest {
 
         rule.runOnIdle {
             assertFalse(view!!.isLayoutRequested)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun hoverEventsAreDispatched() {
+        val view = createCaptureEventsView()
+
+        rule.onNodeWithTag(tag).performMouseInput {
+            enter(Offset(5f, 5f))
+            moveTo(Offset(10f, 10f))
+            exit(Offset(10f, 10f))
+        }
+
+        rule.runOnIdle {
+            assertThat(view.hoverEvents).containsExactly(
+                ACTION_HOVER_ENTER,
+                ACTION_HOVER_MOVE,
+                ACTION_HOVER_EXIT
+            )
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun touchEventsAreDispatched() {
+        val view = createCaptureEventsView()
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(1, Offset.Zero)
+            moveTo(1, Offset(10f, 10f))
+            down(2, Offset(10f, 0f))
+            moveTo(2, Offset(0f, 10f))
+            up(1)
+            moveTo(2, Offset.Zero)
+            up(2)
+        }
+
+        rule.runOnIdle {
+            assertThat(view.touchEvents).containsExactly(
+                ACTION_DOWN,
+                ACTION_MOVE,
+                ACTION_POINTER_DOWN,
+                ACTION_MOVE,
+                ACTION_POINTER_UP,
+                ACTION_MOVE,
+                ACTION_UP
+            )
+        }
+    }
+
+    private fun createCaptureEventsView(): CaptureEventsView {
+        lateinit var view: CaptureEventsView
+        rule.setContent {
+            AndroidView(
+                factory = {
+                    view = CaptureEventsView(it)
+                    view
+                },
+                modifier = Modifier.fillMaxSize().testTag(tag)
+            )
+        }
+        return rule.runOnIdle {
+            view
         }
     }
 
@@ -918,6 +997,22 @@ class AndroidViewCompatTest {
                 override val alignmentLines: Map<AlignmentLine, Int> get() = mapOf()
                 override fun placeChildren() {}
             }
+        }
+    }
+
+    private class CaptureEventsView(context: Context) : View(context) {
+        val touchEvents = mutableListOf<Int>()
+        val hoverEvents = mutableListOf<Int>()
+
+        override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+            touchEvents += event.actionMasked
+            super.dispatchTouchEvent(event)
+            return true
+        }
+
+        override fun dispatchHoverEvent(event: MotionEvent): Boolean {
+            hoverEvents += event.actionMasked
+            return super.dispatchHoverEvent(event)
         }
     }
 }

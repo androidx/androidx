@@ -16,6 +16,7 @@
 
 package androidx.health.services.client.data
 
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.Availability.AvailabilityCase
 import androidx.health.services.client.proto.DataProto.Availability.DataTypeAvailability as DataTypeAvailabilityProto
@@ -25,6 +26,7 @@ public interface Availability {
     public val id: Int
 
     /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public fun toProto(): DataProto.Availability =
         DataProto.Availability.newBuilder()
             .setDataTypeAvailability(DataTypeAvailabilityProto.DATA_TYPE_AVAILABILITY_UNKNOWN)
@@ -32,6 +34,7 @@ public interface Availability {
 
     public companion object {
         /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         public fun fromProto(proto: DataProto.Availability): Availability =
             when (proto.availabilityCase) {

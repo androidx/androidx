@@ -9,6 +9,7 @@ import androidx.room.guava.GuavaRoom;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
+import androidx.sqlite.db.SupportSQLiteQuery;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.Class;
 import java.lang.Exception;
@@ -54,8 +55,8 @@ public final class ComplexDao_Impl extends ComplexDao {
         __db.assertNotSuspendingTransaction();
         final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
         try {
-            final int _cursorIndexOfFullName = CursorUtil.getColumnIndexOrThrow(_cursor, "fullName");
-            final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+            final int _cursorIndexOfFullName = 0;
+            final int _cursorIndexOfId = 1;
             final List<ComplexDao.FullName> _result = new ArrayList<ComplexDao.FullName>(_cursor.getCount());
             while(_cursor.moveToNext()) {
                 final ComplexDao.FullName _item;
@@ -605,7 +606,85 @@ public final class ComplexDao_Impl extends ComplexDao {
         }, _statement, true, _cancellationSignal);
     }
 
+    @Override
+    public List<UserSummary> getUserNames() {
+        final String _sql = "SELECT `uid`, `name` FROM (SELECT * FROM User)";
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+        __db.assertNotSuspendingTransaction();
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+            final int _cursorIndexOfUid = 0;
+            final int _cursorIndexOfName = 1;
+            final List<UserSummary> _result = new ArrayList<UserSummary>(_cursor.getCount());
+            while(_cursor.moveToNext()) {
+                final UserSummary _item;
+                _item = new UserSummary();
+                _item.uid = _cursor.getInt(_cursorIndexOfUid);
+                if (_cursor.isNull(_cursorIndexOfName)) {
+                    _item.name = null;
+                } else {
+                    _item.name = _cursor.getString(_cursorIndexOfName);
+                }
+                _result.add(_item);
+            }
+            return _result;
+        } finally {
+            _cursor.close();
+            _statement.release();
+        }
+    }
+
+    @Override
+    public User getUserViaRawQuery(final SupportSQLiteQuery rawQuery) {
+        final SupportSQLiteQuery _internalQuery = rawQuery;
+        __db.assertNotSuspendingTransaction();
+        final Cursor _cursor = DBUtil.query(__db, _internalQuery, false, null);
+        try {
+            final User _result;
+            if(_cursor.moveToFirst()) {
+                _result = __entityCursorConverter_fooBarUser(_cursor);
+            } else {
+                _result = null;
+            }
+            return _result;
+        } finally {
+            _cursor.close();
+        }
+    }
+
     public static List<Class<?>> getRequiredConverters() {
         return Collections.emptyList();
+    }
+
+    private User __entityCursorConverter_fooBarUser(Cursor cursor) {
+        final User _entity;
+        final int _cursorIndexOfUid = CursorUtil.getColumnIndex(cursor, "uid");
+        final int _cursorIndexOfName = CursorUtil.getColumnIndex(cursor, "name");
+        final int _cursorIndexOfLastName = CursorUtil.getColumnIndex(cursor, "lastName");
+        final int _cursorIndexOfAge = CursorUtil.getColumnIndex(cursor, "ageColumn");
+        _entity = new User();
+        if (_cursorIndexOfUid != -1) {
+            _entity.uid = cursor.getInt(_cursorIndexOfUid);
+        }
+        if (_cursorIndexOfName != -1) {
+            if (cursor.isNull(_cursorIndexOfName)) {
+                _entity.name = null;
+            } else {
+                _entity.name = cursor.getString(_cursorIndexOfName);
+            }
+        }
+        if (_cursorIndexOfLastName != -1) {
+            final String _tmpLastName;
+            if (cursor.isNull(_cursorIndexOfLastName)) {
+                _tmpLastName = null;
+            } else {
+                _tmpLastName = cursor.getString(_cursorIndexOfLastName);
+            }
+            _entity.setLastName(_tmpLastName);
+        }
+        if (_cursorIndexOfAge != -1) {
+            _entity.age = cursor.getInt(_cursorIndexOfAge);
+        }
+        return _entity;
     }
 }

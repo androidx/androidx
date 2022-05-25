@@ -225,6 +225,82 @@ class FragmentTransactionCallbackTest : BaseTest() {
     }
 
     @Test
+    fun test_fragmentSaveSateCallback() {
+        setUpTest(ORIENTATION_HORIZONTAL).apply {
+            // given
+            val items = stringSequence(10).toMutableList()
+            val adapterProvider = fragmentAdapterProviderValueId.provider(items)
+            setAdapterSync(adapterProvider)
+            runOnUiThreadSync { viewPager.offscreenPageLimit = 1 }
+
+            val adapter = viewPager.adapter as FragmentStateAdapter
+            val fragmentManager = activity.supportFragmentManager
+
+            val log = RecordingLogger()
+            val adapterCallback = createRecordingFragmentTransactionCallback(log)
+            val lifecycleCallback = createRecordingFragmentLifecycleCallback(log)
+            adapter.registerFragmentTransactionCallback(adapterCallback)
+            fragmentManager.registerFragmentLifecycleCallbacks(lifecycleCallback, true)
+
+            // when: new item is pushed at the start of the list
+            val latch = adapter.registerFragmentRemovedLatch()
+
+            runOnUiThreadSync {
+                val newValue = "11"
+                assertThat(items.contains(newValue), equalTo(false))
+                items.add(0, newValue) // note: new value added at the start of the list
+
+                adapter.notifyDataSetChanged()
+            }
+
+            latch.awaitStrict(5)
+
+            // then
+            assertThat(
+                log.consume(), equalTo(
+                    listOf(
+                        "Adapter:onFragmentPreAdded(<no-tag>)",
+                        "Lifecycle:onFragmentPreAttached(f1)",
+                        "Lifecycle:onFragmentAttached(f1)",
+                        "Lifecycle:onFragmentPreCreated(f1)",
+                        "Lifecycle:onFragmentCreated(f1)",
+                        "Lifecycle:onFragmentViewCreated(f1)",
+                        "Lifecycle:onFragmentActivityCreated(f1)",
+                        "Lifecycle:onFragmentStarted(f1)",
+                        "Adapter:onFragmentAdded(f1)",
+                        "Adapter:onFragmentPreAdded(<no-tag>)",
+                        "Lifecycle:onFragmentPreAttached(f11)",
+                        "Lifecycle:onFragmentAttached(f11)",
+                        "Lifecycle:onFragmentPreCreated(f11)",
+                        "Lifecycle:onFragmentCreated(f11)",
+                        "Lifecycle:onFragmentViewCreated(f11)",
+                        "Lifecycle:onFragmentActivityCreated(f11)",
+                        "Lifecycle:onFragmentStarted(f11)",
+                        "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
+                        "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at STARTED)",
+                        "Adapter:onFragmentMaxLifecyclePreUpdated(f11 at RESUMED)",
+                        "Lifecycle:onFragmentPaused(f0)",
+                        "Lifecycle:onFragmentResumed(f11)",
+                        "Adapter:onFragmentMaxLifecycleUpdated(f11 at RESUMED)",
+                        "Adapter:onFragmentMaxLifecycleUpdated(f1 at STARTED)",
+                        "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)",
+                        "Adapter:onFragmentAdded(f11)",
+                        "Adapter:onFragmentPreSavedInstanceState(f1)", // note: pre-saved
+                        "Lifecycle:onFragmentSaveInstanceState(f1)",
+                        "Adapter:onFragmentSavedInstanceState(f1)", // note: saved
+                        "Adapter:onFragmentPreRemoved(f1)",
+                        "Lifecycle:onFragmentStopped(f1)",
+                        "Lifecycle:onFragmentViewDestroyed(f1)",
+                        "Lifecycle:onFragmentDestroyed(f1)",
+                        "Lifecycle:onFragmentDetached(f1)",
+                        "Adapter:onFragmentRemoved(<no-tag>)",
+                    )
+                )
+            )
+        }
+    }
+
+    @Test
     fun test_unregisterInsideCallback() {
         setUpTest(ORIENTATION_HORIZONTAL).apply {
             setAdapterSync(fragmentAdapterProviderValueId.provider(stringSequence(2)))
@@ -325,6 +401,13 @@ class FragmentTransactionCallbackTest : BaseTest() {
                 log.append("Lifecycle:onFragmentPreCreated(${f.name})")
             }
 
+            @Deprecated("To get a callback specifically when a Fragment activity's\n" +
+                " {@link android.app.Activity#onCreate(Bundle)} is called, register a\n" +
+                " {@link androidx.lifecycle.LifecycleObserver} on the Activity's\n" +
+                " {@link Lifecycle} in" +
+                " {@link #onFragmentAttached(FragmentManager, Fragment, Context)}, removing it\n" +
+                " when it receives the {@link Lifecycle.State#CREATED} callback."
+            )
             override fun onFragmentActivityCreated(
                 fm: FragmentManager,
                 f: Fragment,
@@ -350,6 +433,15 @@ class FragmentTransactionCallbackTest : BaseTest() {
                     log.append("Adapter:onFragmentPreAdded(${fragment.name})")
                     return OnPostEventListener {
                         log.append("Adapter:onFragmentAdded(${fragment.name})")
+                    }
+                }
+
+                override fun onFragmentPreSavedInstanceState(
+                    fragment: Fragment
+                ): OnPostEventListener {
+                    log.append("Adapter:onFragmentPreSavedInstanceState(${fragment.name})")
+                    return OnPostEventListener {
+                        log.append("Adapter:onFragmentSavedInstanceState(${fragment.name})")
                     }
                 }
 

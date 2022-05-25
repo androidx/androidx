@@ -18,49 +18,136 @@ package androidx.window.embedding
 
 import android.content.Intent
 import android.util.LayoutDirection
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
+import androidx.core.util.Preconditions.checkArgument
+import androidx.core.util.Preconditions.checkArgumentNonnegative
 import androidx.window.core.ExperimentalWindowApi
 
 /**
  * Configuration rules for split placeholders.
  */
 @ExperimentalWindowApi
-class SplitPlaceholderRule(
+class SplitPlaceholderRule : SplitRule {
+
     /**
-     * Filters used to choose when to apply this rule.
+     * Filters used to choose when to apply this rule. The rule may be used if any one of the
+     * provided filters matches.
      */
-    filters: Set<ActivityFilter>,
+    val filters: Set<ActivityFilter>
 
     /**
      * Intent to launch the placeholder activity.
      */
-    val placeholderIntent: Intent,
+    val placeholderIntent: Intent
 
-    minWidth: Int = 0,
-    minSmallestWidth: Int = 0,
-    splitRatio: Float = 0.5f,
-    @LayoutDir
-    layoutDirection: Int = LayoutDirection.LOCALE
-) : SplitRule(
-    minWidth,
-    minSmallestWidth,
-    splitRatio,
-    layoutDirection
-) {
     /**
-     * Read-only filters used to choose when to apply this rule.
+     * Determines whether the placeholder will show on top in a smaller window size after it first
+     * appeared in a split with sufficient minimum width.
      */
-    val filters: Set<ActivityFilter> = filters.toSet()
+    val isSticky: Boolean
+
+    /**
+     * Determines what happens with the primary container when all activities are finished in the
+     * associated placeholder container.
+     * @see SplitRule.SplitFinishBehavior
+     */
+    @SplitFinishBehavior
+    val finishPrimaryWithSecondary: Int
+
+    // TODO(b/229656253): Reduce visibility to remove from public API.
+    @Deprecated(
+        message = "Visibility of the constructor will be reduced.",
+        replaceWith = ReplaceWith("androidx.window.embedding.SplitPlaceholderRule.Builder")
+    )
+    constructor(
+        filters: Set<ActivityFilter>,
+        placeholderIntent: Intent,
+        isSticky: Boolean,
+        @SplitFinishBehavior finishPrimaryWithSecondary: Int = FINISH_ALWAYS,
+        @IntRange(from = 0) minWidth: Int = 0,
+        @IntRange(from = 0) minSmallestWidth: Int = 0,
+        @FloatRange(from = 0.0, to = 1.0) splitRatio: Float = 0.5f,
+        @LayoutDir layoutDirection: Int = LayoutDirection.LOCALE
+    ) : super(minWidth, minSmallestWidth, splitRatio, layoutDirection) {
+        checkArgumentNonnegative(minWidth, "minWidth must be non-negative")
+        checkArgumentNonnegative(minSmallestWidth, "minSmallestWidth must be non-negative")
+        checkArgument(splitRatio in 0.0..1.0, "splitRatio must be in 0.0..1.0 range")
+        this.filters = filters.toSet()
+        this.placeholderIntent = placeholderIntent
+        this.isSticky = isSticky
+        this.finishPrimaryWithSecondary = finishPrimaryWithSecondary
+    }
+
+    /**
+     * Builder for [SplitPlaceholderRule].
+     * @param filters See [SplitPlaceholderRule.filters].
+     * @param placeholderIntent See [SplitPlaceholderRule.placeholderIntent].
+     * @param minWidth See [SplitPlaceholderRule.minWidth].
+     * @param minSmallestWidth See [SplitPlaceholderRule.minSmallestWidth].
+     */
+    class Builder(
+        private val filters: Set<ActivityFilter>,
+        private val placeholderIntent: Intent,
+        @IntRange(from = 0)
+        private val minWidth: Int,
+        @IntRange(from = 0)
+        private val minSmallestWidth: Int
+    ) {
+        @SplitFinishBehavior
+        private var finishPrimaryWithSecondary: Int = FINISH_ALWAYS
+        private var isSticky: Boolean = false
+        @FloatRange(from = 0.0, to = 1.0)
+        private var splitRatio: Float = 0.5f
+        @LayoutDir
+        private var layoutDir: Int = LayoutDirection.LOCALE
+
+        /**
+         * @see SplitPlaceholderRule.finishPrimaryWithSecondary
+         */
+        fun setFinishPrimaryWithSecondary(
+            @SplitFinishBehavior finishPrimaryWithSecondary: Int
+        ): Builder =
+            apply { this.finishPrimaryWithSecondary = finishPrimaryWithSecondary }
+
+        /**
+         * @see SplitPlaceholderRule.isSticky
+         */
+        fun setSticky(isSticky: Boolean): Builder =
+            apply { this.isSticky = isSticky }
+
+        /**
+         * @see SplitPlaceholderRule.splitRatio
+         */
+        fun setSplitRatio(@FloatRange(from = 0.0, to = 1.0) splitRatio: Float): Builder =
+            apply { this.splitRatio = splitRatio }
+
+        /**
+         * @see SplitPlaceholderRule.layoutDirection
+         */
+        @SuppressWarnings("MissingGetterMatchingBuilder")
+        fun setLayoutDir(@LayoutDir layoutDir: Int): Builder =
+            apply { this.layoutDir = layoutDir }
+
+        @Suppress("DEPRECATION")
+        fun build() = SplitPlaceholderRule(filters, placeholderIntent, isSticky,
+            finishPrimaryWithSecondary, minWidth, minSmallestWidth, splitRatio, layoutDir)
+    }
 
     /**
      * Creates a new immutable instance by adding a filter to the set.
+     * @see filters
      */
     internal operator fun plus(filter: ActivityFilter): SplitPlaceholderRule {
         val newSet = mutableSetOf<ActivityFilter>()
         newSet.addAll(filters)
         newSet.add(filter)
+        @Suppress("DEPRECATION")
         return SplitPlaceholderRule(
             newSet.toSet(),
             placeholderIntent,
+            isSticky,
+            finishPrimaryWithSecondary,
             minWidth,
             minSmallestWidth,
             splitRatio,
@@ -73,17 +160,20 @@ class SplitPlaceholderRule(
         if (other !is SplitPlaceholderRule) return false
         if (!super.equals(other)) return false
 
-        if (!super.equals(other)) return false
-        if (filters != other.filters) return false
         if (placeholderIntent != other.placeholderIntent) return false
+        if (isSticky != other.isSticky) return false
+        if (finishPrimaryWithSecondary != other.finishPrimaryWithSecondary) return false
+        if (filters != other.filters) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + filters.hashCode()
         result = 31 * result + placeholderIntent.hashCode()
+        result = 31 * result + isSticky.hashCode()
+        result = 31 * result + finishPrimaryWithSecondary.hashCode()
+        result = 31 * result + filters.hashCode()
         return result
     }
 }

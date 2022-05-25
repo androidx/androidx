@@ -32,7 +32,7 @@ import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.WorkerWrapper
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.worker.StopAwareForegroundWorker
@@ -88,23 +88,16 @@ class WorkerWrapperForegroundTest {
             val main = Executor { runnable ->
                 handler.post(runnable)
             }
-            val serialExecutor = SerialExecutor(internalExecutor)
-            override fun postToMainThread(runnable: Runnable) {
-                handler.post(runnable)
-            }
+            val serialExecutor = SerialExecutorImpl(internalExecutor)
 
             override fun getMainThreadExecutor(): Executor {
                 return main
             }
 
-            override fun executeOnBackgroundThread(runnable: Runnable) {
-                serialExecutor.execute(runnable)
-            }
-
-            override fun getBackgroundExecutor() = serialExecutor
+            override fun getSerialTaskExecutor() = serialExecutor
         }
 
-        workDatabase = WorkDatabase.create(context, taskExecutor.backgroundExecutor, true)
+        workDatabase = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
         val scheduler = mock(Scheduler::class.java)
         schedulers = Collections.singletonList(scheduler)
         processor = Processor(context, config, taskExecutor, workDatabase, schedulers)

@@ -16,7 +16,6 @@
 
 package androidx.build
 
-import androidx.build.AndroidXRootImplPlugin.Companion.PROJECT_OR_ARTIFACT_EXT_NAME
 import androidx.build.dependencyTracker.DependencyTracker
 import androidx.build.dependencyTracker.ProjectGraph
 import androidx.build.gradle.isRoot
@@ -25,11 +24,7 @@ import groovy.xml.DOMBuilder
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.DependencySubstitution
-import org.gradle.api.artifacts.component.ModuleComponentSelector
 import org.gradle.api.artifacts.dsl.RepositoryHandler
-import org.gradle.kotlin.dsl.KotlinClosure1
-import org.gradle.kotlin.dsl.extra
 import java.net.URI
 import java.net.URL
 
@@ -50,12 +45,6 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
      * The configuration for the plugin read from the gradle properties
      */
     private lateinit var config: PlaygroundProperties
-
-    private val projectOrArtifactClosure = KotlinClosure1<String, Any>(
-        function = {
-            projectOrArtifact(this)
-        }
-    )
 
     override fun apply(target: Project) {
         if (!target.isRoot) {
@@ -85,56 +74,14 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
 
     private fun configureSubProject(project: Project) {
         project.repositories.addPlaygroundRepositories()
-        project.extra.set(PROJECT_OR_ARTIFACT_EXT_NAME, projectOrArtifactClosure)
         project.configurations.all { configuration ->
-            configuration.resolutionStrategy.dependencySubstitution.all { substitution ->
-                substitution.replaceIfSnapshot()
+            configuration.resolutionStrategy.eachDependency { details ->
+                val requested = details.requested
+                if (requested.version == SNAPSHOT_MARKER) {
+                    val snapshotVersion = findSnapshotVersion(requested.group, requested.name)
+                    details.useVersion(snapshotVersion)
+                }
             }
-        }
-    }
-
-    /**
-     * Returns a `project` if exists or the latest artifact coordinates if it doesn't.
-     *
-     * This can be used for optional dependencies in the playground settings.gradle files.
-     *
-     * @param path The project path
-     * @return A Project instance if it exists or coordinates of the artifact if the project is not
-     *         included in this build.
-     */
-    private fun projectOrArtifact(path: String): Any {
-        val requested = rootProject.findProject(path)
-        if (requested != null) {
-            return requested
-        } else {
-            val sections = path.split(":")
-
-            if (sections[0].isNotEmpty()) {
-                throw GradleException(
-                    "Expected projectOrArtifact path to start with empty section but got $path"
-                )
-            }
-
-            // Typically androidx projects have 3 sections, compose has 4.
-            if (sections.size >= 3) {
-                val group = sections
-                    // Filter empty sections as many declarations start with ':'
-                    .filter { !it.isBlank() }
-                    // Last element is the artifact.
-                    .dropLast(1)
-                    .joinToString(".")
-                return "androidx.$group:${sections.last()}:$SNAPSHOT_MARKER"
-            }
-
-            throw GradleException("projectOrArtifact cannot find/replace project $path")
-        }
-    }
-
-    private fun DependencySubstitution.replaceIfSnapshot() {
-        val requested = this.requested
-        if (requested is ModuleComponentSelector && requested.version == SNAPSHOT_MARKER) {
-            val snapshotVersion = findSnapshotVersion(requested.group, requested.module)
-            useTarget("${requested.group}:${requested.module}:$snapshotVersion")
         }
     }
 
@@ -155,7 +102,7 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
         return if (metadataCacheFile.exists()) {
             metadataCacheFile.readText(Charsets.UTF_8)
         } else {
-            val metadataUrl = "${repos.snapshots}/$groupPath/$modulePath/maven-metadata.xml"
+            val metadataUrl = "${repos.snapshots.url}/$groupPath/$modulePath/maven-metadata.xml"
             URL(metadataUrl).openStream().use {
                 val parsedMetadata = DOMBuilder.parse(it.reader())
                 val versionNodes = parsedMetadata.getElementsByTagName("latest")
@@ -174,32 +121,50 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
     }
 
     private fun RepositoryHandler.addPlaygroundRepositories() {
-        repos.all.forEach { repoUrl ->
-            maven {
-                it.url = URI(repoUrl)
-                it.metadataSources {
+        repos.all.forEach { playgroundRepository ->
+            maven { repository ->
+                repository.url = URI(playgroundRepository.url)
+                repository.metadataSources {
                     it.mavenPom()
                     it.artifact()
+                }
+                repository.content {
+                    it.includeGroupByRegex(playgroundRepository.includeGroupRegex)
                 }
             }
         }
         google()
         mavenCentral()
-        @Suppress("DEPRECATION") // b/181908259
-        jcenter()
+        gradlePluginPortal()
     }
 
     private class PlaygroundRepositories(
         props: PlaygroundProperties
     ) {
-        val snapshots =
-            "https://androidx.dev/snapshots/builds/${props.snapshotBuildId}/artifacts/repository"
-        val metalava = "https://androidx.dev/metalava/builds/${props.metalavaBuildId}/artifacts" +
-            "/repo/m2repository"
-        val doclava = "https://androidx.dev/dokka/builds/${props.dokkaBuildId}/artifacts/repository"
-        val prebuilts = "https://androidx.dev/storage/prebuilts/androidx/internal/repository"
+        val snapshots = PlaygroundRepository(
+            "https://androidx.dev/snapshots/builds/${props.snapshotBuildId}/artifacts/repository",
+            includeGroupRegex = """androidx\..*"""
+        )
+        val metalava = PlaygroundRepository(
+            "https://androidx.dev/metalava/builds/${props.metalavaBuildId}/artifacts" +
+                "/repo/m2repository",
+            includeGroupRegex = """com\.android\.tools\.metalava"""
+        )
+        val doclava = PlaygroundRepository(
+            "https://androidx.dev/dokka/builds/${props.dokkaBuildId}/artifacts/repository",
+            includeGroupRegex = """org\.jetbrains\.dokka"""
+        )
+        val prebuilts = PlaygroundRepository(
+            "https://androidx.dev/storage/prebuilts/androidx/internal/repository",
+            includeGroupRegex = """androidx\..*"""
+        )
         val all = listOf(snapshots, metalava, doclava, prebuilts)
     }
+
+    private data class PlaygroundRepository(
+        val url: String,
+        val includeGroupRegex: String
+    )
 
     private data class PlaygroundProperties(
         val snapshotBuildId: String,
@@ -224,6 +189,42 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
     }
 
     companion object {
+        /**
+         * Returns a `project` if exists or the latest artifact coordinates if it doesn't.
+         *
+         * This can be used for optional dependencies in the playground settings.gradle files.
+         *
+         * @param path The project path
+         * @return A Project instance if it exists or coordinates of the artifact if the project is not
+         *         included in this build.
+         */
+        fun projectOrArtifact(rootProject: Project, path: String): Any {
+            val requested = rootProject.findProject(path)
+            if (requested != null) {
+                return requested
+            } else {
+                val sections = path.split(":")
+
+                if (sections[0].isNotEmpty()) {
+                    throw GradleException(
+                        "Expected projectOrArtifact path to start with empty section but got $path"
+                    )
+                }
+
+                // Typically androidx projects have 3 sections, compose has 4.
+                if (sections.size >= 3) {
+                    val group = sections
+                        // Filter empty sections as many declarations start with ':'
+                        .filter { it.isNotBlank() }
+                        // Last element is the artifact.
+                        .dropLast(1)
+                        .joinToString(".")
+                    return "androidx.$group:${sections.last()}:$SNAPSHOT_MARKER"
+                }
+
+                throw GradleException("projectOrArtifact cannot find/replace project $path")
+            }
+        }
         const val SNAPSHOT_MARKER = "REPLACE_WITH_SNAPSHOT"
     }
 }

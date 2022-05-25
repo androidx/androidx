@@ -22,9 +22,8 @@ import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 
 class UpdateMethod(
     element: XMethodElement,
-    name: String,
     entities: Map<String, ShortcutEntity>,
     parameters: List<ShortcutQueryParameter>,
     methodBinder: DeleteOrUpdateMethodBinder?,
     @OnConflictStrategy val onConflictStrategy: Int
-) : ShortcutMethod(element, name, entities, parameters, methodBinder)
+) : ShortcutMethod(element, entities, parameters, methodBinder)

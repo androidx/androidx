@@ -64,6 +64,7 @@ android {
             dimension "processorConfiguration"
         }
     }
+    namespace "androidx.room.integration.kotlintestapp"
 }
 
 dependencies {
@@ -85,7 +86,6 @@ dependencies {
             project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
     )
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-ktx"))
-    androidTestImplementation(projectOrArtifact(":arch:core:core-runtime")) // Added for b/155802460
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner) {
@@ -99,15 +99,19 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(project(":room:room-guava"))
-    androidTestImplementation(project(":room:room-paging")) // Added for b/155802460
     androidTestImplementation(project(":room:room-testing"))
+    androidTestImplementation(project(":room:room-paging-guava"))
+    androidTestImplementation(project(":room:room-paging-rxjava2"))
+    androidTestImplementation(project(":room:room-paging-rxjava3"))
+    // we need latest guava android because room-paging-guava's guava-android gets override by
+    // its kotlinx-coroutines-guava dependency's guava-jre version
+    androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation(project(":room:room-rxjava3"))
     androidTestImplementation(project(":room:room-ktx"))
     androidTestImplementation(project(":internal-testutils-common"))
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
-    androidTestImplementation(projectOrArtifact(":paging:paging-runtime"))
-    androidTestImplementation(libs.guavaAndroid)
+    androidTestImplementation("androidx.paging:paging-runtime:3.1.1")
     androidTestImplementation(libs.rxjava2)
     testImplementation(libs.mockitoCore)
 }
@@ -120,6 +124,6 @@ ksp {
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -28,6 +27,7 @@ android {
         consumerProguardFiles "proguard-rules.pro"
         multiDexKeepProguard file("multidex-rules.pro")
     }
+    namespace "androidx.startup"
 }
 
 dependencies {

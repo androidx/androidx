@@ -68,11 +68,13 @@ class VelocityPathFinderTest(private val config: TestConfig) {
                 add(TestConfig(direction.offset, 0f, 1500L, false)) // v == 0, large T
                 add(TestConfig(direction.offset, 500f, 500L, false)) // T < d
                 add(TestConfig(direction.offset, 1500f, 500L, false)) // 100 < d < T
-                add(TestConfig(direction.offset, 6000f, 500L, true)) // d < 100 && T > d
+                add(TestConfig(direction.offset, 6000f, 500L, false)) // d < 100 && T > d
                 add(TestConfig(direction.offset, 6000f, 66L, false)) // d < 100 && T < d
             }
             // Regression for b/182477143
             add(TestConfig(Offset(424.8f, 0f) - Offset(295.2f, 0f), 2000f, 3000L, false))
+            // Same as above, but for T = 100
+            add(TestConfig(Offset(129.6f, 0f), 2000f, 100L, false))
         }
     }
 
@@ -97,10 +99,11 @@ class VelocityPathFinderTest(private val config: TestConfig) {
         val velocityTracker = simulateSwipe(config, f)
         val velocity = velocityTracker.calculateVelocity()
 
-        assertThat(velocity.sum()).isWithin(.1f).of(config.requestedVelocity)
+        val velocityTolerance = .1f * config.requestedVelocity // 10% of the expected value
+        assertThat(velocity.sum()).isWithin(velocityTolerance).of(config.requestedVelocity)
         if (config.requestedVelocity > 0) {
             // Direction of velocity of 0 is undefined, so any direction is correct
-            velocity.toOffset().normalize().isAlmostEqualTo(config.end.normalize())
+            velocity.toOffset().normalize().isAlmostEqualTo(config.end.normalize(), 0.03f)
         }
         // At t = 0, the function should return the start position (which is Offset.Zero here)
         f(0).isAlmostEqualTo(Offset.Zero)
@@ -121,12 +124,12 @@ class VelocityPathFinderTest(private val config: TestConfig) {
                 endVelocity = config.requestedVelocity,
                 durationMillis = config.durationMillis
             ).generateFunction()
-            fail("Expected an IllegalStateException")
-        } catch (e: IllegalStateException) {
+            fail("Expected an IllegalArgumentException")
+        } catch (e: IllegalArgumentException) {
             assertThat(e.message).startsWith(
                 "Unable to generate a swipe gesture between ${Offset.Zero} and ${config.end} " +
                     "with duration ${config.durationMillis} that ends with velocity of " +
-                    "${config.requestedVelocity}, without going outside of the range " +
+                    "${config.requestedVelocity} px/s, without going outside of the range " +
                     "[start..end]. Suggested fixes: "
             )
 
@@ -136,7 +139,7 @@ class VelocityPathFinderTest(private val config: TestConfig) {
             // Verify that the suggestions change the current config
             assertThat(maxDuration).isLessThan(config.durationMillis.toFloat())
             assertThat(maxVelocity).isLessThan(config.requestedVelocity)
-            assertThat(minDistance).isAtLeast(config.end.getDistance())
+            assertThat(minDistance).isGreaterThan(config.end.getDistance())
 
             if (testSuggestions) {
                 // Try just inside the suggested value range
@@ -156,7 +159,7 @@ class VelocityPathFinderTest(private val config: TestConfig) {
 
     private val suggestedFixesRegex = Regex(
         "1\\. set duration to (.*) or lower; " +
-            "2\\. set velocity to (.*) or lower; or " +
+            "2\\. set velocity to (.*) px/s or lower; or " +
             "3\\. increase the distance between the start and end to (.*) or higher"
     )
 

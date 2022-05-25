@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="MissingTvBanner"
@@ -7,163 +7,97 @@
         errorLine1="    &lt;application"
         errorLine2="     ~~~~~~~~~~~">
         <location
-            file="src/main/AndroidManifest.xml"
-            line="28"
-            column="6"/>
+            file="src/main/AndroidManifest.xml"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"
-            line="39"
-            column="29"/>
+            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"
-            line="60"
-            column="50"/>
+            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public boolean onPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref) {"
         errorLine2="                                                                                  ~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"
-            line="60"
-            column="83"/>
+            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public boolean onPreferenceStartScreen(PreferenceFragmentCompat caller,"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"
-            line="76"
-            column="48"/>
+            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="                PreferenceScreen pref) {"
         errorLine2="                ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"
-            line="77"
-            column="17"/>
+            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"
-            line="93"
-            column="41"/>
+            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {"
         errorLine2="                                                                   ~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"
-            line="93"
-            column="68"/>
+            file="src/main/java/com/example/androidx/preference/LeanbackPreferences.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/preference/MainActivity.java"
-            line="42"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onListItemClick(ListView l, View v, int position, long id) {"
-        errorLine2="                                   ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/preference/MainActivity.java"
-            line="52"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected void onListItemClick(ListView l, View v, int position, long id) {"
-        errorLine2="                                               ~~~~">
-        <location
-            file="src/main/java/com/example/androidx/preference/MainActivity.java"
-            line="52"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected List&lt;Map&lt;String, Object>> getActivityList() {"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/preference/MainActivity.java"
-            line="58"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/preference/Preferences.java"
-            line="30"
-            column="29"/>
+            file="src/main/java/com/example/androidx/preference/Preferences.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/preference/Preferences.java"
-            line="57"
-            column="41"/>
+            file="src/main/java/com/example/androidx/preference/Preferences.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {"
         errorLine2="                                                                   ~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/preference/Preferences.java"
-            line="57"
-            column="68"/>
+            file="src/main/java/com/example/androidx/preference/Preferences.java"/>
     </issue>
 
 </issues>

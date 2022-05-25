@@ -17,6 +17,8 @@
 package androidx.room.integration.testapp.dao;
 
 import androidx.collection.ArrayMap;
+import androidx.collection.LongSparseArray;
+import androidx.collection.SparseArrayCompat;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
@@ -206,6 +208,16 @@ public interface MusicDao {
     Map<Integer, List<Song>> getReleaseYearToAlbums();
 
     @RewriteQueriesToDropUnusedColumns
+    @MapInfo(keyColumn = "mImageYear")
+    @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+    LongSparseArray<Artist> getAllAlbumCoverYearToArtistsWithLongSparseArray();
+
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(keyColumn = "mImageYear")
+    @Query("SELECT * FROM Artist JOIN Image ON Artist.mArtistName = Image.mArtistInImage")
+    SparseArrayCompat<Artist> getAllAlbumCoverYearToArtistsWithIntSparseArray();
+
+    @RewriteQueriesToDropUnusedColumns
     @MapInfo(keyColumn = "mReleasedYear", valueColumn = "mTitle")
     @Query("SELECT * FROM Album JOIN Song ON Song.mReleasedYear = Album.mAlbumReleaseYear")
     Map<Integer, List<String>> getReleaseYearToSongNames();
@@ -297,4 +309,24 @@ public interface MusicDao {
     @MapInfo(keyColumn = "dog", valueColumn = "cat")
     @RawQuery
     Map<Artist, Integer> getMapWithInvalidColumnRawQuery(SupportSQLiteQuery query);
+
+    @Query("SELECT * FROM Artist LEFT JOIN Album ON Artist.mArtistName = Album.mAlbumArtist")
+    Map<Artist, List<Album>> getArtistAndAlbumsLeftJoin();
+
+    @Query("SELECT * FROM Artist LEFT JOIN Album ON Artist.mArtistName = Album.mAlbumArtist")
+    Map<Artist, Album> getArtistAndAlbumsLeftJoinOneToOne();
+
+    @Query("SELECT * FROM Artist LEFT JOIN Album ON Artist.mArtistName = Album.mAlbumArtist")
+    ImmutableListMultimap<Artist, Album> getArtistAndAlbumsLeftJoinGuava();
+
+    @RewriteQueriesToDropUnusedColumns
+    @MapInfo(valueColumn = "mAlbumName")
+    @Query("SELECT * FROM Artist LEFT JOIN Album ON Artist.mArtistName = Album.mAlbumArtist")
+    Map<Artist, List<String>> getArtistAndAlbumNamesLeftJoin();
+
+    @Query("SELECT * FROM Album LEFT JOIN Artist ON Artist.mArtistName = Album.mAlbumArtist")
+    Map<Album, Artist> getAlbumToArtistLeftJoin();
+
+    @Query("SELECT * FROM Album LEFT JOIN Artist ON Artist.mArtistName = Album.mAlbumArtist")
+    Map<Artist, Album> getArtistToAlbumLeftJoin();
 }

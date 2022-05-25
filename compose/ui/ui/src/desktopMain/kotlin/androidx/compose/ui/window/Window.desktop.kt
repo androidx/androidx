@@ -17,7 +17,10 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
@@ -29,6 +32,7 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.ComponentUpdater
+import androidx.compose.ui.util.makeDisplayable
 import androidx.compose.ui.util.setIcon
 import androidx.compose.ui.util.setPositionSafely
 import androidx.compose.ui.util.setSizeSafely
@@ -88,7 +92,13 @@ import javax.swing.JMenuBar
  * - native resources will not be released. They will be released only when [Window]
  * will leave the composition.
  * @param title Title in the titlebar of the window
- * @param icon Icon in the titlebar of the window (for platforms which support this)
+ * @param icon Icon in the titlebar of the window (for platforms which support this).
+ * On macOs individual windows can't have a separate icon. To change the icon in the Dock,
+ * set it via `iconFile` in build.gradle
+ * (https://github.com/JetBrains/compose-jb/tree/master/tutorials/Native_distributions_and_local_execution#platform-specific-options)
+ * @param undecorated Disables or enables decorations for this window.
+ * @param transparent Disables or enables window transparency. Transparency should be set
+ * only if window is undecorated, otherwise an exception will be thrown.
  * @param resizable Can window be resized by the user (application still can resize the window
  * changing [state])
  * @param enabled Can window react to input events
@@ -112,6 +122,7 @@ fun Window(
     title: String = "Untitled",
     icon: Painter? = null,
     undecorated: Boolean = false,
+    transparent: Boolean = false,
     resizable: Boolean = true,
     enabled: Boolean = true,
     focusable: Boolean = true,
@@ -124,6 +135,7 @@ fun Window(
     val currentTitle by rememberUpdatedState(title)
     val currentIcon by rememberUpdatedState(icon)
     val currentUndecorated by rememberUpdatedState(undecorated)
+    val currentTransparent by rememberUpdatedState(transparent)
     val currentResizable by rememberUpdatedState(resizable)
     val currentEnabled by rememberUpdatedState(enabled)
     val currentFocusable by rememberUpdatedState(focusable)
@@ -170,6 +182,7 @@ fun Window(
                 set(currentTitle, window::setTitle)
                 set(currentIcon, window::setIcon)
                 set(currentUndecorated, window::setUndecoratedSafely)
+                set(currentTransparent, window::isTransparent::set)
                 set(currentResizable, window::setResizable)
                 set(currentEnabled, window::setEnabled)
                 set(currentFocusable, window::setFocusable)
@@ -210,7 +223,13 @@ fun Window(
  * - native resources will not be released. They will be released only when [Window]
  * will leave the composition.
  * @param title Title in the titlebar of the window
- * @param icon Icon in the titlebar of the window (for platforms which support this)
+ * @param icon Icon in the titlebar of the window (for platforms which support this).
+ * On macOs individual windows can't have a separate icon. To change the icon in the Dock,
+ * set it via `iconFile` in build.gradle
+ * (https://github.com/JetBrains/compose-jb/tree/master/tutorials/Native_distributions_and_local_execution#platform-specific-options)
+ * @param undecorated Disables or enables decorations for this window.
+ * @param transparent Disables or enables window transparency. Transparency should be set
+ * only if window is undecorated, otherwise an exception will be thrown.
  * @param resizable Can window be resized by the user (application still can resize the window
  * changing [state])
  * @param enabled Can window react to input events
@@ -232,6 +251,7 @@ fun singleWindowApplication(
     title: String = "Untitled",
     icon: Painter? = null,
     undecorated: Boolean = false,
+    transparent: Boolean = false,
     resizable: Boolean = true,
     enabled: Boolean = true,
     focusable: Boolean = true,
@@ -247,6 +267,7 @@ fun singleWindowApplication(
         title,
         icon,
         undecorated,
+        transparent,
         resizable,
         enabled,
         focusable,
@@ -305,22 +326,34 @@ fun Window(
     update: (ComposeWindow) -> Unit = {},
     content: @Composable FrameWindowScope.() -> Unit
 ) {
-    val composition = rememberCompositionContext()
+    val currentLocals by rememberUpdatedState(currentCompositionLocalContext)
     AwtWindow(
         visible = visible,
         create = {
             create().apply {
-                setContent(composition, onPreviewKeyEvent, onKeyEvent, content)
+                setContent(onPreviewKeyEvent, onKeyEvent) {
+                    CompositionLocalProvider(currentLocals) {
+                        content()
+                    }
+                }
             }
         },
         dispose = dispose,
-        update = update
+        update = {
+            update(it)
+
+            if (!it.isDisplayable) {
+                it.makeDisplayable()
+                it.contentPane.paint(it.graphics)
+            }
+        }
     )
 }
 
 /**
  * Receiver scope which is used by [androidx.compose.ui.window.Window].
  */
+@Stable
 interface FrameWindowScope : WindowScope {
     /**
      * [ComposeWindow] that was created inside [androidx.compose.ui.window.Window].

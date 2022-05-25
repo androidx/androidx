@@ -19,7 +19,7 @@ package androidx.slidingpanelayout.widget
 import androidx.slidingpanelayout.widget.helpers.TestActivity
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.window.layout.FoldingFeature
-import androidx.window.layout.WindowInfoRepository.Companion.windowInfoRepository
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import androidx.window.testing.layout.FoldingFeature
 import androidx.window.testing.layout.WindowLayoutInfoPublisherRule
@@ -39,7 +39,10 @@ class FoldingFeatureObserverTest {
     fun testNoValuesBeforeSubscribe() {
         val listener = TestListener()
         activityScenarioRule.scenario.onActivity { activity ->
-            val observer = FoldingFeatureObserver(activity.windowInfoRepository(), Runnable::run)
+            val observer = FoldingFeatureObserver(
+                WindowInfoTracker.getOrCreate(activity),
+                Runnable::run
+            )
             val expected = FoldingFeature(activity = activity)
             val info = WindowLayoutInfo(listOf(expected))
 
@@ -54,12 +57,15 @@ class FoldingFeatureObserverTest {
     fun testRelaysValuesFromWindowInfoRepo() {
         val listener = TestListener()
         activityScenarioRule.scenario.onActivity { activity ->
-            val observer = FoldingFeatureObserver(activity.windowInfoRepository(), Runnable::run)
+            val observer = FoldingFeatureObserver(
+                WindowInfoTracker.getOrCreate(activity),
+                Runnable::run
+            )
             val expected = FoldingFeature(activity = activity)
             val info = WindowLayoutInfo(listOf(expected))
 
             observer.setOnFoldingFeatureChangeListener(listener)
-            observer.registerLayoutStateChangeCallback()
+            observer.registerLayoutStateChangeCallback(activity)
             windowInfoPublisherRule.overrideWindowLayoutInfo(info)
 
             listener.assertValue(expected)
@@ -70,12 +76,15 @@ class FoldingFeatureObserverTest {
     fun testRelaysValuesNotRelayedAfterUnsubscribed() {
         val listener = TestListener()
         activityScenarioRule.scenario.onActivity { activity ->
-            val observer = FoldingFeatureObserver(activity.windowInfoRepository(), Runnable::run)
+            val observer = FoldingFeatureObserver(
+                WindowInfoTracker.getOrCreate(activity),
+                Runnable::run
+            )
             val expected = FoldingFeature(activity = activity)
             val info = WindowLayoutInfo(listOf(expected))
 
             observer.setOnFoldingFeatureChangeListener(listener)
-            observer.registerLayoutStateChangeCallback()
+            observer.registerLayoutStateChangeCallback(activity)
             observer.unregisterLayoutStateChangeCallback()
             windowInfoPublisherRule.overrideWindowLayoutInfo(info)
 

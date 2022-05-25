@@ -146,13 +146,12 @@ public class PaneTemplateTest {
     }
 
     @Test
-    public void createInstance_noHeaderTitleOrAction_throws() {
-        assertThrows(IllegalStateException.class,
-                () -> new PaneTemplate.Builder(getPane().build()).build());
+    public void createInstance_emptyHeader() {
+        PaneTemplate template = new PaneTemplate.Builder(getPane().build()).build();
 
-        // Positive cases.
-        new PaneTemplate.Builder(getPane().build()).setTitle("Title").build();
-        new PaneTemplate.Builder(getPane().build()).setHeaderAction(Action.BACK).build();
+        assertThat(template.getTitle()).isNull();
+        assertThat(template.getHeaderAction()).isNull();
+        assertThat(template.getActionStrip()).isNull();
     }
 
     @Test

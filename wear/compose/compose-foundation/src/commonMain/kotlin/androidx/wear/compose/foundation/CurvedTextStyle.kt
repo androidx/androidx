@@ -19,40 +19,48 @@ package androidx.wear.compose.foundation
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 
-/** The default values to use if their are not specified. */
+/** The default values to use if they are not specified. */
 internal val DefaultCurvedTextStyles = CurvedTextStyle(
     color = Color.Black,
     fontSize = 14.sp,
     background = Color.Transparent
-)
+).also {
+    it.fontWeight = FontWeight.Normal
+}
 
 /**
  * Styling configuration for a curved text.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  *
+ * @param background The background color for the text.
  * @param color The text color.
  * @param fontSize The size of glyphs (in logical pixels) to use when painting the text. This
  * may be [TextUnit.Unspecified] for inheriting from another [CurvedTextStyle].
- * @param background The background color for the text.
  *
  */
 class CurvedTextStyle(
+    val background: Color = Color.Unspecified,
     val color: Color = Color.Unspecified,
     val fontSize: TextUnit = TextUnit.Unspecified,
-    val background: Color = Color.Unspecified,
 ) {
+    // Temporary added as internal field until we can add to the public API in 1.1
+    internal var fontWeight: FontWeight? = null
+
     /**
      * Create a curved text style from the given text style.
      *
      * Note that not all parameters in the text style will be used, only [TextStyle.color],
-     * [TextStyle.fontSize] and [TextStyle.background]
+     * [TextStyle.fontSize], [TextStyle.background] and [TextStyle.fontWeight]
      */
-    constructor(style: TextStyle) : this(style.color, style.fontSize, style.background)
+    constructor(style: TextStyle) : this(style.background, style.color, style.fontSize) {
+        fontWeight = style.fontWeight
+    }
 
     /**
      * Returns a new curved text style that is a combination of this style and the given
@@ -71,7 +79,9 @@ class CurvedTextStyle(
             color = other.color.takeOrElse { this.color },
             fontSize = if (!other.fontSize.isUnspecified) other.fontSize else this.fontSize,
             background = other.background.takeOrElse { this.background },
-        )
+        ).also {
+            it.fontWeight = other.fontWeight ?: this.fontWeight
+        }
     }
 
     /**
@@ -80,15 +90,17 @@ class CurvedTextStyle(
     operator fun plus(other: CurvedTextStyle): CurvedTextStyle = this.merge(other)
 
     fun copy(
+        background: Color = this.background,
         color: Color = this.color,
         fontSize: TextUnit = this.fontSize,
-        background: Color = this.background,
     ): CurvedTextStyle {
         return CurvedTextStyle(
+            background = background,
             color = color,
             fontSize = fontSize,
-            background = background,
-        )
+        ).also {
+            it.fontWeight = this.fontWeight
+        }
     }
 
     override operator fun equals(other: Any?): Boolean {
@@ -97,21 +109,24 @@ class CurvedTextStyle(
         return other is CurvedTextStyle &&
             color == other.color &&
             fontSize == other.fontSize &&
-            background == other.background
+            background == other.background &&
+            fontWeight == other.fontWeight
     }
 
     override fun hashCode(): Int {
         var result = color.hashCode()
         result = 31 * result + fontSize.hashCode()
         result = 31 * result + background.hashCode()
+        result = 31 * result + fontWeight.hashCode()
         return result
     }
 
     override fun toString(): String {
         return "CurvedTextStyle(" +
+            "background=$background" +
             "color=$color, " +
             "fontSize=$fontSize, " +
-            "background=$background" +
+            "fontWeight=$fontWeight, " +
             ")"
     }
 }

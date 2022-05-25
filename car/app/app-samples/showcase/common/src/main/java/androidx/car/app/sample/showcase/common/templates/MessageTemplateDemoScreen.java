@@ -21,11 +21,9 @@ import static androidx.car.app.model.Action.BACK;
 import static androidx.car.app.model.Action.FLAG_PRIMARY;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarColor;
@@ -33,6 +31,7 @@ import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Template;
 import androidx.car.app.sample.showcase.common.R;
+import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
 /** A screen that demonstrates the message template. */
@@ -44,11 +43,35 @@ public class MessageTemplateDemoScreen extends Screen {
 
     @NonNull
     @Override
-    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-    @OptIn(markerClass = ExperimentalCarApi.class)
     public Template onGetTemplate() {
-        return new MessageTemplate.Builder("Message goes here.\nMore text on second line.")
-                .setTitle("Message Template Demo")
+        Action.Builder primaryActionBuilder = new Action.Builder()
+                .setOnClickListener(() -> {
+                    CarToast.makeText(
+                            getCarContext(),
+                            getCarContext().getString(R.string.primary_action_title),
+                            LENGTH_LONG
+                    ).show();
+                })
+                .setTitle(getCarContext().getString(R.string.ok_action_title));
+        if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_4) {
+            primaryActionBuilder.setFlags(FLAG_PRIMARY);
+        }
+
+        Action settings = new Action.Builder()
+                .setTitle(getCarContext().getString(
+                        R.string.settings_action_title))
+                .setOnClickListener(
+                        () -> CarToast.makeText(
+                                        getCarContext(),
+                                        getCarContext().getString(
+                                                R.string.settings_toast_msg),
+                                        LENGTH_LONG)
+                                .show())
+                .build();
+
+        return new MessageTemplate.Builder(
+                getCarContext().getString(R.string.msg_template_demo_text))
+                .setTitle(getCarContext().getString(R.string.msg_template_demo_title))
                 .setIcon(
                         new CarIcon.Builder(
                                 IconCompat.createWithResource(
@@ -57,22 +80,11 @@ public class MessageTemplateDemoScreen extends Screen {
                                 .setTint(CarColor.GREEN)
                                 .build())
                 .setHeaderAction(BACK)
-                .addAction(
-                        new Action.Builder()
-                                .setOnClickListener(() -> {
-                                    CarToast.makeText(
-                                            getCarContext(),
-                                            "Clicked primary button",
-                                            LENGTH_LONG
-                                    ).show();
-                                })
-                                .setTitle("OK")
-                                .setFlags(FLAG_PRIMARY)
-                                .build())
+                .addAction(primaryActionBuilder.build())
                 .addAction(
                         new Action.Builder()
                                 .setBackgroundColor(CarColor.RED)
-                                .setTitle("Throw")
+                                .setTitle(getCarContext().getString(R.string.throw_action_title))
                                 .setOnClickListener(
                                         () -> {
                                             throw new RuntimeException("Error");
@@ -81,17 +93,7 @@ public class MessageTemplateDemoScreen extends Screen {
 
                 .setActionStrip(
                         new ActionStrip.Builder()
-                                .addAction(
-                                        new Action.Builder()
-                                                .setTitle("Settings")
-                                                .setOnClickListener(
-                                                        () ->
-                                                                CarToast.makeText(
-                                                                        getCarContext(),
-                                                                        "Clicked Settings",
-                                                                        LENGTH_LONG)
-                                                                        .show())
-                                                .build())
+                                .addAction(settings)
                                 .build())
                 .build();
     }

@@ -131,4 +131,38 @@ public class DeviceUtilsTest {
         assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "Myphone")).isFalse();
         assertThat(DeviceUtils.canAssumeStrongBiometrics(mContext, "My phone2")).isFalse();
     }
+
+    @Test
+    public void testShouldUseKeyguardManagerForBiometricAndCredential() {
+        final String[] excludeVendors = {"buy-n-large", "pizza planet"};
+        when(mContext.getResources()).thenReturn(mResources);
+        when(mResources.getStringArray(R.array.keyguard_biometric_and_credential_exclude_vendors))
+                .thenReturn(excludeVendors);
+
+        final boolean isApi29 = Build.VERSION.SDK_INT == Build.VERSION_CODES.Q;
+        assertThat(DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
+                mContext, "buy-n-large")).isFalse();
+        assertThat(DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
+                mContext, "BUY-N-LARGE")).isFalse();
+        assertThat(DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
+                mContext, "pizza planet")).isFalse();
+        assertThat(DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
+                mContext, "Pizza Planet")).isFalse();
+        assertThat(DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
+                mContext, "dinoco")).isEqualTo(isApi29);
+        assertThat(DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
+                mContext, "buy n large")).isEqualTo(isApi29);
+        assertThat(DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
+                mContext, "pizza planet plus")).isEqualTo(isApi29);
+
+        // Test result on some known affected vendors.
+        assertThat(DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
+                mContext, "Google")).isEqualTo(isApi29);
+        assertThat(DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
+                mContext, "google")).isEqualTo(isApi29);
+        assertThat(DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
+                mContext, "Samsung")).isEqualTo(isApi29);
+        assertThat(DeviceUtils.shouldUseKeyguardManagerForBiometricAndCredential(
+                mContext, "samsung")).isEqualTo(isApi29);
+    }
 }

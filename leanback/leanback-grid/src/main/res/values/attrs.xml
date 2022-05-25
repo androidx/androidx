@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <declare-styleable name="lbBaseGridView">
+        <!-- Allow DPAD key to navigate out at the front of the View (where position = 0),
+             default is false  -->
+        <attr name="focusOutFront" format="boolean" />
+        <!-- Allow DPAD key to navigate out at the end of the view, default is false -->
+        <attr name="focusOutEnd" format="boolean" />
+        <!-- Allow DPAD key to navigate out of first row, for HorizontalGridView, it's the
+             top edge, for VerticalGridView it's the "start" edge.  Default value is true.  -->
+        <attr name="focusOutSideStart" format="boolean" />
+        <!-- Allow DPAD key to navigate out of last row, for HorizontalGridView, it's the
+             bottom edge, for VerticalGridView it's the "end" edge.  Default value is true.  -->
+        <attr name="focusOutSideEnd" format="boolean" />
+        <!-- Deprecated, use android:horizontalSpacing -->
+        <attr name="horizontalMargin" format="dimension" />
+        <!-- Deprecated, use android:verticalSpacing -->
+        <attr name="verticalMargin" format="dimension" />
+        <!-- Defining space between two items horizontally -->
+        <attr name="android:horizontalSpacing" />
+        <!-- Defining space between two items vertically -->
+        <attr name="android:verticalSpacing" />
+        <!-- Defining gravity of child view -->
+        <attr name="android:gravity" />
+    </declare-styleable>
+
+    <declare-styleable name="lbHorizontalGridView">
+        <!-- Defining height of each row of HorizontalGridView -->
+        <attr name="rowHeight" format="dimension" >
+            <enum name="wrap_content" value="-2" />
+        </attr>
+        <!-- Defining number of rows -->
+        <attr name="numberOfRows" format="integer" />
+    </declare-styleable>
+
+    <declare-styleable name="lbVerticalGridView">
+        <!-- Defining width of each column of VerticalGridView -->
+        <attr name="columnWidth" format="dimension" >
+            <enum name="wrap_content" value="-2" />
+        </attr>
+        <!-- Defining number of columns -->
+        <attr name="numberOfColumns" format="integer" />
+    </declare-styleable>
+</resources>

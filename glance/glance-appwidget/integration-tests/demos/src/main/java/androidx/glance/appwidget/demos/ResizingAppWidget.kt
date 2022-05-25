@@ -17,24 +17,24 @@
 package androidx.glance.appwidget.demos
 
 import androidx.compose.runtime.Composable
-import androidx.glance.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.background
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
-import androidx.glance.layout.Text
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
+import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.Color
-import androidx.glance.unit.dp
 
 class ResizingAppWidget : GlanceAppWidget() {
 
@@ -42,51 +42,63 @@ class ResizingAppWidget : GlanceAppWidget() {
 
     @Composable
     override fun Content() {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp).background(Color.LightGray)) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text("first")
+        Column(modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.LightGray)) {
+            Row(modifier = GlanceModifier.fillMaxWidth()) {
+                Text(
+                    "first",
+                    modifier = GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)),
+                    style = TextStyle(textAlign = TextAlign.Start)
+                )
                 Text(
                     "second",
                     style = TextStyle(
                         textDecoration = TextDecoration.LineThrough,
                         textAlign = TextAlign.Center,
                     ),
-                    modifier = Modifier.defaultWeight().height(50.dp)
+                    modifier = GlanceModifier.defaultWeight().height(50.dp)
                 )
-                Text("third")
+                Text(
+                    "third",
+                    modifier = GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)),
+                    style = TextStyle(textAlign = TextAlign.End)
+                )
             }
-            Text("middle", modifier = Modifier.defaultWeight().width(50.dp))
-            Row(modifier = Modifier.fillMaxWidth()) {
-                Text("", modifier = Modifier.defaultWeight())
-                Text("bottom center")
-                Text("", modifier = Modifier.defaultWeight())
-            }
-            Column(modifier = Modifier.fillMaxWidth()) {
+            Text(
+                "middle",
+                modifier = GlanceModifier.defaultWeight().fillMaxWidth(),
+                style = TextStyle(textAlign = TextAlign.Center)
+            )
+            Column(modifier = GlanceModifier.fillMaxWidth().background(Color.LightGray)) {
                 Text(
                     "left",
                     style = TextStyle(textAlign = TextAlign.Left),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = GlanceModifier.fillMaxWidth()
                 )
                 Text(
                     "right",
                     style = TextStyle(textAlign = TextAlign.Right),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = GlanceModifier.fillMaxWidth()
                 )
                 Text(
                     "start",
                     style = TextStyle(textAlign = TextAlign.Start),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = GlanceModifier.fillMaxWidth()
                 )
                 Text(
                     "end",
                     style = TextStyle(textAlign = TextAlign.End),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = GlanceModifier.fillMaxWidth()
                 )
+            }
+            Row(modifier = GlanceModifier.fillMaxWidth()) {
+                Text("", modifier = GlanceModifier.defaultWeight())
+                Text("bottom center")
+                Text("", modifier = GlanceModifier.defaultWeight())
             }
         }
     }
 }
 
 class ResizingAppWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget by lazy { ResizingAppWidget() }
+    override val glanceAppWidget: GlanceAppWidget = ResizingAppWidget()
 }

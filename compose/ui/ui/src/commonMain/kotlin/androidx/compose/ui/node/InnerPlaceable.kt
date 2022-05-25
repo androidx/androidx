@@ -16,28 +16,18 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focus.FocusStateImpl.Active
-import androidx.compose.ui.focus.FocusStateImpl.ActiveParent
-import androidx.compose.ui.focus.FocusStateImpl.Captured
-import androidx.compose.ui.focus.FocusStateImpl.Disabled
-import androidx.compose.ui.focus.FocusStateImpl.Inactive
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
-import androidx.compose.ui.input.nestedscroll.NestedScrollDelegatingWrapper
-import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.layout.AlignmentLine
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Placeable
-import androidx.compose.ui.semantics.SemanticsWrapper
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.util.fastForEach
 
 internal class InnerPlaceable(
     layoutNode: LayoutNode
@@ -46,52 +36,17 @@ internal class InnerPlaceable(
     override val measureScope get() = layoutNode.measureScope
 
     override fun measure(constraints: Constraints): Placeable = performingMeasure(constraints) {
+        // before rerunning the user's measure block reset previous measuredByParent for children
+        layoutNode._children.forEach {
+            it.measuredByParent = LayoutNode.UsageByParent.NotUsed
+        }
         val measureResult = with(layoutNode.measurePolicy) {
             layoutNode.measureScope.measure(layoutNode.children, constraints)
         }
         layoutNode.handleMeasureResult(measureResult)
+        onMeasured()
         return this
     }
-
-    override val parentData: Any?
-        get() = null
-
-    override fun findPreviousFocusWrapper() = wrappedBy?.findPreviousFocusWrapper()
-
-    override fun findNextFocusWrapper(): ModifiedFocusNode? = null
-
-    override fun findLastFocusWrapper(): ModifiedFocusNode? = findPreviousFocusWrapper()
-
-    // For non-focusable parents, we don't propagate the focus state sent by the child.
-    // Instead we aggregate the focus state of all children.
-    override fun propagateFocusEvent(focusState: FocusState) {
-
-        var focusedChild: ModifiedFocusNode? = null
-        var allChildrenDisabled: Boolean? = null
-        // TODO(b/192681045): Create a utility like fun LayoutNodeWrapper.forEachFocusableChild{...}
-        //  that does not allocate, but just iterates over all the focusable children.
-        focusableChildren().fastForEach {
-            when (it.focusState) {
-                Active, ActiveParent, Captured -> { focusedChild = it; allChildrenDisabled = false }
-                Disabled -> if (allChildrenDisabled == null) { allChildrenDisabled = true }
-                Inactive -> allChildrenDisabled = false
-            }
-        }
-
-        super.propagateFocusEvent(
-            focusedChild?.focusState ?: if (allChildrenDisabled == true) Disabled else Inactive
-        )
-    }
-
-    override fun findPreviousKeyInputWrapper() = wrappedBy?.findPreviousKeyInputWrapper()
-
-    override fun findPreviousNestedScrollWrapper() = wrappedBy?.findPreviousNestedScrollWrapper()
-
-    override fun findNextNestedScrollWrapper(): NestedScrollDelegatingWrapper? = null
-
-    override fun findNextKeyInputWrapper(): ModifiedKeyInputNode? = null
-
-    override fun findLastKeyInputWrapper(): ModifiedKeyInputNode? = findPreviousKeyInputWrapper()
 
     override fun minIntrinsicWidth(height: Int) =
         layoutNode.intrinsicsPolicy.minIntrinsicWidth(height)
@@ -119,6 +74,8 @@ internal class InnerPlaceable(
         // our position in order ot know how to offset the value we provided).
         if (wrappedBy?.isShallowPlacing == true) return
 
+        onPlaced()
+
         layoutNode.onNodePlaced()
     }
 
@@ -138,43 +95,59 @@ internal class InnerPlaceable(
         }
     }
 
-    override fun hitTest(
+    override fun <T : LayoutNodeEntity<T, M>, C, M : Modifier> hitTestChild(
+        hitTestSource: HitTestSource<T, C, M>,
         pointerPosition: Offset,
-        hitTestResult: HitTestResult<PointerInputFilter>,
-        isTouchEvent: Boolean
-    ) {
-        hitTestSubtree(pointerPosition, hitTestResult, isTouchEvent, LayoutNode::hitTest)
-    }
-
-    override fun hitTestSemantics(
-        pointerPosition: Offset,
-        hitSemanticsWrappers: HitTestResult<SemanticsWrapper>
-    ) {
-        hitTestSubtree(pointerPosition, hitSemanticsWrappers, true, LayoutNode::hitTestSemantics)
-    }
-
-    private inline fun <T> hitTestSubtree(
-        pointerPosition: Offset,
-        hitTestResult: HitTestResult<T>,
+        hitTestResult: HitTestResult<C>,
         isTouchEvent: Boolean,
-        nodeHitTest: LayoutNode.(Offset, HitTestResult<T>, Boolean) -> Unit
+        isInLayer: Boolean
     ) {
-        if (withinLayerBounds(pointerPosition, isTouchEvent)) {
-            // Any because as soon as true is returned, we know we have found a hit path and we must
-            // not add hit results on different paths so we should not even go looking.
-            layoutNode.zSortedChildren.reversedAny { child ->
-                if (child.isPlaced) {
-                    child.nodeHitTest(pointerPosition, hitTestResult, isTouchEvent)
-                    hitTestResult.hasHit()
-                } else {
-                    false
+        var inLayer = isInLayer
+        var hitTestChildren = false
+
+        if (hitTestSource.shouldHitTestChildren(layoutNode)) {
+            if (withinLayerBounds(pointerPosition)) {
+                hitTestChildren = true
+            } else if (isTouchEvent &&
+                distanceInMinimumTouchTarget(pointerPosition, minimumTouchTargetSize).isFinite()
+            ) {
+                inLayer = false
+                hitTestChildren = true
+            }
+        }
+
+        if (hitTestChildren) {
+            hitTestResult.siblingHits {
+                // Any because as soon as true is returned, we know we have found a hit path and we must
+                // not add hit results on different paths so we should not even go looking.
+                layoutNode.zSortedChildren.reversedAny { child ->
+                    if (child.isPlaced) {
+                        hitTestSource.childHitTest(
+                            child,
+                            pointerPosition,
+                            hitTestResult,
+                            isTouchEvent,
+                            inLayer
+                        )
+                        val wasHit = hitTestResult.hasHit()
+                        val continueHitTest: Boolean
+                        if (!wasHit) {
+                            continueHitTest = true
+                        } else if (
+                            child.outerLayoutNodeWrapper.shouldSharePointerInputWithSiblings()
+                        ) {
+                            hitTestResult.acceptHits()
+                            continueHitTest = true
+                        } else {
+                            continueHitTest = false
+                        }
+                        !continueHitTest
+                    } else {
+                        false
+                    }
                 }
             }
         }
-    }
-
-    override fun getWrappedByCoordinates(): LayoutCoordinates {
-        return this
     }
 
     internal companion object {

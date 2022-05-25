@@ -1,0 +1,191 @@
+// Signature format: 4.0
+package androidx.appsearch.app {
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.LOLLIPOP) public class ShortcutAdapter {
+    method public static androidx.core.content.pm.ShortcutInfoCompat.Builder createShortcutBuilderFromDocument(android.content.Context, Object) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.appsearch.app.GenericDocument? extractDocument(androidx.core.content.pm.ShortcutInfoCompat);
+    method public static android.net.Uri getDocumentUri(Object) throws androidx.appsearch.exceptions.AppSearchException;
+    method public static android.net.Uri getDocumentUri(String);
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String DEFAULT_DATABASE = "__shortcut_adapter_db__";
+    field public static final String DEFAULT_NAMESPACE = "__shortcut_adapter_ns__";
+  }
+
+}
+
+package androidx.appsearch.builtintypes {
+
+  @androidx.appsearch.annotation.Document(name="builtin:Alarm") public final class Alarm {
+    method public String? getBlackoutPeriodEndDate();
+    method public String? getBlackoutPeriodStartDate();
+    method public long getCreationTimestampMillis();
+    method public int[]? getDaysOfWeek();
+    method public int getDocumentScore();
+    method public long getDocumentTtlMillis();
+    method @IntRange(from=0, to=23) public int getHour();
+    method public String getId();
+    method @IntRange(from=0, to=59) public int getMinute();
+    method public String? getName();
+    method public String getNamespace();
+    method public androidx.appsearch.builtintypes.AlarmInstance? getNextInstance();
+    method public androidx.appsearch.builtintypes.AlarmInstance? getPreviousInstance();
+    method public String? getRingtone();
+    method public boolean isEnabled();
+    method public boolean shouldVibrate();
+  }
+
+  public static final class Alarm.Builder {
+    ctor public Alarm.Builder(String, String);
+    ctor public Alarm.Builder(androidx.appsearch.builtintypes.Alarm);
+    method public androidx.appsearch.builtintypes.Alarm build();
+    method public androidx.appsearch.builtintypes.Alarm.Builder setBlackoutPeriodEndDate(String?);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setBlackoutPeriodStartDate(String?);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setCreationTimestampMillis(long);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setDaysOfWeek(@IntRange(from=java.util.Calendar.SUNDAY, to=java.util.Calendar.SATURDAY) int...);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setDocumentScore(int);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setEnabled(boolean);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setHour(@IntRange(from=0, to=23) int);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setMinute(@IntRange(from=0, to=59) int);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setName(String?);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setNextInstance(androidx.appsearch.builtintypes.AlarmInstance?);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setPreviousInstance(androidx.appsearch.builtintypes.AlarmInstance?);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setRingtone(String?);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setShouldVibrate(boolean);
+  }
+
+  @androidx.appsearch.annotation.Document(name="builtin:AlarmInstance") public final class AlarmInstance {
+    method public long getCreationTimestampMillis();
+    method public int getDocumentScore();
+    method public long getDocumentTtlMillis();
+    method public String getId();
+    method public String getNamespace();
+    method public String getScheduledTime();
+    method public long getSnoozeDurationMillis();
+    method public int getStatus();
+    field public static final int STATUS_DISMISSED = 3; // 0x3
+    field public static final int STATUS_FIRING = 2; // 0x2
+    field public static final int STATUS_MISSED = 5; // 0x5
+    field public static final int STATUS_SCHEDULED = 1; // 0x1
+    field public static final int STATUS_SNOOZED = 4; // 0x4
+    field public static final int STATUS_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class AlarmInstance.Builder {
+    ctor public AlarmInstance.Builder(String, String, String);
+    ctor public AlarmInstance.Builder(androidx.appsearch.builtintypes.AlarmInstance);
+    method public androidx.appsearch.builtintypes.AlarmInstance build();
+    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setCreationTimestampMillis(long);
+    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setDocumentScore(int);
+    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setSnoozeDurationMillis(long);
+    method public androidx.appsearch.builtintypes.AlarmInstance.Builder setStatus(int);
+  }
+
+  @androidx.appsearch.annotation.Document(name="builtin:Stopwatch") public final class Stopwatch {
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public long calculateBaseTimeMillis(android.content.Context);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public long calculateCurrentAccumulatedDurationMillis(android.content.Context);
+    method public long getAccumulatedDurationMillis();
+    method public long getBaseTimeMillis();
+    method public long getBaseTimeMillisInElapsedRealtime();
+    method public int getBootCount();
+    method public long getCreationTimestampMillis();
+    method public int getDocumentScore();
+    method public long getDocumentTtlMillis();
+    method public String getId();
+    method public java.util.List<androidx.appsearch.builtintypes.StopwatchLap!> getLaps();
+    method public String? getName();
+    method public String getNamespace();
+    method public int getStatus();
+    field public static final int STATUS_PAUSED = 3; // 0x3
+    field public static final int STATUS_RESET = 1; // 0x1
+    field public static final int STATUS_RUNNING = 2; // 0x2
+    field public static final int STATUS_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class Stopwatch.Builder {
+    ctor public Stopwatch.Builder(String, String);
+    ctor public Stopwatch.Builder(androidx.appsearch.builtintypes.Stopwatch);
+    method public androidx.appsearch.builtintypes.Stopwatch build();
+    method public androidx.appsearch.builtintypes.Stopwatch.Builder setAccumulatedDurationMillis(long);
+    method public androidx.appsearch.builtintypes.Stopwatch.Builder setBaseTimeMillis(long, long, int);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public androidx.appsearch.builtintypes.Stopwatch.Builder setBaseTimeMillis(android.content.Context, long, long);
+    method public androidx.appsearch.builtintypes.Stopwatch.Builder setCreationTimestampMillis(long);
+    method public androidx.appsearch.builtintypes.Stopwatch.Builder setDocumentScore(int);
+    method public androidx.appsearch.builtintypes.Stopwatch.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.builtintypes.Stopwatch.Builder setLaps(java.util.List<androidx.appsearch.builtintypes.StopwatchLap!>);
+    method public androidx.appsearch.builtintypes.Stopwatch.Builder setName(String?);
+    method public androidx.appsearch.builtintypes.Stopwatch.Builder setStatus(int);
+  }
+
+  @androidx.appsearch.annotation.Document(name="builtin:StopwatchLap") public class StopwatchLap {
+    method public long getAccumulatedLapDurationMillis();
+    method public long getCreationTimestampMillis();
+    method public int getDocumentScore();
+    method public long getDocumentTtlMillis();
+    method public String getId();
+    method public long getLapDurationMillis();
+    method public int getLapNumber();
+    method public String getNamespace();
+  }
+
+  public static final class StopwatchLap.Builder {
+    ctor public StopwatchLap.Builder(String, String);
+    ctor public StopwatchLap.Builder(androidx.appsearch.builtintypes.StopwatchLap);
+    method public androidx.appsearch.builtintypes.StopwatchLap build();
+    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setAccumulatedLapDurationMillis(long);
+    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setCreationTimestampMillis(long);
+    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setDocumentScore(int);
+    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setLapDurationMillis(long);
+    method public androidx.appsearch.builtintypes.StopwatchLap.Builder setLapNumber(int);
+  }
+
+  @androidx.appsearch.annotation.Document(name="builtin:Timer") public final class Timer {
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public long calculateBaseTimeMillis(android.content.Context);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public long calculateCurrentRemainingDurationMillis(android.content.Context);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public long calculateExpirationTimeMillis(android.content.Context);
+    method public long getBaseTimeMillis();
+    method public long getBaseTimeMillisInElapsedRealtime();
+    method public int getBootCount();
+    method public long getCreationTimestampMillis();
+    method public int getDocumentScore();
+    method public long getDocumentTtlMillis();
+    method public long getDurationMillis();
+    method public String getId();
+    method public String? getName();
+    method public String getNamespace();
+    method public long getOriginalDurationMillis();
+    method public long getRemainingDurationMillis();
+    method public String? getRingtone();
+    method public long getStartTimeMillis();
+    method public int getStatus();
+    method public boolean shouldVibrate();
+    field public static final int STATUS_EXPIRED = 3; // 0x3
+    field public static final int STATUS_MISSED = 4; // 0x4
+    field public static final int STATUS_PAUSED = 2; // 0x2
+    field public static final int STATUS_RESET = 5; // 0x5
+    field public static final int STATUS_STARTED = 1; // 0x1
+    field public static final int STATUS_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class Timer.Builder {
+    ctor public Timer.Builder(String, String);
+    ctor public Timer.Builder(androidx.appsearch.builtintypes.Timer);
+    method public androidx.appsearch.builtintypes.Timer build();
+    method public androidx.appsearch.builtintypes.Timer.Builder setBaseTimeMillis(long, long, int);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public androidx.appsearch.builtintypes.Timer.Builder setBaseTimeMillis(android.content.Context, long, long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setCreationTimestampMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setDocumentScore(int);
+    method public androidx.appsearch.builtintypes.Timer.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setDurationMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setName(String?);
+    method public androidx.appsearch.builtintypes.Timer.Builder setOriginalDurationMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setRemainingDurationMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setRingtone(String?);
+    method public androidx.appsearch.builtintypes.Timer.Builder setShouldVibrate(boolean);
+    method public androidx.appsearch.builtintypes.Timer.Builder setStartTimeMillis(long);
+    method public androidx.appsearch.builtintypes.Timer.Builder setStatus(int);
+  }
+
+}
+

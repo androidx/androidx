@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.dependencies.DependenciesKt
-import androidx.build.LibraryGroups
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -31,7 +30,7 @@ dependencies {
 
 protobuf {
     protoc {
-        artifact = DependenciesKt.getDependencyAsString(libs.protobufCompiler)
+        artifact = libs.protobufCompiler.get()
     }
 
     // Generates the java proto-lite code for the protos in this project. See
@@ -51,20 +50,14 @@ protobuf {
 // Create export artifact for for JarJaring
 def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
     archiveBaseName.set("export")
-    dependsOn(protobuf.generateProtoTasks.all())
-    dependsOn(compileKotlin)
-    from(files(compileKotlin.outputs.files))
-
-    dependsOn(compileJava)
-    from(files(compileJava.destinationDirectory))
-
+    from(sourceSets.main.output)
     // The proto-lite dependency includes .proto files, which are not used by datastore. When apps
     // depend on datastore as well as proto-lite directly, these files conflict since jarjar only
     // renames the java classes. Remove them here since they are unused.
+    exclude("**/*.proto")
+
     from(zipTree(configurations.detachedConfiguration(
-            dependencies.create(libs.protobufLite.get())).getSingleFile())) {
-        exclude("**/*.proto")
-    }
+            dependencies.create(libs.protobufLite.get())).getSingleFile()))
 }
 
 def jarjarConf = configurations.register("export")

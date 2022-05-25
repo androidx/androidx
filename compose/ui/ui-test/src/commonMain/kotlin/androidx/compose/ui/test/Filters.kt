@@ -266,7 +266,7 @@ fun hasText(
 }
 
 /**
- * Returns whether the node's text contains exactly the given [values] and nothing else.
+ * Returns whether the node's text contains exactly the given [textValues] and nothing else.
  *
  * This will also search in [SemanticsProperties.EditableText] by default.
  *
@@ -275,7 +275,7 @@ fun hasText(
  * ones to use.
  *
  * @param textValues List of values to match (the order does not matter)
- * @param includeEditableText Whether to also assert against the editable text.
+ * @param includeEditableText Whether to also assert against the editable text
  *
  * @see SemanticsProperties.Text
  * @see SemanticsProperties.EditableText
@@ -285,7 +285,6 @@ fun hasTextExactly(
     includeEditableText: Boolean = true
 ): SemanticsMatcher {
     val expected = textValues.toList()
-    val given = mutableListOf<String>()
     val propertyName = if (includeEditableText) {
         "${SemanticsProperties.Text.name} + ${SemanticsProperties.EditableText.name}"
     } else {
@@ -294,14 +293,14 @@ fun hasTextExactly(
     return SemanticsMatcher(
         "$propertyName = [${textValues.joinToString(",")}]"
     ) { node ->
-        given.clear()
+        val actual = mutableListOf<String>()
         if (includeEditableText) {
             node.config.getOrNull(SemanticsProperties.EditableText)
-                ?.let { given.add(it.text) }
+                ?.let { actual.add(it.text) }
         }
         node.config.getOrNull(SemanticsProperties.Text)
-            ?.let { given.addAll(it.map { anStr -> anStr.text }) }
-        given.containsAll(expected) && expected.containsAll(given)
+            ?.let { actual.addAll(it.map { anStr -> anStr.text }) }
+        actual.containsAll(expected) && expected.containsAll(actual)
     }
 }
 
@@ -467,11 +466,13 @@ fun hasAnySibling(matcher: SemanticsMatcher): SemanticsMatcher {
  * Returns whether the node has at least one ancestor that satisfies the given matcher.
  *
  * Example: For the following tree
+ * ```
  * |-X
  * |-A
  *   |-B
  *     |-C1
  *     |-C2
+ * ```
  * In case of C1, we would check the matcher against A and B
  */
 fun hasAnyAncestor(matcher: SemanticsMatcher): SemanticsMatcher {
@@ -486,11 +487,13 @@ fun hasAnyAncestor(matcher: SemanticsMatcher): SemanticsMatcher {
  * Returns whether the node has at least one descendant that satisfies the given matcher.
  *
  * Example: For the following tree
+ * ```
  * |-X
  * |-A
  *   |-B
  *     |-C1
  *     |-C2
+ * ```
  * In case of A, we would check the matcher against B,C1 and C2
  */
 fun hasAnyDescendant(matcher: SemanticsMatcher): SemanticsMatcher {

@@ -24,10 +24,10 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
+import kotlinx.coroutines.withContext
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @Singleton
@@ -47,7 +47,7 @@ internal class Camera2DeviceCache @Inject constructor(
         }
 
         // Suspend and query the list of Cameras on the ioDispatcher
-        return withContext(threads.ioDispatcher) {
+        return withContext(threads.backgroundDispatcher) {
             Debug.trace("readCameraIds") {
                 val cameraIds = readCameraIdList()
 

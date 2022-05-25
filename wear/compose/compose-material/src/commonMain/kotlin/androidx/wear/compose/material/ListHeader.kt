@@ -17,7 +17,8 @@
 package androidx.wear.compose.material
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -38,17 +39,17 @@ import androidx.compose.ui.unit.dp
  * @sample androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
 
  * @param modifier The modifier for the list header
- * @param contentColor The color to apply to content
  * @param backgroundColor The background color to apply - typically Color.Tranparent
+ * @param contentColor The color to apply to content
  */
 @Composable
 public fun ListHeader(
     modifier: Modifier = Modifier,
-    contentColor: Color = MaterialTheme.colors.onSurfaceVariant2,
     backgroundColor: Color = Color.Transparent,
-    content: @Composable () -> Unit
+    contentColor: Color = MaterialTheme.colors.onSurfaceVariant,
+    content: @Composable RowScope.() -> Unit
 ) {
-    Box(
+    Row(
         modifier = modifier.height(48.dp)
             .fillMaxWidth()
             .wrapContentSize()
@@ -58,7 +59,8 @@ public fun ListHeader(
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
             LocalTextStyle provides MaterialTheme.typography.button,
-            content = content
-        )
+        ) {
+            content()
+        }
     }
 }

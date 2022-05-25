@@ -38,8 +38,14 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -58,7 +64,41 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressLint("BanParcelableUsage")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class ComplicationText implements Parcelable, TimeDependentText {
+public final class ComplicationText implements Parcelable, TimeDependentText, Serializable {
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ComplicationText that = (ComplicationText) o;
+        if (!Objects.equals(mTimeDependentText, that.mTimeDependentText)) {
+            return false;
+        }
+        if (mSurroundingText == null) {
+            if (that.mSurroundingText != null) {
+                return false;
+            }
+            return true;
+        }
+        return mSurroundingText.toString().contentEquals(that.mSurroundingText);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mSurroundingText, mTimeDependentText);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "ComplicationText{" + "mSurroundingText="
+                + ComplicationData.maybeRedact(mSurroundingText)
+                + ", mTimeDependentText=" + mTimeDependentText + '}';
+    }
 
     /** @hide */
     @IntDef({
@@ -216,7 +256,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
      * #mTimeDependentText} is not null, getText will return this text with {@code ^1} replaced by
      * the time-dependent string.
      */
-    @Nullable private final CharSequence mSurroundingText;
+    @Nullable
+    private final CharSequence mSurroundingText;
 
     /**
      * The time-dependent part of the complication text. If {@link #mSurroundingText} is null, this
@@ -273,6 +314,39 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         checkFields();
     }
 
+    private static class SerializedForm implements Serializable {
+        CharSequence mSurroundingText;
+        TimeDependentText mTimeDependentText;
+
+        SerializedForm(@Nullable CharSequence surroundingText,
+                @Nullable TimeDependentText timeDependentText) {
+            mSurroundingText = surroundingText;
+            mTimeDependentText = timeDependentText;
+        }
+
+        private void writeObject(ObjectOutputStream oos) throws IOException {
+            CharSequenceSerializableHelper.writeToStream(mSurroundingText, oos);
+            oos.writeObject(mTimeDependentText);
+        }
+
+        private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+            mSurroundingText = CharSequenceSerializableHelper.readFromStream(ois);
+            mTimeDependentText = (TimeDependentText) ois.readObject();
+        }
+
+        Object readResolve() {
+            return new ComplicationText(mSurroundingText, mTimeDependentText);
+        }
+    }
+
+    Object writeReplace() {
+        return new SerializedForm(mSurroundingText, mTimeDependentText);
+    }
+
+    private void readObject(ObjectInputStream stream) throws InvalidObjectException {
+        throw new InvalidObjectException("Use SerializedForm");
+    }
+
     /**
      * Returns the {@link TimeUnit} with the provided {@code name}. Returns null if {@code name} is
      * null, or is not a TimeUnit.
@@ -299,7 +373,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
     /**
      * Writes this {@link ComplicationProviderInfo} to a {@link Parcel}.
      *
-     * @param out The {@link Parcel} to write to
+     * @param out   The {@link Parcel} to write to
      * @param flags Flags for writing the {@link Parcel}
      */
     @Override
@@ -349,7 +423,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
      * {@code referencePeriodEnd} then the text returned will represent the time difference
      * between {@code referencePeriodStart} and {@code dateTimeMillis}.
      *
-     * @param resources {@link Resources} from the current {@link Context}
+     * @param resources      {@link Resources} from the current {@link Context}
      * @param dateTimeMillis milliseconds since epoch, e.g. from {@link System#currentTimeMillis}
      * @return Text appropriate for the given date time.
      */
@@ -382,8 +456,16 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
      * Returns The text within which the time difference is displayed.
      */
     @Nullable
-    CharSequence getSurroundingText() {
+    public CharSequence getSurroundingText() {
         return mSurroundingText;
+    }
+
+    /** Whether or not this is a placeholder. */
+    public boolean isPlaceholder() {
+        if (mSurroundingText == null) {
+            return false;
+        }
+        return mSurroundingText.toString().equals(ComplicationData.PLACEHOLDER_STRING);
     }
 
     /**
@@ -481,9 +563,11 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
 
         /**
          * @param referencePeriodStartMillis The start of the reference period (in milliseconds
-         *     since the epoch) from which the time difference will be calculated.
-         * @param referencePeriodEndMillis The end of the reference period (in milliseconds since
-         *     the epoch) from which the time difference will be calculated.
+         *                                   since the epoch) from which the time difference will
+         *                                   be calculated.
+         * @param referencePeriodEndMillis   The end of the reference period (in milliseconds since
+         *                                   the epoch) from which the time difference will be
+         *                                   calculated.
          */
         public TimeDifferenceBuilder(
                 long referencePeriodStartMillis,

@@ -20,13 +20,13 @@ import android.os.Parcelable
 import androidx.health.services.client.proto.DataProto
 
 /**
- * A place holder class that represents the capabilities of the
- * [androidx.health.services.client.MeasureClient] on the device.
+ * Contains the capabilities supported by [androidx.health.services.client.MeasureClient] on this
+ * device.
  */
 @Suppress("ParcelCreator")
 public class MeasureCapabilities(
     /**
-     * Set of supported [DataType] s for measure capture on this device.
+     * Set of supported [DataType]s for measure capture on this device.
      *
      * Some data types are not available for measurement; this is typically used to measure health
      * data (e.g. HR).

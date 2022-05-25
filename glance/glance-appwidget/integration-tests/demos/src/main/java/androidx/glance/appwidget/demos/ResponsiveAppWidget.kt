@@ -16,61 +16,168 @@
 
 package androidx.glance.appwidget.demos
 
-import android.app.Activity
+import android.content.Context
+import android.os.Handler
+import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.glance.LocalContext
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.glance.Button
+import androidx.glance.GlanceId
+import androidx.glance.GlanceModifier
 import androidx.glance.LocalSize
-import androidx.glance.Modifier
-import androidx.glance.action.launchActivityAction
+import androidx.glance.action.ActionParameters
+import androidx.glance.action.actionParametersOf
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.background
-import androidx.glance.layout.Button
+import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Column
-import androidx.glance.layout.Text
+import androidx.glance.layout.Row
+import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
-import androidx.glance.text.FontWeight
-import androidx.glance.text.TextDecoration
+import androidx.glance.layout.size
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
-import androidx.glance.unit.Color
-import androidx.glance.unit.DpSize
-import androidx.glance.unit.dp
-import androidx.glance.unit.sp
 
+/**
+ * Sample AppWidget that showcase the Responsive SizeMode changing its content to Row, Column or Box
+ * based on the available space. In addition to shows how alignment and default weight works
+ * on these components.
+ */
 class ResponsiveAppWidget : GlanceAppWidget() {
+
+    companion object {
+        private val SMALL_BOX = DpSize(90.dp, 90.dp)
+        private val BIG_BOX = DpSize(180.dp, 180.dp)
+        private val VERY_BIG_BOX = DpSize(300.dp, 300.dp)
+        private val ROW = DpSize(180.dp, 48.dp)
+        private val LARGE_ROW = DpSize(300.dp, 48.dp)
+        private val COLUMN = DpSize(48.dp, 180.dp)
+        private val LARGE_COLUMN = DpSize(48.dp, 300.dp)
+    }
+
     override val sizeMode = SizeMode.Responsive(
-        DpSize(90.dp, 90.dp),
-        DpSize(100.dp, 100.dp),
-        DpSize(250.dp, 100.dp),
-        DpSize(250.dp, 250.dp),
+        setOf(SMALL_BOX, BIG_BOX, ROW, LARGE_ROW, COLUMN, LARGE_COLUMN)
     )
 
     @Composable
     override fun Content() {
-        val size = LocalSize.current
-        val context = LocalContext.current
-        Column(modifier = Modifier.padding(8.dp).background(Color.LightGray)) {
-            val content = if (size.width < 100.dp) {
-                "${size.width.value}dp x ${size.height.value}dp"
-            } else {
-                "Current layout: ${size.width.value}dp x ${size.height.value}dp"
-            }
-            if (size.height >= 100.dp) {
-                Text(
-                    context.getString(R.string.responsive_widget_title),
-                    style = TextStyle(
-                        fontSize = 15.sp, fontWeight = FontWeight.Bold,
-                        textDecoration = TextDecoration.Underline
-                    )
+        // Content will be called for each of the provided sizes
+        when (LocalSize.current) {
+            COLUMN -> ResponsiveColumn(numItems = 3)
+            ROW -> ResponsiveRow(numItems = 3)
+            LARGE_COLUMN -> ResponsiveColumn(numItems = 5)
+            LARGE_ROW -> ResponsiveRow(numItems = 5)
+            SMALL_BOX -> ResponsiveBox(numItems = 1)
+            BIG_BOX -> ResponsiveBox(numItems = 3)
+            VERY_BIG_BOX -> ResponsiveBox(numItems = 5)
+            else -> throw IllegalArgumentException("Invalid size not matching the provided ones")
+        }
+    }
+}
+
+private val ItemClickedKey = ActionParameters.Key<String>("name")
+
+private val parentModifier = GlanceModifier
+    .fillMaxSize()
+    .padding(8.dp)
+    .background(R.color.default_widget_background)
+
+private val columnColors = listOf(Color(0xff70D689), Color(0xffB2E5BF))
+private val rowColors = listOf(Color(0xff5087EF), Color(0xffA2BDF2))
+private val boxColors = listOf(Color(0xffF7A998), Color(0xffFA5F3D))
+
+/**
+ * Displays a column with three items that share evenly the available space
+ */
+@Composable
+private fun ResponsiveColumn(numItems: Int) {
+    Column(parentModifier) {
+        val modifier = GlanceModifier.fillMaxSize().padding(4.dp).defaultWeight()
+        (1..numItems).forEach {
+            val color = columnColors[(it - 1) % columnColors.size]
+            ContentItem("$it", color, modifier)
+        }
+    }
+}
+
+/**
+ * Displays a row with three items that share evenly the available space
+ */
+@Composable
+private fun ResponsiveRow(numItems: Int) {
+    Row(parentModifier) {
+        val modifier = GlanceModifier.fillMaxSize().padding(4.dp).defaultWeight()
+        (1..numItems).forEach {
+            val color = rowColors[(it - 1) % rowColors.size]
+            ContentItem("$it", color, modifier)
+        }
+    }
+}
+
+/**
+ * Displays a Box with three items on top of each other
+ */
+@Composable
+private fun ResponsiveBox(numItems: Int) {
+    val size = LocalSize.current
+    Box(modifier = parentModifier, contentAlignment = Alignment.Center) {
+        (1..numItems).forEach {
+            val index = numItems - it + 1
+            val color = boxColors[(index - 1) % boxColors.size]
+            val boxSize = (size.width * index) / numItems
+            ContentItem("$index",
+                color,
+                GlanceModifier.size(boxSize),
+                textStyle = TextStyle(textAlign = TextAlign.End).takeIf { numItems != 1 }
+            )
+        }
+    }
+}
+
+@Composable
+private fun ContentItem(
+    text: String,
+    color: Color,
+    modifier: GlanceModifier,
+    textStyle: TextStyle? = null
+) {
+    Box(modifier = modifier) {
+        Button(
+            text = text,
+            modifier = GlanceModifier.fillMaxSize().padding(8.dp).background(color),
+            style = textStyle ?: TextStyle(textAlign = TextAlign.Center),
+            onClick = actionRunCallback<ResponsiveAction>(
+                actionParametersOf(
+                    ItemClickedKey to text
                 )
-            }
-            Text(content)
-            Button("Button", onClick = launchActivityAction<Activity>())
+            )
+        )
+    }
+}
+
+class ResponsiveAction : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        Handler(context.mainLooper).post {
+            Toast.makeText(
+                context,
+                "Item clicked: ${parameters[ItemClickedKey]}",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 }
 
 class ResponsiveAppWidgetReceiver : GlanceAppWidgetReceiver() {
-    override val glanceAppWidget: GlanceAppWidget by lazy { ResponsiveAppWidget() }
+    override val glanceAppWidget: GlanceAppWidget = ResponsiveAppWidget()
 }

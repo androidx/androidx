@@ -21,6 +21,7 @@ import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
+import com.android.tools.lint.detector.api.Incident
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
@@ -48,11 +49,12 @@ class BanConcurrentHashMap : Detector(), Detector.UastScanner {
             if (node.selector is USimpleNameReferenceExpression) {
                 val name = node.selector as USimpleNameReferenceExpression
                 if (CONCURRENT_HASHMAP == name.identifier) {
-                    context.report(
-                        ISSUE, node, context.getLocation(node),
-                        "Detected " +
-                            "ConcurrentHashMap usage."
-                    )
+                    val incident = Incident(context)
+                        .issue(ISSUE)
+                        .location(context.getLocation(node))
+                        .message("Detected ConcurrentHashMap usage.")
+                        .scope(node)
+                    context.report(incident)
                 }
             }
         }
@@ -69,11 +71,12 @@ class BanConcurrentHashMap : Detector(), Detector.UastScanner {
                 if (resolved is PsiClass &&
                     CONCURRENT_HASHMAP_QUALIFIED_NAME == resolved.qualifiedName
                 ) {
-                    context.report(
-                        ISSUE, node, context.getLocation(node),
-                        "Detected " +
-                            "ConcurrentHashMap usage."
-                    )
+                    val incident = Incident(context)
+                        .issue(ISSUE)
+                        .location(context.getLocation(node))
+                        .message("Detected ConcurrentHashMap usage.")
+                        .scope(node)
+                    context.report(incident)
                 }
             }
         }

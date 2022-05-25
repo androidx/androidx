@@ -16,28 +16,29 @@
 
 package androidx.glance.layout
 
-import androidx.glance.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
-import androidx.glance.unit.dp
+import androidx.glance.unit.Dimension
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertIs
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class ColumnTest {
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun createComposableRow() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableRow() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Column {}
         }
@@ -48,10 +49,10 @@ class ColumnTest {
     }
 
     @Test
-    fun createComposableRowWithParams() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableRowWithParams() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Column(
-                modifier = Modifier.padding(2.dp),
+                modifier = GlanceModifier.padding(2.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalAlignment = Alignment.CenterVertically
             ) {}
@@ -59,13 +60,13 @@ class ColumnTest {
 
         val innerColumn = assertIs<EmittableColumn>(root.children[0])
         val paddingModifier = requireNotNull(innerColumn.modifier.findModifier<PaddingModifier>())
-        assertThat(paddingModifier.top).isEqualTo(2.dp)
+        assertThat(paddingModifier.top).isEqualTo(PaddingDimension(2.dp))
         assertThat(innerColumn.horizontalAlignment).isEqualTo(Alignment.CenterHorizontally)
         assertThat(innerColumn.verticalAlignment).isEqualTo(Alignment.CenterVertically)
     }
 
     @Test
-    fun createComposableColumnWithChildren() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableColumnWithChildren() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Column {
                 Box(contentAlignment = Alignment.BottomCenter) {}
@@ -82,10 +83,10 @@ class ColumnTest {
     }
 
     @Test
-    fun createComposableColumnWithWeightChildren() = fakeCoroutineScope.runBlockingTest {
+    fun createComposableColumnWithWeightChildren() = fakeCoroutineScope.runTest {
         val root = runTestingComposition {
             Column {
-                Box(modifier = Modifier.defaultWeight()) { }
+                Box(modifier = GlanceModifier.defaultWeight()) { }
             }
         }
 

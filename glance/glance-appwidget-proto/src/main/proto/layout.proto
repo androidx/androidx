@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package androidx.glance.appwidget.proto;
+
+option java_package  = "androidx.glance.appwidget.proto";
+option java_outer_classname = "LayoutProto";
+
+message LayoutConfig {
+  repeated LayoutDefinition layout = 1;
+  int32 next_index = 2;
+}
+
+message LayoutDefinition {
+  LayoutNode layout = 1;
+  int32 layout_index = 2;
+}
+
+message LayoutNode {
+  LayoutType type = 1;
+  DimensionType width = 2;
+  DimensionType height = 3;
+  HorizontalAlignment horizontal_alignment = 4;
+  VerticalAlignment vertical_alignment = 5;
+  ContentScale image_scale = 6;
+  NodeIdentity identity = 8;
+  repeated LayoutNode children = 7;
+}
+
+enum ContentScale {
+  UNSPECIFIED_CONTENT_SCALE = 0;
+  FIT = 1;
+  CROP = 2;
+  FILL_BOUNDS = 3;
+}
+
+enum HorizontalAlignment {
+  UNSPECIFIED_HORIZONTAL_ALIGNMENT = 0;
+  START = 1;
+  CENTER_HORIZONTALLY = 2;
+  END = 3;
+}
+
+enum VerticalAlignment {
+  UNSPECIFIED_VERTICAL_ALIGNMENT = 0;
+  TOP = 1;
+  CENTER_VERTICALLY = 2;
+  BOTTOM = 3;
+}
+
+enum DimensionType {
+  UNKNOWN_DIMENSION_TYPE = 0;
+  EXACT = 1;
+  WRAP = 2;
+  FILL = 3;
+  EXPAND = 4;
+}
+
+enum NodeIdentity {
+  DEFAULT_IDENTITY = 0;
+  BACKGROUND_NODE = 1;
+}
+
+enum LayoutType {
+  UNKNOWN_TYPE = 0;
+  ROW = 1;
+  COLUMN = 2;
+  BOX = 3;
+  TEXT = 4;
+  LAZY_COLUMN = 5;
+  LIST_ITEM = 6;
+  CHECK_BOX = 7;
+  BUTTON = 8;
+  SPACER = 9;
+  SWITCH = 10;
+  ANDROID_REMOTE_VIEWS = 11;
+  REMOTE_VIEWS_ROOT = 12;
+  IMAGE = 13;
+  LINEAR_PROGRESS_INDICATOR = 14;
+  CIRCULAR_PROGRESS_INDICATOR = 15;
+  LAZY_VERTICAL_GRID = 16;
+  VERTICAL_GRID_ITEM = 17;
+  RADIO_GROUP = 18;
+  RADIO_BUTTON = 19;
+  RADIO_ROW = 20;
+  RADIO_COLUMN = 21;
+}

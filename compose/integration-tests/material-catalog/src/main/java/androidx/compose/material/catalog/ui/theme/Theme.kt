@@ -16,19 +16,38 @@
 
 package androidx.compose.material.catalog.ui.theme
 
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
+import androidx.core.view.WindowCompat
 
-// TODO: Use components/values from Material3 when available
 @Composable
 fun CatalogTheme(content: @Composable () -> Unit) {
     val darkTheme = isSystemInDarkTheme()
-    val colors = if (!darkTheme) lightColors() else darkColors()
+    val colorScheme = if (!darkTheme) lightColorScheme() else darkColorScheme()
+    val view = LocalView.current
+    val context = LocalContext.current
+    SideEffect {
+        WindowCompat.getInsetsController(context.findActivity().window, view)
+            .isAppearanceLightStatusBars = !darkTheme
+    }
     MaterialTheme(
-        colors = colors,
+        colorScheme = colorScheme,
         content = content
     )
 }
+
+private tailrec fun Context.findActivity(): Activity =
+    when (this) {
+        is Activity -> this
+        is ContextWrapper -> this.baseContext.findActivity()
+        else -> throw IllegalArgumentException("Could not find activity!")
+    }

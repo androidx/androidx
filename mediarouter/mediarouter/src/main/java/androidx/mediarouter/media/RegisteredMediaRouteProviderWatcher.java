@@ -50,7 +50,6 @@ final class RegisteredMediaRouteProviderWatcher {
     private final ArrayList<RegisteredMediaRouteProvider> mProviders = new ArrayList<>();
     private boolean mRunning;
 
-    @SuppressWarnings("deprecation")
     RegisteredMediaRouteProviderWatcher(Context context, Callback callback) {
         mContext = context;
         mCallback = callback;
@@ -75,6 +74,10 @@ final class RegisteredMediaRouteProviderWatcher {
             // Also has the side-effect of restarting providers if needed.
             mHandler.post(mScanPackagesRunnable);
         }
+    }
+
+    public void rescan() {
+        mHandler.post(mScanPackagesRunnable);
     }
 
     public void stop() {

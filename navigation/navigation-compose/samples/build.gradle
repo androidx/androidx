@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -23,7 +22,7 @@ plugins {
     id("AndroidXComposePlugin")
     id("org.jetbrains.kotlin.android")
     id ("kotlin-parcelize")
-    id ("org.jetbrains.kotlin.plugin.serialization").version("1.5.21")
+    alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
@@ -35,6 +34,8 @@ dependencies {
     implementation(projectOrArtifact(":navigation:navigation-compose"))
     implementation("androidx.compose.material:material:1.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.0-rc01")
+    implementation("androidx.savedstate:savedstate-ktx:1.2.0-rc01")
 }
 
 androidx {
@@ -43,4 +44,8 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2020"
     description = "Samples for Compose integration with Navigation"
+}
+
+android {
+    namespace "androidx.navigation.compose.samples"
 }

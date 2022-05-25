@@ -141,6 +141,7 @@ public class SliceProviderCompat {
      * Called by SliceProvider when compat is needed.
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     public Bundle call(@NonNull String method, @Nullable String arg, @NonNull Bundle extras) {
         if (method.equals(METHOD_SLICE)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
@@ -377,6 +378,7 @@ public class SliceProviderCompat {
      * Compat version of {@link Slice#bindSlice}.
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     public static Slice bindSlice(@NonNull Context context, @NonNull Intent intent,
             @NonNull Set<SliceSpec> supportedSpecs) {
         Preconditions.checkNotNull(intent, "intent");
@@ -433,6 +435,7 @@ public class SliceProviderCompat {
     }
 
     @SuppressLint("WrongConstant") // Needed for IconCompat.TYPE_RESOURCE lint failure
+    @SuppressWarnings("deprecation")
     private static Slice parseSlice(final Context context, Bundle res) {
         if (res == null) {
             return null;
@@ -540,6 +543,7 @@ public class SliceProviderCompat {
      * Compat version of {@link android.app.slice.SliceManager#mapIntentToUri}.
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     public static Uri mapIntentToUri(@NonNull Context context, @NonNull Intent intent) {
         Preconditions.checkNotNull(intent, "intent");
         Preconditions.checkArgument(intent.getComponent() != null || intent.getPackage() != null
@@ -595,7 +599,7 @@ public class SliceProviderCompat {
      * Compat version of {@link android.app.slice.SliceManager#getSliceDescendants(Uri)}
      */
     @NonNull
-    @SuppressWarnings("MixedMutabilityReturnType")
+    @SuppressWarnings({"MixedMutabilityReturnType", "deprecation"})
     public static Collection<Uri> getSliceDescendants(@NonNull Context context, @NonNull Uri uri) {
         ContentResolver resolver = context.getContentResolver();
         try (ProviderHolder holder = acquireClient(resolver, uri)) {

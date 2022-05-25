@@ -17,6 +17,7 @@
 package androidx.lifecycle;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.viewmodel.CreationExtras;
 
 /**
  * Interface that marks a {@link ViewModelStoreOwner} as having a default
@@ -33,4 +34,15 @@ public interface HasDefaultViewModelProviderFactory {
      */
     @NonNull
     ViewModelProvider.Factory getDefaultViewModelProviderFactory();
+
+    /**
+     * Returns the default {@link CreationExtras} that should be passed into the
+     * {@link ViewModelProvider.Factory#create(Class, CreationExtras)} when no overriding
+     * {@link CreationExtras} were passed to the
+     * {@link androidx.lifecycle.ViewModelProvider} constructors.
+     */
+    @NonNull
+    default CreationExtras getDefaultViewModelCreationExtras() {
+        return CreationExtras.Empty.INSTANCE;
+    }
 }

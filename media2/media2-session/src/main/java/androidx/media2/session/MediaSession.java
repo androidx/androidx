@@ -168,7 +168,6 @@ import java.util.concurrent.Executor;
  * @see MediaSessionService
  */
 public class MediaSession implements Closeable {
-    static final String TAG = "MediaSession";
 
     // It's better to have private static lock instead of using MediaSession.class because the
     // private lock object isn't exposed.

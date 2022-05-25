@@ -10,9 +10,12 @@ The Android team has been exploring how we could make it easier to develop libra
 
 You can start contributing to any of the following library groups from GitHub:
   - [Activity](https://developer.android.com/guide/components/activities/intro-activities)
+  - [AppCompat](https://developer.android.com/jetpack/androidx/releases/appcompat)
   - [Biometric](https://developer.android.com/training/sign-in/biometric-auth)
+  - [Collection](https://developer.android.com/jetpack/androidx/releases/collection)
   - [Compose Compiler](https://developer.android.com/jetpack/androidx/releases/compose-compiler)
   - [Compose Runtime](https://developer.android.com/jetpack/androidx/releases/compose-runtime)
+  - [Core](https://developer.android.com/jetpack/androidx/releases/core)
   - [DataStore](https://developer.android.com/topic/libraries/architecture/datastore)
   - [Fragment](https://developer.android.com/guide/components/fragments)
   - [Lifecycle](https://developer.android.com/topic/libraries/architecture/lifecycle)
@@ -25,34 +28,54 @@ Not sure where to start? Take a look at the official [feature/bug bounty list](h
 
 Our tooling currently supports **macOS and Linux**. This new setup is a **work-in-progress**, so it might have some rough edges. Please bear with us while we streamline this workflow.
 
-## Getting Started
+## Getting started
 
-We have tried to make contributing to androidx a lot easier with this new setup. Just start by creating a fork of the [androidx/androidx](https://github.com/androidx/androidx) GitHub repository.
+We have tried to make contributing to androidx a lot easier with this new setup. Just start by
+creating a fork of the [androidx/androidx](https://github.com/androidx/androidx) GitHub repository.
 
-### One Time Setup
+### One-time setup
 
-- Click on the `Actions` tab in the forked `androidx`  repository, and enable the use of `Workflows`.
+- Click on the `Actions` tab in the forked `androidx` repository, and enable the use of `Workflows`.
 
 - Download and install JDK 11, if you don’t have it already.
 
-  Next, you need to set up the following environment variables:
+  Note the installation directory. If you already have JDK 11 installed and set as default, you can 
+  find this with `which javac`.
+
+- Download and install [Android Studio](https://developer.android.com/studio) if you don't have it
+  already. Then, locate your Android SDK directory at `Tools > SDK Manager > Android SDK Location`.
+
+  If you already have the SDK installed or don't plan on using Android Studio, just note the
+  SDK directory.
+
+- Download and install the NDK. You can either do this using the command-line `sdkmanager` or from
+  Android Studio using `Tools > SDK Manager`, checking `Show Package Details`, and expanding `NDK`.
+
+  ```bash
+  sdkmanager --install "ndk;23.1.7779620"
+  sdkmanager --install "cmake;3.22.1" --channel=3 #channel 3 is the canary channel
+  ```
+
+- Next, set up the following environment variables:
 
   ```bash
   # You could also add this to your .{bash|zsh}rc file.
-  export JAVA_HOME="location of JDK 11 folder"
-  export ANDROID_SDK_ROOT="location of the Android SDK folder"
+  export JAVA_HOME="location of JDK 11 directory"
+  export ANDROID_SDK_ROOT="location of the Android SDK directory"
   ```
 
-### Checkout & Importing a Project
+### Checkout and importing a project
 
 The list of folders that can be contributed to, using the GitHub repository are:
 
 ```
 androidx
   -- activity
+  -- appcompat
   -- biometric
   -- compose/compiler
   -- compose/runtime
+  -- core
   -- datastore
   -- fragment
   -- lifecycle
@@ -93,7 +116,7 @@ cd androidx/room
 
 The studio task automatically downloads the correct version of Android Studio that matches the Android Gradle Plugin version.
 
-### Making Changes
+### Making changes
 
 You can now start making changes to the Room project. Making changes is just like making changes to any other Android project. It’s a good idea to build consensus on the change you intend to make. Make sure there is a related issue on the [AOSP issue tracker](https://issuetracker.google.com/issues/new?component=192731&template=842428) and start a conversation on that issue to ensure project maintainers are aware of it. It is best to start the conversation as early as possible to avoid duplicating work as other contributors might already be working on it.
 
@@ -138,7 +161,7 @@ This helps the AndroidX project keep track of API changes and avoid inadvertentl
 
 **Note: CI build will already check for these but it is best to run them locally to speedup the process.**
 
-### Making a Pull Request
+### Making a pull request
 
 To create a pull request click on [this](https://github.com/androidx/androidx/pulls) link and then click on New Pull Request.
 
@@ -161,7 +184,7 @@ Test: A test stanza. For e.g. /gradlew test connectedCheck
 Fixes: b/<bugId> if applicable
 ```
 
-### The Pull Request Workflow
+### Pull request workflow
 
 AndroidX is primarily developed in [AOSP](https://android.googlesource.com/platform/frameworks/support/+/androidx-main). This flow simply mirrors pull requests from GitHub into Gerrit, For all intents and purposes, AOSP is the **single** **source of truth**, all changes will be merged in Gerrit and mirrored back to GitHub.
 

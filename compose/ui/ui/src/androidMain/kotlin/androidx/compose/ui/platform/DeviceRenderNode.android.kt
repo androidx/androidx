@@ -39,6 +39,8 @@ internal interface DeviceRenderNode {
     var translationX: Float
     var translationY: Float
     var elevation: Float
+    var ambientShadowColor: Int
+    var spotShadowColor: Int
     var rotationZ: Float
     var rotationX: Float
     var rotationY: Float
@@ -71,6 +73,8 @@ internal interface DeviceRenderNode {
      * RenderNode directly and potentially crashing on certain multiplatform configurations
      */
     fun dumpRenderNodeData(): DeviceRenderNodeData
+
+    fun discardDisplayList()
 }
 
 /**
@@ -94,6 +98,8 @@ internal data class DeviceRenderNodeData(
     var translationX: Float,
     var translationY: Float,
     var elevation: Float,
+    var ambientShadowColor: Int,
+    var spotShadowColor: Int,
     var rotationZ: Float,
     var rotationX: Float,
     var rotationY: Float,

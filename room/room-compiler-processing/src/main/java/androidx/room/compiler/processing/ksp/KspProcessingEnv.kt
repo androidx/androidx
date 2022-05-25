@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.XTypeElementStore
@@ -41,9 +42,23 @@ internal class KspProcessingEnv(
     override val options: Map<String, String>,
     codeGenerator: CodeGenerator,
     logger: KSPLogger,
+    override val config: XProcessingEnvConfig,
 ) : XProcessingEnv {
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.KSP
+
+    // No API to get this but Kotlin's default is 8, so go with it for now.
+    // TODO: https://github.com/google/ksp/issues/810
+    override val jvmVersion: Int
+        get() = 8
+
     private val ksFileMemberContainers = mutableMapOf<KSFile, KspFileMemberContainer>()
+
+    /**
+     * Variance resolver to find JVM types of KSType. See [KSTypeVarianceResolver] docs for details.
+     */
+    private val ksTypeVarianceResolver by lazy {
+        KSTypeVarianceResolver(resolver)
+    }
 
     private var _resolver: Resolver? = null
 
@@ -72,8 +87,9 @@ internal class KspProcessingEnv(
 
     override val messager: XMessager = KspMessager(logger)
 
-    private val arrayTypeFactory
-        get() = KspArrayType.Factory(this)
+    private val arrayTypeFactory by lazy {
+        KspArrayType.Factory(this)
+    }
 
     override val filer: XFiler = KspFiler(codeGenerator, messager)
 
@@ -84,7 +100,8 @@ internal class KspProcessingEnv(
         get() = KspVoidType(
             env = this,
             ksType = resolver.builtIns.unitType,
-            boxed = false
+            boxed = false,
+            jvmTypeResolver = null
         )
 
     override fun findTypeElement(qName: String): KspTypeElement? {
@@ -104,7 +121,7 @@ internal class KspProcessingEnv(
         return resolver.findClass(kotlinTypeName)?.let {
             wrap(
                 allowPrimitives = KspTypeMapper.isJavaPrimitiveType(qName),
-                ksType = it.asStarProjectedType()
+                ksType = it.asType(emptyList())
             )
         }
     }
@@ -176,7 +193,8 @@ internal class KspProcessingEnv(
         return KspTypeArgumentType(
             env = this,
             typeArg = ksTypeArgument,
-            typeParam = ksTypeParam
+            typeParam = ksTypeParam,
+            jvmTypeResolver = null
         )
     }
 
@@ -210,21 +228,26 @@ internal class KspProcessingEnv(
                     ksType.createTypeReference(),
                     declaration.variance
                 ),
-                typeParam = declaration
+                typeParam = declaration,
+                jvmTypeResolver = null
             )
         }
         if (allowPrimitives && qName != null && ksType.nullability == Nullability.NOT_NULL) {
             // check for primitives
             val javaPrimitive = KspTypeMapper.getPrimitiveJavaTypeName(qName)
             if (javaPrimitive != null) {
-                return KspPrimitiveType(this, ksType)
+                return KspPrimitiveType(this, ksType, jvmTypeResolver = null)
             }
             // special case for void
             if (qName == "kotlin.Unit") {
                 return voidType
             }
         }
-        return arrayTypeFactory.createIfArray(ksType) ?: DefaultKspType(this, ksType)
+        return arrayTypeFactory.createIfArray(ksType) ?: DefaultKspType(
+            this,
+            ksType,
+            jvmTypeResolver = null
+        )
     }
 
     fun wrapClassDeclaration(declaration: KSClassDeclaration): KspTypeElement {
@@ -238,6 +261,30 @@ internal class KspProcessingEnv(
                 ksFile = file
             )
         }
+    }
+
+    /**
+     * Resolves the wildcards for the given ksType. See [KSTypeVarianceResolver] for details.
+     */
+    fun resolveWildcards(
+        /**
+         * The KSType whose wildcards variance will be resolved
+         */
+        ksType: KSType,
+        /**
+         * Default wildcard resolution strategy
+         */
+        wildcardMode: KSTypeVarianceResolver.WildcardMode,
+        /**
+         * The original declaration type if [ksType] is obtained via inheritance.
+         */
+        declarationType: KSType?
+    ): KSType {
+        return ksTypeVarianceResolver.applyTypeVariance(
+            ksType = ksType,
+            wildcardMode = wildcardMode,
+            declarationType = declarationType
+        )
     }
 
     internal fun clearCache() {

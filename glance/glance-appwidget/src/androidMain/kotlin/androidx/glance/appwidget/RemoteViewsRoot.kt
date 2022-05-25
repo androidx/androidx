@@ -17,12 +17,12 @@
 package androidx.glance.appwidget
 
 import androidx.glance.EmittableWithChildren
-import androidx.glance.Modifier
+import androidx.glance.GlanceModifier
 
 /**
  * Root view, with a maximum depth. No default value is specified, as the exact value depends on
  * specific circumstances.
  */
 internal class RemoteViewsRoot(maxDepth: Int) : EmittableWithChildren(maxDepth) {
-    override var modifier: Modifier = Modifier
+    override var modifier: GlanceModifier = GlanceModifier
 }

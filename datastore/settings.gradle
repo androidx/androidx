@@ -15,13 +15,25 @@
  */
 
 // see ../playground-common/README.md for details on how this works
+pluginManagement {
+    includeBuild "../playground-common/playground-plugin"
+}
+plugins {
+    id "playground"
+}
+
 rootProject.name = "datastore-playground"
-apply from: "../playground-common/playground-include-settings.gradle"
-setupPlayground(this, "..")
-selectProjectsFromAndroidX({ name ->
-    if (name.startsWith(":datastore")) return true
-    if (name == ":annotation:annotation-sampled") return true
-    if (name == ":internal-testutils-truth") return true
-    return false
-})
+
+playground {
+    setupPlayground("..")
+    selectProjectsFromAndroidX({ name ->
+        // Must exclude this because AndroidXCompose plugin doesn't currently support playground.
+        if (name == ":datastore:datastore-compose-samples") return false
+        if (name.startsWith(":datastore")) return true
+        if (name == ":annotation:annotation-sampled") return true
+        if (name == ":internal-testutils-kmp") return true
+        if (name == ":internal-testutils-truth") return true
+        return false
+    })
+}
 

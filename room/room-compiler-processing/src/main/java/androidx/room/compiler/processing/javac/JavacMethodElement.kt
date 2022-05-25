@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KmFunction
@@ -45,11 +46,27 @@ internal class JavacMethodElement(
         }
     }
 
-    override val name: String
+    override val name: String by lazy {
+        kotlinMetadata?.name ?: jvmName
+    }
+
+    override val jvmName: String
         get() = element.simpleName.toString()
 
-    override val enclosingElement: XTypeElement by lazy {
-        element.requireEnclosingType(env)
+    override val parameters: List<JavacMethodParameter> by lazy {
+        element.parameters.mapIndexed { index, variable ->
+            JavacMethodParameter(
+                env = env,
+                enclosingElement = this,
+                containing = containing,
+                element = variable,
+                kotlinMetadataFactory = {
+                    val metadataParamIndex = if (isExtensionFunction()) index - 1 else index
+                    kotlinMetadata?.parameters?.getOrNull(metadataParamIndex)
+                },
+                argIndex = index
+            )
+        }
     }
 
     override val kotlinMetadata: KmFunction? by lazy {
@@ -100,9 +117,19 @@ internal class JavacMethodElement(
 
     override fun isSuspendFunction() = kotlinMetadata?.isSuspend() == true
 
+    override fun isExtensionFunction() = kotlinMetadata?.isExtension() == true
+
     override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
         check(other is JavacMethodElement)
         check(owner is JavacTypeElement)
+        if (
+            env.backend == XProcessingEnv.Backend.JAVAC &&
+            this.isSuspendFunction() &&
+            other.isSuspendFunction()
+        ) {
+            // b/222240938 - Special case suspend functions in KAPT
+            return suspendOverrides(element, other.element, owner.element, env.typeUtils)
+        }
         // Use auto-common's overrides, which provides consistency across javac and ejc (Eclipse).
         return MoreElements.overrides(element, other.element, owner.element, env.typeUtils)
     }
@@ -146,7 +173,7 @@ internal class JavacMethodElement(
             }
         }
         return kotlinDefaultImplClass?.getDeclaredMethods()?.any {
-            it.name == this.name && paramsMatch(parameters, it.parameters)
+            it.jvmName == this.jvmName && paramsMatch(parameters, it.parameters)
         } ?: false
     }
 

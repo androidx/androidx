@@ -15,7 +15,10 @@
  */
 package androidx.core.content.res;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
@@ -29,17 +32,19 @@ import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
-import android.os.Build;
 import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.OptIn;
 import androidx.core.graphics.TypefaceCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.FlakyTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -67,7 +72,7 @@ public class ResourcesCompatTest {
                 ResourcesCompat.getColor(mResources, R.color.text_color, null),
                 0xFFFF8090);
 
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (SDK_INT >= 23) {
             // The following tests are only expected to pass on v23+ devices. The result of
             // calling theme-aware getColor() in pre-v23 is undefined.
             final Resources.Theme yellowTheme = mResources.newTheme();
@@ -136,7 +141,7 @@ public class ResourcesCompatTest {
         TestUtils.assertAllPixelsOfColor("Unthemed drawable load",
                 unthemedDrawable, mResources.getColor(R.color.test_red));
 
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (SDK_INT >= 23) {
             // The following tests are only expected to pass on v23+ devices. The result of
             // calling theme-aware getDrawable() in pre-v23 is undefined.
             final Resources.Theme yellowTheme = mResources.newTheme();
@@ -175,7 +180,7 @@ public class ResourcesCompatTest {
         // For pre-v15 devices we should get a drawable that corresponds to the density of the
         // current device. For v15+ devices we should get a drawable that corresponds to the
         // density requested in the API call.
-        final int expectedSizeForMediumDensity = (Build.VERSION.SDK_INT < 15) ?
+        final int expectedSizeForMediumDensity = (SDK_INT < 15) ?
                 mResources.getDimensionPixelSize(R.dimen.density_aware_size) : 12;
         assertEquals("Unthemed density-aware drawable load: medium width",
                 expectedSizeForMediumDensity, unthemedDrawableForMediumDensity.getIntrinsicWidth());
@@ -189,7 +194,7 @@ public class ResourcesCompatTest {
         // For pre-v15 devices we should get a drawable that corresponds to the density of the
         // current device. For v15+ devices we should get a drawable that corresponds to the
         // density requested in the API call.
-        final int expectedSizeForHighDensity = (Build.VERSION.SDK_INT < 15) ?
+        final int expectedSizeForHighDensity = (SDK_INT < 15) ?
                 mResources.getDimensionPixelSize(R.dimen.density_aware_size) : 21;
         assertEquals("Unthemed density-aware drawable load: high width",
                 expectedSizeForHighDensity, unthemedDrawableForHighDensity.getIntrinsicWidth());
@@ -202,7 +207,7 @@ public class ResourcesCompatTest {
         // For pre-v15 devices we should get a drawable that corresponds to the density of the
         // current device. For v15+ devices we should get a drawable that corresponds to the
         // density requested in the API call.
-        final int expectedSizeForXHighDensity = (Build.VERSION.SDK_INT < 15) ?
+        final int expectedSizeForXHighDensity = (SDK_INT < 15) ?
                 mResources.getDimensionPixelSize(R.dimen.density_aware_size) : 32;
         assertEquals("Unthemed density-aware drawable load: xhigh width",
                 expectedSizeForXHighDensity, unthemedDrawableForXHighDensity.getIntrinsicWidth());
@@ -215,7 +220,7 @@ public class ResourcesCompatTest {
         // For pre-v15 devices we should get a drawable that corresponds to the density of the
         // current device. For v15+ devices we should get a drawable that corresponds to the
         // density requested in the API call.
-        final int expectedSizeForXXHighDensity = (Build.VERSION.SDK_INT < 15) ?
+        final int expectedSizeForXXHighDensity = (SDK_INT < 15) ?
                 mResources.getDimensionPixelSize(R.dimen.density_aware_size) : 54;
         assertEquals("Unthemed density-aware drawable load: xxhigh width",
                 expectedSizeForXXHighDensity, unthemedDrawableForXXHighDensity.getIntrinsicWidth());
@@ -226,7 +231,7 @@ public class ResourcesCompatTest {
 
     @Test
     public void testGetDrawableForDensityThemed() throws Throwable {
-        if (Build.VERSION.SDK_INT < 21) {
+        if (SDK_INT < 21) {
             // The following tests are only expected to pass on v21+ devices. The result of
             // calling theme-aware getDrawableForDensity() in pre-v21 is undefined.
             return;
@@ -317,7 +322,7 @@ public class ResourcesCompatTest {
         Typeface tf = ResourcesCompat.getFont(mContext, R.font.thin_italic);
 
         assertNotNull(tf);
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (SDK_INT >= 28) {
             assertEquals(100, tf.getWeight());
         }
         assertEquals(Typeface.ITALIC, tf.getStyle());
@@ -376,6 +381,15 @@ public class ResourcesCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 29)
+    public void testGetFont_xmlFile_sync_29_hasRightWeight() {
+        Typeface font = ResourcesCompat.getFont(mContext, R.font.samplexmlfont_medium);
+
+        assertNotNull(font);
+        assertEquals(500, font.getWeight());
+    }
+
+    @Test
     public void testGetFont_xmlFile_async() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(1);
         final FontCallback callback = new FontCallback(latch);
@@ -386,6 +400,20 @@ public class ResourcesCompatTest {
 
         assertNotNull(callback.mTypeface);
         assertNotSame(Typeface.DEFAULT, callback.mTypeface);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 29)
+    public void testGetFont_xmlFile_async_29_hasRightWeight() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final FontCallback callback = new FontCallback(latch);
+
+        ResourcesCompat.getFont(mContext, R.font.samplexmlfont_medium, callback, null);
+
+        assertTrue(latch.await(5L, TimeUnit.SECONDS));
+
+        assertNotNull(callback.mTypeface);
+        assertEquals(500, callback.mTypeface.getWeight());
     }
 
     @Test(expected = Resources.NotFoundException.class)
@@ -496,5 +524,33 @@ public class ResourcesCompatTest {
         Drawable mutated = drawable.mutate();
         assertTrue(drawable instanceof TransitionDrawable);
         assertTrue(mutated instanceof TransitionDrawable);
+    }
+
+    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
+    @Test
+    public void testClearCachesForTheme() {
+        Resources.Theme theme = mResources.newTheme();
+        ColorStateList csl = ResourcesCompat.getColorStateList(
+                mResources, R.color.color_state_list, theme);
+
+        // Modify the contents of the theme.
+        theme.applyStyle(android.R.style.Theme_Material, true);
+        ColorStateList csl2 = ResourcesCompat.getColorStateList(
+                mResources, R.color.color_state_list, theme);
+
+        if (!BuildCompat.isAtLeastT()) {
+            // Validate the failure case that's being worked around.
+            assertEquals(csl, csl2);
+        } else {
+            // Theme.hashCode() was implemented in T, so the workaround is not needed.
+            assertNotEquals(csl, csl2);
+        }
+
+        ResourcesCompat.clearCachesForTheme(theme);
+
+        // Validate the workaround yields a correct result for all platforms.
+        ColorStateList csl3 = ResourcesCompat.getColorStateList(
+                mResources, R.color.color_state_list, theme);
+        assertNotEquals(csl, csl3);
     }
 }

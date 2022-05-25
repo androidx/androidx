@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
 
     <issue
         id="LambdaLast"
@@ -7,9 +7,7 @@
         errorLine1="            @Nullable PageTransformer transformer, int pageLayerType) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="822"
-            column="52"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public void setBackgroundDrawable(Drawable d) {"
         errorLine2="                                      ~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/PagerTabStrip.java"
-            line="172"
-            column="39"/>
+            file="src/main/java/androidx/viewpager/widget/PagerTabStrip.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/PagerTabStrip.java"
-            line="224"
-            column="33"/>
+            file="src/main/java/androidx/viewpager/widget/PagerTabStrip.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    protected void onDraw(Canvas canvas) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/PagerTabStrip.java"
-            line="261"
-            column="27"/>
+            file="src/main/java/androidx/viewpager/widget/PagerTabStrip.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public void setOnPageChangeListener(OnPageChangeListener listener) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="744"
-            column="41"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    protected boolean verifyDrawable(Drawable who) {"
         errorLine2="                                     ~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="945"
-            column="38"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        public void writeToParcel(Parcel out, int flags) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="1423"
-            column="35"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public Parcelable onSaveInstanceState() {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="1464"
-            column="12"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public void onRestoreInstanceState(Parcelable state) {"
         errorLine2="                                       ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="1475"
-            column="40"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public void addView(View child, int index, ViewGroup.LayoutParams params) {"
         errorLine2="                        ~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="1495"
-            column="25"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public void addView(View child, int index, ViewGroup.LayoutParams params) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="1495"
-            column="48"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public void removeView(View view) {"
         errorLine2="                           ~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="1519"
-            column="28"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public boolean onInterceptTouchEvent(MotionEvent ev) {"
         errorLine2="                                         ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2061"
-            column="42"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public boolean onTouchEvent(MotionEvent ev) {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2214"
-            column="33"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public void draw(Canvas canvas) {"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2507"
-            column="22"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    protected void onDraw(Canvas canvas) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2549"
-            column="27"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {"
         errorLine2="                                ~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2791"
-            column="33"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public boolean dispatchKeyEvent(KeyEvent event) {"
         errorLine2="                                    ~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2815"
-            column="37"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    public void addFocusables(ArrayList&lt;View> views, int direction, int focusableMode) {"
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="2977"
-            column="31"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    public void addTouchables(ArrayList&lt;View> views) {"
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3019"
-            column="31"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="            Rect previouslyFocusedRect) {"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3039"
-            column="13"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3068"
-            column="55"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    protected ViewGroup.LayoutParams generateDefaultLayoutParams() {"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3091"
-            column="15"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3096"
-            column="15"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3096"
-            column="59"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3101"
-            column="41"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3106"
-            column="12"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3106"
-            column="56"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="        public LayoutParams(Context context, AttributeSet attrs) {"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3221"
-            column="29"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="        public LayoutParams(Context context, AttributeSet attrs) {"
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/viewpager/widget/ViewPager.java"
-            line="3221"
-            column="46"/>
+            file="src/main/java/androidx/viewpager/widget/ViewPager.java"/>
     </issue>
 
 </issues>

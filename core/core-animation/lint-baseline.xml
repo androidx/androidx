@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_ACCELERATE_INTERPOLATOR, 0, 0);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AccelerateInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_ACCELERATE_INTERPOLATOR);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AccelerateInterpolator.java"/>
+    </issue>
 
     <issue
         id="ResourceType"
@@ -7,9 +25,223 @@
         errorLine1="    static final int STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR_EXTRA_TENSION = 1;"
         errorLine2="                                                                                ~">
         <location
-            file="src/main/java/androidx/core/animation/AndroidResources.java"
-            line="29"
-            column="81"/>
+            file="src/main/java/androidx/core/animation/AndroidResources.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_ANIMATOR_SET,"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_ANIMATOR_SET);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                            AndroidResources.STYLEABLE_PROPERTY_VALUES_HOLDER, 0, 0);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                            AndroidResources.STYLEABLE_PROPERTY_VALUES_HOLDER);"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_KEYFRAME, 0, 0);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_KEYFRAME);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_KEYFRAME, 0, 0);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_KEYFRAME);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            arrayAnimator = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_ANIMATOR,"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            arrayAnimator = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_ANIMATOR);"
+        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                        AndroidResources.STYLEABLE_PROPERTY_ANIMATOR, 0, 0);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                        AndroidResources.STYLEABLE_PROPERTY_ANIMATOR);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnimatorInflater.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR, 0, 0);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnticipateInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnticipateInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR, 0, 0);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnticipateOvershootInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_ANTICIPATEOVERSHOOT_INTERPOLATOR);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/AnticipateOvershootInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_CYCLE_INTERPOLATOR,"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/CycleInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = resources.obtainAttributes(attrs, AndroidResources.STYLEABLE_CYCLE_INTERPOLATOR);"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/CycleInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_DECELERATE_INTERPOLATOR, 0, 0);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/DecelerateInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_DECELERATE_INTERPOLATOR);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/DecelerateInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="                    AndroidResources.STYLEABLE_OVERSHOOT_INTERPOLATOR, 0, 0);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/OvershootInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_OVERSHOOT_INTERPOLATOR);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/OvershootInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = theme.obtainStyledAttributes(attrs, AndroidResources.STYLEABLE_PATH_INTERPOLATOR,"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PathInterpolator.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="            a = res.obtainAttributes(attrs, AndroidResources.STYLEABLE_PATH_INTERPOLATOR);"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/PathInterpolator.java"/>
     </issue>
 
     <issue
@@ -18,9 +250,7 @@
         errorLine1="                        Object value = convertBack(mGetter.invoke(target));"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="895"
-            column="52"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -29,9 +259,7 @@
         errorLine1="                Object value = convertBack(mGetter.invoke(target));"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="941"
-            column="44"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -40,9 +268,7 @@
         errorLine1="                mSetter.invoke(target, mTmpValueArray);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="1012"
-            column="17"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -51,9 +277,7 @@
         errorLine1="                mSetter.invoke(target, mTmpValueArray);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="1242"
-            column="17"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -62,9 +286,7 @@
         errorLine1="                    mSetter.invoke(target, mTmpValueArray);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="1341"
-            column="21"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -73,9 +295,7 @@
         errorLine1="                    mSetter.invoke(target, boxedValues);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="1386"
-            column="21"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -84,9 +304,7 @@
         errorLine1="                    mSetter.invoke(target, boxedValues);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="1486"
-            column="21"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -95,13 +313,9 @@
         errorLine1="    public PropertyValuesHolder[] getValues() {"
         errorLine2="                                  ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/ValueAnimator.java"
-            line="515"
-            column="35"/>
+            file="src/main/java/androidx/core/animation/ValueAnimator.java"/>
         <location
             file="src/main/java/androidx/core/animation/ValueAnimator.java"
-            line="493"
-            column="17"
             message="Setter here"/>
     </issue>
 
@@ -111,9 +325,7 @@
         errorLine1="            @NonNull TypeEvaluator&lt;T> evaluator, @NonNull T... values) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/ObjectAnimator.java"
-            line="390"
-            column="50"/>
+            file="src/main/java/androidx/core/animation/ObjectAnimator.java"/>
     </issue>
 
     <issue
@@ -122,9 +334,7 @@
         errorLine1="            @NonNull TypeEvaluator&lt;T> evaluator, @NonNull T... values) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/ObjectAnimator.java"
-            line="608"
-            column="50"/>
+            file="src/main/java/androidx/core/animation/ObjectAnimator.java"/>
     </issue>
 
     <issue
@@ -133,9 +343,7 @@
         errorLine1="            @NonNull TypeEvaluator evaluator, @NonNull Object... values) {"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/ObjectAnimator.java"
-            line="639"
-            column="47"/>
+            file="src/main/java/androidx/core/animation/ObjectAnimator.java"/>
     </issue>
 
     <issue
@@ -144,9 +352,7 @@
         errorLine1="            @NonNull V... values) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/ObjectAnimator.java"
-            line="696"
-            column="13"/>
+            file="src/main/java/androidx/core/animation/ObjectAnimator.java"/>
     </issue>
 
     <issue
@@ -155,9 +361,7 @@
         errorLine1="            @NonNull TypeEvaluator&lt;V> evaluator, @NonNull V... values) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/ObjectAnimator.java"
-            line="732"
-            column="50"/>
+            file="src/main/java/androidx/core/animation/ObjectAnimator.java"/>
     </issue>
 
     <issue
@@ -166,9 +370,7 @@
         errorLine1="            @NonNull TypeEvaluator&lt;V> evaluator, @NonNull V... values) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="246"
-            column="50"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -177,9 +379,7 @@
         errorLine1="            @NonNull Keyframe... values) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="271"
-            column="13"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -188,9 +388,7 @@
         errorLine1="            @NonNull TypeEvaluator&lt;V> evaluator, @NonNull V... values) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="379"
-            column="50"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -199,9 +397,7 @@
         errorLine1="            @NonNull Keyframe... values) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="405"
-            column="13"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -210,9 +406,7 @@
         errorLine1="            @NonNull TypeEvaluator evaluator, @NonNull Object... values) {"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="429"
-            column="47"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -221,9 +415,7 @@
         errorLine1="            @NonNull TypeEvaluator&lt;V> evaluator, @NonNull V... values) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="482"
-            column="50"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -232,9 +424,7 @@
         errorLine1="            @NonNull T... values) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"
-            line="517"
-            column="13"/>
+            file="src/main/java/androidx/core/animation/PropertyValuesHolder.java"/>
     </issue>
 
     <issue
@@ -243,9 +433,7 @@
         errorLine1="            @NonNull Object... values) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/ValueAnimator.java"
-            line="385"
-            column="13"/>
+            file="src/main/java/androidx/core/animation/ValueAnimator.java"/>
     </issue>
 
 </issues>

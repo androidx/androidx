@@ -60,6 +60,17 @@ class AuthenticatorUtils {
     }
 
     /**
+     * Removes non-biometric authenticator types from the given set of allowed authenticators.
+     *
+     * @param authenticators A bit field representing a set of allowed authenticator types.
+     * @return A bit field representing the allowed biometric authenticator types.
+     */
+    @BiometricManager.AuthenticatorTypes
+    static int getBiometricAuthenticators(@BiometricManager.AuthenticatorTypes int authenticators) {
+        return authenticators & BIOMETRIC_CLASS_MASK;
+    }
+
+    /**
      * Combines relevant information from the given {@link BiometricPrompt.PromptInfo} and
      * {@link BiometricPrompt.CryptoObject} to determine which type(s) of authenticators should be
      * allowed for a given authentication session.
@@ -140,7 +151,7 @@ class AuthenticatorUtils {
      * @return Whether the allowed authenticator types include one or more biometric classes.
      */
     static boolean isSomeBiometricAllowed(@BiometricManager.AuthenticatorTypes int authenticators) {
-        return (authenticators & BIOMETRIC_CLASS_MASK) != 0;
+        return getBiometricAuthenticators(authenticators) != 0;
     }
 
     /**

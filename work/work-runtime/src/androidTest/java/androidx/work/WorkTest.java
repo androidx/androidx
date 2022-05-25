@@ -24,7 +24,8 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import androidx.core.os.BuildCompat;
+import android.os.Build;
+
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.impl.model.WorkSpec;
@@ -65,8 +66,7 @@ public class WorkTest extends WorkManagerTest {
 
         // Because of the previous test (testBuild_GetsUniqueIdsOnBuild), we know the id's are
         // different, so just set them to be the same for now so we can use an equality check.
-        firstWorkSpec.id = secondWorkSpec.id;
-        assertThat(firstWorkSpec, is(equalTo(secondWorkSpec)));
+        assertThat(new WorkSpec(secondWorkSpec.id, firstWorkSpec), is(equalTo(secondWorkSpec)));
     }
 
     @Test
@@ -75,7 +75,7 @@ public class WorkTest extends WorkManagerTest {
         OneTimeWorkRequest work = mBuilder
                 .setInitialDelay(expectedInitialDelay, TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(work).initialDelay, is(expectedInitialDelay));
+        assertThat(work.getWorkSpec().initialDelay, is(expectedInitialDelay));
     }
 
     @Test
@@ -85,7 +85,7 @@ public class WorkTest extends WorkManagerTest {
                 .setInitialDelay(Duration.ofHours(2).plusMinutes(3))
                 .build();
         assertThat(
-                getWorkSpec(work).initialDelay,
+                work.getWorkSpec().initialDelay,
                 is(TimeUnit.MINUTES.toMillis((2 * 60) + 3)));
     }
 
@@ -98,7 +98,7 @@ public class WorkTest extends WorkManagerTest {
                         backoffDuration,
                         TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(work).backoffDelayDuration, is(WorkRequest.MAX_BACKOFF_MILLIS));
+        assertThat(work.getWorkSpec().backoffDelayDuration, is(WorkRequest.MAX_BACKOFF_MILLIS));
     }
 
     @Test
@@ -110,7 +110,7 @@ public class WorkTest extends WorkManagerTest {
                         backoffDuration,
                         TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(work).backoffDelayDuration, is(WorkRequest.MIN_BACKOFF_MILLIS));
+        assertThat(work.getWorkSpec().backoffDelayDuration, is(WorkRequest.MIN_BACKOFF_MILLIS));
     }
 
     @Test
@@ -146,7 +146,7 @@ public class WorkTest extends WorkManagerTest {
 
     @Test
     public void testBuild_expedited_noConstraints() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 
@@ -160,7 +160,7 @@ public class WorkTest extends WorkManagerTest {
 
     @Test
     public void testBuild_expedited_networkConstraints() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 
@@ -178,7 +178,7 @@ public class WorkTest extends WorkManagerTest {
 
     @Test
     public void testBuild_expedited_networkStorageConstraints() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 
@@ -197,7 +197,7 @@ public class WorkTest extends WorkManagerTest {
 
     @Test
     public void testBuild_expedited_withUnspportedConstraints() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 
@@ -218,7 +218,7 @@ public class WorkTest extends WorkManagerTest {
 
     @Test
     public void testBuild_expedited_withUnspportedConstraints2() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 

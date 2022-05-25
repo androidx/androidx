@@ -23,21 +23,56 @@ import androidx.window.core.ExperimentalWindowApi
  * screen.
  */
 @ExperimentalWindowApi
-class ActivityStack(internal val activities: List<Activity>) {
+class ActivityStack(
+    /**
+     * The [Activity] list in this application's process that belongs to this ActivityStack.
+     *
+     * Note that Activities that are running in other processes do not contain in this [Activity]
+     * list. They can be in any position in terms of ordering relative to the activities in the
+     * list.
+     */
+    internal val activities: List<Activity>,
+    private val isEmpty: Boolean = false
+) {
+
     operator fun contains(activity: Activity): Boolean {
         return activities.contains(activity)
+    }
+
+    /**
+     * Returns `true` if there's no [Activity] running in this ActivityStack.
+     *
+     * Note that [activities] only report Activity in the process used to create this
+     * ActivityStack. That said, if this ActivityStack only contains activities from other
+     * process(es), [activities] will return empty list, and this method will return `false`.
+     */
+    fun isEmpty(): Boolean {
+        return isEmpty
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ActivityStack) return false
 
-        if (activities != other.activities) return false
-
-        return true
+        return (activities != other.activities) && isEmpty != other.isEmpty
     }
 
     override fun hashCode(): Int {
-        return activities.hashCode()
+        var result =
+            if (isEmpty) {
+                1
+            } else {
+                0
+            }
+        result = 31 * result + activities.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return buildString {
+            append("ActivityStack{")
+            append("activities=$activities")
+            append("isEmpty=$isEmpty}")
+        }
     }
 }

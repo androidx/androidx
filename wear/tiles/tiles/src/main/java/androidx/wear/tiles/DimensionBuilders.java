@@ -53,6 +53,12 @@ public final class DimensionBuilders {
         return new EmProp.Builder().setValue(valueEm).build();
     }
 
+    /** Shortcut for building a {@link EmProp} using a measurement in EM. */
+    @NonNull
+    public static EmProp em(float valueEm) {
+        return new EmProp.Builder().setValue(valueEm).build();
+    }
+
     /** Shortcut for building an {@link DegreesProp} using a measurement in degrees. */
     @NonNull
     public static DegreesProp degrees(float valueDegrees) {

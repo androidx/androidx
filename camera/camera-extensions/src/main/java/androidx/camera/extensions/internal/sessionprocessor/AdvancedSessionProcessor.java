@@ -59,6 +59,7 @@ import java.util.Map;
 public class AdvancedSessionProcessor extends SessionProcessorBase {
     private final SessionProcessorImpl mImpl;
     private final Context mContext;
+
     public AdvancedSessionProcessor(@NonNull SessionProcessorImpl impl, @NonNull Context context) {
         mImpl = impl;
         mContext = context;
@@ -90,9 +91,9 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
             @NonNull Camera2SessionConfigImpl sessionConfigImpl) {
         Camera2SessionConfigBuilder camera2SessionConfigBuilder = new Camera2SessionConfigBuilder();
         for (Camera2OutputConfigImpl outputConfigImpl : sessionConfigImpl.getOutputConfigs()) {
-            Camera2OutputConfigBuilder outputConfigBuilder =
-                    Camera2OutputConfigBuilder.fromImpl(outputConfigImpl);
-            camera2SessionConfigBuilder.addOutputConfig(outputConfigBuilder.build());
+            Camera2OutputConfig outputConfig =
+                    Camera2OutputConfigConverter.fromImpl(outputConfigImpl);
+            camera2SessionConfigBuilder.addOutputConfig(outputConfig);
         }
 
         for (CaptureRequest.Key<?> key : sessionConfigImpl.getSessionParameters().keySet()) {
@@ -169,6 +170,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         OutputSurfaceImplAdapter(OutputSurface outputSurface) {
             mOutputSurface = outputSurface;
         }
+
         @NonNull
         @Override
         public Surface getSurface() {
@@ -300,6 +302,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
      */
     private static class ImageProcessorAdapter implements ImageProcessor {
         private final ImageProcessorImpl mImpl;
+
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         ImageProcessorAdapter(ImageProcessorImpl impl) {
             mImpl = impl;
@@ -318,6 +321,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
      */
     private static class ImageReferenceImplAdapter implements ImageReferenceImpl {
         private final ImageReference mImageReference;
+
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
         ImageReferenceImplAdapter(ImageReference imageReference) {
             mImageReference = imageReference;
@@ -461,6 +465,12 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         @Override
         public void onCaptureSequenceAborted(int captureSequenceId) {
             mCaptureCallback.onCaptureSequenceAborted(captureSequenceId);
+        }
+
+        @Override
+        public void onCaptureCompleted(long timestamp, int captureSequenceId,
+                Map<CaptureResult.Key, Object> result) {
+            mCaptureCallback.onCaptureCompleted(timestamp, captureSequenceId, result);
         }
     }
 }

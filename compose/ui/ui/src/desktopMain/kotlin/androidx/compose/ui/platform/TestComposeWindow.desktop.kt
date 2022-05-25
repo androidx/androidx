@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // https://github.com/JetBrains/compose-jb/issues/1514
+
 package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Composable
@@ -24,17 +26,29 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.mouse.MouseScrollEvent
+import androidx.compose.ui.input.mouse.MouseScrollOrientation
+import androidx.compose.ui.input.mouse.MouseScrollUnit
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.FrameDispatcher
 import java.awt.Component
+import java.awt.event.MouseWheelEvent
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.abs
+import kotlin.math.roundToInt
+import kotlin.math.sign
+
+@PublishedApi
+internal val EmptyDispatcher = object : CoroutineDispatcher() {
+    override fun dispatch(context: CoroutineContext, block: Runnable) = Unit
+}
 
 /**
  * A virtual window for testing purposes.
@@ -67,16 +81,22 @@ class TestComposeWindow(
 
     private fun onFrame() {
         canvas.clear(Color.Transparent.toArgb())
+        scene.flushEffects()
         scene.render(canvas, nanoTime())
     }
 
+    internal val component = DummyPlatformComponent
     private val scene = ComposeScene(
         coroutineScope.coroutineContext,
+        component,
         density,
         invalidate = frameDispatcher::scheduleFrame
     ).apply {
         constraints = Constraints(maxWidth = width, maxHeight = height)
     }
+
+    val currentCursor
+        get() = component.componentCursor
 
     /**
      * All currently registered [RootForTest]s
@@ -88,7 +108,7 @@ class TestComposeWindow(
      * Clear-up all acquired resources and stop all pending work
      */
     fun dispose() {
-        scene.dispose()
+        scene.close()
         coroutineScope.cancel()
     }
 
@@ -103,6 +123,11 @@ class TestComposeWindow(
     fun setContent(content: @Composable () -> Unit) {
         scene.constraints = Constraints(maxWidth = width, maxHeight = height)
         scene.setContent(content = content)
+        scene.flushEffects()
+        scene.render(canvas, nanoTime = nanoTime())
+    }
+
+    fun render() {
         scene.render(canvas, nanoTime = nanoTime())
     }
 
@@ -111,10 +136,36 @@ class TestComposeWindow(
      */
     @OptIn(ExperimentalComposeUiApi::class)
     fun onMouseScroll(x: Int, y: Int, event: MouseScrollEvent) {
-        scene.sendPointerScrollEvent(
+        val delta = when (event.delta) {
+            is MouseScrollUnit.Line -> event.delta.value
+            is MouseScrollUnit.Page -> event.delta.value
+        }
+        val wheelRotation = sign(delta)
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Scroll,
             position = Offset(x.toFloat(), y.toFloat()),
-            delta = event.delta,
-            orientation = event.orientation
+            scrollDelta = if (event.orientation == MouseScrollOrientation.Vertical) {
+                Offset(0f, wheelRotation)
+            } else {
+                Offset(wheelRotation, 0f)
+            },
+            nativeEvent = MouseWheelEvent(
+                EventComponent,
+                MouseWheelEvent.MOUSE_WHEEL,
+                0,
+                0,
+                0,
+                0,
+                0,
+                false,
+                if (event.delta is MouseScrollUnit.Line) {
+                    MouseWheelEvent.WHEEL_UNIT_SCROLL
+                } else {
+                    MouseWheelEvent.WHEEL_BLOCK_SCROLL
+                },
+                abs(delta.roundToInt()),
+                wheelRotation.roundToInt()
+            )
         )
     }
 

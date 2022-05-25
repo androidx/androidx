@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.annotation.SuppressLint;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.media.ImageReader;
 import android.util.Size;
@@ -299,6 +300,19 @@ public abstract class UseCase {
     @ImageOutputConfig.RotationValue
     protected int getTargetRotationInternal() {
         return ((ImageOutputConfig) mCurrentConfig).getTargetRotation(Surface.ROTATION_0);
+    }
+
+    /**
+     * Returns the target rotation set by apps explicitly.
+     *
+     * @return The rotation of the intended target.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ImageOutputConfig.OptionalRotationValue
+    protected int getAppTargetRotation() {
+        return ((ImageOutputConfig) mCurrentConfig)
+                .getAppTargetRotation(ImageOutputConfig.ROTATION_NOT_SPECIFIED);
     }
 
     /**
@@ -677,6 +691,14 @@ public abstract class UseCase {
     public Rect getViewPortCropRect() {
         return mViewPortCropRect;
     }
+
+    /**
+     * Sets the sensor to image buffer transform matrix.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setSensorToBufferTransformMatrix(@NonNull Matrix sensorToBufferTransformMatrix) {}
 
     /**
      * Get image format for the use case.

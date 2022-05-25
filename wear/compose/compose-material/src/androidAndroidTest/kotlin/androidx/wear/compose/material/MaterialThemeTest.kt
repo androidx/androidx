@@ -16,6 +16,8 @@
 
 package androidx.wear.compose.material
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -32,6 +34,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -40,6 +43,7 @@ class MaterialThemeTest {
     @get:Rule
     val rule = createComposeRule()
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun sets_default_color() {
         var expectedBackground = Color.Transparent
@@ -57,6 +61,7 @@ class MaterialThemeTest {
             .assertContainsColor(expectedBackground, 50.0f)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun overrides_color_when_nested() {
         // MaterialTheme in 'setWearContent' sets the primary background
@@ -76,6 +81,7 @@ class MaterialThemeTest {
             .assertContainsColor(Color.Cyan, 50.0f)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun can_be_overridden_by_component_color_explicitly() {
         rule.setContentWithTheme {
@@ -129,6 +135,7 @@ class MaterialThemeTest {
         assertTextTypographyEquals(override, rule.textStyleOf("Test"))
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun sets_primary_color_dynamically() =
         verifyBackgroundColorIsDynamic(
@@ -137,6 +144,7 @@ class MaterialThemeTest {
             updateThemeColors = { colors, primary -> colors.copy(primary = primary) }
         )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun sets_primaryvariant_color_dynamically() =
         verifyBackgroundColorIsDynamic(
@@ -149,6 +157,7 @@ class MaterialThemeTest {
                 { colors, primaryVariant -> colors.copy(primaryVariant = primaryVariant) }
         )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun sets_secondary_color_dynamically() =
         verifyBackgroundColorIsDynamic(
@@ -160,6 +169,7 @@ class MaterialThemeTest {
             updateThemeColors = { colors, secondary -> colors.copy(secondary = secondary) }
         )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun sets_secondaryvariant_color_dynamically() =
         verifyBackgroundColorIsDynamic(
@@ -172,6 +182,7 @@ class MaterialThemeTest {
                 { colors, secondaryVariant -> colors.copy(secondaryVariant = secondaryVariant) }
         )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     @Test
     fun sets_error_color_dynamically() =
         verifyBackgroundColorIsDynamic(
@@ -183,6 +194,7 @@ class MaterialThemeTest {
             updateThemeColors = { colors, error -> colors.copy(error = error) }
         )
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
     fun sets_colors_dynamically() {
         var initialBackground = Color.Transparent
@@ -299,12 +311,7 @@ class MaterialThemeTest {
 
     @Test
     fun sets_typography_dynamically() {
-        val initialStyle = TextStyle(
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.Bold,
-            fontSize = 14.sp,
-            letterSpacing = 0.sp
-        )
+        var initialStyle: TextStyle? = null
         val overrideTextStyle = TextStyle(
             fontFamily = FontFamily.Default,
             fontWeight = FontWeight.Normal,
@@ -314,6 +321,7 @@ class MaterialThemeTest {
 
         rule.setContentWithTheme {
             val typography = Typography()
+            initialStyle = typography.button.copy()
             val rememberedTypography = remember { mutableStateOf(typography) }
             MaterialTheme(typography = rememberedTypography.value) {
                 Column {
@@ -334,11 +342,12 @@ class MaterialThemeTest {
             }
         }
 
-        assertTextTypographyEquals(initialStyle, rule.textStyleOf("Test"))
+        assertTextTypographyEquals(initialStyle!!, rule.textStyleOf("Test"))
         rule.onNodeWithTag("button").performClick()
         assertTextTypographyEquals(overrideTextStyle, rule.textStyleOf("Test"))
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     private fun verifyBackgroundColorIsDynamic(
         initial: @Composable () -> Color,
         selectChipColors: @Composable () -> ChipColors,

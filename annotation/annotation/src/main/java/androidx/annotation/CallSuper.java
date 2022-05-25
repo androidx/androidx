@@ -26,10 +26,10 @@ import java.lang.annotation.Target;
  * Denotes that any overriding methods should invoke this method as well.
  * <p>
  * Example:
- * <pre><code>
+ * <pre>
  *  &#64;CallSuper
  *  public abstract void onFocusLost();
- * </code></pre>
+ * </pre>
  */
 @Documented
 @Retention(CLASS)

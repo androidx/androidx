@@ -20,23 +20,32 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.car.app.utils.LogTags.TAG;
 
 import static java.util.Objects.requireNonNull;
 
 import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.RemoteException;
+import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.managers.Manager;
+import androidx.car.app.media.OpenMicrophoneRequest;
+import androidx.car.app.media.OpenMicrophoneResponse;
+import androidx.car.app.model.Alert;
+import androidx.car.app.serialization.Bundleable;
+import androidx.car.app.serialization.BundlerException;
 import androidx.car.app.utils.RemoteUtils;
+import androidx.core.location.LocationListenerCompat;
 import androidx.lifecycle.Lifecycle;
 
 /** Manages the communication between the app and the host. */
@@ -54,13 +63,12 @@ public class AppManager implements Manager {
     private final Lifecycle mLifecycle;
 
     /**
-     * {@link LocationListener} for getting location updates within the app and sends them over to
-     * the car host.
+     * Listener for getting location updates within the app and sends them over to the car host.
      *
      * <p>This should only be enabled when the car host explicitly calls {@code IAppManager
      * .startLocationUpdates}.
      */
-    private final LocationListener mLocationListener;
+    private final LocationListenerCompat mLocationListener;
     @VisibleForTesting
     final HandlerThread mLocationUpdateHandlerThread;
 
@@ -127,6 +135,86 @@ public class AppManager implements Manager {
                     return null;
                 }
         );
+    }
+
+    /**
+     * Shows an alert on the car screen.
+     *
+     * <p>Alerts with the same id, in the scope of the application, are considered equal. Even if
+     * their content differ.</p>
+     *
+     * <p>Posting an alert while another alert is displayed would dismiss the old alert and replace
+     * it with the new one.</p>
+     *
+     * <p>Only navigation templates support alerts. Triggering an alert while showing a
+     * non-supported template results in the cancellation of the alert. </p>
+     *
+     * @param alert                 the alert to show
+     * @throws HostException        if the remote call fails
+     * @throws NullPointerException if {@code alert} is {@code null}
+     */
+    @RequiresCarApi(5)
+    public void showAlert(@NonNull Alert alert) {
+        requireNonNull(alert);
+
+        Bundleable bundle;
+        try {
+            bundle = Bundleable.create(alert);
+        } catch (BundlerException e) {
+            throw new IllegalArgumentException("Serialization failure", e);
+        }
+
+        mHostDispatcher.dispatch(
+                CarContext.APP_SERVICE,
+                "showAlert", (IAppHost host) -> {
+                    host.showAlert(bundle);
+                    return null;
+                }
+        );
+    }
+
+    /**
+     * Dismisses the alert with the given {@code id}.
+     *
+     * <p>This is a no-op if there is not an active alert with the given {@code id}</p>
+     *
+     * @param alertId     the {@code id} of the {@code alert} that should be dismissed
+     * @throws HostException        if the remote call fails
+     */
+    @RequiresCarApi(5)
+    public void dismissAlert(int alertId) {
+        mHostDispatcher.dispatch(
+                CarContext.APP_SERVICE,
+                "dismissAlert", (IAppHost host) -> {
+                    host.dismissAlert(alertId);
+                    return null;
+                }
+        );
+    }
+
+    /** @hide */
+    @Nullable
+    @RestrictTo(LIBRARY_GROUP)
+    public OpenMicrophoneResponse openMicrophone(@NonNull OpenMicrophoneRequest request) {
+        try {
+            return mHostDispatcher.dispatchForResult(
+                    CarContext.APP_SERVICE,
+                    "openMicrophone",
+                    (IAppHost host) -> {
+                        try {
+                            Bundleable bundleable = host.openMicrophone(Bundleable.create(request));
+                            return bundleable == null ? null :
+                                    (OpenMicrophoneResponse) bundleable.get();
+                        } catch (BundlerException e) {
+                            Log.e(TAG, "Cannot open microphone", e);
+                            return null;
+                        }
+                    }
+            );
+        } catch (RemoteException e) {
+            Log.e(TAG, "Error getting microphone bytes from host", e);
+            return null;
+        }
     }
 
     /** Returns the {@code IAppManager.Stub} binder. */
@@ -230,14 +318,12 @@ public class AppManager implements Manager {
         };
 
         mLocationUpdateHandlerThread = new HandlerThread("LocationUpdateThread");
-        mLocationListener = location -> {
-            mHostDispatcher.dispatch(
-                    CarContext.APP_SERVICE,
-                    "sendLocation", (IAppHost host) -> {
-                        host.sendLocation(location);
-                        return null;
-                    }
-            );
-        };
+        mLocationListener = location -> mHostDispatcher.dispatch(
+                CarContext.APP_SERVICE,
+                "sendLocation", (IAppHost host) -> {
+                    host.sendLocation(location);
+                    return null;
+                }
+        );
     }
 }

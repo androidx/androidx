@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -30,6 +29,7 @@ dependencies {
     api(project(":camera:camera-core"))
     implementation("androidx.core:core:1.1.0")
     implementation(libs.autoValueAnnotations)
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
 
     annotationProcessor(libs.autoValue)
 
@@ -52,8 +52,12 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.camera.lifecycle"
 }
 
 androidx {

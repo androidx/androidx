@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -91,6 +90,24 @@ public class ComplicationDataSourceChooserIntent {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String EXTRA_WATCHFACE_INSTANCE_ID =
             "androidx.wear.watchface.complications.EXTRA_WATCHFACE_INSTANCE_ID";
+
+    /**
+     * Key for an extra that holds the intent to launch the complication permission rational dialog.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_COMPLICATION_RATIONALE =
+            "androidx.wear.watchface.complications.EXTRA_COMPLICATION_RATIONALE";
+
+    /**
+     * Key for an extra that holds the intent to launch the complication permission denied dialog.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_COMPLICATION_DENIED =
+            "androidx.wear.watchface.complications.EXTRA_COMPLICATION_DENIED";
 
     /**
      * Key for an extra used to include details of the chosen complication data source in the
@@ -175,7 +192,6 @@ public class ComplicationDataSourceChooserIntent {
      *     preference. If a data source can supply data for more than one of these types, the type
      *     chosen will be whichever was specified first.
      */
-    @SuppressLint("PendingIntentMutability")
     public static void startProviderChooserActivity(
             @NonNull Context context,
             @NonNull ComponentName watchFace,
@@ -185,7 +201,8 @@ public class ComplicationDataSourceChooserIntent {
                 watchFace, watchFaceComplicationId, supportedTypes);
         // Add a placeholder PendingIntent to allow the UID to be checked.
         intent.putExtra(
-                EXTRA_PENDING_INTENT, PendingIntent.getActivity(context, 0, new Intent(""), 0));
+                EXTRA_PENDING_INTENT, PendingIntent.getActivity(
+                        context, 0, new Intent(""), PendingIntent.FLAG_IMMUTABLE));
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }

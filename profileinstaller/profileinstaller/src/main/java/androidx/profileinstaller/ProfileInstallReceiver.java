@@ -19,6 +19,7 @@ package androidx.profileinstaller;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,17 +35,50 @@ import androidx.annotation.Nullable;
  */
 public class ProfileInstallReceiver extends BroadcastReceiver {
     /**
-     * This is the action constant that this broadcast receiver responds to.
+     * This is the action constant that this broadcast receiver responds to and installs a profile.
      */
     public static final @NonNull String ACTION_INSTALL_PROFILE =
             "androidx.profileinstaller.action.INSTALL_PROFILE";
 
+    /**
+     * This is an action constant which requests that {@link ProfileInstaller} manipulate the
+     * skip file used during profile installation. This is only useful when the app is being
+     * instrumented when using Jetpack Macrobenchmarks.
+     */
+    public static final @NonNull String ACTION_SKIP_FILE =
+            "androidx.profileinstaller.action.SKIP_FILE";
+
+    /**
+     * This is the key in the {@link Bundle} of extras, which provides additional information on
+     * the operation to be performed.
+     */
+    private static final @NonNull String EXTRA_SKIP_FILE_OPERATION = "EXTRA_SKIP_FILE_OPERATION";
+
+    /**
+     * The value that requests that a skip file be written.
+     */
+    private static final @NonNull String EXTRA_SKIP_FILE_OPERATION_WRITE = "WRITE_SKIP_FILE";
+    /**
+     * The value that requests that a skip file be deleted.
+     */
+    private static final @NonNull String EXTRA_SKIP_FILE_OPERATION_DELETE = "DELETE_SKIP_FILE";
+
     @Override
     public void onReceive(@NonNull Context context, @Nullable Intent intent) {
         if (intent == null) return;
-        if (!ACTION_INSTALL_PROFILE.equals(intent.getAction())) return;
-        ProfileInstaller.writeProfile(context, Runnable::run,
-                new ResultDiagnostics(), /* forceWriteProfile */true);
+        String action = intent.getAction();
+        if (ACTION_INSTALL_PROFILE.equals(action)) {
+            ProfileInstaller.writeProfile(context, Runnable::run,
+                    new ResultDiagnostics(), /* forceWriteProfile */true);
+        } else if (ACTION_SKIP_FILE.equals(action)) {
+            Bundle extras = intent.getExtras();
+            String operation = extras.getString(EXTRA_SKIP_FILE_OPERATION);
+            if (EXTRA_SKIP_FILE_OPERATION_WRITE.equals(operation)) {
+                ProfileInstaller.writeSkipFile(context, Runnable::run, new ResultDiagnostics());
+            } else if (EXTRA_SKIP_FILE_OPERATION_DELETE.equals(operation)) {
+                ProfileInstaller.deleteSkipFile(context, Runnable::run, new ResultDiagnostics());
+            }
+        }
     }
 
     class ResultDiagnostics implements ProfileInstaller.DiagnosticsCallback {

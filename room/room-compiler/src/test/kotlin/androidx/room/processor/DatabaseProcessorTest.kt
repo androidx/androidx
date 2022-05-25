@@ -225,7 +225,7 @@ class DatabaseProcessorTest {
         ) { db, _ ->
             assertThat(db.daoMethods.size, `is`(2))
             assertThat(db.entities.size, `is`(2))
-            assertThat(db.daoMethods.map { it.name }, `is`(listOf("userDao", "bookDao")))
+            assertThat(db.daoMethods.map { it.element.jvmName }, `is`(listOf("userDao", "bookDao")))
             assertThat(
                 db.entities.map { it.type.typeName.toString() },
                 `is`(listOf("foo.bar.User", "foo.bar.Book"))
@@ -825,11 +825,11 @@ class DatabaseProcessorTest {
             USER, USER_DAO
         ) { db, _ ->
             val userDao = db.daoMethods.first().dao
-            val insertionMethod = userDao.insertionMethods.find { it.name == "insert" }
+            val insertionMethod = userDao.insertionMethods.find { it.element.jvmName == "insert" }
             assertThat(insertionMethod, notNullValue())
             val loadOne = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadOne" }
+                .find { it.element.jvmName == "loadOne" }
             assertThat(loadOne, notNullValue())
             val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
@@ -841,7 +841,7 @@ class DatabaseProcessorTest {
 
             val withConverter = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadWithConverter" }
+                .find { it.element.jvmName == "loadWithConverter" }
             assertThat(withConverter, notNullValue())
             val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
@@ -870,7 +870,7 @@ class DatabaseProcessorTest {
             val userDao = db.daoMethods.first().dao
             val loadOne = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadOnePojo" }
+                .find { it.element.jvmName == "loadOnePojo" }
             assertThat(loadOne, notNullValue())
             val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
@@ -878,7 +878,7 @@ class DatabaseProcessorTest {
 
             val loadAll = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadAllPojos" }
+                .find { it.element.jvmName == "loadAllPojos" }
             assertThat(loadAll, notNullValue())
             val loadAllAdapter = loadAll?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", loadAllAdapter, instanceOf(PojoRowAdapter::class.java))
@@ -888,7 +888,7 @@ class DatabaseProcessorTest {
 
             val withConverter = userDao.queryMethods
                 .filterIsInstance<ReadQueryMethod>()
-                .find { it.name == "loadPojoWithConverter" }
+                .find { it.element.jvmName == "loadPojoWithConverter" }
             assertThat(withConverter, notNullValue())
             val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapters?.single()
             assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
@@ -1425,7 +1425,7 @@ class DatabaseProcessorTest {
                     arrayOf(URL("file://${resolverLib.absolutePath}")),
                     currentClassLoader,
                 )
-                DatabaseProcessingStep().process(invocation.processingEnv, roundElements)
+                DatabaseProcessingStep().process(invocation.processingEnv, roundElements, false)
             } finally {
                 Thread.currentThread().contextClassLoader = currentClassLoader
             }
@@ -1435,6 +1435,39 @@ class DatabaseProcessorTest {
         assertThat(
             File(schemaFolder.root, "schemas/foo.bar.MyDb/1.json").exists()
         ).isTrue()
+    }
+
+    @Test
+    fun jvmNameOnDaoMethod() {
+        val jvmNameInDaoGetter = Source.kotlin(
+            "MyDb.kt",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @Dao
+                interface MyDao
+                @Entity
+                data class MyEntity(@PrimaryKey val id:Int)
+                @Database(version = 1, entities = [MyEntity::class])
+                abstract class MyDb: RoomDatabase() {
+                    @Suppress("INAPPLICABLE_JVM_NAME")
+                    @get:JvmName("jvmDao")
+                    abstract val dao: MyDao
+                }
+                """
+        )
+        runProcessorTest(sources = listOf(jvmNameInDaoGetter)) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
+            DatabaseProcessor(
+                baseContext = invocation.context,
+                element = element
+            ).process()
+            invocation.assertCompilationResult {
+                hasWarningContaining(
+                    ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
+                )
+            }
+        }
     }
 
     private fun resolveDatabaseViews(
@@ -1461,7 +1494,7 @@ class DatabaseProcessorTest {
                     viewName = viewName,
                     query = ParsedQuery(
                         "", QueryType.SELECT, emptyList(),
-                        names.map { Table(it, it) }.toSet(),
+                        names.map { Table(it, it) }.toSet(), null,
                         emptyList()
                     ),
                     type = mock(XType::class.java),

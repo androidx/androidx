@@ -29,7 +29,7 @@ class SingleEntityQueryResultAdapter(
     val type = rowAdapter.out
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
-            rowAdapter.onCursorReady(cursorVarName, scope)
+            rowAdapter.onCursorReady(cursorVarName = cursorVarName, scope = scope)
             addStatement("final $T $L", type.typeName, outVarName)
             beginControlFlow("if($L.moveToFirst())", cursorVarName)
             rowAdapter.convert(outVarName, cursorVarName, scope)
@@ -37,7 +37,6 @@ class SingleEntityQueryResultAdapter(
                 addStatement("$L = $L", outVarName, rowAdapter.out.defaultValue())
             }
             endControlFlow()
-            rowAdapter.onCursorFinished()?.invoke(scope)
         }
     }
 }

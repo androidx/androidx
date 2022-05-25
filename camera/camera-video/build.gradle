@@ -15,10 +15,9 @@
  */
 
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -37,7 +36,7 @@ dependencies {
 
     // TODO(leohuang): We need this for assertThrows. Point back to the AndroidX shared version if
     //  it is ever upgraded.
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -45,6 +44,7 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore)
+    testImplementation("androidx.core:core-ktx:1.1.0")
     testImplementation(project(":camera:camera-testing"), {
         exclude group: "androidx.camera", module: "camera-core"
     })
@@ -74,10 +74,13 @@ android {
         multiDexEnabled = true
     }
 
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
+
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
-
-    kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+    namespace "androidx.camera.video"
 }
 
 androidx {
@@ -89,4 +92,11 @@ androidx {
     description = "Video components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+    }
 }

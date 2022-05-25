@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -7,9 +7,7 @@
         errorLine1="            getUiAutomation().adoptShellPermissionIdentity(Manifest.permission.INSTALL_PACKAGES);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/appdigest/ChecksumsTest.java"
-            line="1032"
-            column="31"/>
+            file="src/androidTest/java/androidx/core/appdigest/ChecksumsTest.java"/>
     </issue>
 
     <issue
@@ -18,64 +16,7 @@
         errorLine1="                getUiAutomation().dropShellPermissionIdentity();"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/appdigest/ChecksumsTest.java"
-            line="1048"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                checksums[i] = new Checksum(apkChecksum.getSplitName(),"
-        errorLine2="                                                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
-            line="121"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                        apkChecksum.getType(), apkChecksum.getValue(),"
-        errorLine2="                                                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
-            line="122"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                        apkChecksum.getType(), apkChecksum.getValue(),"
-        errorLine2="                                                                           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
-            line="122"
-            column="76"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                        apkChecksum.getInstallerPackageName(),"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
-            line="123"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 31; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                        apkChecksum.getInstallerCertificate());"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"
-            line="124"
-            column="53"/>
+            file="src/androidTest/java/androidx/core/appdigest/ChecksumsTest.java"/>
     </issue>
 
 </issues>

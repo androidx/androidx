@@ -340,6 +340,7 @@ public class MenuBuilder implements SupportMenu {
         outState.putSparseParcelableArray(PRESENTER_KEY, presenterStates);
     }
 
+    @SuppressWarnings("deprecation")
     private void dispatchRestoreInstanceState(Bundle state) {
         SparseArray<Parcelable> presenterStates = state.getSparseParcelableArray(PRESENTER_KEY);
 
@@ -396,6 +397,7 @@ public class MenuBuilder implements SupportMenu {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public void restoreActionViewStates(Bundle states) {
         if (states == null) {
             return;

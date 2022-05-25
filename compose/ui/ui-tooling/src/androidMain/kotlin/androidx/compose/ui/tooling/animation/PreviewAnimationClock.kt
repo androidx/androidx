@@ -18,8 +18,6 @@ package androidx.compose.ui.tooling.animation
 
 import android.util.Log
 import androidx.annotation.VisibleForTesting
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.SnapSpec
@@ -47,7 +45,6 @@ import java.util.concurrent.TimeUnit
  *
  * @suppress
  */
-@OptIn(ExperimentalAnimationApi::class, InternalAnimationApi::class)
 internal open class PreviewAnimationClock(private val setAnimationsTimeCallback: () -> Unit = {}) {
 
     private val TAG = "PreviewAnimationClock"
@@ -56,15 +53,17 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
 
     /**
      * Set of tracked [TransitionComposeAnimation]s, each one having a [Transition] object that
-     * is used in [setClockTime], where we call [Transition.seek], and in [getAnimatedProperties],
-     * where we get the animation values.
+     * is used in [setClockTime], where we call
+     * [Transition.setPlaytimeAfterInitialAndTargetStateEstablished],
+     * and in [getAnimatedProperties], where we get the animation values.
      */
     @VisibleForTesting
     internal val trackedTransitions = hashSetOf<TransitionComposeAnimation>()
 
     /**
      * Set of tracked [AnimatedVisibilityComposeAnimation]s, each one having a [Transition] object
-     * representing the parent and used in [setClockTime], where we call [Transition.seek]. Each
+     * representing the parent and used in [setClockTime], where we call
+     * [Transition.setPlaytimeAfterInitialAndTargetStateEstablished]. Each
      * [AnimatedVisibilityComposeAnimation] also has another [Transition] object representing the
      * child transition used in [getAnimatedProperties], where we get the animation values.
      */
@@ -108,7 +107,7 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
         notifySubscribe(composeAnimation)
     }
 
-    fun trackAnimatedVisibility(parent: Transition<Any>) {
+    fun trackAnimatedVisibility(parent: Transition<Any>, onSeek: () -> Unit = {}) {
         synchronized(animatedVisibilityStatesLock) {
             if (animatedVisibilityStates.containsKey(parent)) {
                 if (DEBUG) {
@@ -132,7 +131,12 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
         val composeAnimation = parent.parseAnimatedVisibility()
         // Call seek on the first frame to get the correct duration
         val (current, target) = animatedVisibilityStates[parent]!!.toCurrentTargetPair()
-        parent.seek(initialState = current, targetState = target, 0)
+        parent.setPlaytimeAfterInitialAndTargetStateEstablished(
+            initialState = current,
+            targetState = target,
+            0
+        )
+        onSeek()
         trackedAnimatedVisibility.add(composeAnimation)
         notifySubscribe(composeAnimation)
     }
@@ -262,12 +266,12 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
     fun getTransitions(animation: ComposeAnimation, stepMillis: Long): List<TransitionInfo> {
         if (trackedTransitions.contains(animation)) {
             val transition = (animation as TransitionComposeAnimation).animationObject
-            return transition.animations.mapNotNull {
+            return transition.allAnimations().map {
                 it.createTransitionInfo(stepMillis)
             }
         } else if (trackedAnimatedVisibility.contains(animation)) {
             (animation as AnimatedVisibilityComposeAnimation).childTransition?.let { child ->
-                return child.animations.mapNotNull {
+                return child.allAnimations().map {
                     it.createTransitionInfo(stepMillis)
                 }
             }
@@ -280,18 +284,29 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
      * via reflection from Android Studio.
      */
     fun setClockTime(animationTimeMs: Long) {
-        val timeNs = TimeUnit.MILLISECONDS.toNanos(animationTimeMs)
-        trackedTransitions.forEach { composeAnimation ->
-            composeAnimation.animationObject.let {
-                val states = transitionStates[it] ?: return@let
-                it.seek(states.current, states.target, timeNs)
-            }
-        }
-        trackedAnimatedVisibility.forEach { composeAnimation ->
-            composeAnimation.animationObject.let {
-                val (current, target) =
-                    animatedVisibilityStates[it]?.toCurrentTargetPair() ?: return@let
-                it.seek(current, target, timeNs)
+        setClockTimes((trackedTransitions + trackedAnimatedVisibility)
+            .associateWith { animationTimeMs })
+    }
+
+    /**
+     * Seeks each animation being tracked to the given [animationTimeMillis]. Expected to be called
+     * via reflection from Android Studio.
+     */
+    fun setClockTimes(animationTimeMillis: Map<ComposeAnimation, Long>) {
+        animationTimeMillis.forEach { (composeAnimation, millis) ->
+            val timeNs = TimeUnit.MILLISECONDS.toNanos(millis)
+            if (trackedTransitions.contains(composeAnimation)) {
+                (composeAnimation as TransitionComposeAnimation).animationObject.let {
+                    val states = transitionStates[it] ?: return@let
+                    it.setPlaytimeAfterInitialAndTargetStateEstablished(
+                        states.current, states.target, timeNs)
+                }
+            } else if (trackedAnimatedVisibility.contains(composeAnimation)) {
+                (composeAnimation as AnimatedVisibilityComposeAnimation).animationObject.let {
+                    val (current, target) =
+                        animatedVisibilityStates[it]?.toCurrentTargetPair() ?: return@let
+                    it.setPlaytimeAfterInitialAndTargetStateEstablished(current, target, timeNs)
+                }
             }
         }
         setAnimationsTimeCallback.invoke()

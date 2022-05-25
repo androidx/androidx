@@ -35,6 +35,7 @@ open class OngoingActivityTest {
     private val NotificationId = 4321
     private val ChannelId = "ChannelId"
     private val Title = "AppTitle"
+    private val ContentDescription = "ContentDescription"
 
     private lateinit var context: Context
     private lateinit var notificationManager: NotificationManager
@@ -80,6 +81,7 @@ open class OngoingActivityTest {
             .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
             .setTitle(Title)
+            .setContentDescription(ContentDescription)
             .build()
         oa.apply(context)
 
@@ -94,6 +96,7 @@ open class OngoingActivityTest {
         // TODO(ssancho): check status
         assertEquals(PendingIntentValue, received.touchIntent)
         assertEquals(Title, received.title)
+        assertEquals(ContentDescription, received.contentDescription)
     }
 
     @Test
@@ -107,6 +110,7 @@ open class OngoingActivityTest {
             .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
             .setTitle(Title)
+            .setContentDescription(ContentDescription)
             .build()
         oa.apply(context)
         notificationManager.notify(NotificationId, builder.build())
@@ -131,6 +135,7 @@ open class OngoingActivityTest {
         // TODO(ssancho): check status
         assertEquals(PendingIntentValue, received.touchIntent)
         assertEquals(Title, received.title)
+        assertEquals(ContentDescription, received.contentDescription)
 
         notificationManager.cancel(NotificationId)
     }
@@ -199,6 +204,7 @@ open class OngoingActivityTest {
             .setStatus(BasicStatus)
             .setTouchIntent(PendingIntentValue)
             .setTitle(Title)
+            .setContentDescription(ContentDescription)
             .build()
         oa.apply(context)
         val notification = builder.build()
@@ -216,6 +222,7 @@ open class OngoingActivityTest {
         // TODO(ssancho): check status
         assertEquals(PendingIntentValue, received.touchIntent)
         assertEquals(Title, received.title)
+        assertEquals(ContentDescription, received.contentDescription)
     }
 
     @Test

@@ -16,42 +16,31 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.util.fastForEach
-
-@Composable
-internal fun rememberItemContentFactory(state: LazyLayoutState): LazyLayoutItemContentFactory {
-    val saveableStateHolder = rememberSaveableStateHolder()
-    val itemsProvider = state.itemsProvider
-    val factory = remember(itemsProvider) {
-        LazyLayoutItemContentFactory(saveableStateHolder, itemsProvider)
-    }
-    factory.updateKeyIndexMappingForVisibleItems(state)
-    return factory
-}
 
 /**
  * This class:
- * 1) Caches the lambdas being produced by [itemsProvider]. This allows us to perform less
+ * 1) Caches the lambdas being produced by [itemProvider]. This allows us to perform less
  * recompositions as the compose runtime can skip the whole composition if we subcompose with the
  * same instance of the content lambda.
  * 2) Updates the mapping between keys and indexes when we have a new factory
- * 3) Adds state restoration on top of the composable returned by [itemsProvider] with help of
+ * 3) Adds state restoration on top of the composable returned by [itemProvider] with help of
  * [saveableStateHolder].
  */
+@ExperimentalFoundationApi
 internal class LazyLayoutItemContentFactory(
     private val saveableStateHolder: SaveableStateHolder,
-    private val itemsProvider: () -> LazyLayoutItemsProvider,
+    val itemProvider: () -> LazyLayoutItemProvider,
 ) {
-    /** Contains the cached lambdas produced by the [itemsProvider]. */
+    /** Contains the cached lambdas produced by the [itemProvider]. */
     private val lambdasCache = mutableMapOf<Any, CachedItemContent>()
 
     /** Density used to obtain the cached lambdas. */
@@ -59,24 +48,6 @@ internal class LazyLayoutItemContentFactory(
 
     /** Constraints used to obtain the cached lambdas. */
     private var constraintsOfCachedLambdas = Constraints()
-
-    /**
-     * We iterate through the currently composed keys and update the associated indexes so we can
-     * smartly handle reorderings. If we will not do it and just wait for the next remeasure the
-     * item could be recomposed before it and switch to start displaying the wrong item.
-     */
-    fun updateKeyIndexMappingForVisibleItems(state: LazyLayoutState) {
-        val itemsProvider = itemsProvider()
-        val itemsCount = itemsProvider.itemsCount
-        if (itemsCount > 0) {
-            state.layoutInfoNonObservable.visibleItemsInfo.fastForEach {
-                if (it.index < itemsCount) {
-                    val key = itemsProvider.getKey(it.index)
-                    lambdasCache[key]?.index = it.index
-                }
-            }
-        }
-    }
 
     /**
      * Invalidate the cached lambas if the density or constraints have changed.
@@ -91,14 +62,34 @@ internal class LazyLayoutItemContentFactory(
     }
 
     /**
+     * Returns the content type for the item with the given key. It is used to improve the item
+     * compositions reusing efficiency.
+     **/
+    fun getContentType(key: Any?): Any? {
+        val cachedContent = lambdasCache[key]
+        return if (cachedContent != null) {
+            cachedContent.type
+        } else {
+            val itemProvider = itemProvider()
+            val index = itemProvider.keyToIndexMap[key]
+            if (index != null) {
+                itemProvider.getContentType(index)
+            } else {
+                null
+            }
+        }
+    }
+
+    /**
      * Return cached item content lambda or creates a new lambda and puts it in the cache.
      */
     fun getContent(index: Int, key: Any): @Composable () -> Unit {
-        val cachedContent = lambdasCache[key]
-        return if (cachedContent != null && cachedContent.index == index) {
-            cachedContent.content
+        val cached = lambdasCache[key]
+        val type = itemProvider().getContentType(index)
+        return if (cached != null && cached.lastKnownIndex == index && cached.type == type) {
+            cached.content
         } else {
-            val newContent = CachedItemContent(index, key)
+            val newContent = CachedItemContent(index, key, type)
             lambdasCache[key] = newContent
             newContent.content
         }
@@ -106,17 +97,33 @@ internal class LazyLayoutItemContentFactory(
 
     private inner class CachedItemContent(
         initialIndex: Int,
-        val key: Any
+        val key: Any,
+        val type: Any?
     ) {
-        var index by mutableStateOf(initialIndex)
+        var lastKnownIndex by mutableStateOf(initialIndex)
+            private set
 
-        val content: @Composable () -> Unit = @Composable {
-            val itemsProvider = itemsProvider()
-            if (index < itemsProvider.itemsCount) {
-                val key = itemsProvider.getKey(index)
+        private var _content: (@Composable () -> Unit)? = null
+        val content: (@Composable () -> Unit)
+            get() = _content ?: createContentLambda().also { _content = it }
+
+        private fun createContentLambda() = @Composable {
+            val itemProvider = itemProvider()
+            val index = itemProvider.keyToIndexMap[key]?.also {
+                lastKnownIndex = it
+            } ?: lastKnownIndex
+            if (index < itemProvider.itemCount) {
+                val key = itemProvider.getKey(index)
                 if (key == this.key) {
-                    val content = itemsProvider.getContent(index)
-                    saveableStateHolder.SaveableStateProvider(key, content)
+                    saveableStateHolder.SaveableStateProvider(key) {
+                        itemProvider.Item(index)
+                    }
+                }
+            }
+            DisposableEffect(key) {
+                onDispose {
+                    // we clear the cached content lambda when disposed to not leak RecomposeScopes
+                    _content = null
                 }
             }
         }

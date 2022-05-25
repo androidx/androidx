@@ -20,7 +20,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterExitState
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
@@ -59,12 +58,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.collect
 import kotlin.math.abs
 
-@OptIn(ExperimentalAnimationApi::class, InternalAnimationApi::class)
+@Preview
 @Composable
 fun SeekingDemo() {
     val transition = updateTransition(true)
@@ -99,9 +98,13 @@ fun SeekingDemo() {
         }.collect {
             val totalDuration = transition.totalDurationNanos
             if (entering) {
-                transition.seek(false, true, (abs(it) * totalDuration).toLong())
+                transition.setPlaytimeAfterInitialAndTargetStateEstablished(
+                    false, true, (abs(it) * totalDuration).toLong()
+                )
             } else {
-                transition.seek(true, false, (abs(it) * totalDuration).toLong())
+                transition.setPlaytimeAfterInitialAndTargetStateEstablished(
+                    true, false, (abs(it) * totalDuration).toLong()
+                )
             }
         }
     }

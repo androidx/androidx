@@ -71,6 +71,11 @@ import androidx.compose.ui.text.input.VisualTransformation
  * hit target area, use the decoration box:
  * @sample androidx.compose.foundation.samples.TextFieldWithIconSample
  *
+ * In order to create formatted text field, for example for entering a phone number or a social
+ * security number, use a [visualTransformation] parameter. Below is the example of the text field
+ * for entering a credit card number:
+ * @sample androidx.compose.foundation.samples.CreditCardSample
+ *
  * @param value the input [String] text to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates the text. An
  * updated text comes as a parameter of the callback
@@ -131,15 +136,28 @@ fun BasicTextField(
     decorationBox: @Composable (innerTextField: @Composable () -> Unit) -> Unit =
         @Composable { innerTextField -> innerTextField() }
 ) {
+    // Holds the latest internal TextFieldValue state. We need to keep it to have the correct value
+    // of the composition.
     var textFieldValueState by remember { mutableStateOf(TextFieldValue(text = value)) }
+    // Holds the latest TextFieldValue that BasicTextField was recomposed with. We couldn't simply
+    // pass `TextFieldValue(text = value)` to the CoreTextField because we need to preserve the
+    // composition.
     val textFieldValue = textFieldValueState.copy(text = value)
+    // Last String value that either text field was recomposed with or updated in the onValueChange
+    // callback. We keep track of it to prevent calling onValueChange(String) for same String when
+    // CoreTextField's onValueChange is called multiple times without recomposition in between.
+    var lastTextValue by remember(value) { mutableStateOf(value) }
 
     CoreTextField(
         value = textFieldValue,
-        onValueChange = {
-            textFieldValueState = it
-            if (value != it.text) {
-                onValueChange(it.text)
+        onValueChange = { newTextFieldValueState ->
+            textFieldValueState = newTextFieldValueState
+
+            val stringChangedSinceLastInvocation = lastTextValue != newTextFieldValueState.text
+            lastTextValue = newTextFieldValueState.text
+
+            if (stringChangedSinceLastInvocation) {
+                onValueChange(newTextFieldValueState.text)
             }
         },
         modifier = modifier,

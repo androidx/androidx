@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.StateFlow
  * not it supports burn in prevention and low-bit ambient.
  *
  * @param interruptionFilter The current user interruption settings. See [NotificationManager].
+ * This is initially `null` because the watch face is created before the system has sent the state.
  * Based on the value the watch face should adjust the amount of information it displays. For
  * example, if it displays the number of pending emails, it should hide it if
  * interruptionFilter is equal to [NotificationManager.INTERRUPTION_FILTER_NONE].
@@ -36,16 +37,19 @@ import kotlinx.coroutines.flow.StateFlow
  * [NotificationManager.INTERRUPTION_FILTER_ALL],
  * [NotificationManager.INTERRUPTION_FILTER_ALARMS], or
  * [NotificationManager.INTERRUPTION_FILTER_UNKNOWN].
- * @param isAmbient Whether or not the watch is in ambient mode. The order in which ambient vs style
- * changes are reported is not guaranteed. Likewise the order of isAmbient flow callbacks and
+ * @param isAmbient Whether or not the watch is in ambient mode. This is initially `null` because
+ * the watch face is created before the system has sent the state. The order in which ambient vs
+ * style changes are reported is not guaranteed. Likewise the order of isAmbient flow callbacks and
  * [Renderer.CanvasRenderer.render] or [Renderer.GlesRenderer.render] calls is not defined. For
  * rendering please refer to [RenderParameters.drawMode] instead of isAmbient because you might
  * receive requests for rendering non-ambient frames while the watch is ambient (e.g. editing from
  * the companion phone).
  * @param isBatteryLowAndNotCharging Whether or not we should conserve power due to a low battery
- * which isn't charging. Only valid if
+ * which isn't charging. This is initially `null` because the watch face is created before the
+ * system has sent the state. Only valid if
  * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
- * @param isVisible Whether or not the watch face is visible.
+ * @param isVisible Whether or not the watch face is visible. This is initially `null` because the
+ * watch face is created before the system has sent the state.
  * @param hasLowBitAmbient Whether or not the watch hardware supports low bit ambient support.
  * @param hasBurnInProtection Whether or not the watch hardware supports burn in protection.
  * @param analogPreviewReferenceTimeMillis UTC reference time for previews of analog watch faces in
@@ -56,11 +60,13 @@ import kotlinx.coroutines.flow.StateFlow
  * chin. A chin is a section at the bottom of a circular display that is visible due to hardware
  * limitations.
  * @param isHeadless Whether or not this is a headless watchface.
+ * @param watchFaceInstanceId The ID associated with the watch face instance. Note there may be
+ * more than one instance associated with a [WatchFaceService]. See
+ * [androidx.wear.watchface.client.WatchFaceId] for more details.
  */
 public class WatchState(
     public val interruptionFilter: StateFlow<Int?>,
     public val isAmbient: StateFlow<Boolean?>,
-    /** @hide */
     public val isBatteryLowAndNotCharging: StateFlow<Boolean?>,
     public val isVisible: StateFlow<Boolean?>,
     @get:JvmName("hasLowBitAmbient")
@@ -70,22 +76,50 @@ public class WatchState(
     public val analogPreviewReferenceTimeMillis: Long,
     public val digitalPreviewReferenceTimeMillis: Long,
     @Px @get:Px public val chinHeight: Int,
-    public val isHeadless: Boolean
+    public val isHeadless: Boolean,
+    public val watchFaceInstanceId: StateFlow<String>
 ) {
+    @Deprecated("WatchState constructors without watchFaceInstanceId are deprecated")
+    constructor(
+        interruptionFilter: StateFlow<Int?>,
+        isAmbient: StateFlow<Boolean?>,
+        isBatteryLowAndNotCharging: StateFlow<Boolean?>,
+        isVisible: StateFlow<Boolean?>,
+        hasLowBitAmbient: Boolean,
+        hasBurnInProtection: Boolean,
+        analogPreviewReferenceTimeMillis: Long,
+        digitalPreviewReferenceTimeMillis: Long,
+        chinHeight: Int,
+        isHeadless: Boolean
+    ) : this(
+        interruptionFilter,
+        isAmbient,
+        isBatteryLowAndNotCharging,
+        isVisible,
+        hasLowBitAmbient,
+        hasBurnInProtection,
+        analogPreviewReferenceTimeMillis,
+        digitalPreviewReferenceTimeMillis,
+        chinHeight,
+        isHeadless,
+        watchFaceInstanceId = MutableStateFlow(DEFAULT_INSTANCE_ID)
+    )
+
     @UiThread
     internal fun dump(writer: IndentingPrintWriter) {
         writer.println("WatchState:")
         writer.increaseIndent()
-        writer.println("interruptionFilter=$interruptionFilter")
-        writer.println("isAmbient=$isAmbient")
-        writer.println("isBatteryLowAndNotCharging=$isBatteryLowAndNotCharging")
-        writer.println("isVisible=$isVisible")
+        writer.println("interruptionFilter=${interruptionFilter.value}")
+        writer.println("isAmbient=${isAmbient.value}")
+        writer.println("isBatteryLowAndNotCharging=${isBatteryLowAndNotCharging.value}")
+        writer.println("isVisible=${isVisible.value}")
         writer.println("hasLowBitAmbient=$hasLowBitAmbient")
         writer.println("hasBurnInProtection=$hasBurnInProtection")
         writer.println("analogPreviewReferenceTimeMillis=$analogPreviewReferenceTimeMillis")
         writer.println("digitalPreviewReferenceTimeMillis=$digitalPreviewReferenceTimeMillis")
         writer.println("chinHeight=$chinHeight")
         writer.println("isHeadless=$isHeadless")
+        writer.println("watchFaceInstanceId=${watchFaceInstanceId.value}")
         writer.decreaseIndent()
     }
 }
@@ -93,7 +127,7 @@ public class WatchState(
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableWatchState {
-    public var interruptionFilter: MutableStateFlow<Int> = MutableStateFlow(
+    public val interruptionFilter: MutableStateFlow<Int> = MutableStateFlow(
         NotificationManager.INTERRUPTION_FILTER_UNKNOWN
     )
     public val isAmbient: MutableStateFlow<Boolean?> = MutableStateFlow(null)
@@ -103,6 +137,7 @@ public class MutableWatchState {
     public var hasBurnInProtection: Boolean = false
     public var analogPreviewReferenceTimeMillis: Long = 0
     public var digitalPreviewReferenceTimeMillis: Long = 0
+    public val watchFaceInstanceId: MutableStateFlow<String> = MutableStateFlow(DEFAULT_INSTANCE_ID)
 
     @Px
     public var chinHeight: Int = 0
@@ -122,6 +157,7 @@ public class MutableWatchState {
         analogPreviewReferenceTimeMillis = analogPreviewReferenceTimeMillis,
         digitalPreviewReferenceTimeMillis = digitalPreviewReferenceTimeMillis,
         chinHeight = chinHeight,
-        isHeadless = isHeadless
+        isHeadless = isHeadless,
+        watchFaceInstanceId = watchFaceInstanceId
     )
 }

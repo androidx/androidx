@@ -221,6 +221,12 @@ public class BiometricViewModel extends ViewModel {
     private boolean mIsIgnoringCancel;
 
     /**
+     * Whether {@link android.app.KeyguardManager} is being used directly for authentication with
+     * both biometric and credential authenticator types allowed.
+     */
+    private boolean mIsUsingKeyguardManagerForBiometricAndCredential;
+
+    /**
      * Information associated with a successful authentication attempt.
      */
     @Nullable private MutableLiveData<BiometricPrompt.AuthenticationResult> mAuthenticationResult;
@@ -499,6 +505,16 @@ public class BiometricViewModel extends ViewModel {
 
     void setIgnoringCancel(boolean ignoringCancel) {
         mIsIgnoringCancel = ignoringCancel;
+    }
+
+    boolean isUsingKeyguardManagerForBiometricAndCredential() {
+        return mIsUsingKeyguardManagerForBiometricAndCredential;
+    }
+
+    void setUsingKeyguardManagerForBiometricAndCredential(
+            boolean usingKeyguardManagerForBiometricAndCredential) {
+        mIsUsingKeyguardManagerForBiometricAndCredential =
+                usingKeyguardManagerForBiometricAndCredential;
     }
 
     @NonNull

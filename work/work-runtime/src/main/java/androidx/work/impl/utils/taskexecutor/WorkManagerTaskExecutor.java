@@ -21,7 +21,7 @@ import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.work.impl.utils.SerialExecutor;
+import androidx.work.impl.utils.SerialExecutorImpl;
 
 import java.util.concurrent.Executor;
 
@@ -32,27 +32,22 @@ import java.util.concurrent.Executor;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerTaskExecutor implements TaskExecutor {
 
-    private final SerialExecutor mBackgroundExecutor;
+    private final SerialExecutorImpl mBackgroundExecutor;
 
     public WorkManagerTaskExecutor(@NonNull Executor backgroundExecutor) {
         // Wrap it with a serial executor so we have ordering guarantees on commands
         // being executed.
-        mBackgroundExecutor = new SerialExecutor(backgroundExecutor);
+        mBackgroundExecutor = new SerialExecutorImpl(backgroundExecutor);
     }
 
-    private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
+    final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
 
     private final Executor mMainThreadExecutor = new Executor() {
         @Override
         public void execute(@NonNull Runnable command) {
-            postToMainThread(command);
+            mMainThreadHandler.post(command);
         }
     };
-
-    @Override
-    public void postToMainThread(Runnable runnable) {
-        mMainThreadHandler.post(runnable);
-    }
 
     @Override
     public Executor getMainThreadExecutor() {
@@ -60,13 +55,8 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     }
 
     @Override
-    public void executeOnBackgroundThread(Runnable runnable) {
-        mBackgroundExecutor.execute(runnable);
-    }
-
-    @Override
     @NonNull
-    public SerialExecutor getBackgroundExecutor() {
+    public SerialExecutorImpl getSerialTaskExecutor() {
         return mBackgroundExecutor;
     }
 }

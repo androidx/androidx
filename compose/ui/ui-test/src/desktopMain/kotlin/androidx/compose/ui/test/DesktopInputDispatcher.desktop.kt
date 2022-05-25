@@ -19,22 +19,23 @@
 package androidx.compose.ui.test
 
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.TestPointerInputEventData
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.platform.DesktopRootForTest
+import androidx.compose.ui.platform.SkiaRootForTest
 
 internal actual fun createInputDispatcher(
     testContext: TestContext,
     root: RootForTest
 ): InputDispatcher {
-    return DesktopInputDispatcher(testContext, root as DesktopRootForTest)
+    return DesktopInputDispatcher(testContext, root as SkiaRootForTest)
 }
 
 internal class DesktopInputDispatcher(
     testContext: TestContext,
-    val root: DesktopRootForTest
+    val root: SkiaRootForTest
 ) : InputDispatcher(testContext, root) {
     companion object {
         var gesturePointerId = 0L
@@ -96,6 +97,20 @@ internal class DesktopInputDispatcher(
 
     @OptIn(ExperimentalTestApi::class)
     override fun MouseInputState.enqueueScroll(delta: Float, scrollWheel: ScrollWheel) {
+        TODO("Not yet implemented")
+    }
+
+    // TODO(b/233199964): Implement key injection for desktop
+    override fun KeyInputState.enqueueDown(key: Key) = TODO("Not yet implemented")
+
+    // TODO(b/233199964): Implement key injection for desktop
+    override fun KeyInputState.enqueueUp(key: Key) = TODO("Not yet implemented")
+
+    override fun RotaryInputState.enqueueRotaryScrollHorizontally(horizontalScrollPixels: Float) {
+        TODO("Not yet implemented")
+    }
+
+    override fun RotaryInputState.enqueueRotaryScrollVertically(verticalScrollPixels: Float) {
         TODO("Not yet implemented")
     }
 

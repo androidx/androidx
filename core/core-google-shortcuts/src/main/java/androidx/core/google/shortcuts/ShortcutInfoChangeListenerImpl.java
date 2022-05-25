@@ -18,7 +18,7 @@ package androidx.core.google.shortcuts;
 
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.core.google.shortcuts.ShortcutUtils.CAPABILITY_PARAM_SEPARATOR;
+import static androidx.core.google.shortcuts.utils.ShortcutUtils.CAPABILITY_PARAM_SEPARATOR;
 
 import android.content.Context;
 import android.os.Build;
@@ -29,11 +29,17 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.app.ShortcutAdapter;
 import androidx.core.content.pm.ShortcutInfoChangeListener;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.google.shortcuts.builders.CapabilityBuilder;
 import androidx.core.google.shortcuts.builders.ParameterBuilder;
 import androidx.core.google.shortcuts.builders.ShortcutBuilder;
+import androidx.core.google.shortcuts.converters.AppSearchDocumentConverter;
+import androidx.core.google.shortcuts.converters.AppSearchDocumentConverterFactory;
+import androidx.core.google.shortcuts.utils.EntityUriUtils;
+import androidx.core.google.shortcuts.utils.ShortcutUtils;
 import androidx.core.graphics.drawable.IconCompat;
 
 import com.google.crypto.tink.KeysetHandle;
@@ -86,7 +92,37 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
      */
     @Override
     public void onShortcutAdded(@NonNull List<ShortcutInfoCompat> shortcuts) {
-        mFirebaseAppIndex.update(buildIndexables(shortcuts));
+        List<Indexable> indexables = new ArrayList<>();
+        // A shortcut can either be an entity shortcut, or capability-instance shortcuts. Entity
+        // shortcuts will be indexed under their respective schema type, and capability-instance
+        // shortcuts will be indexed in the general shortcut corpus.
+        for (ShortcutInfoCompat shortcut : shortcuts) {
+            GenericDocument entity = null;
+            // ShortcutAdapter is only available for Lollipop and above.
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                entity = ShortcutAdapter.extractDocument(shortcut);
+            }
+
+            if (entity == null) {
+                // API level < Lollipop, or Shortcut might be a capability-instance shortcut.
+                ShortcutBuilder shortcutBuilder = buildShortcutIndexable(shortcut);
+
+                // Capability-instance shortcuts may contain references to entity shortcuts. If
+                // that's the case, report usage for those entity shortcuts.
+                // TODO (b/207161241): use capability binding api directly from shortcut once it's
+                //  available.
+                maybeReportEntityUsage(shortcutBuilder);
+                indexables.add(shortcutBuilder.build());
+            } else {
+                // Shortcut is an entity shortcut.
+                AppSearchDocumentConverter converter =
+                        AppSearchDocumentConverterFactory.getConverter(entity.getSchemaType());
+                Indexable.Builder entityIndexableBuilder =
+                        converter.convertGenericDocument(mContext, entity);
+                indexables.add(entityIndexableBuilder.build());
+            }
+        }
+        mFirebaseAppIndex.update(indexables.toArray(new Indexable[0]));
     }
 
     /**
@@ -96,7 +132,7 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
      */
     @Override
     public void onShortcutUpdated(@NonNull List<ShortcutInfoCompat> shortcuts) {
-        mFirebaseAppIndex.update(buildIndexables(shortcuts));
+        onShortcutAdded(shortcuts);
     }
 
     /**
@@ -137,6 +173,37 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
         mFirebaseAppIndex.removeAll();
     }
 
+    /**
+     * If the shortcut has references to entity URIs, then report usage for those URIs.
+     */
+    private void maybeReportEntityUsage(@NonNull ShortcutBuilder shortcutBuilder) {
+        CapabilityBuilder[] capabilities = shortcutBuilder.getCapabilities();
+        if (capabilities == null) {
+            return;
+        }
+
+        for (CapabilityBuilder capability : capabilities) {
+            ParameterBuilder[] parameters = capability.getParameters();
+            if (parameters == null) {
+                continue;
+            }
+
+            for (ParameterBuilder parameter : parameters) {
+                String[] values = parameter.getValues();
+                if (values == null) {
+                    continue;
+                }
+                for (String value : values) {
+                    String entityId = EntityUriUtils.getEntityId(value);
+                    if (entityId != null) {
+                        mFirebaseUserActions.end(
+                                buildAction(ShortcutUtils.getIndexableUrl(mContext, entityId)));
+                    }
+                }
+            }
+        }
+    }
+
     @NonNull
     private Action buildAction(@NonNull String url) {
         // The reported action isn't uploaded to the server.
@@ -149,16 +216,7 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
     }
 
     @NonNull
-    private Indexable[] buildIndexables(@NonNull List<ShortcutInfoCompat> shortcuts) {
-        List<Indexable> indexables = new ArrayList<>();
-        for (ShortcutInfoCompat shortcut : shortcuts) {
-            indexables.add(buildIndexable(shortcut));
-        }
-        return indexables.toArray(new Indexable[0]);
-    }
-
-    @NonNull
-    private Indexable buildIndexable(@NonNull ShortcutInfoCompat shortcut) {
+    private ShortcutBuilder buildShortcutIndexable(@NonNull ShortcutInfoCompat shortcut) {
         String url = ShortcutUtils.getIndexableUrl(mContext, shortcut.getId());
         String shortcutUrl = ShortcutUtils.getIndexableShortcutUrl(mContext, shortcut.getIntent(),
                 mKeysetHandle);
@@ -203,7 +261,7 @@ public class ShortcutInfoChangeListenerImpl extends ShortcutInfoChangeListener {
         }
 
         // By default, the indexable will be saved only on-device.
-        return shortcutBuilder.build();
+        return shortcutBuilder;
     }
 
     @RequiresApi(21)

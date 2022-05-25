@@ -15,9 +15,7 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -31,14 +29,16 @@ android {
         applicationId "androidx.core.splashscreen.samples"
         minSdkVersion 21
     }
+    namespace "androidx.core.splashscreen.sample"
 }
 
 dependencies {
-    implementation(project(":appcompat:appcompat"))
-    implementation project(":annotation:annotation")
     implementation(project(":core:core-splashscreen"))
     implementation(project(":core:core-ktx"))
-    compileOnly(project(":annotation:annotation-sampled"))
+    implementation(projectOrArtifact(":appcompat:appcompat"))
+    implementation projectOrArtifact(":annotation:annotation")
+    implementation(projectOrArtifact(":interpolator:interpolator"))
+    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
 }
 
 androidx {

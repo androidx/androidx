@@ -22,6 +22,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -30,10 +31,14 @@ import kotlinx.coroutines.isActive
 import org.junit.Test
 import java.io.FileInputStream
 import java.nio.charset.StandardCharsets
+import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.math.min
 
+@SdkSuppress(minSdkVersion = 26)
 class CoroutineBroadcastReceiverTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -72,10 +77,22 @@ class CoroutineBroadcastReceiverTest {
         assertWithMessage("Broadcast receiver did not execute")
             .that(broadcastReceiver.broadcastExecuted.await(5, TimeUnit.SECONDS))
             .isTrue()
+        waitFor(Duration.ofSeconds(5)) {
+            !broadcastReceiver.coroutineScopeUsed.get().isActive
+        }
         assertWithMessage("Coroutine scope did not get cancelled")
             .that(broadcastReceiver.coroutineScopeUsed.get().isActive)
             .isFalse()
         assertThat(broadcastReceiver.extraValue.get()).isEqualTo(value)
+    }
+
+    private fun waitFor(timeout: Duration, condition: () -> Boolean) {
+        val start = Instant.now()
+        val sleepMs = min(500, timeout.toMillis() / 10)
+        while (Duration.between(start, Instant.now()) < timeout) {
+            if (condition()) return
+            Thread.sleep(sleepMs)
+        }
     }
 
     private fun waitForBroadcastIdle() {

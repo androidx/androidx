@@ -56,9 +56,9 @@ fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
  * Creates an offset. The first argument sets [x], the horizontal component,
  * and the second sets [y], the vertical component.
  */
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-inline class Offset internal constructor(internal val packedValue: Long) {
+@kotlin.jvm.JvmInline
+value class Offset internal constructor(internal val packedValue: Long) {
 
     @Stable
     val x: Float
@@ -207,7 +207,13 @@ inline class Offset internal constructor(internal val packedValue: Long) {
     @Stable
     operator fun rem(operand: Float) = Offset(x % operand, y % operand)
 
-    override fun toString() = "Offset(${x.toStringAsFixed(1)}, ${y.toStringAsFixed(1)})"
+    override fun toString() = if (isSpecified) {
+        "Offset(${x.toStringAsFixed(1)}, ${y.toStringAsFixed(1)})"
+    } else {
+        // In this case reading the x or y properties will throw, and they don't contain meaningful
+        // values as strings anyway.
+        "Offset.Unspecified"
+    }
 }
 
 /**
@@ -252,7 +258,7 @@ val Offset.isSpecified: Boolean get() = packedValue != Offset.Unspecified.packed
 val Offset.isUnspecified: Boolean get() = packedValue == Offset.Unspecified.packedValue
 
 /**
- * If this [Offset] [isSpecified] then this is returned, otherwise [block] is executed
+ * If this [Offset]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed
  * and its result is returned.
  */
 inline fun Offset.takeOrElse(block: () -> Offset): Offset =

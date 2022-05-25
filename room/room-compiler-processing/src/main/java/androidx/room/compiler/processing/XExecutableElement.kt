@@ -33,7 +33,8 @@ interface XExecutableElement : XHasModifiers, XElement {
      *   [XTypeElement]. If you need the generated synthetic java class name, you can use
      *   [XMemberContainer.className] property.
      */
-    val enclosingElement: XMemberContainer
+    override val enclosingElement: XMemberContainer
+
     /**
      * The list of parameters that should be passed into this method.
      *
@@ -49,4 +50,17 @@ interface XExecutableElement : XHasModifiers, XElement {
      * Returns true if this method receives a vararg parameter.
      */
     fun isVarArgs(): Boolean
+
+    /**
+     * The type representation of the method where more type parameters might be resolved.
+     */
+    val executableType: XExecutableType
+
+    /**
+     * Returns the method as if it is declared in [other].
+     *
+     * This is specifically useful if you have a method that has type arguments and there is a
+     * subclass ([other]) where type arguments are specified to actual types.
+     */
+    fun asMemberOf(other: XType): XExecutableType
 }

@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget.layoutgenerator.gradle
 
+import androidx.glance.appwidget.layoutgenerator.GeneratedFiles
 import androidx.glance.appwidget.layoutgenerator.LayoutGenerator
 import androidx.glance.appwidget.layoutgenerator.cleanResources
 import androidx.glance.appwidget.layoutgenerator.generateRegistry
@@ -23,6 +24,7 @@ import com.android.build.gradle.LibraryExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
@@ -36,11 +38,16 @@ import java.io.File
  * See [LayoutGenerator] for details on the template format, and [generateRegistry] for details
  * on the Kotlin code generated to access those layouts from code.
  */
+@CacheableTask
 abstract class LayoutGeneratorTask : DefaultTask() {
 
     @get:PathSensitive(PathSensitivity.NAME_ONLY)
     @get:InputDirectory
-    abstract val layoutDirectory: DirectoryProperty
+    abstract val containerLayoutDirectory: DirectoryProperty
+
+    @get:PathSensitive(PathSensitivity.NAME_ONLY)
+    @get:InputDirectory
+    abstract val childLayoutDirectory: DirectoryProperty
 
     @get:OutputDirectory
     abstract val outputSourceDir: DirectoryProperty
@@ -50,13 +57,29 @@ abstract class LayoutGeneratorTask : DefaultTask() {
 
     @TaskAction
     fun execute() {
-        val generatedFiles = LayoutGenerator().generateAllFiles(
-            checkNotNull(layoutDirectory.get().asFile.listFiles()).asList(),
+        val generatedLayouts = LayoutGenerator().generateAllFiles(
+            checkNotNull(containerLayoutDirectory.get().asFile.listFiles()).asList(),
+            checkNotNull(childLayoutDirectory.get().asFile.listFiles()).asList(),
             outputResourcesDir.get().asFile
         )
-        generateRegistry(outputModule, generatedFiles, outputSourceDir.get().asFile)
-        cleanResources(outputResourcesDir.get().asFile, generatedFiles.keys)
+        generateRegistry(
+            packageName = outputModule,
+            layouts = generatedLayouts.generatedContainers,
+            boxChildLayouts = generatedLayouts.generatedChildren,
+            outputSourceDir = outputSourceDir.get().asFile
+        )
+        cleanResources(
+            outputResourcesDir.get().asFile,
+            generatedLayouts.extractGeneratedFiles()
+        )
     }
+
+    private fun GeneratedFiles.extractGeneratedFiles(): Set<File> =
+        generatedContainers.values.flatMap { container ->
+            container.map { it.generatedFile }
+        }.toSet() +
+            generatedChildren.values.flatMap { child -> child.map { it.generatedFile } }.toSet() +
+            extraFiles
 
     companion object {
         /**
@@ -66,7 +89,8 @@ abstract class LayoutGeneratorTask : DefaultTask() {
         fun registerLayoutGenerator(
             project: Project,
             libraryExtension: LibraryExtension,
-            layoutDirectory: File
+            containerLayoutDirectory: File,
+            childLayoutDirectory: File,
         ) {
             libraryExtension.libraryVariants.all { variant ->
                 val variantName = variant.name
@@ -78,7 +102,8 @@ abstract class LayoutGeneratorTask : DefaultTask() {
                 outputResourcesDir.mkdirs()
                 outputSourceDir.mkdirs()
                 val task = project.tasks.register(taskName, LayoutGeneratorTask::class.java) {
-                    it.layoutDirectory.set(layoutDirectory)
+                    it.containerLayoutDirectory.set(containerLayoutDirectory)
+                    it.childLayoutDirectory.set(childLayoutDirectory)
                     it.outputResourcesDir.set(outputResourcesDir)
                     it.outputSourceDir.set(outputSourceDir)
                 }

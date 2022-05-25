@@ -20,7 +20,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.health.services.client.impl.ipc.ClientConfiguration;
 
 /**
  * Internal representation of configuration of IPC service connection.
@@ -50,23 +49,17 @@ public final class ConnectionConfiguration {
         return String.format("%s#%s#%s", mClientName, mPackageName, mBindAction);
     }
 
-    /** API Client name defined in the {@link ClientConfiguration#getApiClientName()}. */
+    /** Returns name of the service, use for logging and debugging only. */
     String getClientName() {
         return mClientName;
     }
 
-    /**
-     * An action used to bind to the remote service. Taken from {@link
-     * ClientConfiguration#getBindAction()}.
-     */
+    /** Returns the action used to bind to the remote service. */
     String getBindAction() {
         return mBindAction;
     }
 
-    /**
-     * Package name of remote service. Taken from {@link
-     * ClientConfiguration#getServicePackageName()}.
-     */
+    /** Returns the application package of the remote service. */
     String getPackageName() {
         return mPackageName;
     }

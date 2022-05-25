@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
+@file:SuppressLint("ClassVerificationFailure") // Entire file is RequiresApi(17)
 @file:Suppress("NOTHING_TO_INLINE") // Aliases to other public API.
 
 package androidx.core.util
 
+import android.annotation.SuppressLint
 import android.util.AtomicFile
 import androidx.annotation.RequiresApi
 import java.io.FileOutputStream

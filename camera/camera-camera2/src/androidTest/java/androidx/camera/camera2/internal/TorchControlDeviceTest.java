@@ -22,13 +22,13 @@ import android.content.Context;
 
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
+import androidx.camera.testing.CameraXUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -56,7 +56,9 @@ public class TorchControlDeviceTest {
     private static final int LENS_FACING = CameraSelector.LENS_FACING_BACK;
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
 
     private TorchControl mTorchControl;
     private CameraUseCaseAdapter mCamera;
@@ -69,7 +71,7 @@ public class TorchControlDeviceTest {
         // Init CameraX
         Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig config = Camera2Config.defaultConfig();
-        CameraX.initialize(context, config);
+        CameraXUtil.initialize(context, config);
 
         // Prepare TorchControl
         CameraSelector cameraSelector =
@@ -96,7 +98,7 @@ public class TorchControlDeviceTest {
             );
         }
 
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        CameraXUtil.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test(timeout = 5000L)

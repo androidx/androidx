@@ -23,6 +23,7 @@ import android.graphics.Bitmap
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.transition.TransitionManager
 import android.view.PixelCopy
 import android.view.View
 import android.view.ViewGroup
@@ -38,6 +39,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Stable
@@ -49,11 +51,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.draw.DrawModifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.DefaultShadowColor
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
@@ -114,7 +118,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -255,7 +258,9 @@ class AndroidLayoutDrawTest {
                 clip = true,
                 layoutDirection = LayoutDirection.Ltr,
                 density = Density(1f),
-                renderEffect = null
+                renderEffect = null,
+                ambientShadowColor = DefaultShadowColor,
+                spotShadowColor = DefaultShadowColor
             )
         }
         // Verify that the camera distance is applied properly even after accounting for
@@ -501,21 +506,6 @@ class AndroidLayoutDrawTest {
             }
         }
         validateSquareColors(outerColor = green, innerColor = white, size = 20)
-    }
-
-    // Tests that calling measure multiple times on the same Measurable causes an exception
-    @Test
-    fun multipleMeasureCall() {
-        val latch = CountDownLatch(1)
-        activityTestRule.runOnUiThreadIR {
-            activity.setContent {
-                TwoMeasureLayout(50, latch) {
-                    AtLeastSize(50) {
-                    }
-                }
-            }
-        }
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
     @Test
@@ -3555,6 +3545,127 @@ class AndroidLayoutDrawTest {
         }
     }
 
+    @Test
+    fun androidComposeViewIsTransitionGroup() {
+        // ensure that the android compose view is a transition group.
+
+        val latch = CountDownLatch(1)
+        activityTestRule.runOnUiThread {
+            activity.setContent {
+                Layout({}) { _, _ ->
+                    layout(10, 10) {
+                        latch.countDown()
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+
+        val composeView = activityTestRule.findAndroidComposeView()
+        assertTrue(composeView.isTransitionGroup)
+    }
+
+    @Test
+    fun drawnInCorrectLayer() {
+        var innerDrawLatch = CountDownLatch(1)
+        var outerDrawLatch = CountDownLatch(1)
+        var outerColor by mutableStateOf(Color.Blue)
+        var innerColor by mutableStateOf(Color.White)
+        activityTestRule.runOnUiThread {
+            activity.setContent {
+                with(LocalDensity.current) {
+                    Box(Modifier.size(30.toDp())
+                        .drawBehind {
+                            drawRect(outerColor)
+                            outerDrawLatch.countDown()
+                        }
+                        .drawLatchModifier()
+                        .padding(10.toDp())
+                        .clipToBounds()
+                        .drawBehind {
+                            // clipped by the layer
+                            drawRect(innerColor, Offset(-10f, -10f), Size(30f, 30f))
+                            innerDrawLatch.countDown()
+                        }
+                        .drawLatchModifier()
+                        .size(10.toDp())
+                    )
+                }
+            }
+        }
+        assertTrue(innerDrawLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(outerDrawLatch.await(1, TimeUnit.SECONDS))
+
+        validateSquareColors(
+            outerColor = Color.Blue,
+            innerColor = Color.White,
+            size = 10
+        )
+
+        innerDrawLatch = CountDownLatch(1)
+        outerDrawLatch = CountDownLatch(1)
+        drawLatch = CountDownLatch(1)
+
+        // changing the inner color should only affect the inner layer
+        innerColor = Color.Yellow
+
+        assertTrue(innerDrawLatch.await(1, TimeUnit.SECONDS))
+
+        validateSquareColors(
+            outerColor = Color.Blue,
+            innerColor = Color.Yellow,
+            size = 10
+        )
+
+        assertEquals(1, outerDrawLatch.count)
+        innerDrawLatch = CountDownLatch(1)
+        drawLatch = CountDownLatch(1)
+
+        // changing the outer color should only affect the outer layer
+        outerColor = Color.Red
+
+        assertTrue(outerDrawLatch.await(1, TimeUnit.SECONDS))
+
+        validateSquareColors(
+            outerColor = Color.Red,
+            innerColor = Color.Yellow,
+            size = 10
+        )
+
+        assertEquals(1, innerDrawLatch.count)
+    }
+
+    /**
+     * Android Transitions should be possible with Compose Views. View layers can
+     * confuse the Android Transition system.
+     */
+    @Test
+    fun worksWithTransitions() {
+        val frameLayout = FrameLayout(activity)
+        activityTestRule.runOnUiThread {
+            activity.setContentView(frameLayout)
+            val composeView = ComposeView(activity).apply {
+                setContent {
+                    Box {}
+                }
+            }
+            frameLayout.addView(composeView)
+        }
+
+        activityTestRule.runOnUiThread {
+            TransitionManager.beginDelayedTransition(frameLayout)
+            frameLayout.removeAllViews()
+            val composeView = ComposeView(activity).apply {
+                setContent {
+                    Box(Modifier.drawLatchModifier()) {}
+                }
+            }
+            frameLayout.addView(composeView)
+        }
+
+        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+    }
+
     private fun Modifier.layout(onLayout: () -> Unit) = layout { measurable, constraints ->
         val placeable = measurable.measure(constraints)
         layout(placeable.width, placeable.height) {
@@ -3924,33 +4035,6 @@ internal fun Padding(
         },
         content = content
     )
-}
-
-@Composable
-fun TwoMeasureLayout(
-    size: Int,
-    latch: CountDownLatch,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    Layout(modifier = modifier, content = content) { measurables, _ ->
-        val testConstraints = Constraints()
-        measurables.forEach { it.measure(testConstraints) }
-        val childConstraints = Constraints.fixed(size, size)
-        try {
-            val placeables2 = measurables.map { it.measure(childConstraints) }
-            fail("Measuring twice on the same Measurable should throw an exception")
-            layout(size, size) {
-                placeables2.forEach { child ->
-                    child.placeRelative(0, 0)
-                }
-            }
-        } catch (_: IllegalStateException) {
-            // expected
-            latch.countDown()
-        }
-        layout(0, 0) { }
-    }
 }
 
 @Composable

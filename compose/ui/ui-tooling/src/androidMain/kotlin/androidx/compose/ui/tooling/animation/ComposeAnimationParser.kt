@@ -17,7 +17,6 @@
 package androidx.compose.ui.tooling.animation
 
 import android.util.Log
-import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.ComposeAnimationType
@@ -58,7 +57,6 @@ internal class TransitionComposeAnimation(
 /**
  * [ComposeAnimation] of type [ComposeAnimationType.ANIMATED_VISIBILITY].
  */
-@OptIn(InternalAnimationApi::class)
 internal class AnimatedVisibilityComposeAnimation(parent: Transition<Any>, parentLabel: String?) :
     ComposeAnimation {
     override val type = ComposeAnimationType.ANIMATED_VISIBILITY
@@ -75,8 +73,8 @@ internal class AnimatedVisibilityComposeAnimation(parent: Transition<Any>, paren
 /**
  * Represents the states of [AnimatedVisibilityComposeAnimation]s.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-internal inline class AnimatedVisibilityState private constructor(val value: String) {
+@JvmInline
+internal value class AnimatedVisibilityState private constructor(val value: String) {
 
     override fun toString() = value
 

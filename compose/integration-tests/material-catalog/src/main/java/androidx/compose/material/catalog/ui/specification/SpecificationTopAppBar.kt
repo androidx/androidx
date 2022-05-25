@@ -16,30 +16,38 @@
 
 package androidx.compose.material.catalog.ui.specification
 
-import androidx.compose.material.AppBarDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
-import androidx.compose.material.primarySurface
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.navigationBarsPadding
-import com.google.accompanist.insets.statusBarsPadding
 
-// TODO: Use components/values from Material3 when available
 @Composable
-fun SpecificationTopAppBar(title: String) {
+fun SpecificationTopAppBar(
+    title: String,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
+) {
+    val backgroundColors = TopAppBarDefaults.centerAlignedTopAppBarColors()
+    val backgroundColor = backgroundColors.containerColor(
+        scrollFraction = scrollBehavior?.scrollFraction ?: 0f
+    ).value
+    val foregroundColors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+        containerColor = Color.Transparent,
+        scrolledContainerColor = Color.Transparent
+    )
     // Wrapping in a Surface to handle window insets
     // https://issuetracker.google.com/issues/183161866
-    Surface(
-        color = MaterialTheme.colors.primarySurface,
-        elevation = AppBarDefaults.TopAppBarElevation
-    ) {
-        TopAppBar(
+    Surface(color = backgroundColor) {
+        CenterAlignedTopAppBar(
             title = {
                 Text(
                     text = title,
@@ -47,11 +55,11 @@ fun SpecificationTopAppBar(title: String) {
                     overflow = TextOverflow.Ellipsis
                 )
             },
-            backgroundColor = Color.Transparent,
-            elevation = 0.dp,
-            modifier = Modifier
-                .statusBarsPadding()
-                .navigationBarsPadding(bottom = false)
+            scrollBehavior = scrollBehavior,
+            colors = foregroundColors,
+            modifier = Modifier.windowInsetsPadding(
+                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+            )
         )
     }
 }

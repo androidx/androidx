@@ -128,32 +128,25 @@ class TestSettingsGradle(unittest.TestCase):
 
     def test_settings_gradle_line(self):
         line = get_new_settings_gradle_line("androidx.foo", "foo")
-        self.assertEqual("includeProject(\":foo:foo\", \"foo/foo\", " + \
-                         "[BuildType.MAIN])\n", line)
+        self.assertEqual("includeProject(\":foo:foo\", [BuildType.MAIN])\n", line)
 
         line = get_new_settings_gradle_line("androidx.foo", "foo-bar")
-        self.assertEqual("includeProject(\":foo:foo-bar\", \"foo/foo-bar\", " + \
-                         "[BuildType.MAIN])\n", line)
+        self.assertEqual("includeProject(\":foo:foo-bar\", [BuildType.MAIN])\n", line)
 
         line = get_new_settings_gradle_line("androidx.foo.bar", "bar")
-        self.assertEqual("includeProject(\":foo:bar:bar\", \"foo/bar/bar\", " + \
-                         "[BuildType.MAIN])\n", line)
+        self.assertEqual("includeProject(\":foo:bar:bar\", [BuildType.MAIN])\n", line)
 
         line = get_new_settings_gradle_line("androidx.foo.bar", "bar-qux")
-        self.assertEqual("includeProject(\":foo:bar:bar-qux\", \"foo/bar/bar-qux\", " + \
-                         "[BuildType.MAIN])\n", line)
+        self.assertEqual("includeProject(\":foo:bar:bar-qux\", [BuildType.MAIN])\n", line)
 
         line = get_new_settings_gradle_line("androidx.compose", "compose-foo")
-        self.assertEqual("includeProject(\":compose:compose-foo\", \"compose/compose-foo\", " + \
-                         "[BuildType.COMPOSE])\n", line)
+        self.assertEqual("includeProject(\":compose:compose-foo\", [BuildType.COMPOSE])\n", line)
 
         line = get_new_settings_gradle_line("androidx.compose.foo", "foo-bar")
-        self.assertEqual("includeProject(\":compose:foo:foo-bar\", \"compose/foo/foo-bar\", " + \
-                         "[BuildType.COMPOSE])\n", line)
+        self.assertEqual("includeProject(\":compose:foo:foo-bar\", [BuildType.COMPOSE])\n", line)
 
         line = get_new_settings_gradle_line("androidx.foo.bar", "bar-compose")
-        self.assertEqual("includeProject(\":foo:bar:bar-compose\", \"foo/bar/bar-compose\", " + \
-                         "[BuildType.COMPOSE])\n", line)
+        self.assertEqual("includeProject(\":foo:bar:bar-compose\", [BuildType.COMPOSE])\n", line)
 
     def test_gradle_project_coordinates(self):
         coordinates = get_gradle_project_coordinates("androidx.foo", "foo")

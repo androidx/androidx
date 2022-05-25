@@ -27,6 +27,7 @@ oneway interface ICarHardwareResultTypes {
     const int TYPE_INFO_ENERGY_LEVEL = 4;
     const int TYPE_INFO_SPEED = 5;
     const int TYPE_INFO_MILEAGE = 6;
+    const int TYPE_INFO_EV_STATUS = 7;
 
     const int TYPE_SENSOR_ACCELEROMETER = 20;
     const int TYPE_SENSOR_COMPASS = 21;

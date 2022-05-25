@@ -194,4 +194,39 @@ public class LayoutHelper {
     public int getLongTitleGravity() {
         return Gravity.CENTER;
     }
+
+    /**
+     * @return Whether or not the complication has an icon.
+     */
+    public boolean hasIcon() {
+        return mComplicationData.getIcon() != null;
+    }
+
+    /**
+     * @return Whether or not the complication has a small image.
+     */
+    public boolean hasSmallImage() {
+        return mComplicationData.getSmallImage() != null;
+    }
+
+    /**
+     * @return Whether or not the complication has a long title.
+     */
+    public boolean hasLongTitle() {
+        return mComplicationData.getLongTitle() != null;
+    }
+
+    /**
+     * @return Whether or not the complication has a short title.
+     */
+    public boolean hasShortTitle() {
+        return mComplicationData.getShortTitle() != null;
+    }
+
+    /**
+     * @return Whether or not the complication has a short text.
+     */
+    public boolean hasShortText() {
+        return mComplicationData.getShortText() != null;
+    }
 }

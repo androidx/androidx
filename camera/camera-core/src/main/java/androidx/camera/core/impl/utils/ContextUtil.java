@@ -16,6 +16,7 @@
 
 package androidx.camera.core.impl.utils;
 
+import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.os.Build;
@@ -61,6 +62,29 @@ public final class ContextUtil {
         }
 
         return baseContext;
+    }
+
+    /**
+     * Attempts to retrieve an {@link Application} object from the provided {@link Context}.
+     *
+     * <p>Because the contract does not specify that {@code Context.getApplicationContext()} must
+     * return an {@code Application} object, this method will attempt to retrieve the
+     * {@code Application} by unwrapping the context via {@link ContextWrapper#getBaseContext()} if
+     * {@code Context.getApplicationContext()}} does not succeed.
+     */
+    @Nullable
+    public static Application getApplicationFromContext(@NonNull Context context) {
+        Application application = null;
+        Context appContext = getApplicationContext(context);
+        while (appContext instanceof ContextWrapper) {
+            if (appContext instanceof Application) {
+                application = (Application) appContext;
+                break;
+            } else {
+                appContext = getBaseContext((ContextWrapper) appContext);
+            }
+        }
+        return application;
     }
 
     private ContextUtil() {

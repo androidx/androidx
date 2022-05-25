@@ -31,6 +31,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.proto.ResourceProto;
 import androidx.wear.tiles.protobuf.ByteString;
+import androidx.wear.tiles.protobuf.InvalidProtocolBufferException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -366,6 +367,24 @@ public final class ResourceBuilders {
         @NonNull
         public ResourceProto.Resources toProto() {
             return mImpl;
+        }
+
+        /** Converts to byte array representation. */
+        @TilesExperimental
+        @NonNull
+        public byte[] toByteArray() {
+            return mImpl.toByteArray();
+        }
+
+        /** Converts from byte array representation. */
+        @TilesExperimental
+        @Nullable
+        public static Resources fromByteArray(@NonNull byte[] byteArray) {
+            try {
+                return fromProto(ResourceProto.Resources.parseFrom(byteArray));
+            } catch (InvalidProtocolBufferException e) {
+                return null;
+            }
         }
 
         /** Builder for {@link Resources} */

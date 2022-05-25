@@ -23,6 +23,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.graphics.ImageFormat;
@@ -41,6 +42,9 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.fakes.FakeCaptureStage;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -61,6 +65,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 // UnstableApiUsage is needed because PausedExecutorService is marked @Beta
 @SuppressWarnings({"UnstableApiUsage", "deprecation"})
@@ -286,6 +291,45 @@ public final class ProcessingImageReaderTest {
                 mock(CaptureProcessor.class)).setOutputFormat(ImageFormat.JPEG).build();
 
         assertThat(processingImageReader.getImageFormat()).isEqualTo(ImageFormat.JPEG);
+    }
+
+    @Test
+    public void canCloseUnderlyingCaptureProcessor() throws InterruptedException {
+        // Sets up the underlying capture processor
+        CaptureProcessor captureProcessor = mock(CaptureProcessor.class);
+        AtomicReference<CallbackToFutureAdapter.Completer<Void>> underlyingCompleterReference =
+                new AtomicReference<>();
+        ListenableFuture<Void> underlyingCloseFuture =
+                CallbackToFutureAdapter.getFuture(completer -> {
+                    underlyingCompleterReference.set(completer);
+                    return "underlyingCloseFuture";
+                });
+        when(captureProcessor.getCloseFuture()).thenReturn(underlyingCloseFuture);
+        ProcessingImageReader processingImageReader = new ProcessingImageReader.Builder(
+                mMetadataImageReader, mCaptureBundle, captureProcessor).build();
+
+        // Calls the close() function of the ProcessingImageReader
+        processingImageReader.close();
+
+        // Verifies whether close() function of the underlying capture processor is called
+        verify(captureProcessor, times(1)).close();
+
+        // Sets up the listener to monitor whether the close future is closed or not.
+        CountDownLatch closedLatch = new CountDownLatch(1);
+        processingImageReader.getCloseFuture().addListener(() -> closedLatch.countDown(),
+                CameraXExecutors.directExecutor());
+
+        // Checks that the close future is not completed before the underlying capture processor
+        // complete their close futures
+        assertThat(closedLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse();
+
+        // Completes the completer of the underlying capture processor to complete their close
+        // future
+        underlyingCompleterReference.get().set(null);
+
+        // Checks whether the close future of ProcessingImageReader is completed after the
+        // underlying capture processor complete their close futures
+        assertThat(closedLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue();
     }
 
     private void triggerImageAvailable(int captureId, long timestamp) throws InterruptedException {

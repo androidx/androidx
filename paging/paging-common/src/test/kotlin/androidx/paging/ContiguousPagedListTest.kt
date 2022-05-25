@@ -41,7 +41,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import kotlin.test.assertFailsWith
-import kotlin.test.assertNotSame
 import kotlin.test.assertTrue
 
 @RunWith(Parameterized::class)
@@ -153,13 +152,6 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
 
     private fun PagingSource<*, Item>.enqueueErrorForIndex(index: Int) {
         (this as TestPagingSource).enqueueErrorForIndex(index)
-    }
-
-    private fun <E> MutableList<E>.getAllAndClear(): List<E> {
-        val data = this.toList()
-        assertNotSame(data, this)
-        this.clear()
-        return data
     }
 
     private fun <E : Any> PagedList<E>.withLoadStateCapture(

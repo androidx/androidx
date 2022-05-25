@@ -93,6 +93,29 @@ public class AutoMigrationTest {
         }
     }
 
+    @Test
+    public void testAutoMigrationWithNewEmbeddedField() throws IOException {
+        MigrationTestHelper embeddedHelper = new MigrationTestHelper(
+                InstrumentationRegistry.getInstrumentation(),
+                EmbeddedAutoMigrationDb.class
+        );
+
+        SupportSQLiteDatabase db = embeddedHelper.createDatabase(
+                "embedded-auto-migration-test",
+                1
+        );
+        db.execSQL("INSERT INTO Entity1 (id, name) VALUES (1, 'row1')");
+
+        final TableInfo info = TableInfo.read(
+                embeddedHelper.runMigrationsAndValidate(
+                        "embedded-auto-migration-test",
+                        2,
+                        true
+                ),
+                EmbeddedAutoMigrationDb.EmbeddedEntity1.TABLE_NAME);
+        assertThat(info.columns.size()).isEqualTo(3);
+    }
+
     /**
      * Verifies that the user defined migration is selected over using an autoMigration.
      */

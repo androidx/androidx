@@ -25,6 +25,8 @@ import android.util.LayoutDirection
 
 import androidx.window.R
 import androidx.window.core.ExperimentalWindowApi
+import androidx.window.embedding.SplitRule.Companion.FINISH_ALWAYS
+import androidx.window.embedding.SplitRule.Companion.FINISH_NEVER
 
 import org.xmlpull.v1.XmlPullParser
 
@@ -127,8 +129,8 @@ internal class SplitRuleParser {
         val minWidth: Int
         val minSmallestWidth: Int
         val layoutDir: Int
-        val finishPrimaryWithSecondary: Boolean
-        val finishSecondaryWithPrimary: Boolean
+        val finishPrimaryWithSecondary: Int
+        val finishSecondaryWithPrimary: Int
         val clearTop: Boolean
         context.theme.obtainStyledAttributes(
             parser,
@@ -136,21 +138,27 @@ internal class SplitRuleParser {
             0,
             0
         ).apply {
-            ratio = getFloat(R.styleable.SplitPairRule_splitRatio, 0.0f)
-            minWidth = getDimension(R.styleable.SplitPairRule_splitMinWidth, 0.0f).toInt()
-            minSmallestWidth = getDimension(R.styleable.SplitPairRule_splitMinSmallestWidth, 0.0f)
-                .toInt()
+            ratio = getFloat(R.styleable.SplitPairRule_splitRatio, 0.5f)
+            minWidth = getDimension(
+                R.styleable.SplitPairRule_splitMinWidth,
+                defaultMinWidth(context.resources)
+            ).toInt()
+            minSmallestWidth = getDimension(
+                R.styleable.SplitPairRule_splitMinSmallestWidth,
+                defaultMinWidth(context.resources)
+            ).toInt()
             layoutDir = getInt(
                 R.styleable.SplitPairRule_splitLayoutDirection,
                 LayoutDirection.LOCALE
             )
             finishPrimaryWithSecondary =
-                getBoolean(R.styleable.SplitPairRule_finishPrimaryWithSecondary, false)
+                getInt(R.styleable.SplitPairRule_finishPrimaryWithSecondary, FINISH_NEVER)
             finishSecondaryWithPrimary =
-                getBoolean(R.styleable.SplitPairRule_finishSecondaryWithPrimary, true)
+                getInt(R.styleable.SplitPairRule_finishSecondaryWithPrimary, FINISH_ALWAYS)
             clearTop =
                 getBoolean(R.styleable.SplitPairRule_clearTop, false)
         }
+        @Suppress("DEPRECATION")
         return SplitPairRule(
             emptySet(),
             finishPrimaryWithSecondary,
@@ -168,6 +176,8 @@ internal class SplitRuleParser {
         parser: XmlResourceParser
     ): SplitPlaceholderRule {
         val placeholderActivityIntentName: String?
+        val stickyPlaceholder: Boolean
+        val finishPrimaryWithSecondary: Int
         val ratio: Float
         val minWidth: Int
         val minSmallestWidth: Int
@@ -181,11 +191,18 @@ internal class SplitRuleParser {
             placeholderActivityIntentName = getString(
                 R.styleable.SplitPlaceholderRule_placeholderActivityName
             )
-            ratio = getFloat(R.styleable.SplitPlaceholderRule_splitRatio, 0.0f)
-            minWidth = getDimension(R.styleable.SplitPlaceholderRule_splitMinWidth, 0.0f).toInt()
+            stickyPlaceholder = getBoolean(R.styleable.SplitPlaceholderRule_stickyPlaceholder,
+                false)
+            finishPrimaryWithSecondary =
+                getInt(R.styleable.SplitPlaceholderRule_finishPrimaryWithSecondary, FINISH_ALWAYS)
+            ratio = getFloat(R.styleable.SplitPlaceholderRule_splitRatio, 0.5f)
+            minWidth = getDimension(
+                R.styleable.SplitPlaceholderRule_splitMinWidth,
+                defaultMinWidth(context.resources)
+            ).toInt()
             minSmallestWidth = getDimension(
                 R.styleable.SplitPlaceholderRule_splitMinSmallestWidth,
-                0.0f
+                defaultMinWidth(context.resources)
             ).toInt()
             layoutDir = getInt(
                 R.styleable.SplitPlaceholderRule_splitLayoutDirection,
@@ -198,9 +215,12 @@ internal class SplitRuleParser {
             placeholderActivityIntentName
         )
 
+        @Suppress("DEPRECATION")
         return SplitPlaceholderRule(
             emptySet(),
             Intent().setComponent(placeholderActivityClassName),
+            stickyPlaceholder,
+            finishPrimaryWithSecondary,
             minWidth,
             minSmallestWidth,
             ratio,
@@ -252,7 +272,7 @@ internal class SplitRuleParser {
         ).apply {
             alwaysExpand = getBoolean(R.styleable.ActivityRule_alwaysExpand, false)
         }
-        return ActivityRule(emptySet(), alwaysExpand)
+        return ActivityRule.Builder(emptySet()).setAlwaysExpand(alwaysExpand).build()
     }
 
     private fun parseActivityFilter(
@@ -300,5 +320,12 @@ internal class SplitRuleParser {
             return ComponentName(pkgString, b.toString())
         }
         return ComponentName(pkgString, clsString)
+    }
+
+    private fun defaultMinWidth(resources: Resources): Float {
+        // Get the screen's density scale
+        val scale: Float = resources.displayMetrics.density
+        // Convert the dps to pixels, based on density scale
+        return 600 * scale + 0.5f
     }
 }

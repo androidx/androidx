@@ -20,6 +20,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
+import android.os.Build
 import android.os.Parcel
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -44,6 +45,8 @@ import androidx.wear.watchface.editor.data.EditorStateWireFormat
 import androidx.wear.watchface.style.UserStyleData
 import androidx.wear.watchface.style.WatchFaceLayer
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.time.Instant
@@ -64,6 +67,15 @@ public class SerializationTest {
         val result = readFromParcel(p)
         p.recycle()
         return result
+    }
+
+    @Before
+    public fun setup() {
+        // TODO(b/214019246): Generate new goldens for T and above.
+        Assume.assumeTrue(
+            "Requires S or a lower API version",
+            Build.VERSION.SDK_INT <= Build.VERSION_CODES.S
+        )
     }
 
     @Test

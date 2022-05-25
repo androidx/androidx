@@ -22,22 +22,26 @@ import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.TaskExecutor
 import com.google.common.truth.Truth
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineDispatcher
-import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ScopesRule : TestWatcher() {
-    private val mainDispatcher = TestCoroutineDispatcher()
-    val mainScope = TestCoroutineScope(mainDispatcher)
+    private val scheduler = TestCoroutineScheduler()
+    private val mainDispatcher = StandardTestDispatcher(scheduler)
+    val mainScope = TestScope(mainDispatcher)
 
-    private val testDispatcher = TestCoroutineDispatcher()
-    val testScope = TestCoroutineScope(testDispatcher)
+    private val testDispatcher = StandardTestDispatcher(scheduler)
+    val testScope = TestScope(testDispatcher)
 
     override fun starting(description: Description?) {
         Dispatchers.setMain(mainDispatcher)
@@ -59,33 +63,21 @@ class ScopesRule : TestWatcher() {
                 }
             }
         )
-        // manually roll the time
-        mainScope.pauseDispatcher()
-        testScope.pauseDispatcher()
     }
 
     override fun finished(description: Description?) {
         advanceTimeBy(100000)
-        mainScope.cleanupTestCoroutines()
-        testScope.cleanupTestCoroutines()
         ArchTaskExecutor.getInstance().setDelegate(null)
         Dispatchers.resetMain()
     }
 
     fun advanceTimeBy(time: Long) {
-        mainScope.advanceTimeBy(time)
-        testScope.advanceTimeBy(time)
+        scheduler.advanceTimeBy(time)
         triggerAllActions()
     }
 
     fun triggerAllActions() {
-        do {
-            mainScope.runCurrent()
-            testScope.runCurrent()
-            val allIdle = listOf(mainDispatcher, testDispatcher).all {
-                it.isIdle()
-            }
-        } while (!allIdle)
+        scheduler.runCurrent()
     }
 
     fun <T> runOnMain(block: () -> T): T {
@@ -93,23 +85,9 @@ class ScopesRule : TestWatcher() {
             val async = mainScope.async {
                 block()
             }
-            mainScope.runCurrent()
+            mainScope.testScheduler.runCurrent()
             async.await()
         }
-    }
-
-    private fun TestCoroutineDispatcher.isIdle(): Boolean {
-        val queueField = this::class.java
-            .getDeclaredField("queue")
-        queueField.isAccessible = true
-        val queue = queueField.get(this)
-        val peekMethod = queue::class.java
-            .getDeclaredMethod("peek")
-        val nextTask = peekMethod.invoke(queue) ?: return true
-        val timeField = nextTask::class.java.getDeclaredField("time")
-        timeField.isAccessible = true
-        val time = timeField.getLong(nextTask)
-        return time > testDispatcher.currentTime
     }
 }
 

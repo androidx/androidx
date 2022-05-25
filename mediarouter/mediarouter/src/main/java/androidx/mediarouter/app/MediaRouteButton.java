@@ -45,7 +45,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
@@ -59,37 +58,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The media route button allows the user to select routes and to control the
- * currently selected route.
- * <p>
- * The application must specify the kinds of routes that the user should be allowed
- * to select by specifying a {@link MediaRouteSelector selector} with the
- * {@link #setRouteSelector} method.
- * </p><p>
- * When the default route is selected, the button will appear in an inactive state indicating
- * that the application is not connected to a route. Clicking on the button opens
- * a {@link MediaRouteChooserDialog} to allow the user to select a route.
- * If no non-default routes match the selector and it is not possible for an active
- * scan to discover any matching routes, then the button is disabled and cannot
- * be clicked unless {@link #setAlwaysVisible} is called.
- * </p><p>
- * When a non-default route is selected, the button will appear in an active state indicating
- * that the application is connected to a route of the kind that it wants to use.
- * The button may also appear in an intermediary connecting state if the route is in the process
- * of connecting to the destination but has not yet completed doing so.  In either case, clicking
- * on the button opens a {@link MediaRouteControllerDialog} to allow the user
- * to control or disconnect from the current route.
- * </p>
+ * The media route button allows the user to select routes and to control the currently selected
+ * route.
+ *
+ * <p>The application must specify the kinds of routes that the user should be allowed to select
+ * by specifying a {@link MediaRouteSelector selector} with the {@link #setRouteSelector} method.
+ *
+ * <p>When the default route is selected, the button will appear in an inactive state indicating
+ * that the application is not connected to a route. Clicking on the button opens a
+ * {@link MediaRouteChooserDialog} to allow the user to select a route. If no non-default routes
+ * match the selector and it is not possible for an active scan to discover any matching routes,
+ * then the button is disabled and cannot be clicked unless {@link #setAlwaysVisible} is called.
+ *
+ * <p>When a non-default route is selected, the button will appear in an active state indicating
+ * that the application is connected to a route of the kind that it wants to use. The button may
+ * also appear in an intermediary connecting state if the route is in the process of connecting
+ * to the destination but has not yet completed doing so. In either case, clicking on the button
+ * opens a {@link MediaRouteControllerDialog} to allow the user to control or disconnect from the
+ * current route.
  *
  * <h3>Prerequisites</h3>
- * <p>
- * To use the media route button, the activity must be a subclass of
- * {@link FragmentActivity} from the <code>android.support.v4</code>
- * support library.  Refer to support library documentation for details.
- * </p>
+ *
+ * To use the media route button, the containing activity must be a subclass of
+ * {@link FragmentActivity}.
  *
  * @see MediaRouteActionProvider
- * @see #setRouteSelector
  */
 public class MediaRouteButton extends View {
     private static final String TAG = "MediaRouteButton";
@@ -399,7 +392,7 @@ public class MediaRouteButton extends View {
      */
     private boolean showOutputSwitcher() {
         boolean result = false;
-        if (BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT >= 31) {
             result = showOutputSwitcherForAndroidSAndAbove();
             if (!result) {
                 // The intent action and related string constants are changed in S,
@@ -800,47 +793,54 @@ public class MediaRouteButton extends View {
         }
 
         @Override
-        public void onRouteAdded(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteAdded(@NonNull MediaRouter router, @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onRouteRemoved(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteRemoved(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteChanged(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onRouteSelected(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteSelected(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onRouteUnselected(MediaRouter router, MediaRouter.RouteInfo info) {
+        public void onRouteUnselected(@NonNull MediaRouter router,
+                @NonNull MediaRouter.RouteInfo info) {
             refreshRoute();
         }
 
         @Override
-        public void onProviderAdded(MediaRouter router, MediaRouter.ProviderInfo provider) {
+        public void onProviderAdded(@NonNull MediaRouter router,
+                @NonNull MediaRouter.ProviderInfo provider) {
             refreshRoute();
         }
 
         @Override
-        public void onProviderRemoved(MediaRouter router, MediaRouter.ProviderInfo provider) {
+        public void onProviderRemoved(@NonNull MediaRouter router,
+                @NonNull MediaRouter.ProviderInfo provider) {
             refreshRoute();
         }
 
         @Override
-        public void onProviderChanged(MediaRouter router, MediaRouter.ProviderInfo provider) {
+        public void onProviderChanged(@NonNull MediaRouter router,
+                @NonNull MediaRouter.ProviderInfo provider) {
             refreshRoute();
         }
 
         @Override
-        public void onRouterParamsChanged(MediaRouter router, MediaRouterParams params) {
+        public void onRouterParamsChanged(@NonNull MediaRouter router, MediaRouterParams params) {
             boolean fixedIcon = false;
             if (params != null) {
                 fixedIcon = params.getExtras()

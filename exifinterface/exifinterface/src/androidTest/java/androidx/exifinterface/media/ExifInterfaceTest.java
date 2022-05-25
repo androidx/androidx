@@ -38,6 +38,7 @@ import android.system.OsConstants;
 import android.util.Log;
 import android.util.Pair;
 
+import androidx.annotation.RequiresApi;
 import androidx.exifinterface.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -216,7 +217,8 @@ public class ExifInterfaceTest {
             {ExifInterface.ORIENTATION_TRANSPOSE, ExifInterface.ORIENTATION_ROTATE_90},
             {ExifInterface.ORIENTATION_TRANSVERSE, ExifInterface.ORIENTATION_ROTATE_270}
     };
-    private static final HashMap<Integer, Pair> FLIP_STATE_AND_ROTATION_DEGREES = new HashMap<>();
+    private static final HashMap<Integer, Pair<Boolean, Integer>> FLIP_STATE_AND_ROTATION_DEGREES =
+            new HashMap<>();
     static {
         FLIP_STATE_AND_ROTATION_DEGREES.put(
                 ExifInterface.ORIENTATION_UNDEFINED, new Pair<>(false, 0));
@@ -466,7 +468,11 @@ public class ExifInterfaceTest {
     @LargeTest
     public void testHeifFile() throws Throwable {
         if (Build.VERSION.SDK_INT >= 28) {
-            readFromFilesWithExif(HEIF_WITH_EXIF, R.array.heif_with_exif);
+            // Reading XMP data from HEIF was added in SDK 31.
+            readFromFilesWithExif(HEIF_WITH_EXIF,
+                    Build.VERSION.SDK_INT >= 31
+                            ? R.array.heif_with_exif_31_and_above
+                            : R.array.heif_with_exif);
         } else {
             // Make sure that an exception is not thrown and that image length/width tag values
             // return default values, not the actual values.
@@ -912,7 +918,7 @@ public class ExifInterfaceTest {
             exif.saveAttributes();
             exif = new ExifInterface(imageFile.getAbsolutePath());
             assertEquals(FLIP_STATE_AND_ROTATION_DEGREES.get(key).first, exif.isFlipped());
-            assertEquals(FLIP_STATE_AND_ROTATION_DEGREES.get(key).second,
+            assertEquals((int) FLIP_STATE_AND_ROTATION_DEGREES.get(key).second,
                     exif.getRotationDegrees());
         }
 
@@ -1359,6 +1365,7 @@ public class ExifInterfaceTest {
         }
     }
 
+    @RequiresApi(21)
     private void closeQuietly(FileDescriptor fd) {
         if (fd != null) {
             try {

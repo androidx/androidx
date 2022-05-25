@@ -16,14 +16,8 @@
 
 package androidx.benchmark.junit4
 
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.benchmark.Outputs
-import androidx.benchmark.Outputs.dateToFileName
-import androidx.benchmark.perfetto.PerfettoCapture
-import androidx.benchmark.perfetto.PerfettoHelper
+import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.rules.TestRule
 import org.junit.runner.Description
@@ -46,7 +40,7 @@ import org.junit.runners.model.Statement
  * > adb pull /storage/emulated/0/Android/data/androidx.mypackage.test/files/test_data/androidx.mypackage.TestClass_testMethod.trace
  * ```
  *
- * You can check logcat for messages tagged "PerfettoRule:" for the path of each perfetto trace.
+ * You can check logcat for messages tagged "PerfettoCapture:" for the path of each perfetto trace.
  * ```
  * > adb pull /storage/emulated/0/Android/data/mypackage.test/files/PerfettoCaptureTest.trace
  * ```
@@ -58,41 +52,12 @@ public class PerfettoRule : TestRule {
         description: Description
     ): Statement = object : Statement() {
         override fun evaluate() {
-            if (Build.VERSION.SDK_INT >= PerfettoHelper.LOWEST_BUNDLED_VERSION_SUPPORTED) {
-                val prefix = "${description.className}_${description.methodName}"
-                val suffix = dateToFileName()
-                val traceName = "${prefix}_$suffix.perfetto-trace"
-                PerfettoCapture(unbundled = false).recordAndReportFile(traceName) {
-                    base.evaluate()
-                }
-            } else {
-                Log.d(TAG, "Perfetto trace skipped due to API level (${Build.VERSION.SDK_INT})")
+            PerfettoCaptureWrapper().record(
+                benchmarkName = "${description.className}_${description.methodName}",
+                packages = listOf(InstrumentationRegistry.getInstrumentation().context.packageName)
+            ) {
                 base.evaluate()
             }
         }
-    }
-
-    internal companion object {
-        internal const val TAG = "PerfettoRule"
-    }
-}
-
-@RequiresApi(Build.VERSION_CODES.Q)
-internal fun PerfettoCapture.recordAndReportFile(traceName: String, block: () -> Unit) {
-    try {
-        Log.d(PerfettoRule.TAG, "Recording perfetto trace $traceName")
-        val targetPackage = InstrumentationRegistry
-            .getInstrumentation()
-            .targetContext
-            .packageName
-        start(packages = listOf(targetPackage))
-        block()
-        Outputs.writeFile(fileName = traceName, reportKey = "perfetto_trace") {
-            val destinationPath = it.absolutePath
-            stop(destinationPath)
-            Log.d(PerfettoRule.TAG, "Finished recording to $destinationPath")
-        }
-    } finally {
-        PerfettoHelper.stopAllPerfettoProcesses()
     }
 }

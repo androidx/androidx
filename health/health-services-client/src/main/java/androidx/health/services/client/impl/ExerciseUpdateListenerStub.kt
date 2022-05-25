@@ -18,7 +18,8 @@ package androidx.health.services.client.impl
 
 import android.util.Log
 import androidx.annotation.GuardedBy
-import androidx.health.services.client.ExerciseUpdateListener
+import androidx.annotation.RestrictTo
+import androidx.health.services.client.ExerciseUpdateCallback
 import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.ExerciseLapSummary
@@ -35,8 +36,9 @@ import java.util.concurrent.Executor
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ExerciseUpdateListenerStub
-private constructor(private val listener: ExerciseUpdateListener, private val executor: Executor) :
+private constructor(private val listener: ExerciseUpdateCallback, private val executor: Executor) :
     IExerciseUpdateListener.Stub() {
 
     public val listenerKey: ListenerKey = ListenerKey(listener)
@@ -48,11 +50,13 @@ private constructor(private val listener: ExerciseUpdateListener, private val ex
     private fun triggerListener(proto: EventsProto.ExerciseUpdateListenerEvent) {
         when (proto.eventCase) {
             EventCase.EXERCISE_UPDATE_RESPONSE ->
-                listener.onExerciseUpdate(
+                listener.onExerciseUpdateReceived(
                     ExerciseUpdate(proto.exerciseUpdateResponse.exerciseUpdate)
                 )
             EventCase.LAP_SUMMARY_RESPONSE ->
-                listener.onLapSummary(ExerciseLapSummary(proto.lapSummaryResponse.lapSummary))
+                listener.onLapSummaryReceived(
+                    ExerciseLapSummary(proto.lapSummaryResponse.lapSummary)
+                )
             EventCase.AVAILABILITY_RESPONSE ->
                 listener.onAvailabilityChanged(
                     DataType(proto.availabilityResponse.dataType),
@@ -63,17 +67,17 @@ private constructor(private val listener: ExerciseUpdateListener, private val ex
     }
 
     /**
-     * A class that stores unique active instances of [ExerciseUpdateListener] to ensure same binder
+     * A class that stores unique active instances of [ExerciseUpdateCallback] to ensure same binder
      * object is passed by framework to service side of the IPC.
      */
     public class ExerciseUpdateListenerCache private constructor() {
         @GuardedBy("this")
-        private val listeners: MutableMap<ExerciseUpdateListener, ExerciseUpdateListenerStub> =
+        private val listeners: MutableMap<ExerciseUpdateCallback, ExerciseUpdateListenerStub> =
             HashMap()
 
         @Synchronized
         public fun getOrCreate(
-            listener: ExerciseUpdateListener,
+            listener: ExerciseUpdateCallback,
             executor: Executor
         ): ExerciseUpdateListenerStub {
             return listeners.getOrPut(listener) { ExerciseUpdateListenerStub(listener, executor) }
@@ -81,9 +85,9 @@ private constructor(private val listener: ExerciseUpdateListener, private val ex
 
         @Synchronized
         public fun remove(
-            exerciseUpdateListener: ExerciseUpdateListener
+            exerciseUpdateCallback: ExerciseUpdateCallback
         ): ExerciseUpdateListenerStub? {
-            return listeners.remove(exerciseUpdateListener)
+            return listeners.remove(exerciseUpdateCallback)
         }
 
         public companion object {

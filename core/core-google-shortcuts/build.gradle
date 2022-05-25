@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -28,13 +26,21 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
+
+    namespace "androidx.core.google.shortcuts"
 }
 
 dependencies {
-    api("androidx.core:core:1.6.0-rc01")
+    api("androidx.core:core:1.7.0")
 
     implementation("com.google.firebase:firebase-appindexing:20.0.0")
     implementation("com.google.crypto.tink:tink-android:1.5.0")
+    implementation projectOrArtifact(":appsearch:appsearch")
+    implementation projectOrArtifact(":appsearch:appsearch-builtin-types")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -46,6 +52,7 @@ dependencies {
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.junit)
 }
 
 androidx {

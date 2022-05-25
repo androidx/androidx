@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.window.core {
 
-  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) public @interface ExperimentalWindowApi {
+  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWindowApi {
   }
 
 }
@@ -19,16 +19,23 @@ package androidx.window.embedding {
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class ActivityRule extends androidx.window.embedding.EmbeddingRule {
-    ctor public ActivityRule(java.util.Set<androidx.window.embedding.ActivityFilter> filters, optional boolean alwaysExpand);
+    ctor @Deprecated public ActivityRule(java.util.Set<androidx.window.embedding.ActivityFilter> filters, optional boolean alwaysExpand);
     method public boolean getAlwaysExpand();
     method public java.util.Set<androidx.window.embedding.ActivityFilter> getFilters();
     property public final boolean alwaysExpand;
     property public final java.util.Set<androidx.window.embedding.ActivityFilter> filters;
   }
 
+  public static final class ActivityRule.Builder {
+    ctor public ActivityRule.Builder(java.util.Set<androidx.window.embedding.ActivityFilter> filters);
+    method public androidx.window.embedding.ActivityRule build();
+    method public androidx.window.embedding.ActivityRule.Builder setAlwaysExpand(boolean alwaysExpand);
+  }
+
   @androidx.window.core.ExperimentalWindowApi public final class ActivityStack {
-    ctor public ActivityStack(java.util.List<? extends android.app.Activity> activities);
+    ctor public ActivityStack(java.util.List<? extends android.app.Activity> activities, optional boolean isEmpty);
     method public operator boolean contains(android.app.Activity activity);
+    method public boolean isEmpty();
   }
 
   @androidx.window.core.ExperimentalWindowApi public abstract class EmbeddingRule {
@@ -40,6 +47,7 @@ package androidx.window.embedding {
     method public static androidx.window.embedding.SplitController getInstance();
     method public java.util.Set<androidx.window.embedding.EmbeddingRule> getSplitRules();
     method public static void initialize(android.content.Context context, int staticRuleResourceId);
+    method public boolean isActivityEmbedded(android.app.Activity activity);
     method public boolean isSplitSupported();
     method public void registerRule(androidx.window.embedding.EmbeddingRule rule);
     method public void removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
@@ -75,27 +83,49 @@ package androidx.window.embedding {
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class SplitPairRule extends androidx.window.embedding.SplitRule {
-    ctor public SplitPairRule(java.util.Set<androidx.window.embedding.SplitPairFilter> filters, optional boolean finishPrimaryWithSecondary, optional boolean finishSecondaryWithPrimary, optional boolean clearTop, optional int minWidth, optional int minSmallestWidth, optional float splitRatio, optional int layoutDir);
+    ctor @Deprecated public SplitPairRule(java.util.Set<androidx.window.embedding.SplitPairFilter> filters, optional int finishPrimaryWithSecondary, optional int finishSecondaryWithPrimary, optional boolean clearTop, @IntRange(from=0L) int minWidth, @IntRange(from=0L) int minSmallestWidth, optional @FloatRange(from=0.0, to=1.0) float splitRatio, optional int layoutDir);
     method public boolean getClearTop();
     method public java.util.Set<androidx.window.embedding.SplitPairFilter> getFilters();
-    method public boolean getFinishPrimaryWithSecondary();
-    method public boolean getFinishSecondaryWithPrimary();
+    method public int getFinishPrimaryWithSecondary();
+    method public int getFinishSecondaryWithPrimary();
     property public final boolean clearTop;
     property public final java.util.Set<androidx.window.embedding.SplitPairFilter> filters;
-    property public final boolean finishPrimaryWithSecondary;
-    property public final boolean finishSecondaryWithPrimary;
+    property public final int finishPrimaryWithSecondary;
+    property public final int finishSecondaryWithPrimary;
+  }
+
+  public static final class SplitPairRule.Builder {
+    ctor public SplitPairRule.Builder(java.util.Set<androidx.window.embedding.SplitPairFilter> filters, @IntRange(from=0L) int minWidth, @IntRange(from=0L) int minSmallestWidth);
+    method public androidx.window.embedding.SplitPairRule build();
+    method public androidx.window.embedding.SplitPairRule.Builder setClearTop(boolean clearTop);
+    method public androidx.window.embedding.SplitPairRule.Builder setFinishPrimaryWithSecondary(int finishPrimaryWithSecondary);
+    method public androidx.window.embedding.SplitPairRule.Builder setFinishSecondaryWithPrimary(int finishSecondaryWithPrimary);
+    method public androidx.window.embedding.SplitPairRule.Builder setLayoutDir(int layoutDir);
+    method public androidx.window.embedding.SplitPairRule.Builder setSplitRatio(@FloatRange(from=0.0, to=1.0) float splitRatio);
   }
 
   @androidx.window.core.ExperimentalWindowApi public final class SplitPlaceholderRule extends androidx.window.embedding.SplitRule {
-    ctor public SplitPlaceholderRule(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, optional int minWidth, optional int minSmallestWidth, optional float splitRatio, optional int layoutDirection);
+    ctor @Deprecated public SplitPlaceholderRule(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, boolean isSticky, optional int finishPrimaryWithSecondary, optional @IntRange(from=0L) int minWidth, optional @IntRange(from=0L) int minSmallestWidth, optional @FloatRange(from=0.0, to=1.0) float splitRatio, optional int layoutDirection);
     method public java.util.Set<androidx.window.embedding.ActivityFilter> getFilters();
+    method public int getFinishPrimaryWithSecondary();
     method public android.content.Intent getPlaceholderIntent();
+    method public boolean isSticky();
     property public final java.util.Set<androidx.window.embedding.ActivityFilter> filters;
+    property public final int finishPrimaryWithSecondary;
+    property public final boolean isSticky;
     property public final android.content.Intent placeholderIntent;
   }
 
+  public static final class SplitPlaceholderRule.Builder {
+    ctor public SplitPlaceholderRule.Builder(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent, @IntRange(from=0L) int minWidth, @IntRange(from=0L) int minSmallestWidth);
+    method public androidx.window.embedding.SplitPlaceholderRule build();
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithSecondary(int finishPrimaryWithSecondary);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setLayoutDir(int layoutDir);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setSplitRatio(@FloatRange(from=0.0, to=1.0) float splitRatio);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setSticky(boolean isSticky);
+  }
+
   @androidx.window.core.ExperimentalWindowApi public class SplitRule extends androidx.window.embedding.EmbeddingRule {
-    method public final boolean checkParentMetrics(android.view.WindowMetrics parentMetrics);
     method public final int getLayoutDirection();
     method public final int getMinSmallestWidth();
     method public final int getMinWidth();
@@ -104,6 +134,13 @@ package androidx.window.embedding {
     property public final int minSmallestWidth;
     property public final int minWidth;
     property public final float splitRatio;
+    field public static final androidx.window.embedding.SplitRule.Companion Companion;
+    field public static final int FINISH_ADJACENT = 2; // 0x2
+    field public static final int FINISH_ALWAYS = 1; // 0x1
+    field public static final int FINISH_NEVER = 0; // 0x0
+  }
+
+  public static final class SplitRule.Companion {
   }
 
 }
@@ -153,17 +190,14 @@ package androidx.window.layout {
   public static final class FoldingFeature.State.Companion {
   }
 
-  public interface WindowInfoRepository {
-    method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowMetrics> getCurrentWindowMetrics();
-    method public default static androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
-    method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> getWindowLayoutInfo();
-    property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowMetrics> currentWindowMetrics;
-    property public abstract kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo;
-    field public static final androidx.window.layout.WindowInfoRepository.Companion Companion;
+  public interface WindowInfoTracker {
+    method public default static androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
+    method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
+    field public static final androidx.window.layout.WindowInfoTracker.Companion Companion;
   }
 
-  public static final class WindowInfoRepository.Companion {
-    method public androidx.window.layout.WindowInfoRepository getOrCreate(android.app.Activity);
+  public static final class WindowInfoTracker.Companion {
+    method public androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
   }
 
   public final class WindowLayoutInfo {

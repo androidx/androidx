@@ -15,8 +15,7 @@
    limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.appcompat.test">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -107,6 +106,10 @@
             android:label="@string/app_compat_auto_complete_text_view_activity"
             android:theme="@style/Theme.TextColors"/>
 
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatMultiAutoCompleteTextViewActivity"
+            android:label="@string/app_compat_multi_auto_complete_text_view_activity"
+            android:theme="@style/Theme.TextColors"/>
 
         <activity
             android:name="androidx.appcompat.widget.AppCompatMultiAutoCompleteTextViewEmojiActivity"
@@ -270,6 +273,16 @@
             android:configChanges="uiMode"/>
 
         <activity
+            android:name="androidx.appcompat.app.NightModeRotationConfigChangesActivityA"
+            android:theme="@style/Theme.AppCompat.DayNight"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|fontScale|uiMode|mcc|mnc"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name="androidx.appcompat.app.NightModeRotationConfigChangesActivityB"
+            android:screenOrientation="landscape" />
+
+        <activity
             android:name="androidx.appcompat.app.NightModeRotateDoesNotRecreateActivity"
             android:theme="@style/Theme.AppCompat.DayNight"
             android:configChanges="orientation|screenSize"/>
@@ -305,6 +318,10 @@
             android:theme="@style/Theme.CustomInflater"/>
 
         <activity
+            android:name="androidx.appcompat.app.NoThemeAppCompatActivity"
+            android:theme="@android:style/Theme.Holo.NoActionBar"/>
+
+        <activity
             android:name="androidx.appcompat.widget.ToolbarTestActivity"
             android:theme="@style/Theme.AppCompat.NoActionBar"/>
 
@@ -314,6 +331,9 @@
 
         <activity
             android:name="androidx.appcompat.widget.ButtonBarLayoutActivity"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.TooltipCompatTestActivity" />
 
     </application>
 

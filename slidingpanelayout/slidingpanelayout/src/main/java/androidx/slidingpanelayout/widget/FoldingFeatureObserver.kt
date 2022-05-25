@@ -18,7 +18,7 @@ package androidx.slidingpanelayout.widget
 
 import android.app.Activity
 import androidx.window.layout.FoldingFeature
-import androidx.window.layout.WindowInfoRepository
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -34,7 +34,7 @@ import java.util.concurrent.Executor
  * change.
  */
 internal class FoldingFeatureObserver(
-    private val windowInfoRepository: WindowInfoRepository,
+    private val windowInfoTracker: WindowInfoTracker,
     private val executor: Executor
 ) {
     private var job: Job? = null
@@ -65,10 +65,10 @@ internal class FoldingFeatureObserver(
      * Registers a callback for layout changes of the window for the supplied [Activity].
      * Must be called only after the it is attached to the window.
      */
-    fun registerLayoutStateChangeCallback() {
+    fun registerLayoutStateChangeCallback(activity: Activity) {
         job?.cancel()
         job = CoroutineScope(executor.asCoroutineDispatcher()).launch {
-            windowInfoRepository.windowLayoutInfo
+            windowInfoTracker.windowLayoutInfo(activity)
                 .mapNotNull { info -> getFoldingFeature(info) }
                 .distinctUntilChanged()
                 .collect { nextFeature ->

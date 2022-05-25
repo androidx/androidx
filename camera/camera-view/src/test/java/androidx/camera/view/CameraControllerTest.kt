@@ -17,22 +17,30 @@
 package androidx.camera.view
 
 import android.content.Context
+import android.graphics.Matrix
 import android.os.Build
 import android.util.Size
 import android.view.Surface
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
-import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.ImageAnalysisConfig
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.fakes.FakeAppConfig
+import androidx.camera.view.CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED
+import androidx.camera.view.transform.OutputTransform
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -40,7 +48,6 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import java.util.concurrent.Executors
 
 /**
  * Unit tests for [CameraController].
@@ -51,6 +58,7 @@ import java.util.concurrent.Executors
 public class CameraControllerTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
+    private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var controller: CameraController
     private val targetSizeWithAspectRatio =
         CameraController.OutputSize(AspectRatio.RATIO_16_9)
@@ -62,13 +70,121 @@ public class CameraControllerTest {
         val cameraXConfig = CameraXConfig.Builder.fromConfig(
             FakeAppConfig.create()
         ).build()
-        CameraX.initialize(context, cameraXConfig).get()
+        ProcessCameraProvider.configureInstance(cameraXConfig)
+        cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         controller = LifecycleCameraController(context)
     }
 
     @After
     public fun shutDown() {
-        CameraX.shutdown().get()
+        if (::cameraProvider.isInitialized) {
+            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+        }
+    }
+
+    @Test
+    fun setAnalyzerWithNewResolutionOverride_imageAnalysisIsRecreated() {
+        // Arrange: record the original ImageAnalysis
+        val originalImageAnalysis = controller.mImageAnalysis
+        // Act: set a Analyzer with overridden size.
+        controller.setImageAnalysisAnalyzer(mainThreadExecutor(), createAnalyzer(Size(1, 1)))
+        // Assert: the ImageAnalysis has be recreated.
+        assertThat(controller.mImageAnalysis).isNotEqualTo(originalImageAnalysis)
+        val newImageAnalysis = controller.mImageAnalysis
+        // Act: set a Analyzer with a different overridden size.
+        controller.setImageAnalysisAnalyzer(mainThreadExecutor(), createAnalyzer(Size(1, 2)))
+        // Assert: the ImageAnalysis has be recreated, again.
+        assertThat(controller.mImageAnalysis).isNotEqualTo(newImageAnalysis)
+    }
+
+    @Test
+    fun clearAnalyzerWithResolutionOverride_imageAnalysisIsRecreated() {
+        // Arrange: set a Analyzer with resolution and record the ImageAnalysis.
+        controller.setImageAnalysisAnalyzer(mainThreadExecutor(), createAnalyzer(Size(1, 1)))
+        val originalImageAnalysis = controller.mImageAnalysis
+        // Act: clear Analyzer
+        controller.clearImageAnalysisAnalyzer()
+        // Assert: the ImageAnalysis has been recreated.
+        assertThat(controller.mImageAnalysis).isNotEqualTo(originalImageAnalysis)
+    }
+
+    @Test
+    fun setAnalyzerWithNoOverride_imageAnalysisIsNotRecreated() {
+        // Arrange: record the original ImageAnalysis
+        val originalImageAnalysis = controller.mImageAnalysis
+        // Act: setAnalyzer with no resolution.
+        controller.setImageAnalysisAnalyzer(mainThreadExecutor(), createAnalyzer(null))
+        // Assert: the ImageAnalysis is the same.
+        assertThat(controller.mImageAnalysis).isEqualTo(originalImageAnalysis)
+    }
+
+    /**
+     * Creates a [ImageAnalysis.Analyzer] with the given resolution override.
+     */
+    private fun createAnalyzer(size: Size?): ImageAnalysis.Analyzer {
+        return object : ImageAnalysis.Analyzer {
+            override fun analyze(image: ImageProxy) {
+                // no-op
+            }
+
+            override fun getTargetResolutionOverride(): Size? {
+                return size
+            }
+        }
+    }
+
+    @Test
+    fun viewTransform_valueIsPassedToAnalyzer() {
+        val previewTransform = Matrix()
+        assertThat(
+            getPreviewTransformPassedToAnalyzer(
+                COORDINATE_SYSTEM_VIEW_REFERENCED,
+                previewTransform
+            )
+        ).isEqualTo(previewTransform)
+
+        assertThat(
+            getPreviewTransformPassedToAnalyzer(
+                COORDINATE_SYSTEM_VIEW_REFERENCED,
+                null
+            )
+        ).isEqualTo(null)
+    }
+
+    @Test
+    fun originalTransform_valueIsNotPassedToAnalyzer() {
+        assertThat(
+            getPreviewTransformPassedToAnalyzer(
+                COORDINATE_SYSTEM_ORIGINAL,
+                Matrix()
+            )
+        ).isNull()
+    }
+
+    private fun getPreviewTransformPassedToAnalyzer(
+        coordinateSystem: Int,
+        previewTransform: Matrix?
+    ): Matrix? {
+        var matrix: Matrix? = null
+        val analyzer = object : ImageAnalysis.Analyzer {
+            override fun analyze(image: ImageProxy) {
+                // no-op
+            }
+
+            override fun updateTransform(newMatrix: Matrix?) {
+                matrix = newMatrix
+            }
+
+            override fun getTargetCoordinateSystem(): Int {
+                return coordinateSystem
+            }
+        }
+        controller.setImageAnalysisAnalyzer(mainThreadExecutor(), analyzer)
+        val outputTransform = previewTransform?.let {
+            OutputTransform(it, Size(1, 1))
+        }
+        controller.updatePreviewViewTransform(outputTransform)
+        return matrix
     }
 
     @UiThreadTest

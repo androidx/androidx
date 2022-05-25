@@ -60,7 +60,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFontLoader
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.TextToolbar
@@ -108,11 +109,13 @@ import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.TextFieldValue.Companion.Saver
 import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
@@ -121,6 +124,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.text.withAnnotation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Density
@@ -140,7 +144,6 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.junit.Ignore
 import org.junit.Rule
@@ -720,6 +723,26 @@ class TextFieldTest {
             .assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CutText))
     }
 
+    @Test
+    fun semantics_transformedText() {
+        rule.setContent {
+            BasicTextField(
+                modifier = Modifier.testTag(Tag),
+                value = TextFieldValue("Hello"),
+                onValueChange = {},
+                visualTransformation = { text ->
+                    TransformedText(
+                        text.toUpperCase(LocaleList("en_US")),
+                        OffsetMapping.Identity
+                    )
+                }
+            )
+        }
+
+        rule.onNodeWithTag(Tag)
+            .assertTextEquals("HELLO")
+    }
+
     @LargeTest
     @Test
     fun semantics_longClick() {
@@ -930,6 +953,39 @@ class TextFieldTest {
     }
 
     @Test
+    fun textField_stringOverload_doesNotCallOnValueChange_whenCompositionUpdatesOnly() {
+        var callbackCounter = 0
+
+        rule.setContent {
+            val focusManager = LocalFocusManager.current
+            val text = remember { mutableStateOf("A") }
+
+            BasicTextField(
+                value = text.value,
+                onValueChange = {
+                    callbackCounter += 1
+                    text.value = it
+
+                    // causes TextFieldValue's composition clearing
+                    focusManager.clearFocus(true)
+                },
+                modifier = Modifier.testTag("tag")
+            )
+        }
+
+        rule.onNodeWithTag("tag")
+            .performClick()
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("tag")
+            .performTextClearance()
+
+        rule.runOnIdle {
+            assertThat(callbackCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun textField_textAlignCenter_defaultWidth() {
         val fontSize = 50
@@ -968,11 +1024,11 @@ class TextFieldTest {
             fontSize = fontSize.sp
         )
         rule.setContent {
-            val resourceLoader = LocalFontLoader.current
+            val fontFamilyResolver = LocalFontFamilyResolver.current
             val defaultWidth = computeSizeForDefaultText(
                 style = textStyle,
                 density = density,
-                resourceLoader = resourceLoader,
+                fontFamilyResolver = fontFamilyResolver,
                 maxLines = 1
             ).width
 
@@ -1003,11 +1059,11 @@ class TextFieldTest {
             fontSize = fontSize.sp
         )
         rule.setContent {
-            val resourceLoader = LocalFontLoader.current
+            val fontFamilyResolver = LocalFontFamilyResolver.current
             val defaultWidth = computeSizeForDefaultText(
                 style = textStyle,
                 density = density,
-                resourceLoader = resourceLoader,
+                fontFamilyResolver = fontFamilyResolver,
                 maxLines = 1
             ).width
 

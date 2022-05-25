@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -27,6 +26,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
+    api("androidx.fragment:fragment:1.2.0")
     api(project(":wear:watchface:watchface-complications-data"))
     api(project(":wear:watchface:watchface-data"))
     api(project(":wear:watchface:watchface-style"))
@@ -42,6 +42,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.mockitoKotlin)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.truth)
 
@@ -68,6 +69,7 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.wear.watchface"
 }
 
 androidx {
@@ -76,4 +78,11 @@ androidx {
     mavenGroup = LibraryGroups.WEAR_WATCHFACE
     inceptionYear = "2020"
     description = "Android Wear Watchface"
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+    }
 }

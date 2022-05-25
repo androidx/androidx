@@ -25,9 +25,6 @@ android {
     defaultConfig {
         applicationId "androidx.wear.compose.integration.navigation"
         minSdk 25
-        targetSdk 30
-        versionCode 1
-        versionName "1.0"
         // Change the APK name to match the *testapp regex we use to pick up APKs for testing as
         // part of CI.
         archivesBaseName = "wear-compose-demos-testapp"
@@ -42,12 +39,13 @@ android {
     buildFeatures {
         viewBinding true
     }
+    namespace "androidx.wear.compose.integration.navigation"
 }
 
 dependencies {
     kotlinPlugin(project(":compose:compiler:compiler"))
 
-    implementation(project(":activity:activity-compose"))
+    implementation("androidx.activity:activity-compose:1.3.1")
     implementation(project(":compose:ui:ui"))
     implementation(project(':compose:integration-tests:demos:common'))
     implementation(project(":compose:foundation:foundation"))
@@ -58,4 +56,10 @@ dependencies {
     implementation(project(":wear:compose:compose-foundation-samples"))
     implementation(project(":wear:compose:compose-material-samples"))
     implementation(project(':wear:compose:compose-navigation'))
+    // old version of common-java8 conflicts with newer version, because both have
+    // DefaultLifecycleEventObserver.
+    // Outside of androidx this is resolved via constraint added to lifecycle-common,
+    // but it doesn't work in androidx.
+    // See aosp/1804059
+    androidTestImplementation "androidx.lifecycle:lifecycle-common-java8:2.4.0"
 }

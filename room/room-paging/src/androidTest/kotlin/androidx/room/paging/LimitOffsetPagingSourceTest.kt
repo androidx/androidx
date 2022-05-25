@@ -27,18 +27,19 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
 import androidx.room.awaitPendingRefresh
-import androidx.room.refreshRunnable
-import androidx.room.util.CursorUtil
+import androidx.room.util.getColumnIndexOrThrow
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.FilteringExecutor
 import androidx.testutils.TestExecutor
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -46,10 +47,10 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.Job
 
 private const val tableName: String = "TestItem"
 
@@ -81,17 +82,24 @@ class LimitOffsetPagingSourceTest {
         assertThat(countingTaskExecutorRule.isIdle).isTrue()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun load_usesQueryExecutor() {
+    fun load_usesQueryExecutor() = runTest {
         val queryExecutor = TestExecutor()
+        val transactionExecutor = TestExecutor()
         database = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             LimitOffsetTestDb::class.java,
         ).setQueryExecutor(queryExecutor)
-            .setTransactionExecutor(queryExecutor)
+            .setTransactionExecutor(transactionExecutor)
             .build()
 
-        val job = CoroutineScope(EmptyCoroutineContext).launch {
+        // Ensure there are no init tasks enqueued on queryExecutor before we call .load().
+        assertThat(queryExecutor.executeAll()).isFalse()
+        assertThat(transactionExecutor.executeAll()).isFalse()
+
+        val job = Job()
+        launch(job) {
             LimitOffsetPagingSourceImpl(database).load(
                 PagingSource.LoadParams.Refresh(
                     key = null,
@@ -101,8 +109,15 @@ class LimitOffsetPagingSourceTest {
             )
         }
 
-        queryExecutor.executeAll()
-        assertThat(job.isCompleted)
+        // Let the launched job start and proceed as far as possible.
+        advanceUntilIdle()
+
+        // Check that .load() dispatches on queryExecutor before jumping into a transaction for
+        // initial load.
+        assertThat(transactionExecutor.executeAll()).isFalse()
+        assertThat(queryExecutor.executeAll()).isTrue()
+
+        job.cancel()
     }
 
     @Test
@@ -259,8 +274,7 @@ class LimitOffsetPagingSourceTest {
         dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetPagingSourceImpl(
             db = database,
-            queryString =
-                "SELECT * FROM $tableName WHERE id < 50 ORDER BY id ASC",
+            queryString = "SELECT * FROM $tableName WHERE id < 50 ORDER BY id ASC",
         )
         // refresh with initial key = 40
         runBlocking {
@@ -280,11 +294,10 @@ class LimitOffsetPagingSourceTest {
         dao.addAllItems(ITEMS_LIST)
         val pagingSource = LimitOffsetPagingSourceImpl(
             db = database,
-            queryString =
-                "SELECT * " +
-                    "FROM $tableName " +
-                    "WHERE id > 50 AND value LIKE 'item 90'" +
-                    "ORDER BY id ASC",
+            queryString = "SELECT * " +
+                "FROM $tableName " +
+                "WHERE id > 50 AND value LIKE 'item 90'" +
+                "ORDER BY id ASC",
         )
         runBlocking {
             val result = pagingSource.refresh() as LoadResult.Page
@@ -773,6 +786,7 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
 
     private lateinit var db: LimitOffsetTestDb
     private lateinit var dao: TestItemDao
+
     // Multiple threads are necessary to prevent deadlock, since Room will acquire a thread to
     // dispatch on, when using the query / transaction dispatchers.
     private val queryExecutor = FilteringExecutor(delegate = Executors.newFixedThreadPool(2))
@@ -787,20 +801,20 @@ class LimitOffsetPagingSourceTestWithFilteringExecutor {
             ApplicationProvider.getApplicationContext(),
             LimitOffsetTestDb::class.java
         ).setQueryCallback(
-            { sqlQuery, _ ->
-                if (Thread.currentThread() === mainThread) {
-                    mainThreadQueries.add(
-                        sqlQuery to Throwable().stackTraceToString()
-                    )
+            object : RoomDatabase.QueryCallback {
+                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                    if (Thread.currentThread() === mainThread) {
+                        mainThreadQueries.add(
+                            sqlQuery to Throwable().stackTraceToString()
+                        )
+                    }
                 }
-            },
-            {
-                // instantly execute the log callback so that we can check the thread.
-                it.run()
             }
-        ).setQueryExecutor(queryExecutor)
+        ) {
+            // instantly execute the log callback so that we can check the thread.
+            it.run()
+        }.setQueryExecutor(queryExecutor)
             .build()
-
         dao = db.dao
     }
 
@@ -924,7 +938,7 @@ class LimitOffsetPagingSourceImpl(
 ) {
 
     override fun convertRows(cursor: Cursor): List<TestItem> {
-        val cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(cursor, "id")
+        val cursorIndexOfId = getColumnIndexOrThrow(cursor, "id")
         val data = mutableListOf<TestItem>()
         while (cursor.moveToNext()) {
             val tmpId = cursor.getInt(cursorIndexOfId)

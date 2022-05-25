@@ -15,6 +15,7 @@
  */
 package androidx.window.embedding
 
+import android.app.Activity
 import android.content.ComponentName
 import android.util.Log
 import androidx.window.core.ExperimentalWindowApi
@@ -50,6 +51,23 @@ internal object MatcherUtils {
             )
         }
         return packagesMatch && classesMatch
+    }
+
+    /**
+     * Returns `true` if [Activity.getComponentName] match or
+     * [Component][android.content.Intent.getComponent] of [Activity.getIntent] match allowing
+     * wildcard patterns.
+     */
+    internal fun areActivityOrIntentComponentsMatching(
+        activity: Activity,
+        ruleComponent: ComponentName
+    ): Boolean {
+        if (areComponentsMatching(activity.componentName, ruleComponent)) {
+            return true
+        }
+        // Returns false if activity's intent doesn't exist or its intent's Component doesn't match.
+        return activity.intent?.component ?.let {
+                component -> areComponentsMatching(component, ruleComponent) } ?: false
     }
 
     /**

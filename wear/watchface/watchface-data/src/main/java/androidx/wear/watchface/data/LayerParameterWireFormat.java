@@ -77,6 +77,7 @@ public class LayerParameterWireFormat implements VersionedParcelable, Parcelable
 
     public static final Creator<LayerParameterWireFormat> CREATOR =
             new Creator<LayerParameterWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public LayerParameterWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

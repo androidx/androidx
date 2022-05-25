@@ -17,12 +17,9 @@ package androidx.work.impl.constraints.trackers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsNull.nullValue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -36,7 +33,6 @@ import android.os.BatteryManager;
 import android.os.Build;
 
 import androidx.annotation.RequiresApi;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -96,7 +92,7 @@ public class BatteryChargingTrackerTest {
     @SmallTest
     public void testGetInitialState_nullIntent() {
         mockContextReturns(null);
-        assertThat(mTracker.getInitialState(), is(nullValue()));
+        assertThat(mTracker.getInitialState(), is(false));
     }
 
     @Test
@@ -140,9 +136,7 @@ public class BatteryChargingTrackerTest {
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(true);
 
-        mTracker.onBroadcastReceive(
-                ApplicationProvider.getApplicationContext(),
-                new Intent("INVALID"));
+        mTracker.onBroadcastReceive(new Intent("INVALID"));
         verifyNoMoreInteractions(mListener);
     }
 
@@ -154,9 +148,9 @@ public class BatteryChargingTrackerTest {
         mTracker.addListener(mListener);
         verify(mListener).onConstraintChanged(false);
 
-        mTracker.onBroadcastReceive(mMockContext, createChargingIntent(true));
+        mTracker.onBroadcastReceive(createChargingIntent(true));
         verify(mListener).onConstraintChanged(true);
-        mTracker.onBroadcastReceive(mMockContext, createChargingIntent(false));
+        mTracker.onBroadcastReceive(createChargingIntent(false));
         verify(mListener, times(2)).onConstraintChanged(false);
     }
 
@@ -166,11 +160,12 @@ public class BatteryChargingTrackerTest {
     public void testOnBroadcastReceive_notifiesListeners_afterApi23() {
         mockContextReturns(null);
         mTracker.addListener(mListener);
-        verify(mListener, never()).onConstraintChanged(anyBoolean());
-
-        mTracker.onBroadcastReceive(mMockContext, createChargingIntent_afterApi23(true));
-        verify(mListener).onConstraintChanged(true);
-        mTracker.onBroadcastReceive(mMockContext, createChargingIntent_afterApi23(false));
         verify(mListener).onConstraintChanged(false);
+
+        mTracker.onBroadcastReceive(createChargingIntent_afterApi23(true));
+        verify(mListener).onConstraintChanged(true);
+        mTracker.onBroadcastReceive(createChargingIntent_afterApi23(false));
+        // onConstraintChanged was called once more, in total, twice
+        verify(mListener, times(2)).onConstraintChanged(false);
     }
 }

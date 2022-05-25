@@ -63,12 +63,14 @@ import androidx.media2.test.client.RemoteMediaSessionCompat;
 import androidx.media2.test.common.MockActivity;
 import androidx.media2.test.common.PollingCheck;
 import androidx.media2.test.common.TestUtils;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -82,6 +84,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * TODO: Pull out callback tests to a separate file (i.e. MediaControllerLegacyCallbackTest).
  */
+@FlakyTest(bugId = 202942942)
 @MediumTest
 public class MediaControllerLegacyTest extends MediaSessionTestBase {
     private static final String TAG = "MediaControllerLegacyTest";
@@ -217,6 +220,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
      * This also tests {@link ControllerCallback#onPlaylistChanged(
      * MediaController, List, MediaMetadata)}.
      */
+    @Ignore("b/202942942")
     @Test
     public void getPlaylist() throws Exception {
         final List<MediaItem> testList = MediaTestUtils.createFileMediaItems(2);
@@ -244,6 +248,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         assertEquals(listFromCallback.get(), mController.getPlaylist());
     }
 
+    @Ignore("b/202942942")
     @Test
     public void getPlaylistMetadata() throws Exception {
         final AtomicReference<MediaMetadata> metadataFromCallback = new AtomicReference<>();
@@ -284,6 +289,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         assertEquals(testMediaId, mController.getCurrentMediaItem().getMediaId());
     }
 
+    @Ignore("b/202942942")
     @Test
     public void setMediaUri_resultSetAfterPrepare() throws Exception {
         mController = createController(mSession.getSessionToken(), true, null);
@@ -306,6 +312,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         assertEquals(RESULT_SUCCESS, result.getResultCode());
     }
 
+    @Ignore("b/202942942")
     @Test
     public void setMediaUri_resultSetAfterPlay() throws Exception {
         mController = createController(mSession.getSessionToken(), true, null);
@@ -347,6 +354,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         assertEquals(RESULT_SUCCESS, result2.getResultCode());
     }
 
+    @Ignore("b/202942942")
     @Test
     public void controllerCallback_onCurrentMediaItemChanged_byMetadataChange()
             throws Exception {
@@ -428,6 +436,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
+    @Ignore("b/202942942")
     @Test
     public void controllerCallback_onBufferingCompleted() throws Exception {
         final List<MediaItem> testPlaylist = MediaTestUtils.createFileMediaItems(1);
@@ -464,7 +473,8 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
                 .build());
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
-
+    
+    @Ignore("b/202942942")
     @Test
     public void controllerCallback_onBufferingStarved() throws Exception {
         final List<MediaItem> testPlaylist = MediaTestUtils.createFileMediaItems(1);
@@ -584,6 +594,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         assertEquals(infoOut.get(), mController.getPlaybackInfo());
     }
 
+    @Ignore("b/202942942")
     @Test
     public void controllerCallback_onPlaybackInfoChanged_byPlaybackTypeChangeToLocal()
             throws Exception {
@@ -618,6 +629,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         assertEquals(infoOut.get(), mController.getPlaybackInfo());
     }
 
+    @Ignore("b/202942942")
     @Test
     public void controllerCallback_onCustomCommand() throws Exception {
         final String event = "testControllerCallback_onCustomCommand";
@@ -714,6 +726,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         mController = createController(mSession.getSessionToken());
     }
 
+    @Ignore("b/202942942")
     @Test
     public void controllerCallback_onDisconnected() throws Exception {
         mController = createController(mSession.getSessionToken());
@@ -728,6 +741,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         waitForDisconnect(mController, true);
     }
 
+    @Ignore("b/202942942")
     @Test
     public void close_twice() throws Exception {
         mController = createController(mSession.getSessionToken());
@@ -735,6 +749,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         mController.close();
     }
 
+    @Ignore("b/202942942")
     @Test
     public void isConnected() throws Exception {
         mController = createController(mSession.getSessionToken());
@@ -745,6 +760,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         assertFalse(mController.isConnected());
     }
 
+    @Ignore("b/202942942")
     @Test
     public void close_beforeConnected() throws InterruptedException {
         MediaController controller = createController(mSession.getSessionToken(), false, null);
@@ -753,6 +769,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         controller.close();
     }
 
+    @Ignore("b/202942942")
     @Test
     public void controllerCallback_onCustomCommand_bySetCaptioningEnabled() throws Exception {
         final String sessionCommandOnCaptioningEnabledChanged =

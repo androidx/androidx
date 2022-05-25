@@ -20,6 +20,8 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isEnum
 import androidx.room.ext.CollectionTypeNames.ARRAY_MAP
+import androidx.room.ext.CollectionTypeNames.INT_SPARSE_ARRAY
+import androidx.room.ext.CollectionTypeNames.LONG_SPARSE_ARRAY
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
 import androidx.room.ext.isEntityElement
@@ -30,6 +32,7 @@ import androidx.room.ext.isNotVoidObject
 import androidx.room.ext.isUUID
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.preconditions.checkTypeOrNull
 import androidx.room.processor.Context
 import androidx.room.processor.EntityProcessor
 import androidx.room.processor.FieldProcessor
@@ -42,9 +45,12 @@ import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderPro
 import androidx.room.solver.binderprovider.DataSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.GuavaListenableFutureQueryResultBinderProvider
 import androidx.room.solver.binderprovider.InstantQueryResultBinderProvider
+import androidx.room.solver.binderprovider.ListenableFuturePagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxCallableQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxJava2PagingSourceQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxJava3PagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.prepared.binderprovider.GuavaListenableFuturePreparedQueryResultBinderProvider
@@ -110,6 +116,7 @@ import com.google.common.collect.ImmutableMap
 import com.google.common.collect.ImmutableMultimap
 import com.google.common.collect.ImmutableSetMultimap
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.TypeName
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 /**
@@ -172,11 +179,14 @@ class TypeAdapterStore private constructor(
             ByteArrayColumnTypeAdapter.create(context.processingEnv).forEach(::addColumnAdapter)
             ByteBufferColumnTypeAdapter.create(context.processingEnv).forEach(::addColumnAdapter)
             PrimitiveBooleanToIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
+            // null aware converter is able to automatically null wrap converters so we don't
+            // need this as long as we are running in KSP
             BoxedBooleanToBoxedIntConverter.create(context.processingEnv)
                 .forEach(::addTypeConverter)
             return TypeAdapterStore(
                 context = context, columnTypeAdapters = adapters,
-                typeConverterStore = TypeConverterStore(
+                typeConverterStore = TypeConverterStore.create(
+                    context = context,
                     typeConverters = converters,
                     knownColumnTypes = adapters.map { it.out }
                 ),
@@ -194,6 +204,9 @@ class TypeAdapterStore private constructor(
             addAll(RxCallableQueryResultBinderProvider.getAll(context))
             add(DataSourceQueryResultBinderProvider(context))
             add(DataSourceFactoryQueryResultBinderProvider(context))
+            add(RxJava2PagingSourceQueryResultBinderProvider(context))
+            add(RxJava3PagingSourceQueryResultBinderProvider(context))
+            add(ListenableFuturePagingSourceQueryResultBinderProvider(context))
             add(PagingSourceQueryResultBinderProvider(context))
             add(CoroutineFlowResultBinderProvider(context))
             add(InstantQueryResultBinderProvider(context))
@@ -494,6 +507,8 @@ class TypeAdapterStore private constructor(
 
             val resultAdapter = findQueryResultAdapter(mapType, query, extras) ?: return null
             return ImmutableMapQueryResultAdapter(
+                context = context,
+                parsedQuery = query,
                 keyTypeArg = keyTypeArg,
                 valueTypeArg = valueTypeArg,
                 resultAdapter = resultAdapter
@@ -546,17 +561,40 @@ class TypeAdapterStore private constructor(
                 logger = context.logger
             )
             return GuavaImmutableMultimapQueryResultAdapter(
+                context = context,
+                parsedQuery = query,
                 keyTypeArg = keyTypeArg,
                 valueTypeArg = valueTypeArg,
-                keyRowAdapter = keyRowAdapter,
-                valueRowAdapter = valueRowAdapter,
+                keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
+                valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
                 immutableClassName = immutableClassName
             )
         } else if (typeMirror.isTypeOf(java.util.Map::class) ||
-            typeMirror.rawType.typeName == ARRAY_MAP
+            typeMirror.rawType.typeName == ARRAY_MAP ||
+            typeMirror.rawType.typeName == LONG_SPARSE_ARRAY ||
+            typeMirror.rawType.typeName == INT_SPARSE_ARRAY
         ) {
-            val keyTypeArg = typeMirror.typeArguments[0].extendsBoundOrSelf()
-            val mapValueTypeArg = typeMirror.typeArguments[1].extendsBoundOrSelf()
+            val keyTypeArg = if (typeMirror.rawType.typeName == LONG_SPARSE_ARRAY) {
+                context.processingEnv.requireType(TypeName.LONG)
+            } else if (typeMirror.rawType.typeName == INT_SPARSE_ARRAY) {
+                context.processingEnv.requireType(TypeName.INT)
+            } else {
+                typeMirror.typeArguments[0].extendsBoundOrSelf()
+            }
+
+            val isSparseArray = if (typeMirror.rawType.typeName == LONG_SPARSE_ARRAY) {
+                LONG_SPARSE_ARRAY
+            } else if (typeMirror.rawType.typeName == INT_SPARSE_ARRAY) {
+                INT_SPARSE_ARRAY
+            } else {
+                null
+            }
+
+            val mapValueTypeArg = if (isSparseArray != null) {
+                typeMirror.typeArguments[0].extendsBoundOrSelf()
+            } else {
+                typeMirror.typeArguments[1].extendsBoundOrSelf()
+            }
 
             if (mapValueTypeArg.typeElement == null) {
                 context.logger.e(
@@ -599,14 +637,16 @@ class TypeAdapterStore private constructor(
                         mapInfo = mapInfo,
                         logger = context.logger
                     )
-
                     return MapQueryResultAdapter(
+                        context = context,
+                        parsedQuery = query,
                         keyTypeArg = keyTypeArg,
                         valueTypeArg = valueTypeArg,
-                        keyRowAdapter = keyRowAdapter,
-                        valueRowAdapter = valueRowAdapter,
+                        keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
+                        valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
                         valueCollectionType = mapValueTypeArg,
-                        isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP
+                        isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP,
+                        isSparseArray = isSparseArray
                     )
                 } else {
                     context.logger.e(
@@ -634,12 +674,15 @@ class TypeAdapterStore private constructor(
                     logger = context.logger
                 )
                 return MapQueryResultAdapter(
+                    context = context,
+                    parsedQuery = query,
                     keyTypeArg = keyTypeArg,
                     valueTypeArg = mapValueTypeArg,
-                    keyRowAdapter = keyRowAdapter,
-                    valueRowAdapter = valueRowAdapter,
+                    keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
+                    valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
                     valueCollectionType = null,
-                    isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP
+                    isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP,
+                    isSparseArray = isSparseArray
                 )
             }
         }
@@ -681,6 +724,7 @@ class TypeAdapterStore private constructor(
                     PojoRowAdapter(
                         context = subContext,
                         info = resultInfo,
+                        query = query,
                         pojo = pojo,
                         out = typeMirror
                     )
@@ -749,12 +793,22 @@ class TypeAdapterStore private constructor(
                 return PojoRowAdapter(
                     context = context,
                     info = null,
+                    query = query,
                     pojo = pojo,
                     out = typeMirror
                 )
             }
             return null
         } else {
+            if (columnName != null) {
+                val singleNamedColumn = findCursorValueReader(
+                    typeMirror,
+                    query.resultInfo?.columns?.find { it.name == columnName }?.type
+                )
+                if (singleNamedColumn != null) {
+                    return SingleNamedColumnRowAdapter(singleNamedColumn, columnName)
+                }
+            }
             val singleColumn = findCursorValueReader(typeMirror, null) ?: return null
             return SingleColumnRowAdapter(singleColumn)
         }

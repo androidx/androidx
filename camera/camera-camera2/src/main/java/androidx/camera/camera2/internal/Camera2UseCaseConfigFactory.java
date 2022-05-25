@@ -22,14 +22,16 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPA
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 
 import android.content.Context;
 import android.hardware.camera2.CameraDevice;
-import android.hardware.display.DisplayManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.workaround.PreviewPixelHDRnet;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
@@ -43,10 +45,10 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
-    final DisplayManager mDisplayManager;
+    final DisplayInfoManager mDisplayInfoManager;
 
     public Camera2UseCaseConfigFactory(@NonNull Context context) {
-        mDisplayManager = DisplayUtil.getDisplayManager(context);
+        mDisplayInfoManager = DisplayInfoManager.getInstance(context);
     }
 
     /**
@@ -55,12 +57,19 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
      */
     @NonNull
     @Override
-    public Config getConfig(@NonNull CaptureType captureType) {
+    public Config getConfig(
+            @NonNull CaptureType captureType,
+            @CaptureMode int captureMode) {
         final MutableOptionsBundle mutableConfig = MutableOptionsBundle.create();
 
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
         switch (captureType) {
             case IMAGE_CAPTURE:
+                sessionBuilder.setTemplateType(
+                        captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
+                                ? CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG :
+                                CameraDevice.TEMPLATE_PREVIEW);
+                break;
             case PREVIEW:
             case IMAGE_ANALYSIS:
                 sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
@@ -84,7 +93,10 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
 
         switch (captureType) {
             case IMAGE_CAPTURE:
-                captureBuilder.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
+                captureBuilder.setTemplateType(
+                        captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG
+                                ? CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG :
+                        CameraDevice.TEMPLATE_STILL_CAPTURE);
                 break;
             case PREVIEW:
             case IMAGE_ANALYSIS:
@@ -104,11 +116,15 @@ public final class Camera2UseCaseConfigFactory implements UseCaseConfigFactory {
 
         if (captureType == CaptureType.PREVIEW) {
             mutableConfig.insertOption(OPTION_MAX_RESOLUTION,
-                    SupportedSurfaceCombination.getPreviewSize(mDisplayManager));
+                    mDisplayInfoManager.getPreviewSize());
         }
 
-        int targetRotation = DisplayUtil.getMaxSizeDisplay(mDisplayManager).getRotation();
+        int targetRotation = mDisplayInfoManager.getMaxSizeDisplay().getRotation();
         mutableConfig.insertOption(OPTION_TARGET_ROTATION, targetRotation);
+
+        if (captureType == CaptureType.VIDEO_CAPTURE) {
+            mutableConfig.insertOption(OPTION_ZSL_DISABLED, true);
+        }
 
         return OptionsBundle.from(mutableConfig);
     }

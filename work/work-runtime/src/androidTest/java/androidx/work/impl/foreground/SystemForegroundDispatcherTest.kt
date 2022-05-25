@@ -35,6 +35,7 @@ import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.WorkRunId
 import androidx.work.impl.constraints.WorkConstraintsCallback
 import androidx.work.impl.constraints.WorkConstraintsTracker
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
@@ -86,7 +87,7 @@ class SystemForegroundDispatcherTest {
             .build()
         taskExecutor = InstantWorkTaskExecutor()
         val scheduler = mock(Scheduler::class.java)
-        workDatabase = WorkDatabase.create(context, taskExecutor.backgroundExecutor, true)
+        workDatabase = WorkDatabase.create(context, taskExecutor.serialTaskExecutor, true)
         processor = spy(Processor(context, config, taskExecutor, workDatabase, listOf(scheduler)))
         workManager = spy(
             WorkManagerImpl(
@@ -101,7 +102,7 @@ class SystemForegroundDispatcherTest {
         workDatabase = workManager.workDatabase
         // Initialize WorkConstraintsTracker
         constraintsCallback = mock(WorkConstraintsCallback::class.java)
-        tracker = spy(WorkConstraintsTracker(context, taskExecutor, constraintsCallback))
+        tracker = mock(WorkConstraintsTracker::class.java)
         // Initialize dispatcher
         dispatcherCallback = mock(SystemForegroundDispatcher.Callback::class.java)
         dispatcher = spy(SystemForegroundDispatcher(context, workManager, tracker))
@@ -381,7 +382,9 @@ class SystemForegroundDispatcherTest {
         val metadata = ForegroundInfo(notificationId, notification)
         val intent = createStartForegroundIntent(context, request.stringId, metadata)
         dispatcher.onStartCommand(intent)
-        val stopWorkRunnable = StopWorkRunnable(workManager, request.stringId, false)
+        val stopWorkRunnable = StopWorkRunnable(
+            workManager, WorkRunId(request.stringId), false
+        )
         stopWorkRunnable.run()
         val state = workDatabase.workSpecDao().getState(request.stringId)
         assertThat(state, `is`(WorkInfo.State.RUNNING))

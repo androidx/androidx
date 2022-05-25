@@ -22,16 +22,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationProviderInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentActivity;
 import androidx.wear.watchface.complications.ComplicationDataSourceUpdateRequesterConstants;
 import androidx.wear.watchface.complications.data.ComplicationType;
 
@@ -59,10 +58,8 @@ import java.util.Objects;
  *
  * @hide
  */
-@RequiresApi(Build.VERSION_CODES.N)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@SuppressWarnings("ForbiddenSuperClass")
-public final class ComplicationHelperActivity extends Activity
+public final class ComplicationHelperActivity extends FragmentActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     /**
@@ -104,9 +101,12 @@ public final class ComplicationHelperActivity extends Activity
     /** The package of the service that accepts complication data source requests. */
     private static final String UPDATE_REQUEST_RECEIVER_PACKAGE = "com.google.android.wearable.app";
 
-    private static final int START_REQUEST_CODE_PROVIDER_CHOOSER = 1;
-    private static final int PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER = 1;
-    private static final int PERMISSION_REQUEST_CODE_REQUEST_ONLY = 2;
+    static final int PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER = 1;
+    static final int PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER_NO_DENIED_INTENT = 2;
+    static final int PERMISSION_REQUEST_CODE_REQUEST_ONLY = 3;
+    static final int PERMISSION_REQUEST_CODE_REQUEST_ONLY_NO_DENIED_INTENT = 4;
+    static final int START_PERMISSION_RATIONALE = 5;
+    static final int START_REQUEST_CODE_PROVIDER_CHOOSER = 6;
 
     private static final String COMPLICATIONS_PERMISSION =
             "com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA";
@@ -115,17 +115,141 @@ public final class ComplicationHelperActivity extends Activity
             "com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA_PRIVILEGED";
 
     @Nullable
-    private ComponentName mWatchFace;
-    private int mWfComplicationId;
+    ComponentName mWatchFace;
+    int mWfComplicationId;
     @Nullable
-    private Bundle mAdditionalExtras;
+    Bundle mAdditionalExtras;
     @Nullable
     @ComplicationData.ComplicationType
-    private int[] mTypes;
+    int[] mTypes;
+    Delegate mDelegate = new DelegateImpl(this);
+
+    /** Allows the logic to be tested. */
+    interface Delegate {
+        boolean shouldShowRequestPermissionRationale();
+
+        /** Returns true if permissions have been granted. */
+        boolean checkPermission();
+
+        void requestPermissions(int requestCode);
+
+        /** Returns `true` if the activity was launched. */
+        boolean launchComplicationRationaleActivity();
+
+        void launchComplicationDeniedActivity();
+
+        void startComplicationDataSourceChooser();
+
+        /** Requests that the system update all active complications on the watch face. */
+        void requestUpdateAll();
+    }
+
+    private static class DelegateImpl implements Delegate {
+        final ComplicationHelperActivity mActivity;
+
+        DelegateImpl(ComplicationHelperActivity activity) {
+            this.mActivity = activity;
+        }
+
+        @Override
+        public boolean shouldShowRequestPermissionRationale() {
+            return mActivity.shouldShowRequestPermissionRationale(COMPLICATIONS_PERMISSION);
+        }
+
+        @Override
+        public boolean checkPermission() {
+            return ActivityCompat.checkSelfPermission(
+                    mActivity, COMPLICATIONS_PERMISSION_PRIVILEGED)
+                    == PackageManager.PERMISSION_GRANTED
+                    || ActivityCompat.checkSelfPermission(mActivity, COMPLICATIONS_PERMISSION)
+                    == PackageManager.PERMISSION_GRANTED
+                    || skipPermissionCheck;
+        }
+
+        @Override
+        public void requestPermissions(int requestCode) {
+            ActivityCompat.requestPermissions(
+                    mActivity,
+                    new String[]{COMPLICATIONS_PERMISSION},
+                    requestCode);
+        }
+
+        @Override
+        @SuppressWarnings("deprecation") // startActivityForResult
+        public boolean launchComplicationRationaleActivity() {
+            Intent complicationRationalIntent =
+                    mActivity.getIntent().getParcelableExtra(
+                            ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_RATIONALE);
+
+            if (complicationRationalIntent != null) {
+                mActivity.startActivityForResult(
+                        complicationRationalIntent, START_PERMISSION_RATIONALE);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public void launchComplicationDeniedActivity() {
+            Intent complicationDeniedIntent =
+                    mActivity.getIntent().getParcelableExtra(
+                            ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_DENIED);
+
+            if (complicationDeniedIntent != null) {
+                mActivity.startActivity(complicationDeniedIntent);
+            }
+        }
+
+        @Override
+        @SuppressWarnings("deprecation") // startActivityForResult
+        public void startComplicationDataSourceChooser() {
+            Intent intent =
+                    ComplicationDataSourceChooserIntent.createComplicationDataSourceChooserIntent(
+                            mActivity.mWatchFace, mActivity.mWfComplicationId, mActivity.mTypes);
+            // Add the extras that were provided to the ComplicationHelperActivity. This is done by
+            // first taking the additional extras and adding to that anything that was set in the
+            // chooser intent, and setting them back on the intent itself to avoid the additional
+            // extras being able to override anything that was set by the chooser intent.
+            Bundle extras = new Bundle(mActivity.mAdditionalExtras);
+            extras.putAll(intent.getExtras());
+            intent.replaceExtras(extras);
+            if (useTestComplicationDataSourceChooserActivity) {
+                intent.setComponent(new ComponentName(
+                        "androidx.wear.watchface.editor.test",
+                        "androidx.wear.watchface.editor"
+                                + ".TestComplicationDataSourceChooserActivity"));
+            }
+            mActivity.startActivityForResult(intent, START_REQUEST_CODE_PROVIDER_CHOOSER);
+        }
+
+        @Override
+        public void requestUpdateAll() {
+            Intent intent = new Intent(ACTION_REQUEST_UPDATE_ALL_ACTIVE);
+            intent.setPackage(UPDATE_REQUEST_RECEIVER_PACKAGE);
+            intent.putExtra(EXTRA_WATCH_FACE_COMPONENT, mActivity.mWatchFace);
+            // Add a placeholder PendingIntent to allow the UID to be checked.
+            intent.putExtra(
+                    ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
+                    PendingIntent.getActivity(
+                            mActivity, 0, new Intent(""), PendingIntent.FLAG_IMMUTABLE));
+            mActivity.sendBroadcast(intent);
+        }
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        start(true);
+    }
+
+    void start(boolean shouldShowRequestPermissionRationale) {
+        if (shouldShowRequestPermissionRationale
+                && mDelegate.shouldShowRequestPermissionRationale()) {
+            if (mDelegate.launchComplicationRationaleActivity()) {
+                return;
+            }
+        }
 
         Intent intent = getIntent();
 
@@ -139,25 +263,25 @@ public final class ComplicationHelperActivity extends Activity
                 mTypes = intent.getIntArrayExtra(
                         ComplicationDataSourceChooserIntent.EXTRA_SUPPORTED_TYPES);
                 mAdditionalExtras = getAdditionalExtras(intent);
-                if (checkPermission()) {
-                    startComplicationDataSourceChooser();
+                if (mDelegate.checkPermission()) {
+                    mDelegate.startComplicationDataSourceChooser();
                 } else {
-                    ActivityCompat.requestPermissions(
-                            this,
-                            new String[]{COMPLICATIONS_PERMISSION},
-                            PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER);
+                    int requestCode = shouldShowRequestPermissionRationale
+                            ? PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER :
+                            PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER_NO_DENIED_INTENT;
+                    mDelegate.requestPermissions(requestCode);
                 }
                 break;
             case ACTION_PERMISSION_REQUEST_ONLY:
                 mWatchFace = intent.getParcelableExtra(
-                    ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME);
-                if (checkPermission()) {
+                        ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME);
+                if (mDelegate.checkPermission()) {
                     finish();
                 } else {
-                    ActivityCompat.requestPermissions(
-                            this,
-                            new String[]{COMPLICATIONS_PERMISSION},
-                            PERMISSION_REQUEST_CODE_REQUEST_ONLY);
+                    mDelegate.requestPermissions(
+                            shouldShowRequestPermissionRationale
+                                    ? PERMISSION_REQUEST_CODE_REQUEST_ONLY :
+                                    PERMISSION_REQUEST_CODE_REQUEST_ONLY_NO_DENIED_INTENT);
                 }
                 break;
             default:
@@ -168,37 +292,43 @@ public final class ComplicationHelperActivity extends Activity
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (grantResults.length == 0) {
             // Request was cancelled.
             finish();
             return;
         }
         if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            if (requestCode == PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER) {
-                startComplicationDataSourceChooser();
+            if (requestCode == PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER
+                    || requestCode
+                    == PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER_NO_DENIED_INTENT) {
+                mDelegate.startComplicationDataSourceChooser();
             } else {
                 finish();
             }
-            requestUpdateAll(mWatchFace);
+            mDelegate.requestUpdateAll();
         } else {
+            if (requestCode == PERMISSION_REQUEST_CODE_PROVIDER_CHOOSER
+                    || requestCode == PERMISSION_REQUEST_CODE_REQUEST_ONLY) {
+                mDelegate.launchComplicationDeniedActivity();
+            }
             finish();
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (requestCode == START_REQUEST_CODE_PROVIDER_CHOOSER) {
-            setResult(resultCode, data);
-            finish();
-        }
-    }
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case START_REQUEST_CODE_PROVIDER_CHOOSER:
+                setResult(resultCode, data);
+                finish();
+                break;
 
-    private boolean checkPermission() {
-        return ActivityCompat.checkSelfPermission(this, COMPLICATIONS_PERMISSION_PRIVILEGED)
-                == PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, COMPLICATIONS_PERMISSION)
-                == PackageManager.PERMISSION_GRANTED
-                || skipPermissionCheck;
+            case START_PERMISSION_RATIONALE:
+                start(false);
+                break;
+        }
     }
 
     /**
@@ -241,6 +371,8 @@ public final class ComplicationHelperActivity extends Activity
      *                                more than one of these types, the type chosen will be
      *                                whichever was specified first.
      * @param watchFaceInstanceId     The ID of the watchface being edited.
+     * @param complicationDenied      Intent to launch the complication permission denied dialog.
+     * @param complicationRationale   Intent to launch the complication permission rationale dialog.
      */
     @NonNull
     public static Intent createComplicationDataSourceChooserHelperIntent(
@@ -248,7 +380,9 @@ public final class ComplicationHelperActivity extends Activity
             @NonNull ComponentName watchFace,
             int watchFaceComplicationId,
             @NonNull Collection<ComplicationType> supportedTypes,
-            @Nullable String watchFaceInstanceId) {
+            @Nullable String watchFaceInstanceId,
+            @Nullable Intent complicationDenied,
+            @Nullable Intent complicationRationale) {
         Intent intent = new Intent(context, ComplicationHelperActivity.class);
         intent.setAction(ACTION_START_PROVIDER_CHOOSER);
         intent.putExtra(
@@ -258,6 +392,14 @@ public final class ComplicationHelperActivity extends Activity
         if (watchFaceInstanceId != null) {
             intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_WATCHFACE_INSTANCE_ID,
                     watchFaceInstanceId);
+        }
+        if (complicationDenied != null) {
+            intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_DENIED,
+                    complicationDenied);
+        }
+        if (complicationRationale != null) {
+            intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_RATIONALE,
+                    complicationRationale);
         }
         int[] wireSupportedTypes = new int[supportedTypes.size()];
         int i = 0;
@@ -285,48 +427,32 @@ public final class ComplicationHelperActivity extends Activity
      * watch face will be triggered. The provided {@code watchFace} must match the current watch
      * face for this to occur.
      *
-     * @param context   context for the current app, that must contain a ComplicationHelperActivity
-     * @param watchFace the ComponentName of the WatchFaceService for the current watch face
+     * @param context               context for the current app, that must contain a
+     *                              ComplicationHelperActivity
+     * @param watchFace             the ComponentName of the WatchFaceService for the current
+     *                              watch face
+     * @param complicationDenied    Intent to launch the complication permission denied dialog.
+     * @param complicationRationale Intent to launch the complication permission rationale dialog.
      */
     @NonNull
     public static Intent createPermissionRequestHelperIntent(
-            @NonNull Context context, @NonNull ComponentName watchFace) {
+            @NonNull Context context,
+            @NonNull ComponentName watchFace,
+            @Nullable Intent complicationDenied,
+            @Nullable Intent complicationRationale) {
         Intent intent = new Intent(context, ComplicationHelperActivity.class);
         intent.setAction(ACTION_PERMISSION_REQUEST_ONLY);
         intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME,
                 watchFace);
-        return intent;
-    }
-
-    private void startComplicationDataSourceChooser() {
-        Intent intent =
-                ComplicationDataSourceChooserIntent.createComplicationDataSourceChooserIntent(
-                        mWatchFace, mWfComplicationId, mTypes);
-        // Add the extras that were provided to the ComplicationHelperActivity. This is done by
-        // first taking the additional extras and adding to that anything that was set in the
-        // chooser intent, and setting them back on the intent itself to avoid the additional
-        // extras being able to override anything that was set by the chooser intent.
-        Bundle extras = new Bundle(mAdditionalExtras);
-        extras.putAll(intent.getExtras());
-        intent.replaceExtras(extras);
-        if (useTestComplicationDataSourceChooserActivity) {
-            intent.setComponent(new ComponentName(
-                    "androidx.wear.watchface.editor.test",
-                    "androidx.wear.watchface.editor.TestComplicationDataSourceChooserActivity"));
+        if (complicationDenied != null) {
+            intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_DENIED,
+                    complicationDenied);
         }
-        startActivityForResult(intent, START_REQUEST_CODE_PROVIDER_CHOOSER);
-    }
-
-    /** Requests that the system update all active complications on the watch face. */
-    private void requestUpdateAll(ComponentName watchFaceComponent) {
-        Intent intent = new Intent(ACTION_REQUEST_UPDATE_ALL_ACTIVE);
-        intent.setPackage(UPDATE_REQUEST_RECEIVER_PACKAGE);
-        intent.putExtra(EXTRA_WATCH_FACE_COMPONENT, watchFaceComponent);
-        // Add a placeholder PendingIntent to allow the UID to be checked.
-        intent.putExtra(
-                ComplicationDataSourceUpdateRequesterConstants.EXTRA_PENDING_INTENT,
-                PendingIntent.getActivity(this, 0, new Intent(""), 0));
-        sendBroadcast(intent);
+        if (complicationRationale != null) {
+            intent.putExtra(ComplicationDataSourceChooserIntent.EXTRA_COMPLICATION_RATIONALE,
+                    complicationRationale);
+        }
+        return intent;
     }
 
     /**

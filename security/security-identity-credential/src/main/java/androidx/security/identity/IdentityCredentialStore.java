@@ -211,6 +211,10 @@ public abstract class IdentityCredentialStore {
     /**
      * Creates a new credential.
      *
+     * <p>Note that the credential is not persisted until calling
+     * {@link WritableIdentityCredential#personalize(PersonalizationData)} on the returned
+     * {@link WritableIdentityCredential} object.
+     *
      * @param credentialName The name used to identify the credential.
      * @param docType        The document type for the credential.
      * @return A @{link WritableIdentityCredential} that can be used to create a new credential.

@@ -17,6 +17,7 @@
 package androidx.health.services.client.impl
 
 import android.content.Context
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.MeasureCallback
@@ -34,8 +35,10 @@ import androidx.health.services.client.impl.ipc.internal.ConnectionManager
 import androidx.health.services.client.impl.request.CapabilitiesRequest
 import androidx.health.services.client.impl.request.MeasureRegistrationRequest
 import androidx.health.services.client.impl.request.MeasureUnregistrationRequest
+import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.SettableFuture
 import java.util.concurrent.Executor
 
 /**
@@ -43,10 +46,11 @@ import java.util.concurrent.Executor
  *
  * @hide
  */
-@VisibleForTesting
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 public class ServiceBackedMeasureClient(
     private val context: Context,
-    connectionManager: ConnectionManager
+    connectionManager: ConnectionManager = HsConnectionManager.getInstance(context)
 ) :
     MeasureClient,
     Client<IMeasureApiService>(
@@ -56,25 +60,40 @@ public class ServiceBackedMeasureClient(
         { service -> service.apiVersion }
     ) {
 
-    override fun registerCallback(
-        dataType: DataType,
-        callback: MeasureCallback
-    ): ListenableFuture<Void> =
-        registerCallback(dataType, callback, ContextCompat.getMainExecutor(context))
-
-    override fun registerCallback(
-        dataType: DataType,
-        callback: MeasureCallback,
-        executor: Executor
-    ): ListenableFuture<Void> {
-        val request = MeasureRegistrationRequest(context.packageName, dataType)
-        val callbackStub = MeasureCallbackCache.INSTANCE.getOrCreate(dataType, callback, executor)
-        return registerListener(callbackStub.listenerKey) { service, resultFuture ->
-            service.registerCallback(request, callbackStub, StatusCallback(resultFuture))
-        }
+    override fun registerMeasureCallback(dataType: DataType, callback: MeasureCallback) {
+        registerMeasureCallback(dataType, ContextCompat.getMainExecutor(context), callback)
     }
 
-    override fun unregisterCallback(
+    override fun registerMeasureCallback(
+        dataType: DataType,
+        executor: Executor,
+        callback: MeasureCallback
+    ) {
+        val request = MeasureRegistrationRequest(context.packageName, dataType)
+        val callbackStub = MeasureCallbackCache.INSTANCE.getOrCreate(dataType, executor, callback)
+        val future =
+            registerListener(callbackStub.listenerKey) { service, result: SettableFuture<Void?> ->
+                service.registerCallback(
+                    request,
+                    callbackStub,
+                    StatusCallback(result)
+                )
+            }
+        Futures.addCallback(
+            future,
+            object : FutureCallback<Void?> {
+                override fun onSuccess(result: Void?) {
+                    callback.onRegistered()
+                }
+
+                override fun onFailure(t: Throwable) {
+                    callback.onRegistrationFailed(t)
+                }
+            },
+            executor)
+    }
+
+    override fun unregisterMeasureCallbackAsync(
         dataType: DataType,
         callback: MeasureCallback
     ): ListenableFuture<Void> {
@@ -89,24 +108,18 @@ public class ServiceBackedMeasureClient(
         }
     }
 
-    override val capabilities: ListenableFuture<MeasureCapabilities>
-        get() =
-            Futures.transform(
-                execute { service ->
-                    service.getCapabilities(CapabilitiesRequest(context.packageName))
-                },
-                { response -> response?.measureCapabilities },
-                ContextCompat.getMainExecutor(context)
-            )
+    override fun getCapabilitiesAsync(): ListenableFuture<MeasureCapabilities> =
+        Futures.transform(
+            execute { service ->
+                service.getCapabilities(CapabilitiesRequest(context.packageName))
+            },
+            { response -> response!!.measureCapabilities },
+            ContextCompat.getMainExecutor(context)
+        )
 
     internal companion object {
         const val CLIENT = "HealthServicesMeasureClient"
         private val CLIENT_CONFIGURATION =
             ClientConfiguration(CLIENT, SERVICE_PACKAGE_NAME, MEASURE_API_BIND_ACTION)
-
-        @JvmStatic
-        fun getClient(context: Context): ServiceBackedMeasureClient {
-            return ServiceBackedMeasureClient(context, HsConnectionManager.getInstance(context))
-        }
     }
 }

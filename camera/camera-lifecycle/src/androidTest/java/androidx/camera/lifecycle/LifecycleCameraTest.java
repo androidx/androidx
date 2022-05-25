@@ -118,6 +118,20 @@ public class LifecycleCameraTest {
 
     @Test
     public void lifecycleStart_restoreInteropConfig() {
+        FakeLifecycleOwner lifecycle1 = new FakeLifecycleOwner();
+        FakeLifecycleOwner lifecycle2 = new FakeLifecycleOwner();
+
+        CameraUseCaseAdapter adapter1 = new CameraUseCaseAdapter(
+                new LinkedHashSet<>(Collections.singleton(mFakeCamera)),
+                new FakeCameraDeviceSurfaceManager(),
+                new FakeUseCaseConfigFactory());
+        CameraUseCaseAdapter adapter2 = new CameraUseCaseAdapter(
+                new LinkedHashSet<>(Collections.singleton(mFakeCamera)),
+                new FakeCameraDeviceSurfaceManager(),
+                new FakeUseCaseConfigFactory());
+        LifecycleCamera lifecycleCamera1 = new LifecycleCamera(lifecycle1, adapter1);
+        LifecycleCamera lifecycleCamera2 = new LifecycleCamera(lifecycle2, adapter2);
+
         // Set an config to CameraControl internally.
         Config.Option<Integer> option = Config.Option.create("OPTION_ID", Integer.class);
         Integer value = 1;
@@ -125,27 +139,27 @@ public class LifecycleCameraTest {
         originalConfig.insertOption(option, value);
         mFakeCamera.getCameraControlInternal().addInteropConfig(originalConfig);
 
-        mLifecycleCamera = new LifecycleCamera(mLifecycleOwner, mCameraUseCaseAdapter);
-
-        mLifecycleOwner.start();
-
+        lifecycle1.start();
         // Stop the lifecycle. The original config is cached and the config in CameraControl is
         // cleared internally.
-        mLifecycleOwner.stop();
+        lifecycle1.stop();
 
-        // Set a different config.
-        mFakeCamera.getCameraControlInternal().addInteropConfig(MutableOptionsBundle.create());
+        // Start the second lifecycle and set a different config.
+        lifecycle2.start();
+        MutableOptionsBundle newConfig = MutableOptionsBundle.create();
+        newConfig.insertOption(Config.Option.create("OPTION_ID_2", Integer.class), 2);
+        mFakeCamera.getCameraControlInternal().addInteropConfig(newConfig);
+        lifecycle2.stop();
 
-        // Starts the lifecycle and the cached config is restored internally.
-        mLifecycleOwner.start();
+        // Starts the first lifecycle and the cached config is restored internally.
+        lifecycle1.start();
 
-        // Check the config in CameraControl has the same value as the original config.
-        assertThat(
-                mFakeCamera.getCameraControlInternal().getInteropConfig().containsOption(
-                        option)).isTrue();
-        assertThat(
-                mFakeCamera.getCameraControlInternal().getInteropConfig().retrieveOption(
-                        option)).isEqualTo(value);
+        Config finalConfig = mFakeCamera.getCameraControlInternal().getInteropConfig();
+        // Check the final config in CameraControl has the same value as the original config.
+        assertThat(finalConfig.listOptions().containsAll(originalConfig.listOptions())).isTrue();
+        assertThat(finalConfig.retrieveOption(option)).isEqualTo(value);
+        // Check the final config doesn't contain the options set before it's attached again.
+        assertThat(finalConfig.listOptions().containsAll(newConfig.listOptions())).isFalse();
     }
 
     @Test

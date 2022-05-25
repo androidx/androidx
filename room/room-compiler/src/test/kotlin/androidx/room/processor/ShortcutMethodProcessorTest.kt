@@ -26,6 +26,9 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
+import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.LifecyclesTypeNames
+import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.testing.context
@@ -53,6 +56,21 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 @Dao
                 abstract class MyClass {
                 """
+        const val DAO_PREFIX_KT = """
+                package foo.bar
+                import androidx.room.*
+                import java.util.*
+                import io.reactivex.*         
+                io.reactivex.rxjava3.core.*
+                androidx.lifecycle.*
+                com.google.common.util.concurrent.*
+                org.reactivestreams.*
+                kotlinx.coroutines.flow.*
+            
+                @Dao
+                abstract class MyClass {
+                """
+
         const val DAO_SUFFIX = "}"
         val USER_TYPE_NAME: TypeName = COMMON.USER_TYPE_NAME
         val USERNAME_TYPE_NAME: TypeName = ClassName.get("foo.bar", "Username")
@@ -67,7 +85,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void foo();
                 """
         ) { shortcut, invocation ->
-            assertThat(shortcut.name, `is`("foo"))
+            assertThat(shortcut.element.jvmName, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(0))
             invocation.assertCompilationResult {
                 hasErrorContaining(noParamsError())
@@ -85,7 +103,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public int foo(User user);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("foo"))
+            assertThat(shortcut.element.jvmName, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(param.type.typeName, `is`(USER_TYPE_NAME))
@@ -104,7 +122,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void foo(NotAnEntity notValid);
                 """
         ) { shortcut, invocation ->
-            assertThat(shortcut.name, `is`("foo"))
+            assertThat(shortcut.element.jvmName, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             assertThat(shortcut.entities.size, `is`(0))
             invocation.assertCompilationResult {
@@ -123,7 +141,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void foo(User u1, User u2);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("foo"))
+            assertThat(shortcut.element.jvmName, `is`("foo"))
 
             assertThat(shortcut.parameters.size, `is`(2))
             shortcut.parameters.forEach {
@@ -159,7 +177,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public $type users(List<User> users);
                 """
             ) { shortcut, _ ->
-                assertThat(shortcut.name, `is`("users"))
+                assertThat(shortcut.element.jvmName, `is`("users"))
                 assertThat(shortcut.parameters.size, `is`(1))
                 val param = shortcut.parameters.first()
                 assertThat(
@@ -185,7 +203,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void users(User[] users);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("users"))
+            assertThat(shortcut.element.jvmName, `is`("users"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(
@@ -207,7 +225,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void modifyUsers(Set<User> users);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("modifyUsers"))
+            assertThat(shortcut.element.jvmName, `is`("modifyUsers"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(
@@ -232,7 +250,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void modifyUsers(Iterable<User> users);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("modifyUsers"))
+            assertThat(shortcut.element.jvmName, `is`("modifyUsers"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(
@@ -258,7 +276,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public void modifyUsers(MyList<String, User> users);
                 """
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("modifyUsers"))
+            assertThat(shortcut.element.jvmName, `is`("modifyUsers"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(
@@ -342,6 +360,39 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
     }
 
     @Test
+    fun suspendReturnsDeferredType() {
+        listOf(
+            "${RxJava2TypeNames.FLOWABLE}<Int>",
+            "${RxJava2TypeNames.OBSERVABLE}<Int>",
+            "${RxJava2TypeNames.MAYBE}<Int>",
+            "${RxJava2TypeNames.SINGLE}<Int>",
+            "${RxJava2TypeNames.COMPLETABLE}",
+            "${RxJava3TypeNames.FLOWABLE}<Int>",
+            "${RxJava3TypeNames.OBSERVABLE}<Int>",
+            "${RxJava3TypeNames.MAYBE}<Int>",
+            "${RxJava3TypeNames.SINGLE}<Int>",
+            "${RxJava3TypeNames.COMPLETABLE}",
+            "${LifecyclesTypeNames.LIVE_DATA}<Int>",
+            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
+            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>",
+            "${KotlinTypeNames.FLOW}<Int>"
+        ).forEach { type ->
+            singleShortcutMethodKotlin(
+                """
+                @${annotation.java.canonicalName}
+                abstract suspend fun foo(user: User): $type
+                """
+            ) { _, invocation ->
+                invocation.assertCompilationResult {
+                    val rawTypeName = type.substringBefore("<")
+                    hasErrorContaining(ProcessorErrors.suspendReturnsDeferredType(rawTypeName))
+                }
+            }
+        }
+    }
+
+    @Test
     fun targetEntity() {
         val usernameSource = Source.java(
             "foo.bar.Username",
@@ -362,7 +413,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 """,
             additionalSources = listOf(usernameSource)
         ) { shortcut, _ ->
-            assertThat(shortcut.name, `is`("foo"))
+            assertThat(shortcut.element.jvmName, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
             assertThat(param.type.typeName, `is`(USERNAME_TYPE_NAME))
@@ -613,6 +664,48 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                         }.toList()
                     )
                 }.first { it.second.isNotEmpty() }
+            val processed = process(
+                baseContext = invocation.context,
+                containing = owner.type,
+                executableElement = methods.first()
+            )
+            handler(processed, invocation)
+        }
+    }
+
+    fun singleShortcutMethodKotlin(
+        vararg input: String,
+        additionalSources: List<Source> = emptyList(),
+        handler: (T, XTestInvocation) -> Unit
+    ) {
+        val inputSource = Source.kotlin(
+            "MyClass.kt",
+            DAO_PREFIX_KT + input.joinToString("\n") + DAO_SUFFIX
+        )
+
+        val commonSources = listOf(
+            COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
+            COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX2_FLOWABLE, COMMON.RX2_OBSERVABLE,
+            COMMON.RX3_COMPLETABLE, COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.RX3_FLOWABLE,
+            COMMON.RX3_OBSERVABLE, COMMON.LISTENABLE_FUTURE, COMMON.LIVE_DATA,
+            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.FLOW, COMMON.GUAVA_ROOM
+        )
+
+        runProcessorTest(
+            sources = commonSources + additionalSources + inputSource
+        ) { invocation ->
+            val (owner, methods) = invocation.roundEnv
+                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
+                .map {
+                    Pair(
+                        it,
+                        it.getAllMethods().filter {
+                            it.hasAnnotation(annotation)
+                        }.toList()
+                    )
+                }.first { it.second.isNotEmpty() }
+
             val processed = process(
                 baseContext = invocation.context,
                 containing = owner.type,

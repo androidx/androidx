@@ -120,7 +120,7 @@ class ComposableDeclarationCheckerTests : AbstractComposeDiagnosticsTest() {
                 val composableLambda = @Composable {}
                 acceptSuspend <!TYPE_MISMATCH!>@Composable {}<!>
                 acceptComposableSuspend @Composable {}
-                acceptComposableSuspend(<!UNSUPPORTED_FEATURE!>composableLambda<!>)
+                acceptComposableSuspend(composableLambda)
                 acceptSuspend(<!COMPOSABLE_SUSPEND_FUN, TYPE_MISMATCH!>@Composable suspend fun() { }<!>)
             }
         """
@@ -253,6 +253,21 @@ class ComposableDeclarationCheckerTests : AbstractComposeDiagnosticsTest() {
                 @Composable abstract fun foo(x: Int)
             }
         """
+        )
+    }
+
+    fun testOverrideWithoutComposeAnnotation() {
+        doTest(
+            """
+                import androidx.compose.runtime.Composable
+                interface Base {
+                    fun compose(content: () -> Unit)
+                }
+
+                class Impl : Base {
+                    <!CONFLICTING_OVERLOADS!>override fun compose(content: @Composable () -> Unit)<!> {}
+                }
+            """
         )
     }
 }

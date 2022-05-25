@@ -7,7 +7,7 @@ plugins {
 dependencies {
     implementation(project(":core:core"))
     implementation(project(":cursoradapter:cursoradapter"))
-    implementation(project(":localbroadcastmanager:localbroadcastmanager"))
+    implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.0.0")
     implementation(project(":slidingpanelayout:slidingpanelayout"))
     implementation(project(":swiperefreshlayout:swiperefreshlayout"))
     implementation(project(":fragment:fragment-ktx"))
@@ -15,4 +15,8 @@ dependencies {
     implementation(project(":viewpager:viewpager"))
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
+}
+
+android {
+    namespace "com.example.android.supportv4"
 }

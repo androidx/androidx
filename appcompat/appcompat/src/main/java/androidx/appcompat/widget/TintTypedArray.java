@@ -28,6 +28,7 @@ import android.os.Build;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -36,7 +37,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.res.ResourcesCompat;
 
 /**
- * A class that wraps a {@link android.content.res.TypedArray} and provides the same public API
+ * A class that wraps a {@link TypedArray} and provides the same public API
  * surface. The purpose of this class is so that we can intercept calls to new APIs.
  *
  * @hide
@@ -226,7 +227,7 @@ public class TintTypedArray {
 
     public int getType(int index) {
         if (Build.VERSION.SDK_INT >= 21) {
-            return mWrapped.getType(index);
+            return Api21Impl.getType(mWrapped, index);
         } else {
             if (mTypedValue == null) {
                 mTypedValue = new TypedValue();
@@ -254,7 +255,23 @@ public class TintTypedArray {
 
     @RequiresApi(21)
     public int getChangingConfigurations() {
-        return mWrapped.getChangingConfigurations();
+        return Api21Impl.getChangingConfigurations(mWrapped);
     }
 
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static int getType(TypedArray typedArray, int index) {
+            return typedArray.getType(index);
+        }
+
+        @DoNotInline
+        static int getChangingConfigurations(TypedArray typedArray) {
+            return typedArray.getChangingConfigurations();
+        }
+    }
 }

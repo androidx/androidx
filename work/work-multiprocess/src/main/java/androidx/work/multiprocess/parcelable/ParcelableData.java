@@ -182,7 +182,7 @@ public class ParcelableData implements Parcelable {
                 parcel.writeStringArray(stringArray);
             } else {
                 // Exhaustive check
-                String message = String.format("Unsupported value type %s", valueType.getName());
+                String message = "Unsupported value type " + valueType.getName();
                 throw new IllegalArgumentException(message);
             }
         }
@@ -240,7 +240,7 @@ public class ParcelableData implements Parcelable {
                 value = parcel.createStringArray();
                 break;
             default:
-                String message = String.format("Unsupported type %s", type);
+                String message = "Unsupported type " + type;
                 throw new IllegalStateException(message);
         }
         String key = parcel.readString();

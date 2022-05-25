@@ -68,14 +68,17 @@ class AudioSourceTest {
         }
         fakeBufferProvider.setActive(true)
 
-        audioSource = AudioSource.Builder()
-            .setExecutor(CameraXExecutors.ioExecutor())
-            .setAudioSource(AUDIO_SOURCE)
-            .setSampleRate(SAMPLE_RATE)
-            .setChannelCount(CHANNEL_COUNT)
-            .setAudioFormat(AUDIO_FORMAT)
-            .setBufferProvider(fakeBufferProvider)
-            .build()
+        audioSource = AudioSource(
+            AudioSource.Settings.builder()
+                .setAudioSource(AUDIO_SOURCE)
+                .setSampleRate(SAMPLE_RATE)
+                .setChannelCount(CHANNEL_COUNT)
+                .setAudioFormat(AUDIO_FORMAT)
+                .build(),
+            CameraXExecutors.ioExecutor(),
+            /*attributionContext=*/null
+        )
+        audioSource.setBufferProvider(fakeBufferProvider)
     }
 
     @After
@@ -122,5 +125,45 @@ class AudioSourceTest {
             // Assert.
             verify(bufferFactoryInvocations, noInvocation(3000L, 6000L)).call()
         }
+    }
+
+    @Test
+    fun canResetBufferProvider_beforeStarting() {
+        // Arrange
+        val localBufferFactoryInvocations = mock(Callable::class.java)
+        val localFakeBufferProvider = FakeBufferProvider {
+            localBufferFactoryInvocations.call()
+            FakeInputBuffer()
+        }
+
+        // Act
+        audioSource.setBufferProvider(localFakeBufferProvider)
+        audioSource.start()
+        localFakeBufferProvider.setActive(true)
+
+        // Assert.
+        // It should continuously send audio data by invoking BufferProvider#acquireBuffer
+        verify(localBufferFactoryInvocations, timeout(10000L).atLeast(3)).call()
+    }
+
+    @Test
+    fun canResetBufferProvider_afterStarting() {
+        // Arrange
+        val localBufferFactoryInvocations = mock(Callable::class.java)
+        val localFakeBufferProvider = FakeBufferProvider {
+            localBufferFactoryInvocations.call()
+            FakeInputBuffer()
+        }
+        audioSource.start()
+        fakeBufferProvider.setActive(true)
+        verify(bufferFactoryInvocations, timeout(10000L).atLeast(3)).call()
+
+        // Act
+        audioSource.setBufferProvider(localFakeBufferProvider)
+        localFakeBufferProvider.setActive(true)
+
+        // Assert.
+        // It should continuously send audio data by invoking BufferProvider#acquireBuffer
+        verify(localBufferFactoryInvocations, timeout(10000L).atLeast(3)).call()
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -7,9 +7,7 @@
         errorLine1="        assertTrue(extractButton.hasOnClickListeners());"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/widget/EmojiExtractTextLayoutTest.java"
-            line="178"
-            column="34"/>
+            file="src/androidTest/java/androidx/emoji2/widget/EmojiExtractTextLayoutTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        assertFalse(extractButton.hasOnClickListeners());"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/widget/EmojiExtractTextLayoutTest.java"
-            line="200"
-            column="35"/>
+            file="src/androidTest/java/androidx/emoji2/widget/EmojiExtractTextLayoutTest.java"/>
     </issue>
 
 </issues>

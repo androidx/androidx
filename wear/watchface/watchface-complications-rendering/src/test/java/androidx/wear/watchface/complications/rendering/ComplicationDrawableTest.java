@@ -545,7 +545,7 @@ public class ComplicationDrawableTest {
         Application context = ApplicationProvider.getApplicationContext();
         Intent expected =
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
-                        context, new ComponentName(context, context.getClass()))
+                        context, new ComponentName(context, context.getClass()), null, null)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Intent actual = shadowOf(context).getNextStartedActivity();
 
@@ -739,6 +739,7 @@ public class ComplicationDrawableTest {
             ApplicationProvider.getApplicationContext().startActivity(intent);
         }
 
+        @SuppressWarnings("deprecation")
         @Nullable
         @Override
         protected Object createWatchFace(@NonNull SurfaceHolder surfaceHolder,

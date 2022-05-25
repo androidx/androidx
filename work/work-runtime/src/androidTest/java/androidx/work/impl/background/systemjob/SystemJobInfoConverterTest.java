@@ -35,7 +35,6 @@ import android.net.NetworkRequest;
 import android.net.Uri;
 import android.os.Build;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -134,6 +133,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     public void testConvert_periodicWithNoFlex() {
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setPeriodic(TEST_INTERVAL_DURATION);
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         assertThat(jobInfo.getMinLatencyMillis(), is(0L));
     }
@@ -143,6 +143,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     public void testConvert_periodicWithFlex() {
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setPeriodic(TEST_INTERVAL_DURATION, TEST_FLEX_DURATION);
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         assertCloseValues(jobInfo.getMinLatencyMillis(),
                 TEST_INTERVAL_DURATION - TEST_FLEX_DURATION);
@@ -238,6 +239,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     public void testConvert_setImportantWhileForeground_withTimingConstraints() {
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setPeriodic(TEST_INTERVAL_DURATION, TEST_FLEX_DURATION);
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         assertThat(jobInfo.isImportantWhileForeground(), is(false));
     }
@@ -245,7 +247,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testConvert_expedited() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 
@@ -258,7 +260,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     @Test
     @SmallTest
     public void testConvertExpeditedJobs_retriesAreNotExpedited() {
-        if (!BuildCompat.isAtLeastS()) {
+        if (Build.VERSION.SDK_INT < 31) {
             return;
         }
 
@@ -269,9 +271,23 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
         assertThat(jobInfo.isExpedited(), is(false));
     }
 
+    @Test
+    @SmallTest
+    public void testConvertExpeditedJobs_delaysAreNotExpedited() {
+        if (Build.VERSION.SDK_INT < 31) {
+            return;
+        }
+
+        WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
+        workSpec.expedited = true;
+        workSpec.initialDelay = 1000L; // delay
+        JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
+        assertThat(jobInfo.isExpedited(), is(false));
+    }
+
     private void convertWithRequiredNetworkType(NetworkType networkType,
-                                                int jobInfoNetworkType,
-                                                int minSdkVersion) {
+            int jobInfoNetworkType,
+            int minSdkVersion) {
         WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder()
                 .setRequiredNetworkType(networkType).build());
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
@@ -348,9 +364,9 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     }
 
     private WorkSpec getTestWorkSpecWithConstraints(Constraints constraints) {
-        return getWorkSpec(new OneTimeWorkRequest.Builder(TestWorker.class)
+        return new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setConstraints(constraints)
-                .build());
+                .build().getWorkSpec();
     }
 
     private void assertCloseValues(long value, long target) {

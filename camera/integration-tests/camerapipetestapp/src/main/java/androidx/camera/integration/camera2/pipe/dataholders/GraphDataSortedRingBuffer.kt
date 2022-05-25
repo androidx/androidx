@@ -30,7 +30,7 @@ class GraphDataSortedRingBuffer {
 
     fun size() = dataPoints.size
 
-    fun toList() = dataPoints.toList()
+    fun toList(): List<GraphDataPoint> = dataPoints.toList()
 
     /** Adds data point to list while maintaining sorted order and staying under capacity */
     fun addPoint(dataPoint: GraphDataPoint) {

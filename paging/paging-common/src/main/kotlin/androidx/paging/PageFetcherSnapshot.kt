@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.paging
 
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
@@ -28,6 +31,7 @@ import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -44,7 +48,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Holds a generation of pageable data, a snapshot of data loaded by [PagingSource]. An instance
@@ -56,7 +59,6 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
     internal val pagingSource: PagingSource<Key, Value>,
     private val config: PagingConfig,
     private val retryFlow: Flow<Unit>,
-    private val triggerRemoteRefresh: Boolean = false,
     val remoteMediatorConnection: RemoteMediatorConnection<Key, Value>? = null,
     private val previousPagingState: PagingState<Key, Value>? = null,
     private val invalidate: () -> Unit = {},
@@ -150,13 +152,17 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                 }
         }
 
-        if (triggerRemoteRefresh) {
-            remoteMediatorConnection?.let {
-                val pagingState = previousPagingState ?: stateHolder.withLock { state ->
-                    state.currentPagingState(null)
-                }
-                it.requestLoad(REFRESH, pagingState)
+        // NOTE: We always try to enqueue on init, but this request will only go through if
+        // [RemoteMediatorConnection.refreshEnabled] is `true`. It is important for it to be done
+        // this way to ensure that we always have a valid [LoadStates] for [PagingSource] before we
+        // trigger remote load, in case remote emits multiple [LoadStates] before [PagingSource]
+        // starts, which would cause us to drop remote [LoadStates] emissions since we wait for
+        // valid events from both.
+        remoteMediatorConnection?.let {
+            val pagingState = previousPagingState ?: stateHolder.withLock { state ->
+                state.currentPagingState(null)
             }
+            it.requestRefreshIfAllowed(pagingState)
         }
 
         // Setup finished, start the initial load even if RemoteMediator throws an error.
@@ -579,7 +585,7 @@ internal data class GenerationalViewportHint(val generationId: Int, val hint: Vi
 
 /**
  * Helper for [GenerationalViewportHint] prioritization in cases where item accesses are being sent
- * to PageFetcherSnapshot] faster than they can be processed. A [GenerationalViewportHint] is
+ * to [PageFetcherSnapshot] faster than they can be processed. A [GenerationalViewportHint] is
  * prioritized if it represents an update to presenter state or if it would cause
  * [PageFetcherSnapshot] to load more items.
  *

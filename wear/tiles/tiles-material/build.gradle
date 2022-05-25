@@ -1,0 +1,77 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin-android")
+    id("com.android.library")
+    id("com.google.protobuf")
+}
+
+dependencies {
+    api("androidx.annotation:annotation:1.2.0")
+    implementation(project(":wear:tiles:tiles"))
+    implementation(project(":wear:tiles:tiles-proto"))
+
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation("androidx.core:core:1.7.0")
+    androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(project(":wear:tiles:tiles-renderer"))
+    androidTestRuntimeOnly(project(path: ":wear:tiles:tiles-proto", configuration: "shadow"))
+    androidTestImplementation(libs.protobuf)
+
+    testImplementation(libs.junit)
+    testImplementation(libs.mockitoCore)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testExtJunit)
+    testImplementation(libs.testExtTruth)
+    testImplementation(libs.testCore)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.testRules)
+    testImplementation(libs.truth)
+
+    annotationProcessor(libs.nullaway)
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 26
+    }
+
+    sourceSets {
+        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/wear/wear-tiles-material"
+    }
+
+    defaultConfig {
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    namespace "androidx.wear.tiles.material"
+}
+
+androidx {
+    name = "Android Wear Tiles Material"
+    type = LibraryType.PUBLISHED_LIBRARY
+    mavenGroup = LibraryGroups.WEAR_TILES
+    inceptionYear = "2021"
+    description = "Material components library for Android Wear Tiles."
+}

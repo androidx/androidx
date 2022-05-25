@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.LibraryType
 
 plugins {
@@ -29,7 +27,7 @@ dependencies {
     annotationProcessor(libs.autoValue)
     implementation("androidx.collection:collection:1.1.0")
 
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -37,7 +35,7 @@ dependencies {
     testImplementation(libs.mockitoCore)
     testImplementation(libs.robolectric)
 
-    androidTestImplementation("junit:junit:4.13")
+    androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -46,6 +44,7 @@ dependencies {
 
 android {
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.security.app.authenticator"
 }
 
 androidx {

@@ -30,6 +30,7 @@ import androidx.viewpager.test.R;
 /**
  * Provides assertions that depend on the non-interactive nature of <code>PagerTabStrip</code>.
  */
+@FlakyTest(bugId = 179887413)
 public class ViewPagerWithTitleStripTest
         extends BaseViewPagerTest<ViewPagerWithTitleStripActivity> {
     public ViewPagerWithTitleStripTest() {

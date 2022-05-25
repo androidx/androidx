@@ -25,7 +25,6 @@ import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
 
 /**
  * Returns an existing
@@ -48,56 +47,6 @@ inline fun <reified VM : ViewModel> hiltViewModel(
     val factory = createHiltViewModelFactory(viewModelStoreOwner)
     return viewModel(viewModelStoreOwner, factory = factory)
 }
-
-/**
- * Returns an existing
- * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
- * -annotated [ViewModel] or creates a new one scoped to the current navigation graph present on
- * the {@link NavController} back stack.
- *
- * If no navigation graph is currently present then the current scope will be used, usually, a
- * fragment or an activity.
- */
-@Deprecated(
-    message = "Use hiltViewModel() instead.",
-    replaceWith = ReplaceWith("hiltViewModel()"),
-)
-@Composable
-inline fun <reified VM : ViewModel> hiltNavGraphViewModel() = hiltViewModel<VM>()
-
-/**
- * Returns an existing
- * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
- * -annotated [ViewModel] or creates a new one scoped to the current navigation graph present on
- * the [NavController] back stack.
- *
- * @param backStackEntry The entry of a [NavController] back stack.
- */
-@Deprecated(
-    message = "Use hiltViewModel(ViewModelStoreOwner) instead.",
-    replaceWith = ReplaceWith("hiltViewModel(backStackEntry)"),
-)
-@Composable
-inline fun <reified VM : ViewModel> hiltNavGraphViewModel(backStackEntry: NavBackStackEntry) =
-    hiltViewModel<VM>(backStackEntry)
-
-/**
- * Returns an existing
- * [HiltViewModel](https://dagger.dev/api/latest/dagger/hilt/android/lifecycle/HiltViewModel)
- * -annotated [ViewModel] or creates a new one scoped to the current navigation graph present on
- * the [NavController] back stack.
- *
- * @param route route of a destination that exists on the [NavController] back stack.
- */
-@Deprecated(
-    message = "Use hiltViewModel(ViewModelStoreOwner) in combination with " +
-        "NavController#getBackStackEntry(String). This API will be removed in a future version.",
-    replaceWith = ReplaceWith("hiltViewModel(this.getBackStackEntry(route))"),
-    level = DeprecationLevel.ERROR
-)
-@Composable
-inline fun <reified VM : ViewModel> NavController.hiltNavGraphViewModel(route: String) =
-    hiltViewModel<VM>(this.getBackStackEntry(route))
 
 @Composable
 @PublishedApi

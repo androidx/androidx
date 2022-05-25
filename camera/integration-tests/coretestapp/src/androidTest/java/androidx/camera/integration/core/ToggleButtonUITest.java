@@ -32,13 +32,14 @@ import static org.junit.Assume.assumeTrue;
 
 import android.content.Intent;
 
+import androidx.camera.camera2.Camera2Config;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.TorchState;
 import androidx.camera.integration.core.idlingresource.ElapsedTimeIdlingResource;
 import androidx.camera.integration.core.idlingresource.WaitForViewToShow;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.test.core.app.ApplicationProvider;
@@ -85,7 +86,9 @@ public final class ToggleButtonUITest {
                     false);
 
     @Rule
-    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest(
+            new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+    );
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -127,8 +130,11 @@ public final class ToggleButtonUITest {
     @AfterClass
     public static void shutdownCameraX()
             throws InterruptedException, ExecutionException, TimeoutException {
-        CameraX.shutdown().get(10, TimeUnit.SECONDS);
+        ProcessCameraProvider cameraProvider = ProcessCameraProvider.getInstance(
+                ApplicationProvider.getApplicationContext()).get(10, TimeUnit.SECONDS);
+        cameraProvider.shutdown().get(10, TimeUnit.SECONDS);
     }
+
 
     @Test
     public void testFlashToggleButton() {

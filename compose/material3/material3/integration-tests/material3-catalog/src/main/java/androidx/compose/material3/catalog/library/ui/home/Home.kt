@@ -16,12 +16,16 @@
 
 package androidx.compose.material3.catalog.library.ui.home
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.GridCells
-import androidx.compose.foundation.lazy.LazyVerticalGrid
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.catalog.library.R
 import androidx.compose.material3.catalog.library.model.Component
 import androidx.compose.material3.catalog.library.model.Theme
@@ -31,12 +35,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
 
-// TODO: Use components/values from Material3 when available
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 fun Home(
     components: List<Component>,
     theme: Theme,
@@ -44,32 +44,35 @@ fun Home(
     onComponentClick: (component: Component) -> Unit
 ) {
     CatalogScaffold(
-        topBarTitle = stringResource(id = R.string.compose_material_you),
+        topBarTitle = stringResource(id = R.string.compose_material_3),
         theme = theme,
         onThemeChange = onThemeChange
     ) { paddingValues ->
-        BoxWithConstraints(modifier = Modifier.padding(paddingValues)) {
-            val cellsCount = maxOf((maxWidth / HomeCellMinSize).toInt(), 1)
-            LazyVerticalGrid(
-                // LazyGridScope doesn't expose nColumns from LazyVerticalGrid
-                // https://issuetracker.google.com/issues/183187002
-                cells = GridCells.Fixed(count = cellsCount),
-                content = {
-                    itemsIndexed(components) { index, component ->
-                        ComponentItem(
-                            component = component,
-                            onClick = onComponentClick,
-                            index = index,
-                            cellsCount = cellsCount
-                        )
-                    }
-                },
-                contentPadding = rememberInsetsPaddingValues(
-                    insets = LocalWindowInsets.current.navigationBars
+        LazyVerticalGrid(
+            modifier = Modifier.padding(paddingValues),
+            columns = GridCells.Adaptive(HomeCellMinSize),
+            content = {
+                items(components) { component ->
+                    ComponentItem(
+                        component = component,
+                        onClick = onComponentClick
+                    )
+                }
+            },
+            contentPadding = WindowInsets.safeDrawing
+                .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                .add(
+                    WindowInsets(
+                        left = HomePadding,
+                        top = HomePadding,
+                        right = HomePadding,
+                        bottom = HomePadding
+                    )
                 )
-            )
-        }
+                .asPaddingValues()
+        )
     }
 }
 
 private val HomeCellMinSize = 180.dp
+private val HomePadding = 12.dp

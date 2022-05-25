@@ -26,6 +26,8 @@ import android.view.accessibility.AccessibilityManager;
 import android.widget.Checkable;
 import android.widget.CompoundButton;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.content.res.TypedArrayUtils;
@@ -60,8 +62,8 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
      *                     for the view, used only if defStyleAttr is 0 or can not be found in the
      *                     theme. Can be 0 to not look for defaults.
      */
-    public SwitchPreferenceCompat(Context context, AttributeSet attrs, int defStyleAttr,
-            int defStyleRes) {
+    public SwitchPreferenceCompat(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
         TypedArray a = context.obtainStyledAttributes(attrs,
@@ -97,7 +99,8 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
      *                     resource that supplies default values for the view. Can be 0 to not
      *                     look for defaults.
      */
-    public SwitchPreferenceCompat(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SwitchPreferenceCompat(@NonNull Context context, @Nullable AttributeSet attrs,
+            int defStyleAttr) {
         this(context, attrs, defStyleAttr, 0);
     }
 
@@ -107,7 +110,7 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
      * @param context The {@link Context} that will style this preference
      * @param attrs   Style attributes that differ from the default
      */
-    public SwitchPreferenceCompat(Context context, AttributeSet attrs) {
+    public SwitchPreferenceCompat(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.switchPreferenceCompatStyle);
     }
 
@@ -116,12 +119,12 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
      *
      * @param context The {@link Context} that will style this preference
      */
-    public SwitchPreferenceCompat(Context context) {
+    public SwitchPreferenceCompat(@NonNull Context context) {
         this(context, null);
     }
 
     @Override
-    public void onBindViewHolder(PreferenceViewHolder holder) {
+    public void onBindViewHolder(@NonNull PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
         View switchView = holder.findViewById(R.id.switchWidget);
         syncSwitchView(switchView);
@@ -134,7 +137,7 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
      *
      * @param onText Text to display in the on state
      */
-    public void setSwitchTextOn(CharSequence onText) {
+    public void setSwitchTextOn(@Nullable CharSequence onText) {
         mSwitchOn = onText;
         notifyChanged();
     }
@@ -145,7 +148,7 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
      *
      * @param offText Text to display in the off state
      */
-    public void setSwitchTextOff(CharSequence offText) {
+    public void setSwitchTextOff(@Nullable CharSequence offText) {
         mSwitchOff = offText;
         notifyChanged();
     }
@@ -153,6 +156,7 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
     /**
      * @return The text that will be displayed on the switch widget in the on state
      */
+    @Nullable
     public CharSequence getSwitchTextOn() {
         return mSwitchOn;
     }
@@ -170,6 +174,7 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
     /**
      * @return The text that will be displayed on the switch widget in the off state
      */
+    @Nullable
     public CharSequence getSwitchTextOff() {
         return mSwitchOff;
     }
@@ -186,10 +191,11 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
 
     /**
      * @hide
+     * @param view
      */
     @RestrictTo(LIBRARY)
     @Override
-    protected void performClick(View view) {
+    protected void performClick(@NonNull View view) {
         super.performClick(view);
         syncViewIfAccessibilityEnabled(view);
     }

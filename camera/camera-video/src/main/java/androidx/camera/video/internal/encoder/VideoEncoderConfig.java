@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.encoder;
 
+import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.util.Size;
 
@@ -29,6 +30,10 @@ import com.google.auto.value.AutoValue;
 @AutoValue
 public abstract class VideoEncoderConfig implements EncoderConfig {
 
+    private static final int VIDEO_INTRA_FRAME_INTERVAL_DEFAULT = 1;
+    private static final int VIDEO_COLOR_FORMAT_DEFAULT =
+            MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface;
+
     // Restrict constructor to same package
     VideoEncoderConfig() {
     }
@@ -36,13 +41,18 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
     /** Returns a build for this config. */
     @NonNull
     public static Builder builder() {
-        return new AutoValue_VideoEncoderConfig.Builder();
+        return new AutoValue_VideoEncoderConfig.Builder()
+                .setProfile(EncoderConfig.CODEC_PROFILE_NONE)
+                .setIFrameInterval(VIDEO_INTRA_FRAME_INTERVAL_DEFAULT)
+                .setColorFormat(VIDEO_COLOR_FORMAT_DEFAULT);
     }
 
-    /** {@inheritDoc} */
     @Override
     @NonNull
     public abstract String getMimeType();
+
+    @Override
+    public abstract int getProfile();
 
     /** Gets the resolution. */
     @NonNull
@@ -71,6 +81,9 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
         format.setInteger(MediaFormat.KEY_BIT_RATE, getBitrate());
         format.setInteger(MediaFormat.KEY_FRAME_RATE, getFrameRate());
         format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, getIFrameInterval());
+        if (getProfile() != EncoderConfig.CODEC_PROFILE_NONE) {
+            format.setInteger(MediaFormat.KEY_PROFILE, getProfile());
+        }
         return format;
     }
 
@@ -84,6 +97,10 @@ public abstract class VideoEncoderConfig implements EncoderConfig {
         /** Sets the mime type. */
         @NonNull
         public abstract Builder setMimeType(@NonNull String mimeType);
+
+        /** Sets (optional) profile for the mime type specified by {@link #setMimeType(String)}. */
+        @NonNull
+        public abstract Builder setProfile(int profile);
 
         /** Sets the resolution. */
         @NonNull

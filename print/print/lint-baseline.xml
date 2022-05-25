@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-alpha02" type="baseline" client="cli" name="Lint" variant="all" version="7.1.0-alpha02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="ClassVerificationFailure"
@@ -7,9 +7,7 @@
         errorLine1="        PrintAttributes attr = new PrintAttributes.Builder()"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="271"
-            column="32"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                .setMediaSize(mediaSize)"
         errorLine2="                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="272"
-            column="18"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                .setColorMode(mColorMode)"
         errorLine2="                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="273"
-            column="18"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                .build();"
         errorLine2="                 ~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="274"
-            column="18"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        printManager.print(jobName,"
         errorLine2="                     ~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="276"
-            column="22"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        PrintAttributes.Builder builder = new PrintAttributes.Builder();"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="366"
-            column="43"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        builder.setColorMode(mColorMode);"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="367"
-            column="17"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="            builder.setMediaSize(PrintAttributes.MediaSize.UNKNOWN_LANDSCAPE);"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="370"
-            column="21"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            builder.setMediaSize(PrintAttributes.MediaSize.UNKNOWN_PORTRAIT);"
         errorLine2="                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="372"
-            column="21"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        PrintAttributes attr = builder.build();"
         errorLine2="                                       ~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="374"
-            column="40"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -117,119 +97,7 @@
         errorLine1="        printManager.print(jobName, printDocumentAdapter, attr);"
         errorLine2="                     ~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="376"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    cancellationSignal.setOnCancelListener("
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="430"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            mediaSize = mAttributes.getMediaSize();"
-        errorLine2="                                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="461"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            if (mediaSize.isPortrait() != isPortrait(bitmap)) {"
-        errorLine2="                                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="465"
-            column="43"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        PrintDocumentInfo info = new PrintDocumentInfo.Builder(mJobName)"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="478"
-            column="50"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                .setContentType(PrintDocumentInfo.CONTENT_TYPE_PHOTO)"
-        errorLine2="                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="479"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                .setPageCount(1)"
-        errorLine2="                                 ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="480"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                .build();"
-        errorLine2="                                 ~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="481"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        layoutResultCallback.onLayoutFinished(info, changed);"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="485"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        layoutResultCallback.onLayoutFailed(null);"
-        errorLine2="                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="488"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    layoutResultCallback.onLayoutCancelled();"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="496"
-            column="42"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -238,9 +106,7 @@
         errorLine1="        PrintAttributes.Builder b = new PrintAttributes.Builder()"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="560"
-            column="37"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -249,9 +115,7 @@
         errorLine1="                .setMediaSize(other.getMediaSize())"
         errorLine2="                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="561"
-            column="18"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -260,9 +124,7 @@
         errorLine1="                .setMediaSize(other.getMediaSize())"
         errorLine2="                                    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="561"
-            column="37"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -271,9 +133,7 @@
         errorLine1="                .setResolution(other.getResolution())"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="562"
-            column="18"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -282,9 +142,7 @@
         errorLine1="                .setResolution(other.getResolution())"
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="562"
-            column="38"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -293,9 +151,7 @@
         errorLine1="                .setMinMargins(other.getMinMargins());"
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="563"
-            column="18"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -304,9 +160,7 @@
         errorLine1="                .setMinMargins(other.getMinMargins());"
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="563"
-            column="38"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -315,9 +169,7 @@
         errorLine1="        if (other.getColorMode() != 0) {"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="565"
-            column="19"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -326,9 +178,7 @@
         errorLine1="            b.setColorMode(other.getColorMode());"
         errorLine2="              ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="566"
-            column="15"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -337,9 +187,7 @@
         errorLine1="            b.setColorMode(other.getColorMode());"
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="566"
-            column="34"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -348,9 +196,7 @@
         errorLine1="            if (other.getDuplexMode() != 0) {"
         errorLine2="                      ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="570"
-            column="23"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -359,9 +205,7 @@
         errorLine1="                b.setDuplexMode(other.getDuplexMode());"
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="571"
-            column="19"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -370,9 +214,7 @@
         errorLine1="                b.setDuplexMode(other.getDuplexMode());"
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="571"
-            column="39"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -381,9 +223,7 @@
         errorLine1="                    .setMinMargins(new PrintAttributes.Margins(0, 0, 0, 0)).build();"
         errorLine2="                     ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="634"
-            column="22"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -392,9 +232,7 @@
         errorLine1="                    .setMinMargins(new PrintAttributes.Margins(0, 0, 0, 0)).build();"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="634"
-            column="36"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -403,9 +241,7 @@
         errorLine1="                    .setMinMargins(new PrintAttributes.Margins(0, 0, 0, 0)).build();"
         errorLine2="                                                                            ~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="634"
-            column="77"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -414,9 +250,7 @@
         errorLine1="                    if (cancellationSignal.isCanceled()) {"
         errorLine2="                                           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="641"
-            column="44"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -425,9 +259,7 @@
         errorLine1="                    PrintedPdfDocument pdfDocument = new PrintedPdfDocument(mContext,"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="645"
-            column="54"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -436,9 +268,7 @@
         errorLine1="                            pdfAttributes.getColorMode());"
         errorLine2="                                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="649"
-            column="43"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -447,9 +277,7 @@
         errorLine1="                    if (cancellationSignal.isCanceled()) {"
         errorLine2="                                           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="651"
-            column="44"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -458,9 +286,7 @@
         errorLine1="                        PdfDocument.Page page = pdfDocument.startPage(1);"
         errorLine2="                                                            ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="656"
-            column="61"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -469,9 +295,7 @@
         errorLine1="                            contentRect = new RectF(page.getInfo().getContentRect());"
         errorLine2="                                                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="660"
-            column="58"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -480,9 +304,7 @@
         errorLine1="                            contentRect = new RectF(page.getInfo().getContentRect());"
         errorLine2="                                                                   ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="660"
-            column="68"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -491,9 +313,7 @@
         errorLine1="                            PrintedPdfDocument dummyDocument = new PrintedPdfDocument(mContext,"
         errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="664"
-            column="64"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -502,9 +322,7 @@
         errorLine1="                            PdfDocument.Page dummyPage = dummyDocument.startPage(1);"
         errorLine2="                                                                       ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="666"
-            column="72"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -513,9 +331,7 @@
         errorLine1="                            contentRect = new RectF(dummyPage.getInfo().getContentRect());"
         errorLine2="                                                              ~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="667"
-            column="63"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -524,9 +340,7 @@
         errorLine1="                            contentRect = new RectF(dummyPage.getInfo().getContentRect());"
         errorLine2="                                                                        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="667"
-            column="73"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -535,9 +349,7 @@
         errorLine1="                            dummyDocument.finishPage(dummyPage);"
         errorLine2="                                          ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="668"
-            column="43"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -546,9 +358,7 @@
         errorLine1="                            dummyDocument.close();"
         errorLine2="                                          ~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="669"
-            column="43"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -557,9 +367,7 @@
         errorLine1="                            page.getCanvas().clipRect(contentRect);"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="684"
-            column="34"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -568,9 +376,7 @@
         errorLine1="                        page.getCanvas().drawBitmap(maybeGrayscale, matrix, null);"
         errorLine2="                             ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="688"
-            column="30"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -579,9 +385,7 @@
         errorLine1="                        pdfDocument.finishPage(page);"
         errorLine2="                                    ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="691"
-            column="37"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -590,9 +394,7 @@
         errorLine1="                        if (cancellationSignal.isCanceled()) {"
         errorLine2="                                               ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="693"
-            column="48"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -601,9 +403,7 @@
         errorLine1="                        pdfDocument.writeTo("
         errorLine2="                                    ~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="698"
-            column="37"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -612,9 +412,7 @@
         errorLine1="                        pdfDocument.close();"
         errorLine2="                                    ~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="702"
-            column="37"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -623,9 +421,7 @@
         errorLine1="                if (cancellationSignal.isCanceled()) {"
         errorLine2="                                       ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="723"
-            column="40"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -634,9 +430,7 @@
         errorLine1="                    writeResultCallback.onWriteCancelled();"
         errorLine2="                                        ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="725"
-            column="41"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -645,9 +439,7 @@
         errorLine1="                    writeResultCallback.onWriteFinished("
         errorLine2="                                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="728"
-            column="41"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -656,9 +448,7 @@
         errorLine1="                    writeResultCallback.onWriteFailed(null);"
         errorLine2="                                        ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="733"
-            column="41"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
     <issue
@@ -667,9 +457,7 @@
         errorLine1="                mDecodeOptions.inPreferredColorSpace = ColorSpace.get(ColorSpace.Named.SRGB);"
         errorLine2="                                                                  ~~~">
         <location
-            file="src/main/java/androidx/print/PrintHelper.java"
-            line="783"
-            column="67"/>
+            file="src/main/java/androidx/print/PrintHelper.java"/>
     </issue>
 
 </issues>

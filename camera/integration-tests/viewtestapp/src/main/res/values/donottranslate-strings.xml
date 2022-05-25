@@ -50,5 +50,6 @@ limitations under the License.
     <string name="flash_mode_off">flash off</string>
     <string name="mirror_on">mirror on</string>
     <string name="mirror_off">mirror off</string>
+    <string name="mlkit">MLKit</string>
 
 </resources>

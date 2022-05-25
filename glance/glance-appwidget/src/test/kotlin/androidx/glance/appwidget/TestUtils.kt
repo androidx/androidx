@@ -25,19 +25,25 @@ import android.util.DisplayMetrics
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.RemoteViews
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.TextUnit
 import androidx.core.view.children
 import androidx.glance.Applier
-import androidx.glance.unit.Sp
+import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.launch
 import java.util.Locale
+import kotlin.test.assertIs
 
 internal suspend fun runTestingComposition(content: @Composable () -> Unit): RemoteViewsRoot =
     coroutineScope {
@@ -64,7 +70,12 @@ internal fun Context.applyRemoteViews(rv: RemoteViews): View {
         rv.writeToParcel(p, 0)
         p.setDataPosition(0)
         val parceled = RemoteViews(p)
-        parceled.apply(this, FrameLayout(this))
+        val parent = FrameLayout(this)
+        parent.layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
+        val view = parceled.apply(this, parent)
+        assertIs<FrameLayout>(view)
+        assertThat(view.childCount).isEqualTo(1)
+        view.getChildAt(0)
     } finally {
         p.recycle()
     }
@@ -75,7 +86,15 @@ internal suspend fun Context.runAndTranslate(
     content: @Composable () -> Unit
 ): RemoteViews {
     val root = runTestingComposition(content)
-    return translateComposition(this, appWidgetId, root)
+    normalizeCompositionTree(root)
+    return translateComposition(
+        this,
+        appWidgetId,
+        root,
+        LayoutConfiguration.create(this, appWidgetId),
+        rootViewIndex = 0,
+        layoutSize = DpSize.Zero,
+    )
 }
 
 internal suspend fun Context.runAndTranslateInRtl(
@@ -98,8 +117,10 @@ internal fun appWidgetProviderInfo(
 ): AppWidgetProviderInfo =
     AppWidgetProviderInfo().apply(builder)
 
-internal fun Sp.toPixels(displayMetrics: DisplayMetrics) =
+internal fun TextUnit.toPixels(displayMetrics: DisplayMetrics) =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, displayMetrics).toInt()
+
+internal inline fun <reified T> Collection<T>.toArrayList() = ArrayList<T>(this)
 
 inline fun <reified T : View> View.findView(noinline pred: (T) -> Boolean) =
     findView(pred, T::class.java)
@@ -120,4 +141,25 @@ fun <T : View> View.findView(predicate: (T) -> Boolean, klass: Class<T>): T? {
         return null
     }
     return children.mapNotNull { it.findView(predicate, klass) }.firstOrNull()
+}
+
+internal class TestWidget : GlanceAppWidget() {
+    @Composable
+    override fun Content() {
+    }
+}
+
+/** Count the number of children that are not gone. */
+internal val ViewGroup.nonGoneChildCount: Int
+    get() = children.count { it.visibility != View.GONE }
+
+/** Iterate over children that are not gone. */
+internal val ViewGroup.nonGoneChildren: Sequence<View>
+    get() = children.filter { it.visibility != View.GONE }
+
+fun configurationContext(modifier: Configuration.() -> Unit): Context {
+    val configuration = Configuration()
+    modifier(configuration)
+    return ApplicationProvider.getApplicationContext<Context>()
+        .createConfigurationContext(configuration)
 }

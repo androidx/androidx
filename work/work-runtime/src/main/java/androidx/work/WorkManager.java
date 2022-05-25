@@ -33,9 +33,9 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * WorkManager is a library used to enqueue deferrable work that is guaranteed to execute sometime
- * after its {@link Constraints} are met.  WorkManager allows observation of work status and the
- * ability to create complex chains of work.
+ * WorkManager is the recommended library for persistent work.
+ * Scheduled work is guaranteed to execute sometime after its {@link Constraints} are met.
+ * WorkManager allows observation of work status and the ability to create complex chains of work.
  * <p>
  * WorkManager uses an underlying job dispatching service when available based on the following
  * criteria:
@@ -209,6 +209,23 @@ public abstract class WorkManager {
     public static void initialize(@NonNull Context context, @NonNull Configuration configuration) {
         WorkManagerImpl.initialize(context, configuration);
     }
+
+    /**
+     * Provides a way to check if {@link WorkManager} is initialized in this process.
+     *
+     * @return {@code true} if {@link WorkManager} has been initialized in this process.
+     */
+    public static boolean isInitialized() {
+        return WorkManagerImpl.isInitialized();
+    }
+
+    /**
+     * Provides the {@link Configuration} instance that {@link WorkManager} was initialized with.
+     *
+     * @return The {@link Configuration} instance that {@link WorkManager} was initialized with.
+     */
+    @NonNull
+    public abstract Configuration getConfiguration();
 
     /**
      * Enqueues one item for background processing.

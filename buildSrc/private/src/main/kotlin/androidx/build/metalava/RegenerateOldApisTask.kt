@@ -20,13 +20,14 @@ import androidx.build.Version
 import androidx.build.checkapi.getApiFileVersion
 import androidx.build.checkapi.getVersionedApiLocation
 import androidx.build.checkapi.isValidArtifactVersion
-import androidx.build.doclava.androidJarFile
+import androidx.build.getAndroidJar
 import androidx.build.getCheckoutRoot
 import androidx.build.java.JavaCompileInputs
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.artifacts.ivyservice.DefaultLenientConfiguration
+import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.util.PatternFilterable
@@ -35,6 +36,7 @@ import java.io.File
 import javax.inject.Inject
 
 /** Generate API signature text files using previously built .jar/.aar artifacts. */
+@CacheableTask
 abstract class RegenerateOldApisTask @Inject constructor(
     private val workerExecutor: WorkerExecutor
 ) : DefaultTask() {
@@ -103,7 +105,7 @@ abstract class RegenerateOldApisTask @Inject constructor(
         val jars = getJars(runnerProject, mavenId)
         val sources = getSources(runnerProject, mavenId + ":sources")
 
-        return JavaCompileInputs(sources, jars, androidJarFile(project))
+        return JavaCompileInputs(sources, jars, project.getAndroidJar())
     }
 
     fun getJars(runnerProject: Project, mavenId: String): FileCollection {

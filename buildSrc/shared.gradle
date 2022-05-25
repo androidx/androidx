@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 apply plugin: "kotlin"
 apply from: "../kotlin-dsl-dependency.gradle"
+apply plugin: "java-gradle-plugin"
 
 buildscript {
     project.ext.supportRootFolder = project.projectDir.getParentFile().getParentFile()
@@ -26,6 +27,12 @@ configurations {
 }
 
 dependencies {
+    cacheableApi(libs.toml)
+    cacheableImplementation(libs.gson)
+    cacheableImplementation(libs.dom4j) {
+        // Optional dependency where Ivy fails to parse the POM file.
+        exclude(group:"net.java.dev.msv", module:"xsdlib")
+    }
     cacheableApi(libs.androidGradlePluginz)
     cacheableImplementation(libs.dexMemberList)
     cacheableApi(libs.kotlinGradlePluginz)
@@ -44,45 +51,6 @@ dependencies {
     // dependencies whose resolutions we don't need to cache
     compileOnly(findGradleKotlinDsl()) // Only one file in this configuration, no need to cache it
     implementation(project(":jetpad-integration")) // Doesn't have a .pom, so not slow to load
-}
-
-// Exclude dokka coming from AGP. We don't need it and it conflicts with dackka: b/195305339
-configurations.configureEach { conf ->
-  conf.exclude(group:"org.jetbrains.dokka", module:"dokka-core")
-}
-
-apply plugin: "java-gradle-plugin"
-
-sourceSets {
-    main.java.srcDirs += "../public/src/main/kotlin"
-    main.resources.srcDirs += "../public/src/main/resources"
-
-
-    main.java.srcDirs += "${supportRootFolder}/benchmark/gradle-plugin/src/main/kotlin"
-    main.resources.srcDirs += "${supportRootFolder}/benchmark/gradle-plugin/src/main/resources"
-
-    main.java.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/kotlin"
-    main.resources.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main" +
-            "/resources"
-
-    main.java.srcDirs += "${supportRootFolder}/compose/material/material/icons/generator/src/main" +
-            "/kotlin"
-
-    main.java.srcDirs += "${supportRootFolder}/glance/glance-appwidget/glance-layout-generator/" +
-            "src/main/kotlin"
-}
-
-gradlePlugin {
-    plugins {
-        benchmark {
-            id = "androidx.benchmark"
-            implementationClass = "androidx.benchmark.gradle.BenchmarkPlugin"
-        }
-        inspection {
-            id = "androidx.inspection"
-            implementationClass = "androidx.inspection.gradle.InspectionPlugin"
-        }
-    }
 }
 
 // Saves configuration into destFile
@@ -166,4 +134,8 @@ loadConfigurationQuicklyInto(configurations.cacheableRuntimeOnly, configurations
 project.tasks.withType(Jar) { task ->
     task.reproducibleFileOrder = true
     task.preserveFileTimestamps = false
+}
+
+validatePlugins {
+    enableStricterValidation = true
 }

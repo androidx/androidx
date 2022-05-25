@@ -178,7 +178,7 @@ public abstract class StatusRunnable<T> implements Runnable {
                 WorkDatabase workDatabase = workManager.getWorkDatabase();
                 List<WorkSpec.WorkInfoPojo> workInfoPojos =
                         workDatabase.rawWorkInfoDao().getWorkInfoPojos(
-                                RawQueries.workQueryToRawQuery(querySpec));
+                                RawQueries.toRawQuery(querySpec));
                 return WorkSpec.WORK_INFO_MAPPER.apply(workInfoPojos);
             }
         };

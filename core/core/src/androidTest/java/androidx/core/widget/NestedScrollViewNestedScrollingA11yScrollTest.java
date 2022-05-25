@@ -44,6 +44,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -67,7 +68,8 @@ public class NestedScrollViewNestedScrollingA11yScrollTest extends
     private static final int PARENT_HEIGHT = 300;
     private static final int WIDTH = 400;
     // A11Y scroll only scrolls the height of the NestedScrollView at max.
-    private static final int TOTAL_SCROLL_OFFSET = 100;
+    private static final int TOTAL_SCROLL_OFFSET = NSV_HEIGHT;
+    private static final int TOTAL_SCROLL_OFFSET_HALF = NSV_HEIGHT / 2;
 
     private NestedScrollView mNestedScrollView;
     private NestedScrollingSpyView mParent;
@@ -115,31 +117,60 @@ public class NestedScrollViewNestedScrollingA11yScrollTest extends
     @Test
     @SdkSuppress(minSdkVersion = 16)
     public void a11yActionScrollForward_fullyParticipatesInNestedScrolling() throws Throwable {
-        a11yScroll_fullyParticipatesInNestedScrolling(true);
+        a11yScroll_fullyParticipatesInNestedScrolling(true, /* startY= */ 0, TOTAL_SCROLL_OFFSET);
+    }
+
+    // minSdkVersion = 16 because View.performAccessibilityAction wasn't available till then.
+    @Test
+    @SdkSuppress(minSdkVersion = 16)
+    public void a11yActionScrollForward_halfVisibleSize_fullyParticipatesInNestedScrollingHalf()
+            throws Throwable {
+        mActivityTestRule.runOnUiThread(
+                () -> mParent.setLayoutParams(new FrameLayout.LayoutParams(WIDTH,
+                        TOTAL_SCROLL_OFFSET_HALF)));
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        a11yScroll_fullyParticipatesInNestedScrolling(true, /* startY= */ 0,
+                TOTAL_SCROLL_OFFSET_HALF);
     }
 
     // minSdkVersion = 16 because View.performAccessibilityAction wasn't available till then.
     @Test
     @SdkSuppress(minSdkVersion = 16)
     public void a11yActionScrollBackward_fullyParticipatesInNestedScrolling() throws Throwable {
-        a11yScroll_fullyParticipatesInNestedScrolling(false);
+        a11yScroll_fullyParticipatesInNestedScrolling(false, /* startY= */ 200,
+                -TOTAL_SCROLL_OFFSET);
     }
 
-    private void a11yScroll_fullyParticipatesInNestedScrolling(final boolean forward)
+    // minSdkVersion = 16 because View.performAccessibilityAction wasn't available till then.
+    @Test
+    @SdkSuppress(minSdkVersion = 16)
+    public void a11yActionScrollBackward_halfVisibleSize_fullyParticipatesInNestedScrollingHalf()
             throws Throwable {
+        mActivityTestRule.runOnUiThread(
+                () -> mParent.setLayoutParams(new FrameLayout.LayoutParams(WIDTH,
+                        TOTAL_SCROLL_OFFSET_HALF)));
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
+        a11yScroll_fullyParticipatesInNestedScrolling(false, /* startY= */ 200,
+                -TOTAL_SCROLL_OFFSET_HALF);
+    }
+
+    private void a11yScroll_fullyParticipatesInNestedScrolling(final boolean forward,
+            final int startY, final int expectedScrollOffset)
+            throws Throwable {
         final CountDownLatch countDownLatch = new CountDownLatch(2);
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                mNestedScrollView.scrollTo(0, startY);
                 doReturn(true).when(mParent).onStartNestedScroll(any(View.class), any(View.class),
                         anyInt(), anyInt());
-
                 int action;
+
                 if (forward) {
                     action = AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD;
                 } else {
-                    mNestedScrollView.scrollTo(0, 200);
                     action = AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD;
                 }
 
@@ -158,7 +189,7 @@ public class NestedScrollViewNestedScrollingA11yScrollTest extends
                             @Override
                             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY,
                                     int oldScrollX, int oldScrollY) {
-                                if (scrollY == TOTAL_SCROLL_OFFSET) {
+                                if ((scrollY - startY) == expectedScrollOffset) {
                                     countDownLatch.countDown();
                                 }
                             }

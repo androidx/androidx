@@ -58,6 +58,6 @@ class ItemsAdapter(private val numItems: Int = 100) :
     }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val nameTextView = itemView.findViewById<TextView>(R.id.recyclerview_item_label)
+        val nameTextView: TextView = itemView.findViewById<TextView>(R.id.recyclerview_item_label)
     }
 }

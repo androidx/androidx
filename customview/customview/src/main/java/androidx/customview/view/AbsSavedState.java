@@ -89,6 +89,7 @@ public abstract class AbsSavedState implements Parcelable {
 
     public static final Creator<AbsSavedState> CREATOR = new ClassLoaderCreator<AbsSavedState>() {
         @Override
+        @SuppressWarnings("deprecation")
         public AbsSavedState createFromParcel(Parcel in, ClassLoader loader) {
             Parcelable superState = in.readParcelable(loader);
             if (superState != null) {

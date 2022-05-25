@@ -19,10 +19,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -105,48 +109,32 @@ public fun Chip(
     shape: Shape = MaterialTheme.shapes.small,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     role: Role? = Role.Button,
-    content: @Composable () -> Unit,
+    content: @Composable RowScope.() -> Unit,
 ) {
-    Box(
-        modifier = modifier
-            .height(ChipDefaults.Height)
-            .clip(shape = shape)
+    CompositionLocalProvider(
+        LocalContentColor provides colors.contentColor(enabled = enabled).value,
+        LocalTextStyle provides MaterialTheme.typography.button,
+        LocalContentAlpha provides colors.contentColor(enabled = enabled).value.alpha,
     ) {
-        // TODO: Due to b/178201337 the paint() modifier on the box doesn't make a call to draw the
-        //  box contents. As a result we need to have stacked boxes to enable us to paint the
-        //  background
-        val painterModifier =
-            Modifier
+        Row(
+            modifier = modifier
+                .height(ChipDefaults.Height)
+                .clip(shape = shape)
+                .width(intrinsicSize = IntrinsicSize.Max)
                 .paint(
                     painter = colors.background(enabled = enabled).value,
                     contentScale = ContentScale.Crop
                 )
-                .fillMaxSize()
-
-        val contentBoxModifier = Modifier
-            .clickable(
-                enabled = enabled,
-                onClick = onClick,
-                role = role,
-                indication = rememberRipple(),
-                interactionSource = interactionSource,
-            )
-            .fillMaxSize()
-            .padding(contentPadding)
-
-        Box(
-            modifier = painterModifier
-        ) { }
-        Box(
-            modifier = contentBoxModifier
-        ) {
-            CompositionLocalProvider(
-                LocalContentColor provides colors.contentColor(enabled = enabled).value,
-                LocalTextStyle provides MaterialTheme.typography.button,
-                LocalContentAlpha provides colors.contentColor(enabled = enabled).value.alpha,
-                content = content
-            )
-        }
+                .clickable(
+                    enabled = enabled,
+                    onClick = onClick,
+                    role = role,
+                    indication = rememberRipple(),
+                    interactionSource = interactionSource,
+                )
+                .padding(contentPadding),
+            content = content
+        )
     }
 }
 
@@ -172,6 +160,9 @@ public fun Chip(
  *
  * Chips can be enabled or disabled. A disabled chip will not respond to click events.
  *
+ * Example of a [Chip] with icon and a label only with longer text:
+ * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabel
+ *
  * Example of a [Chip] with icon, label and secondary label:
  * @sample androidx.wear.compose.material.samples.ChipWithIconAndLabels
  *
@@ -187,7 +178,9 @@ public fun Chip(
  * to be text which is "start" aligned if there is an icon preset and "start" or "center" aligned if
  * not. label and secondaryLabel contents should be consistently aligned.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
- * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize].
+ * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize]. In
+ * order to correctly render when the Chip is not enabled the icon must set its alpha value to
+ * [LocalContentAlpha].
  * @param colors [ChipColors] that will be used to resolve the background and content color for
  * this chip in different states. See [ChipDefaults.chipColors]. Defaults to
  * [ChipDefaults.primaryChipColors]
@@ -203,11 +196,11 @@ public fun Chip(
  */
 @Composable
 public fun Chip(
-    label: @Composable () -> Unit,
+    label: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    secondaryLabel: (@Composable () -> Unit)? = null,
-    icon: (@Composable () -> Unit)? = null,
+    secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
+    icon: (@Composable BoxScope.() -> Unit)? = null,
     colors: ChipColors = ChipDefaults.primaryChipColors(),
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -223,36 +216,45 @@ public fun Chip(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxSize()
+            // Fill the container height but not its width as chips have fixed size height but we
+            // want them to be able to fit their content
+            modifier = Modifier.fillMaxHeight()
         ) {
             if (icon != null) {
-                Box(
-                    modifier = Modifier.wrapContentSize(align = Alignment.Center)
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.iconColor(enabled).value,
+                    LocalContentAlpha provides
+                        colors.iconColor(enabled = enabled).value.alpha,
                 ) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.iconTintColor(enabled).value,
-                        LocalContentAlpha provides
-                            colors.iconTintColor(enabled = enabled).value.alpha,
+                    Box(
+                        modifier = Modifier.wrapContentSize(align = Alignment.Center),
                         content = icon
                     )
                 }
                 Spacer(modifier = Modifier.size(ChipDefaults.IconSpacing))
             }
             Column {
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.contentColor(enabled).value,
-                    LocalTextStyle provides MaterialTheme.typography.button,
-                    LocalContentAlpha provides colors.contentColor(enabled = enabled).value.alpha,
-                    content = label
-                )
-                if (secondaryLabel != null) {
+                Row {
                     CompositionLocalProvider(
-                        LocalContentColor provides colors.secondaryContentColor(enabled).value,
-                        LocalTextStyle provides MaterialTheme.typography.caption2,
+                        LocalContentColor provides colors.contentColor(enabled).value,
+                        LocalTextStyle provides MaterialTheme.typography.button,
                         LocalContentAlpha provides
-                            colors.secondaryContentColor(enabled = enabled).value.alpha,
-                        content = secondaryLabel
-                    )
+                            colors.contentColor(enabled = enabled).value.alpha,
+                    ) {
+                        label()
+                    }
+                }
+                if (secondaryLabel != null) {
+                    Row {
+                        CompositionLocalProvider(
+                            LocalContentColor provides colors.secondaryContentColor(enabled).value,
+                            LocalTextStyle provides MaterialTheme.typography.caption2,
+                            LocalContentAlpha provides
+                                colors.secondaryContentColor(enabled = enabled).value.alpha,
+                        ) {
+                            secondaryLabel()
+                        }
+                    }
                 }
             }
         }
@@ -264,7 +266,7 @@ public fun Chip(
  * Both the icon and label are optional however it is expected that at least one will be provided.
  *
  * The [CompactChip] is Stadium shaped and has a max height designed to take no more than one line
- * of text of [Typography.button] style and/or one 24x24 icon. The default max height is
+ * of text of [Typography.caption1] style and/or one icon. The default max height is
  * [ChipDefaults.CompactChipHeight].
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
@@ -295,6 +297,13 @@ public fun Chip(
  * Example of a [CompactChip] with icon and single line of label text:
  * @sample androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
  *
+ * Example of a [CompactChip] with a label, note that the text is center aligned:
+ * @sample androidx.wear.compose.material.samples.CompactChipWithLabel
+ *
+ * Example of a [CompactChip] with an icon only, note that the recommended icon size is 24x24 when
+ * only an icon is displayed:
+ * @sample androidx.wear.compose.material.samples.CompactChipWithIcon
+ *
  * For more information, see the
  * [Chips](https://developer.android.com/training/wearables/components/chips)
  * guide.
@@ -302,9 +311,11 @@ public fun Chip(
  * @param onClick Will be called when the user clicks the chip
  * @param modifier Modifier to be applied to the chip
  * @param label A slot for providing the chip's main label. The contents are expected to be text
- * which is "start" aligned if there is an icon preset and "start" or "center" aligned if not.
+ * which is "start" aligned if there is an icon preset and "center" aligned if not.
  * @param icon A slot for providing the chip's icon. The contents are expected to be a horizontally
- * and vertically aligned icon of size [ChipDefaults.IconSize] or [ChipDefaults.LargeIconSize].
+ * and vertically aligned icon of size [ChipDefaults.SmallIconSize] when used with a label or
+ * [ChipDefaults.IconSize] when used as the only content in the CompactChip. In order to correctly
+ * render when the Chip is not enabled the icon must set its alpha value to [LocalContentAlpha].
  * @param colors [ChipColors] that will be used to resolve the background and content color for
  * this chip in different states. See [ChipDefaults.chipColors]. Defaults to
  * [ChipDefaults.primaryChipColors]
@@ -321,16 +332,22 @@ public fun Chip(
 public fun CompactChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    label: (@Composable () -> Unit)? = null,
-    icon: (@Composable () -> Unit)? = null,
+    label: (@Composable RowScope.() -> Unit)? = null,
+    icon: (@Composable BoxScope.() -> Unit)? = null,
     colors: ChipColors = ChipDefaults.primaryChipColors(),
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    contentPadding: PaddingValues = ChipDefaults.ContentPadding,
+    contentPadding: PaddingValues = ChipDefaults.CompactChipContentPadding,
 ) {
     if (label != null) {
         Chip(
-            label = label,
+            label = {
+                CompositionLocalProvider(
+                    LocalTextStyle provides MaterialTheme.typography.caption1,
+                ) {
+                    label()
+                }
+            },
             onClick = onClick,
             modifier = modifier.height(ChipDefaults.CompactChipHeight),
             icon = icon,
@@ -340,6 +357,8 @@ public fun CompactChip(
             contentPadding = contentPadding
         )
     } else {
+        // Icon only compact chips have their own layout with a specific width and center aligned
+        // content. We use the base simple single slot Chip under the covers.
         Chip(
             onClick = onClick,
             modifier = modifier
@@ -350,8 +369,11 @@ public fun CompactChip(
             interactionSource = interactionSource,
             contentPadding = contentPadding
         ) {
-            if (icon != null) {
-                icon()
+            // Use a box to fill and center align the icon into the single slot of the Chip
+            Box(modifier = Modifier.fillMaxSize().wrapContentSize(align = Alignment.Center)) {
+                if (icon != null) {
+                    icon()
+                }
             }
         }
     }
@@ -391,12 +413,12 @@ public interface ChipColors {
     public fun secondaryContentColor(enabled: Boolean): State<Color>
 
     /**
-     * Represents the icon tint color for this chip, depending on [enabled].
+     * Represents the icon color for this chip, depending on [enabled].
      *
      * @param enabled Whether the chip is enabled
      */
     @Composable
-    public fun iconTintColor(enabled: Boolean): State<Color>
+    public fun iconColor(enabled: Boolean): State<Color>
 }
 
 /**
@@ -413,20 +435,20 @@ public object ChipDefaults {
      * @param contentColor The content color of this [Chip] when enabled
      * @param secondaryContentColor The secondary content color of this [Chip] when enabled, used
      * for secondaryLabel content
-     * @param iconTintColor The icon tint color of this [Chip] when enabled, used for icon content
+     * @param iconColor The icon color of this [Chip] when enabled, used for icon content
      */
     @Composable
     public fun primaryChipColors(
         backgroundColor: Color = MaterialTheme.colors.primary,
         contentColor: Color = contentColorFor(backgroundColor),
         secondaryContentColor: Color = contentColor,
-        iconTintColor: Color = contentColor
+        iconColor: Color = contentColor
     ): ChipColors {
         return chipColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconTintColor = iconTintColor
+            iconColor = iconColor
         )
     }
 
@@ -447,7 +469,7 @@ public object ChipDefaults {
      * @param contentColor The content color of this [Chip] when enabled
      * @param secondaryContentColor The secondary content color of this [Chip] when enabled, used
      * for secondaryLabel content
-     * @param iconTintColor The icon tint color of this [Chip] when enabled, used for icon content
+     * @param iconColor The icon color of this [Chip] when enabled, used for icon content
      * @param gradientDirection Whether the chips gradient should be start to end (indicated by
      * [LayoutDirection.Ltr]) or end to start (indicated by [LayoutDirection.Rtl]).
      */
@@ -459,7 +481,7 @@ public object ChipDefaults {
             .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f)),
         contentColor: Color = contentColorFor(endBackgroundColor),
         secondaryContentColor: Color = contentColor,
-        iconTintColor: Color = contentColor,
+        iconColor: Color = contentColor,
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): ChipColors {
         val backgroundColors: List<Color>
@@ -487,7 +509,7 @@ public object ChipDefaults {
             backgroundPainter = BrushPainter(Brush.linearGradient(backgroundColors)),
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconTintColor = iconTintColor,
+            iconColor = iconColor,
             disabledBackgroundPainter = BrushPainter(
                 Brush.linearGradient(disabledBackgroundColors)
             ),
@@ -495,7 +517,7 @@ public object ChipDefaults {
             disabledSecondaryContentColor = secondaryContentColor.copy(
                 alpha = ContentAlpha.disabled
             ),
-            disabledIconTintColor = iconTintColor.copy(alpha = ContentAlpha.disabled),
+            disabledIconColor = iconColor.copy(alpha = ContentAlpha.disabled),
         )
     }
 
@@ -509,20 +531,20 @@ public object ChipDefaults {
      * @param contentColor The content color of this [Chip] when enabled
      * @param secondaryContentColor The secondary content color of this [Chip] when enabled, used
      * for secondaryLabel content
-     * @param iconTintColor The icon tint color of this [Chip] when enabled, used for icon content
+     * @param iconColor The icon color of this [Chip] when enabled, used for icon content
      */
     @Composable
     public fun secondaryChipColors(
         backgroundColor: Color = MaterialTheme.colors.surface,
         contentColor: Color = contentColorFor(backgroundColor),
         secondaryContentColor: Color = contentColor,
-        iconTintColor: Color = contentColor
+        iconColor: Color = contentColor
     ): ChipColors {
         return chipColors(
             backgroundColor = backgroundColor,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconTintColor = iconTintColor
+            iconColor = iconColor
         )
     }
 
@@ -537,19 +559,19 @@ public object ChipDefaults {
      * @param contentColor The content color of this [Chip] when enabled
      * @param secondaryContentColor The secondary content color of this [Chip] when enabled, used
      * for secondaryLabel content
-     * @param iconTintColor The icon tint color of this [Chip] when enabled, used for icon content
+     * @param iconColor The icon color of this [Chip] when enabled, used for icon content
      */
     @Composable
     public fun childChipColors(
         contentColor: Color = MaterialTheme.colors.onSurface,
         secondaryContentColor: Color = contentColor,
-        iconTintColor: Color = contentColor
+        iconColor: Color = contentColor
     ): ChipColors {
         return chipColors(
             backgroundColor = Color.Transparent,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconTintColor = iconTintColor
+            iconColor = iconColor
         )
     }
 
@@ -564,7 +586,7 @@ public object ChipDefaults {
      * @param contentColor The content color of this [Chip] when enabled
      * @param secondaryContentColor The secondary content color of this [Chip] when enabled, used
      * for secondaryLabel content
-     * @param iconTintColor The icon tint color of this [Chip] when enabled, used for icon content
+     * @param iconColor The icon color of this [Chip] when enabled, used for icon content
      */
     @Composable
     public fun imageBackgroundChipColors(
@@ -577,7 +599,7 @@ public object ChipDefaults {
         ),
         contentColor: Color = MaterialTheme.colors.onBackground,
         secondaryContentColor: Color = contentColor,
-        iconTintColor: Color = contentColor,
+        iconColor: Color = contentColor,
     ): ChipColors {
         val backgroundPainter =
             remember(backgroundImagePainter, backgroundImageScrimBrush) {
@@ -600,13 +622,13 @@ public object ChipDefaults {
             backgroundPainter = backgroundPainter,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconTintColor = iconTintColor,
+            iconColor = iconColor,
             disabledBackgroundPainter = disabledBackgroundPainter,
             disabledContentColor = contentColor.copy(alpha = ContentAlpha.disabled),
             disabledSecondaryContentColor = secondaryContentColor.copy(
                 alpha = ContentAlpha.disabled
             ),
-            disabledIconTintColor = iconTintColor.copy(alpha = ContentAlpha.disabled),
+            disabledIconColor = iconColor.copy(alpha = ContentAlpha.disabled),
         )
     }
 
@@ -621,6 +643,19 @@ public object ChipDefaults {
         top = ChipVerticalPadding,
         end = ChipHorizontalPadding,
         bottom = ChipVerticalPadding
+    )
+
+    private val CompactChipHorizontalPadding = 12.dp
+    private val CompactChipVerticalPadding = 0.dp
+
+    /**
+     * The default content padding used by [CompactChip]
+     */
+    public val CompactChipContentPadding: PaddingValues = PaddingValues(
+        start = CompactChipHorizontalPadding,
+        top = CompactChipVerticalPadding,
+        end = CompactChipHorizontalPadding,
+        bottom = CompactChipVerticalPadding
     )
 
     /**
@@ -669,32 +704,32 @@ public object ChipDefaults {
      * @param backgroundColor The background color of this [Chip] when enabled
      * @param contentColor The content color of this [Chip] when enabled
      * @param secondaryContentColor The content color of this [Chip] when enabled
-     * @param iconTintColor The content color of this [Chip] when enabled
+     * @param iconColor The content color of this [Chip] when enabled
      * @param disabledBackgroundColor The background color of this [Chip] when not enabled
      * @param disabledContentColor The content color of this [Chip] when not enabled
      * @param disabledSecondaryContentColor The content color of this [Chip] when not enabled
-     * @param disabledIconTintColor The content color of this [Chip] when not enabled
+     * @param disabledIconColor The content color of this [Chip] when not enabled
      */
     @Composable
     public fun chipColors(
         backgroundColor: Color = MaterialTheme.colors.primary,
         contentColor: Color = contentColorFor(backgroundColor),
         secondaryContentColor: Color = contentColor,
-        iconTintColor: Color = contentColor,
+        iconColor: Color = contentColor,
         disabledBackgroundColor: Color = backgroundColor.copy(alpha = ContentAlpha.disabled),
         disabledContentColor: Color = contentColor.copy(alpha = ContentAlpha.disabled),
         disabledSecondaryContentColor: Color =
             secondaryContentColor.copy(alpha = ContentAlpha.disabled),
-        disabledIconTintColor: Color = iconTintColor.copy(alpha = ContentAlpha.disabled),
+        disabledIconColor: Color = iconColor.copy(alpha = ContentAlpha.disabled),
     ): ChipColors = DefaultChipColors(
         backgroundColor = backgroundColor,
         contentColor = contentColor,
         secondaryContentColor = secondaryContentColor,
-        iconTintColor = iconTintColor,
+        iconColor = iconColor,
         disabledBackgroundColor = disabledBackgroundColor,
         disabledContentColor = disabledContentColor,
         disabledSecondaryContentColor = disabledSecondaryContentColor,
-        disabledIconTintColor = disabledIconTintColor,
+        disabledIconColor = disabledIconColor,
     )
 }
 
@@ -706,31 +741,31 @@ private class DefaultChipColors(
     private val backgroundPainter: Painter,
     private val contentColor: Color,
     private val secondaryContentColor: Color,
-    private val iconTintColor: Color,
+    private val iconColor: Color,
     private val disabledBackgroundPainter: Painter,
     private val disabledContentColor: Color,
     private val disabledSecondaryContentColor: Color,
-    private val disabledIconTintColor: Color,
+    private val disabledIconColor: Color,
 ) : ChipColors {
 
     constructor(
         backgroundColor: Color,
         contentColor: Color,
         secondaryContentColor: Color,
-        iconTintColor: Color,
+        iconColor: Color,
         disabledBackgroundColor: Color,
         disabledContentColor: Color,
         disabledSecondaryContentColor: Color,
-        disabledIconTintColor: Color
+        disabledIconColor: Color
     ) : this(
         ColorPainter(backgroundColor),
         contentColor,
         secondaryContentColor,
-        iconTintColor,
+        iconColor,
         ColorPainter(disabledBackgroundColor),
         disabledContentColor,
         disabledSecondaryContentColor,
-        disabledIconTintColor
+        disabledIconColor
     )
 
     @Composable
@@ -755,8 +790,8 @@ private class DefaultChipColors(
     }
 
     @Composable
-    override fun iconTintColor(enabled: Boolean): State<Color> {
-        return rememberUpdatedState(if (enabled) iconTintColor else disabledIconTintColor)
+    override fun iconColor(enabled: Boolean): State<Color> {
+        return rememberUpdatedState(if (enabled) iconColor else disabledIconColor)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -769,11 +804,11 @@ private class DefaultChipColors(
         if (backgroundPainter != other.backgroundPainter) return false
         if (contentColor != other.contentColor) return false
         if (secondaryContentColor != other.secondaryContentColor) return false
-        if (iconTintColor != other.iconTintColor) return false
+        if (iconColor != other.iconColor) return false
         if (disabledBackgroundPainter != other.disabledBackgroundPainter) return false
         if (disabledContentColor != other.disabledContentColor) return false
         if (disabledSecondaryContentColor != other.disabledSecondaryContentColor) return false
-        if (disabledIconTintColor != other.disabledIconTintColor) return false
+        if (disabledIconColor != other.disabledIconColor) return false
 
         return true
     }
@@ -782,11 +817,11 @@ private class DefaultChipColors(
         var result = backgroundPainter.hashCode()
         result = 31 * result + contentColor.hashCode()
         result = 31 * result + secondaryContentColor.hashCode()
-        result = 31 * result + iconTintColor.hashCode()
+        result = 31 * result + iconColor.hashCode()
         result = 31 * result + disabledBackgroundPainter.hashCode()
         result = 31 * result + disabledContentColor.hashCode()
         result = 31 * result + disabledSecondaryContentColor.hashCode()
-        result = 31 * result + disabledIconTintColor.hashCode()
+        result = 31 * result + disabledIconColor.hashCode()
         return result
     }
 }

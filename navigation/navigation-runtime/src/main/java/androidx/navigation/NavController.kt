@@ -40,6 +40,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
@@ -164,8 +165,19 @@ public open class NavController(
     private var onBackPressedDispatcher: OnBackPressedDispatcher? = null
     private var viewModel: NavControllerViewModel? = null
     private val onDestinationChangedListeners = CopyOnWriteArrayList<OnDestinationChangedListener>()
+    internal var hostLifecycleState: Lifecycle.State = Lifecycle.State.INITIALIZED
+        get() {
+            // A LifecycleOwner is not required by NavController.
+            // In the cases where one is not provided, always keep the host lifecycle at CREATED
+            return if (lifecycleOwner == null) {
+                Lifecycle.State.CREATED
+            } else {
+                field
+            }
+        }
 
     private val lifecycleObserver: LifecycleObserver = LifecycleEventObserver { _, event ->
+        hostLifecycleState = event.targetState
         if (_graph != null) {
             for (entry in backQueue) {
                 entry.handleLifecycleEvent(event)
@@ -300,7 +312,7 @@ public open class NavController(
             arguments: Bundle?
         ) = NavBackStackEntry.create(
             context, destination, arguments,
-            lifecycleOwner, viewModel
+            hostLifecycleState, viewModel
         )
 
         override fun pop(popUpTo: NavBackStackEntry, saveState: Boolean) {
@@ -748,6 +760,7 @@ public open class NavController(
      * stack used to start this Activity. Returns false if
      * the current destination was already the root of the deep link.
      */
+    @Suppress("DEPRECATION")
     private fun tryRelaunchUpToExplicitStack(): Boolean {
         if (!deepLinkHandled) {
             return false
@@ -985,14 +998,14 @@ public open class NavController(
         navigatorState.values.forEach { state ->
             entries += state.transitionsInProgress.value.filter { entry ->
                 !entries.contains(entry) &&
-                    !entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                    !entry.maxLifecycle.isAtLeast(Lifecycle.State.STARTED)
             }
         }
         // Add any STARTED entries from the backQueue. This will include the topmost
         // non-FloatingWindow destination plus every FloatingWindow destination above it.
         entries += backQueue.filter { entry ->
             !entries.contains(entry) &&
-                entry.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+                entry.maxLifecycle.isAtLeast(Lifecycle.State.STARTED)
         }
         return entries.filter {
             it.destination !is NavGraph
@@ -1076,6 +1089,9 @@ public open class NavController(
                 val newDestination = graph.nodes.valueAt(i)
                 _graph!!.nodes.replace(i, newDestination)
                 backQueue.filter { currentEntry ->
+                    // Necessary since CI builds against ToT, can be removed once
+                    // androidx.collection is updated to >= 1.3.*
+                    @Suppress("UNNECESSARY_SAFE_CALL", "SAFE_CALL_WILL_CHANGE_NULLABILITY")
                     currentEntry.destination.id == newDestination?.id
                 }.forEach { entry ->
                     entry.destination = newDestination
@@ -1114,13 +1130,17 @@ public open class NavController(
                             "found from the current destination $currentDestination"
                     )
                 }
-                val entry = state.instantiate(context, node, lifecycleOwner, viewModel)
+                val entry = state.instantiate(context, node, hostLifecycleState, viewModel)
                 val navigator = _navigatorProvider.getNavigator<Navigator<*>>(node.navigatorName)
                 val navigatorBackStack = navigatorState.getOrPut(navigator) {
                     NavControllerNavigatorState(navigator)
                 }
                 backQueue.add(entry)
                 navigatorBackStack.addInternal(entry)
+                val parent = entry.destination.parent
+                if (parent != null) {
+                    linkChildToParent(entry, getBackStackEntry(parent.id))
+                }
             }
             updateOnBackPressedCallbackEnabled()
             this.backStackToRestore = null
@@ -1168,6 +1188,7 @@ public open class NavController(
      * @see NavDestination.addDeepLink
      */
     @MainThread
+    @Suppress("DEPRECATION")
     public open fun handleDeepLink(intent: Intent?): Boolean {
         if (intent == null) {
             return false
@@ -1257,7 +1278,26 @@ public open class NavController(
                 }
                 navigate(
                     node, arguments,
-                    NavOptions.Builder().setEnterAnim(0).setExitAnim(0).build(), null
+                    navOptions {
+                        anim {
+                            enter = 0
+                            exit = 0
+                        }
+                        val changingGraphs = node is NavGraph &&
+                            node.hierarchy.none { it == currentDestination?.parent }
+                        if (changingGraphs && deepLinkSaveState) {
+                            // If we are navigating to a 'sibling' graph (one that isn't part
+                            // of the current destination's hierarchy), then we need to saveState
+                            // to ensure that each graph has its own saved state that users can
+                            // return to
+                            popUpTo(graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            // Note we specifically don't call restoreState = true
+                            // as our deep link should support multiple instances of the
+                            // same graph in a row
+                        }
+                    }, null
                 )
             }
             return true
@@ -1674,7 +1714,7 @@ public open class NavController(
             } else {
                 // Not a single top operation, so we're looking to add the node to the back stack
                 val backStackEntry = NavBackStackEntry.create(
-                    context, node, finalArgs, lifecycleOwner, viewModel
+                    context, node, finalArgs, hostLifecycleState, viewModel
                 )
                 navigator.navigateInternal(listOf(backStackEntry), navOptions, navigatorExtras) {
                     navigated = true
@@ -1764,7 +1804,7 @@ public open class NavController(
                 "Restore State failed: destination $dest cannot be found from the current " +
                     "destination $currentDestination"
             }
-            backStack += state.instantiate(context, node, lifecycleOwner, viewModel)
+            backStack += state.instantiate(context, node, hostLifecycleState, viewModel)
             currentDestination = node
         }
         return backStack
@@ -1801,7 +1841,7 @@ public open class NavController(
                         restoredEntry.destination == parent
                     } ?: NavBackStackEntry.create(
                         context, parent,
-                        finalArgs, lifecycleOwner, viewModel
+                        finalArgs, hostLifecycleState, viewModel
                     )
                     hierarchy.addFirst(entry)
                     // Pop any orphaned copy of that navigation graph off the back stack
@@ -1822,7 +1862,8 @@ public open class NavController(
                 val entry = restoredEntries.lastOrNull { restoredEntry ->
                     restoredEntry.destination == parent
                 } ?: NavBackStackEntry.create(
-                    context, parent, parent.addInDefaultArgs(finalArgs), lifecycleOwner, viewModel
+                    context, parent, parent.addInDefaultArgs(finalArgs), hostLifecycleState,
+                    viewModel
                 )
                 hierarchy.addFirst(entry)
             }
@@ -1848,7 +1889,8 @@ public open class NavController(
             val entry = restoredEntries.lastOrNull { restoredEntry ->
                 restoredEntry.destination == _graph!!
             } ?: NavBackStackEntry.create(
-                context, _graph!!, _graph!!.addInDefaultArgs(finalArgs), lifecycleOwner, viewModel
+                context, _graph!!, _graph!!.addInDefaultArgs(finalArgs), hostLifecycleState,
+                viewModel
             )
             hierarchy.addFirst(entry)
         }
@@ -2039,6 +2081,7 @@ public open class NavController(
      * @param navState state bundle to restore
      */
     @CallSuper
+    @Suppress("DEPRECATION")
     public open fun restoreState(navState: Bundle?) {
         if (navState == null) {
             return
@@ -2264,6 +2307,22 @@ public open class NavController(
          */
         public const val KEY_DEEP_LINK_INTENT: String =
             "android-support-nav:controller:deepLinkIntent"
+
+        private var deepLinkSaveState = true
+
+        /**
+         * By default, [handleDeepLink] will automatically add calls to
+         * [NavOptions.Builder.setPopUpTo] with a `saveState` of `true` when the deep
+         * link takes you to another graph (e.g., a different navigation graph than the
+         * one your start destination is in).
+         *
+         * You can disable this behavior by passing `false` for [saveState].
+         */
+        @JvmStatic
+        @NavDeepLinkSaveStateControl
+        public fun enableDeepLinkSaveState(saveState: Boolean) {
+            deepLinkSaveState = saveState
+        }
     }
 }
 

@@ -518,6 +518,35 @@ class ArcLayoutTest(private val testHeight: Int) {
         )
     }
 
+    @Test
+    fun testLayoutRtl() {
+        doOneTest(
+            "layout_rtl",
+            listOf(
+                ArcLayout(ApplicationProvider.getApplicationContext()).apply {
+                    anchorAngleDegrees = 0f
+                    anchorType = ArcLayout.ANCHOR_CENTER
+                    layoutDirection = View.LAYOUT_DIRECTION_RTL
+                    isClockwise = true
+                    listOf("a", "b", "c").forEach { text ->
+                        addSeparator()
+                        addCurvedText(text, 0xFFFF0000.toInt())
+                    }
+                },
+                ArcLayout(ApplicationProvider.getApplicationContext()).apply {
+                    anchorAngleDegrees = 180f
+                    anchorType = ArcLayout.ANCHOR_CENTER
+                    layoutDirection = View.LAYOUT_DIRECTION_RTL
+                    isClockwise = false
+                    listOf("d", "e", "f").forEach { text ->
+                        addSeparator()
+                        addCurvedText(text, 0xFFFF0000.toInt())
+                    }
+                },
+            )
+        )
+    }
+
     // Generates a click in the x,y coordinates in the view's coordinate system.
     fun customClick(x: Float, y: Float) = ViewActions.actionWithAssertions(
         GeneralClickAction(

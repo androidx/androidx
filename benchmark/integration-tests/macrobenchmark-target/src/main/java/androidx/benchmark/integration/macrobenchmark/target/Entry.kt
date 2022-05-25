@@ -20,6 +20,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.RecyclerView
 
 data class Entry(val contents: String)
@@ -28,10 +29,13 @@ class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     val content: TextView = itemView.findViewById(R.id.content)
 }
 
-class EntryAdapter(private val entries: List<Entry>) : RecyclerView.Adapter<EntryViewHolder>() {
+class EntryAdapter(
+    private val entries: List<Entry>,
+    @LayoutRes val itemResId: Int = R.layout.recycler_row
+) : RecyclerView.Adapter<EntryViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EntryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        val itemView = inflater.inflate(R.layout.recycler_row, parent, false)
+        val itemView = inflater.inflate(itemResId, parent, false)
         return EntryViewHolder(itemView)
     }
 

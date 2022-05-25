@@ -16,19 +16,24 @@
 
 package androidx.appcompat.widget;
 
+import static android.os.Build.VERSION.SDK_INT;
+
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.R;
 import androidx.appcompat.graphics.drawable.DrawableWrapper;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -36,6 +41,8 @@ import androidx.core.view.ViewPropertyAnimatorCompat;
 import androidx.core.widget.ListViewAutoScrollHelper;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * <p>Wrapper class for a ListView. This wrapper can hijack the focus to
@@ -426,10 +433,9 @@ class DropDownListView extends ListView {
 
     @Override
     public boolean onHoverEvent(@NonNull MotionEvent ev) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            // For SDK_INT prior to O the code below fails to change the selection.
-            // This is because prior to O mouse events used to enable touch mode, and
-            //  View.setSelectionFromTop does not do the right thing in touch mode.
+        if (SDK_INT < 26) {
+            // On SDK 26 and below, hover events force the UI into touch mode which does not show
+            // the selector. Don't bother trying to move selection.
             return super.onHoverEvent(ev);
         }
 
@@ -450,9 +456,17 @@ class DropDownListView extends ListView {
             if (position != INVALID_POSITION && position != getSelectedItemPosition()) {
                 final View hoveredItem = getChildAt(position - getFirstVisiblePosition());
                 if (hoveredItem.isEnabled()) {
-                    // Force a focus on the hovered item so that
-                    // the proper selector state gets used when we update.
-                    setSelectionFromTop(position, hoveredItem.getTop() - this.getTop());
+                    // Force a focus so that the proper selector state gets
+                    // used when we update.
+                    requestFocus();
+
+                    if (SDK_INT >= 30 && Api30Impl.canPositionSelectorForHoveredItem()) {
+                        // Starting in SDK 30, setSelectionFromTop does not move selection. Instead,
+                        // we'll reflect on the methods used by the platform DropDownListView.
+                        Api30Impl.positionSelectorForHoveredItem(this, position, hoveredItem);
+                    } else {
+                        setSelectionFromTop(position, hoveredItem.getTop() - this.getTop());
+                    }
                 }
                 updateSelectorStateCompat();
             }
@@ -646,8 +660,8 @@ class DropDownListView extends ListView {
         mDrawsInPressedState = true;
 
         // Ordering is essential. First, update the container's pressed state.
-        if (Build.VERSION.SDK_INT >= 21) {
-            drawableHotspotChanged(x, y);
+        if (SDK_INT >= 21) {
+            Api21Impl.drawableHotspotChanged(this, x, y);
         }
         if (!isPressed()) {
             setPressed(true);
@@ -669,8 +683,8 @@ class DropDownListView extends ListView {
         // Offset for child coordinates.
         final float childX = x - child.getLeft();
         final float childY = y - child.getTop();
-        if (Build.VERSION.SDK_INT >= 21) {
-            child.drawableHotspotChanged(childX, childY);
+        if (SDK_INT >= 21) {
+            Api21Impl.drawableHotspotChanged(child, childX, childY);
         }
         if (!child.isPressed()) {
             child.setPressed(true);
@@ -714,6 +728,79 @@ class DropDownListView extends ListView {
 
         public void post() {
             DropDownListView.this.post(this);
+        }
+    }
+
+    @SuppressWarnings("CatchAndPrintStackTrace")
+    @RequiresApi(30)
+    static class Api30Impl {
+        private static Method sPositionSelector;
+        private static Method sSetSelectedPositionInt;
+        private static Method sSetNextSelectedPositionInt;
+        private static boolean sHasMethods;
+
+        static {
+            try {
+                sPositionSelector = AbsListView.class.getDeclaredMethod(
+                        "positionSelector", int.class, View.class,
+                        boolean.class, float.class, float.class);
+                sPositionSelector.setAccessible(true);
+                sSetSelectedPositionInt  = AdapterView.class.getDeclaredMethod(
+                        "setSelectedPositionInt", int.class);
+                sSetSelectedPositionInt.setAccessible(true);
+                sSetNextSelectedPositionInt = AdapterView.class.getDeclaredMethod(
+                        "setNextSelectedPositionInt", int.class);
+                sSetNextSelectedPositionInt.setAccessible(true);
+                sHasMethods = true;
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+        }
+
+        private Api30Impl() {
+            // This class is not instantiable.
+        }
+
+        /**
+         * @return whether this class can access the methods required to position selection using
+         * hidden platform APIs
+         */
+        static boolean canPositionSelectorForHoveredItem() {
+            return sHasMethods;
+        }
+
+        /**
+         * Positions the selector for a hovered item using the same hidden platform APIs as the
+         * platform implementation of DropDownListView.
+         *
+         * @param view the drop-down list view handling the event
+         * @param position the position to select
+         * @param sel the view being selected
+         */
+        @SuppressWarnings("CatchAndPrintStackTrace")
+        @SuppressLint("BanUncheckedReflection") // No public APIs available.
+        static void positionSelectorForHoveredItem(DropDownListView view, int position, View sel) {
+            try {
+                sPositionSelector.invoke(view, position, sel, false, -1, -1);
+                sSetSelectedPositionInt.invoke(view, position);
+                sSetNextSelectedPositionInt.invoke(view, position);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void drawableHotspotChanged(View view, float x, float y) {
+            view.drawableHotspotChanged(x, y);
         }
     }
 }

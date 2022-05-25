@@ -79,14 +79,11 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
         // Dispatch to PointerInputFilters
         val dispatchedToSomething = hitPathTracker.dispatchChanges(internalPointerEvent, isInBounds)
 
-        var anyMovementConsumed = false
-
-        // Remove hit paths from the tracker due to up events, and calculate if we have consumed
-        // any movement
-        internalPointerEvent.changes.values.forEach { pointerInputChange ->
-            if (pointerInputChange.positionChangeConsumed()) {
-                anyMovementConsumed = true
-            }
+        val anyMovementConsumed = if (internalPointerEvent.suppressMovementConsumption) {
+            false
+        } else {
+            internalPointerEvent.changes.values
+                .any { it.positionChangedIgnoreConsumed() && it.isConsumed }
         }
 
         return ProcessResult(dispatchedToSomething, anyMovementConsumed)
@@ -149,20 +146,23 @@ private class PointerInputChangeEventProducer {
                     previousTime,
                     previousPosition,
                     previousDown,
-                    ConsumedData(),
+                    false,
                     it.type,
-                    it.historical
+                    it.historical,
+                    it.scrollDelta
                 )
             if (it.down) {
                 previousPointerInputData[it.id] = PointerInputData(
                     it.uptime,
                     it.positionOnScreen,
-                    it.down
+                    it.down,
+                    it.type
                 )
             } else {
                 previousPointerInputData.remove(it.id)
             }
         }
+
         return InternalPointerEvent(changes, pointerInputEvent)
     }
 
@@ -176,7 +176,8 @@ private class PointerInputChangeEventProducer {
     private class PointerInputData(
         val uptime: Long,
         val positionOnScreen: Offset,
-        val down: Boolean
+        val down: Boolean,
+        val type: PointerType
     )
 }
 
@@ -184,8 +185,8 @@ private class PointerInputChangeEventProducer {
  * The result of a call to [PointerInputEventProcessor.process].
  */
 // TODO(shepshpard): Not sure if storing these values in a int is most efficient overall.
-@Suppress("INLINE_CLASS_DEPRECATED", "EXPERIMENTAL_FEATURE_WARNING")
-internal inline class ProcessResult(private val value: Int) {
+@kotlin.jvm.JvmInline
+internal value class ProcessResult(private val value: Int) {
     val dispatchedToAPointerInputModifier
         get() = (value and 1) != 0
 

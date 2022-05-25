@@ -436,6 +436,15 @@ public class NotificationCompat {
     public static final String EXTRA_PICTURE = "android.picture";
 
     /**
+     * {@link #extras} key: this is a content description of the big picture supplied from
+     * {@link BigPictureStyle#bigPicture(Bitmap)}, supplied to
+     * {@link BigPictureStyle#setContentDescription(CharSequence)}.
+     */
+    @SuppressLint("ActionValue")  // Field & value copied from android.app.Notification
+    public static final String EXTRA_PICTURE_CONTENT_DESCRIPTION =
+            "android.pictureContentDescription";
+
+    /**
      * {@link #getExtras extras} key: this is a boolean to indicate that the
      * {@link BigPictureStyle#bigPicture(Bitmap) big picture} is to be shown in the collapsed state
      * of a {@link BigPictureStyle} notification.  This will replace a
@@ -963,6 +972,7 @@ public class NotificationCompat {
          * with the NotitifactionCompat.Builder API.
          */
         @RequiresApi(19)
+        @SuppressWarnings("deprecation")
         public Builder(@NonNull Context context,
                 @NonNull Notification notification) {
             this(context, getChannelId(notification));
@@ -3032,6 +3042,7 @@ public class NotificationCompat {
         private Bitmap mPicture;
         private IconCompat mBigLargeIcon;
         private boolean mBigLargeIconSet;
+        private CharSequence mPictureContentDescription;
         private boolean mShowBigPictureWhenCollapsed;
 
         public BigPictureStyle() {
@@ -3056,6 +3067,17 @@ public class NotificationCompat {
         public @NonNull BigPictureStyle setSummaryText(@Nullable CharSequence cs) {
             mSummaryText = Builder.limitCharSequenceLength(cs);
             mSummaryTextSet = true;
+            return this;
+        }
+
+        /**
+         * Set the content description of the big picture.
+         */
+        @RequiresApi(31)
+        @NonNull
+        public BigPictureStyle setContentDescription(
+                @Nullable CharSequence contentDescription) {
+            mPictureContentDescription = contentDescription;
             return this;
         }
 
@@ -3132,6 +3154,7 @@ public class NotificationCompat {
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     Api31Impl.showBigPictureWhenCollapsed(style, mShowBigPictureWhenCollapsed);
+                    Api31Impl.setContentDescription(style, mPictureContentDescription);
                 }
             }
         }
@@ -3141,6 +3164,7 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
+        @SuppressWarnings("deprecation")
         protected void restoreFromCompatExtras(@NonNull Bundle extras) {
             super.restoreFromCompatExtras(extras);
 
@@ -3242,6 +3266,15 @@ public class NotificationCompat {
             static void showBigPictureWhenCollapsed(Notification.BigPictureStyle style,
                     boolean show) {
                 style.showBigPictureWhenCollapsed(show);
+            }
+
+            /**
+             * Calls {@link Notification.BigPictureStyle#setContentDescription(CharSequence)}
+             */
+            @RequiresApi(31)
+            static void setContentDescription(Notification.BigPictureStyle style,
+                    CharSequence contentDescription) {
+                style.setContentDescription(contentDescription);
             }
         }
     }
@@ -3476,7 +3509,8 @@ public class NotificationCompat {
          * conversation title to a non-null value will make {@link #isGroupConversation()} return
          * {@code true} and passing {@code null} will make it return {@code false}. This behavior
          * can be overridden by calling {@link #setGroupConversation(boolean)} regardless of SDK
-         * version. In {@code P} and above, this method does not affect group conversation settings.
+         * version. In {@link Build.VERSION_CODES#P} and above, this method does not affect group
+         * conversation settings.
          *
          * @param conversationTitle Title displayed for this conversation
          * @return this object for method chaining
@@ -3580,7 +3614,7 @@ public class NotificationCompat {
         }
 
         /**
-         * Gets the list of {@code Message} objects that represent the notification
+         * Gets the list of {@code Message} objects that represent the notification.
          */
         public @NonNull List<Message> getMessages() {
             return mMessages;
@@ -3594,10 +3628,17 @@ public class NotificationCompat {
         }
 
         /**
-         * Sets whether this conversation notification represents a group.
+         * Sets whether this conversation notification represents a group. An app should set
+         * isGroupConversation {@code true} to mark that the conversation involves multiple people.
+         *
+         * <p>Group conversation notifications may display additional group-related context not
+         * present in non-group notifications.
+         *
          * @param isGroupConversation {@code true} if the conversation represents a group,
          * {@code false} otherwise.
          * @return this object for method chaining
+         *
+         * @see #isGroupConversation()
          */
         public @NonNull MessagingStyle setGroupConversation(boolean isGroupConversation) {
             mIsGroupConversation = isGroupConversation;
@@ -3613,9 +3654,9 @@ public class NotificationCompat {
          * was not called, this method becomes dependent on whether or not the conversation title is
          * set; returning {@code true} if the conversation title is a non-null value, or
          * {@code false} otherwise. This is to maintain backwards compatibility. Regardless, {@link
-         * #setGroupConversation(boolean)} has precedence over this legacy behavior. From {@code P}
-         * forward, {@link #setConversationTitle(CharSequence)} has no affect on group conversation
-         * status.
+         * #setGroupConversation(boolean)} has precedence over this legacy behavior. From
+         * {@link Build.VERSION_CODES#P} forward, {@link #setConversationTitle(CharSequence)} has
+         * no affect on group conversation status.
          *
          * @see #setConversationTitle(CharSequence)
          */
@@ -3832,6 +3873,7 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
+        @SuppressWarnings("deprecation")
         protected void restoreFromCompatExtras(@NonNull Bundle extras) {
             super.restoreFromCompatExtras(extras);
             mMessages.clear();
@@ -4075,6 +4117,7 @@ public class NotificationCompat {
             }
 
             @Nullable
+            @SuppressWarnings("deprecation")
             static Message getMessageFromBundle(@NonNull Bundle bundle) {
                 try {
                     if (!bundle.containsKey(KEY_TEXT) || !bundle.containsKey(KEY_TIMESTAMP)) {
@@ -4457,7 +4500,14 @@ public class NotificationCompat {
     /**
      * Structure to encapsulate a named action that can be shown as part of this notification.
      * It must include an icon, a label, and a {@link PendingIntent} to be fired when the action is
-     * selected by the user. Action buttons won't appear on platforms prior to Android 4.1.
+     * selected by the user. Action buttons won't appear on platforms prior to Android
+     * {@link android.os.Build.VERSION_CODES#JELLY_BEAN}.
+     * <p>
+     * As of Android {@link android.os.Build.VERSION_CODES#N},
+     * action button icons will not be displayed on action buttons, but are still required and
+     * are available to
+     * {@link android.service.notification.NotificationListenerService notification listeners},
+     * which may display them in other contexts, for example on a wearable device.
      * <p>
      * Apps should use {@link NotificationCompat.Builder#addAction(int, CharSequence, PendingIntent)}
      * or {@link NotificationCompat.Builder#addAction(NotificationCompat.Action)}
@@ -4568,6 +4618,8 @@ public class NotificationCompat {
          */
         public PendingIntent actionIntent;
 
+        private boolean mAuthenticationRequired;
+
         public Action(int icon, @Nullable CharSequence title, @Nullable PendingIntent intent) {
             this(icon == 0 ? null : IconCompat.createWithResource(null, "", icon), title, intent);
         }
@@ -4579,17 +4631,17 @@ public class NotificationCompat {
         public Action(@Nullable IconCompat icon, @Nullable CharSequence title,
                 @Nullable PendingIntent intent) {
             this(icon, title, intent, new Bundle(), null, null, true, SEMANTIC_ACTION_NONE, true,
-                    false /* isContextual */);
+                    false /* isContextual */, false /* authRequired */);
         }
 
         Action(int icon, @Nullable CharSequence title, @Nullable PendingIntent intent,
                 @Nullable Bundle extras,
                 @Nullable RemoteInput[] remoteInputs, @Nullable RemoteInput[] dataOnlyRemoteInputs,
                 boolean allowGeneratedReplies, @SemanticAction int semanticAction,
-                boolean showsUserInterface, boolean isContextual) {
+                boolean showsUserInterface, boolean isContextual, boolean requireAuth) {
             this(icon == 0 ? null : IconCompat.createWithResource(null, "", icon), title,
                     intent, extras, remoteInputs, dataOnlyRemoteInputs, allowGeneratedReplies,
-                    semanticAction, showsUserInterface, isContextual);
+                    semanticAction, showsUserInterface, isContextual, requireAuth);
         }
 
         // Package private access to avoid adding a SyntheticAccessor for the Action.Builder class.
@@ -4598,7 +4650,7 @@ public class NotificationCompat {
                 @Nullable PendingIntent intent, @Nullable Bundle extras,
                 @Nullable RemoteInput[] remoteInputs, @Nullable RemoteInput[] dataOnlyRemoteInputs,
                 boolean allowGeneratedReplies, @SemanticAction int semanticAction,
-                boolean showsUserInterface, boolean isContextual) {
+                boolean showsUserInterface, boolean isContextual, boolean requireAuth) {
             this.mIcon = icon;
             if (icon != null && icon.getType() == IconCompat.TYPE_RESOURCE) {
                 this.icon = icon.getResId();
@@ -4612,6 +4664,7 @@ public class NotificationCompat {
             this.mSemanticAction = semanticAction;
             this.mShowsUserInterface = showsUserInterface;
             this.mIsContextual = isContextual;
+            this.mAuthenticationRequired = requireAuth;
         }
 
         /**
@@ -4655,6 +4708,17 @@ public class NotificationCompat {
          */
         public boolean getAllowGeneratedReplies() {
             return mAllowGeneratedReplies;
+        }
+
+        /**
+         * Returns whether the OS should only send this action's {@link PendingIntent} on an
+         * unlocked device.
+         *
+         * If the device is locked when the action is invoked, the OS should show the keyguard and
+         * require successful authentication before invoking the intent.
+         */
+        public boolean isAuthenticationRequired() {
+            return mAuthenticationRequired;
         }
 
         /**
@@ -4721,6 +4785,7 @@ public class NotificationCompat {
             private @SemanticAction int mSemanticAction;
             private boolean mShowsUserInterface = true;
             private boolean mIsContextual;
+            private boolean mAuthenticationRequired;
 
             /**
              * Creates a {@link Builder} from an {@link android.app.Notification.Action}.
@@ -4757,6 +4822,9 @@ public class NotificationCompat {
                 if (Build.VERSION.SDK_INT >= 29) {
                     builder.setContextual(action.isContextual());
                 }
+                if (Build.VERSION.SDK_INT >= 31) {
+                    builder.setAuthenticationRequired(action.isAuthenticationRequired());
+                }
                 return builder;
             }
 
@@ -4772,7 +4840,7 @@ public class NotificationCompat {
             public Builder(@Nullable IconCompat icon, @Nullable CharSequence title,
                     @Nullable PendingIntent intent) {
                 this(icon, title, intent, new Bundle(), null, true, SEMANTIC_ACTION_NONE, true,
-                        false /* isContextual */);
+                        false /* isContextual */, false /* authRequiored */);
             }
 
             /**
@@ -4789,7 +4857,7 @@ public class NotificationCompat {
                         true,
                         SEMANTIC_ACTION_NONE,
                         true,
-                        false /* isContextual */);
+                        false /* isContextual */, false /* authRequired */);
             }
 
             /**
@@ -4802,14 +4870,14 @@ public class NotificationCompat {
                         new Bundle(action.mExtras),
                         action.getRemoteInputs(), action.getAllowGeneratedReplies(),
                         action.getSemanticAction(), action.mShowsUserInterface,
-                        action.isContextual());
+                        action.isContextual(), action.isAuthenticationRequired());
             }
 
             private Builder(@Nullable IconCompat icon, @Nullable CharSequence title,
                     @Nullable PendingIntent intent, @NonNull Bundle extras,
                     @Nullable RemoteInput[] remoteInputs, boolean allowGeneratedReplies,
                     @SemanticAction int semanticAction, boolean showsUserInterface,
-                    boolean isContextual) {
+                    boolean isContextual, boolean authRequired) {
                 mIcon = icon;
                 mTitle = NotificationCompat.Builder.limitCharSequenceLength(title);
                 mIntent = intent;
@@ -4820,6 +4888,7 @@ public class NotificationCompat {
                 mSemanticAction = semanticAction;
                 mShowsUserInterface = showsUserInterface;
                 mIsContextual = isContextual;
+                mAuthenticationRequired = authRequired;
             }
 
             /**
@@ -4900,6 +4969,21 @@ public class NotificationCompat {
             }
 
             /**
+             * From API 31, sets whether the OS should only send this action's {@link PendingIntent}
+             * on an unlocked device.
+             *
+             * If this is true and the device is locked when the action is invoked, the OS will
+             * show the keyguard and require successful authentication before invoking the intent.
+             * If this is false and the device is locked, the OS will decide whether authentication
+             * should be required.
+             */
+            @NonNull
+            public Builder setAuthenticationRequired(boolean authenticationRequired) {
+                mAuthenticationRequired = authenticationRequired;
+                return this;
+            }
+
+            /**
              * Set whether or not this {@link Action}'s {@link PendingIntent} will open a user
              * interface.
              * @param showsUserInterface {@code true} if this {@link Action}'s {@link PendingIntent}
@@ -4961,7 +5045,7 @@ public class NotificationCompat {
                         ? null : textInputs.toArray(new RemoteInput[textInputs.size()]);
                 return new Action(mIcon, mTitle, mIntent, mExtras, textInputsArr,
                         dataOnlyInputsArr, mAllowGeneratedReplies, mSemanticAction,
-                        mShowsUserInterface, mIsContextual);
+                        mShowsUserInterface, mIsContextual, mAuthenticationRequired);
             }
         }
 
@@ -5612,6 +5696,9 @@ public class NotificationCompat {
                     actionCompat.getAllowGeneratedReplies());
             if (Build.VERSION.SDK_INT >= 24) {
                 actionBuilder.setAllowGeneratedReplies(actionCompat.getAllowGeneratedReplies());
+            }
+            if (Build.VERSION.SDK_INT >= 31) {
+                actionBuilder.setAuthenticationRequired(actionCompat.isAuthenticationRequired());
             }
             actionBuilder.addExtras(actionExtras);
             RemoteInput[] remoteInputCompats = actionCompat.getRemoteInputs();
@@ -6312,6 +6399,7 @@ public class NotificationCompat {
          *
          * @param notification The notification from which to copy options.
          */
+        @SuppressWarnings("deprecation")
         public CarExtender(@NonNull Notification notification) {
             if (Build.VERSION.SDK_INT < 21) {
                 return;
@@ -6329,6 +6417,7 @@ public class NotificationCompat {
         }
 
         @RequiresApi(21)
+        @SuppressWarnings("deprecation")
         private static UnreadConversation getUnreadConversationFromBundle(@Nullable Bundle b) {
             if (b == null) {
                 return null;
@@ -7301,6 +7390,7 @@ public class NotificationCompat {
      * Update the bundle to have a typed array so fetches in the future don't need
      * to do an array copy.
      */
+    @SuppressWarnings("deprecation")
     static @NonNull Notification[] getNotificationArrayFromBundle(@NonNull Bundle bundle,
             @NonNull String key) {
         Parcelable[] array = bundle.getParcelableArray(key);
@@ -7435,21 +7525,24 @@ public class NotificationCompat {
 
         final boolean isContextual = Build.VERSION.SDK_INT >= 29 ? action.isContextual() : false;
 
+        final boolean authRequired =
+                Build.VERSION.SDK_INT >= 31 ? action.isAuthenticationRequired() : false;
+
         if (Build.VERSION.SDK_INT >= 23) {
             if (action.getIcon() == null && action.icon != 0) {
                 return new Action(action.icon, action.title, action.actionIntent,
                         action.getExtras(), remoteInputs, null, allowGeneratedReplies,
-                        semanticAction, showsUserInterface, isContextual);
+                        semanticAction, showsUserInterface, isContextual, authRequired);
             }
             IconCompat icon = action.getIcon() == null
                     ? null : IconCompat.createFromIconOrNullIfZeroResId(action.getIcon());
             return new Action(icon, action.title, action.actionIntent, action.getExtras(),
                     remoteInputs, null, allowGeneratedReplies, semanticAction, showsUserInterface,
-                    isContextual);
+                    isContextual, authRequired);
         } else {
             return new Action(action.icon, action.title, action.actionIntent, action.getExtras(),
                     remoteInputs, null, allowGeneratedReplies, semanticAction, showsUserInterface,
-                    isContextual);
+                    isContextual, authRequired);
         }
     }
 
@@ -7480,6 +7573,7 @@ public class NotificationCompat {
      * On platforms which do not have the {@link android.app.Person} class, the
      * {@link Person} objects will contain only the URI from {@link Builder#addPerson(String)}.
      */
+    @SuppressWarnings("deprecation")
     public static @NonNull List<Person> getPeople(@NonNull Notification notification) {
         ArrayList<Person> result = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= 28) {

@@ -39,22 +39,18 @@ internal abstract class JavacExecutableElement(
         element.descriptor()
     }
 
-    override val parameters: List<JavacMethodParameter> by lazy {
-        element.parameters.mapIndexed { index, variable ->
-            JavacMethodParameter(
-                env = env,
-                enclosingMethodElement = this,
-                containing = containing,
-                element = variable,
-                kotlinMetadataFactory = { kotlinMetadata?.parameters?.getOrNull(index) },
-                argIndex = index
-            )
-        }
-    }
+    abstract override val parameters: List<JavacMethodParameter>
 
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(element, containing)
     }
+
+    override val enclosingElement: JavacTypeElement by lazy {
+        element.requireEnclosingType(env)
+    }
+
+    override val closestMemberContainer: JavacTypeElement
+        get() = enclosingElement
 
     override fun isVarArgs(): Boolean {
         return element.isVarArgs

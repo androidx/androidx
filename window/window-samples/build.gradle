@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -29,6 +28,10 @@ android {
         applicationId "androidx.window.sample"
         minSdkVersion 23
     }
+    buildFeatures {
+        viewBinding true
+    }
+    namespace "androidx.window.sample"
 }
 
 dependencies {
@@ -40,15 +43,31 @@ dependencies {
     // TODO(b/152245564) Conflicting dependencies cause IDE errors.
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.4.0-alpha02")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.4.0-alpha02")
+    implementation "androidx.browser:browser:1.3.0"
+    implementation("androidx.startup:startup-runtime:1.1.0")
 
     implementation(project(":window:window"))
+    debugImplementation(libs.leakcanary)
+
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.espressoCore, excludes.espresso)
+    androidTestImplementation(project(":window:window-testing"))
 }
 
 androidx {
     name = "Jetpack WindowManager library samples"
     publish = Publish.NONE
     mavenGroup = LibraryGroups.WINDOW
-    mavenVersion = LibraryVersions.WINDOW
     inceptionYear = "2020"
     description = "Demo of Jetpack WindowManager library APIs"
+}
+
+// Allow usage of Kotlin's @OptIn.
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
+    }
 }

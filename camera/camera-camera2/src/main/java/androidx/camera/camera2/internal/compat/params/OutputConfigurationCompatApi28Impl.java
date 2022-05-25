@@ -34,6 +34,10 @@ class OutputConfigurationCompatApi28Impl extends OutputConfigurationCompatApi26I
         super(new OutputConfiguration(surface));
     }
 
+    OutputConfigurationCompatApi28Impl(int surfaceGroupId, @NonNull Surface surface) {
+        this(new OutputConfiguration(surfaceGroupId, surface));
+    }
+
     OutputConfigurationCompatApi28Impl(@NonNull Object outputConfiguration) {
         super(outputConfiguration);
     }

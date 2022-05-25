@@ -32,7 +32,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.window.core.Version
 import androidx.window.core.Version.Companion.parse
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
-import androidx.window.layout.ExtensionWindowBackend.Companion.DEBUG
+import androidx.window.layout.SidecarWindowBackend.Companion.DEBUG
 import androidx.window.sidecar.SidecarDeviceState
 import androidx.window.sidecar.SidecarDisplayFeature
 import androidx.window.sidecar.SidecarInterface
@@ -60,14 +60,14 @@ internal class SidecarCompat @VisibleForTesting constructor(
     private var extensionCallback: ExtensionCallbackInterface? = null
 
     constructor(context: Context) : this(
-        SidecarProvider.getSidecarImpl(context),
+        getSidecarCompat(context),
         SidecarAdapter()
     )
 
     override fun setExtensionCallback(extensionCallback: ExtensionCallbackInterface) {
         this.extensionCallback = DistinctElementCallback(extensionCallback)
         sidecar?.setSidecarCallback(
-            DistinctSidecarElementCallback(
+            DistinctElementSidecarCallback(
                 sidecarAdapter,
                 TranslatingCallback()
             )
@@ -326,6 +326,11 @@ internal class SidecarCompat @VisibleForTesting constructor(
         override fun onViewDetachedFromWindow(view: View) {}
     }
 
+    /**
+     * A callback to translate from Sidecar classes to local classes.
+     *
+     * If you change the name of this class, you must update the proguard file.
+     */
     internal inner class TranslatingCallback : SidecarCallback {
         @SuppressLint("SyntheticAccessor")
         override fun onDeviceStateChanged(newDeviceState: SidecarDeviceState) {
@@ -393,51 +398,6 @@ internal class SidecarCompat @VisibleForTesting constructor(
         }
     }
 
-    /**
-     * A class to record the last calculated values from [SidecarInterface] and filter out
-     * duplicates. This class uses [SidecarAdapter] to compute equality since the methods
-     * [Object.equals] and [Object.hashCode] may not have been overridden.
-     */
-    private class DistinctSidecarElementCallback(
-        private val sidecarAdapter: SidecarAdapter,
-        private val callbackInterface: SidecarCallback
-    ) : SidecarCallback {
-        private val lock = ReentrantLock()
-
-        @GuardedBy("lock")
-        private var lastDeviceState: SidecarDeviceState? = null
-
-        /**
-         * A map from [Activity] to the last computed [WindowLayoutInfo] for the
-         * given activity. A [WeakHashMap] is used to avoid retaining the [Activity].
-         */
-        @GuardedBy("mLock")
-        private val mActivityWindowLayoutInfo = WeakHashMap<IBinder, SidecarWindowLayoutInfo>()
-        override fun onDeviceStateChanged(newDeviceState: SidecarDeviceState) {
-            lock.withLock {
-                if (sidecarAdapter.isEqualSidecarDeviceState(lastDeviceState, newDeviceState)) {
-                    return
-                }
-                lastDeviceState = newDeviceState
-                callbackInterface.onDeviceStateChanged(newDeviceState)
-            }
-        }
-
-        override fun onWindowLayoutChanged(
-            token: IBinder,
-            newLayout: SidecarWindowLayoutInfo
-        ) {
-            synchronized(lock) {
-                val lastInfo = mActivityWindowLayoutInfo[token]
-                if (sidecarAdapter.isEqualSidecarWindowLayoutInfo(lastInfo, newLayout)) {
-                    return
-                }
-                mActivityWindowLayoutInfo.put(token, newLayout)
-            }
-            callbackInterface.onWindowLayoutChanged(token, newLayout)
-        }
-    }
-
     companion object {
         private const val TAG = "SidecarCompat"
         val sidecarVersion: Version?
@@ -455,6 +415,10 @@ internal class SidecarCompat @VisibleForTesting constructor(
                 }
                 null
             }
+
+        internal fun getSidecarCompat(context: Context): SidecarInterface? {
+            return SidecarProvider.getSidecarImpl(context.applicationContext)
+        }
 
         /**
          * A utility method [Activity] to return an optional [IBinder] window token from an

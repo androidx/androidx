@@ -210,6 +210,7 @@ public class SliceViewManagerTest {
 
     @Test
     @SdkSuppress(minSdkVersion = 28)
+    @SuppressWarnings("deprecation")
     public void testSuspended() throws PackageManager.NameNotFoundException {
         Uri uri = new Uri.Builder()
                 .scheme(ContentResolver.SCHEME_CONTENT)

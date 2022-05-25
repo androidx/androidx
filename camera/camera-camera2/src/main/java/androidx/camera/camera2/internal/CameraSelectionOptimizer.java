@@ -75,17 +75,12 @@ class CameraSelectionOptimizer {
                 cameraInfos.add(cameraInfo);
             }
 
-            try {
-                List<CameraInfo> filteredCameraInfos =
-                        availableCamerasSelector.filter(cameraInfos);
+            List<CameraInfo> filteredCameraInfos =
+                    availableCamerasSelector.filter(cameraInfos);
 
-                for (CameraInfo cameraInfo : filteredCameraInfos) {
-                    String cameraId = ((CameraInfoInternal) cameraInfo).getCameraId();
-                    availableCameraIds.add(cameraId);
-                }
-            } catch (IllegalArgumentException e) {
-                // Return empty available id list if no camera is found.
-                return availableCameraIds;
+            for (CameraInfo cameraInfo : filteredCameraInfos) {
+                String cameraId = ((CameraInfoInternal) cameraInfo).getCameraId();
+                availableCameraIds.add(cameraId);
             }
 
             return availableCameraIds;

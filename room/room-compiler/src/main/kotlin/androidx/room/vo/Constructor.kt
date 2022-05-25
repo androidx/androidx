@@ -54,7 +54,7 @@ data class Constructor(val element: XExecutableElement, val params: List<Param>)
                 builder.addStatement(
                     "$L = $T.$L($L)", outVar,
                     element.enclosingElement.className,
-                    element.name, args
+                    element.jvmName, args
                 )
             }
             else -> throw IllegalStateException("Invalid constructor kind ${element.kindName()}")

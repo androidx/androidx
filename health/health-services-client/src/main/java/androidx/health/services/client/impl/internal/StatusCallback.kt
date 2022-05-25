@@ -17,6 +17,7 @@
 package androidx.health.services.client.impl.internal
 
 import android.os.RemoteException
+import androidx.annotation.RestrictTo
 import com.google.common.util.concurrent.SettableFuture
 
 /**
@@ -24,7 +25,8 @@ import com.google.common.util.concurrent.SettableFuture
  *
  * @hide
  */
-public class StatusCallback(private val resultFuture: SettableFuture<Void>) :
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public class StatusCallback(private val resultFuture: SettableFuture<Void?>) :
     IStatusCallback.Stub() {
 
     @Throws(RemoteException::class)

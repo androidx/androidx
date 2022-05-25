@@ -20,6 +20,8 @@ import androidx.annotation.RequiresOptIn;
 import androidx.annotation.RequiresOptIn.Level;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
@@ -27,5 +29,6 @@ import java.lang.annotation.Target;
  * render correctly on all tile renderers.
  */
 @RequiresOptIn(level = Level.ERROR)
+@Retention(RetentionPolicy.CLASS)
 @Target({ElementType.METHOD, ElementType.TYPE, ElementType.FIELD})
 public @interface TilesExperimental {}

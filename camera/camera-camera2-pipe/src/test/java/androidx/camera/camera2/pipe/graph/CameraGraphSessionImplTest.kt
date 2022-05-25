@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.graph
 import android.os.Build
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.core.TokenLockImpl
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.testutils.assertThrows
@@ -37,7 +38,12 @@ internal class CameraGraphSessionImplTest {
     private val graphState3A = GraphState3A()
     private val graphProcessor = FakeGraphProcessor(graphState3A = graphState3A)
     private val listener3A = Listener3A()
-    private val controller3A = Controller3A(graphProcessor, graphState3A, listener3A)
+    private val controller3A = Controller3A(
+        graphProcessor,
+        FakeCameraMetadata(),
+        graphState3A,
+        listener3A
+    )
 
     private val session = CameraGraphSessionImpl(
         tokenLock.acquireOrNull(1, 1)!!,

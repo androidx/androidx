@@ -17,7 +17,9 @@
 package androidx.navigation
 
 import android.app.Application
+import androidx.core.os.bundleOf
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -25,6 +27,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.get
 import androidx.lifecycle.testing.TestLifecycleOwner
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.navigation.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
@@ -121,7 +124,11 @@ class NavBackStackEntryTest {
     @Test
     fun testGetViewModelStoreOwnerSavedStateViewModel() {
         val hostStore = ViewModelStore()
-        val navController = createNavController()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val navController = NavHostController(ApplicationProvider.getApplicationContext()).apply {
+            setLifecycleOwner(lifecycleOwner)
+            navigatorProvider.addNavigator(TestNavigator())
+        }
         navController.setViewModelStore(hostStore)
         val navGraph = navController.navigatorProvider.navigation(
             id = 1,
@@ -139,12 +146,17 @@ class NavBackStackEntryTest {
         viewModel.savedStateHandle.set("test", "test")
 
         val savedState = navController.saveState()
+
+        // Need to move the old navController state to DESTROYED to detach
+        // SavedStateHandleController
+        lifecycleOwner.lifecycle.currentState = Lifecycle.State.DESTROYED
+
         val restoredNavController = createNavController()
         restoredNavController.setViewModelStore(hostStore)
         restoredNavController.restoreState(savedState)
         restoredNavController.graph = navGraph
 
-        val restoredOwner = navController.getViewModelStoreOwner(navGraph.id)
+        val restoredOwner = restoredNavController.getViewModelStoreOwner(navGraph.id)
         val restoredViewModel = ViewModelProvider(
             restoredOwner
         )[TestSavedStateViewModel::class.java]
@@ -257,12 +269,48 @@ class NavBackStackEntryTest {
             .that(restoredResult).isEqualTo(result)
     }
 
+    @Suppress("DEPRECATION")
+    @UiThreadTest
+    @Test
+    fun testCreateViewModelViaExtras() {
+        val hostStore = ViewModelStore()
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        val navController = NavHostController(ApplicationProvider.getApplicationContext()).apply {
+            setLifecycleOwner(lifecycleOwner)
+            navigatorProvider.addNavigator(TestNavigator())
+        }
+        navController.setViewModelStore(hostStore)
+        val navGraph = navController.navigatorProvider.navigation(
+            id = 1,
+            startDestination = R.id.start_test
+        ) {
+            test(R.id.start_test)
+        }
+        navController.setGraph(navGraph, null)
+
+        val entry = navController.currentBackStackEntry!!
+
+        val extras = MutableCreationExtras(entry.defaultViewModelCreationExtras).apply {
+            this[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
+        }
+
+        val actualValue =
+            ViewModelProvider(
+                entry.viewModelStore,
+                entry.defaultViewModelProviderFactory,
+                extras)["test", TestSavedStateViewModel::class.java].defaultValue
+
+        assertWithMessage("ViewModel from back stack entry should have args from CreationExtras")
+            .that(actualValue)
+            .isEqualTo("value")
+    }
+
     @UiThreadTest
     @Test
     fun testGetSavedStateHandle() {
         val entry = NavBackStackEntry.create(
             ApplicationProvider.getApplicationContext(),
-            NavDestination(TestNavigator()), null, TestLifecycleOwner(), NavControllerViewModel()
+            NavDestination(TestNavigator()), null, Lifecycle.State.STARTED, NavControllerViewModel()
         )
         entry.maxLifecycle = Lifecycle.State.CREATED
 
@@ -271,7 +319,7 @@ class NavBackStackEntryTest {
 
     @UiThreadTest
     @Test
-    fun testGetSavedStateHandleInitializedLifecycle() {
+    fun testGetSavedStateHandleBeforeUpdateState() {
         val entry = NavBackStackEntry.create(
             ApplicationProvider.getApplicationContext(),
             NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
@@ -289,6 +337,44 @@ class NavBackStackEntryTest {
                     "You cannot access the NavBackStackEntry's SavedStateHandle until it is " +
                         "added to the NavController's back stack (i.e., the Lifecycle of the " +
                         "NavBackStackEntry reaches the CREATED state)."
+                )
+        }
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetSavedStateHandleInitializedLifecycle() {
+        val entry = NavBackStackEntry.create(
+            ApplicationProvider.getApplicationContext(),
+            NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
+        )
+        entry.updateState()
+
+        assertThat(entry.savedStateHandle).isNotNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testGetSavedStateHandleDestroyedLifecycle() {
+        val entry = NavBackStackEntry.create(
+            ApplicationProvider.getApplicationContext(),
+            NavDestination(TestNavigator()), viewModelStoreProvider = NavControllerViewModel()
+        )
+        entry.maxLifecycle = Lifecycle.State.CREATED
+        // Immediately destroy the NavBackStackEntry
+        entry.maxLifecycle = Lifecycle.State.DESTROYED
+
+        try {
+            entry.savedStateHandle
+            fail(
+                "Attempting to get SavedStateHandle for back stack entry after " +
+                    "moving the Lifecycle to DESTROYED set should throw IllegalStateException"
+            )
+        } catch (e: IllegalStateException) {
+            assertThat(e)
+                .hasMessageThat().contains(
+                    "You cannot access the NavBackStackEntry's SavedStateHandle after the " +
+                        "NavBackStackEntry is destroyed."
                 )
         }
     }
@@ -466,9 +552,89 @@ class NavBackStackEntryTest {
             .isTrue()
     }
 
+    @UiThreadTest
+    @Test
+    fun testLifecyclePoppedGraph() {
+        val navController = createNavController(true)
+        val navGraph = navController.navigatorProvider.navigation(
+            startDestination = "first",
+            route = "main"
+        ) {
+            test(route = "first")
+            navigation(startDestination = "second_test", route = "graph_nested") {
+                test(route = "second_test")
+            }
+        }
+        navController.graph = navGraph
+
+        navController.navigatorProvider[TestNavigator::class].onTransitionComplete(
+            navController.getBackStackEntry("first")
+        )
+
+        navController.navigate("graph_nested")
+
+        navController.navigatorProvider[TestNavigator::class].onTransitionComplete(
+            navController.getBackStackEntry("second_test")
+        )
+
+        val graphBackStackEntry = navController.getBackStackEntry("main")
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val nestedGraphBackStackEntry = navController.getBackStackEntry("graph_nested")
+        assertWithMessage("The nested graph should be resumed when its child is resumed")
+            .that(nestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val nestedBackStackEntry = navController.getBackStackEntry("second_test")
+        assertWithMessage("The nested start destination should be resumed")
+            .that(nestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        val savedState = navController.saveState()
+
+        val restoredNavController = createNavController(true)
+        restoredNavController.restoreState(savedState)
+
+        restoredNavController.graph = navGraph
+
+        val restoredGraphBackStackEntry = restoredNavController.getBackStackEntry("main")
+        assertWithMessage("The restored parent graph should be resumed when its child is resumed")
+            .that(restoredGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val restoredNestedGraphBackStackEntry =
+            restoredNavController.getBackStackEntry("graph_nested")
+        assertWithMessage("The restored nested graph should be resumed when its child is resumed")
+            .that(restoredNestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val restoredNestedBackStackEntry = restoredNavController.getBackStackEntry("second_test")
+        assertWithMessage("The restored nested start destination should be resumed")
+            .that(restoredNestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        restoredNavController.popBackStack()
+
+        assertWithMessage("The nested graph should be created when its children are transitioning")
+            .that(restoredNestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertWithMessage("The nested start destination should be created while transitioning")
+            .that(restoredNestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+
+        restoredNavController.navigatorProvider[TestNavigator::class].onTransitionComplete(
+            restoredNestedBackStackEntry
+        )
+
+        assertWithMessage("The nested graph should be destroyed when its children are destroyed")
+            .that(restoredNestedGraphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+        assertWithMessage("The nested start destination should be destroyed after being popped")
+            .that(restoredNestedBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
     private fun createNavController(withTransitions: Boolean = false): NavController {
         val navController = NavHostController(ApplicationProvider.getApplicationContext())
-        navController.setLifecycleOwner(TestLifecycleOwner())
+        navController.setLifecycleOwner(TestLifecycleOwner(Lifecycle.State.RESUMED))
         val navigator = TestNavigator(withTransitions)
         navController.navigatorProvider.addNavigator(navigator)
         return navController
@@ -483,4 +649,6 @@ internal class TestAndroidViewModel(application: Application) : AndroidViewModel
     }
 }
 
-class TestSavedStateViewModel(val savedStateHandle: SavedStateHandle) : ViewModel()
+class TestSavedStateViewModel(val savedStateHandle: SavedStateHandle) : ViewModel() {
+    val defaultValue = savedStateHandle.get<String>("test")
+}

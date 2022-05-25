@@ -51,6 +51,7 @@ import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -64,6 +65,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Tests for {@link MediaControllerCompat.Callback} with {@link MediaSession}.
  */
+@FlakyTest(bugId = 202942942)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSessionTestBase {
@@ -90,6 +92,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         mSession.close();
     }
 
+    @Ignore("b/202942942")
     @Test
     public void gettersAfterConnected() throws Exception {
         int testState = SessionPlayer.PLAYER_STATE_PLAYING;
@@ -542,6 +545,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         assertEquals(speed, mControllerCompat.getPlaybackState().getPlaybackSpeed(), EPSILON);
     }
 
+    @Ignore("b/202942942")
     @Test
     public void bufferingStateChange() throws Exception {
         List<MediaItem> testPlaylist = MediaTestUtils.createFileMediaItems(3);
@@ -592,7 +596,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         assertEquals(testSeekPosition, mControllerCompat.getPlaybackState().getPosition());
     }
 
-    @FlakyTest(bugId = 187338985)
+    @Ignore("b/202942942")
     @Test
     public void currentMediaItemChange() throws Exception {
         int testItemIndex = 3;
@@ -757,6 +761,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         assertEquals(playlistTitle, queueTitleRef.get().toString());
     }
 
+    @Ignore("b/202942942")
     @Test
     public void onAudioInfoChanged_isCalled_byVolumeChange() throws Exception {
         Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()

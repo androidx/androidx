@@ -268,6 +268,7 @@ class NavInflaterTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun testActionArguments() {
         val context = ApplicationProvider.getApplicationContext() as Context
         val navInflater = NavInflater(context, TestNavigatorProvider())

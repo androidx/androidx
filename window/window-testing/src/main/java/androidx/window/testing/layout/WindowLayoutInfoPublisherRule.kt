@@ -16,7 +16,7 @@
 
 package androidx.window.testing.layout
 
-import androidx.window.layout.WindowInfoRepository
+import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -51,16 +51,16 @@ public class WindowLayoutInfoPublisherRule() : TestRule {
         extraBufferCapacity = 1,
         onBufferOverflow = DROP_OLDEST
     )
-    private val overrideServices = PublishWindowInfoRepositoryDecorator(flow)
+    private val overrideServices = PublishWindowInfoTrackerDecorator(flow)
 
     override fun apply(base: Statement, description: Description): Statement {
         return object : Statement() {
             override fun evaluate() {
-                WindowInfoRepository.overrideDecorator(overrideServices)
+                WindowInfoTracker.overrideDecorator(overrideServices)
                 try {
                     base.evaluate()
                 } finally {
-                    WindowInfoRepository.reset()
+                    WindowInfoTracker.reset()
                 }
             }
         }
@@ -68,7 +68,7 @@ public class WindowLayoutInfoPublisherRule() : TestRule {
 
     /**
      * Send an arbitrary [WindowLayoutInfo] through
-     * [androidx.window.layout.WindowInfoRepository.windowLayoutInfo]. Each event is sent only once.
+     * [androidx.window.layout.WindowInfoTracker.windowLayoutInfo]. Each event is sent only once.
      */
     public fun overrideWindowLayoutInfo(info: WindowLayoutInfo) {
         flow.tryEmit(info)

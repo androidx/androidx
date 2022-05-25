@@ -1,0 +1,31 @@
+// Baseline format: 1.0
+RemovedClass: androidx.leanback.widget.BaseGridView:
+    Removed class androidx.leanback.widget.BaseGridView
+RemovedClass: androidx.leanback.widget.HorizontalGridView:
+    Removed class androidx.leanback.widget.HorizontalGridView
+RemovedClass: androidx.leanback.widget.ItemAlignmentFacet:
+    Removed class androidx.leanback.widget.ItemAlignmentFacet
+RemovedClass: androidx.leanback.widget.OnChildViewHolderSelectedListener:
+    Removed class androidx.leanback.widget.OnChildViewHolderSelectedListener
+RemovedClass: androidx.leanback.widget.VerticalGridView:
+    Removed class androidx.leanback.widget.VerticalGridView
+RemovedClass: androidx.leanback.widget.Visibility:
+    Removed class androidx.leanback.widget.Visibility
+
+
+RemovedInterface: androidx.leanback.widget.FacetProvider:
+    Removed class androidx.leanback.widget.FacetProvider
+RemovedInterface: androidx.leanback.widget.FacetProviderAdapter:
+    Removed class androidx.leanback.widget.FacetProviderAdapter
+RemovedInterface: androidx.leanback.widget.OnChildLaidOutListener:
+    Removed class androidx.leanback.widget.OnChildLaidOutListener
+RemovedInterface: androidx.leanback.widget.OnChildSelectedListener:
+    Removed deprecated class androidx.leanback.widget.OnChildSelectedListener
+RemovedInterface: androidx.leanback.widget.ViewHolderTask:
+    Removed class androidx.leanback.widget.ViewHolderTask
+
+
+RemovedMethod: androidx.leanback.widget.FacetProvider#getFacet(Class<?>):
+    Removed method androidx.leanback.widget.FacetProvider.getFacet(Class<?>)
+RemovedMethod: androidx.leanback.widget.FacetProviderAdapter#getFacetProvider(int):
+    Removed method androidx.leanback.widget.FacetProviderAdapter.getFacetProvider(int)

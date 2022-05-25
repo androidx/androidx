@@ -30,14 +30,16 @@ import com.squareup.javapoet.TypeName
 internal class KspVoidType(
     env: KspProcessingEnv,
     ksType: KSType,
-    val boxed: Boolean
-) : KspType(env, ksType) {
-    override val typeName: TypeName
-        get() = if (boxed || nullability == XNullability.NULLABLE) {
+    val boxed: Boolean,
+    jvmTypeResolver: KspJvmTypeResolver?
+) : KspType(env, ksType, jvmTypeResolver) {
+    override fun resolveTypeName(): TypeName {
+        return if (boxed || nullability == XNullability.NULLABLE) {
             TypeName.VOID.box()
         } else {
             TypeName.VOID
         }
+    }
 
     override fun boxed(): KspType {
         return if (boxed) {
@@ -46,7 +48,8 @@ internal class KspVoidType(
             KspVoidType(
                 env = env,
                 ksType = ksType,
-                boxed = true
+                boxed = true,
+                jvmTypeResolver = jvmTypeResolver
             )
         }
     }
@@ -55,7 +58,17 @@ internal class KspVoidType(
         return KspVoidType(
             env = env,
             ksType = ksType.withNullability(nullability),
-            boxed = boxed || nullability == XNullability.NULLABLE
+            boxed = boxed || nullability == XNullability.NULLABLE,
+            jvmTypeResolver = jvmTypeResolver
+        )
+    }
+
+    override fun copyWithJvmTypeResolver(jvmTypeResolver: KspJvmTypeResolver): KspType {
+        return KspVoidType(
+            env = env,
+            ksType = ksType,
+            boxed = boxed,
+            jvmTypeResolver = jvmTypeResolver
         )
     }
 }

@@ -19,16 +19,21 @@ package androidx.compose.material3.catalog.library.ui.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.add
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.ContentAlpha
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.catalog.library.R
 import androidx.compose.material3.catalog.library.model.Component
 import androidx.compose.material3.catalog.library.model.Example
@@ -42,10 +47,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
 
-// TODO: Use components/values from Material3 when available
 @Composable
 fun Component(
     component: Component,
@@ -65,12 +67,16 @@ fun Component(
         onBackClick = onBackClick
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier
-                .padding(paddingValues)
-                .padding(horizontal = ComponentPadding),
-            contentPadding = rememberInsetsPaddingValues(
-                insets = LocalWindowInsets.current.navigationBars
-            )
+            modifier = Modifier.padding(paddingValues),
+            contentPadding = WindowInsets.safeDrawing
+                .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+                .add(
+                    WindowInsets(
+                        left = ComponentPadding,
+                        right = ComponentPadding
+                    )
+                )
+                .asPaddingValues()
         ) {
             item {
                 Box(
@@ -85,9 +91,7 @@ fun Component(
                             .size(ComponentIconSize)
                             .align(Alignment.Center),
                         colorFilter = if (component.tintIcon) {
-                            ColorFilter.tint(
-                                LocalContentColor.current.copy(alpha = ContentAlpha.disabled)
-                            )
+                            ColorFilter.tint(LocalContentColor.current)
                         } else {
                             null
                         }
@@ -97,19 +101,19 @@ fun Component(
             item {
                 Text(
                     text = stringResource(id = R.string.description),
-                    style = MaterialTheme.typography.body1
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(ComponentPadding))
                 Text(
                     text = component.description,
-                    style = MaterialTheme.typography.body2
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.height(ComponentDescriptionPadding))
             }
             item {
                 Text(
                     text = stringResource(id = R.string.examples),
-                    style = MaterialTheme.typography.body1
+                    style = MaterialTheme.typography.bodyLarge
                 )
                 Spacer(modifier = Modifier.height(ComponentPadding))
             }
@@ -119,13 +123,13 @@ fun Component(
                         example = example,
                         onClick = onExampleClick
                     )
-                    Spacer(modifier = Modifier.height(ComponentPadding))
+                    Spacer(modifier = Modifier.height(ExampleItemPadding))
                 }
             } else {
                 item {
                     Text(
                         text = stringResource(id = R.string.no_examples),
-                        style = MaterialTheme.typography.body2
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(modifier = Modifier.height(ComponentPadding))
                 }
@@ -138,3 +142,4 @@ private val ComponentIconSize = 108.dp
 private val ComponentIconVerticalPadding = 42.dp
 private val ComponentPadding = 16.dp
 private val ComponentDescriptionPadding = 32.dp
+private val ExampleItemPadding = 8.dp

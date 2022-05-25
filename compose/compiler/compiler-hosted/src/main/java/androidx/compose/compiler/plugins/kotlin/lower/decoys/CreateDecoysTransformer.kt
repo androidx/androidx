@@ -18,7 +18,6 @@ package androidx.compose.compiler.plugins.kotlin.lower.decoys
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
-import androidx.compose.compiler.plugins.kotlin.lower.AbstractComposeLowering
 import androidx.compose.compiler.plugins.kotlin.lower.ModuleLoweringPass
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.ir.addChild
@@ -55,7 +54,9 @@ import org.jetbrains.kotlin.ir.util.constructors
 import org.jetbrains.kotlin.ir.util.defaultType
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.hasDefaultValue
+import org.jetbrains.kotlin.ir.util.isEnumClass
 import org.jetbrains.kotlin.ir.util.isLocal
+import org.jetbrains.kotlin.ir.util.parentAsClass
 import org.jetbrains.kotlin.ir.util.patchDeclarationParents
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
 import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
@@ -90,16 +91,16 @@ class CreateDecoysTransformer(
     pluginContext: IrPluginContext,
     symbolRemapper: DeepCopySymbolRemapper,
     bindingTrace: BindingTrace,
-    override val signatureBuilder: IdSignatureSerializer,
+    signatureBuilder: IdSignatureSerializer,
     metrics: ModuleMetrics,
-) : AbstractComposeLowering(
-    context = pluginContext,
+) : AbstractDecoysLowering(
+    pluginContext = pluginContext,
     symbolRemapper = symbolRemapper,
     bindingTrace = bindingTrace,
-    metrics = metrics
-),
-    ModuleLoweringPass,
-    DecoyTransformBase {
+    metrics = metrics,
+    signatureBuilder = signatureBuilder
+), ModuleLoweringPass {
+
     private val originalFunctions: MutableMap<IrFunction, IrDeclarationParent> = mutableMapOf()
 
     private val decoyAnnotation by lazy {
@@ -184,7 +185,8 @@ class CreateDecoysTransformer(
             updateFrom(original)
             name = newName
             returnType = original.returnType
-            isPrimary = false
+            isPrimary = (original as? IrConstructor)?.isPrimary ?: false
+            isOperator = false
         }
         newFunction.annotations = original.annotations
         newFunction.metadata = original.metadata
@@ -307,7 +309,9 @@ class CreateDecoysTransformer(
     }
 
     private fun IrFunction.shouldBeRemapped(): Boolean =
-        !isLocalFunction() && (hasComposableAnnotation() || hasComposableParameter())
+        !isLocalFunction() &&
+            !isEnumConstructor() &&
+            (hasComposableAnnotation() || hasComposableParameter())
 
     private fun IrFunction.isLocalFunction(): Boolean =
         origin == IrDeclarationOrigin.LOCAL_FUNCTION_FOR_LAMBDA ||
@@ -321,6 +325,9 @@ class CreateDecoysTransformer(
     private fun IrFunction.hasComposableParameter() =
         valueParameters.any { it.type.hasComposable() } ||
             extensionReceiverParameter?.type?.hasComposable() == true
+
+    private fun IrFunction.isEnumConstructor() =
+        this is IrConstructor && parentAsClass.isEnumClass
 
     private fun IrType.hasComposable(): Boolean {
         if (hasAnnotation(ComposeFqNames.Composable)) {

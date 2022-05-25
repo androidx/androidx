@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -43,6 +41,7 @@ android {
     defaultConfig {
         minSdkVersion 24
     }
+    namespace "androidx.security.identity.credential"
 }
 
 androidx {

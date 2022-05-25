@@ -21,7 +21,7 @@ import androidx.room.compiler.processing.XNullability.NULLABLE
 import androidx.room.compiler.processing.XNullability.UNKNOWN
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getField
-import androidx.room.compiler.processing.util.getMethod
+import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -85,12 +85,12 @@ class XNullabilityTest {
             element.getField("nullableAnnotated").let { field ->
                 assertThat(field.type.nullability).isEqualTo(NULLABLE)
             }
-            element.getMethod("returnsNonNull").let { method ->
+            element.getMethodByJvmName("returnsNonNull").let { method ->
                 assertThat(method.returnType.nullability).isEqualTo(NONNULL)
                 assertThat(method.executableType.returnType.nullability)
                     .isEqualTo(NONNULL)
             }
-            element.getMethod("parameters").let { method ->
+            element.getMethodByJvmName("parameters").let { method ->
                 assertThat(method.returnType.nullability).isEqualTo(UNKNOWN)
                 method.getParameter("primitiveParam").let { param ->
                     assertThat(param.type.nullability).isEqualTo(NONNULL)
@@ -106,7 +106,7 @@ class XNullabilityTest {
                 }
             }
             // also assert parameter types from executable type
-            element.getMethod("parameters").executableType.let { method ->
+            element.getMethodByJvmName("parameters").executableType.let { method ->
                 assertThat(method.returnType.nullability).isEqualTo(UNKNOWN)
                 // int primitiveParam,
                 method.parameterTypes[0].let { paramType ->
@@ -179,11 +179,11 @@ class XNullabilityTest {
                 val declared = field.type
                 assertThat(declared.typeArguments.first().nullability).isEqualTo(NULLABLE)
             }
-            element.getMethod("nullableReturn").let { method ->
+            element.getMethodByJvmName("nullableReturn").let { method ->
                 assertThat(method.returnType.nullability).isEqualTo(NULLABLE)
                 assertThat(method.executableType.returnType.nullability).isEqualTo(NULLABLE)
             }
-            element.getMethod("suspendNullableReturn").let { method ->
+            element.getMethodByJvmName("suspendNullableReturn").let { method ->
                 // kotlin adds @Nullable annotation for suspend methods' javac signature
                 assertThat(method.returnType.nullability).isEqualTo(NULLABLE)
                 val executableType = method.executableType
@@ -192,7 +192,7 @@ class XNullabilityTest {
                 assertThat(executableType.getSuspendFunctionReturnType().nullability)
                     .isEqualTo(NULLABLE)
             }
-            element.getMethod("genericWithNullableTypeArgReturn").let { method ->
+            element.getMethodByJvmName("genericWithNullableTypeArgReturn").let { method ->
                 listOf(method.returnType, method.executableType.returnType).forEach { type ->
                     assertThat(type.nullability).isEqualTo(NONNULL)
                     assertThat(type.typeArguments[0].nullability)
@@ -201,7 +201,7 @@ class XNullabilityTest {
                         .isEqualTo(NULLABLE)
                 }
             }
-            element.getMethod("suspendGenericWithNullableTypeArgReturn").let { method ->
+            element.getMethodByJvmName("suspendGenericWithNullableTypeArgReturn").let { method ->
                 val executableType = method.executableType
                 check(executableType.isSuspendFunction())
                 executableType.getSuspendFunctionReturnType().let { type ->
@@ -217,11 +217,11 @@ class XNullabilityTest {
                     assertThat(type.typeArguments).isEmpty()
                 }
             }
-            element.getMethod("nonNullReturn").let { method ->
+            element.getMethodByJvmName("nonNullReturn").let { method ->
                 assertThat(method.returnType.nullability).isEqualTo(NONNULL)
                 assertThat(method.executableType.returnType.nullability).isEqualTo(NONNULL)
             }
-            element.getMethod("suspendNonNullReturn").let { method ->
+            element.getMethodByJvmName("suspendNonNullReturn").let { method ->
                 // suspend methods return nullable in java declarations
                 assertThat(method.returnType.nullability).isEqualTo(NULLABLE)
                 val executableType = method.executableType
@@ -230,7 +230,7 @@ class XNullabilityTest {
                 assertThat(executableType.getSuspendFunctionReturnType().nullability)
                     .isEqualTo(NONNULL)
             }
-            element.getMethod("methodParams").let { method ->
+            element.getMethodByJvmName("methodParams").let { method ->
                 assertThat(method.getParameter("nonNull").type.nullability)
                     .isEqualTo(NONNULL)
                 assertThat(method.getParameter("nullable").type.nullability)
@@ -366,7 +366,7 @@ class XNullabilityTest {
         )
         runProcessorTest(sources = listOf(src)) { invocation ->
             val voidType = invocation.processingEnv.requireTypeElement("Foo")
-                .getMethod("subject").returnType
+                .getMethodByJvmName("subject").returnType
             assertThat(voidType.typeName).isEqualTo(TypeName.VOID)
             voidType.makeNullable().let {
                 assertThat(it.nullability).isEqualTo(NULLABLE)

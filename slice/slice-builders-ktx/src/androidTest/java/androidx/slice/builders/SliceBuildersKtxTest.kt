@@ -17,6 +17,7 @@
 package androidx.slice.builders
 
 import android.app.PendingIntent
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Intent
 import android.net.Uri
 import androidx.core.graphics.drawable.IconCompat
@@ -43,7 +44,7 @@ class SliceBuildersKtxTest {
 
     private fun pendingIntentToTestActivity() =
         PendingIntent.getActivity(
-            context, 0, Intent(context, TestActivity::class.java), 0
+            context, 0, Intent(context, TestActivity::class.java), FLAG_IMMUTABLE
         )
 
     private val accentColor = 0xff3949

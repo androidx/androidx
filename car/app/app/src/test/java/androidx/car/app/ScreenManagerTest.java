@@ -336,6 +336,15 @@ public final class ScreenManagerTest {
     }
 
     @Test
+    public void pushScreen_afterDestroyed_noop() {
+        mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_DESTROY);
+        mScreenManager.push(mScreen1);
+        mScreenManager.push(mScreen2);
+
+        assertThat(mScreenManager.getStackSize()).isEqualTo(0);
+    }
+
+    @Test
     public void pushForResult_addsToStack_callsProperLifecycleMethods() {
         mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_RESUME);
         InOrder inOrder = inOrder(mMockScreen1, mMockScreen2, mMockAppManager,
@@ -422,6 +431,19 @@ public final class ScreenManagerTest {
         inOrder.verifyNoMoreInteractions();
 
         assertThat(mScreenManager.getScreenStack()).hasSize(1);
+    }
+
+    @Test
+    public void pushForResult_afterDestroyed_noop() {
+        mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_DESTROY);
+
+        mScreenManager.push(mScreen1);
+        mScreenManager.pushForResult(mScreen2, mOnScreenResultListener);
+
+        assertThat(mScreenManager.getStackSize()).isEqualTo(0);
+        mScreenManager.remove(mScreen2);
+
+        verify(mOnScreenResultListener, never()).onScreenResult(any());
     }
 
     @Test
@@ -1374,5 +1396,27 @@ public final class ScreenManagerTest {
         mScreenManager.push(mScreen2);
         mScreenManager.push(mScreen3);
         assertThat(mScreenManager.getStackSize()).isEqualTo(3);
+    }
+
+    @Test
+    public void onDestroy_updateScreenStack_noExceptions() {
+        mScreenManager.push(mScreen1);
+        mScreenManager.push(mScreen2);
+        mScreen2.getLifecycle().addObserver(new DefaultLifecycleObserver() {
+            @Override
+            public void onDestroy(@NonNull LifecycleOwner owner) {
+                mScreenManager.push(mScreen1);
+            }
+        });
+
+        assertThat(mScreenManager.getStackSize()).isEqualTo(2);
+        assertThat(mScreen1.getLifecycle().getCurrentState()).isEqualTo(State.CREATED);
+        assertThat(mScreen2.getLifecycle().getCurrentState()).isEqualTo(State.CREATED);
+
+        mLifecycleOwner.mRegistry.handleLifecycleEvent(Event.ON_DESTROY);
+        assertThat(mLifecycleOwner.getLifecycle().getCurrentState()).isEqualTo(State.DESTROYED);
+        assertThat(mScreenManager.getStackSize()).isEqualTo(0);
+        assertThat(mScreen1.getLifecycle().getCurrentState()).isEqualTo(State.DESTROYED);
+        assertThat(mScreen2.getLifecycle().getCurrentState()).isEqualTo(State.DESTROYED);
     }
 }

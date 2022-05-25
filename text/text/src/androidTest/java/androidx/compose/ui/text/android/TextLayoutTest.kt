@@ -24,6 +24,7 @@ import android.text.Spanned
 import android.text.StaticLayout
 import android.text.TextPaint
 import androidx.compose.ui.text.android.style.BaselineShiftSpan
+import androidx.compose.ui.text.android.style.LineHeightStyleSpan
 import androidx.compose.ui.text.font.test.R
 import androidx.core.content.res.ResourcesCompat
 import androidx.test.filters.SmallTest
@@ -117,9 +118,8 @@ class TextLayoutTest {
         )
 
         for (i in 0 until layout.lineCount - 1) {
-            // In the sample_font.ttf, the height of the line should be
-            // fontSize + 0.2 * fontSize(line gap)
-            assertThat(layout.getLineHeight(i)).isEqualTo(textSize * 1.2f + lineSpacingExtra)
+            // In the sample_font.ttf, the height of the line should be 1em, i.e. fontSize
+            assertThat(layout.getLineHeight(i)).isEqualTo(textSize + lineSpacingExtra)
         }
     }
 
@@ -148,9 +148,8 @@ class TextLayoutTest {
         assertThat(lastLine).isAtLeast(1)
 
         val actualHeight = layout.getLineHeight(lastLine)
-        // In the sample_font.ttf, the height of the line should be
-        // fontSize + 0.2 * fontSize(line gap)
-        assertThat(actualHeight).isEqualTo(textSize * 1.2f)
+        // In the sample_font.ttf, the height of the line should be 1em, i.e. fontSize
+        assertThat(actualHeight).isEqualTo(textSize)
     }
 
     @Test
@@ -176,9 +175,8 @@ class TextLayoutTest {
         )
 
         assertThat(layout.lineCount).isEqualTo(1)
-        // In the sample_font.ttf, the height of the line should be
-        // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(0)).isEqualTo(textSize * 1.2f)
+        // In the sample_font.ttf, the height of the line should be 1em, i.e. fontSize
+        assertThat(layout.getLineHeight(0)).isEqualTo(textSize)
     }
 
     @Test
@@ -204,9 +202,8 @@ class TextLayoutTest {
         )
 
         assertThat(layout.lineCount).isEqualTo(1)
-        // In the sample_font.ttf, the height of the line should be
-        // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(0)).isEqualTo(textSize * 1.2f)
+        // In the sample_font.ttf, the height of the line should be 1em, i.e. fontSize
+        assertThat(layout.getLineHeight(0)).isEqualTo(textSize)
     }
 
     @Test
@@ -231,9 +228,8 @@ class TextLayoutTest {
         )
 
         for (i in 0 until layout.lineCount - 1) {
-            // In the sample_font.ttf, the height of the line should be
-            // fontSize + 0.2 * fontSize(line gap)
-            assertThat(layout.getLineHeight(i)).isEqualTo(textSize * 1.2f * lineSpacingMultiplier)
+            // In the sample_font.ttf, the height of the line should be 1em, i.e. fontSize
+            assertThat(layout.getLineHeight(i)).isEqualTo(textSize * lineSpacingMultiplier)
         }
     }
 
@@ -259,9 +255,8 @@ class TextLayoutTest {
         )
 
         val lastLine = layout.lineCount - 1
-        // In the sample_font.ttf, the height of the line should be
-        // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(lastLine)).isEqualTo(textSize * 1.2f)
+        // In the sample_font.ttf, the height of the line should be 1em, i.e. fontSize
+        assertThat(layout.getLineHeight(lastLine)).isEqualTo(textSize)
     }
 
     @Test
@@ -286,9 +281,8 @@ class TextLayoutTest {
         )
 
         assertThat(layout.lineCount).isEqualTo(1)
-        // In the sample_font.ttf, the height of the line should be
-        // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(0)).isEqualTo(textSize * 1.2f)
+        // In the sample_font.ttf, the height of the line should be 1em, i.e. fontSize
+        assertThat(layout.getLineHeight(0)).isEqualTo(textSize)
     }
 
     @Test
@@ -313,9 +307,8 @@ class TextLayoutTest {
         )
 
         assertThat(layout.lineCount).isEqualTo(1)
-        // In the sample_font.ttf, the height of the line should be
-        // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(0)).isEqualTo(textSize * 1.2f)
+        // In the sample_font.ttf, the height of the line should be 1em, i.e. fontSize
+        assertThat(layout.getLineHeight(0)).isEqualTo(textSize)
     }
 
     @Test
@@ -373,5 +366,85 @@ class TextLayoutTest {
                 textPaint = TextPaint()
             ).layout
         ).isInstanceOf(StaticLayout::class.java)
+    }
+
+    @Test
+    fun small_lineheight_prevents_clip_single_line() {
+        val fontSize = 120f
+        val lineHeight = 60f
+
+        val layout = TextLayoutWithSmallLineHeight(
+            text = "aA",
+            fontSize = fontSize,
+            lineHeight = lineHeight
+        )
+
+        val defaultFontMetrics = createTextPaint(fontSize).fontMetricsInt
+        val expectedPadding = ((fontSize - lineHeight) / 2).toInt()
+
+        assertThat(layout.topPadding).isEqualTo(expectedPadding)
+        assertThat(layout.bottomPadding).isEqualTo(expectedPadding)
+        assertThat(layout.height).isEqualTo(fontSize.toInt())
+        assertThat(layout.getLineTop(0)).isEqualTo(0)
+        assertThat(layout.getLineBottom(0)).isEqualTo(layout.height)
+        assertThat(layout.getLineBaseline(0)).isEqualTo(-defaultFontMetrics.ascent.toFloat())
+        assertThat(layout.getLineForVertical(0)).isEqualTo(0)
+        assertThat(layout.getLineForVertical(layout.height)).isEqualTo(0)
+    }
+
+    @Test
+    fun small_lineheight_prevents_clip_multi_line() {
+        val fontSize = 120f
+        val lineHeight = 60f
+        val layout = TextLayoutWithSmallLineHeight(
+            text = "aA\naA\naA",
+            fontSize = fontSize,
+            lineHeight = lineHeight
+        )
+
+        val defaultFontMetrics = createTextPaint(fontSize).fontMetricsInt
+        val expectedPadding = ((fontSize - lineHeight) / 2).toInt()
+
+        assertThat(layout.topPadding).isEqualTo(expectedPadding)
+        assertThat(layout.bottomPadding).isEqualTo(expectedPadding)
+        assertThat(layout.height).isEqualTo((3 * lineHeight + 2 * expectedPadding).toInt())
+        assertThat(layout.getLineTop(0)).isEqualTo(0)
+        assertThat(layout.getLineBaseline(0)).isEqualTo(-defaultFontMetrics.ascent)
+        assertThat(layout.getLineForVertical(0)).isEqualTo(0)
+        assertThat(layout.getLineBottom(2)).isEqualTo(layout.height)
+        assertThat(layout.getLineForVertical(layout.height)).isEqualTo(2)
+    }
+
+    private fun TextLayoutWithSmallLineHeight(
+        text: CharSequence,
+        fontSize: Float,
+        lineHeight: Float
+    ): TextLayout {
+        val textPaint = createTextPaint(fontSize)
+        val spannable = SpannableString(text)
+        spannable.setSpan(
+            LineHeightStyleSpan(
+                lineHeight = lineHeight,
+                startIndex = 0,
+                endIndex = text.length,
+                trimFirstLineTop = false,
+                trimLastLineBottom = false,
+                topPercentage = 50
+            ), 0, text.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+
+        return TextLayout(
+            charSequence = spannable,
+            textPaint = textPaint,
+            includePadding = false,
+            width = Float.MAX_VALUE
+        )
+    }
+
+    private fun createTextPaint(fontSize: Float): TextPaint {
+        return TextPaint().apply {
+            this.typeface = sampleTypeface
+            this.textSize = fontSize
+        }
     }
 }

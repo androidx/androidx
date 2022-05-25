@@ -19,17 +19,21 @@ package androidx.room.solver.query.result
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.L
 import androidx.room.ext.T
+import androidx.room.parser.ParsedQuery
+import androidx.room.processor.Context
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 
 class GuavaImmutableMultimapQueryResultAdapter(
+    context: Context,
+    private val parsedQuery: ParsedQuery,
     override val keyTypeArg: XType,
     override val valueTypeArg: XType,
-    private val keyRowAdapter: RowAdapter,
-    private val valueRowAdapter: RowAdapter,
-    private val immutableClassName: ClassName
-) : QueryResultAdapter(listOf(keyRowAdapter, valueRowAdapter)), MultimapQueryResultAdapter {
+    private val keyRowAdapter: QueryMappedRowAdapter,
+    private val valueRowAdapter: QueryMappedRowAdapter,
+    private val immutableClassName: ClassName,
+) : MultimapQueryResultAdapter(context, parsedQuery, listOf(keyRowAdapter, valueRowAdapter)) {
     private val mapType = ParameterizedTypeName.get(
         immutableClassName,
         keyTypeArg.typeName,
@@ -40,8 +44,28 @@ class GuavaImmutableMultimapQueryResultAdapter(
         val mapVarName = scope.getTmpVar("_mapBuilder")
 
         scope.builder().apply {
-            keyRowAdapter.onCursorReady(cursorVarName, scope)
-            valueRowAdapter.onCursorReady(cursorVarName, scope)
+            val dupeColumnsIndexAdapter: AmbiguousColumnIndexAdapter?
+            if (duplicateColumns.isNotEmpty()) {
+                // There are duplicate columns in the result objects, generate code that provides
+                // us with the indices resolved and pass it to the adapters so it can retrieve
+                // the index of each column used by it.
+                dupeColumnsIndexAdapter = AmbiguousColumnIndexAdapter(mappings, parsedQuery)
+                dupeColumnsIndexAdapter.onCursorReady(cursorVarName, scope)
+                rowAdapters.forEach {
+                    check(it is QueryMappedRowAdapter)
+                    val indexVarNames = dupeColumnsIndexAdapter.getIndexVarsForMapping(it.mapping)
+                    it.onCursorReady(
+                        indices = indexVarNames,
+                        cursorVarName = cursorVarName,
+                        scope = scope
+                    )
+                }
+            } else {
+                dupeColumnsIndexAdapter = null
+                rowAdapters.forEach {
+                    it.onCursorReady(cursorVarName = cursorVarName, scope = scope)
+                }
+            }
             addStatement(
                 "final $T.Builder<$T, $T> $L = $T.builder()",
                 immutableClassName,
@@ -55,14 +79,27 @@ class GuavaImmutableMultimapQueryResultAdapter(
             beginControlFlow("while ($L.moveToNext())", cursorVarName).apply {
                 addStatement("final $T $L", keyTypeArg.typeName, tmpKeyVarName)
                 keyRowAdapter.convert(tmpKeyVarName, cursorVarName, scope)
+
+                // Iterate over all matched fields to check if all are null. If so, we continue in
+                // the while loop to the next iteration.
+                val valueIndexVars =
+                    dupeColumnsIndexAdapter?.getIndexVarsForMapping(valueRowAdapter.mapping)
+                        ?: valueRowAdapter.getDefaultIndexAdapter().getIndexVars()
+                val columnNullCheckCodeBlock = getColumnNullCheckCode(
+                    cursorVarName = cursorVarName,
+                    indexVars = valueIndexVars
+                )
+                // Perform column null check
+                beginControlFlow("if ($L)", columnNullCheckCodeBlock).apply {
+                    addStatement("continue")
+                }.endControlFlow()
+
                 addStatement("final $T $L", valueTypeArg.typeName, tmpValueVarName)
                 valueRowAdapter.convert(tmpValueVarName, cursorVarName, scope)
                 addStatement("$L.put($L, $L)", mapVarName, tmpKeyVarName, tmpValueVarName)
             }
             endControlFlow()
             addStatement("final $T $L = $L.build()", mapType, outVarName, mapVarName)
-            keyRowAdapter.onCursorFinished()?.invoke(scope)
-            valueRowAdapter.onCursorFinished()?.invoke(scope)
         }
     }
 }

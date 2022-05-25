@@ -69,11 +69,11 @@ public class WorkProgressUpdater implements ProgressUpdater {
             @NonNull final UUID id,
             @NonNull final Data data) {
         final SettableFuture<Void> future = SettableFuture.create();
-        mTaskExecutor.executeOnBackgroundThread(new Runnable() {
+        mTaskExecutor.executeOnTaskThread(new Runnable() {
             @Override
             public void run() {
                 String workSpecId = id.toString();
-                Logger.get().debug(TAG, String.format("Updating progress for %s (%s)", id, data));
+                Logger.get().debug(TAG, "Updating progress for " + id + " (" + data + ")");
                 mWorkDatabase.beginTransaction();
                 try {
                     WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
@@ -86,10 +86,9 @@ public class WorkProgressUpdater implements ProgressUpdater {
                             mWorkDatabase.workProgressDao().insert(progress);
                         } else {
                             Logger.get().warning(TAG,
-                                    String.format(
-                                            "Ignoring setProgressAsync(...). WorkSpec (%s) is not"
-                                                    + " in a RUNNING state.",
-                                            workSpecId));
+                                    "Ignoring setProgressAsync(...). WorkSpec (" +
+                                            workSpecId +
+                                            ") is not in a RUNNING state.");
                         }
                     } else {
                         String message =

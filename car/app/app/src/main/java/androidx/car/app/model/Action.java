@@ -32,11 +32,9 @@ import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.CarContext;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.constraints.CarIconConstraints;
 import androidx.lifecycle.LifecycleOwner;
@@ -87,14 +85,12 @@ public final class Action {
      *
      * @hide
      */
-    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-    @ExperimentalCarApi
-    @RequiresCarApi(4)
     @RestrictTo(LIBRARY)
     @IntDef(
             flag = true,
             value = {
                     FLAG_PRIMARY,
+                    FLAG_IS_PERSISTENT,
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ActionFlag {
@@ -134,10 +130,14 @@ public final class Action {
      * look and feel. See the documentation on where the {@link Action} is added for more details on
      * any restriction(s) that might apply.
      */
-    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-    @ExperimentalCarApi
     @RequiresCarApi(4)
     public static final int FLAG_PRIMARY = 1 << 0;
+
+    /**
+     * Indicates that this action will not fade in/out inside an {@link ActionStrip}.
+     */
+    @RequiresCarApi(5)
+    public static final int FLAG_IS_PERSISTENT = 1 << 1;
 
     /**
      * A standard action to show the app's icon.
@@ -174,6 +174,8 @@ public final class Action {
     @NonNull
     public static final Action PAN = new Action(TYPE_PAN);
 
+    @Keep
+    private final boolean mIsEnabled;
     @Keep
     @Nullable
     private final CarText mTitle;
@@ -231,8 +233,6 @@ public final class Action {
     }
 
     /** Returns flags affecting how this action should be treated */
-    // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-    @ExperimentalCarApi
     @RequiresCarApi(4)
     @ActionFlag
     public int getFlags() {
@@ -252,11 +252,19 @@ public final class Action {
         return mOnClickDelegate;
     }
 
+    /**
+     * Returns {@code true} if the action is enabled.
+     */
+    @RequiresCarApi(5)
+    public boolean isEnabled() {
+        return mIsEnabled;
+    }
+
     @Override
     @NonNull
     public String toString() {
-        return "[type: " + typeToString(mType) + ", icon: " + mIcon + ", bkg: " + mBackgroundColor
-                + "]";
+        return "[type: " + typeToString(mType) + ", icon: " + mIcon
+                + ", bkg: " + mBackgroundColor + ", isEnabled: " + mIsEnabled + "]";
     }
 
     /**
@@ -279,7 +287,6 @@ public final class Action {
     }
 
     /** Convenience constructor for standard action singletons. */
-    @OptIn(markerClass = ExperimentalCarApi.class)
     private Action(@ActionType int type) {
         if (type == TYPE_CUSTOM) {
             throw new IllegalArgumentException(
@@ -292,6 +299,7 @@ public final class Action {
         mOnClickDelegate = null;
         mType = type;
         mFlags = 0;
+        mIsEnabled = true;
     }
 
     Action(Builder builder) {
@@ -301,10 +309,10 @@ public final class Action {
         mOnClickDelegate = builder.mOnClickDelegate;
         mType = builder.mType;
         mFlags = builder.mFlags;
+        mIsEnabled = builder.mIsEnabled;
     }
 
     /** Constructs an empty instance, used by serialization code. */
-    @OptIn(markerClass = ExperimentalCarApi.class)
     private Action() {
         mTitle = null;
         mIcon = null;
@@ -312,11 +320,12 @@ public final class Action {
         mOnClickDelegate = null;
         mType = TYPE_CUSTOM;
         mFlags = 0;
+        mIsEnabled = true;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mTitle, mType, mOnClickDelegate == null, mIcon == null);
+        return Objects.hash(mTitle, mType, mOnClickDelegate == null, mIcon == null, mIsEnabled);
     }
 
     @Override
@@ -335,7 +344,8 @@ public final class Action {
                 && mType == otherAction.mType
                 && Objects.equals(mIcon, otherAction.mIcon)
                 && Objects.equals(mOnClickDelegate == null, otherAction.mOnClickDelegate == null)
-                && Objects.equals(mFlags, otherAction.mFlags);
+                && Objects.equals(mFlags, otherAction.mFlags)
+                && mIsEnabled == otherAction.mIsEnabled;
     }
 
     static boolean isStandardActionType(@ActionType int type) {
@@ -343,8 +353,8 @@ public final class Action {
     }
 
     /** A builder of {@link Action}. */
-    @OptIn(markerClass = ExperimentalCarApi.class)
     public static final class Builder {
+        boolean mIsEnabled = true;
         @Nullable
         CarText mTitle;
         @Nullable
@@ -449,10 +459,20 @@ public final class Action {
             return this;
         }
 
+        /**
+         * Sets the initial enabled state for {@link Action}.
+         *
+         * <p>The default state of a {@link Action} is enabled.
+         */
+        @NonNull
+        @RequiresCarApi(5)
+        public Builder setEnabled(boolean enabled) {
+            mIsEnabled = enabled;
+            return this;
+        }
+
         /** Sets flags affecting how this action should be treated. */
         @NonNull
-        // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-        @ExperimentalCarApi
         @RequiresCarApi(4)
         public Builder setFlags(@ActionFlag int flags) {
             mFlags |= flags;
@@ -510,8 +530,6 @@ public final class Action {
          * @throws NullPointerException if {@code action} is {@code null}
          */
         @RequiresCarApi(2)
-        // TODO(b/201548973): Remove this annotation once set/getFlags are ready
-        @OptIn(markerClass = ExperimentalCarApi.class)
         public Builder(@NonNull Action action) {
             requireNonNull(action);
             mType = action.getType();
@@ -521,6 +539,7 @@ public final class Action {
             CarColor backgroundColor = action.getBackgroundColor();
             mBackgroundColor = backgroundColor == null ? DEFAULT : backgroundColor;
             mFlags = action.getFlags();
+            mIsEnabled = action.isEnabled();
         }
     }
 }

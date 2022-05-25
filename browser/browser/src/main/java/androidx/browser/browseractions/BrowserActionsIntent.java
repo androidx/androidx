@@ -26,7 +26,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 
@@ -349,6 +348,7 @@ public class BrowserActionsIntent {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
+    @SuppressWarnings("deprecation")
     static void launchIntent(Context context, Intent intent, List<ResolveInfo> handlers) {
         if (handlers == null || handlers.size() == 0) {
             openFallbackBrowserActionsMenu(context, intent);
@@ -426,6 +426,7 @@ public class BrowserActionsIntent {
      * @return List of {@link BrowserActionItem}
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     public static List<BrowserActionItem> parseBrowserActionItems(
             @NonNull ArrayList<Bundle> bundles) {
         List<BrowserActionItem> mActions = new ArrayList<>();
@@ -466,11 +467,7 @@ public class BrowserActionsIntent {
     public static String getUntrustedCreatorPackageName(@NonNull Intent intent) {
         PendingIntent pendingIntent = intent.getParcelableExtra(BrowserActionsIntent.EXTRA_APP_ID);
         if (pendingIntent != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                return pendingIntent.getCreatorPackage();
-            } else {
-                return pendingIntent.getTargetPackage();
-            }
+            return pendingIntent.getTargetPackage();
         }
         return null;
     }

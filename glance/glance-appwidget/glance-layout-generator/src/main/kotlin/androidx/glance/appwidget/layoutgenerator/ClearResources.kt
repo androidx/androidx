@@ -19,7 +19,11 @@ package androidx.glance.appwidget.layoutgenerator
 import java.io.File
 
 fun cleanResources(resourcesFolder: File, generatedFiles: Set<File>) {
-    checkNotNull(resourcesFolder.listFiles())
-        .filter { it !in generatedFiles }
-        .forEach { it.delete() }
+    checkNotNull(resourcesFolder.listFiles()).forEach {
+        if (it.isDirectory) {
+            cleanResources(it, generatedFiles)
+        } else if (it !in generatedFiles) {
+            it.delete()
+        }
+    }
 }

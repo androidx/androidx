@@ -25,7 +25,7 @@ import org.junit.runners.model.FrameworkMethod
 
 // Without this we get test failures with an error:
 // "failed to access class kotlin.jvm.internal.DefaultConstructorMarker".
-public class EditorTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
+public class ClientTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
         InstrumentationConfiguration.Builder(
             super.createClassLoaderConfig(method)
@@ -34,7 +34,7 @@ public class EditorTestRunner(testClass: Class<*>) : RobolectricTestRunner(testC
             .build()
 }
 
-@RunWith(EditorTestRunner::class)
+@RunWith(ClientTestRunner::class)
 public class WatchFaceIdTest {
     @Test
     public fun watchFaceId_equals() {

@@ -72,6 +72,8 @@ internal object PerfettoTraceProcessor {
 
     /**
      * Query a trace for a list of slices - name, timestamp, and duration.
+     *
+     * Note that sliceNames may include wildcard matches, such as `foo%`
      */
     fun querySlices(
         absoluteTracePath: String,
@@ -79,7 +81,7 @@ internal object PerfettoTraceProcessor {
     ): List<Slice> {
         val whereClause = sliceNames
             .joinToString(separator = " OR ") {
-                "slice.name = '$it'"
+                "slice.name LIKE \"$it\""
             }
 
         return Slice.parseListFromQueryResult(
@@ -88,7 +90,6 @@ internal object PerfettoTraceProcessor {
                 query = """
                 SELECT slice.name,ts,dur
                 FROM slice
-                JOIN thread_track ON thread_track.id = slice.track_id
                 WHERE $whereClause
             """.trimMargin()
             )
@@ -112,5 +113,12 @@ internal object PerfettoTraceProcessor {
         } finally {
             queryFile.delete()
         }
+    }
+
+    /**
+     * Helper for fuzzy matching process name to package
+     */
+    internal fun processNameLikePkg(pkg: String): String {
+        return """(process.name LIKE "$pkg" OR process.name LIKE "$pkg:%")"""
     }
 }

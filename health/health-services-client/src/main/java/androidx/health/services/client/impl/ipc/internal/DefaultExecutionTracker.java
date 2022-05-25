@@ -16,6 +16,7 @@
 
 package androidx.health.services.client.impl.ipc.internal;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
@@ -33,19 +34,32 @@ import java.util.Set;
 @SuppressWarnings("ExecutorTaskName")
 @RestrictTo(Scope.LIBRARY)
 public class DefaultExecutionTracker implements ExecutionTracker {
+    @GuardedBy("mFuturesInProgress") // future listener can be called from arbitrary thread
     private final Set<SettableFuture<?>> mFuturesInProgress = new HashSet<>();
 
     @Override
     public void track(SettableFuture<?> future) {
-        mFuturesInProgress.add(future);
-        future.addListener(() -> mFuturesInProgress.remove(future), MoreExecutors.directExecutor());
+        synchronized (mFuturesInProgress) {
+            mFuturesInProgress.add(future);
+            future.addListener(
+                    () -> {
+                        synchronized (mFuturesInProgress) {
+                            mFuturesInProgress.remove(future);
+                        }
+                    },
+                    MoreExecutors.directExecutor());
+        }
     }
 
     @Override
     public void cancelPendingFutures(Throwable throwable) {
-        for (SettableFuture<?> future : mFuturesInProgress) {
+        Set<SettableFuture<?>> futuresInProgressCopy;
+        synchronized (mFuturesInProgress) {
+            futuresInProgressCopy = new HashSet<>(mFuturesInProgress);
+            mFuturesInProgress.clear();
+        }
+        for (SettableFuture<?> future : futuresInProgressCopy) {
             future.setException(throwable);
         }
-        mFuturesInProgress.clear();
     }
 }

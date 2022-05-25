@@ -30,6 +30,14 @@ ext.repos.prebuiltsRoot = new File(checkoutRoot, "prebuilts").absolutePath
  * Adds maven repositories to the given repository handler.
  */
 def addMavenRepositories(RepositoryHandler handler) {
+    def metalavaRepoOverride = System.getenv("METALAVA_REPO")
+    if (metalavaRepoOverride != null) {
+        for(extraRepo in metalavaRepoOverride.split(File.pathSeparator)) {
+            handler.maven {
+                url extraRepo
+            }
+        }
+    }
     handler.maven {
         url("${repos.prebuiltsRoot}/androidx/internal")
         metadataSources {
@@ -65,16 +73,14 @@ def addMavenRepositories(RepositoryHandler handler) {
     }
     if (System.getenv("ALLOW_PUBLIC_REPOS") != null || System.getProperty("ALLOW_PUBLIC_REPOS") != null) {
         handler.mavenCentral()
-        handler.jcenter()
         handler.google()
-        handler.maven {
-            url("https://plugins.gradle.org/m2/")
-        }
+        handler.gradlePluginPortal()
         handler.maven {
                url("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         }
         handler.mavenLocal()
     }
+    // Ordering appears to be important: b/229733266
     def androidPluginRepoOverride = System.getenv("GRADLE_PLUGIN_REPO")
     if (androidPluginRepoOverride != null) {
         for(extraRepo in androidPluginRepoOverride.split(File.pathSeparator)) {

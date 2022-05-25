@@ -33,6 +33,7 @@ public class TestApplication extends Application implements Configuration.Provid
     @Override
     public Configuration getWorkManagerConfiguration() {
         return new Configuration.Builder()
+                .setDefaultProcessName(getPackageName())
                 .setTaskExecutor(Executors.newCachedThreadPool())
                 .setMinimumLoggingLevel(Log.VERBOSE).build();
     }

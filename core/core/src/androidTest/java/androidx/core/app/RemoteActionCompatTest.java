@@ -41,7 +41,8 @@ public class RemoteActionCompatTest extends BaseInstrumentationTestCase<TestActi
     private static final String TITLE = "title";
     private static final String DESCRIPTION = "description";
     private static final PendingIntent ACTION = PendingIntent.getBroadcast(
-            InstrumentationRegistry.getContext(), 0, new Intent("TESTACTION"), 0);
+            InstrumentationRegistry.getContext(), 0, new Intent("TESTACTION"),
+            PendingIntent.FLAG_IMMUTABLE);
 
     public RemoteActionCompatTest() {
         super(TestActivity.class);
@@ -54,6 +55,7 @@ public class RemoteActionCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEqualsToTestRemoteActionCompat(result);
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testRemoteAction_parcel() {
         RemoteActionCompat reference = createTestRemoteActionCompat();

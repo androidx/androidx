@@ -40,16 +40,18 @@ private class MulticastedPagingData<T : Any>(
     val tracker: ActiveFlowTracker? = null
 ) {
     private val accumulated = CachedPageEventFlow(
-        src = parent.flow.onStart {
+        src = parent.flow,
+        scope = scope
+    ).also {
+        tracker?.onNewCachedEventFlow(it)
+    }
+
+    fun asPagingData() = PagingData(
+        flow = accumulated.downstreamFlow.onStart {
             tracker?.onStart(PAGE_EVENT_FLOW)
         }.onCompletion {
             tracker?.onComplete(PAGE_EVENT_FLOW)
         },
-        scope = scope
-    )
-
-    fun asPagingData() = PagingData(
-        flow = accumulated.downstreamFlow,
         receiver = parent.receiver
     )
 
@@ -93,7 +95,8 @@ internal fun <T : Any> Flow<PagingData<T>>.cachedIn(
     return this.simpleMapLatest {
         MulticastedPagingData(
             scope = scope,
-            parent = it
+            parent = it,
+            tracker = tracker
         )
     }.simpleRunningReduce { prev, next ->
         prev.close()
@@ -117,6 +120,7 @@ internal fun <T : Any> Flow<PagingData<T>>.cachedIn(
  */
 @VisibleForTesting
 internal interface ActiveFlowTracker {
+    fun onNewCachedEventFlow(cachedPageEventFlow: CachedPageEventFlow<*>)
     suspend fun onStart(flowType: FlowType)
     suspend fun onComplete(flowType: FlowType)
 

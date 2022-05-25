@@ -452,6 +452,7 @@ package androidx.mediarouter.media {
 
   public class MediaRouterParams {
     method public int getDialogType();
+    method public boolean isMediaTransferReceiverEnabled();
     method public boolean isOutputSwitcherEnabled();
     method public boolean isTransferToLocalEnabled();
     field public static final int DIALOG_TYPE_DEFAULT = 1; // 0x1
@@ -464,6 +465,7 @@ package androidx.mediarouter.media {
     ctor public MediaRouterParams.Builder(androidx.mediarouter.media.MediaRouterParams);
     method public androidx.mediarouter.media.MediaRouterParams build();
     method public androidx.mediarouter.media.MediaRouterParams.Builder setDialogType(int);
+    method public androidx.mediarouter.media.MediaRouterParams.Builder setMediaTransferReceiverEnabled(boolean);
     method public androidx.mediarouter.media.MediaRouterParams.Builder setOutputSwitcherEnabled(boolean);
     method public androidx.mediarouter.media.MediaRouterParams.Builder setTransferToLocalEnabled(boolean);
   }

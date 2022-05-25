@@ -16,11 +16,9 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.window.DialogWindowScope
-import androidx.compose.ui.window.UndecoratedWindowResizer
 import org.jetbrains.skiko.GraphicsApi
 import java.awt.Component
 import java.awt.Window
@@ -37,8 +35,7 @@ class ComposeDialog(
     owner: Window? = null,
     modalityType: ModalityType = ModalityType.MODELESS
 ) : JDialog(owner, modalityType) {
-    private val delegate = ComposeWindowDelegate(this)
-    internal val layer get() = delegate.layer
+    private val delegate = ComposeWindowDelegate(this, ::isUndecorated)
 
     init {
         contentPane.add(delegate.pane)
@@ -57,7 +54,6 @@ class ComposeDialog(
     fun setContent(
         content: @Composable DialogWindowScope.() -> Unit
     ) = setContent(
-        parentComposition = null,
         onPreviewKeyEvent = { false },
         onKeyEvent = { false },
         content = content
@@ -66,13 +62,6 @@ class ComposeDialog(
     /**
      * Composes the given composable into the ComposeDialog.
      *
-     * The new composition can be logically "linked" to an existing one, by providing a
-     * [parentComposition]. This will ensure that invalidations and CompositionLocals will flow
-     * through the two compositions as if they were not separate.
-     *
-     * @param parentComposition The parent composition reference to coordinate
-     * scheduling of composition updates.
-     * If null then default root composition will be used.
      * @param onPreviewKeyEvent This callback is invoked when the user interacts with the hardware
      * keyboard. It gives ancestors of a focused component the chance to intercept a [KeyEvent].
      * Return true to stop propagation of this event. If you return false, the key event will be
@@ -85,7 +74,6 @@ class ComposeDialog(
      */
     @ExperimentalComposeUiApi
     fun setContent(
-        parentComposition: CompositionContext? = null,
         onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
         onKeyEvent: ((KeyEvent) -> Boolean) = { false },
         content: @Composable DialogWindowScope.() -> Unit
@@ -94,7 +82,6 @@ class ComposeDialog(
             override val window: ComposeDialog get() = this@ComposeDialog
         }
         delegate.setContent(
-            parentComposition,
             onPreviewKeyEvent,
             onKeyEvent,
         ) {
@@ -107,17 +94,22 @@ class ComposeDialog(
         super.dispose()
     }
 
-    private val undecoratedWindowResizer = UndecoratedWindowResizer(this, layer)
-
     override fun setUndecorated(value: Boolean) {
         super.setUndecorated(value)
-        undecoratedWindowResizer.enabled = isUndecorated && isResizable
+        delegate.undecoratedWindowResizer.enabled = isUndecorated && isResizable
     }
 
     override fun setResizable(value: Boolean) {
         super.setResizable(value)
-        undecoratedWindowResizer.enabled = isUndecorated && isResizable
+        delegate.undecoratedWindowResizer.enabled = isUndecorated && isResizable
     }
+
+    /**
+     * `true` if background of the window is transparent, `false` otherwise
+     * Transparency should be set only if window is not showing and `isUndecorated` is set to
+     * `true`, otherwise AWT will throw an exception.
+     */
+    var isTransparent: Boolean by delegate::isTransparent
 
     /**
      * Registers a task to run when the rendering API changes.

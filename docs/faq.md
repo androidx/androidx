@@ -4,21 +4,21 @@
 
 ## General FAQ
 
-### What is AndroidX?
+### What is `androidx`?
 
-The Android Extension (AndroidX) Libraries provide functionality that extends
+The Android Extension (`androidx`) Libraries provide functionality that extends
 the capabilities of the Android platform. These libraries, which ship separately
 from the Android OS, focus on improving the experience of developing apps
 through broad OS- and device-level compatibility, high-level abstractions to
 simplify and unify platform features, and other new features that target
-developer pain points. To find out more about AndroidX, see the public
+developer pain points. To find out more about `androidx`, see the public
 documentation on [developer.android.com](http://developer.android.com).
 
-### Why did we move to AndroidX?
+### Why did we move to `androidx`?
 
 Please read our
 [blog post](https://android-developers.googleblog.com/2018/05/hello-world-androidx.html)
-about our migration to AndroidX.
+about our migration.
 
 ### What happened to the Support Library?
 
@@ -30,16 +30,16 @@ make it easy for developers to migrate.
 
 ### Will there be any more updates to Support Library?
 
-No, Revision 28.0.0 of the Support Library, which launched as stable in
+No, revision `28.0.0` of the Support Library, which launched as stable in
 September 2018, was the last feature release in the `android.support` package.
 There will be no further releases under Support Library packaging and they
 should be considered deprecated.
 
 ### How are `androidx` and AndroidX related to Jetpack?
 
-They are all the same thing! In a sentence, `androidx` is the packaging and
-AndroidX is the development workflow for all components in Jetpack. Jetpack is
-the external branding for libraries within `androidx`.
+They are effectively the same thing! In a sentence, `androidx` is the packaging
+and AndroidX is the development workflow for most components in Jetpack. Jetpack
+is the external branding for libraries within the `androidx` package.
 
 In more detail, Jetpack is the external branding for the set of components,
 tools, and guidance that improve the developer experience on Android. AndroidX
@@ -67,31 +67,6 @@ See the steps specified on the version page
 
 ## Version FAQ {#version}
 
-### How are changes in dependency versions propagated?
-
-If you declare `api(project(":depGroupId"))` in your `build.gradle`, then the
-version change will occur automatically. While convienent, be intentional when
-doing so because this causes your library to have a direct dependency on the
-version in development.
-
-If you declare `api("androidx.depGroupId:depArtifactId:1.0.0")`, then the
-version change will need to be done manually and intentionally. This is
-considered best practice.
-
-### How does a library begin work on a new Minor version?
-
-Set the version to the next minor version, as an alpha.
-
-### How does a library ship an API reference documentation bugfix?
-
-Developers obtain API reference documentation from two sources -- HTML docs on
-[d.android.com](https://d.android.com), which are generated from library release
-artifacts, and Javadoc from source JARs on Google Maven.
-
-As a result, documentation bug fixes should be held with other fixes until they
-can go through a normal release cycle. Critical (e.g. P0) documentation issues
-**may** result in a [bugfix](loaf.md#bugfix) release independent of other fixes.
-
 ### When does an alpha ship?
 
 For public releases, an alpha ships when the library lead believes it is ready.
@@ -116,13 +91,3 @@ until API review is complete and addressed.
 
 As often as needed, however, releases outside of the bi-weekly (every 2 weeks)
 release will need to get approval from the TPM (nickanthony@).
-
-### What are the requirements for moving from alpha to beta?
-
-See the [beta section of Versioning guidelines](versioning.md?#beta) for
-pre-release cycle transition requirements.
-
-### What are the requirements for a beta launch?
-
-See the [beta section of Versioning guidelines](versioning.md?#beta) for
-pre-release cycle transition requirements.

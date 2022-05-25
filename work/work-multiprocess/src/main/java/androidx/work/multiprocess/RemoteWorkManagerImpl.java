@@ -30,9 +30,11 @@ import androidx.work.WorkRequest;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.utils.WorkForegroundUpdater;
 import androidx.work.impl.utils.WorkProgressUpdater;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
+import androidx.work.multiprocess.parcelable.ParcelableForegroundRequestInfo;
 import androidx.work.multiprocess.parcelable.ParcelableUpdateRequest;
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl;
 import androidx.work.multiprocess.parcelable.ParcelableWorkInfos;
@@ -73,7 +75,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                     ParcelConverters.unmarshall(request, ParcelableWorkRequests.CREATOR);
             List<WorkRequest> workRequests = parcelledRequests.getRequests();
             final Operation operation = mWorkManager.enqueue(workRequests);
-            final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
+            final Executor executor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
             final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
                     new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
                             operation.getResult()) {
@@ -99,7 +101,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
             WorkContinuationImpl continuation =
                     parcelledRequest.toWorkContinuationImpl(mWorkManager);
             final Operation operation = continuation.enqueue();
-            final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
+            final Executor executor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
             final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
                     new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
                             operation.getResult()) {
@@ -119,7 +121,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
     public void cancelWorkById(@NonNull String id, @NonNull IWorkManagerImplCallback callback) {
         try {
             final Operation operation = mWorkManager.cancelWorkById(UUID.fromString(id));
-            final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
+            final Executor executor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
             final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
                     new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
                             operation.getResult()) {
@@ -141,7 +143,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
             @NonNull IWorkManagerImplCallback callback) {
         try {
             final Operation operation = mWorkManager.cancelAllWorkByTag(tag);
-            final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
+            final Executor executor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
             final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
                     new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
                             operation.getResult()) {
@@ -163,7 +165,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
             @NonNull IWorkManagerImplCallback callback) {
         try {
             final Operation operation = mWorkManager.cancelUniqueWork(name);
-            final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
+            final Executor executor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
             final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
                     new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
                             operation.getResult()) {
@@ -183,7 +185,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
     public void cancelAllWork(@NonNull IWorkManagerImplCallback callback) {
         try {
             final Operation operation = mWorkManager.cancelAllWork();
-            final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
+            final Executor executor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
             final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
                     new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
                             operation.getResult()) {
@@ -204,7 +206,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
         try {
             ParcelableWorkQuery parcelled =
                     ParcelConverters.unmarshall(request, ParcelableWorkQuery.CREATOR);
-            final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
+            final Executor executor = mWorkManager.getWorkTaskExecutor().getSerialTaskExecutor();
             final ListenableFuture<List<WorkInfo>> future =
                     mWorkManager.getWorkInfos(parcelled.getWorkQuery());
             final ListenableCallback<List<WorkInfo>> listenableCallback =
@@ -229,7 +231,7 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                     ParcelConverters.unmarshall(request, ParcelableUpdateRequest.CREATOR);
             final Context context = mWorkManager.getApplicationContext();
             final TaskExecutor taskExecutor = mWorkManager.getWorkTaskExecutor();
-            final Executor executor = taskExecutor.getBackgroundExecutor();
+            final Executor executor = taskExecutor.getSerialTaskExecutor();
             final WorkDatabase database = mWorkManager.getWorkDatabase();
             final WorkProgressUpdater progressUpdater =
                     new WorkProgressUpdater(database, taskExecutor);
@@ -237,6 +239,39 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                     context,
                     UUID.fromString(parcelled.getId()),
                     parcelled.getData()
+            );
+            final ListenableCallback<Void> listenableCallback =
+                    new ListenableCallback<Void>(executor, callback, future) {
+                        @NonNull
+                        @Override
+                        public byte[] toByteArray(@NonNull Void result) {
+                            return sEMPTY;
+                        }
+                    };
+            listenableCallback.dispatchCallbackSafely();
+        } catch (Throwable throwable) {
+            reportFailure(callback, throwable);
+        }
+    }
+
+    @Override
+    public void setForegroundAsync(
+            @NonNull byte[] request,
+            @NonNull IWorkManagerImplCallback callback) {
+        try {
+            ParcelableForegroundRequestInfo parcelled =
+                    ParcelConverters.unmarshall(request, ParcelableForegroundRequestInfo.CREATOR);
+            TaskExecutor taskExecutor = mWorkManager.getWorkTaskExecutor();
+            Executor executor = taskExecutor.getSerialTaskExecutor();
+            WorkForegroundUpdater foregroundUpdater = new WorkForegroundUpdater(
+                    mWorkManager.getWorkDatabase(),
+                    mWorkManager.getProcessor(),
+                    taskExecutor
+            );
+            final ListenableFuture<Void> future = foregroundUpdater.setForegroundAsync(
+                    mWorkManager.getApplicationContext(),
+                    UUID.fromString(parcelled.getId()),
+                    parcelled.getForegroundInfo()
             );
             final ListenableCallback<Void> listenableCallback =
                     new ListenableCallback<Void>(executor, callback, future) {

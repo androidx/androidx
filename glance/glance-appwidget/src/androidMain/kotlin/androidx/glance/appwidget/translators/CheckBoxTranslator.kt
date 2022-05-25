@@ -17,44 +17,76 @@
 package androidx.glance.appwidget.translators
 
 import android.os.Build
+import android.view.Gravity
 import android.widget.RemoteViews
-import androidx.glance.appwidget.LayoutSelector
+import androidx.core.widget.RemoteViewsCompat.setCompoundButtonTintList
+import androidx.glance.appwidget.EmittableCheckBox
+import androidx.glance.appwidget.LayoutType
 import androidx.glance.appwidget.R
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.applyModifiers
-import androidx.glance.appwidget.layout.EmittableCheckBox
-import androidx.glance.appwidget.remoteViews
-import androidx.glance.appwidget.selectLayout
+import androidx.glance.appwidget.inflateViewStub
+import androidx.glance.appwidget.insertView
 import androidx.glance.appwidget.setViewEnabled
+import androidx.glance.appwidget.unit.CheckedUncheckedColorProvider
+import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
 
-internal fun translateEmittableCheckBox(
+internal fun RemoteViews.translateEmittableCheckBox(
     translationContext: TranslationContext,
     element: EmittableCheckBox
-): RemoteViews {
+) {
 
     val layoutType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        LayoutSelector.Type.CheckBox
+        LayoutType.CheckBox
     } else {
-        LayoutSelector.Type.CheckBoxBackport
+        LayoutType.CheckBoxBackport
     }
 
-    val layoutDef = selectLayout(translationContext, layoutType, element.modifier)
-    val rv = remoteViews(translationContext, layoutDef.layoutId)
+    val viewDef = insertView(translationContext, layoutType, element.modifier)
+    val actionTargetId: Int
     val textViewId: Int
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        textViewId = layoutDef.mainViewId
+        val checkBoxId = inflateViewStub(translationContext, R.id.checkBox)
+        textViewId = checkBoxId
+        actionTargetId = checkBoxId
         CompoundButtonApi31Impl.setCompoundButtonChecked(
-            rv,
-            layoutDef.mainViewId,
+            this,
+            checkBoxId,
             element.checked
         )
+        when (val colors = element.colors.checkBox) {
+            is CheckedUncheckedColorProvider -> {
+                val (day, night) = colors.toDayNightColorStateList(translationContext.context)
+                setCompoundButtonTintList(checkBoxId, notNight = day, night = night)
+            }
+            is ResourceCheckableColorProvider -> {
+                setCompoundButtonTintList(checkBoxId, colors.resId)
+            }
+        }
     } else {
-        textViewId = R.id.checkBoxText
-        rv.setViewEnabled(R.id.checkBoxIcon, element.checked)
+        val iconId = inflateViewStub(translationContext, R.id.checkBoxIcon)
+        textViewId = inflateViewStub(translationContext, R.id.checkBoxText)
+        actionTargetId = viewDef.mainViewId
+        setViewEnabled(iconId, element.checked)
+        setImageViewColorFilter(
+            iconId,
+            element.colors.checkBox.resolve(translationContext.context, element.checked)
+        )
     }
 
-    rv.setText(translationContext, textViewId, element.text, element.textStyle)
-    applyModifiers(translationContext, rv, element.modifier, layoutDef)
-    return rv
+    setText(
+        translationContext,
+        textViewId,
+        element.text,
+        element.style,
+        maxLines = element.maxLines,
+        verticalTextGravity = Gravity.CENTER_VERTICAL,
+    )
+    applyModifiers(
+        translationContext.forCompoundButton().forActionTargetId(actionTargetId),
+        this,
+        element.modifier,
+        viewDef
+    )
 }

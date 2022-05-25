@@ -511,7 +511,7 @@ class DaoWriter(
             KotlinDefaultMethodDelegateBinder.executeAndReturn(
                 daoName = dao.typeName,
                 daoImplName = dao.implTypeName,
-                methodName = method.element.name,
+                methodName = method.element.jvmName,
                 returnType = method.element.returnType,
                 parameterNames = method.element.parameters.map { it.name },
                 scope = scope
@@ -532,9 +532,9 @@ class DaoWriter(
                 }
             }
             if (method.element.returnType.isVoid()) {
-                addStatement("$L($L)", method.element.name, CodeBlock.join(args, ",$W"))
+                addStatement("$L($L)", method.element.jvmName, CodeBlock.join(args, ",$W"))
             } else {
-                addStatement("return $L($L)", method.element.name, CodeBlock.join(args, ",$W"))
+                addStatement("return $L($L)", method.element.jvmName, CodeBlock.join(args, ",$W"))
             }
         }.build()
     }
@@ -604,7 +604,8 @@ class DaoWriter(
     }
 
     class PreparedStatementField(val method: QueryMethod) : SharedFieldSpec(
-        "preparedStmtOf${method.name.capitalize(Locale.US)}", RoomTypeNames.SHARED_SQLITE_STMT
+        "preparedStmtOf${method.element.jvmName.capitalize(Locale.US)}",
+        RoomTypeNames.SHARED_SQLITE_STMT
     ) {
         override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
             builder.addModifiers(PRIVATE, FINAL)

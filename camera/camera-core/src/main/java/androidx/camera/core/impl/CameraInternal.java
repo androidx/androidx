@@ -120,6 +120,17 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     void close();
 
     /**
+     * When in active resuming mode, it will actively retry opening the camera periodically to
+     * resume regardless of the camera availability if the camera is interrupted in
+     * OPEN/OPENING/PENDING_OPEN state.
+     *
+     * When not in active resuming mode, it will retry opening camera only when camera
+     * becomes available.
+     */
+    default void setActiveResumingMode(boolean enabled) {
+    }
+
+    /**
      * Release the camera.
      *
      * <p>Once the camera is released it is permanently closed. A new instance must be created to

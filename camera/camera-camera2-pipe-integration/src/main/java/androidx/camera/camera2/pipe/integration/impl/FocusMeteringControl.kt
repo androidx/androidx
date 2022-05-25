@@ -89,7 +89,6 @@ class FocusMeteringControl(
         return FocusMeteringResult.create(isFocusSuccessful)
     }
 
-    @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
     companion object {
         const val METERING_WEIGHT_DEFAULT = MeteringRectangle.METERING_WEIGHT_MAX
 

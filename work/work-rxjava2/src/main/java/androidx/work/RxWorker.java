@@ -70,14 +70,7 @@ public abstract class RxWorker extends ListenableWorker {
     @Override
     public ListenableFuture<Result> startWork() {
         mSingleFutureObserverAdapter = new SingleFutureAdapter<>();
-
-        final Scheduler scheduler = getBackgroundScheduler();
-        createWork()
-                .subscribeOn(scheduler)
-                // observe on WM's private thread
-                .observeOn(Schedulers.from(getTaskExecutor().getBackgroundExecutor()))
-                .subscribe(mSingleFutureObserverAdapter);
-        return mSingleFutureObserverAdapter.mFuture;
+        return convert(mSingleFutureObserverAdapter, createWork());
     }
 
     /**
@@ -157,6 +150,73 @@ public abstract class RxWorker extends ListenableWorker {
             observer.dispose();
             mSingleFutureObserverAdapter = null;
         }
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
+        return convert(new SingleFutureAdapter<>(), getForegroundInfo());
+    }
+
+    /**
+     * Return an {@code Single} with an instance of {@link ForegroundInfo} if the
+     * {@link WorkRequest} is
+     * important to the user.  In this case, WorkManager provides a signal to the OS that the
+     * process should be kept alive while this work is executing.
+     * <p>
+     * Prior to Android S, WorkManager manages and runs a foreground service on your behalf to
+     * execute the WorkRequest, showing the notification provided in the {@link ForegroundInfo}.
+     * To update this notification subsequently, the application can use
+     * {@link android.app.NotificationManager}.
+     * <p>
+     * Starting in Android S and above, WorkManager manages this WorkRequest using an immediate job.
+     *
+     * @return A {@link Single} of {@link ForegroundInfo} instance if the WorkRequest
+     * is marked immediate. For more information look at
+     * {@link WorkRequest.Builder#setExpedited(OutOfQuotaPolicy)}.
+     */
+    @NonNull
+    public Single<ForegroundInfo> getForegroundInfo() {
+        String message =
+                "Expedited WorkRequests require a RxWorker to provide an implementation for"
+                        + " `getForegroundInfo()`";
+        return Single.error(new IllegalStateException(message));
+    }
+
+    /**
+     * This specifies that the {@link WorkRequest} is long-running or otherwise important.  In
+     * this case, WorkManager provides a signal to the OS that the process should be kept alive
+     * if possible while this work is executing.
+     * <p>
+     * Calls to {@code setForegroundAsync} *must* complete before a {@link RxWorker}
+     * signals completion by returning a {@link Result}.
+     * <p>
+     * Under the hood, WorkManager manages and runs a foreground service on your behalf to
+     * execute this WorkRequest, showing the notification provided in
+     * {@link ForegroundInfo}.
+     * <p>
+     * Calling {@code setForeground} will fail with an
+     * {@link IllegalStateException} when the process is subject to foreground
+     * service restrictions. Consider using
+     * {@link WorkRequest.Builder#setExpedited(OutOfQuotaPolicy)} and
+     * {@link RxWorker#getForegroundInfo()} instead.
+     *
+     * @param foregroundInfo The {@link ForegroundInfo}
+     * @return A {@link Completable} which resolves after the {@link RxWorker}
+     * transitions to running in the context of a foreground {@link android.app.Service}.
+     */
+    @NonNull
+    public final Completable setForeground(@NonNull ForegroundInfo foregroundInfo) {
+        return Completable.fromFuture(setForegroundAsync(foregroundInfo));
+    }
+
+    private <T> ListenableFuture<T> convert(SingleFutureAdapter<T> adapter, Single<T> single) {
+        final Scheduler scheduler = getBackgroundScheduler();
+        single.subscribeOn(scheduler)
+                // observe on WM's private thread
+                .observeOn(Schedulers.from(getTaskExecutor().getSerialTaskExecutor()))
+                .subscribe(adapter);
+        return adapter.mFuture;
     }
 
     /**

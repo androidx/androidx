@@ -26,6 +26,7 @@ package androidx.wear.phone.interactions.authentication {
 
   @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CodeVerifier {
     ctor public CodeVerifier(optional int byteLength);
+    ctor public CodeVerifier();
     ctor public CodeVerifier(String value);
     method public String getValue();
     property public final String value;
@@ -65,7 +66,7 @@ package androidx.wear.phone.interactions.authentication {
   public static final class OAuthResponse.Builder {
     ctor public OAuthResponse.Builder();
     method public androidx.wear.phone.interactions.authentication.OAuthResponse build();
-    method public androidx.wear.phone.interactions.authentication.OAuthResponse.Builder setErrorCode(int errorCode);
+    method public androidx.wear.phone.interactions.authentication.OAuthResponse.Builder setErrorCode(@androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion.ErrorCode int errorCode);
     method public androidx.wear.phone.interactions.authentication.OAuthResponse.Builder setResponseUrl(android.net.Uri responseUrl);
   }
 
@@ -82,12 +83,15 @@ package androidx.wear.phone.interactions.authentication {
 
   public abstract static class RemoteAuthClient.Callback {
     ctor public RemoteAuthClient.Callback();
-    method @UiThread public abstract void onAuthorizationError(androidx.wear.phone.interactions.authentication.OAuthRequest request, int errorCode);
+    method @UiThread public abstract void onAuthorizationError(androidx.wear.phone.interactions.authentication.OAuthRequest request, @androidx.wear.phone.interactions.authentication.RemoteAuthClient.Companion.ErrorCode int errorCode);
     method @UiThread public abstract void onAuthorizationResponse(androidx.wear.phone.interactions.authentication.OAuthRequest request, androidx.wear.phone.interactions.authentication.OAuthResponse response);
   }
 
   public static final class RemoteAuthClient.Companion {
     method public androidx.wear.phone.interactions.authentication.RemoteAuthClient create(android.content.Context context);
+  }
+
+  @IntDef({androidx.wear.phone.interactions.authentication.RemoteAuthClient.NO_ERROR, androidx.wear.phone.interactions.authentication.RemoteAuthClient.ERROR_UNSUPPORTED, androidx.wear.phone.interactions.authentication.RemoteAuthClient.ERROR_PHONE_UNAVAILABLE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) public static @interface RemoteAuthClient.Companion.ErrorCode {
   }
 
   public interface RemoteAuthRequestHandler {

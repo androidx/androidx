@@ -98,7 +98,10 @@ data class FtsOptions(
         val defaultTokenizers = listOf(
             androidx.room.FtsOptions.TOKENIZER_SIMPLE,
             androidx.room.FtsOptions.TOKENIZER_PORTER,
-            androidx.room.FtsOptions.TOKENIZER_ICU,
+            // Even though ICU is one of the default tokenizer in Room's API and in Android, the
+            // SQLite JDBC library is not compiled with ICU turned ON and Room will fail to create
+            // the table, therefore treat it as a custom tokenizer. b/201753224
+            // androidx.room.FtsOptions.TOKENIZER_ICU,
             androidx.room.FtsOptions.TOKENIZER_UNICODE61
         )
     }

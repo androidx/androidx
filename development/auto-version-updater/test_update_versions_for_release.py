@@ -40,6 +40,25 @@ class TestVersionUpdates(unittest.TestCase):
         new_version = increment_version("1.0.1")
         self.assertEqual("1.1.0-alpha01", new_version)
 
+    def test_increment_version_within_minor_version(self):
+        new_version = increment_version_within_minor_version("1.0.0-alpha01")
+        self.assertEqual("1.0.0-alpha02", new_version)
+
+        new_version = increment_version_within_minor_version("1.1.0-alpha01")
+        self.assertEqual("1.1.0-alpha02", new_version)
+
+        new_version = increment_version_within_minor_version("1.0.0-alpha19")
+        self.assertEqual("1.0.0-alpha20", new_version)
+
+        new_version = increment_version_within_minor_version("1.0.0-rc01")
+        self.assertEqual("1.0.0-rc02", new_version)
+
+        new_version = increment_version_within_minor_version("1.3.0-beta02")
+        self.assertEqual("1.3.0-beta03", new_version)
+
+        new_version = increment_version_within_minor_version("1.0.1")
+        self.assertEqual("1.0.2", new_version)
+
     def test_get_higher_version(self):
         higher_version = get_higher_version("1.0.0-alpha01", "1.0.0-alpha02")
         self.assertEqual("1.0.0-alpha02", higher_version)
@@ -75,16 +94,39 @@ class TestVersionUpdates(unittest.TestCase):
         self.assertEqual("1.4.2", higher_version)
 
     def test_should_update_version_in_library_versions_kt(self):
-        generic_line = "    val CONTENTPAGER = Version(\"1.1.0-alpha01\")"
-        compose_line = "    val COMPOSE = Version(System.getenv(\"COMPOSE_CUSTOM_VERSION\") ?: \"1.0.0-beta04\")"
-        self.assertTrue(should_update_version_in_library_versions_kt(generic_line, "1.1.0-alpha02"))
-        self.assertTrue(should_update_version_in_library_versions_kt(generic_line, "1.3.0-alpha01"))
-        self.assertFalse(should_update_version_in_library_versions_kt(generic_line, "1.0.0-alpha01"))
+        self.assertTrue(should_update_version_in_library_versions_toml(
+            "1.1.0-alpha01", "1.1.0-alpha02", "androidx.core"))
+        self.assertTrue(should_update_version_in_library_versions_toml(
+            "1.1.0-alpha01", "1.3.0-alpha01", "androidx.appcompat"))
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.1.0-alpha01", "1.0.0-alpha01", "androidx.work"))
 
-        self.assertTrue(should_update_version_in_library_versions_kt(compose_line, "1.1.0-alpha02"))
-        self.assertTrue(should_update_version_in_library_versions_kt(compose_line, "1.3.0-alpha01"))
-        self.assertFalse(should_update_version_in_library_versions_kt(compose_line, "1.0.0-alpha01"))
+        self.assertTrue(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.1.0-alpha02", "androidx.wear"))
+        self.assertTrue(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.3.0-alpha01", "androidx.viewpager"))
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.0.0-alpha01", "androidx.compose.foundation"))
 
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.1.0-alpha02", "androidx.car"))
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.3.0-alpha01", "androidx.car"))
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.0.0-alpha01", "androidx.car"))
+
+
+class TestFileParsing(unittest.TestCase):
+
+    def test_get_compose_to_runtime_version_map(self):
+        compose_to_runtime_version_map = {}
+        get_compose_to_runtime_version_map(compose_to_runtime_version_map)
+        self.assertTrue("1.0.0" in compose_to_runtime_version_map.keys())
+        self.assertTrue("1.0.5" in compose_to_runtime_version_map.keys())
+        self.assertTrue("1.1.0-alpha05" in compose_to_runtime_version_map.keys())
+        self.assertEqual(3300, compose_to_runtime_version_map["1.0.0"]["runtime_version"])
+        self.assertEqual(3305, compose_to_runtime_version_map["1.0.5"]["runtime_version"])
+        self.assertEqual(4400, compose_to_runtime_version_map["1.1.0-alpha05"]["runtime_version"])
 
 
 if __name__ == '__main__':

@@ -46,7 +46,9 @@ internal data class PointerInputEventData(
     val position: Offset,
     val down: Boolean,
     val type: PointerType,
-    val historical: List<HistoricalChange> = mutableListOf()
+    val issuesEnterExit: Boolean = false,
+    val historical: List<HistoricalChange> = mutableListOf(),
+    val scrollDelta: Offset = Offset.Zero
 )
 
 /**
@@ -62,4 +64,11 @@ internal expect class InternalPointerEvent(
     pointerInputEvent: PointerInputEvent
 ) {
     val changes: Map<PointerId, PointerInputChange>
+
+    /**
+     * Embedded Android Views may consume an event and [ProcessResult] should not
+     * return that the position change was consumed because of this.
+     */
+    var suppressMovementConsumption: Boolean
+    fun issuesEnterExitEvent(pointerId: PointerId): Boolean
 }

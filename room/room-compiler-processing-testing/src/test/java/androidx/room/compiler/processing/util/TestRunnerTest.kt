@@ -19,12 +19,19 @@ package androidx.room.compiler.processing.util
 import androidx.room.compiler.processing.ExperimentalProcessingApi
 import androidx.room.compiler.processing.SyntheticJavacProcessor
 import androidx.room.compiler.processing.SyntheticKspProcessor
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingEnvConfig
+import androidx.room.compiler.processing.XProcessingStep
+import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
+import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
 import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.TypeSpec
@@ -59,6 +66,7 @@ class TestRunnerTest {
             override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
                 return SyntheticKspProcessor(
                     environment,
+                    XProcessingEnvConfig.DEFAULT,
                     listOf { invocation ->
                         if (
                             invocation.processingEnv.findTypeElement("gen.GeneratedKotlin")
@@ -79,6 +87,7 @@ class TestRunnerTest {
         }
 
         val javaProcessor = SyntheticJavacProcessor(
+            XProcessingEnvConfig.DEFAULT,
             listOf { invocation ->
                 if (
                     invocation.processingEnv.findTypeElement("gen.GeneratedJava")
@@ -383,5 +392,65 @@ class TestRunnerTest {
                 )
             }
         }
+    }
+
+    @Test
+    fun actualProcessors() {
+        val src = Source.kotlin(
+            "Foo.kt",
+            """
+            annotation class Annotated
+
+            @Annotated
+            class Foo
+            """.trimIndent()
+        )
+        class TestStep : XProcessingStep {
+            var rounds = 0
+
+            override fun annotations(): Set<String> {
+                return setOf("Annotated")
+            }
+
+            override fun process(
+                env: XProcessingEnv,
+                elementsByAnnotation: Map<String, Set<XElement>>,
+                isLastRound: Boolean
+            ): Set<XElement> {
+                if (rounds == 0) {
+                    val javaFile = JavaFile.builder(
+                        "",
+                        TypeSpec.classBuilder("GenClass")
+                            .addAnnotation(ClassName.get("", "Annotated"))
+                            .build()
+                    ).build()
+                    env.filer.write(javaFile)
+                }
+                rounds++
+                return emptySet()
+            }
+        }
+        val javacStep = TestStep()
+        val testJavacProcessor = object : JavacBasicAnnotationProcessor() {
+            override fun processingSteps() = listOf(javacStep)
+        }
+        val kspStep = TestStep()
+        val testKspProcessorProvider = SymbolProcessorProvider { environment ->
+            object : KspBasicAnnotationProcessor(environment) {
+                override fun processingSteps() = listOf(kspStep)
+            }
+        }
+        var onCompilationResultInvoked = 0
+        runProcessorTest(
+            sources = listOf(src),
+            javacProcessors = listOf(testJavacProcessor),
+            symbolProcessorProviders = listOf(testKspProcessorProvider)
+        ) {
+            onCompilationResultInvoked++
+            it.hasErrorCount(0)
+        }
+        assertThat(onCompilationResultInvoked).isEqualTo(2) // 2 backends
+        assertThat(javacStep.rounds).isEqualTo(3) // 2 rounds + final
+        assertThat(kspStep.rounds).isEqualTo(3) // 2 rounds + final
     }
 }

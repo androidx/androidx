@@ -4,7 +4,7 @@ This directory builds a set of AndroidX Collection benchmarks for Kotlin/JS.
 
 This project depends on node.js. Run this one-time setup task first:
 
-    ./gradlew :collection:collection-benchmark-js:setupJsBenchmark
+    ./gradlew -Pandroidx.github.build=true :collection:collection-benchmark-js:setupJsBenchmark
 
 To run the benchmarks:
 

@@ -18,7 +18,6 @@
 
 package androidx.window.layout
 
-import android.content.Context
 import android.content.pm.ActivityInfo
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -26,6 +25,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.window.TestConfigChangeHandlingActivity
 import androidx.window.WindowTestBase
+import androidx.window.core.SpecificationComputer.VerificationMode.QUIET
 import androidx.window.core.Version
 import androidx.window.layout.ExtensionInterfaceCompat.ExtensionCallbackInterface
 import androidx.window.layout.HardwareFoldingFeature.Type
@@ -36,11 +36,13 @@ import androidx.window.sidecar.SidecarWindowLayoutInfo
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argThat
 import com.nhaarman.mockitokotlin2.atLeastOnce
+import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -62,7 +64,9 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
     @Before
     public fun setUp() {
         assumeValidSidecar()
-        sidecarCompat = SidecarCompat(ApplicationProvider.getApplicationContext() as Context)
+        val sidecar = SidecarCompat.getSidecarCompat(ApplicationProvider.getApplicationContext())
+        // TODO(b/206055949) convert to strict validation.
+        sidecarCompat = SidecarCompat(sidecar, SidecarAdapter(verificationMode = QUIET))
     }
 
     @Test
@@ -83,8 +87,8 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
 
     @Test
     fun testWindowLayoutCallbackOnConfigChange() {
-        val testScope = TestCoroutineScope()
-        testScope.runBlockingTest {
+        val testScope = TestScope(UnconfinedTestDispatcher())
+        testScope.runTest {
             val scenario = ActivityScenario.launch(TestConfigChangeHandlingActivity::class.java)
             val callbackInterface = mock<ExtensionCallbackInterface>()
             scenario.onActivity { activity ->
@@ -101,9 +105,13 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
                 assertNotNull(windowToken)
                 val sidecarWindowLayoutInfo =
                     sidecarCompat.sidecar!!.getWindowLayoutInfo(windowToken)
+                val expected = SidecarAdapter().translate(
+                    sidecarWindowLayoutInfo,
+                    sidecarCompat.sidecar!!.deviceState
+                )
                 verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
                     any(),
-                    argThat(SidecarMatcher(sidecarWindowLayoutInfo))
+                    eq(expected)
                 )
             }
             scenario.onActivity { activity ->
@@ -116,9 +124,13 @@ public class SidecarCompatDeviceTest : WindowTestBase(), CompatDeviceTestInterfa
                 assertNotNull(windowToken)
                 val updatedSidecarWindowLayoutInfo =
                     sidecarCompat.sidecar!!.getWindowLayoutInfo(windowToken)
+                val expected = SidecarAdapter().translate(
+                    updatedSidecarWindowLayoutInfo,
+                    sidecarCompat.sidecar!!.deviceState
+                )
                 verify(callbackInterface, atLeastOnce()).onWindowLayoutChanged(
                     any(),
-                    argThat(SidecarMatcher(updatedSidecarWindowLayoutInfo))
+                    eq(expected)
                 )
             }
         }
