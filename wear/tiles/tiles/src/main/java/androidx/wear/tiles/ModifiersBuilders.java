@@ -540,7 +540,10 @@ public final class ModifiersBuilders {
         }
     }
 
-    /** Metadata about an element, for use by libraries only. */
+    /**
+     * Metadata about an element. For use by libraries building higher-level components only. This
+     * can be used to track component metadata.
+     */
     public static final class ElementMetadata {
         private final ModifiersProto.ElementMetadata mImpl;
 
@@ -665,8 +668,8 @@ public final class ModifiersBuilders {
         }
 
         /**
-         * Gets metadata about an element, for use by libraries only. Intended for testing purposes
-         * only.
+         * Gets metadata about an element. For use by libraries building higher-level components
+         * only. This can be used to track component metadata. Intended for testing purposes only.
          */
         @Nullable
         public ElementMetadata getMetadata() {
@@ -739,7 +742,10 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /** Sets metadata about an element, for use by libraries only. */
+            /**
+             * Sets metadata about an element. For use by libraries building higher-level components
+             * only. This can be used to track component metadata.
+             */
             @NonNull
             public Builder setMetadata(@NonNull ElementMetadata metadata) {
                 mImpl.setMetadata(metadata.toProto());

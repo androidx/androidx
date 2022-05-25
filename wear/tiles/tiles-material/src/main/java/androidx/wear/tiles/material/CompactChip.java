@@ -135,7 +135,7 @@ public class CompactChip implements LayoutElement {
     /** Returns text content of this Chip. */
     @NonNull
     public String getText() {
-        return checkNotNull(mElement.getPrimaryText());
+        return checkNotNull(mElement.getPrimaryTextContent());
     }
 
     /** Returns metadata tag set to this CompactChip, which should be {@link #METADATA_TAG}. */
