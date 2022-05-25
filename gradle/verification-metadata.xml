@@ -61,7 +61,7 @@
          <trusted-key id="19beab2d799c020f17c69126b16698a4adf4d638" group="org.checkerframework"/>
          <trusted-key id="1b2718089ce964b8" group="com.thoughtworks.qdox"/>
          <trusted-key id="1bc86444bbd2a24c3a40904a438e9634a2319637" group="co.nstant.in" name="cbor"/>
-         <trusted-key id="1cb7a3dbc99b562d69bfdfedae7af7ae095eb290" group="net.saff.checkmark" name="checkmark"/>
+         <trusted-key id="1cb7a3dbc99b562d69bfdfedae7af7ae095eb290" group="net.saff.checkmark"/>
          <trusted-key id="1d0a8b5e77c678a7c724445abf984b4145ea13f7" group="com.squareup"/>
          <trusted-key id="1d9aa7f9e1e2824728b8cd1794b291aef984a085">
             <trusting group="io.reactivex"/>
