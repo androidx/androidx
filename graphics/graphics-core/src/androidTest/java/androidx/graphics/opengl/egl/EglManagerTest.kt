@@ -424,7 +424,8 @@ class EglManagerTest {
     fun testEglCreateAndDestroyImageKHR() {
         testEglManager {
             initializeWithDefaultConfig()
-            if (isExtensionSupported(EGL_KHR_IMAGE_BASE)) {
+            if (isExtensionSupported(EGL_KHR_IMAGE_BASE) && isExtensionSupported(
+                    EGL_ANDROID_IMAGE_NATIVE_BUFFER)) {
                 val hardwareBuffer = HardwareBuffer.create(
                     10,
                     10,

@@ -34,6 +34,8 @@ import androidx.opengl.EGLExt.Companion.EGL_FOREVER_KHR
 import androidx.opengl.EGLExt.Companion.EGL_SYNC_FLUSH_COMMANDS_BIT_KHR
 import androidx.opengl.EGLExt.Companion.EGL_TIMEOUT_EXPIRED_KHR
 import androidx.opengl.EGLExt.Companion.eglClientWaitSyncKHR
+import androidx.opengl.EGLExt.Companion.eglDestroyImageKHR
+import androidx.opengl.EGLExt.Companion.eglDestroySyncKHR
 import androidx.opengl.EGLImageKHR
 import androidx.opengl.EGLSyncKHR
 
@@ -209,11 +211,20 @@ interface EglSpec {
      * Creates an EGLImage from the provided [HardwareBuffer]. This handles
      * internally creating an EGLClientBuffer and an [EGLImageKHR] from the client buffer.
      *
+     * When this [EGLImageKHR] instance is no longer necessary, consumers should be sure to
+     * call the corresponding method [eglDestroyImageKHR] to deallocate the resource.
+     *
      * @param hardwareBuffer Backing [HardwareBuffer] for the generated EGLImage instance
      *
      * @return an [EGLImageKHR] instance representing the [EGLImageKHR] created from the
      * HardwareBuffer. Because this is created internally through EGL's eglCreateImageKR method,
      * this has the KHR suffix.
+     *
+     * This can return null if the EGL_ANDROID_image_native_buffer and EGL_KHR_image_base
+     * extensions are not supported or if allocation of the buffer fails.
+     *
+     * See
+     * www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_get_native_client_buffer.txt
      */
     @Suppress("AcronymName")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -243,6 +254,9 @@ interface EglSpec {
      *
      * Consumers should ensure that the EGL_KHR_fence_sync EGL extension is supported before
      * invoking this method otherwise a null EGLSyncFenceKHR object is returned.
+     *
+     * When the [EGLSyncKHR] instance is no longer necessary, consumers are encouraged to call
+     * [eglDestroySyncKHR] to deallocate this resource.
      *
      * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
      *

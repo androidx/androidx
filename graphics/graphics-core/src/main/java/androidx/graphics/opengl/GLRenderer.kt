@@ -397,8 +397,9 @@ class GLRenderer(
      * @param width Desired width of the [RenderTarget]
      * @param height Desired height of the [RenderTarget]
      * @param renderer Callbacks used to issue OpenGL commands to the [RenderTarget]
-     * @return [RenderTarget] used for subsequent requests to communicate
-     * with the provided Surface (ex. [requestRender] or [detach]).
+     * @return [RenderTarget] used for subsequent requests to render through
+     * [RenderTarget.requestRender] or to remove itself from the [GLRenderer] through
+     * [RenderTarget.detach]
      *
      * @throws IllegalStateException If this method was called when the GLThread has not started
      * (i.e. start has not been called)
