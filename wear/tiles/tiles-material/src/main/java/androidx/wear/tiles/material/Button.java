@@ -24,6 +24,9 @@ import static androidx.wear.tiles.material.ButtonDefaults.EXTRA_LARGE_BUTTON_SIZ
 import static androidx.wear.tiles.material.ButtonDefaults.LARGE_BUTTON_SIZE;
 import static androidx.wear.tiles.material.ButtonDefaults.PRIMARY_BUTTON_COLORS;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.checkTag;
+import static androidx.wear.tiles.material.Helper.getMetadataTagName;
+import static androidx.wear.tiles.material.Helper.getTagBytes;
 import static androidx.wear.tiles.material.Helper.radiusOf;
 
 import android.content.Context;
@@ -37,16 +40,15 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.ColorBuilders.ColorProp;
 import androidx.wear.tiles.DimensionBuilders.ContainerDimension;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
-import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.ColorFilter;
-import androidx.wear.tiles.LayoutElementBuilders.FontStyle;
 import androidx.wear.tiles.LayoutElementBuilders.Image;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders;
 import androidx.wear.tiles.ModifiersBuilders.Background;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
 import androidx.wear.tiles.ModifiersBuilders.Corner;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Semantics;
 import androidx.wear.tiles.material.Typography.TypographyName;
@@ -54,6 +56,8 @@ import androidx.wear.tiles.proto.LayoutElementProto;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Tiles component {@link Button} that represents clickable button with the given content.
@@ -65,6 +69,18 @@ import java.lang.annotation.RetentionPolicy;
  * primary {@link Button}.
  */
 public class Button implements LayoutElement {
+    /** Tool tag for Metadata in Modifiers, so we know that Box is actually a Button with text. */
+    static final String METADATA_TAG_TEXT = "TXTBTN";
+    /** Tool tag for Metadata in Modifiers, so we know that Box is actually a Button with icon. */
+    static final String METADATA_TAG_ICON = "ICNBTN";
+    /** Tool tag for Metadata in Modifiers, so we know that Box is actually a Button with image. */
+    static final String METADATA_TAG_IMAGE = "IMGBTN";
+    /**
+     * Tool tag for Metadata in Modifiers, so we know that Box is actually a Button with custom
+     * content.
+     */
+    static final String METADATA_TAG_CUSTOM_CONTENT = "CSTBTN";
+
     @NonNull private final Box mElement;
 
     Button(@NonNull Box element) {
@@ -78,6 +94,8 @@ public class Button implements LayoutElement {
         private static final int TEXT = 1;
         private static final int IMAGE = 2;
         private static final int CUSTOM_CONTENT = 3;
+
+        @NonNull static final Map<Integer, String> TYPE_TO_TAG = new HashMap<>();
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -97,6 +115,13 @@ public class Button implements LayoutElement {
         @Nullable private String mImage = null;
         @NonNull private ButtonColors mButtonColors = PRIMARY_BUTTON_COLORS;
         @ButtonType private int mType = NOT_SET;
+
+        static {
+            TYPE_TO_TAG.put(ICON, METADATA_TAG_ICON);
+            TYPE_TO_TAG.put(TEXT, METADATA_TAG_TEXT);
+            TYPE_TO_TAG.put(IMAGE, METADATA_TAG_IMAGE);
+            TYPE_TO_TAG.put(CUSTOM_CONTENT, METADATA_TAG_CUSTOM_CONTENT);
+        }
 
         /**
          * Creates a builder for the {@link Button} from the given content. Custom content should be
@@ -161,7 +186,7 @@ public class Button implements LayoutElement {
          * Sets the custom content for this Button. Any previously added content will be overridden.
          */
         @NonNull
-        public Builder setContent(@NonNull LayoutElement content) {
+        public Builder setCustomContent(@NonNull LayoutElement content) {
             resetContent();
             this.mCustomContent = content;
             this.mType = CUSTOM_CONTENT;
@@ -174,10 +199,7 @@ public class Button implements LayoutElement {
          * ButtonColors} and with the given size. This icon should be image with chosen alpha
          * channel and not an actual image.
          */
-        // There are multiple methods to set different type of content, but there is general getter
-        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setIconContent(@NonNull String resourceId, @NonNull DpProp size) {
             resetContent();
             this.mIcon = resourceId;
@@ -192,10 +214,7 @@ public class Button implements LayoutElement {
          * icon will be tinted to the given content color from {@link ButtonColors}. This icon
          * should be image with chosen alpha channel and not an actual image.
          */
-        // There are multiple methods to set different type of content, but there is general getter
-        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setIconContent(@NonNull String resourceId) {
             resetContent();
             this.mIcon = resourceId;
@@ -212,10 +231,7 @@ public class Button implements LayoutElement {
          * overridden. Text should contain no more than 3 characters, otherwise it will overflow
          * from the edges.
          */
-        // There are multiple methods to set different type of content, but there is general getter
-        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setTextContent(@NonNull String text) {
             resetContent();
             this.mText = text;
@@ -225,14 +241,11 @@ public class Button implements LayoutElement {
 
         /**
          * Sets the content of this Button to be the given text with the given font. If you need
-         * more font related customization, consider using {@link #setContent} with {@link Text}
-         * component. Any previously added content will be overridden. Text should contain no more
-         * than 3 characters, otherwise it will overflow from the edges.
+         * more font related customization, consider using {@link #setCustomContent} with {@link
+         * Text} component. Any previously added content will be overridden. Text should contain no
+         * more than 3 characters, otherwise it will overflow from the edges.
          */
-        // There are multiple methods to set different type of content, but there is general getter
-        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setTextContent(@NonNull String text, @TypographyName int typographyName) {
             resetContent();
             this.mText = text;
@@ -247,10 +260,7 @@ public class Button implements LayoutElement {
          * will be tinted to the given content color from {@link ButtonColors}. This icon should be
          * image with chosen alpha channel and not an actual image.
          */
-        // There are multiple methods to set different type of content, but there is general getter
-        // getContent that will return LayoutElement set by any of them. b/217197259
         @NonNull
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         public Builder setImageContent(@NonNull String resourceId) {
             resetContent();
             this.mImage = resourceId;
@@ -271,6 +281,8 @@ public class Button implements LayoutElement {
         @NonNull
         @Override
         public Button build() {
+            assertContentFields();
+
             Modifiers.Builder modifiers =
                     new Modifiers.Builder()
                             .setClickable(mClickable)
@@ -281,6 +293,12 @@ public class Button implements LayoutElement {
                                                     new Corner.Builder()
                                                             .setRadius(radiusOf(mSize))
                                                             .build())
+                                            .build())
+                            .setMetadata(
+                                    new ElementMetadata.Builder()
+                                            .setTagData(
+                                                    getTagBytes(
+                                                            checkNotNull(TYPE_TO_TAG.get(mType))))
                                             .build());
             if (mContentDescription.length() > 0) {
                 modifiers.setSemantics(
@@ -302,8 +320,6 @@ public class Button implements LayoutElement {
 
         @NonNull
         private LayoutElement getCorrectContent() {
-            assertContentFields();
-
             LayoutElement.Builder content;
             switch (mType) {
                 case ICON:
@@ -396,10 +412,67 @@ public class Button implements LayoutElement {
         }
     }
 
-    /** Returns the content of this Button. */
+    /**
+     * Returns the custom content of this Button if it has been added. Otherwise, it returns null.
+     */
+    @Nullable
+    public LayoutElement getCustomContent() {
+        if (!getMetadataTag().equals(METADATA_TAG_CUSTOM_CONTENT)) {
+            return null;
+        }
+        return getAnyContent();
+    }
+
+    /** Returns the icon content of this Button if it has been added. Otherwise, it returns null. */
+    @Nullable
+    public String getIconContent() {
+        Image icon = getIconContentObject();
+        return icon != null ? checkNotNull(icon.getResourceId()).getValue() : null;
+    }
+
+    /**
+     * Returns the image content of this Button if it has been added. Otherwise, it returns null.
+     */
+    @Nullable
+    public String getImageContent() {
+        Image image = getImageContentObject();
+        return image != null ? checkNotNull(image.getResourceId()).getValue() : null;
+    }
+
+    /** Returns the text content of this Button if it has been added. Otherwise, it returns null. */
+    @Nullable
+    public String getTextContent() {
+        Text text = getTextContentObject();
+        return text != null ? text.getText() : null;
+    }
+
     @NonNull
-    public LayoutElement getContent() {
+    private LayoutElement getAnyContent() {
         return checkNotNull(mElement.getContents().get(0));
+    }
+
+    @Nullable
+    private Image getIconContentObject() {
+        if (!getMetadataTag().equals(METADATA_TAG_ICON)) {
+            return null;
+        }
+        return (Image) getAnyContent();
+    }
+
+    @Nullable
+    private Text getTextContentObject() {
+        if (!getMetadataTag().equals(METADATA_TAG_TEXT)) {
+            return null;
+        }
+        return Text.fromLayoutElement(getAnyContent());
+    }
+
+    @Nullable
+    private Image getImageContentObject() {
+        if (!getMetadataTag().equals(METADATA_TAG_IMAGE)) {
+            return null;
+        }
+        return (Image) getAnyContent();
     }
 
     /** Returns click event action associated with this Button. */
@@ -433,71 +506,54 @@ public class Button implements LayoutElement {
     @NonNull
     public ButtonColors getButtonColors() {
         ColorProp backgroundColor = getBackgroundColor();
-        ColorProp contentColor;
+        ColorProp contentColor = null;
 
-        if (mElement.getContents().size() > 0) {
-            LayoutElement mainElement = mElement.getContents().get(0);
-            int type = getType(mainElement);
-            // Default color so we can construct ButtonColors object in case where content color is
-            // not set (i.e. button with an actual image doesn't use content color, or content is
-            // set to custom one by the user.
-            switch (type) {
-                case Builder.ICON:
-                    contentColor =
-                            checkNotNull(
-                                    checkNotNull(((Image) mainElement).getColorFilter()).getTint());
-                    break;
-                case Builder.TEXT:
-                    contentColor =
-                            checkNotNull(
-                                    checkNotNull(
-                                                    ((LayoutElementBuilders.Text) mainElement)
-                                                            .getFontStyle())
-                                            .getColor());
-                    break;
-                case Builder.IMAGE:
-                case Builder.CUSTOM_CONTENT:
-                case Builder.NOT_SET:
-                default:
-                    // No content color.
-                    contentColor = new ColorProp.Builder().build();
-                    break;
-            }
-        } else {
+        switch (getMetadataTag()) {
+            case METADATA_TAG_TEXT:
+                contentColor = checkNotNull(getTextContentObject()).getColor();
+                break;
+            case METADATA_TAG_ICON:
+                contentColor =
+                        checkNotNull(checkNotNull(getIconContentObject()).getColorFilter())
+                                .getTint();
+                break;
+            case METADATA_TAG_IMAGE:
+                contentColor =
+                        checkNotNull(checkNotNull(getImageContentObject()).getColorFilter())
+                                .getTint();
+                break;
+            case METADATA_TAG_CUSTOM_CONTENT:
+                break;
+        }
+
+        if (contentColor == null) {
             contentColor = new ColorProp.Builder().build();
         }
 
         return new ButtonColors(backgroundColor, contentColor);
     }
 
+    /** Returns metadata tag set to this Button. */
+    @NonNull
+    String getMetadataTag() {
+        return getMetadataTagName(checkNotNull(mElement.getModifiers()));
+    }
+
     /**
-     * Returns the type of the Button. Types are defined in {@link Builder}. This is used in {@link
-     * #getButtonColors} to ease if the current Button has content color.
-     *
-     * <p>Type is determined by the content of the outer Box layout and if that content has the
-     * color because if the content is set by some of the provided setters in the Builder it will
-     * have color.
+     * Returns Button object from the given LayoutElement if that element can be converted to
+     * Button. Otherwise, returns null.
      */
-    @Builder.ButtonType
-    private int getType(LayoutElement element) {
-        // To elementary Text class as Material Text when it goes to proto disappears.
-        if (element instanceof LayoutElementBuilders.Text) {
-            FontStyle fontStyle = ((LayoutElementBuilders.Text) element).getFontStyle();
-            if (fontStyle != null && fontStyle.getColor() != null) {
-                return Builder.TEXT;
-            }
+    @Nullable
+    public static Button fromLayoutElement(@NonNull LayoutElement element) {
+        if (!(element instanceof Box)) {
+            return null;
         }
-        if (element instanceof Image) {
-            // This means that the Button is either Button with an image or Button with an icon.
-            // Only Button with an icon will have the tint color set.
-            ColorFilter colorFilter = ((Image) element).getColorFilter();
-            if (colorFilter != null && colorFilter.getTint() != null) {
-                return Builder.ICON;
-            } else {
-                return Builder.IMAGE;
-            }
+        Box boxElement = (Box) element;
+        if (!checkTag(boxElement.getModifiers(), Builder.TYPE_TO_TAG.values())) {
+            return null;
         }
-        return Builder.CUSTOM_CONTENT;
+        // Now we are sure that this element is a Button.
+        return new Button(boxElement);
     }
 
     /** @hide */

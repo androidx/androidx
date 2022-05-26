@@ -166,7 +166,7 @@ class CoroutineRoomCancellationTest {
 
     private class TestDatabase : RoomDatabase() {
 
-        override fun createOpenHelper(config: DatabaseConfiguration?): SupportSQLiteOpenHelper {
+        override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
             throw UnsupportedOperationException("Shouldn't be called!")
         }
 

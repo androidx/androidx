@@ -530,6 +530,20 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /**
+     * Returns the executor that will be used for background tasks.
+     *
+     * @return The {@link Executor} provided to
+     * {@link ImageAnalysis.Builder#setBackgroundExecutor(Executor)}.
+     * If no Executor has been provided, then returns {@code null}
+     */
+    @Nullable
+    @ExperimentalUseCaseApi
+    public Executor getBackgroundExecutor() {
+        return ((ImageAnalysisConfig) getCurrentConfig())
+                .getBackgroundExecutor(null);
+    }
+
+    /**
      * Returns the number of images available to the camera pipeline, including the image being
      * analyzed, for the {@link #STRATEGY_BLOCK_PRODUCER} backpressure mode.
      *

@@ -36,8 +36,7 @@
     <string name="on_action_title" msgid="4129601573763429611">"अन छ"</string>
     <string name="off_action_title" msgid="8669201170189204848">"अफ छ"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"सेटिङ"</string>
-    <!-- no translation found for accept_action_title (4899660585470647578) -->
-    <skip />
+    <string name="accept_action_title" msgid="4899660585470647578">"स्वीकार गर्नुहोस्"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"अस्वीकार गर्नुहोस्"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"ठिक छ"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"थ्रो"</string>
@@ -46,6 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"जे भए पनि प्रयास गर्नुहोस्"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"अँ"</string>
     <string name="no_action_title" msgid="1452124604210014010">"अहँ"</string>
+    <string name="disable_all_rows" msgid="3003225080532928046">"सबै रोहरू अफ गर्नुहोस्"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"सबै रोहरू अन गर्नुहोस्"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"त्रुटिको रिपोर्ट गरियो!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"जुम इन गरियो"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"जुम आउट गरियो"</string>
@@ -141,14 +142,10 @@
     <string name="importance_title" msgid="9034862997821839831">"महत्त्व"</string>
     <string name="category_title" msgid="4783851267093259949">"कोटी"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"चलिरहेको छ"</string>
-    <!-- no translation found for default_importance (6347996298832939989) -->
-    <skip />
-    <!-- no translation found for high_importance (5009120714837304882) -->
-    <skip />
-    <!-- no translation found for low_importance (4721161314404294033) -->
-    <skip />
-    <!-- no translation found for unknown_importance (909001735933359216) -->
-    <skip />
+    <string name="default_importance" msgid="6347996298832939989">"डिफल्ट"</string>
+    <string name="high_importance" msgid="5009120714837304882">"उच्च"</string>
+    <string name="low_importance" msgid="4721161314404294033">"न्यून"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"अज्ञात"</string>
     <string name="notification_demo" msgid="1819496937832036387">"सूचनाको डेमो"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"विविध डेमोहरू"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"डेमो नेभिगेट गरिँदै छ"</string>
@@ -186,7 +183,7 @@
     <string name="no_accelerometer_permission" msgid="896914448469117234">"प्रवेगमिटरसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
     <string name="no_gyroscope_permission" msgid="665293140266771569">"जाइरोस्कपसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
     <string name="no_compass_permission" msgid="5162304489577567125">"कम्पाससम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
-    <string name="no_car_hardware_location" msgid="3505517472938045093">"कारको हार्डवेयरको लोकेसनसम्बन्धी जानकारी प्रयोग गर्ने अनुमति छैन।"</string>
+    <string name="no_car_hardware_location" msgid="3505517472938045093">"कारको हार्डवेयरको लोकेसन प्रयोग गर्ने अनुमति छैन।"</string>
     <string name="fetch_toll_info" msgid="6864627977128179834">"टोलसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
     <string name="fetch_energy_level" msgid="1773415471137542832">"इनर्जी लेभलसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
     <string name="fetch_speed" msgid="7333830984597189627">"गतिसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
@@ -195,7 +192,7 @@
     <string name="fetch_accelerometer" msgid="697750041126810911">"प्रवेगमिटरसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
     <string name="fetch_gyroscope" msgid="7153155318827188539">"जाइरोस्कपसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
     <string name="fetch_compass" msgid="7316188117590056717">"कम्पाससम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
-    <string name="fetch_location" msgid="5015066922035852615">"लोकेसनसम्बन्धी जानकारी प्राप्त गरिँदै छ।"</string>
+    <string name="fetch_location" msgid="5015066922035852615">"लोकेसन प्राप्त गरिँदै छ।"</string>
     <string name="toll_card_state" msgid="4430544885695162226">"टोल कार्डको स्थिति"</string>
     <string name="low_energy" msgid="3462774027012877028">"कम इनर्जी"</string>
     <string name="range" msgid="8744960568263400641">"दायरा"</string>
@@ -281,6 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"विकल्प १"</string>
     <string name="option_2_title" msgid="1905146448697963818">"विकल्प २"</string>
     <string name="option_3_title" msgid="6319268250436119258">"विकल्प ३"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"रेडियो बटन भएको रो"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"रेडियो बटन र आइकन भएको रो"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"रेडियो बटन र आइकन तथा रङ्गीन टेक्स्ट भएको रो"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"केही अतिरिक्त टेक्स्ट"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"चयन गर्न मिल्ने सूचीको नमुना"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"कार्यमा लगाइने प्रतिबन्धको डेमो"</string>
@@ -289,13 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"अगाडि बढ्न क्लिक गर्नुहोस्"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"टगल टेस्ट"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"स्टेटफुल परिवर्तन गर्ने अनुमति छ"</string>
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"टगल टेस्ट अन गर्नुहोस्"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"टगल टेस्ट अन गर्न यो जाँच बाकसमा चिन्ह लगाउनुहोस्"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"टगल टेस्ट"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"स्टेटफुल परिवर्तन गर्ने अनुमति छ"</string>
     <string name="image_test_title" msgid="8273863429801477547">"फोटोको जाँच"</string>
     <string name="image_test_text" msgid="6264812093895530445">"फोटोहरू बदल्न मिल्छ"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"अतिरिक्त डेटा"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"अघिल्लो पेजमा गई परिवर्तन गर्न सकिन्छ।"</string>
+    <string name="toggle_test_enabled" msgid="982370904182034076">"टगल टेस्ट अन गरिएको छ"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"टगल टेस्ट अफ गरिएको छ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"टेम्प्लेटका विविध डेमोहरू"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"सोकेसहरूको डेमो"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"रङ्गीन स्रोतको भेक्टर"</string>
     <string name="location_2_description" msgid="3331356135359047166">"फोटो स्रोतको बिटम्याप"</string>
     <string name="location_3_description" msgid="3982142774088944850">"रङ्गीन टेक्स्ट मार्कर"</string>

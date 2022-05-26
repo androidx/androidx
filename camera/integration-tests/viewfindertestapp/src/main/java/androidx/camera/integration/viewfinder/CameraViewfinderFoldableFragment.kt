@@ -57,12 +57,10 @@ import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.annotation.OptIn
 import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.viewfinder.CameraViewfinder
-import androidx.camera.viewfinder.ExperimentalViewfinder
 import androidx.camera.viewfinder.ViewfinderSurfaceRequest
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -302,7 +300,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
     @Deprecated("Deprecated in Java")
     @Suppress("DEPRECATION")
     override fun onPrepareOptionsMenu(menu: Menu) {
-        @OptIn(markerClass = [ExperimentalViewfinder::class])
         val title = "Current impl: ${cameraViewfinder.implementationMode}"
         menu.findItem(R.id.implementationMode)?.title = title
         super.onPrepareOptionsMenu(menu)
@@ -311,7 +308,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
     @Deprecated("Deprecated in Java")
     @Suppress("DEPRECATION")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        @OptIn(markerClass = [ExperimentalViewfinder::class])
         when (item.itemId) {
             R.id.implementationMode -> {
                 cameraViewfinder.implementationMode =
@@ -603,7 +599,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
                     characteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE) == true
                 this.cameraId = cameraId
 
-                @OptIn(markerClass = [ExperimentalViewfinder::class])
                 val request =
                     ViewfinderSurfaceRequest(
                         viewfinderSize!!, characteristics
@@ -711,7 +706,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
      * Creates a new [CameraCaptureSession] for camera viewfinder.
      */
     private fun createCameraViewfinderSession() {
-        @OptIn(markerClass = [ExperimentalViewfinder::class])
         val surfaceListenableFuture: ListenableFuture<Surface> =
             cameraViewfinder.requestSurfaceAsync(viewfinderSurfaceRequest!!)
 
@@ -910,7 +904,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener,
     }
 
     private fun saveBitmap() {
-        @OptIn(markerClass = [ExperimentalViewfinder::class])
         val bitmap: Bitmap? = cameraViewfinder.bitmap
         bitmap?.let { saveBitmapAsFile(it) }
     }

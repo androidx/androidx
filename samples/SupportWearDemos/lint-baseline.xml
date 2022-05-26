@@ -7,9 +7,7 @@
         errorLine1="            mStateTextView.setText(&quot;Ambient&quot;);"
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
-            line="56"
-            column="13"/>
+            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            mStateTextView.setTextColor(Color.WHITE);"
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
-            line="57"
-            column="13"/>
+            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            mStateTextView.getPaint().setAntiAlias(false);"
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
-            line="58"
-            column="13"/>
+            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="            mStateTextView.setText(&quot;Interactive&quot;);"
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
-            line="64"
-            column="13"/>
+            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="            mStateTextView.setTextColor(Color.GREEN);"
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
-            line="65"
-            column="13"/>
+            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            mStateTextView.getPaint().setAntiAlias(true);"
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"
-            line="66"
-            column="13"/>
+            file="src/main/java/com/example/android/support/wear/app/AmbientModeDemo.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                    startActivity(mData.get(mKeys[position]));"
         errorLine2="                                  ~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/MainDemoActivity.java"
-            line="114"
-            column="35"/>
+            file="src/main/java/com/example/android/support/wear/app/MainDemoActivity.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                    startActivity(mData.get(mKeys[position]));"
         errorLine2="                                            ~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/MainDemoActivity.java"
-            line="114"
-            column="45"/>
+            file="src/main/java/com/example/android/support/wear/app/MainDemoActivity.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="        wrv.setAdapter(new DemoAdapter());"
         errorLine2="                       ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/SimpleWearableRecyclerViewDemo.java"
-            line="43"
-            column="24"/>
+            file="src/main/java/com/example/android/support/wear/app/SimpleWearableRecyclerViewDemo.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public void onTimerFinished(CircularProgressLayout layout) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/CircularProgressLayoutDemo.java"
-            line="58"
-            column="33"/>
+            file="src/main/java/com/example/android/support/wear/app/CircularProgressLayoutDemo.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/ConfirmationOverlayDemo.java"
-            line="33"
-            column="29"/>
+            file="src/main/java/com/example/android/support/wear/app/ConfirmationOverlayDemo.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public DemoNavDrawerAdapter(NavItem[] navItems) {"
         errorLine2="                                ~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/DemoNavDrawerAdapter.java"
-            line="28"
-            column="33"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/DemoNavDrawerAdapter.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public CharSequence getItemText(int pos) {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/DemoNavDrawerAdapter.java"
-            line="33"
-            column="12"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/DemoNavDrawerAdapter.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public Drawable getItemDrawable(int pos) {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/DemoNavDrawerAdapter.java"
-            line="38"
-            column="12"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/DemoNavDrawerAdapter.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/FrameLayoutFragment.java"
-            line="31"
-            column="12"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/FrameLayoutFragment.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                      ~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/FrameLayoutFragment.java"
-            line="31"
-            column="55"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/FrameLayoutFragment.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/MainDemoActivity.java"
-            line="43"
-            column="29"/>
+            file="src/main/java/com/example/android/support/wear/app/MainDemoActivity.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public NavItem(Class&lt;? extends Fragment> fragment, String title, Drawable drawable) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"
-            line="28"
-            column="20"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    public NavItem(Class&lt;? extends Fragment> fragment, String title, Drawable drawable) {"
         errorLine2="                                                       ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"
-            line="28"
-            column="56"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    public NavItem(Class&lt;? extends Fragment> fragment, String title, Drawable drawable) {"
         errorLine2="                                                                     ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"
-            line="28"
-            column="70"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    public Class&lt;? extends Fragment> getFragment() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"
-            line="34"
-            column="12"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    public String getTitle() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"
-            line="38"
-            column="12"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    public Drawable getDrawable() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"
-            line="42"
-            column="12"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/NavItem.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/ScrollViewFragment.java"
-            line="31"
-            column="12"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/ScrollViewFragment.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                      ~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/ScrollViewFragment.java"
-            line="31"
-            column="55"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/ScrollViewFragment.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/SimpleWearableRecyclerViewDemo.java"
-            line="36"
-            column="29"/>
+            file="src/main/java/com/example/android/support/wear/app/SimpleWearableRecyclerViewDemo.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/drawers/WearableDrawersDemo.java"
-            line="42"
-            column="29"/>
+            file="src/main/java/com/example/android/support/wear/app/drawers/WearableDrawersDemo.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/wear/app/WearableSwitchDemo.java"
-            line="27"
-            column="29"/>
+            file="src/main/java/com/example/android/support/wear/app/WearableSwitchDemo.java"/>
     </issue>
 
 </issues>

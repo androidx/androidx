@@ -31,10 +31,12 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.StringRes
 import androidx.wear.watchface.complications.ComplicationSlotBounds
+import androidx.wear.watchface.complications.IllegalNodeException
 import androidx.wear.watchface.complications.NAMESPACE_ANDROID
 import androidx.wear.watchface.complications.NAMESPACE_APP
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.hasValue
+import androidx.wear.watchface.complications.iterate
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotsOption
 import androidx.wear.watchface.style.data.BooleanOptionWireFormat
@@ -395,30 +397,20 @@ public sealed class UserStyleSetting private constructor(
 
             var watchFaceEditorData: WatchFaceEditorData? = null
             val options = ArrayList<Option>()
-            var type = 0
-            val outerDepth = parser.depth
-            do {
-                if (type == XmlPullParser.START_TAG) {
-                    if (parser.name == "OnWatchEditorData") {
-                        if (watchFaceEditorData == null) {
-                            watchFaceEditorData =
-                                WatchFaceEditorData.inflate(resources, parser)
-                        } else {
-                            throw IllegalArgumentException(
-                                "Unexpected node OnWatchEditorData at line " +
-                                    parser.lineNumber
-                            )
-                        }
-                    } else if (optionInflater != null && optionInflater.first == parser.name) {
-                        options.add(optionInflater.second(resources, parser))
+            parser.iterate {
+                if (parser.name == "OnWatchEditorData") {
+                    if (watchFaceEditorData == null) {
+                        watchFaceEditorData =
+                            WatchFaceEditorData.inflate(resources, parser)
                     } else {
-                        throw IllegalArgumentException(
-                            "Unexpected node ${parser.name} at line ${parser.lineNumber}"
-                        )
+                        throw IllegalNodeException(parser)
                     }
+                } else if (optionInflater != null && optionInflater.first == parser.name) {
+                    options.add(optionInflater.second(resources, parser))
+                } else {
+                    throw IllegalNodeException(parser)
                 }
-                type = parser.next()
-            } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+            }
 
             return Params(
                 Id(id),
@@ -1427,34 +1419,24 @@ public sealed class UserStyleSetting private constructor(
 
                     var watchFaceEditorData: WatchFaceEditorData? = null
                     val complicationSlotOverlays = ArrayList<ComplicationSlotOverlay>()
-                    var type = 0
-                    val outerDepth = parser.depth
-                    do {
-                        if (type == XmlPullParser.START_TAG) {
-                            when (parser.name) {
-                                "ComplicationSlotOverlay" -> complicationSlotOverlays.add(
-                                    ComplicationSlotOverlay.inflate(resources, parser)
-                                )
+                    parser.iterate {
+                        when (parser.name) {
+                            "ComplicationSlotOverlay" -> complicationSlotOverlays.add(
+                                ComplicationSlotOverlay.inflate(resources, parser)
+                            )
 
-                                "OnWatchEditorData" -> {
-                                    if (watchFaceEditorData == null) {
-                                        watchFaceEditorData =
-                                            WatchFaceEditorData.inflate(resources, parser)
-                                    } else {
-                                        throw IllegalArgumentException(
-                                            "Unexpected node OnWatchEditorData at line " +
-                                                parser.lineNumber
-                                        )
-                                    }
+                            "OnWatchEditorData" -> {
+                                if (watchFaceEditorData == null) {
+                                    watchFaceEditorData =
+                                        WatchFaceEditorData.inflate(resources, parser)
+                                } else {
+                                    throw IllegalNodeException(parser)
                                 }
-
-                                else -> throw IllegalArgumentException(
-                                    "Unexpected node ${parser.name} at line ${parser.lineNumber}"
-                                )
                             }
+
+                            else -> throw IllegalNodeException(parser)
                         }
-                        type = parser.next()
-                    } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+                    }
 
                     return ComplicationSlotsOption(
                         Id(id),
@@ -2122,43 +2104,33 @@ public sealed class UserStyleSetting private constructor(
 
                     var watchFaceEditorData: WatchFaceEditorData? = null
                     val childSettings = ArrayList<UserStyleSetting>()
-                    var type = 0
-                    val outerDepth = parser.depth
-                    do {
-                        if (type == XmlPullParser.START_TAG) {
-                            when (parser.name) {
-                                "ChildSetting" -> {
-                                    val childId = getStringRefAttribute(resources, parser, "id")
-                                    require(childId != null) {
-                                        "ChildSetting must have an id"
-                                    }
-                                    val setting = idToSetting[childId]
-                                    require(setting != null) {
-                                        "Unknown ChildSetting id $childId, note only backward " +
-                                            "references are supported."
-                                    }
-                                    childSettings.add(setting)
+                    parser.iterate {
+                        when (parser.name) {
+                            "ChildSetting" -> {
+                                val childId = getStringRefAttribute(resources, parser, "id")
+                                require(childId != null) {
+                                    "ChildSetting must have an id"
                                 }
-
-                                "OnWatchEditorData" -> {
-                                    if (watchFaceEditorData == null) {
-                                        watchFaceEditorData =
-                                            WatchFaceEditorData.inflate(resources, parser)
-                                    } else {
-                                        throw IllegalArgumentException(
-                                            "Unexpected node OnWatchEditorData at line " +
-                                                parser.lineNumber
-                                        )
-                                    }
+                                val setting = idToSetting[childId]
+                                require(setting != null) {
+                                    "Unknown ChildSetting id $childId, note only backward " +
+                                        "references are supported."
                                 }
-
-                                else -> throw IllegalArgumentException(
-                                    "Unexpected node ${parser.name} at line ${parser.lineNumber}"
-                                )
+                                childSettings.add(setting)
                             }
+
+                            "OnWatchEditorData" -> {
+                                if (watchFaceEditorData == null) {
+                                    watchFaceEditorData =
+                                        WatchFaceEditorData.inflate(resources, parser)
+                                } else {
+                                    throw IllegalNodeException(parser)
+                                }
+                            }
+
+                            else -> throw IllegalNodeException(parser)
                         }
-                        type = parser.next()
-                    } while (type != XmlPullParser.END_DOCUMENT && parser.depth > outerDepth)
+                    }
 
                     return ListOption(
                         Id(id),

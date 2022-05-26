@@ -36,8 +36,7 @@
     <string name="on_action_title" msgid="4129601573763429611">"Ativado"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Desativado"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Definições"</string>
-    <!-- no translation found for accept_action_title (4899660585470647578) -->
-    <skip />
+    <string name="accept_action_title" msgid="4899660585470647578">"Aceitar"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"Rejeitar"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"OK"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Acionar"</string>
@@ -46,6 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"Tentar mesmo assim"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"Sim"</string>
     <string name="no_action_title" msgid="1452124604210014010">"Não"</string>
+    <string name="disable_all_rows" msgid="3003225080532928046">"Desativar todas as linhas"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"Ativar todas as linhas"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"Erro comunicado!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"Zoom aumentado"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"Zoom diminuído"</string>
@@ -141,14 +142,10 @@
     <string name="importance_title" msgid="9034862997821839831">"Importância"</string>
     <string name="category_title" msgid="4783851267093259949">"Categoria"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"Em curso"</string>
-    <!-- no translation found for default_importance (6347996298832939989) -->
-    <skip />
-    <!-- no translation found for high_importance (5009120714837304882) -->
-    <skip />
-    <!-- no translation found for low_importance (4721161314404294033) -->
-    <skip />
-    <!-- no translation found for unknown_importance (909001735933359216) -->
-    <skip />
+    <string name="default_importance" msgid="6347996298832939989">"Predefinição"</string>
+    <string name="high_importance" msgid="5009120714837304882">"Alta"</string>
+    <string name="low_importance" msgid="4721161314404294033">"Baixa"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"Desconhecida"</string>
     <string name="notification_demo" msgid="1819496937832036387">"Demonstração de notificação"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"Demonstrações diversas"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"Demonstração de navegação"</string>
@@ -281,6 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"Opção 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Opção 2"</string>
     <string name="option_3_title" msgid="6319268250436119258">"Opção 3"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"Linha com botão de opção"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"Linha com botão de opção e ícone"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"Linha com botão de opção, ícone e texto colorido"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"Texto adicional"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Lista selecionável de exemplo"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demonstração de restrição de tarefa"</string>
@@ -289,13 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"Clique para avançar"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Ativar/desativar teste"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"São permitidas alterações com estado"</string>
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Ativar teste de botão"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"Selecione esta opção para ativar o teste de botão"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"Teste de botão"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"São permitidas alterações com estado"</string>
     <string name="image_test_title" msgid="8273863429801477547">"Teste de imagem"</string>
     <string name="image_test_text" msgid="6264812093895530445">"São permitidas alterações de imagens"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Dados adicionais"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"Atualizações permitidas nas operações de retrocesso."</string>
+    <string name="toggle_test_enabled" msgid="982370904182034076">"Teste de botão ativado"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"Teste de botão desativado"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstrações de modelos diversos"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demonstrações de destaque"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Vetor do recurso com matiz"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Mapa de bits dos recursos da imagem"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Marcador de texto a cores"</string>

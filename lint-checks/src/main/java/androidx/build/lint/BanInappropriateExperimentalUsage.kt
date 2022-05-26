@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import com.android.tools.lint.client.api.JavaEvaluator
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -27,6 +28,10 @@ import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
+import com.android.tools.lint.model.DefaultLintModelMavenName
+import com.android.tools.lint.model.LintModelMavenName
+import com.intellij.psi.PsiCompiledElement
+import java.io.File
 import java.io.FileNotFoundException
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
@@ -178,6 +183,13 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         issue: Issue,
         atomicGroupList: List<String>,
     ) {
+
+        // Experimental annotations are permitted if they are in the allowlist
+        val annotationQualifiedName = annotation.getQualifiedName()
+        if (annotationQualifiedName != null && isAnnotationAlwaysAllowed(annotationQualifiedName)) {
+            return
+        }
+
         val evaluator = context.evaluator
 
         // The location where the annotation is used
@@ -185,8 +197,22 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
         val usageGroupId = usageCoordinates?.groupId
 
         // The location where the annotation is declared
-        // TODO (b/222554358): annotationGroup is (unexpectedly) null sometimes; fix this
-        val annotationCoordinates = evaluator.getLibrary(annotation) ?: return
+        val annotationCoordinates = evaluator.getLibraryLocalMode(annotation)
+
+        // This should not happen; generate a lint report if it does
+        if (annotationCoordinates == null) {
+            Incident(context)
+                .issue(NULL_ANNOTATION_GROUP_ISSUE)
+                .at(usage)
+                .message(
+                    "Could not find associated group for annotation " +
+                        "${annotation.getQualifiedName()}, which is used in " +
+                        "${context.project.mavenCoordinate.groupId}."
+                )
+                .report()
+            return
+        }
+
         val annotationGroupId = annotationCoordinates.groupId
 
         val isUsedInSameGroup = usageCoordinates.groupId == annotationCoordinates.groupId
@@ -200,7 +226,8 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
          *   `annotationCoordinates` match
          * - The group IDs match, and that group ID is atomic
          */
-        if ((isUsedInSameGroup && isUsedInSameArtifact) || (isUsedInSameGroup && isAtomic)) return
+        if ((isUsedInSameGroup && isUsedInSameArtifact) ||
+            (isUsedInSameGroup && isAtomic)) return
 
         // Log inappropriate experimental usage
         if (DEBUG) {
@@ -216,6 +243,26 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                     "same-version group where they were defined."
             )
             .report()
+    }
+
+    /**
+     * An implementation of [JavaEvaluator.getLibrary] that attempts to use the JAR path when we
+     * can't find the project from the sourcePsi, even if the element isn't a compiled element.
+     */
+    private fun JavaEvaluator.getLibraryLocalMode(element: UElement): LintModelMavenName? {
+        if (element !is PsiCompiledElement) {
+            val coord = element.sourcePsi?.let { psi -> getProject(psi)?.mavenCoordinate }
+            if (coord != null) {
+                return coord
+            }
+        }
+        val findJarPath = findJarPath(element)
+        return if (findJarPath != null) {
+            val file = File(findJarPath)
+            getLibrary(file) ?: getMavenCoordinatesFromPath(file.path)
+        } else {
+            null
+        }
     }
 
     private fun UElement.getQualifiedName() = (this as UClass).qualifiedName
@@ -264,5 +311,64 @@ class BanInappropriateExperimentalUsage : Detector(), Detector.UastScanner {
                 Scope.JAVA_FILE_SCOPE,
             ),
         )
+
+        val NULL_ANNOTATION_GROUP_ISSUE = Issue.create(
+            id = "NullAnnotationGroup",
+            briefDescription = "Maven group associated with an annotation could not be found",
+            explanation = "An annotation's group could not be found using `getProject` or " +
+                "`getLibrary`.",
+            category = Category.CORRECTNESS,
+            priority = 5,
+            severity = Severity.ERROR,
+            implementation = Implementation(
+                BanInappropriateExperimentalUsage::class.java,
+                Scope.JAVA_FILE_SCOPE,
+            ),
+        )
+
+        /**
+         * Checks to see if the given annotation is always allowed for use in @OptIn.
+         */
+        internal fun isAnnotationAlwaysAllowed(annotation: String): Boolean {
+            val allowedExperimentalAnnotations = listOf(
+                Regex("com\\.google\\.devtools\\.ksp\\.KspExperimental"),
+                Regex("kotlin\\..*"),
+                Regex("kotlinx\\..*"),
+                Regex("org.jetbrains.kotlin\\..*"),
+            )
+            return allowedExperimentalAnnotations.any {
+                annotation.matches(it)
+            }
+        }
+
+        /**
+         * Extracts the Maven coordinates from a given JAR path
+         *
+         * For example: given `<checkout root>/androidx/paging/paging-common/build/libs/paging-common-3.2.0-alpha01.jar`,
+         * this method will return a:
+         *
+         * - `groupId` of `androidx.paging`
+         * - `artifactId` of `paging-common`
+         * - `version` of `3.2.0-alpha01`
+         *
+         * @param jarFilePath the path to the JAR file
+         * @return a [LintModelMavenName] with the groupId, artifactId, and version parsed from the
+         *         path, or `null` if [jarFilePath] doesn't contain the string "androidx".
+         */
+        internal fun getMavenCoordinatesFromPath(jarFilePath: String): LintModelMavenName? {
+            if (!jarFilePath.contains("androidx")) return null
+
+            val pathParts = jarFilePath.split("/")
+
+            val androidxIndex = pathParts.indexOf("androidx")
+            val groupId = pathParts[androidxIndex] + "." + pathParts[androidxIndex + 1]
+
+            val artifactId = pathParts[androidxIndex + 2]
+
+            val filename = pathParts.last()
+            val version = filename.removePrefix("$artifactId-").removeSuffix(".jar")
+
+            return DefaultLintModelMavenName(groupId, artifactId, version)
+        }
     }
 }

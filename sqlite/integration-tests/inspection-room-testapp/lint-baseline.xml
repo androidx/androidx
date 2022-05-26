@@ -7,9 +7,7 @@
         errorLine1="    fun invalidationHook() = runBlocking&lt;Unit>(testJob) {"
         errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sqlite/inspection/RoomInvalidationHookTest.kt"
-            line="80"
-            column="9"/>
+            file="src/androidTest/java/androidx/sqlite/inspection/RoomInvalidationHookTest.kt"/>
     </issue>
 
 </issues>

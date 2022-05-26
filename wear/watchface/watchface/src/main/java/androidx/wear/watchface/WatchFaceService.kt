@@ -76,6 +76,7 @@ import androidx.wear.watchface.editor.EditorService
 import androidx.wear.watchface.style.CurrentUserStyleRepository
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
+import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat
@@ -440,7 +441,7 @@ public abstract class WatchFaceService : WallpaperService() {
     ): ComplicationSlotsManager =
         xmlSchemaAndComplicationSlotsDefinition.buildComplicationSlotsManager(
             currentUserStyleRepository,
-            getComplicationSlotInflationFactory()
+            getComplicationSlotInflationFactory(currentUserStyleRepository)
         )
 
     /**
@@ -453,9 +454,33 @@ public abstract class WatchFaceService : WallpaperService() {
      * for your WatchFaceService 's manifest, and your XML includes <ComplicationSlot> tags then you
      * must override this method.
      */
+    @Deprecated(
+        "Use the version with currentUserStyleRepository argument instead",
+        ReplaceWith("getComplicationSlotInflationFactory" +
+            "(currentUserStyleRepository: CurrentUserStyleRepository)")
+    )
     @WorkerThread
     protected open fun getComplicationSlotInflationFactory(): ComplicationSlotInflationFactory? =
         null
+
+    /**
+     * Used when inflating [ComplicationSlot]s from XML to provide a
+     * [ComplicationSlotInflationFactory] which provides the [CanvasComplicationFactory] and where
+     * necessary edge complication [ComplicationTapFilter]s needed for inflating
+     * [ComplicationSlot]s.
+     *
+     * If an androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition metadata tag is defined
+     * for your WatchFaceService 's manifest, and your XML includes <ComplicationSlot> tags then you
+     * must override this method. An exception will be thrown if the implementation returns null.
+     *
+     * @param currentUserStyleRepository The [CurrentUserStyleRepository] constructed using the
+     * [UserStyleSchema] returned by [createUserStyleSchema].
+     */
+    @Suppress("DEPRECATION")
+    @WorkerThread
+    protected open fun getComplicationSlotInflationFactory(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ): ComplicationSlotInflationFactory? = getComplicationSlotInflationFactory()
 
     /**
      * If the WatchFaceService's manifest doesn't define a
@@ -473,7 +498,6 @@ public abstract class WatchFaceService : WallpaperService() {
      * @return The [UserStyleFlavors], which is exposed to the system.
      */
     @WorkerThread
-    @WatchFaceFlavorsExperimental
     protected open fun createUserStyleFlavors(
         currentUserStyleRepository: CurrentUserStyleRepository,
         complicationSlotsManager: ComplicationSlotsManager
@@ -1007,7 +1031,6 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
-    @OptIn(WatchFaceFlavorsExperimental::class)
     internal class WatchFaceInitDetails(
         val watchFace: WatchFace,
         val complicationSlotsManager: ComplicationSlotsManager,
@@ -1263,12 +1286,18 @@ public abstract class WatchFaceService : WallpaperService() {
         @UiThread
         internal fun ambientTickUpdate(): Unit = TraceEvent("EngineWrapper.ambientTickUpdate").use {
             if (mutableWatchState.isAmbient.value!!) {
-                ambientUpdateWakelock.acquire()
-                // It's unlikely an ambient tick would be sent to a watch face that hasn't loaded
-                // yet. The watch face will render at least once upon loading so we don't need to do
-                // anything special here.
-                draw()
                 ambientUpdateWakelock.acquire(SURFACE_DRAW_TIMEOUT_MS)
+                try {
+                    // It's unlikely an ambient tick would be sent to a watch face that hasn't
+                    // loaded yet (if that did happen then draw would be a NOP). The watch face will
+                    // render at least once upon loading so we don't need to do anything special
+                    // here.
+                    draw()
+                } catch (t: Throwable) {
+                    Log.e(TAG, "ambientTickUpdate failed", t)
+                } finally {
+                    ambientUpdateWakelock.release()
+                }
             }
         }
 
@@ -1638,7 +1667,6 @@ public abstract class WatchFaceService : WallpaperService() {
         internal fun getUserStyleSchemaWireFormat() = createUserStyleSchema().toWireFormat()
 
         /** This will be called from a binder thread. */
-        @OptIn(WatchFaceFlavorsExperimental::class)
         @WorkerThread
         internal fun getUserStyleFlavorsWireFormat(): UserStyleFlavorsWireFormat {
             val currentUserStyleRepository = CurrentUserStyleRepository(createUserStyleSchema())
@@ -1761,7 +1789,7 @@ public abstract class WatchFaceService : WallpaperService() {
 
             mutableWatchState.isVisible.value = true
             mutableWatchState.isAmbient.value = false
-            return HeadlessWatchFaceImpl(this)
+            return HeadlessWatchFaceImpl(this, this@WatchFaceService)
         }
 
         @UiThread
@@ -1818,7 +1846,6 @@ public abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        @OptIn(WatchFaceFlavorsExperimental::class)
         internal fun createWatchFaceInternal(
             watchState: WatchState,
             overrideSurfaceHolder: SurfaceHolder?,

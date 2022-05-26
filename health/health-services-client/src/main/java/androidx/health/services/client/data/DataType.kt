@@ -268,6 +268,11 @@ public class DataType(
         public val SWIMMING_STROKES: DataType =
             DataType("Swimming Strokes", TimeType.INTERVAL, Value.FORMAT_LONG)
 
+        /** Count of golf shots in `long` format. */
+        @JvmField
+        public val GOLF_SHOT_COUNT: DataType =
+            DataType("Golf Shot Count", TimeType.INTERVAL, Value.FORMAT_LONG)
+
         /**
          * Delta of total calories (including basal rate and activity) between each reading in
          * `double` format.

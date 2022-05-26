@@ -7,9 +7,7 @@
         errorLine1="    public EmojiAppCompatButton(Context context) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"
-            line="38"
-            column="33"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public EmojiAppCompatButton(Context context, AttributeSet attrs) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"
-            line="43"
-            column="33"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public EmojiAppCompatButton(Context context, AttributeSet attrs) {"
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"
-            line="43"
-            column="50"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public EmojiAppCompatButton(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"
-            line="48"
-            column="33"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public EmojiAppCompatButton(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"
-            line="48"
-            column="50"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatButton.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public EmojiAppCompatEditText(Context context) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"
-            line="46"
-            column="35"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public EmojiAppCompatEditText(Context context, AttributeSet attrs) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"
-            line="51"
-            column="35"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public EmojiAppCompatEditText(Context context, AttributeSet attrs) {"
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"
-            line="51"
-            column="52"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public EmojiAppCompatEditText(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"
-            line="56"
-            column="35"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public EmojiAppCompatEditText(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"
-            line="56"
-            column="52"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatEditText.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public EmojiAppCompatTextView(Context context) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"
-            line="39"
-            column="35"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public EmojiAppCompatTextView(Context context, AttributeSet attrs) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"
-            line="44"
-            column="35"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public EmojiAppCompatTextView(Context context, AttributeSet attrs) {"
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"
-            line="44"
-            column="52"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public EmojiAppCompatTextView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"
-            line="49"
-            column="35"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public EmojiAppCompatTextView(Context context, AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                                                   ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"
-            line="49"
-            column="52"/>
+            file="src/main/java/androidx/emoji/widget/EmojiAppCompatTextView.java"/>
     </issue>
 
 </issues>

@@ -34,10 +34,10 @@ interface UwbManager {
     }
 
     /**
-     * Establishes a new [UwbClientSessionScope] that tracks the lifecycle of a UWB connection.
+     * @return a new [UwbClientSessionScope] that tracks the lifecycle of a UWB connection.
      *
      * @throws [UwbServiceNotAvailableException] if the UWB is turned off.
      * @throws [UwbHardwareNotAvailableException] if the hardware is not available on the device.
      */
-    suspend fun <R> clientSessionScope(sessionHandler: suspend UwbClientSessionScope.() -> R): R
+    suspend fun clientSessionScope(): UwbClientSessionScope
 }

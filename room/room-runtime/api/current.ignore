@@ -1,5 +1,57 @@
 // Baseline format: 1.0
+ChangedType: androidx.room.DatabaseConfiguration#autoMigrationSpecs:
+    Field androidx.room.DatabaseConfiguration.autoMigrationSpecs has changed type from java.util.List<androidx.room.migration.AutoMigrationSpec!> to java.util.List<androidx.room.migration.AutoMigrationSpec>
+ChangedType: androidx.room.DatabaseConfiguration#callbacks:
+    Field androidx.room.DatabaseConfiguration.callbacks has changed type from java.util.List<androidx.room.RoomDatabase.Callback!> to java.util.List<androidx.room.RoomDatabase.Callback>
+ChangedType: androidx.room.DatabaseConfiguration#copyFromInputStream:
+    Field androidx.room.DatabaseConfiguration.copyFromInputStream has changed type from java.util.concurrent.Callable<java.io.InputStream!> to java.util.concurrent.Callable<java.io.InputStream>
+ChangedType: androidx.room.DatabaseConfiguration#typeConverters:
+    Field androidx.room.DatabaseConfiguration.typeConverters has changed type from java.util.List<java.lang.Object!> to java.util.List<java.lang.Object>
 ChangedType: androidx.room.Room#databaseBuilder(android.content.Context, Class<T>, String):
     Method androidx.room.Room.databaseBuilder has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
 ChangedType: androidx.room.Room#inMemoryDatabaseBuilder(android.content.Context, Class<T>):
     Method androidx.room.Room.inMemoryDatabaseBuilder has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#addAutoMigrationSpec(androidx.room.migration.AutoMigrationSpec):
+    Method androidx.room.RoomDatabase.Builder.addAutoMigrationSpec has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
+    Method androidx.room.RoomDatabase.Builder.addCallback has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#addMigrations(androidx.room.migration.Migration...):
+    Method androidx.room.RoomDatabase.Builder.addMigrations has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#addTypeConverter(Object):
+    Method androidx.room.RoomDatabase.Builder.addTypeConverter has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#allowMainThreadQueries():
+    Method androidx.room.RoomDatabase.Builder.allowMainThreadQueries has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#createFromAsset(String):
+    Method androidx.room.RoomDatabase.Builder.createFromAsset has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#createFromAsset(String, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
+    Method androidx.room.RoomDatabase.Builder.createFromAsset has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File):
+    Method androidx.room.RoomDatabase.Builder.createFromFile has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
+    Method androidx.room.RoomDatabase.Builder.createFromFile has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#createFromInputStream(java.util.concurrent.Callable<java.io.InputStream>):
+    Method androidx.room.RoomDatabase.Builder.createFromInputStream has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#createFromInputStream(java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
+    Method androidx.room.RoomDatabase.Builder.createFromInputStream has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#enableMultiInstanceInvalidation():
+    Method androidx.room.RoomDatabase.Builder.enableMultiInstanceInvalidation has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigration():
+    Method androidx.room.RoomDatabase.Builder.fallbackToDestructiveMigration has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationFrom(int...):
+    Method androidx.room.RoomDatabase.Builder.fallbackToDestructiveMigrationFrom has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigrationOnDowngrade():
+    Method androidx.room.RoomDatabase.Builder.fallbackToDestructiveMigrationOnDowngrade has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory):
+    Method androidx.room.RoomDatabase.Builder.openHelperFactory has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#setJournalMode(androidx.room.RoomDatabase.JournalMode):
+    Method androidx.room.RoomDatabase.Builder.setJournalMode has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#setQueryCallback(androidx.room.RoomDatabase.QueryCallback, java.util.concurrent.Executor):
+    Method androidx.room.RoomDatabase.Builder.setQueryCallback has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#setQueryExecutor(java.util.concurrent.Executor):
+    Method androidx.room.RoomDatabase.Builder.setQueryExecutor has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.Builder#setTransactionExecutor(java.util.concurrent.Executor):
+    Method androidx.room.RoomDatabase.Builder.setTransactionExecutor has changed return type from androidx.room.RoomDatabase.Builder<T!> to androidx.room.RoomDatabase.Builder<T>
+ChangedType: androidx.room.RoomDatabase.MigrationContainer#findMigrationPath(int, int):
+    Method androidx.room.RoomDatabase.MigrationContainer.findMigrationPath has changed return type from java.util.List<androidx.room.migration.Migration!> to java.util.List<androidx.room.migration.Migration>
+ChangedType: androidx.room.RoomDatabase.MigrationContainer#getMigrations():
+    Method androidx.room.RoomDatabase.MigrationContainer.getMigrations has changed return type from java.util.Map<java.lang.Integer!,java.util.Map<java.lang.Integer!,androidx.room.migration.Migration!>!> to java.util.Map<java.lang.Integer,java.util.Map<java.lang.Integer,androidx.room.migration.Migration>>

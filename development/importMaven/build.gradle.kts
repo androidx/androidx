@@ -26,6 +26,7 @@ import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinUsages
 
 buildscript {
     // Set of repositories only used for this build.gradle.kts itself. These are not used
@@ -52,6 +53,7 @@ val externalFolder = "external"
  */
 var artifactNames = project.findProperty("artifactNames")?.toString()?.split(",")
     ?: throw GradleException("You are required to specify -PartifactNames property")
+val kmpBuild = project.findProperty("kmpBuild")?.toString()?.toBoolean() ?: false
 val mediaType = "application/json; charset=utf-8".toMediaType()
 val licenseEndpoint = "https://fetch-licenses.appspot.com/convert/licenses"
 
@@ -77,7 +79,23 @@ plugins {
 }
 
 kotlin {
-       linuxX64()
+    jvm()
+    if (kmpBuild) {
+        macosX64()
+        macosArm64()
+        linuxX64()
+        mingwX64()
+        mingwX86()
+        sourceSets {
+            val commonMain by getting {
+                dependencies {
+                    for (artifactName in artifactNames) {
+                        implementation(artifactName)
+                    }
+                }
+            }
+        }
+    }
 }
 
 val androidxBuildId: String? = findProperty("androidxBuildId") as String?
@@ -171,7 +189,7 @@ val javaApiConfiguration: Configuration by configurations.creating {
  */
 val kotlinApiConfiguration: Configuration by configurations.creating {
     attributes {
-        attribute(Usage.USAGE_ATTRIBUTE, objects.named("kotlin-api"))
+        attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage::class.java, KotlinUsages.KOTLIN_API))
     }
     extendsFrom(configurations.runtimeClasspath.get())
 }
@@ -348,38 +366,55 @@ fun transformInternalPomFile(file: File): File {
 
 /**
  * Copies artifacts to the right locations.
+ * Returns true if the artifact is copied, false if it is skipped.
  */
-fun copyArtifact(artifact: ResolvedArtifactResult, internal: Boolean = false) {
+fun copyArtifact(artifact: ResolvedArtifactResult, internal: Boolean = false): Boolean {
     val folder = if (internal) internalFolder else externalFolder
     val file = artifact.file
     val component = artifact.id.componentIdentifier as? ModuleComponentIdentifier
-    if (component != null) {
-        val group = component.group
-        val moduleName = component.module
-        val moduleVersion = component.version
-        val groupPath = groupToPath(group)
-        val pathComponents = listOf(
-            prebuiltsLocation,
-            folder,
-            groupPath,
-            moduleName,
-            moduleVersion
-        )
-        val location = pathComponents.joinToString("/")
-        if (file.name.endsWith(".pom")) {
-            copyPomFile(group, moduleName, moduleVersion, file, internal)
-        } else {
-            println("Copying ${file.name} to $location")
-            copy {
-                from(
-                    file,
-                    digest(file, "MD5"),
-                    digest(file, "SHA1")
-                )
-                into(location)
+    if (component == null) {
+        println("skipping $artifact because component is null")
+        return false
+    }
+    val group = component.group
+    val moduleName = component.module
+    val moduleVersion = component.version
+    val groupPath = groupToPath(group)
+    val pathComponents = listOf(
+        prebuiltsLocation,
+        folder,
+        groupPath,
+        moduleName,
+        moduleVersion
+    )
+    val location = pathComponents.joinToString("/")
+    if (file.name.endsWith(".pom")) {
+        copyPomFile(group, moduleName, moduleVersion, file, internal)
+    } else {
+        println("Copying ${file.name} to $location")
+        copy {
+            from(
+                file,
+                digest(file, "MD5"),
+                digest(file, "SHA1")
+            )
+            rename { fileName ->
+                // see: https://issuetracker.google.com/issues/232656831#comment2
+                // klib files lose version when they are downloaded, recover it.
+                when {
+                    fileName.contains("cinterop-interop.klib") -> {
+                        "$moduleName-$moduleVersion-cinterop-interop.klib${fileName.substringAfter("cinterop-interop.klib")}"
+                    }
+                    fileName.contains(".klib") -> {
+                        "$moduleName-$moduleVersion.klib${fileName.substringAfter(".klib")}"
+                    }
+                    else -> fileName
+                }
             }
+            into(location)
         }
     }
+    return true
 }
 
 /**
@@ -500,34 +535,37 @@ tasks.register("fetchArtifacts") {
         var numArtifactsFound = 0
         println("\r\nAll Files with Dependencies")
         val copiedArtifacts = mutableSetOf<File>()
-        javaRuntimeConfiguration.incoming.artifactView {
-            // We need to be lenient because we are requesting files that might not exist.
-            // For example source.jar or .asc.
-            lenient(true)
-        }.artifacts.forEach {
-            copiedArtifacts.add(it.file)
-            copyArtifact(it, internal = isInternalArtifact(it))
-            numArtifactsFound++
+        val kotlinConfigurationNames = kotlin.targets.flatMap { target ->
+            target.compilations.flatMap {
+                it.relatedConfigurationNames
+            }
+        } + kotlin.sourceSets.flatMap { ss ->
+            ss.relatedConfigurationNames
         }
-        javaApiConfiguration.incoming.artifactView {
-            // We need to be lenient because we are requesting files that might not exist.
-            // For example source.jar or .asc.
-            lenient(true)
-        }.artifacts.forEach {
-            if (copiedArtifacts.contains(it.file)) return@forEach
-            copyArtifact(it, internal = isInternalArtifact(it))
-            numArtifactsFound++
-        }
-
-        // catch any artifacts that are needed to resolve this as a non-JVM
-        // Kotlin dependency
-        kotlinApiConfiguration.incoming.artifactView {
-            // We need to be lenient because we are requesting files that might not exist.
-            lenient(true)
-        }.artifacts.forEach {
-            if (copiedArtifacts.contains(it.file)) return@forEach
-            copyArtifact(it, internal = isInternalArtifact(it))
-            numArtifactsFound++
+        val kotlinConfigurations = kotlinConfigurationNames
+            .distinct()
+            .mapNotNull {
+                configurations.findByName(it)
+            }.filter {
+                it.isCanBeResolved
+            }
+        val targetConfigurations = kotlinConfigurations + listOf(
+            javaRuntimeConfiguration,
+            javaApiConfiguration,
+            kotlinApiConfiguration
+        )
+        targetConfigurations.forEach { configuration ->
+            configuration.incoming.artifactView {
+                // We need to be lenient because we are requesting files that might not exist.
+                // For example source.jar or .asc.
+                lenient(true)
+            }.artifacts.filter {
+                copiedArtifacts.add(it.file)
+            }.forEach {
+                if (copyArtifact(it, internal = isInternalArtifact(it))) {
+                    numArtifactsFound++
+                }
+            }
         }
 
         if (numArtifactsFound < 1) {

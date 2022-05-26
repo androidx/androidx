@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface
 
-import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
@@ -29,6 +28,7 @@ import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.hasValue
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.getIntRefAttribute
 import androidx.wear.watchface.style.moveToStart
@@ -36,7 +36,7 @@ import org.xmlpull.v1.XmlPullParser
 import kotlin.jvm.Throws
 
 /** @hide */
-@OptIn(WatchFaceFlavorsExperimental::class, ComplicationExperimental::class)
+@OptIn(ComplicationExperimental::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class XmlSchemaAndComplicationSlotsDefinition(
     val schema: UserStyleSchema?,
@@ -104,100 +104,6 @@ public class XmlSchemaAndComplicationSlotsDefinition(
         val boundingArc: BoundingArc?
     ) {
         companion object {
-            fun inflateDefaultComplicationDataSourcePolicy(
-                parser: XmlResourceParser,
-                nodeName: String,
-            ): DefaultComplicationDataSourcePolicy {
-                val primaryDataSource =
-                    parser.getAttributeValue(NAMESPACE_APP, "primaryDataSource")?.let {
-                        ComponentName.unflattenFromString(it)
-                    }
-                val primaryDataSourceDefaultType =
-                    if (parser.hasValue("primaryDataSourceDefaultType")) {
-                        ComplicationType.fromWireType(
-                            parser.getAttributeIntValue(
-                                NAMESPACE_APP,
-                                "primaryDataSourceDefaultType",
-                                0
-                            )
-                        )
-                    } else {
-                        null
-                    }
-                val secondaryDataSource =
-                    parser.getAttributeValue(NAMESPACE_APP, "secondaryDataSource")?.let {
-                        ComponentName.unflattenFromString(it)
-                    }
-
-                val secondaryDataSourceDefaultType =
-                    if (parser.hasValue("secondaryDataSourceDefaultType")) {
-                        ComplicationType.fromWireType(
-                            parser.getAttributeIntValue(
-                                NAMESPACE_APP,
-                                "secondaryDataSourceDefaultType",
-                                0
-                            )
-                        )
-                    } else {
-                        null
-                    }
-
-                require(parser.hasValue("systemDataSourceFallback")) {
-                    "A $nodeName must have a systemDataSourceFallback attribute"
-                }
-                val systemDataSourceFallback = parser.getAttributeIntValue(
-                    NAMESPACE_APP, "systemDataSourceFallback", 0)
-                require(parser.hasValue("systemDataSourceFallbackDefaultType")) {
-                    "A $nodeName must have a systemDataSourceFallbackDefaultType attribute"
-                }
-                val systemDataSourceFallbackDefaultType = ComplicationType.fromWireType(
-                    parser.getAttributeIntValue(
-                        NAMESPACE_APP, "systemDataSourceFallbackDefaultType", 0))
-                return when {
-                    secondaryDataSource != null -> {
-                        require(primaryDataSource != null) {
-                            "If a secondaryDataSource is specified, a primaryDataSource must be too"
-                        }
-                        require(primaryDataSourceDefaultType != null) {
-                            "If a secondaryDataSource is specified, a " +
-                                "primaryDataSourceDefaultType must be too"
-                        }
-                        require(secondaryDataSourceDefaultType != null) {
-                            "If a secondaryDataSource is specified, a " +
-                                "secondaryDataSourceDefaultType must be too"
-                        }
-                        DefaultComplicationDataSourcePolicy(
-                            primaryDataSource,
-                            primaryDataSourceDefaultType,
-                            secondaryDataSource,
-                            secondaryDataSourceDefaultType,
-                            systemDataSourceFallback,
-                            systemDataSourceFallbackDefaultType
-                        )
-                    }
-
-                    primaryDataSource != null -> {
-                        require(primaryDataSourceDefaultType != null) {
-                            "If a primaryDataSource is specified, a " +
-                                "primaryDataSourceDefaultType must be too"
-                        }
-                        DefaultComplicationDataSourcePolicy(
-                            primaryDataSource,
-                            primaryDataSourceDefaultType,
-                            systemDataSourceFallback,
-                            systemDataSourceFallbackDefaultType
-                        )
-                    }
-
-                    else -> {
-                        DefaultComplicationDataSourcePolicy(
-                            systemDataSourceFallback,
-                            systemDataSourceFallbackDefaultType
-                        )
-                    }
-                }
-            }
-
             fun inflate(
                 resources: Resources,
                 parser: XmlResourceParser
@@ -258,7 +164,7 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                 }
 
                 val defaultComplicationDataSourcePolicy =
-                    inflateDefaultComplicationDataSourcePolicy(parser, "ComplicationSlot")
+                    DefaultComplicationDataSourcePolicy.inflate(parser, "ComplicationSlot")
 
                 val initiallyEnabled = parser.getAttributeBooleanValue(
                     NAMESPACE_APP,

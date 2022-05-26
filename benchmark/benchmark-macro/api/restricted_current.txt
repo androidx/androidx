@@ -14,6 +14,11 @@ package androidx.benchmark.macro {
     method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static void collectBaselineProfile(String uniqueName, String packageName, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,kotlin.Unit> profileBlock);
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class BatteryCharge {
+    method public boolean hasMinimumCharge(optional boolean throwOnMissingMetrics);
+    field public static final androidx.benchmark.macro.BatteryCharge INSTANCE;
+  }
+
   public abstract sealed class CompilationMode {
     field public static final androidx.benchmark.macro.CompilationMode.Companion Companion;
     field public static final androidx.benchmark.macro.CompilationMode DEFAULT;
@@ -67,6 +72,7 @@ package androidx.benchmark.macro {
   public final class MacrobenchmarkScope {
     ctor public MacrobenchmarkScope(String packageName, boolean launchWithClearTask);
     method public void dropKernelPageCache();
+    method public void dropShaderCache();
     method public androidx.test.uiautomator.UiDevice getDevice();
     method public Integer? getIteration();
     method public String getPackageName();
@@ -108,12 +114,23 @@ package androidx.benchmark.macro {
 
   @RequiresApi(29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class PowerMetric extends androidx.benchmark.macro.Metric {
     ctor public PowerMetric(androidx.benchmark.macro.PowerMetric.Type type);
+    field public static final androidx.benchmark.macro.PowerMetric.Companion Companion;
+  }
+
+  public static final class PowerMetric.Companion {
+    method public androidx.benchmark.macro.PowerMetric.Type.Battery Battery();
+    method public androidx.benchmark.macro.PowerMetric.Type.Energy Energy(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> categories);
+    method public androidx.benchmark.macro.PowerMetric.Type.Power Power(optional java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel> categories);
   }
 
   public abstract static sealed class PowerMetric.Type {
     method public final java.util.Map<androidx.benchmark.macro.PowerCategory,androidx.benchmark.macro.PowerCategoryDisplayLevel> getCategories();
     method public final void setCategories(java.util.Map<androidx.benchmark.macro.PowerCategory,? extends androidx.benchmark.macro.PowerCategoryDisplayLevel>);
     property public final java.util.Map<androidx.benchmark.macro.PowerCategory,androidx.benchmark.macro.PowerCategoryDisplayLevel> categories;
+  }
+
+  public static final class PowerMetric.Type.Battery extends androidx.benchmark.macro.PowerMetric.Type {
+    ctor public PowerMetric.Type.Battery();
   }
 
   public static final class PowerMetric.Type.Energy extends androidx.benchmark.macro.PowerMetric.Type {

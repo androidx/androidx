@@ -42,9 +42,11 @@ package androidx.health.connect.client.aggregate {
   }
 
   public final class AggregationResult {
+    method public operator boolean contains(androidx.health.connect.client.aggregate.AggregateMetric<?> metric);
+    method public operator <T> T? get(androidx.health.connect.client.aggregate.AggregateMetric<? extends T> metric);
     method public java.util.List<androidx.health.connect.client.metadata.DataOrigin> getDataOrigins();
-    method public <T> T? getMetric(androidx.health.connect.client.aggregate.AggregateMetric<T> metric);
-    method public boolean hasMetric(androidx.health.connect.client.aggregate.AggregateMetric<?> metric);
+    method @Deprecated public <T> T? getMetric(androidx.health.connect.client.aggregate.AggregateMetric<? extends T> metric);
+    method @Deprecated public boolean hasMetric(androidx.health.connect.client.aggregate.AggregateMetric<?> metric);
     property public final java.util.List<androidx.health.connect.client.metadata.DataOrigin> dataOrigins;
   }
 
@@ -915,6 +917,8 @@ package androidx.health.connect.client.records {
   }
 
   public static final class OvulationTest.Result {
+    field public static final String HIGH = "high";
+    field public static final String INCONCLUSIVE = "inconclusive";
     field public static final androidx.health.connect.client.records.OvulationTest.Result INSTANCE;
     field public static final String NEGATIVE = "negative";
     field public static final String POSITIVE = "positive";

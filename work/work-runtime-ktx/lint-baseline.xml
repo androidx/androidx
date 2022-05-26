@@ -7,9 +7,7 @@
         errorLine1="    public suspend fun setProgress(data: Data) {"
         errorLine2="                       ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/CoroutineWorker.kt"
-            line="109"
-            column="24"/>
+            file="src/main/java/androidx/work/CoroutineWorker.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public suspend fun setForeground(foregroundInfo: ForegroundInfo) {"
         errorLine2="                       ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/CoroutineWorker.kt"
-            line="124"
-            column="24"/>
+            file="src/main/java/androidx/work/CoroutineWorker.kt"/>
     </issue>
 
 </issues>

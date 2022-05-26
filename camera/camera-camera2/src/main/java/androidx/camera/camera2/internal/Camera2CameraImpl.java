@@ -61,6 +61,7 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.UseCaseAttachState;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -581,11 +582,12 @@ final class Camera2CameraImpl implements CameraInternal {
         Preconditions.checkNotNull(useCase);
         String useCaseId = getUseCaseId(useCase);
         SessionConfig sessionConfig = useCase.getSessionConfig();
+        UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
         mExecutor.execute(() -> {
             debugLog("Use case " + useCaseId + " ACTIVE");
 
-            mUseCaseAttachState.setUseCaseActive(useCaseId, sessionConfig);
-            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig);
+            mUseCaseAttachState.setUseCaseActive(useCaseId, sessionConfig, useCaseConfig);
+            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig);
             updateCaptureSessionConfig();
         });
     }
@@ -609,9 +611,10 @@ final class Camera2CameraImpl implements CameraInternal {
         Preconditions.checkNotNull(useCase);
         String useCaseId = getUseCaseId(useCase);
         SessionConfig sessionConfig = useCase.getSessionConfig();
+        UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
         mExecutor.execute(() -> {
             debugLog("Use case " + useCaseId + " UPDATED");
-            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig);
+            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig);
             updateCaptureSessionConfig();
         });
     }
@@ -621,9 +624,10 @@ final class Camera2CameraImpl implements CameraInternal {
         Preconditions.checkNotNull(useCase);
         String useCaseId = getUseCaseId(useCase);
         SessionConfig sessionConfig = useCase.getSessionConfig();
+        UseCaseConfig<?> useCaseConfig = useCase.getCurrentConfig();
         mExecutor.execute(() -> {
             debugLog("Use case " + useCaseId + " RESET");
-            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig);
+            mUseCaseAttachState.updateUseCase(useCaseId, sessionConfig, useCaseConfig);
 
             resetCaptureSession(/*abortInFlightCaptures=*/false);
             updateCaptureSessionConfig();
@@ -678,7 +682,6 @@ final class Camera2CameraImpl implements CameraInternal {
             return;
         }
 
-
         /*
          * Increase the camera control use count so that camera control can accept requests
          * immediately before posting to the executor. The use count should be increased
@@ -714,7 +717,7 @@ final class Camera2CameraImpl implements CameraInternal {
         for (UseCaseInfo useCaseInfo : useCaseInfos) {
             if (!mUseCaseAttachState.isUseCaseAttached(useCaseInfo.getUseCaseId())) {
                 mUseCaseAttachState.setUseCaseAttached(useCaseInfo.getUseCaseId(),
-                        useCaseInfo.getSessionConfig());
+                        useCaseInfo.getSessionConfig(), useCaseInfo.getUseCaseConfig());
 
                 useCaseIdsToAttach.add(useCaseInfo.getUseCaseId());
 
@@ -742,6 +745,9 @@ final class Camera2CameraImpl implements CameraInternal {
 
         // Check if need to add or remove MeetingRepeatingUseCase.
         addOrRemoveMeteringRepeatingUseCase();
+
+        // Update Zsl disabled status by iterating all attached use cases.
+        updateZslDisabledByUseCaseConfigStatus();
 
         updateCaptureSessionConfig();
         resetCaptureSession(/*abortInFlightCaptures=*/false);
@@ -863,6 +869,14 @@ final class Camera2CameraImpl implements CameraInternal {
         // Check if need to add or remove MeetingRepeatingUseCase.
         addOrRemoveMeteringRepeatingUseCase();
 
+        // Reset Zsl disabled status if no attached use cases, otherwise update by iterating all
+        // attached use cases.
+        if (mUseCaseAttachState.getAttachedUseCaseConfigs().isEmpty()) {
+            mCameraControlInternal.setZslDisabledByUserCaseConfig(false);
+        } else {
+            updateZslDisabledByUseCaseConfigStatus();
+        }
+
         boolean allUseCasesDetached = mUseCaseAttachState.getAttachedSessionConfigs().isEmpty();
         if (allUseCasesDetached) {
             mCameraControlInternal.decrementUseCount();
@@ -883,6 +897,14 @@ final class Camera2CameraImpl implements CameraInternal {
                 openCaptureSession();
             }
         }
+    }
+
+    private void updateZslDisabledByUseCaseConfigStatus() {
+        boolean isZslDisabledByUseCaseConfig = false;
+        for (UseCaseConfig<?> useCaseConfig : mUseCaseAttachState.getAttachedUseCaseConfigs()) {
+            isZslDisabledByUseCaseConfig |= useCaseConfig.isZslDisabled(false);
+        }
+        mCameraControlInternal.setZslDisabledByUserCaseConfig(isZslDisabledByUseCaseConfig);
     }
 
     // Check if it need the repeating surface for ImageCapture only use case.
@@ -935,10 +957,12 @@ final class Camera2CameraImpl implements CameraInternal {
         if (mMeteringRepeatingSession != null) {
             mUseCaseAttachState.setUseCaseAttached(
                     mMeteringRepeatingSession.getName() + mMeteringRepeatingSession.hashCode(),
-                    mMeteringRepeatingSession.getSessionConfig());
+                    mMeteringRepeatingSession.getSessionConfig(),
+                    mMeteringRepeatingSession.getUseCaseConfig());
             mUseCaseAttachState.setUseCaseActive(
                     mMeteringRepeatingSession.getName() + mMeteringRepeatingSession.hashCode(),
-                    mMeteringRepeatingSession.getSessionConfig());
+                    mMeteringRepeatingSession.getSessionConfig(),
+                    mMeteringRepeatingSession.getUseCaseConfig());
         }
     }
 
@@ -1475,16 +1499,20 @@ final class Camera2CameraImpl implements CameraInternal {
     @AutoValue
     abstract static class UseCaseInfo {
         @NonNull
-        static UseCaseInfo create(@NonNull String useCaseId, @NonNull Class<?> useCaseType,
-                @NonNull SessionConfig sessionConfig, @Nullable Size surfaceResolution) {
+        static UseCaseInfo create(@NonNull String useCaseId,
+                @NonNull Class<?> useCaseType,
+                @NonNull SessionConfig sessionConfig,
+                @NonNull UseCaseConfig<?> useCaseConfig,
+                @Nullable Size surfaceResolution) {
             return new AutoValue_Camera2CameraImpl_UseCaseInfo(useCaseId, useCaseType,
-                    sessionConfig, surfaceResolution);
+                    sessionConfig, useCaseConfig, surfaceResolution);
         }
 
         @NonNull
         static UseCaseInfo from(@NonNull UseCase useCase) {
             return create(Camera2CameraImpl.getUseCaseId(useCase), useCase.getClass(),
-                    useCase.getSessionConfig(), useCase.getAttachedSurfaceResolution());
+                    useCase.getSessionConfig(), useCase.getCurrentConfig(),
+                    useCase.getAttachedSurfaceResolution());
         }
 
         @NonNull
@@ -1495,6 +1523,9 @@ final class Camera2CameraImpl implements CameraInternal {
 
         @NonNull
         abstract SessionConfig getSessionConfig();
+
+        @NonNull
+        abstract UseCaseConfig<?> getUseCaseConfig();
 
         @Nullable
         abstract Size getSurfaceResolution();

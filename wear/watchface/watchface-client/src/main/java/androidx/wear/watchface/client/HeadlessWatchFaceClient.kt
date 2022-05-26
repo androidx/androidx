@@ -28,13 +28,12 @@ import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.ComplicationSlot
 import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.RenderParameters
-import androidx.wear.watchface.UserStyleFlavors
-import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.control.IHeadlessWatchFace
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat
 import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import java.security.MessageDigest
@@ -85,7 +84,6 @@ public interface HeadlessWatchFaceClient : AutoCloseable {
      * @throws [RuntimeException] if the watch face threw an exception while trying to service the
      * request or there was a communication problem with watch face process.
      */
-    @WatchFaceFlavorsExperimental
     public fun getUserStyleFlavors(): UserStyleFlavors = UserStyleFlavors()
 
     /**
@@ -209,7 +207,6 @@ internal class HeadlessWatchFaceClientImpl internal constructor(
             userStyleSchema.getDigestHash()
         }
 
-    @OptIn(WatchFaceFlavorsExperimental::class)
     override fun getUserStyleFlavors(): UserStyleFlavors =
         callRemote {
             if (iHeadlessWatchFace.apiVersion >= 3) {

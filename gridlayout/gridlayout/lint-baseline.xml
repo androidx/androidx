@@ -7,9 +7,7 @@
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
-            file="src/androidTest/java/androidx/gridlayout/widget/TestContentView.java"
-            line="53"
-            column="9"/>
+            file="src/androidTest/java/androidx/gridlayout/widget/TestContentView.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public GridLayout(Context context, AttributeSet attrs, int defStyle) {"
         errorLine2="                      ~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="268"
-            column="23"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public GridLayout(Context context, AttributeSet attrs, int defStyle) {"
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="268"
-            column="40"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public GridLayout(Context context, AttributeSet attrs) {"
         errorLine2="                      ~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="290"
-            column="23"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public GridLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="290"
-            column="40"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public GridLayout(Context context) {"
         errorLine2="                      ~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="297"
-            column="23"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public Printer getPrinter() {"
         errorLine2="           ~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="587"
-            column="12"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public void setPrinter(Printer printer) {"
         errorLine2="                           ~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="599"
-            column="28"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="        public Spec rowSpec = Spec.UNDEFINED;"
         errorLine2="               ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1897"
-            column="16"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        public Spec columnSpec = Spec.UNDEFINED;"
         errorLine2="               ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1911"
-            column="16"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        public LayoutParams(Spec rowSpec, Spec columnSpec) {"
         errorLine2="                            ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1933"
-            column="29"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="        public LayoutParams(Spec rowSpec, Spec columnSpec) {"
         errorLine2="                                          ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1933"
-            column="43"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="        public LayoutParams(ViewGroup.LayoutParams params) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1951"
-            column="29"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="        public LayoutParams(MarginLayoutParams params) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1958"
-            column="29"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="        public LayoutParams(LayoutParams source) {"
         errorLine2="                            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1968"
-            column="29"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="        public LayoutParams(Context context, AttributeSet attrs) {"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1983"
-            column="29"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="        public LayoutParams(Context context, AttributeSet attrs) {"
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="1983"
-            column="46"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="        public Alignment getAbsoluteAlignment(boolean horizontal) {"
         errorLine2="               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2417"
-            column="16"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    public static Spec spec(int start, int size, Alignment alignment, float weight) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2494"
-            column="19"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    public static Spec spec(int start, int size, Alignment alignment, float weight) {"
         errorLine2="                                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2494"
-            column="50"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    public static Spec spec(int start, Alignment alignment, float weight) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2505"
-            column="19"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    public static Spec spec(int start, Alignment alignment, float weight) {"
         errorLine2="                                       ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2505"
-            column="40"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    public static Spec spec(int start, int size, float weight) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2518"
-            column="19"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    public static Spec spec(int start, float weight) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2528"
-            column="19"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="    public static Spec spec(int start, int size, Alignment alignment) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2539"
-            column="19"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="    public static Spec spec(int start, int size, Alignment alignment) {"
         errorLine2="                                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2539"
-            column="50"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="    public static Spec spec(int start, Alignment alignment) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2557"
-            column="19"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="    public static Spec spec(int start, Alignment alignment) {"
         errorLine2="                                       ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2557"
-            column="40"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="    public static Spec spec(int start, int size) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2574"
-            column="19"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="    public static Spec spec(int start) {"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"
-            line="2590"
-            column="19"/>
+            file="src/main/java/androidx/gridlayout/widget/GridLayout.java"/>
     </issue>
 
 </issues>

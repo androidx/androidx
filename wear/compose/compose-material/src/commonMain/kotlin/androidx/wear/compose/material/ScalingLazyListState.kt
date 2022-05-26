@@ -96,6 +96,7 @@ class ScalingLazyListState constructor(
     internal val anchorType = mutableStateOf<ScalingLazyListAnchorType?>(null)
     internal val autoCentering = mutableStateOf<AutoCenteringParams?>(null)
     internal val initialized = mutableStateOf<Boolean>(false)
+    internal val localInspectionMode = mutableStateOf<Boolean>(false)
 
     // The following three are used together when there is a post-initialization incomplete scroll
     // to finish next time the ScalingLazyColumn is visible
@@ -108,8 +109,9 @@ class ScalingLazyListState constructor(
      */
     public val centerItemIndex: Int
         get() =
-            (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.centerItemIndex
-                ?: initialCenterItemIndex
+            (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.let {
+                if (it.initialized) it.centerItemIndex else null
+            } ?: initialCenterItemIndex
 
     internal val topAutoCenteringItemSizePx: Int by derivedStateOf {
         if (extraPaddingPx.value == null || scalingParams.value == null ||
@@ -143,8 +145,10 @@ class ScalingLazyListState constructor(
      * the items Edge or Center.
      */
     public val centerItemScrollOffset: Int
-        get() = (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.centerItemScrollOffset
-            ?: initialCenterItemScrollOffset
+        get() =
+            (layoutInfo as? DefaultScalingLazyListLayoutInfo)?.let {
+                if (it.initialized) it.centerItemScrollOffset else null
+            } ?: initialCenterItemScrollOffset
 
     /**
      * The object of [ScalingLazyListLayoutInfo] calculated during the last layout pass. For
@@ -162,6 +166,7 @@ class ScalingLazyListState constructor(
             val viewportHeightPx = viewportHeightPx.value!!
             var newCenterItemIndex = 0
             var newCenterItemScrollOffset = 0
+            val visible = initialized.value || localInspectionMode.value
 
             // The verticalAdjustment is used to allow for the extraPadding that the
             // ScalingLazyColumn employs to ensure that there are sufficient list items composed
@@ -189,7 +194,7 @@ class ScalingLazyListState constructor(
                     beforeContentPaddingPx.value!!,
                     anchorType.value!!,
                     autoCentering.value,
-                    initialized.value
+                    visible
                 )
                 visibleItemsInfo.add(
                     centerItemInfo
@@ -232,7 +237,7 @@ class ScalingLazyListState constructor(
                                 beforeContentPaddingPx.value!!,
                                 anchorType.value!!,
                                 autoCentering.value,
-                                initialized.value
+                                visible
                             )
                             visibleItemsInfo.add(0, itemInfo)
                             nextItemBottomNoPadding =
@@ -266,7 +271,7 @@ class ScalingLazyListState constructor(
                                 beforeContentPaddingPx.value!!,
                                 anchorType.value!!,
                                 autoCentering.value,
-                                initialized.value
+                                visible
                             )
 
                             visibleItemsInfo.add(itemInfo)
@@ -477,10 +482,6 @@ class ScalingLazyListState constructor(
     }
 
     internal suspend fun scrollToInitialItem() {
-        require(!initialized.value xor (incompleteScrollItem.value != null)) {
-            "Must be either initializing or handling an incomplete scroll"
-        }
-
         // First time initialization
         if (!initialized.value) {
             initialized.value = true

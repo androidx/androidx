@@ -28,6 +28,7 @@ internal fun String.camelCase(): String {
         .replace('_', '.')
         .replace("power", "")
         .replace("uws", "")
+        .replace("rails", "")
         .split('.')
     var case = ""
     for (word in words) {

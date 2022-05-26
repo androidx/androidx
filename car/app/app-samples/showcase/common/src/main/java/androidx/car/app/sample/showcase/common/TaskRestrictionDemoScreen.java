@@ -136,7 +136,7 @@ public final class TaskRestrictionDemoScreen extends Screen {
                                         new CarIcon.Builder(
                                                 IconCompat.createWithResource(
                                                         getCarContext(),
-                                                        R.drawable.ic_fastfood_white_48dp))
+                                                        R.drawable.ic_fastfood_yellow_48dp))
                                                 .build(),
                                         mImageType)
                                 .setOnClickListener(

@@ -7,9 +7,7 @@
         errorLine1="                            @Override"
         errorLine2="                            ^">
         <location
-            file="src/main/java/androidx/concurrent/futures/AbstractResolvableFuture.java"
-            line="224"
-            column="29"/>
+            file="src/main/java/androidx/concurrent/futures/AbstractResolvableFuture.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/concurrent/futures/CallbackToFutureAdapter.java"
-            line="361"
-            column="9"/>
+            file="src/main/java/androidx/concurrent/futures/CallbackToFutureAdapter.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public final void addListener(Runnable listener, Executor executor) {"
         errorLine2="                                  ~~~~~~~~">
         <location
-            file="src/main/java/androidx/concurrent/futures/AbstractResolvableFuture.java"
-            line="652"
-            column="35"/>
+            file="src/main/java/androidx/concurrent/futures/AbstractResolvableFuture.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public final void addListener(Runnable listener, Executor executor) {"
         errorLine2="                                                     ~~~~~~~~">
         <location
-            file="src/main/java/androidx/concurrent/futures/AbstractResolvableFuture.java"
-            line="652"
-            column="54"/>
+            file="src/main/java/androidx/concurrent/futures/AbstractResolvableFuture.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    protected boolean setException(Throwable throwable) {"
         errorLine2="                                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/concurrent/futures/AbstractResolvableFuture.java"
-            line="709"
-            column="36"/>
+            file="src/main/java/androidx/concurrent/futures/AbstractResolvableFuture.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    protected boolean setFuture(ListenableFuture&lt;? extends V> future) {"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/concurrent/futures/AbstractResolvableFuture.java"
-            line="745"
-            column="33"/>
+            file="src/main/java/androidx/concurrent/futures/AbstractResolvableFuture.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public static &lt;V> ResolvableFuture&lt;V> create() {"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/concurrent/futures/ResolvableFuture.java"
-            line="44"
-            column="23"/>
+            file="src/main/java/androidx/concurrent/futures/ResolvableFuture.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public boolean setException(Throwable throwable) {"
         errorLine2="                                ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/concurrent/futures/ResolvableFuture.java"
-            line="54"
-            column="33"/>
+            file="src/main/java/androidx/concurrent/futures/ResolvableFuture.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public boolean setFuture(ListenableFuture&lt;? extends V> future) {"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/concurrent/futures/ResolvableFuture.java"
-            line="59"
-            column="30"/>
+            file="src/main/java/androidx/concurrent/futures/ResolvableFuture.java"/>
     </issue>
 
 </issues>

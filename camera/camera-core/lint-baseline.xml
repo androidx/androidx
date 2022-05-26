@@ -2,14 +2,36 @@
 <issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    @Override"
-        errorLine2="    ^">
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 23 &amp;&amp; getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="68"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/ImageCapture.java"
+            line="385"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="            case CAPTURE_MODE_ZERO_SHUTTER_LAG:"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageCapture.java"
+            line="1269"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="            CAPTURE_MODE_ZERO_SHUTTER_LAG})"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/ImageCapture.java"
+            line="1779"
+            column="13"/>
     </issue>
 
     <issue
@@ -18,9 +40,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="73"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -29,9 +49,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="79"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -40,9 +58,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="84"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -51,9 +67,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="89"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -62,9 +76,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="94"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -73,9 +85,16 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="99"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -84,9 +103,7 @@
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="114"
-            column="9"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -95,9 +112,7 @@
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="119"
-            column="9"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -106,9 +121,7 @@
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="124"
-            column="9"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -117,9 +130,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
-            line="137"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"/>
     </issue>
 
     <issue
@@ -128,9 +139,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="65"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"/>
     </issue>
 
     <issue
@@ -139,9 +148,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="71"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"/>
     </issue>
 
     <issue
@@ -150,9 +157,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="76"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"/>
     </issue>
 
     <issue
@@ -161,9 +166,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="81"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"/>
     </issue>
 
     <issue
@@ -172,9 +175,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="86"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"/>
     </issue>
 
     <issue
@@ -183,9 +184,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="91"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"/>
     </issue>
 
     <issue
@@ -194,9 +193,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="97"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"/>
     </issue>
 
     <issue
@@ -205,9 +202,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="103"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"/>
     </issue>
 
     <issue
@@ -216,9 +211,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
-            line="109"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"/>
     </issue>
 
     <issue
@@ -227,9 +220,7 @@
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"
-            line="239"
-            column="9"/>
+            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"/>
     </issue>
 
     <issue
@@ -238,9 +229,7 @@
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"
-            line="244"
-            column="9"/>
+            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"/>
     </issue>
 
     <issue
@@ -249,9 +238,7 @@
         errorLine1="        @Override"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"
-            line="249"
-            column="9"/>
+            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"/>
     </issue>
 
     <issue
@@ -260,9 +247,7 @@
         errorLine1="    @NonNull"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/SettableImageProxy.java"
-            line="68"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/SettableImageProxy.java"/>
     </issue>
 
     <issue
@@ -271,9 +256,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/SettableImageProxy.java"
-            line="78"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/SettableImageProxy.java"/>
     </issue>
 
     <issue
@@ -282,9 +265,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/SettableImageProxy.java"
-            line="89"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/SettableImageProxy.java"/>
     </issue>
 
     <issue
@@ -293,9 +274,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/SettableImageProxy.java"
-            line="94"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/SettableImageProxy.java"/>
     </issue>
 
     <issue
@@ -304,9 +283,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/camera/core/SingleCloseImageProxy.java"
-            line="38"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/SingleCloseImageProxy.java"/>
     </issue>
 
     <issue
@@ -315,9 +292,7 @@
         errorLine1="    ListenableFuture&lt;O> apply(@Nullable I input) throws Exception;"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/utils/futures/AsyncFunction.java"
-            line="50"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/impl/utils/futures/AsyncFunction.java"/>
     </issue>
 
     <issue
@@ -326,9 +301,7 @@
         errorLine1="    boolean checkSupported(String cameraId, List&lt;SurfaceConfig> surfaceConfigList);"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="65"
-            column="28"/>
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -337,9 +310,7 @@
         errorLine1="    boolean checkSupported(String cameraId, List&lt;SurfaceConfig> surfaceConfigList);"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="65"
-            column="45"/>
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -348,9 +319,7 @@
         errorLine1="    SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size);"
         errorLine2="    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="75"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -359,9 +328,7 @@
         errorLine1="    SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size);"
         errorLine2="                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="75"
-            column="42"/>
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -370,9 +337,7 @@
         errorLine1="    SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size);"
         errorLine2="                                                                           ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="75"
-            column="76"/>
+            file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
@@ -381,9 +346,7 @@
         errorLine1="    public CameraInfoUnavailableException(String s, Throwable e) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraInfoUnavailableException.java"
-            line="28"
-            column="43"/>
+            file="src/main/java/androidx/camera/core/CameraInfoUnavailableException.java"/>
     </issue>
 
     <issue
@@ -392,9 +355,7 @@
         errorLine1="    public CameraInfoUnavailableException(String s, Throwable e) {"
         errorLine2="                                                    ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraInfoUnavailableException.java"
-            line="28"
-            column="53"/>
+            file="src/main/java/androidx/camera/core/CameraInfoUnavailableException.java"/>
     </issue>
 
     <issue
@@ -403,9 +364,7 @@
         errorLine1="    public CameraInfoUnavailableException(String s) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/CameraInfoUnavailableException.java"
-            line="34"
-            column="43"/>
+            file="src/main/java/androidx/camera/core/CameraInfoUnavailableException.java"/>
     </issue>
 
     <issue
@@ -414,9 +373,7 @@
         errorLine1="    void onOutputSurface(Surface surface, int imageFormat);"
         errorLine2="                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
-            line="39"
-            column="26"/>
+            file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"/>
     </issue>
 
     <issue
@@ -425,9 +382,7 @@
         errorLine1="    void process(ImageProxyBundle bundle);"
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
-            line="52"
-            column="18"/>
+            file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"/>
     </issue>
 
     <issue
@@ -436,9 +391,7 @@
         errorLine1="    void onResolutionUpdate(Size size);"
         errorLine2="                            ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"
-            line="59"
-            column="29"/>
+            file="src/main/java/androidx/camera/core/impl/CaptureProcessor.java"/>
     </issue>
 
     <issue
@@ -447,9 +400,7 @@
         errorLine1="    CaptureConfig getCaptureConfig();"
         errorLine2="    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/CaptureStage.java"
-            line="33"
-            column="5"/>
+            file="src/main/java/androidx/camera/core/impl/CaptureStage.java"/>
     </issue>
 
     <issue
@@ -458,9 +409,7 @@
         errorLine1="        public CaptureConfig getCaptureConfig() {"
         errorLine2="               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/CaptureStage.java"
-            line="52"
-            column="16"/>
+            file="src/main/java/androidx/camera/core/impl/CaptureStage.java"/>
     </issue>
 
     <issue
@@ -469,9 +418,7 @@
         errorLine1="    void onFailure(Throwable t);"
         errorLine2="                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/utils/futures/FutureCallback.java"
-            line="51"
-            column="20"/>
+            file="src/main/java/androidx/camera/core/impl/utils/futures/FutureCallback.java"/>
     </issue>
 
     <issue
@@ -480,9 +427,7 @@
         errorLine1="    public static Handler getInstance() {"
         errorLine2="                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/utils/MainThreadAsyncHandler.java"
-            line="37"
-            column="19"/>
+            file="src/main/java/androidx/camera/core/impl/utils/MainThreadAsyncHandler.java"/>
     </issue>
 
     <issue
@@ -491,9 +436,7 @@
         errorLine1="    public static &lt;T> Optional&lt;T> absent() {"
         errorLine2="                      ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="80"
-            column="23"/>
+            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"/>
     </issue>
 
     <issue
@@ -502,9 +445,7 @@
         errorLine1="    public static &lt;T> Optional&lt;T> of(T reference) {"
         errorLine2="                      ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="92"
-            column="23"/>
+            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"/>
     </issue>
 
     <issue
@@ -513,9 +454,7 @@
         errorLine1="    public static &lt;T> Optional&lt;T> fromNullable(@Nullable T nullableReference) {"
         errorLine2="                      ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="104"
-            column="23"/>
+            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"/>
     </issue>
 
     <issue
@@ -524,9 +463,7 @@
         errorLine1="    public abstract Optional&lt;T> or(Optional&lt;? extends T> secondChoice);"
         errorLine2="                    ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="179"
-            column="21"/>
+            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"/>
     </issue>
 
     <issue
@@ -535,9 +472,7 @@
         errorLine1="    public abstract Optional&lt;T> or(Optional&lt;? extends T> secondChoice);"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="179"
-            column="36"/>
+            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"/>
     </issue>
 
     <issue
@@ -546,9 +481,7 @@
         errorLine1="    public abstract T or(Supplier&lt;? extends T> supplier);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"
-            line="191"
-            column="26"/>
+            file="src/main/java/androidx/camera/core/impl/utils/Optional.java"/>
     </issue>
 
     <issue
@@ -557,9 +490,7 @@
         errorLine1="    public static SurfaceSizeDefinition create("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="51"
-            column="19"/>
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"/>
     </issue>
 
     <issue
@@ -568,9 +499,7 @@
         errorLine1="            Size analysisSize,"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="52"
-            column="13"/>
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"/>
     </issue>
 
     <issue
@@ -579,9 +508,7 @@
         errorLine1="            Size previewSize,"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="53"
-            column="13"/>
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"/>
     </issue>
 
     <issue
@@ -590,9 +517,7 @@
         errorLine1="            Size recordSize) {"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="54"
-            column="13"/>
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"/>
     </issue>
 
     <issue
@@ -601,9 +526,7 @@
         errorLine1="    public abstract Size getAnalysisSize();"
         errorLine2="                    ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="59"
-            column="21"/>
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"/>
     </issue>
 
     <issue
@@ -612,9 +535,7 @@
         errorLine1="    public abstract Size getPreviewSize();"
         errorLine2="                    ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="62"
-            column="21"/>
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"/>
     </issue>
 
     <issue
@@ -623,9 +544,7 @@
         errorLine1="    public abstract Size getRecordSize();"
         errorLine2="                    ~~~~">
         <location
-            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"
-            line="65"
-            column="21"/>
+            file="src/main/java/androidx/camera/core/impl/SurfaceSizeDefinition.java"/>
     </issue>
 
 </issues>

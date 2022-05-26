@@ -41,6 +41,11 @@ public final class CarHardwareLocation {
     public static final CarValue<Location> UNIMPLEMENTED_LOCATION = new CarValue<>(null, 0,
             CarValue.STATUS_UNIMPLEMENTED);
 
+    /** @hide */
+    @RestrictTo(LIBRARY)
+    public static final CarValue<Location> UNKNOWN_LOCATION = new CarValue<>(null, 0,
+            CarValue.STATUS_UNKNOWN);
+
     @Keep
     @NonNull
     private final CarValue<Location> mLocation;
@@ -86,6 +91,6 @@ public final class CarHardwareLocation {
 
     /** Constructs an empty instance, used by serialization code. */
     private CarHardwareLocation() {
-        mLocation = UNIMPLEMENTED_LOCATION;
+        mLocation = UNKNOWN_LOCATION;
     }
 }

@@ -7,9 +7,7 @@
         errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
         errorLine2="                                                                       ~~~">
         <location
-            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"
-            line="46"
-            column="72"/>
+            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
         errorLine2="                                                                       ~~~">
         <location
-            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"
-            line="69"
-            column="72"/>
+            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
         errorLine2="                                                                       ~~~">
         <location
-            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"
-            line="80"
-            column="72"/>
+            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
         errorLine2="                                                                       ~~~">
         <location
-            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"
-            line="176"
-            column="72"/>
+            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
         errorLine2="                                                                       ~~~">
         <location
-            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"
-            line="204"
-            column="72"/>
+            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"/>
     </issue>
 
 </issues>

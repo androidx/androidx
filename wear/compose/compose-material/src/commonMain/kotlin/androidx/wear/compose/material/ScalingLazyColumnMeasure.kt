@@ -338,8 +338,9 @@ internal fun calculateScaleAndAlpha(
  * @param beforeContentPaddingPx the number of pixels of padding before the first item
  * @param anchorType the type of pivot to use for the center item when calculating position and
  * offset
- * @param initialized a flag to determine whether the ScalingLazyColumn is initialized or not, if
- * not then set the item to be transparent.
+ * @param visible a flag to determine whether the list items should be visible or transparent.
+ * Items are normally visible, but can be drawn transparently when the list is not yet initialized,
+ * unless we are in preview (LocalInspectionModel) mode.
  */
 internal fun calculateItemInfo(
     itemStart: Int,
@@ -350,7 +351,7 @@ internal fun calculateItemInfo(
     beforeContentPaddingPx: Int,
     anchorType: ScalingLazyListAnchorType,
     autoCentering: AutoCenteringParams?,
-    initialized: Boolean
+    visible: Boolean
 ): ScalingLazyListItemInfo {
     val adjustedItemStart = itemStart - verticalAdjustment
     val adjustedItemEnd = itemStart + item.size - verticalAdjustment
@@ -390,7 +391,7 @@ internal fun calculateItemInfo(
         offset = offset,
         size = scaledHeight,
         scale = scaleAndAlpha.scale,
-        alpha = if (initialized) scaleAndAlpha.alpha else 0f,
+        alpha = if (visible) scaleAndAlpha.alpha else 0f,
         unadjustedSize = item.size
     )
 }

@@ -7,9 +7,7 @@
         errorLine1="    public static final RemoteCallback LOCAL = new RemoteCallback(null, -1, null, null, null) {"
         errorLine2="                                                                        ~~">
         <location
-            file="src/main/java/androidx/remotecallback/RemoteCallback.java"
-            line="152"
-            column="73"/>
+            file="src/main/java/androidx/remotecallback/RemoteCallback.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            Class&lt;? extends CallbackReceiver> cls, Bundle args, String method) {"
         errorLine2="                                                                ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="200"
-            column="65"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public T createRemoteCallback(Context context) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="50"
-            column="35"/>
+            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="59"
-            column="12"/>
+            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
         errorLine2="                                           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="59"
-            column="44"/>
+            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
         errorLine2="                                                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="59"
-            column="58"/>
+            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
         errorLine2="                                                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="59"
-            column="75"/>
+            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="            Bundle args, String method) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="60"
-            column="13"/>
+            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            Bundle args, String method) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"
-            line="60"
-            column="26"/>
+            file="src/main/java/androidx/remotecallback/AppWidgetProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public T createRemoteCallback(Context context) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="56"
-            column="35"/>
+            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="65"
-            column="12"/>
+            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
         errorLine2="                                           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="65"
-            column="44"/>
+            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
         errorLine2="                                                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="65"
-            column="58"/>
+            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
         errorLine2="                                                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="65"
-            column="75"/>
+            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="            Bundle args, String method) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="66"
-            column="13"/>
+            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="            Bundle args, String method) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"
-            line="66"
-            column="26"/>
+            file="src/main/java/androidx/remotecallback/BroadcastReceiverWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority, Bundle args,"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackBase.java"
-            line="42"
-            column="5"/>
+            file="src/main/java/androidx/remotecallback/CallbackBase.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority, Bundle args,"
         errorLine2="                                    ~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackBase.java"
-            line="42"
-            column="37"/>
+            file="src/main/java/androidx/remotecallback/CallbackBase.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority, Bundle args,"
         errorLine2="                                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackBase.java"
-            line="42"
-            column="51"/>
+            file="src/main/java/androidx/remotecallback/CallbackBase.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority, Bundle args,"
         errorLine2="                                                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackBase.java"
-            line="42"
-            column="68"/>
+            file="src/main/java/androidx/remotecallback/CallbackBase.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority, Bundle args,"
         errorLine2="                                                                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackBase.java"
-            line="42"
-            column="86"/>
+            file="src/main/java/androidx/remotecallback/CallbackBase.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="            String method);"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackBase.java"
-            line="43"
-            column="13"/>
+            file="src/main/java/androidx/remotecallback/CallbackBase.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    public &lt;T extends CallbackReceiver> T getAndResetStub(Class&lt;? extends CallbackReceiver> cls,"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="55"
-            column="59"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="            Context context, String authority) {"
         errorLine2="            ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="56"
-            column="13"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="            Context context, String authority) {"
         errorLine2="                             ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="56"
-            column="30"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="    public &lt;T extends CallbackReceiver> void invokeCallback(Context context, T receiver,"
         errorLine2="                                                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="102"
-            column="61"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="            Intent intent) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="103"
-            column="13"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="    public &lt;T extends CallbackReceiver> void invokeCallback(Context context, T receiver,"
         errorLine2="                                                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="111"
-            column="61"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="            Bundle bundle) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="112"
-            column="13"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="    public static &lt;T extends CallbackReceiver> void registerCallbackHandler(Class&lt;T> cls,"
         errorLine2="                                                                            ~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="188"
-            column="77"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="            String method, CallbackHandler&lt;T> handler) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="189"
-            column="13"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="            String method, CallbackHandler&lt;T> handler) {"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="189"
-            column="28"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="    public static RemoteCallback stubToRemoteCallback(CallbackReceiver receiver,"
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="199"
-            column="19"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="    public static RemoteCallback stubToRemoteCallback(CallbackReceiver receiver,"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="199"
-            column="55"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="            Class&lt;? extends CallbackReceiver> cls, Bundle args, String method) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="200"
-            column="13"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="            Class&lt;? extends CallbackReceiver> cls, Bundle args, String method) {"
         errorLine2="                                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="200"
-            column="52"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="            Class&lt;? extends CallbackReceiver> cls, Bundle args, String method) {"
         errorLine2="                                                                ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="200"
-            column="65"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -414,9 +340,7 @@
         errorLine1="        void executeCallback(Context context, T receiver, Bundle arguments);"
         errorLine2="                             ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="235"
-            column="30"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -425,9 +349,7 @@
         errorLine1="        void executeCallback(Context context, T receiver, Bundle arguments);"
         errorLine2="                                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"
-            line="235"
-            column="59"/>
+            file="src/main/java/androidx/remotecallback/CallbackHandlerRegistry.java"/>
     </issue>
 
     <issue
@@ -436,9 +358,7 @@
         errorLine1="    T createRemoteCallback(Context context);"
         errorLine2="                           ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/CallbackReceiver.java"
-            line="107"
-            column="28"/>
+            file="src/main/java/androidx/remotecallback/CallbackReceiver.java"/>
     </issue>
 
     <issue
@@ -447,9 +367,7 @@
         errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="54"
-            column="12"/>
+            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -458,9 +376,7 @@
         errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
         errorLine2="                       ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="54"
-            column="24"/>
+            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -469,9 +385,7 @@
         errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
         errorLine2="                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="54"
-            column="39"/>
+            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -480,9 +394,7 @@
         errorLine1="    public Bundle call(String method, String arg, Bundle extras) {"
         errorLine2="                                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="54"
-            column="51"/>
+            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -491,9 +403,7 @@
         errorLine1="    public T createRemoteCallback(Context context) {"
         errorLine2="                                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="63"
-            column="35"/>
+            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -502,9 +412,7 @@
         errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="72"
-            column="12"/>
+            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -513,9 +421,7 @@
         errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
         errorLine2="                                           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="72"
-            column="44"/>
+            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -524,9 +430,7 @@
         errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
         errorLine2="                                                         ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="72"
-            column="58"/>
+            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -535,9 +439,7 @@
         errorLine1="    public RemoteCallback toRemoteCallback(Class&lt;T> cls, Context context, String authority,"
         errorLine2="                                                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="72"
-            column="75"/>
+            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -546,9 +448,7 @@
         errorLine1="            Bundle args, String method) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="73"
-            column="13"/>
+            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -557,9 +457,7 @@
         errorLine1="            Bundle args, String method) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"
-            line="73"
-            column="26"/>
+            file="src/main/java/androidx/remotecallback/ContentProviderWithCallbacks.java"/>
     </issue>
 
     <issue
@@ -568,9 +466,7 @@
         errorLine1="    public String getMethodName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/RemoteCallback.java"
-            line="105"
-            column="12"/>
+            file="src/main/java/androidx/remotecallback/RemoteCallback.java"/>
     </issue>
 
     <issue
@@ -579,9 +475,7 @@
         errorLine1="    public Bundle getArgumentBundle() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/RemoteCallback.java"
-            line="112"
-            column="12"/>
+            file="src/main/java/androidx/remotecallback/RemoteCallback.java"/>
     </issue>
 
     <issue
@@ -590,9 +484,7 @@
         errorLine1="    public PendingIntent toPendingIntent() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/RemoteCallback.java"
-            line="119"
-            column="12"/>
+            file="src/main/java/androidx/remotecallback/RemoteCallback.java"/>
     </issue>
 
     <issue
@@ -601,9 +493,7 @@
         errorLine1="    public static &lt;T extends CallbackReceiver> T create(Class&lt;T> cls, Context context) {"
         errorLine2="                                                        ~~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/RemoteCallback.java"
-            line="145"
-            column="57"/>
+            file="src/main/java/androidx/remotecallback/RemoteCallback.java"/>
     </issue>
 
     <issue
@@ -612,9 +502,7 @@
         errorLine1="    public static &lt;T extends CallbackReceiver> T create(Class&lt;T> cls, Context context) {"
         errorLine2="                                                                      ~~~~~~~">
         <location
-            file="src/main/java/androidx/remotecallback/RemoteCallback.java"
-            line="145"
-            column="71"/>
+            file="src/main/java/androidx/remotecallback/RemoteCallback.java"/>
     </issue>
 
 </issues>

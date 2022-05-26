@@ -7,9 +7,7 @@
         errorLine1="        @NonNull cancellationSignal: CancellationSignal?"
         errorLine2="        ~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/QueryInterceptorDatabase.kt"
-            line="115"
-            column="9"/>
+            file="src/main/java/androidx/room/QueryInterceptorDatabase.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"
-            line="85"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"
-            line="85"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"
-            line="98"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"
-            line="98"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        val db = autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"
-            line="144"
-            column="44"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        val db = autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"
-            line="144"
-            column="44"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperFactoryTest.kt"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                .writableDatabase.query(&quot;select * from nonexistanttable&quot;)"
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="88"
-            column="18"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="                .writableDatabase.query(&quot;select * from nonexistanttable&quot;)"
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="88"
-            column="18"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase.execSQL(&quot;create table user (idk int)&quot;)"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="97"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase.execSQL(&quot;create table user (idk int)&quot;)"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="97"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="            autoClosingRoomOpenHelper.writableDatabase.query(&quot;select * from user&quot;)"
         errorLine2="                                      ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="100"
-            column="39"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="            autoClosingRoomOpenHelper.writableDatabase.query(&quot;select * from user&quot;)"
         errorLine2="                                      ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="100"
-            column="39"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase.beginTransaction()"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="109"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase.beginTransaction()"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="109"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase.endTransaction()"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="111"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase.endTransaction()"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="111"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="        assertThat(autoClosingRoomOpenHelper.writableDatabase.isWriteAheadLoggingEnabled).isTrue()"
         errorLine2="                                             ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="121"
-            column="46"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="        assertThat(autoClosingRoomOpenHelper.writableDatabase.isWriteAheadLoggingEnabled).isTrue()"
         errorLine2="                                             ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="121"
-            column="46"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="        assertThat(autoClosingRoomOpenHelper.writableDatabase.isWriteAheadLoggingEnabled).isTrue()"
         errorLine2="                                             ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="125"
-            column="46"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="        assertThat(autoClosingRoomOpenHelper.writableDatabase.isWriteAheadLoggingEnabled).isTrue()"
         errorLine2="                                             ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="125"
-            column="46"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="            autoClosingRoomOpenHelper.writableDatabase.enableWriteAheadLogging()"
         errorLine2="                                      ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="133"
-            column="39"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="            autoClosingRoomOpenHelper.writableDatabase.enableWriteAheadLogging()"
         errorLine2="                                      ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="133"
-            column="39"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="            autoClosingRoomOpenHelper.writableDatabase.disableWriteAheadLogging()"
         errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="137"
-            column="56"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="            autoClosingRoomOpenHelper.writableDatabase.disableWriteAheadLogging()"
         errorLine2="                                      ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="137"
-            column="39"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="            autoClosingRoomOpenHelper.writableDatabase.disableWriteAheadLogging()"
         errorLine2="                                      ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="137"
-            column="39"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="161"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="161"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="166"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="        autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="166"
-            column="35"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="        val db = autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="175"
-            column="44"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="        val db = autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="175"
-            column="44"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="        val db = autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="189"
-            column="44"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="        val db = autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="189"
-            column="44"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="        val db = autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="209"
-            column="44"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="        val db = autoClosingRoomOpenHelper.writableDatabase"
         errorLine2="                                           ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"
-            line="209"
-            column="44"/>
+            file="src/androidTest/java/androidx/room/AutoClosingRoomOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="                .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING).build();"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/room/BuilderTest.java"
-            line="411"
-            column="58"/>
+            file="src/test/java/androidx/room/BuilderTest.java"/>
     </issue>
 
     <issue
@@ -414,9 +340,7 @@
         errorLine1="        assertThat(config.journalMode, is(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING));"
         errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/room/BuilderTest.java"
-            line="414"
-            column="68"/>
+            file="src/test/java/androidx/room/BuilderTest.java"/>
     </issue>
 
     <issue
@@ -425,9 +349,7 @@
         errorLine1="        Locale.setDefault(Locale.forLanguageTag(&quot;tr-TR&quot;));"
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/room/InvalidationTrackerTest.java"
-            line="119"
-            column="34"/>
+            file="src/test/java/androidx/room/InvalidationTrackerTest.java"/>
     </issue>
 
     <issue
@@ -436,9 +358,7 @@
         errorLine1="                val exited = it.waitFor(5, TimeUnit.SECONDS)"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/test/java/androidx/room/SQLiteCopyOpenHelperTest.kt"
-            line="130"
-            column="33"/>
+            file="src/test/java/androidx/room/SQLiteCopyOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -447,9 +367,7 @@
         errorLine1="            .redirectOutput(ProcessBuilder.Redirect.INHERIT)"
         errorLine2="             ~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/room/SQLiteCopyOpenHelperTest.kt"
-            line="264"
-            column="14"/>
+            file="src/test/java/androidx/room/SQLiteCopyOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -458,9 +376,7 @@
         errorLine1="            .redirectOutput(ProcessBuilder.Redirect.INHERIT)"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/room/SQLiteCopyOpenHelperTest.kt"
-            line="264"
-            column="29"/>
+            file="src/test/java/androidx/room/SQLiteCopyOpenHelperTest.kt"/>
     </issue>
 
     <issue
@@ -469,9 +385,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.java"
-            line="91"
-            column="5"/>
+            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.java"/>
     </issue>
 
     <issue
@@ -480,9 +394,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.java"
-            line="100"
-            column="5"/>
+            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.java"/>
     </issue>
 
     <issue
@@ -491,9 +403,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.java"
-            line="109"
-            column="5"/>
+            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.java"/>
     </issue>
 
     <issue
@@ -502,9 +412,7 @@
         errorLine1="    @Override"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/room/TransactionExecutor.java"
-            line="41"
-            column="5"/>
+            file="src/main/java/androidx/room/TransactionExecutor.java"/>
     </issue>
 
     <issue
@@ -513,9 +421,7 @@
         errorLine1="    @SuppressWarnings(&quot;WeakerAccess&quot;)"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/room/TransactionExecutor.java"
-            line="58"
-            column="5"/>
+            file="src/main/java/androidx/room/TransactionExecutor.java"/>
     </issue>
 
     <issue
@@ -524,9 +430,7 @@
         errorLine1="public class Room {"
         errorLine2="             ~~~~">
         <location
-            file="src/main/java/androidx/room/Room.java"
-            line="28"
-            column="14"/>
+            file="src/main/java/androidx/room/Room.java"/>
     </issue>
 
     <issue
@@ -535,9 +439,7 @@
         errorLine1="                MultiInstanceInvalidationService.class) : null,"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="513"
-            column="17"/>
+            file="src/main/java/androidx/room/DatabaseConfiguration.java"/>
     </issue>
 
     <issue
@@ -546,9 +448,7 @@
         errorLine1="                    MultiInstanceInvalidationService.class) : null;"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomDatabase.java"
-            line="1172"
-            column="21"/>
+            file="src/main/java/androidx/room/RoomDatabase.java"/>
     </issue>
 
     <issue
@@ -557,9 +457,7 @@
         errorLine1="            @Nullable Set&lt;Integer> migrationNotRequiredFrom) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="183"
-            column="13"/>
+            file="src/main/java/androidx/room/DatabaseConfiguration.java"/>
     </issue>
 
     <issue
@@ -568,9 +466,7 @@
         errorLine1="            @Nullable Set&lt;Integer> migrationNotRequiredFrom) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="229"
-            column="13"/>
+            file="src/main/java/androidx/room/DatabaseConfiguration.java"/>
     </issue>
 
     <issue
@@ -579,9 +475,7 @@
         errorLine1="            @Nullable File copyFromFile) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="279"
-            column="13"/>
+            file="src/main/java/androidx/room/DatabaseConfiguration.java"/>
     </issue>
 
     <issue
@@ -590,9 +484,7 @@
         errorLine1="    public EntityDeletionOrUpdateAdapter(RoomDatabase database) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
-            line="39"
-            column="42"/>
+            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"/>
     </issue>
 
     <issue
@@ -601,9 +493,7 @@
         errorLine1="    protected abstract String createQuery();"
         errorLine2="                       ~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
-            line="49"
-            column="24"/>
+            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"/>
     </issue>
 
     <issue
@@ -612,9 +502,7 @@
         errorLine1="    protected abstract void bind(SupportSQLiteStatement statement, T entity);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
-            line="58"
-            column="34"/>
+            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"/>
     </issue>
 
     <issue
@@ -623,9 +511,7 @@
         errorLine1="    public final int handleMultiple(Iterable&lt;? extends T> entities) {"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
-            line="82"
-            column="37"/>
+            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"/>
     </issue>
 
     <issue
@@ -634,9 +520,7 @@
         errorLine1="    public final int handleMultiple(T[] entities) {"
         errorLine2="                                    ~~~">
         <location
-            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"
-            line="102"
-            column="37"/>
+            file="src/main/java/androidx/room/EntityDeletionOrUpdateAdapter.java"/>
     </issue>
 
     <issue
@@ -645,9 +529,7 @@
         errorLine1="    public EntityInsertionAdapter(RoomDatabase database) {"
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="42"
-            column="35"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -656,9 +538,7 @@
         errorLine1="    protected abstract void bind(SupportSQLiteStatement statement, T entity);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="53"
-            column="34"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -667,9 +547,7 @@
         errorLine1="    public final void insert(T[] entities) {"
         errorLine2="                             ~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="75"
-            column="30"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -678,9 +556,7 @@
         errorLine1="    public final void insert(Iterable&lt;? extends T> entities) {"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="92"
-            column="30"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -689,9 +565,7 @@
         errorLine1="    public final long[] insertAndReturnIdsArray(Collection&lt;? extends T> entities) {"
         errorLine2="                 ~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="126"
-            column="18"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -700,9 +574,7 @@
         errorLine1="    public final long[] insertAndReturnIdsArray(Collection&lt;? extends T> entities) {"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="126"
-            column="49"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -711,9 +583,7 @@
         errorLine1="    public final long[] insertAndReturnIdsArray(T[] entities) {"
         errorLine2="                 ~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="148"
-            column="18"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -722,9 +592,7 @@
         errorLine1="    public final long[] insertAndReturnIdsArray(T[] entities) {"
         errorLine2="                                                ~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="148"
-            column="49"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -733,9 +601,7 @@
         errorLine1="    public final Long[] insertAndReturnIdsArrayBox(Collection&lt;? extends T> entities) {"
         errorLine2="                 ~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="170"
-            column="18"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -744,9 +610,7 @@
         errorLine1="    public final Long[] insertAndReturnIdsArrayBox(Collection&lt;? extends T> entities) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="170"
-            column="52"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -755,9 +619,7 @@
         errorLine1="    public final Long[] insertAndReturnIdsArrayBox(T[] entities) {"
         errorLine2="                 ~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="192"
-            column="18"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -766,9 +628,7 @@
         errorLine1="    public final Long[] insertAndReturnIdsArrayBox(T[] entities) {"
         errorLine2="                                                   ~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="192"
-            column="52"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -777,9 +637,7 @@
         errorLine1="    public final List&lt;Long> insertAndReturnIdsList(T[] entities) {"
         errorLine2="                 ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="214"
-            column="18"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -788,9 +646,7 @@
         errorLine1="    public final List&lt;Long> insertAndReturnIdsList(T[] entities) {"
         errorLine2="                                                   ~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="214"
-            column="52"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -799,9 +655,7 @@
         errorLine1="    public final List&lt;Long> insertAndReturnIdsList(Collection&lt;? extends T> entities) {"
         errorLine2="                 ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="236"
-            column="18"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -810,9 +664,7 @@
         errorLine1="    public final List&lt;Long> insertAndReturnIdsList(Collection&lt;? extends T> entities) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/EntityInsertionAdapter.java"
-            line="236"
-            column="52"/>
+            file="src/main/java/androidx/room/EntityInsertionAdapter.java"/>
     </issue>
 
     <issue
@@ -821,9 +673,7 @@
         errorLine1="    public InvalidationTracker(RoomDatabase database, String... tableNames) {"
         errorLine2="                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="127"
-            column="32"/>
+            file="src/main/java/androidx/room/InvalidationTracker.java"/>
     </issue>
 
     <issue
@@ -832,9 +682,7 @@
         errorLine1="    public InvalidationTracker(RoomDatabase database, String... tableNames) {"
         errorLine2="                                                      ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="127"
-            column="55"/>
+            file="src/main/java/androidx/room/InvalidationTracker.java"/>
     </issue>
 
     <issue
@@ -843,9 +691,7 @@
         errorLine1="    public InvalidationTracker(RoomDatabase database, Map&lt;String, String> shadowTablesMap,"
         errorLine2="                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="139"
-            column="32"/>
+            file="src/main/java/androidx/room/InvalidationTracker.java"/>
     </issue>
 
     <issue
@@ -854,9 +700,7 @@
         errorLine1="    public InvalidationTracker(RoomDatabase database, Map&lt;String, String> shadowTablesMap,"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="139"
-            column="55"/>
+            file="src/main/java/androidx/room/InvalidationTracker.java"/>
     </issue>
 
     <issue
@@ -865,9 +709,7 @@
         errorLine1="            Map&lt;String, Set&lt;String>> viewTables, String... tableNames) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="140"
-            column="13"/>
+            file="src/main/java/androidx/room/InvalidationTracker.java"/>
     </issue>
 
     <issue
@@ -876,9 +718,7 @@
         errorLine1="            Map&lt;String, Set&lt;String>> viewTables, String... tableNames) {"
         errorLine2="                                                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="140"
-            column="50"/>
+            file="src/main/java/androidx/room/InvalidationTracker.java"/>
     </issue>
 
     <issue
@@ -887,9 +727,7 @@
         errorLine1="    public void addWeakObserver(Observer observer) {"
         errorLine2="                                ~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="362"
-            column="33"/>
+            file="src/main/java/androidx/room/InvalidationTracker.java"/>
     </issue>
 
     <issue
@@ -898,9 +736,7 @@
         errorLine1="    public void notifyObserversByTableNames(String... tables) {"
         errorLine2="                                            ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="526"
-            column="45"/>
+            file="src/main/java/androidx/room/InvalidationTracker.java"/>
     </issue>
 
     <issue
@@ -909,9 +745,7 @@
         errorLine1="    public &lt;T> LiveData&lt;T> createLiveData(String[] tableNames, boolean inTransaction,"
         errorLine2="               ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="633"
-            column="16"/>
+            file="src/main/java/androidx/room/InvalidationTracker.java"/>
     </issue>
 
     <issue
@@ -920,9 +754,7 @@
         errorLine1="    public &lt;T> LiveData&lt;T> createLiveData(String[] tableNames, boolean inTransaction,"
         errorLine2="                                          ~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="633"
-            column="43"/>
+            file="src/main/java/androidx/room/InvalidationTracker.java"/>
     </issue>
 
     <issue
@@ -931,9 +763,7 @@
         errorLine1="            Callable&lt;T> computeFunction) {"
         errorLine2="            ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="634"
-            column="13"/>
+            file="src/main/java/androidx/room/InvalidationTracker.java"/>
     </issue>
 
     <issue
@@ -942,9 +772,7 @@
         errorLine1="        protected Observer(@NonNull String firstTable, String... rest) {"
         errorLine2="                                                       ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="742"
-            column="56"/>
+            file="src/main/java/androidx/room/InvalidationTracker.java"/>
     </issue>
 
     <issue
@@ -953,9 +781,7 @@
         errorLine1="    protected abstract SupportSQLiteOpenHelper createOpenHelper(DatabaseConfiguration config);"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomDatabase.java"
-            line="367"
-            column="65"/>
+            file="src/main/java/androidx/room/RoomDatabase.java"/>
     </issue>
 
     <issue
@@ -964,9 +790,7 @@
         errorLine1="    public SupportSQLiteStatement compileStatement(@NonNull String sql) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomDatabase.java"
-            line="540"
-            column="12"/>
+            file="src/main/java/androidx/room/RoomDatabase.java"/>
     </issue>
 
     <issue
@@ -975,9 +799,7 @@
         errorLine1="        public Builder&lt;T> fallbackToDestructiveMigrationFrom(int... startVersions) {"
         errorLine2="                                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomDatabase.java"
-            line="1269"
-            column="62"/>
+            file="src/main/java/androidx/room/RoomDatabase.java"/>
     </issue>
 
     <issue
@@ -986,9 +808,7 @@
         errorLine1="    public void onConfigure(SupportSQLiteDatabase db) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="67"
-            column="29"/>
+            file="src/main/java/androidx/room/RoomOpenHelper.java"/>
     </issue>
 
     <issue
@@ -997,9 +817,7 @@
         errorLine1="    public void onCreate(SupportSQLiteDatabase db) {"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="72"
-            column="26"/>
+            file="src/main/java/androidx/room/RoomOpenHelper.java"/>
     </issue>
 
     <issue
@@ -1008,9 +826,7 @@
         errorLine1="    public void onUpgrade(SupportSQLiteDatabase db, int oldVersion, int newVersion) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="91"
-            column="27"/>
+            file="src/main/java/androidx/room/RoomOpenHelper.java"/>
     </issue>
 
     <issue
@@ -1019,9 +835,7 @@
         errorLine1="    public void onDowngrade(SupportSQLiteDatabase db, int oldVersion, int newVersion) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="128"
-            column="29"/>
+            file="src/main/java/androidx/room/RoomOpenHelper.java"/>
     </issue>
 
     <issue
@@ -1030,9 +844,7 @@
         errorLine1="    public void onOpen(SupportSQLiteDatabase db) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="133"
-            column="24"/>
+            file="src/main/java/androidx/room/RoomOpenHelper.java"/>
     </issue>
 
     <issue
@@ -1041,9 +853,7 @@
         errorLine1="        protected abstract void dropAllTables(SupportSQLiteDatabase database);"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="214"
-            column="47"/>
+            file="src/main/java/androidx/room/RoomOpenHelper.java"/>
     </issue>
 
     <issue
@@ -1052,9 +862,7 @@
         errorLine1="        protected abstract void createAllTables(SupportSQLiteDatabase database);"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="216"
-            column="49"/>
+            file="src/main/java/androidx/room/RoomOpenHelper.java"/>
     </issue>
 
     <issue
@@ -1063,9 +871,7 @@
         errorLine1="        protected abstract void onOpen(SupportSQLiteDatabase database);"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="218"
-            column="40"/>
+            file="src/main/java/androidx/room/RoomOpenHelper.java"/>
     </issue>
 
     <issue
@@ -1074,9 +880,7 @@
         errorLine1="        protected abstract void onCreate(SupportSQLiteDatabase database);"
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="220"
-            column="42"/>
+            file="src/main/java/androidx/room/RoomOpenHelper.java"/>
     </issue>
 
     <issue
@@ -1085,9 +889,7 @@
         errorLine1="        protected void onPreMigrate(SupportSQLiteDatabase database) {"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="250"
-            column="37"/>
+            file="src/main/java/androidx/room/RoomOpenHelper.java"/>
     </issue>
 
     <issue
@@ -1096,9 +898,7 @@
         errorLine1="        protected void onPostMigrate(SupportSQLiteDatabase database) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomOpenHelper.java"
-            line="258"
-            column="38"/>
+            file="src/main/java/androidx/room/RoomOpenHelper.java"/>
     </issue>
 
     <issue
@@ -1107,9 +907,7 @@
         errorLine1="    public static RoomSQLiteQuery copyFrom(SupportSQLiteQuery supportSQLiteQuery) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
-            line="87"
-            column="19"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"/>
     </issue>
 
     <issue
@@ -1118,9 +916,7 @@
         errorLine1="    public static RoomSQLiteQuery copyFrom(SupportSQLiteQuery supportSQLiteQuery) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
-            line="87"
-            column="44"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"/>
     </issue>
 
     <issue
@@ -1129,9 +925,7 @@
         errorLine1="    public static RoomSQLiteQuery acquire(String query, int argumentCount) {"
         errorLine2="                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
-            line="140"
-            column="19"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"/>
     </issue>
 
     <issue
@@ -1140,9 +934,7 @@
         errorLine1="    public static RoomSQLiteQuery acquire(String query, int argumentCount) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
-            line="140"
-            column="43"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"/>
     </issue>
 
     <issue
@@ -1151,9 +943,7 @@
         errorLine1="    public String getSql() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
-            line="200"
-            column="12"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"/>
     </issue>
 
     <issue
@@ -1162,9 +952,7 @@
         errorLine1="    public void bindTo(SupportSQLiteProgram program) {"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
-            line="210"
-            column="24"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"/>
     </issue>
 
     <issue
@@ -1173,9 +961,7 @@
         errorLine1="    public void bindString(int index, String value) {"
         errorLine2="                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
-            line="250"
-            column="39"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"/>
     </issue>
 
     <issue
@@ -1184,9 +970,7 @@
         errorLine1="    public void bindBlob(int index, byte[] value) {"
         errorLine2="                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
-            line="256"
-            column="37"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"/>
     </issue>
 
     <issue
@@ -1195,9 +979,7 @@
         errorLine1="    public void copyArgumentsFrom(RoomSQLiteQuery other) {"
         errorLine2="                                  ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/RoomSQLiteQuery.java"
-            line="271"
-            column="35"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.java"/>
     </issue>
 
     <issue
@@ -1206,9 +988,7 @@
         errorLine1="    public SharedSQLiteStatement(RoomDatabase database) {"
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/SharedSQLiteStatement.java"
-            line="48"
-            column="34"/>
+            file="src/main/java/androidx/room/SharedSQLiteStatement.java"/>
     </issue>
 
     <issue
@@ -1217,9 +997,7 @@
         errorLine1="    protected abstract String createQuery();"
         errorLine2="                       ~~~~~~">
         <location
-            file="src/main/java/androidx/room/SharedSQLiteStatement.java"
-            line="57"
-            column="24"/>
+            file="src/main/java/androidx/room/SharedSQLiteStatement.java"/>
     </issue>
 
     <issue
@@ -1228,9 +1006,7 @@
         errorLine1="    public SupportSQLiteStatement acquire() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/SharedSQLiteStatement.java"
-            line="85"
-            column="12"/>
+            file="src/main/java/androidx/room/SharedSQLiteStatement.java"/>
     </issue>
 
     <issue
@@ -1239,9 +1015,7 @@
         errorLine1="    public void release(SupportSQLiteStatement statement) {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/SharedSQLiteStatement.java"
-            line="95"
-            column="25"/>
+            file="src/main/java/androidx/room/SharedSQLiteStatement.java"/>
     </issue>
 
 </issues>

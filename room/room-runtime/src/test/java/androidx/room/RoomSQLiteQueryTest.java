@@ -38,18 +38,18 @@ import java.util.List;
 public class RoomSQLiteQueryTest {
     @Before
     public void clear() {
-        RoomSQLiteQuery.sQueryPool.clear();
+        RoomSQLiteQuery.queryPool.clear();
     }
 
     @Test
     public void acquireBasic() {
         RoomSQLiteQuery query = RoomSQLiteQuery.acquire("abc", 3);
         assertThat(query.getSql(), is("abc"));
-        assertThat(query.mArgCount, is(3));
-        assertThat(query.mBlobBindings.length, is(4));
-        assertThat(query.mLongBindings.length, is(4));
-        assertThat(query.mStringBindings.length, is(4));
-        assertThat(query.mDoubleBindings.length, is(4));
+        assertThat(query.argCount, is(3));
+        assertThat(query.blobBindings.length, is(4));
+        assertThat(query.longBindings.length, is(4));
+        assertThat(query.stringBindings.length, is(4));
+        assertThat(query.doubleBindings.length, is(4));
     }
 
     @Test
@@ -97,10 +97,10 @@ public class RoomSQLiteQueryTest {
 
         query1.release();
         query2.release();
-        assertThat(RoomSQLiteQuery.sQueryPool.size(), is(1));
+        assertThat(RoomSQLiteQuery.queryPool.size(), is(1));
 
         query3.release();
-        assertThat(RoomSQLiteQuery.sQueryPool.size(), is(2));
+        assertThat(RoomSQLiteQuery.queryPool.size(), is(2));
     }
 
     @Test
@@ -138,12 +138,12 @@ public class RoomSQLiteQueryTest {
     }
 
     private void pruneCacheTest() {
-        assertThat(RoomSQLiteQuery.sQueryPool.size(), is(RoomSQLiteQuery.POOL_LIMIT));
+        assertThat(RoomSQLiteQuery.queryPool.size(), is(RoomSQLiteQuery.POOL_LIMIT));
         RoomSQLiteQuery.acquire("dsadsa", RoomSQLiteQuery.POOL_LIMIT + 1).release();
-        assertThat(RoomSQLiteQuery.sQueryPool.size(), is(RoomSQLiteQuery.DESIRED_POOL_SIZE));
-        Iterator<RoomSQLiteQuery> itr = RoomSQLiteQuery.sQueryPool.values().iterator();
+        assertThat(RoomSQLiteQuery.queryPool.size(), is(RoomSQLiteQuery.DESIRED_POOL_SIZE));
+        Iterator<RoomSQLiteQuery> itr = RoomSQLiteQuery.queryPool.values().iterator();
         for (int i = 0; i < RoomSQLiteQuery.DESIRED_POOL_SIZE; i++) {
-            assertThat(itr.next().mCapacity, is(i));
+            assertThat(itr.next().getCapacity(), is(i));
         }
     }
 }

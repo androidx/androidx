@@ -202,13 +202,22 @@ public final class ImageCapture extends UseCase {
      */
     public static final int CAPTURE_MODE_MINIMIZE_LATENCY = 1;
     /**
-     * Optimizes capture pipeline to prioritize latency over image quality. When the capture
-     * mode is set to ZERO_SHUTTER_LAG, the latency between the shutter button is clicked and the
-     * picture is recorded is minimized.
+     * Optimizes capture pipeline to have better latency while keeping good image quality. When
+     * the capture mode is set to ZERO_SHUTTER_LAG, the latency between the shutter button is
+     * clicked and the picture is taken is expected to be minimized, compared with other capture
+     * modes.
      *
-     * @hide
+     * <p> ZERO_SHUTTER_LAG mode is aiming to provide the minimum latency for instant capture. It
+     * caches intermediate results and deliver the one with the closest timestamp when
+     * {@link ImageCapture#takePicture(OutputFileOptions, Executor, OnImageSavedCallback)}
+     * is invoked.
+     *
+     * <p> {@link CameraInfo#isZslSupported()} can be used to query the device capability to
+     * support this mode or not. However, this mode also depends on use cases configuration and
+     * flash mode settings. If VideoCapture is bound or flash mode is not OFF or
+     * OEM Extension is ON, this mode will be disabled automatically.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ExperimentalZeroShutterLag
     public static final int CAPTURE_MODE_ZERO_SHUTTER_LAG = 2;
 
     /**
@@ -375,7 +384,7 @@ public final class ImageCapture extends UseCase {
         YuvToJpegProcessor softwareJpegProcessor = null;
 
         if (Build.VERSION.SDK_INT >= 23 && getCaptureMode() == CAPTURE_MODE_ZERO_SHUTTER_LAG) {
-            getCameraControl().addZslConfig(resolution, sessionConfigBuilder);
+            getCameraControl().addZslConfig(sessionConfigBuilder);
         }
 
         // Setup the ImageReader to do processing

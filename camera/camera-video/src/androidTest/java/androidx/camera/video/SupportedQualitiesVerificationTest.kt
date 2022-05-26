@@ -63,6 +63,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class SupportedQualitiesVerificationTest(
+    private val lensFacing: Int,
     private var cameraSelector: CameraSelector,
     private var quality: Quality,
 ) {
@@ -90,11 +91,11 @@ class SupportedQualitiesVerificationTest(
         )
 
         @JvmStatic
-        @Parameterized.Parameters(name = "cameraSelector={0}, quality={1}")
+        @Parameterized.Parameters(name = "lensFacing={0}, quality={2}")
         fun data() = mutableListOf<Array<Any?>>().apply {
             cameraSelectors.forEach { cameraSelector ->
                 quality.forEach { quality ->
-                    add(arrayOf(cameraSelector, quality))
+                    add(arrayOf(cameraSelector.lensFacing, cameraSelector, quality))
                 }
             }
         }

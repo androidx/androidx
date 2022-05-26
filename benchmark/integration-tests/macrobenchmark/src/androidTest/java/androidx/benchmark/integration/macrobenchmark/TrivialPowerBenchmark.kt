@@ -17,6 +17,7 @@
 package androidx.benchmark.integration.macrobenchmark
 
 import android.content.Intent
+import androidx.benchmark.macro.BatteryCharge
 import androidx.benchmark.macro.PowerCategory
 import androidx.benchmark.macro.PowerCategoryDisplayLevel
 import androidx.benchmark.macro.CompilationMode
@@ -45,17 +46,21 @@ class TrivialPowerBenchmark() {
     @Test
     fun measureEnergyPower() {
         assumeTrue(PowerRail.hasMetrics())
+        assumeTrue(BatteryCharge.hasMinimumCharge())
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(
                 PowerMetric(
-                    PowerMetric.Type.Power(
+                    PowerMetric.Battery()
+                ),
+                PowerMetric(
+                    PowerMetric.Power(
                         PowerCategory.values()
                             .associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
                     )
                 ),
                 PowerMetric(
-                    PowerMetric.Type.Energy(
+                    PowerMetric.Energy(
                         PowerCategory.values()
                             .associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
                     )
@@ -77,17 +82,21 @@ class TrivialPowerBenchmark() {
     @Test
     fun measureEnergyPowerMultiple() {
         assumeTrue(PowerRail.hasMetrics())
+        assumeTrue(BatteryCharge.hasMinimumCharge())
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(
                 PowerMetric(
-                    PowerMetric.Type.Power(
+                    PowerMetric.Battery()
+                ),
+                PowerMetric(
+                    PowerMetric.Power(
                         PowerCategory.values()
                             .associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
                     )
                 ),
                 PowerMetric(
-                    PowerMetric.Type.Energy(
+                    PowerMetric.Energy(
                         PowerCategory.values()
                             .associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
                     )
@@ -124,17 +133,21 @@ class TrivialPowerBenchmark() {
     @Test
     fun measureTotalEnergyPower() {
         assumeTrue(PowerRail.hasMetrics())
+        assumeTrue(BatteryCharge.hasMinimumCharge())
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(
                 PowerMetric(
-                    PowerMetric.Type.Power(
+                    PowerMetric.Battery()
+                ),
+                PowerMetric(
+                    PowerMetric.Power(
                         PowerCategory.values()
                             .associateWith { PowerCategoryDisplayLevel.TOTAL }
                     )
                 ),
                 PowerMetric(
-                    PowerMetric.Type.Energy(
+                    PowerMetric.Energy(
                         PowerCategory.values()
                             .associateWith { PowerCategoryDisplayLevel.TOTAL }
                     )
@@ -156,17 +169,21 @@ class TrivialPowerBenchmark() {
     @Test
     fun measureTotalEnergyPowerMultiple() {
         assumeTrue(PowerRail.hasMetrics())
+        assumeTrue(BatteryCharge.hasMinimumCharge())
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
             metrics = listOf(
                 PowerMetric(
-                    PowerMetric.Type.Power(
+                    PowerMetric.Battery()
+                ),
+                PowerMetric(
+                    PowerMetric.Power(
                         PowerCategory.values()
                             .associateWith { PowerCategoryDisplayLevel.TOTAL }
                     )
                 ),
                 PowerMetric(
-                    PowerMetric.Type.Energy(
+                    PowerMetric.Energy(
                         PowerCategory.values()
                             .associateWith { PowerCategoryDisplayLevel.TOTAL }
                     )

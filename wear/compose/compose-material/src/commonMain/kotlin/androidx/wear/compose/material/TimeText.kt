@@ -26,13 +26,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ArcPaddingValues
+import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.foundation.padding
 import androidx.wear.compose.material.TimeTextDefaults.CurvedTextSeparator
 import androidx.wear.compose.material.TimeTextDefaults.TextSeparator
@@ -66,6 +69,9 @@ import androidx.wear.compose.material.TimeTextDefaults.timeFormat
  * An example of a [TimeText] with a different date and time format:
  * @sample androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
  *
+ * An example of a [TimeText] animating a message that is added or removed
+ * @sample androidx.wear.compose.material.samples.TimeTextAnimation
+ *
  * @param modifier Current modifier.
  * @param timeSource [TimeSource] which retrieves the current time and formats it.
  * @param timeTextStyle Optional textStyle for the time text itself
@@ -95,18 +101,20 @@ public fun TimeText(
     val timeText = timeSource.currentTime
 
     if (isRoundDevice()) {
-        CurvedLayout(modifier.padding(contentPadding)) {
-            startCurvedContent?.let {
-                it.invoke(this)
-                textCurvedSeparator()
-            }
-            curvedText(
-                text = timeText,
-                style = CurvedTextStyle(timeTextStyle)
-            )
-            endCurvedContent?.let {
-                textCurvedSeparator()
-                it.invoke(this)
+        CurvedLayout(modifier = modifier) {
+            curvedRow(modifier = CurvedModifier.padding(contentPadding.toArcPadding())) {
+                startCurvedContent?.let {
+                    it.invoke(this)
+                    textCurvedSeparator()
+                }
+                curvedText(
+                    text = timeText,
+                    style = CurvedTextStyle(timeTextStyle)
+                )
+                endCurvedContent?.let {
+                    textCurvedSeparator()
+                    it.invoke(this)
+                }
             }
         }
     } else {
@@ -139,7 +147,7 @@ public fun TimeText(
  */
 public object TimeTextDefaults {
 
-    private val Padding = 4.dp
+    private val Padding = 2.dp
 
     /**
      * Default format for 24h clock.
@@ -248,6 +256,27 @@ public interface TimeSource {
      */
     val currentTime: String
         @Composable get
+}
+
+/**
+ * An extension function, which converts PaddingValues into ArcPaddingValues
+ */
+private fun PaddingValues.toArcPadding() = object : ArcPaddingValues {
+    override fun calculateOuterPadding(radialDirection: CurvedDirection.Radial) =
+        calculateTopPadding()
+
+    override fun calculateInnerPadding(radialDirection: CurvedDirection.Radial) =
+        calculateBottomPadding()
+
+    override fun calculateAfterPadding(
+        layoutDirection: LayoutDirection,
+        angularDirection: CurvedDirection.Angular
+    ) = calculateRightPadding(layoutDirection)
+
+    override fun calculateBeforePadding(
+        layoutDirection: LayoutDirection,
+        angularDirection: CurvedDirection.Angular
+    ) = calculateLeftPadding(layoutDirection)
 }
 
 internal expect class DefaultTimeSource(timeFormat: String) : TimeSource

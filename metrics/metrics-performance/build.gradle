@@ -37,7 +37,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(libs.espressoContrib)
+    androidTestImplementation(libs.bundles.espressoContrib)
     androidTestImplementation(project(':navigation:navigation-fragment-ktx'))
     androidTestImplementation(project(':navigation:navigation-ui-ktx'))
     androidTestImplementation(project(':appcompat:appcompat'))

@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Rational
-import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.arch.core.util.Function
 import androidx.camera.camera2.pipe.CameraPipe
@@ -48,13 +47,13 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureChain
 import androidx.camera.core.impl.utils.futures.Futures
 import com.google.common.util.concurrent.ListenableFuture
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.guava.asListenableFuture
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * Adapt the [CameraControlInternal] interface to [CameraPipe].
@@ -165,7 +164,7 @@ class CameraControlAdapter @Inject constructor(
         return false
     }
 
-    override fun addZslConfig(resolution: Size, sessionConfigBuilder: SessionConfig.Builder) {
+    override fun addZslConfig(sessionConfigBuilder: SessionConfig.Builder) {
         // Override if Zero-Shutter Lag needs to add config to session config.
     }
 

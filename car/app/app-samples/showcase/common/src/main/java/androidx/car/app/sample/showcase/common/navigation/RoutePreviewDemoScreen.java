@@ -17,6 +17,7 @@
 package androidx.car.app.sample.showcase.common.navigation;
 
 import static androidx.car.app.CarToast.LENGTH_LONG;
+import static androidx.car.app.CarToast.LENGTH_SHORT;
 
 import android.text.SpannableString;
 
@@ -26,8 +27,10 @@ import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
 import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.Action;
+import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.DurationSpan;
+import androidx.car.app.model.Header;
 import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
@@ -35,6 +38,7 @@ import androidx.car.app.navigation.model.RoutePreviewNavigationTemplate;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.navigation.routing.RoutingDemoModels;
 import androidx.car.app.versioning.CarAppApiLevels;
+import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.concurrent.TimeUnit;
 
@@ -43,6 +47,8 @@ public final class RoutePreviewDemoScreen extends Screen {
     public RoutePreviewDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
     }
+
+    private boolean mIsFavorite = false;
 
     private CarText createRouteText(int index) {
         switch (index) {
@@ -118,6 +124,43 @@ public final class RoutePreviewDemoScreen extends Screen {
                         .addVariant(getCarContext().getString(R.string.continue_route))
                         .build();
 
+        Header header = new Header.Builder()
+                .setStartHeaderAction(Action.BACK)
+                .addEndHeaderAction(new Action.Builder()
+                        .setIcon(
+                                new CarIcon.Builder(
+                                        IconCompat.createWithResource(
+                                                getCarContext(),
+                                                mIsFavorite
+                                                        ? R.drawable.ic_favorite_filled_white_24dp
+                                                        : R.drawable.ic_favorite_white_24dp))
+                                        .build())
+                        .setOnClickListener(() -> {
+                            CarToast.makeText(
+                                            getCarContext(),
+                                            mIsFavorite
+                                                    ? getCarContext()
+                                                    .getString(R.string.favorite_toast_msg)
+                                                    : getCarContext().getString(
+                                                            R.string.not_favorite_toast_msg),
+                                            LENGTH_SHORT)
+                                    .show();
+                            mIsFavorite = !mIsFavorite;
+                            invalidate();
+                        })
+                        .build())
+                .addEndHeaderAction(new Action.Builder()
+                        .setOnClickListener(() -> finish())
+                        .setIcon(
+                                new CarIcon.Builder(
+                                        IconCompat.createWithResource(
+                                                getCarContext(),
+                                                R.drawable.ic_close_white_24dp))
+                                        .build())
+                        .build())
+                .setTitle(getCarContext().getString(R.string.route_preview_template_demo_title))
+                .build();
+
         return new RoutePreviewNavigationTemplate.Builder()
                 .setItemList(itemListBuilder.build())
                 .setNavigateAction(
@@ -125,9 +168,8 @@ public final class RoutePreviewDemoScreen extends Screen {
                                 .setTitle(navigateActionText)
                                 .setOnClickListener(this::onNavigate)
                                 .build())
-                .setTitle(getCarContext().getString(R.string.routes_title))
                 .setMapActionStrip(RoutingDemoModels.getMapActionStrip(getCarContext()))
-                .setHeaderAction(Action.BACK)
+                .setHeader(header)
                 .build();
     }
 

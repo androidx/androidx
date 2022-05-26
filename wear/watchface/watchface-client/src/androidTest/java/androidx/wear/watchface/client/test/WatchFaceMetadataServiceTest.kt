@@ -32,7 +32,6 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.client.WatchFaceMetadataClient
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.ComplicationSlotBoundsType
-import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.complications.data.ComplicationExperimental
 import androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE
 import androidx.wear.watchface.samples.CONFIGURABLE_DATA_SOURCE_PKG
@@ -342,7 +341,6 @@ public class WatchFaceMetadataServiceTest {
         }
     }
 
-    @OptIn(WatchFaceFlavorsExperimental::class)
     @Test
     @Suppress("DEPRECATION") // getServiceInfo
     public fun userStyleFlavors() {

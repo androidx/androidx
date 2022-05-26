@@ -36,8 +36,7 @@
     <string name="on_action_title" msgid="4129601573763429611">"Вклучено"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Исклучено"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Поставки"</string>
-    <!-- no translation found for accept_action_title (4899660585470647578) -->
-    <skip />
+    <string name="accept_action_title" msgid="4899660585470647578">"Прифати"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"Одбиј"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"Во ред"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Постави"</string>
@@ -46,6 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"Сепак, обидете се"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"Да"</string>
     <string name="no_action_title" msgid="1452124604210014010">"Не"</string>
+    <string name="disable_all_rows" msgid="3003225080532928046">"Оневозможи ги сите редови"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"Овозможи ги сите редови"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"Пријавена е грешка!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"Зумирано"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"Одзумирано"</string>
@@ -141,14 +142,10 @@
     <string name="importance_title" msgid="9034862997821839831">"Важност"</string>
     <string name="category_title" msgid="4783851267093259949">"Категорија"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"Во тек"</string>
-    <!-- no translation found for default_importance (6347996298832939989) -->
-    <skip />
-    <!-- no translation found for high_importance (5009120714837304882) -->
-    <skip />
-    <!-- no translation found for low_importance (4721161314404294033) -->
-    <skip />
-    <!-- no translation found for unknown_importance (909001735933359216) -->
-    <skip />
+    <string name="default_importance" msgid="6347996298832939989">"Стандардна"</string>
+    <string name="high_importance" msgid="5009120714837304882">"Голема"</string>
+    <string name="low_importance" msgid="4721161314404294033">"Мала"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"Непозната"</string>
     <string name="notification_demo" msgid="1819496937832036387">"Демо за известување"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"Разни демоа"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"Демо за навигација"</string>
@@ -281,6 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"Опција 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Опција 2"</string>
     <string name="option_3_title" msgid="6319268250436119258">"Опција 3"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"Ред со тркалезно копче"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"Ред со тркалезно копче и икона"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"Ред со тркалезно копче, икона и обоен текст"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"Дополнителен текст"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Пример за текст што може да се избере"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Демо за ограничување за задачи"</string>
@@ -289,13 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"Кликнете за да одите нанапред"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Тест за вклучување/исклучување"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Дозволени се промени на зачувувањето на состојбата"</string>
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Овозможете тест за вклучување/исклучување"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"Погледнете го ова за да се овозможи тест за вклучување/исклучување"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"Тест за вклучување/исклучување"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"Дозволени се промени на зачувувањето на состојбата"</string>
     <string name="image_test_title" msgid="8273863429801477547">"Тест за слики"</string>
     <string name="image_test_text" msgid="6264812093895530445">"Промени на сликите се дозволени"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Дополнителни податоци"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"Ажурирањата се дозволени при операции на враќање назад."</string>
+    <string name="toggle_test_enabled" msgid="982370904182034076">"Овозможено тест за вклучување/исклучување"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"Оневозможено тест за вклучување/исклучување"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Разни демоа за шаблони"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Демоа за прикажување"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Вектор за нијансиран ресурс"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Мапа со битови на ресурсот за сликата"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Означувач за текст во боја"</string>

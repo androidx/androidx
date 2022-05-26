@@ -17,9 +17,6 @@
 <resources
     xmlns:window="http://schemas.android.com/apk/res-auto">
     <SplitPairRule
-        window:splitRatio="0.3"
-        window:splitMinWidth="600dp"
-        window:splitLayoutDirection="ltr"
         window:finishPrimaryWithSecondary="always"
         window:finishSecondaryWithPrimary="adjacent">
         <SplitPairFilter
@@ -28,8 +25,6 @@
     </SplitPairRule>
     <SplitPlaceholderRule
         window:placeholderActivityName="androidx.window.sample.embedding.SplitActivityListPlaceholder"
-        window:splitRatio="0.3"
-        window:splitMinWidth="600dp"
         window:stickyPlaceholder="true"
         window:finishPrimaryWithSecondary="adjacent">
         <ActivityFilter

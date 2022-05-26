@@ -16,12 +16,13 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(libs.espressoContrib, excludes.espresso)
+    androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.coordinatorlayout", module: "coordinatorlayout"
     })
+    androidTestImplementation(libs.multidex)
 }
 
 android {
@@ -33,6 +34,9 @@ android {
     }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
+    }
+    defaultConfig {
+        multiDexEnabled = true
     }
     namespace "androidx.coordinatorlayout"
 }

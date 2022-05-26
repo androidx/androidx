@@ -7,9 +7,7 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"
-            line="44"
-            column="29"/>
+            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public void listProviders(View view) {"
         errorLine2="                              ~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"
-            line="56"
-            column="31"/>
+            file="src/main/java/androidx/ads/identifier/provider/testapp/AdsIdentifierProviderActivity.java"/>
     </issue>
 
 </issues>

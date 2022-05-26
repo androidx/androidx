@@ -1,5 +1,5 @@
 // Signature format: 4.0
-package @androidx.camera.viewfinder.ExperimentalViewfinder androidx.camera.viewfinder {
+package androidx.camera.viewfinder {
 
   @RequiresApi(21) public final class CameraViewfinder extends android.widget.FrameLayout {
     ctor @UiThread public CameraViewfinder(android.content.Context);
@@ -26,9 +26,6 @@ package @androidx.camera.viewfinder.ExperimentalViewfinder androidx.camera.viewf
     enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FIT_CENTER;
     enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FIT_END;
     enum_constant public static final androidx.camera.viewfinder.CameraViewfinder.ScaleType FIT_START;
-  }
-
-  @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalViewfinder {
   }
 
   @RequiresApi(21) public class ViewfinderSurfaceRequest {

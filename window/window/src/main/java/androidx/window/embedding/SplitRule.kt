@@ -21,7 +21,9 @@ import android.os.Build
 import android.util.LayoutDirection
 import android.view.WindowMetrics
 import androidx.annotation.DoNotInline
+import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
+import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.window.core.ExperimentalWindowApi
 import kotlin.math.min
@@ -39,24 +41,25 @@ open class SplitRule internal constructor(
     /**
      * The smallest value of width of the parent window when the split should be used, in pixels.
      * When the window size is smaller than requested here, activities in the secondary container
-     * will be stacked on top of the activities in the primary one, completely overlapping them. If
-     * not set, the system will default to splitting at 600dp.
+     * will be stacked on top of the activities in the primary one, completely overlapping them.
      */
-    val minWidth: Int = 0,
+    @IntRange(from = 0)
+    val minWidth: Int,
 
     /**
      * The smallest value of the smallest possible width of the parent window in any rotation
      * when the split should be used, in pixels. When the window size is smaller than requested
      * here, activities in the secondary container will be stacked on top of the activities in
-     * the primary one, completely overlapping them. If not set, the system will default to
-     * splitting at sw600dp.
+     * the primary one, completely overlapping them.
      */
-    val minSmallestWidth: Int = 0,
+    @IntRange(from = 0)
+    val minSmallestWidth: Int,
 
     /**
      * Defines what part of the width should be given to the primary activity. Defaults to an
      * equal width split.
      */
+    @FloatRange(from = 0.0, to = 1.0)
     val splitRatio: Float = 0.5f,
 
     /**
@@ -113,13 +116,20 @@ open class SplitRule internal constructor(
     internal annotation class SplitFinishBehavior
 
     /**
-     * Verifies if the provided parent bounds allow to show the split containers side by side.
+     * Verifies if the provided parent bounds are large enough to apply the rule.
      */
-    fun checkParentMetrics(parentMetrics: WindowMetrics): Boolean {
+    internal fun checkParentMetrics(parentMetrics: WindowMetrics): Boolean {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
             return false
         }
         val bounds = Api30Impl.getBounds(parentMetrics)
+        return checkParentBounds(bounds)
+    }
+
+    /**
+     * @see checkParentMetrics
+     */
+    internal fun checkParentBounds(bounds: Rect): Boolean {
         val validMinWidth = (minWidth == 0 || bounds.width() >= minWidth)
         val validSmallestMinWidth = (
             minSmallestWidth == 0 ||

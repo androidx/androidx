@@ -110,8 +110,13 @@ final class MediaRouterJellybean {
     }
 
     public static void removeUserRoute(Object routerObj, Object routeObj) {
-        ((android.media.MediaRouter) routerObj).removeUserRoute(
-                (android.media.MediaRouter.UserRouteInfo) routeObj);
+        try {
+            ((android.media.MediaRouter) routerObj).removeUserRoute(
+                    (android.media.MediaRouter.UserRouteInfo) routeObj);
+        } catch (IllegalArgumentException e) {
+            // Work around for https://issuetracker.google.com/issues/202931542.
+            Log.w(TAG, "Failed to remove user route", e);
+        }
     }
 
     public static Object createCallback(Callback callback) {

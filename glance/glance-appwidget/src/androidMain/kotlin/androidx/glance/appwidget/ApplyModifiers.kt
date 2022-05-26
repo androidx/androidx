@@ -94,6 +94,9 @@ internal fun applyModifiers(
                     )
                 }
             }
+            is AlignmentModifier -> {
+                // This modifier is handled somewhere else.
+            }
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }
@@ -200,8 +203,9 @@ internal fun applySimpleWidthModifier(
             "Using a width of $width requires a complex layout before API 31"
         )
     }
-    // Wrap and Expand are done in XML on Android S+
-    if (width in listOf(Dimension.Wrap, Dimension.Expand)) return
+    // Wrap and Expand are done in XML on Android S & Sv2
+    if (Build.VERSION.SDK_INT < 33 &&
+        width in listOf(Dimension.Wrap, Dimension.Expand)) return
     ApplyModifiersApi31Impl.setViewWidth(rv, viewId, width)
 }
 
@@ -229,8 +233,9 @@ internal fun applySimpleHeightModifier(
             "Using a height of $height requires a complex layout before API 31"
         )
     }
-    // Wrap and Expand are done in XML on Android S+
-    if (height in listOf(Dimension.Wrap, Dimension.Expand)) return
+    // Wrap and Expand are done in XML on Android S & Sv2
+    if (Build.VERSION.SDK_INT < 33 &&
+        height in listOf(Dimension.Wrap, Dimension.Expand)) return
     ApplyModifiersApi31Impl.setViewHeight(rv, viewId, height)
 }
 

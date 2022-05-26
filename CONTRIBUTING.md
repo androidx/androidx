@@ -55,9 +55,6 @@ creating a fork of the [androidx/androidx](https://github.com/androidx/androidx)
   sdkmanager --install "ndk;23.1.7779620"
   sdkmanager --install "cmake;3.22.1" --channel=3 #channel 3 is the canary channel
   ```
-  
-  Either way, note the installation directory. This will typically be inside your Android SDK
-  directory as `/ndk/23.1.7779620`.
 
 - Next, set up the following environment variables:
 
@@ -65,7 +62,6 @@ creating a fork of the [androidx/androidx](https://github.com/androidx/androidx)
   # You could also add this to your .{bash|zsh}rc file.
   export JAVA_HOME="location of JDK 11 directory"
   export ANDROID_SDK_ROOT="location of the Android SDK directory"
-  export ANDROID_NDK_ROOT="location of the Android NDK directory containing version 23.1.7779620"
   ```
 
 ### Checkout and importing a project

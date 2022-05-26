@@ -41,9 +41,8 @@ import java.util.concurrent.TimeUnit
  *
  * @hide
  */
-// TODO: (b/218894771) Make internal once RoomDatabase is converted to Kotlin.
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class AutoCloser(
+internal class AutoCloser(
     autoCloseTimeoutAmount: Long,
     autoCloseTimeUnit: TimeUnit,
     autoCloseExecutor: Executor

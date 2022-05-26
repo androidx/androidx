@@ -36,8 +36,7 @@
     <string name="on_action_title" msgid="4129601573763429611">"ಆನ್ ಮಾಡಿ"</string>
     <string name="off_action_title" msgid="8669201170189204848">"ಆಫ್ ಮಾಡಿ"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
-    <!-- no translation found for accept_action_title (4899660585470647578) -->
-    <skip />
+    <string name="accept_action_title" msgid="4899660585470647578">"ಸಮ್ಮತಿಸಿ"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"ತಿರಸ್ಕರಿಸಿ"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"ಸರಿ"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"ದೋಷವನ್ನು ತಿಳಿಸುವುದು"</string>
@@ -46,6 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"ಹೇಗಾದರೂ ಪ್ರಯತ್ನಿಸಿ"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"ಹೌದು"</string>
     <string name="no_action_title" msgid="1452124604210014010">"ಇಲ್ಲ"</string>
+    <string name="disable_all_rows" msgid="3003225080532928046">"ಎಲ್ಲಾ ಸಾಲುಗಳನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"ಎಲ್ಲಾ ಸಾಲುಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"ಬಗ್ ವರದಿಯಾಗಿದೆ!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"ಝೂಮ್ ಇನ್ ಮಾಡಲಾಗಿದೆ"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"ಝೂಮ್ ಔಟ್ ಮಾಡಲಾಗಿದೆ"</string>
@@ -141,14 +142,10 @@
     <string name="importance_title" msgid="9034862997821839831">"ಪ್ರಾಮುಖ್ಯತೆ"</string>
     <string name="category_title" msgid="4783851267093259949">"ವರ್ಗ"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"ಚಾಲ್ತಿಯಲ್ಲಿದೆ"</string>
-    <!-- no translation found for default_importance (6347996298832939989) -->
-    <skip />
-    <!-- no translation found for high_importance (5009120714837304882) -->
-    <skip />
-    <!-- no translation found for low_importance (4721161314404294033) -->
-    <skip />
-    <!-- no translation found for unknown_importance (909001735933359216) -->
-    <skip />
+    <string name="default_importance" msgid="6347996298832939989">"ಡಿಫಾಲ್ಟ್"</string>
+    <string name="high_importance" msgid="5009120714837304882">"ಅಧಿಕ"</string>
+    <string name="low_importance" msgid="4721161314404294033">"ಕಡಿಮೆ"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"ಅಪರಿಚಿತ"</string>
     <string name="notification_demo" msgid="1819496937832036387">"ಅಧಿಸೂಚನೆ ಡೆಮೋ"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"ಇತರ ಡೆಮೋಗಳು"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"ನ್ಯಾವಿಗೇಶನ್ ಪ್ರಕ್ರಿಯೆಯ ಡೆಮೋ"</string>
@@ -281,6 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"ಆಯ್ಕೆ 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"ಆಯ್ಕೆ 2"</string>
     <string name="option_3_title" msgid="6319268250436119258">"ಆಯ್ಕೆ 3"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"ರೇಡಿಯೋ ಬಟನ್ ಅನ್ನು ಹೊಂದಿರುವ ಸಾಲು"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"ರೇಡಿಯೋ ಬಟನ್ ಹಾಗೂ ಐಕಾನ್ ಅನ್ನು ಹೊಂದಿರುವ ಸಾಲು"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"ರೇಡಿಯೋ ಬಟನ್, ಐಕಾನ್ ಹಾಗೂ ಬಣ್ಣದ ಪಠ್ಯವನ್ನು ಹೊಂದಿರುವ ಸಾಲು"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"ಕೆಲವು ಹೆಚ್ಚುವರಿ ಪಠ್ಯ"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"ಆಯ್ಕೆ ಮಾಡಬಹುದಾದ ಮಾದರಿಯ ಪಟ್ಟಿ"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"ಕಾರ್ಯದ ನಿರ್ಬಂಧಿತ ಡೆಮೋ"</string>
@@ -289,13 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"ಮುಂದೆ ಹೋಗಲು ಕ್ಲಿಕ್ ಮಾಡಿ"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"ಟಾಗಲ್ ಟೆಸ್ಟ್"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"ಪುನಃ ಸ್ಥಾಪಿಸಬಹುದಾದ ಬದಲಾವಣೆಗಳನ್ನು ಅನುಮತಿಸಲಾಗಿದೆ"</string>
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"ಟಾಗಲ್ ಟೆಸ್ಟ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"ಟಾಗಲ್ ಟೆಸ್ಟ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲು ಇದನ್ನು ಗುರುತು ಮಾಡಿ"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"ಟಾಗಲ್ ಟೆಸ್ಟ್"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"ಪುನಃ ಸ್ಥಾಪಿಸಬಹುದಾದ ಬದಲಾವಣೆಗಳನ್ನು ಅನುಮತಿಸಲಾಗಿದೆ"</string>
     <string name="image_test_title" msgid="8273863429801477547">"ಚಿತ್ರದ ಟೆಸ್ಟ್"</string>
     <string name="image_test_text" msgid="6264812093895530445">"ಚಿತ್ರದ ಬದಲಾವಣೆಗಳನ್ನು ಅನುಮತಿಸಲಾಗಿದೆ"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"ಹೆಚ್ಚುವರಿ ಡೇಟಾ"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"ಹಿನ್ನೆಲೆ ಕಾರ್ಯಾಚರಣೆಗಳಿಗಾಗಿ ಅಪ್‌ಡೇಟ್‌ಗಳನ್ನು ಅನುಮತಿಸಲಾಗಿದೆ."</string>
+    <string name="toggle_test_enabled" msgid="982370904182034076">"ಟಾಗಲ್ ಟೆಸ್ಟ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"ಟಾಗಲ್ ಟೆಸ್ಟ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ಇತರ ಟೆಂಪ್ಲೇಟ್‌ಗಳ ಡೆಮೋಗಳು"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Showcase ಡೆಮೋಗಳು"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"ಟಿಂಟ್ ಮಾಡಲಾದ ಸಂಪನ್ಮೂಲ ವೆಕ್ಟರ್"</string>
     <string name="location_2_description" msgid="3331356135359047166">"ಚಿತ್ರ ಸಂಪನ್ಮೂಲ ಬಿಟ್‌ಮ್ಯಾಪ್"</string>
     <string name="location_3_description" msgid="3982142774088944850">"ಬಣ್ಣದ ಪಠ್ಯ ಮಾರ್ಕರ್"</string>

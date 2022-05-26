@@ -7,9 +7,7 @@
         errorLine1="    protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {"
         errorLine2="                                ~~~~">
         <location
-            file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1429"
-            column="33"/>
+            file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    protected Parcelable onSaveInstanceState() {"
         errorLine2="              ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"
-            line="1483"
-            column="15"/>
+            file="src/main/java/androidx/slidingpanelayout/widget/SlidingPaneLayout.java"/>
     </issue>
 
 </issues>
