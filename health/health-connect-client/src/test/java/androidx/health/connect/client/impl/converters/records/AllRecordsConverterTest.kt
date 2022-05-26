@@ -18,73 +18,73 @@ package androidx.health.connect.client.impl.converters.records
 import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.metadata.Device
 import androidx.health.connect.client.metadata.Metadata
-import androidx.health.connect.client.records.ActiveCaloriesBurned
-import androidx.health.connect.client.records.ActiveEnergyBurned
-import androidx.health.connect.client.records.ActivityEvent
-import androidx.health.connect.client.records.ActivityEvent.EventType
-import androidx.health.connect.client.records.ActivityLap
-import androidx.health.connect.client.records.ActivitySession
-import androidx.health.connect.client.records.ActivitySession.ActivityType
-import androidx.health.connect.client.records.BasalBodyTemperature
-import androidx.health.connect.client.records.BasalMetabolicRate
-import androidx.health.connect.client.records.BloodGlucose
-import androidx.health.connect.client.records.BloodPressure
-import androidx.health.connect.client.records.BodyFat
-import androidx.health.connect.client.records.BodyTemperature
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.ActiveEnergyBurnedRecord
+import androidx.health.connect.client.records.ActivityEventRecord
+import androidx.health.connect.client.records.ActivityEventRecord.EventType
+import androidx.health.connect.client.records.ActivityLapRecord
+import androidx.health.connect.client.records.ActivitySessionRecord
+import androidx.health.connect.client.records.ActivitySessionRecord.ActivityType
+import androidx.health.connect.client.records.BasalBodyTemperatureRecord
+import androidx.health.connect.client.records.BasalMetabolicRateRecord
+import androidx.health.connect.client.records.BloodGlucoseRecord
+import androidx.health.connect.client.records.BloodPressureRecord
+import androidx.health.connect.client.records.BodyFatRecord
+import androidx.health.connect.client.records.BodyTemperatureRecord
 import androidx.health.connect.client.records.BodyTemperatureMeasurementLocation
-import androidx.health.connect.client.records.BodyWaterMass
-import androidx.health.connect.client.records.BoneMass
-import androidx.health.connect.client.records.CervicalMucus
-import androidx.health.connect.client.records.CervicalMucus.Amount
-import androidx.health.connect.client.records.CervicalMucus.Texture
+import androidx.health.connect.client.records.BodyWaterMassRecord
+import androidx.health.connect.client.records.BoneMassRecord
+import androidx.health.connect.client.records.CervicalMucusRecord
+import androidx.health.connect.client.records.CervicalMucusRecord.Amount
+import androidx.health.connect.client.records.CervicalMucusRecord.Texture
 import androidx.health.connect.client.records.CyclingPedalingCadence
-import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
-import androidx.health.connect.client.records.Distance
-import androidx.health.connect.client.records.ElevationGained
-import androidx.health.connect.client.records.FloorsClimbed
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
+import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRate
-import androidx.health.connect.client.records.HeartRateSeries
-import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndex
-import androidx.health.connect.client.records.HeartRateVariabilityRmssd
-import androidx.health.connect.client.records.HeartRateVariabilityS
-import androidx.health.connect.client.records.HeartRateVariabilitySd2
-import androidx.health.connect.client.records.HeartRateVariabilitySdann
-import androidx.health.connect.client.records.HeartRateVariabilitySdnn
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndex
-import androidx.health.connect.client.records.HeartRateVariabilitySdsd
-import androidx.health.connect.client.records.HeartRateVariabilityTinn
-import androidx.health.connect.client.records.Height
-import androidx.health.connect.client.records.HipCircumference
-import androidx.health.connect.client.records.Hydration
-import androidx.health.connect.client.records.LeanBodyMass
-import androidx.health.connect.client.records.Menstruation
-import androidx.health.connect.client.records.Menstruation.Flow
-import androidx.health.connect.client.records.Nutrition
-import androidx.health.connect.client.records.OvulationTest
-import androidx.health.connect.client.records.OvulationTest.Result
-import androidx.health.connect.client.records.OxygenSaturation
+import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
+import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
+import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
+import androidx.health.connect.client.records.HeightRecord
+import androidx.health.connect.client.records.HipCircumferenceRecord
+import androidx.health.connect.client.records.HydrationRecord
+import androidx.health.connect.client.records.LeanBodyMassRecord
+import androidx.health.connect.client.records.MenstruationRecord
+import androidx.health.connect.client.records.MenstruationRecord.Flow
+import androidx.health.connect.client.records.NutritionRecord
+import androidx.health.connect.client.records.OvulationTestRecord
+import androidx.health.connect.client.records.OvulationTestRecord.Result
+import androidx.health.connect.client.records.OxygenSaturationRecord
 import androidx.health.connect.client.records.Power
-import androidx.health.connect.client.records.PowerSeries
-import androidx.health.connect.client.records.Repetitions
-import androidx.health.connect.client.records.RespiratoryRate
-import androidx.health.connect.client.records.RestingHeartRate
-import androidx.health.connect.client.records.SexualActivity
-import androidx.health.connect.client.records.SleepSession
-import androidx.health.connect.client.records.SleepStage
-import androidx.health.connect.client.records.SleepStage.StageType
+import androidx.health.connect.client.records.PowerRecord
+import androidx.health.connect.client.records.RepetitionsRecord
+import androidx.health.connect.client.records.RespiratoryRateRecord
+import androidx.health.connect.client.records.RestingHeartRateRecord
+import androidx.health.connect.client.records.SexualActivityRecord
+import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SleepStageRecord
+import androidx.health.connect.client.records.SleepStageRecord.StageType
 import androidx.health.connect.client.records.Speed
-import androidx.health.connect.client.records.SpeedSeries
-import androidx.health.connect.client.records.Steps
+import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.StepsCadence
-import androidx.health.connect.client.records.StepsCadenceSeries
-import androidx.health.connect.client.records.SwimmingStrokes
-import androidx.health.connect.client.records.SwimmingStrokes.SwimmingType
-import androidx.health.connect.client.records.TotalCaloriesBurned
-import androidx.health.connect.client.records.TotalEnergyBurned
-import androidx.health.connect.client.records.Vo2Max
-import androidx.health.connect.client.records.WaistCircumference
-import androidx.health.connect.client.records.Weight
-import androidx.health.connect.client.records.WheelchairPushes
+import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.records.SwimmingStrokesRecord
+import androidx.health.connect.client.records.SwimmingStrokesRecord.SwimmingType
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import androidx.health.connect.client.records.TotalEnergyBurnedRecord
+import androidx.health.connect.client.records.Vo2MaxRecord
+import androidx.health.connect.client.records.WaistCircumferenceRecord
+import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -116,7 +116,7 @@ class AllRecordsConverterTest {
     @Test
     fun testBasalBodyTemperature() {
         val dataOnlyRequired =
-            BasalBodyTemperature(
+            BasalBodyTemperatureRecord(
                 temperatureDegreesCelsius = 1.0,
                 measurementLocation = null,
                 time = START_TIME,
@@ -125,7 +125,7 @@ class AllRecordsConverterTest {
             )
 
         val dataAllFields =
-            BasalBodyTemperature(
+            BasalBodyTemperatureRecord(
                 temperatureDegreesCelsius = 1.0,
                 measurementLocation = BodyTemperatureMeasurementLocation.ARMPIT,
                 time = START_TIME,
@@ -140,7 +140,7 @@ class AllRecordsConverterTest {
     @Test
     fun testBasalMetabolicRate() {
         val data =
-            BasalMetabolicRate(
+            BasalMetabolicRateRecord(
                 kcalPerDay = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -153,7 +153,7 @@ class AllRecordsConverterTest {
     @Test
     fun testBloodGlucose() {
         val data =
-            BloodGlucose(
+            BloodGlucoseRecord(
                 levelMillimolesPerLiter = 1.0,
                 specimenSource = null,
                 mealType = null,
@@ -169,7 +169,7 @@ class AllRecordsConverterTest {
     @Test
     fun testBloodPressure() {
         val data =
-            BloodPressure(
+            BloodPressureRecord(
                 systolicMillimetersOfMercury = 20.0,
                 diastolicMillimetersOfMercury = 10.0,
                 bodyPosition = null,
@@ -185,7 +185,7 @@ class AllRecordsConverterTest {
     @Test
     fun testBodyFat() {
         val data =
-            BodyFat(
+            BodyFatRecord(
                 percentage = 1,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -198,7 +198,7 @@ class AllRecordsConverterTest {
     @Test
     fun testBodyTemperature() {
         val data =
-            BodyTemperature(
+            BodyTemperatureRecord(
                 temperatureDegreesCelsius = 1.0,
                 measurementLocation = null,
                 time = START_TIME,
@@ -212,7 +212,7 @@ class AllRecordsConverterTest {
     @Test
     fun testBodyWaterMass() {
         val data =
-            BodyWaterMass(
+            BodyWaterMassRecord(
                 massKg = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -225,7 +225,7 @@ class AllRecordsConverterTest {
     @Test
     fun testBoneMass() {
         val data =
-            BoneMass(
+            BoneMassRecord(
                 massKg = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -238,7 +238,7 @@ class AllRecordsConverterTest {
     @Test
     fun testCervicalMucus() {
         val data =
-            CervicalMucus(
+            CervicalMucusRecord(
                 texture = Texture.CLEAR,
                 amount = Amount.HEAVY,
                 time = START_TIME,
@@ -252,7 +252,7 @@ class AllRecordsConverterTest {
     @Test
     fun testCyclingPedalingCadenceSeries() {
         val data =
-            CyclingPedalingCadenceSeries(
+            CyclingPedalingCadenceRecord(
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -277,7 +277,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHeartRateSeries() {
         val data =
-            HeartRateSeries(
+            HeartRateRecord(
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -306,7 +306,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHeight() {
         val data =
-            Height(
+            HeightRecord(
                 heightMeters = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -319,7 +319,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHipCircumference() {
         val data =
-            HipCircumference(
+            HipCircumferenceRecord(
                 circumferenceMeters = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -332,7 +332,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHeartRateVariabilityDifferentialIndex() {
         val data =
-            HeartRateVariabilityDifferentialIndex(
+            HeartRateVariabilityDifferentialIndexRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -345,7 +345,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHeartRateVariabilityRmssd() {
         val data =
-            HeartRateVariabilityRmssd(
+            HeartRateVariabilityRmssdRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -358,7 +358,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHeartRateVariabilityS() {
         val data =
-            HeartRateVariabilityS(
+            HeartRateVariabilitySRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -371,7 +371,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHeartRateVariabilitySd2() {
         val data =
-            HeartRateVariabilitySd2(
+            HeartRateVariabilitySd2Record(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -384,7 +384,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHeartRateVariabilitySdann() {
         val data =
-            HeartRateVariabilitySdann(
+            HeartRateVariabilitySdannRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -397,7 +397,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHeartRateVariabilitySdnnIndex() {
         val data =
-            HeartRateVariabilitySdnnIndex(
+            HeartRateVariabilitySdnnIndexRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -410,7 +410,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHeartRateVariabilitySdnn() {
         val data =
-            HeartRateVariabilitySdnn(
+            HeartRateVariabilitySdnnRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -423,7 +423,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHeartRateVariabilitySdsd() {
         val data =
-            HeartRateVariabilitySdsd(
+            HeartRateVariabilitySdsdRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -436,7 +436,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHeartRateVariabilityTinn() {
         val data =
-            HeartRateVariabilityTinn(
+            HeartRateVariabilityTinnRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -449,7 +449,7 @@ class AllRecordsConverterTest {
     @Test
     fun testLeanBodyMass() {
         val data =
-            LeanBodyMass(
+            LeanBodyMassRecord(
                 massKg = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -462,7 +462,7 @@ class AllRecordsConverterTest {
     @Test
     fun testMenstruation() {
         val data =
-            Menstruation(
+            MenstruationRecord(
                 flow = Flow.HEAVY,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -475,7 +475,7 @@ class AllRecordsConverterTest {
     @Test
     fun testOvulationTest() {
         val data =
-            OvulationTest(
+            OvulationTestRecord(
                 result = Result.NEGATIVE,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -488,7 +488,7 @@ class AllRecordsConverterTest {
     @Test
     fun testOxygenSaturation() {
         val data =
-            OxygenSaturation(
+            OxygenSaturationRecord(
                 percentage = 1,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -501,7 +501,7 @@ class AllRecordsConverterTest {
     @Test
     fun testPowerSeries() {
         val data =
-            PowerSeries(
+            PowerRecord(
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -526,7 +526,7 @@ class AllRecordsConverterTest {
     @Test
     fun testRespiratoryRate() {
         val data =
-            RespiratoryRate(
+            RespiratoryRateRecord(
                 rate = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -539,7 +539,7 @@ class AllRecordsConverterTest {
     @Test
     fun testRestingHeartRate() {
         val data =
-            RestingHeartRate(
+            RestingHeartRateRecord(
                 beatsPerMinute = 1,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -552,7 +552,7 @@ class AllRecordsConverterTest {
     @Test
     fun testSexualActivity() {
         val data =
-            SexualActivity(
+            SexualActivityRecord(
                 protectionUsed = null,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -565,7 +565,7 @@ class AllRecordsConverterTest {
     @Test
     fun testSpeedSeries() {
         val data =
-            SpeedSeries(
+            SpeedRecord(
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -590,7 +590,7 @@ class AllRecordsConverterTest {
     @Test
     fun testStepsCadenceSeries() {
         val data =
-            StepsCadenceSeries(
+            StepsCadenceRecord(
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -615,7 +615,7 @@ class AllRecordsConverterTest {
     @Test
     fun testVo2Max() {
         val data =
-            Vo2Max(
+            Vo2MaxRecord(
                 vo2MillilitersPerMinuteKilogram = 1.0,
                 measurementMethod = null,
                 time = START_TIME,
@@ -629,7 +629,7 @@ class AllRecordsConverterTest {
     @Test
     fun testWaistCircumference() {
         val data =
-            WaistCircumference(
+            WaistCircumferenceRecord(
                 circumferenceMeters = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -642,7 +642,7 @@ class AllRecordsConverterTest {
     @Test
     fun testWeight() {
         val data =
-            Weight(
+            WeightRecord(
                 weightKg = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -655,7 +655,7 @@ class AllRecordsConverterTest {
     @Test
     fun testActiveCaloriesBurned() {
         val data =
-            ActiveCaloriesBurned(
+            ActiveCaloriesBurnedRecord(
                 energyKcal = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -670,7 +670,7 @@ class AllRecordsConverterTest {
     @Test
     fun testActiveEnergyBurned() {
         val data =
-            ActiveEnergyBurned(
+            ActiveEnergyBurnedRecord(
                 energyKcal = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -685,7 +685,7 @@ class AllRecordsConverterTest {
     @Test
     fun testActivityEvent() {
         val data =
-            ActivityEvent(
+            ActivityEventRecord(
                 eventType = EventType.PAUSE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -700,7 +700,7 @@ class AllRecordsConverterTest {
     @Test
     fun testActivityLap() {
         val data =
-            ActivityLap(
+            ActivityLapRecord(
                 lengthMeters = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -715,7 +715,7 @@ class AllRecordsConverterTest {
     @Test
     fun testActivitySession() {
         val data =
-            ActivitySession(
+            ActivitySessionRecord(
                 activityType = ActivityType.BACK_EXTENSION,
                 title = null,
                 notes = null,
@@ -732,7 +732,7 @@ class AllRecordsConverterTest {
     @Test
     fun testDistance() {
         val data =
-            Distance(
+            DistanceRecord(
                 distanceMeters = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -747,7 +747,7 @@ class AllRecordsConverterTest {
     @Test
     fun testElevationGained() {
         val data =
-            ElevationGained(
+            ElevationGainedRecord(
                 elevationMeters = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -762,7 +762,7 @@ class AllRecordsConverterTest {
     @Test
     fun testFloorsClimbed() {
         val data =
-            FloorsClimbed(
+            FloorsClimbedRecord(
                 floors = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -777,7 +777,7 @@ class AllRecordsConverterTest {
     @Test
     fun testHydration() {
         val data =
-            Hydration(
+            HydrationRecord(
                 volumeLiters = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -792,7 +792,7 @@ class AllRecordsConverterTest {
     @Test
     fun testNutrition() {
         val data =
-            Nutrition(
+            NutritionRecord(
                 biotinGrams = 1.0,
                 caffeineGrams = 1.0,
                 calciumGrams = 1.0,
@@ -850,7 +850,7 @@ class AllRecordsConverterTest {
     @Test
     fun testRepetitions() {
         val data =
-            Repetitions(
+            RepetitionsRecord(
                 count = 1,
                 type = ActivityType.JUMPING_JACK,
                 startTime = START_TIME,
@@ -866,7 +866,7 @@ class AllRecordsConverterTest {
     @Test
     fun testSleepSession() {
         val data =
-            SleepSession(
+            SleepSessionRecord(
                 title = null,
                 notes = null,
                 startTime = START_TIME,
@@ -882,7 +882,7 @@ class AllRecordsConverterTest {
     @Test
     fun testSleepStage() {
         val data =
-            SleepStage(
+            SleepStageRecord(
                 stage = StageType.AWAKE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -897,7 +897,7 @@ class AllRecordsConverterTest {
     @Test
     fun testSteps() {
         val data =
-            Steps(
+            StepsRecord(
                 count = 1,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -912,7 +912,7 @@ class AllRecordsConverterTest {
     @Test
     fun testSwimmingStrokes() {
         val data =
-            SwimmingStrokes(
+            SwimmingStrokesRecord(
                 count = 1,
                 type = SwimmingType.BACKSTROKE,
                 startTime = START_TIME,
@@ -928,7 +928,7 @@ class AllRecordsConverterTest {
     @Test
     fun testTotalCaloriesBurned() {
         val data =
-            TotalCaloriesBurned(
+            TotalCaloriesBurnedRecord(
                 energyKcal = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -943,7 +943,7 @@ class AllRecordsConverterTest {
     @Test
     fun testTotalEnergyBurned() {
         val data =
-            TotalEnergyBurned(
+            TotalEnergyBurnedRecord(
                 energyKcal = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -958,7 +958,7 @@ class AllRecordsConverterTest {
     @Test
     fun testWheelchairPushes() {
         val data =
-            WheelchairPushes(
+            WheelchairPushesRecord(
                 count = 1,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,

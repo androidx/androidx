@@ -19,7 +19,7 @@ import androidx.health.connect.client.impl.converters.permission.toJetpackPermis
 import androidx.health.connect.client.impl.converters.permission.toProtoPermission
 import androidx.health.connect.client.permission.AccessTypes
 import androidx.health.connect.client.permission.Permission
-import androidx.health.connect.client.records.Steps
+import androidx.health.connect.client.records.StepsRecord
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.PermissionProto
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -31,7 +31,7 @@ import org.junit.runner.RunWith
 class PermissionConverterTest {
     @Test
     fun jetpackToProtoPermission() {
-        val protoPermission = Permission(Steps::class, AccessTypes.WRITE).toProtoPermission()
+        val protoPermission = Permission(StepsRecord::class, AccessTypes.WRITE).toProtoPermission()
 
         assertThat(protoPermission)
             .isEqualTo(
@@ -45,7 +45,7 @@ class PermissionConverterTest {
     @Test
     fun jetpackToProtoPermissions() {
         val protoPermissions =
-            setOf(Permission(Steps::class, AccessTypes.READ))
+            setOf(Permission(StepsRecord::class, AccessTypes.READ))
                 .asSequence()
                 .map { it.toProtoPermission() }
                 .toSet()
@@ -70,7 +70,7 @@ class PermissionConverterTest {
                 .build()
                 .toJetpackPermission()
 
-        assertThat(jetpackPermission).isEqualTo(Permission(Steps::class, AccessTypes.WRITE))
+        assertThat(jetpackPermission).isEqualTo(Permission(StepsRecord::class, AccessTypes.WRITE))
     }
 
     @Test
@@ -86,6 +86,7 @@ class PermissionConverterTest {
                 .map { it.toJetpackPermission() }
                 .toSet()
 
-        assertThat(jetpackPermissions).isEqualTo(setOf(Permission(Steps::class, AccessTypes.READ)))
+        assertThat(jetpackPermissions)
+            .isEqualTo(setOf(Permission(StepsRecord::class, AccessTypes.READ)))
     }
 }

@@ -31,11 +31,11 @@ import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.metadata.Device
 import androidx.health.connect.client.metadata.Metadata
 import androidx.health.connect.client.permission.Permission.Companion.createReadPermission
-import androidx.health.connect.client.records.ActiveCaloriesBurned
-import androidx.health.connect.client.records.Nutrition
-import androidx.health.connect.client.records.Steps
-import androidx.health.connect.client.records.Steps.Companion.COUNT_TOTAL
-import androidx.health.connect.client.records.Weight
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.NutritionRecord
+import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.StepsRecord.Companion.COUNT_TOTAL
+import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
@@ -89,13 +89,13 @@ private val API_METHOD_LIST =
         { revokeAllPermissions() },
         { insertRecords(listOf()) },
         { updateRecords(listOf()) },
-        { deleteRecords(ActiveCaloriesBurned::class, listOf(), listOf()) },
-        { deleteRecords(ActiveCaloriesBurned::class, TimeRangeFilter.none()) },
-        { readRecord(Steps::class, "uid") },
+        { deleteRecords(ActiveCaloriesBurnedRecord::class, listOf(), listOf()) },
+        { deleteRecords(ActiveCaloriesBurnedRecord::class, TimeRangeFilter.none()) },
+        { readRecord(StepsRecord::class, "uid") },
         {
             readRecords(
                 ReadRecordsRequest(
-                    Steps::class,
+                    StepsRecord::class,
                     TimeRangeFilter.between(
                         Instant.ofEpochMilli(1234L),
                         Instant.ofEpochMilli(1235L)
@@ -115,7 +115,7 @@ private val API_METHOD_LIST =
             )
         },
         { getChanges("token") },
-        { getChangesToken(ChangesTokenRequest(recordTypes = setOf(Steps::class))) }
+        { getChangesToken(ChangesTokenRequest(recordTypes = setOf(StepsRecord::class))) }
     )
 
 @Suppress("GoodTime") // Safe to use in test setup
@@ -182,7 +182,9 @@ class HealthConnectClientImplTest {
     @Test
     fun getGrantedPermissions_none() = runTest {
         val deferred = async {
-            healthConnectClient.getGrantedPermissions(setOf(createReadPermission(Steps::class)))
+            healthConnectClient.getGrantedPermissions(
+                setOf(createReadPermission(StepsRecord::class))
+            )
         }
 
         advanceUntilIdle()
@@ -203,14 +205,16 @@ class HealthConnectClientImplTest {
             )
         )
         val deferred = async {
-            healthConnectClient.getGrantedPermissions(setOf(createReadPermission(Steps::class)))
+            healthConnectClient.getGrantedPermissions(
+                setOf(createReadPermission(StepsRecord::class))
+            )
         }
 
         advanceUntilIdle()
         waitForMainLooperIdle()
 
         val response = deferred.await()
-        assertThat(response).containsExactly(createReadPermission(Steps::class))
+        assertThat(response).containsExactly(createReadPermission(StepsRecord::class))
     }
 
     @Test
@@ -219,7 +223,7 @@ class HealthConnectClientImplTest {
         val deferred = async {
             healthConnectClient.insertRecords(
                 listOf(
-                    Steps(
+                    StepsRecord(
                         count = 100,
                         startTime = Instant.ofEpochMilli(1234L),
                         startZoneOffset = null,
@@ -252,7 +256,7 @@ class HealthConnectClientImplTest {
         val deferred = async {
             healthConnectClient.insertRecords(
                 listOf(
-                    Weight(
+                    WeightRecord(
                         weightKg = 45.8,
                         time = Instant.ofEpochMilli(1234L),
                         zoneOffset = null,
@@ -282,7 +286,7 @@ class HealthConnectClientImplTest {
         val deferred = async {
             healthConnectClient.insertRecords(
                 listOf(
-                    Nutrition(
+                    NutritionRecord(
                         vitaminEGrams = 10.0,
                         vitaminCGrams = 20.0,
                         startTime = Instant.ofEpochMilli(1234L),
@@ -331,7 +335,7 @@ class HealthConnectClientImplTest {
             )
         val deferred = async {
             healthConnectClient.readRecord(
-                Steps::class,
+                StepsRecord::class,
                 uid = "testUid",
             )
         }
@@ -339,7 +343,7 @@ class HealthConnectClientImplTest {
         advanceUntilIdle()
         waitForMainLooperIdle()
 
-        val response: ReadRecordResponse<Steps> = deferred.await()
+        val response: ReadRecordResponse<StepsRecord> = deferred.await()
         assertThat(fakeAhpServiceStub.lastReadDataRequest?.proto)
             .isEqualTo(
                 RequestProto.ReadDataRequest.newBuilder()
@@ -352,7 +356,7 @@ class HealthConnectClientImplTest {
             )
         assertThat(response.record)
             .isEqualTo(
-                Steps(
+                StepsRecord(
                     count = 100,
                     startTime = Instant.ofEpochMilli(1234L),
                     startZoneOffset = null,
@@ -389,7 +393,7 @@ class HealthConnectClientImplTest {
         val deferred = async {
             healthConnectClient.readRecords(
                 ReadRecordsRequest(
-                    Steps::class,
+                    StepsRecord::class,
                     timeRangeFilter = TimeRangeFilter.before(endTime = Instant.ofEpochMilli(7890L)),
                     pageSize = 10
                 )
@@ -399,7 +403,7 @@ class HealthConnectClientImplTest {
         advanceUntilIdle()
         waitForMainLooperIdle()
 
-        val response: ReadRecordsResponse<Steps> = deferred.await()
+        val response: ReadRecordsResponse<StepsRecord> = deferred.await()
         assertThat(fakeAhpServiceStub.lastReadDataRangeRequest?.proto)
             .isEqualTo(
                 RequestProto.ReadDataRangeRequest.newBuilder()
@@ -412,7 +416,7 @@ class HealthConnectClientImplTest {
         assertThat(response.pageToken).isEqualTo("nextPageToken")
         assertThat(response.records)
             .containsExactly(
-                Steps(
+                StepsRecord(
                     count = 100,
                     startTime = Instant.ofEpochMilli(1234L),
                     startZoneOffset = null,
@@ -430,7 +434,11 @@ class HealthConnectClientImplTest {
     @Test
     fun deleteRecordsById_steps() = runTest {
         val deferred = async {
-            healthConnectClient.deleteRecords(Steps::class, listOf("myUid"), listOf("myClientId"))
+            healthConnectClient.deleteRecords(
+                StepsRecord::class,
+                listOf("myUid"),
+                listOf("myClientId")
+            )
         }
 
         advanceUntilIdle()
@@ -458,7 +466,7 @@ class HealthConnectClientImplTest {
     fun deleteRecordsByRange_steps() = runTest {
         val deferred = async {
             healthConnectClient.deleteRecords(
-                Steps::class,
+                StepsRecord::class,
                 timeRangeFilter = TimeRangeFilter.before(endTime = Instant.ofEpochMilli(7890L)),
             )
         }
@@ -481,7 +489,7 @@ class HealthConnectClientImplTest {
         val deferred = async {
             healthConnectClient.updateRecords(
                 listOf(
-                    Steps(
+                    StepsRecord(
                         count = 100,
                         startTime = Instant.ofEpochMilli(1234L),
                         startZoneOffset = null,
@@ -528,7 +536,7 @@ class HealthConnectClientImplTest {
             val endTime = Instant.ofEpochMilli(4567)
             healthConnectClient.aggregate(
                 AggregateRequest(
-                    setOf(Steps.COUNT_TOTAL),
+                    setOf(StepsRecord.COUNT_TOTAL),
                     TimeRangeFilter.between(startTime, endTime)
                 )
             )
@@ -716,7 +724,7 @@ class HealthConnectClientImplTest {
                     .build()
             )
         val deferred = async {
-            healthConnectClient.getChangesToken(ChangesTokenRequest(setOf(Steps::class)))
+            healthConnectClient.getChangesToken(ChangesTokenRequest(setOf(StepsRecord::class)))
         }
 
         advanceUntilIdle()

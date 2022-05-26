@@ -18,67 +18,67 @@
 package androidx.health.connect.client.impl.converters.records
 
 import androidx.annotation.RestrictTo
-import androidx.health.connect.client.records.ActiveCaloriesBurned
-import androidx.health.connect.client.records.ActiveEnergyBurned
-import androidx.health.connect.client.records.ActivityEvent
-import androidx.health.connect.client.records.ActivityLap
-import androidx.health.connect.client.records.ActivitySession
-import androidx.health.connect.client.records.BasalBodyTemperature
-import androidx.health.connect.client.records.BasalMetabolicRate
-import androidx.health.connect.client.records.BloodGlucose
-import androidx.health.connect.client.records.BloodPressure
-import androidx.health.connect.client.records.BodyFat
-import androidx.health.connect.client.records.BodyTemperature
-import androidx.health.connect.client.records.BodyWaterMass
-import androidx.health.connect.client.records.BoneMass
-import androidx.health.connect.client.records.CervicalMucus
-import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
-import androidx.health.connect.client.records.Distance
-import androidx.health.connect.client.records.ElevationGained
-import androidx.health.connect.client.records.FloorsClimbed
-import androidx.health.connect.client.records.HeartRateSeries
-import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndex
-import androidx.health.connect.client.records.HeartRateVariabilityRmssd
-import androidx.health.connect.client.records.HeartRateVariabilityS
-import androidx.health.connect.client.records.HeartRateVariabilitySd2
-import androidx.health.connect.client.records.HeartRateVariabilitySdann
-import androidx.health.connect.client.records.HeartRateVariabilitySdnn
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndex
-import androidx.health.connect.client.records.HeartRateVariabilitySdsd
-import androidx.health.connect.client.records.HeartRateVariabilityTinn
-import androidx.health.connect.client.records.Height
-import androidx.health.connect.client.records.HipCircumference
-import androidx.health.connect.client.records.Hydration
-import androidx.health.connect.client.records.LeanBodyMass
-import androidx.health.connect.client.records.Menstruation
-import androidx.health.connect.client.records.Nutrition
-import androidx.health.connect.client.records.OvulationTest
-import androidx.health.connect.client.records.OxygenSaturation
-import androidx.health.connect.client.records.PowerSeries
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.ActiveEnergyBurnedRecord
+import androidx.health.connect.client.records.ActivityEventRecord
+import androidx.health.connect.client.records.ActivityLapRecord
+import androidx.health.connect.client.records.ActivitySessionRecord
+import androidx.health.connect.client.records.BasalBodyTemperatureRecord
+import androidx.health.connect.client.records.BasalMetabolicRateRecord
+import androidx.health.connect.client.records.BloodGlucoseRecord
+import androidx.health.connect.client.records.BloodPressureRecord
+import androidx.health.connect.client.records.BodyFatRecord
+import androidx.health.connect.client.records.BodyTemperatureRecord
+import androidx.health.connect.client.records.BodyWaterMassRecord
+import androidx.health.connect.client.records.BoneMassRecord
+import androidx.health.connect.client.records.CervicalMucusRecord
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
+import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.FloorsClimbedRecord
+import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
+import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
+import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
+import androidx.health.connect.client.records.HeightRecord
+import androidx.health.connect.client.records.HipCircumferenceRecord
+import androidx.health.connect.client.records.HydrationRecord
+import androidx.health.connect.client.records.LeanBodyMassRecord
+import androidx.health.connect.client.records.MenstruationRecord
+import androidx.health.connect.client.records.NutritionRecord
+import androidx.health.connect.client.records.OvulationTestRecord
+import androidx.health.connect.client.records.OxygenSaturationRecord
+import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
-import androidx.health.connect.client.records.Repetitions
-import androidx.health.connect.client.records.RespiratoryRate
-import androidx.health.connect.client.records.RestingHeartRate
+import androidx.health.connect.client.records.RepetitionsRecord
+import androidx.health.connect.client.records.RespiratoryRateRecord
+import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SeriesRecord
-import androidx.health.connect.client.records.SexualActivity
-import androidx.health.connect.client.records.SleepSession
-import androidx.health.connect.client.records.SleepStage
-import androidx.health.connect.client.records.SpeedSeries
-import androidx.health.connect.client.records.Steps
-import androidx.health.connect.client.records.StepsCadenceSeries
-import androidx.health.connect.client.records.SwimmingStrokes
-import androidx.health.connect.client.records.TotalCaloriesBurned
-import androidx.health.connect.client.records.TotalEnergyBurned
-import androidx.health.connect.client.records.Vo2Max
-import androidx.health.connect.client.records.WaistCircumference
-import androidx.health.connect.client.records.Weight
-import androidx.health.connect.client.records.WheelchairPushes
+import androidx.health.connect.client.records.SexualActivityRecord
+import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SleepStageRecord
+import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.records.SwimmingStrokesRecord
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import androidx.health.connect.client.records.TotalEnergyBurnedRecord
+import androidx.health.connect.client.records.Vo2MaxRecord
+import androidx.health.connect.client.records.WaistCircumferenceRecord
+import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.platform.client.proto.DataProto
 
 /** Converts public API object into internal proto for ipc. */
 fun Record.toProto(): DataProto.DataPoint =
     when (this) {
-        is BasalBodyTemperature ->
+        is BasalBodyTemperatureRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BasalBodyTemperature"))
                 .apply {
@@ -86,12 +86,12 @@ fun Record.toProto(): DataProto.DataPoint =
                     measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
                 }
                 .build()
-        is BasalMetabolicRate ->
+        is BasalMetabolicRateRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BasalMetabolicRate"))
                 .apply { putValues("bmr", doubleVal(kcalPerDay)) }
                 .build()
-        is BloodGlucose ->
+        is BloodGlucoseRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BloodGlucose"))
                 .apply {
@@ -101,7 +101,7 @@ fun Record.toProto(): DataProto.DataPoint =
                     relationToMeal?.let { putValues("relationToMeal", enumVal(it)) }
                 }
                 .build()
-        is BloodPressure ->
+        is BloodPressureRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BloodPressure"))
                 .apply {
@@ -111,12 +111,12 @@ fun Record.toProto(): DataProto.DataPoint =
                     measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
                 }
                 .build()
-        is BodyFat ->
+        is BodyFatRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BodyFat"))
                 .apply { putValues("percentage", doubleVal(percentage.toDouble())) }
                 .build()
-        is BodyTemperature ->
+        is BodyTemperatureRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BodyTemperature"))
                 .apply {
@@ -124,17 +124,17 @@ fun Record.toProto(): DataProto.DataPoint =
                     measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
                 }
                 .build()
-        is BodyWaterMass ->
+        is BodyWaterMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BodyWaterMass"))
                 .apply { putValues("mass", doubleVal(massKg)) }
                 .build()
-        is BoneMass ->
+        is BoneMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BoneMass"))
                 .apply { putValues("mass", doubleVal(massKg)) }
                 .build()
-        is CervicalMucus ->
+        is CervicalMucusRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("CervicalMucus"))
                 .apply {
@@ -142,132 +142,132 @@ fun Record.toProto(): DataProto.DataPoint =
                     amount?.let { putValues("amount", enumVal(it)) }
                 }
                 .build()
-        is CyclingPedalingCadenceSeries ->
+        is CyclingPedalingCadenceRecord ->
             toProto(dataTypeName = "CyclingPedalingCadenceSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
                     .putValues("rpm", doubleVal(sample.revolutionsPerMinute))
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
-        is HeartRateSeries ->
+        is HeartRateRecord ->
             toProto(dataTypeName = "HeartRateSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
                     .putValues("bpm", longVal(sample.beatsPerMinute))
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
-        is Height ->
+        is HeightRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Height"))
                 .apply { putValues("height", doubleVal(heightMeters)) }
                 .build()
-        is HipCircumference ->
+        is HipCircumferenceRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HipCircumference"))
                 .apply { putValues("circumference", doubleVal(circumferenceMeters)) }
                 .build()
-        is HeartRateVariabilityDifferentialIndex ->
+        is HeartRateVariabilityDifferentialIndexRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityDifferentialIndex"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilityRmssd ->
+        is HeartRateVariabilityRmssdRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityRmssd"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilityS ->
+        is HeartRateVariabilitySRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityS"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilitySd2 ->
+        is HeartRateVariabilitySd2Record ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySd2"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilitySdann ->
+        is HeartRateVariabilitySdannRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySdann"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilitySdnnIndex ->
+        is HeartRateVariabilitySdnnIndexRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySdnnIndex"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilitySdnn ->
+        is HeartRateVariabilitySdnnRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySdnn"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilitySdsd ->
+        is HeartRateVariabilitySdsdRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySdsd"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilityTinn ->
+        is HeartRateVariabilityTinnRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityTinn"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is LeanBodyMass ->
+        is LeanBodyMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("LeanBodyMass"))
                 .apply { putValues("mass", doubleVal(massKg)) }
                 .build()
-        is Menstruation ->
+        is MenstruationRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Menstruation"))
                 .apply { flow?.let { putValues("flow", enumVal(it)) } }
                 .build()
-        is OvulationTest ->
+        is OvulationTestRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("OvulationTest"))
                 .apply { putValues("result", enumVal(result)) }
                 .build()
-        is OxygenSaturation ->
+        is OxygenSaturationRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("OxygenSaturation"))
                 .apply { putValues("percentage", doubleVal(percentage.toDouble())) }
                 .build()
-        is PowerSeries ->
+        is PowerRecord ->
             toProto(dataTypeName = "PowerSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
                     .putValues("power", doubleVal(sample.watts))
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
-        is RespiratoryRate ->
+        is RespiratoryRateRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("RespiratoryRate"))
                 .apply { putValues("rate", doubleVal(rate)) }
                 .build()
-        is RestingHeartRate ->
+        is RestingHeartRateRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("RestingHeartRate"))
                 .apply { putValues("bpm", longVal(beatsPerMinute)) }
                 .build()
-        is SexualActivity ->
+        is SexualActivityRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("SexualActivity"))
                 .apply { protectionUsed?.let { putValues("protectionUsed", enumVal(it)) } }
                 .build()
-        is SpeedSeries ->
+        is SpeedRecord ->
             toProto(dataTypeName = "SpeedSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
                     .putValues("speed", doubleVal(sample.metersPerSecond))
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
-        is StepsCadenceSeries ->
+        is StepsCadenceRecord ->
             toProto(dataTypeName = "StepsCadenceSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
                     .putValues("rate", doubleVal(sample.rate))
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
-        is Vo2Max ->
+        is Vo2MaxRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Vo2Max"))
                 .apply {
@@ -275,32 +275,32 @@ fun Record.toProto(): DataProto.DataPoint =
                     measurementMethod?.let { putValues("measurementMethod", enumVal(it)) }
                 }
                 .build()
-        is WaistCircumference ->
+        is WaistCircumferenceRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("WaistCircumference"))
                 .apply { putValues("circumference", doubleVal(circumferenceMeters)) }
                 .build()
-        is Weight ->
+        is WeightRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Weight"))
                 .apply { putValues("weight", doubleVal(weightKg)) }
                 .build()
-        is ActiveCaloriesBurned ->
+        is ActiveCaloriesBurnedRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActiveCaloriesBurned"))
                 .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
-        is ActiveEnergyBurned ->
+        is ActiveEnergyBurnedRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActiveEnergyBurned"))
                 .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
-        is ActivityEvent ->
+        is ActivityEventRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivityEvent"))
                 .apply { putValues("eventType", enumVal(eventType)) }
                 .build()
-        is ActivityLap ->
+        is ActivityLapRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivityLap"))
                 .apply {
@@ -309,7 +309,7 @@ fun Record.toProto(): DataProto.DataPoint =
                     }
                 }
                 .build()
-        is ActivitySession ->
+        is ActivitySessionRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivitySession"))
                 .apply {
@@ -318,27 +318,27 @@ fun Record.toProto(): DataProto.DataPoint =
                     notes?.let { putValues("notes", stringVal(it)) }
                 }
                 .build()
-        is Distance ->
+        is DistanceRecord ->
             intervalProto()
                 .setDataType(protoDataType("Distance"))
                 .apply { putValues("distance", doubleVal(distanceMeters)) }
                 .build()
-        is ElevationGained ->
+        is ElevationGainedRecord ->
             intervalProto()
                 .setDataType(protoDataType("ElevationGained"))
                 .apply { putValues("elevation", doubleVal(elevationMeters)) }
                 .build()
-        is FloorsClimbed ->
+        is FloorsClimbedRecord ->
             intervalProto()
                 .setDataType(protoDataType("FloorsClimbed"))
                 .apply { putValues("floors", doubleVal(floors)) }
                 .build()
-        is Hydration ->
+        is HydrationRecord ->
             intervalProto()
                 .setDataType(protoDataType("Hydration"))
                 .apply { putValues("volume", doubleVal(volumeLiters)) }
                 .build()
-        is Nutrition ->
+        is NutritionRecord ->
             intervalProto()
                 .setDataType(protoDataType("Nutrition"))
                 .apply {
@@ -472,7 +472,7 @@ fun Record.toProto(): DataProto.DataPoint =
                     name?.let { putValues("name", stringVal(it)) }
                 }
                 .build()
-        is Repetitions ->
+        is RepetitionsRecord ->
             intervalProto()
                 .setDataType(protoDataType("Repetitions"))
                 .apply {
@@ -480,7 +480,7 @@ fun Record.toProto(): DataProto.DataPoint =
                     putValues("type", enumVal(type))
                 }
                 .build()
-        is SleepSession ->
+        is SleepSessionRecord ->
             intervalProto()
                 .setDataType(protoDataType("SleepSession"))
                 .apply {
@@ -488,17 +488,17 @@ fun Record.toProto(): DataProto.DataPoint =
                     notes?.let { putValues("notes", stringVal(it)) }
                 }
                 .build()
-        is SleepStage ->
+        is SleepStageRecord ->
             intervalProto()
                 .setDataType(protoDataType("SleepStage"))
                 .apply { putValues("stage", enumVal(stage)) }
                 .build()
-        is Steps ->
+        is StepsRecord ->
             intervalProto()
                 .setDataType(protoDataType("Steps"))
                 .apply { putValues("count", longVal(count)) }
                 .build()
-        is SwimmingStrokes ->
+        is SwimmingStrokesRecord ->
             intervalProto()
                 .setDataType(protoDataType("SwimmingStrokes"))
                 .apply {
@@ -508,17 +508,17 @@ fun Record.toProto(): DataProto.DataPoint =
                     putValues("type", enumVal(type))
                 }
                 .build()
-        is TotalCaloriesBurned ->
+        is TotalCaloriesBurnedRecord ->
             intervalProto()
                 .setDataType(protoDataType("TotalCaloriesBurned"))
                 .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
-        is TotalEnergyBurned ->
+        is TotalEnergyBurnedRecord ->
             intervalProto()
                 .setDataType(protoDataType("TotalEnergyBurned"))
                 .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
-        is WheelchairPushes ->
+        is WheelchairPushesRecord ->
             intervalProto()
                 .setDataType(protoDataType("WheelchairPushes"))
                 .apply { putValues("count", longVal(count)) }
