@@ -275,6 +275,7 @@
             <trusting group="com.jakewharton.android.repackaged"/>
             <trusting group="com.squareup" name="javawriter"/>
          </trusted-key>
+         <trusted-key id="95115197c5227c0887299d000f9fe62f88e938d8" group="com.google.dagger"/>
          <trusted-key id="95c15058a5eda4f1" group="com.google.protobuf"/>
          <trusted-key id="96fb9db219f3338d" group="kr.motd.maven"/>
          <trusted-key id="971b04f56669b805" group="com.google.jsilver"/>
@@ -323,6 +324,7 @@
             <trusting group="org.testng"/>
          </trusted-key>
          <trusted-key id="adbc987d1a7b91db6b0aaa81995efbf4a3d20beb" group="^com[.]pinterest($|([.].*))" regex="true"/>
+         <trusted-key id="ae2b18e836c5f30687f37efdcc6346f2ce3872d9" group="com.google.protobuf" name="protobuf-java"/>
          <trusted-key id="afa2b1823fc021bfd08c211fd5f4c07a434ab3da" group="com.squareup"/>
          <trusted-key id="afcc4c7594d09e2182c60e0f7a01b0f236e5430f" group="com.google.code.gson"/>
          <trusted-key id="b02335aa54ccf21e52bbf9abd9c565aa72ba2fdd" group="io.grpc"/>
