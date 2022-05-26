@@ -23,3 +23,6 @@
   public *** onDeviceStateChanged(androidx.window.sidecar.SidecarDeviceState);
   public *** onWindowLayoutChanged(android.os.IBinder, androidx.window.sidecar.SidecarWindowLayoutInfo);
 }
+# TODO(b/233970653) investigate how to remove
+-keep class androidx.window.layout.** { *; }
+-keep class androidx.window.sidecar.** { *; }
