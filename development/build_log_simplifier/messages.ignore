@@ -669,3 +669,5 @@ Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$addTypeConver
 Found an unresolved type in androidx\.room\.RoomDatabase\.Builder\$setAutoCloseTimeout\(kotlin\.Long, java\.util\.concurrent\.TimeUnit\) \(RoomDatabase\.kt:[0-9]+\)
 # > Task :room:integration-tests:room-testapp:mergeDexWithExpandProjectionDebugAndroidTest b/233674378
 WARNING:D8: Application does not contain `androidx\.tracing\.Trace` as referenced in main-dex-list\.
+# > Task :compose:ui:ui:compileReleaseKotlin
+w: \$SUPPORT/compose/ui/ui/src/androidMain/kotlin/androidx/compose/ui/platform/AndroidComposeViewAccessibilityDelegateCompat\.android\.kt: \([0-9]+, [0-9]+\): Unnecessary non\-null assertion \(!!\) on a non\-null receiver of type LayoutNode

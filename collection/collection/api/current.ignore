@@ -1,4 +1,6 @@
 // Baseline format: 1.0
+ChangedType: androidx.collection.ArraySet#iterator():
+    Method androidx.collection.ArraySet.iterator has changed return type from java.util.Iterator<E!> to java.util.Iterator<E>
 ChangedType: androidx.collection.LongSparseArray#clone():
     Method androidx.collection.LongSparseArray.clone has changed return type from androidx.collection.LongSparseArray<E!> to androidx.collection.LongSparseArray<E>
 ChangedType: androidx.collection.LruCache#snapshot():
@@ -7,6 +9,28 @@ ChangedType: androidx.collection.SparseArrayCompat#clone():
     Method androidx.collection.SparseArrayCompat.clone has changed return type from androidx.collection.SparseArrayCompat<E!> to androidx.collection.SparseArrayCompat<E>
 
 
+RemovedInterface: androidx.collection.ArraySet:
+    Class androidx.collection.ArraySet no longer implements java.util.Collection<E>
+
+
+RemovedMethod: androidx.collection.ArraySet#ArraySet(androidx.collection.ArraySet<E>):
+    Removed constructor androidx.collection.ArraySet(androidx.collection.ArraySet<E>)
+RemovedMethod: androidx.collection.ArraySet#ArraySet(java.util.Collection<E>):
+    Removed constructor androidx.collection.ArraySet(java.util.Collection<E>)
+RemovedMethod: androidx.collection.ArraySet#add(E):
+    Removed method androidx.collection.ArraySet.add(E)
+RemovedMethod: androidx.collection.ArraySet#addAll(java.util.Collection<? extends E>):
+    Removed method androidx.collection.ArraySet.addAll(java.util.Collection<? extends E>)
+RemovedMethod: androidx.collection.ArraySet#clear():
+    Removed method androidx.collection.ArraySet.clear()
+RemovedMethod: androidx.collection.ArraySet#isEmpty():
+    Removed method androidx.collection.ArraySet.isEmpty()
+RemovedMethod: androidx.collection.ArraySet#size():
+    Removed method androidx.collection.ArraySet.size()
+RemovedMethod: androidx.collection.ArraySet#toArray():
+    Removed method androidx.collection.ArraySet.toArray()
+RemovedMethod: androidx.collection.ArraySet#toArray(T[]):
+    Removed method androidx.collection.ArraySet.toArray(T[])
 RemovedMethod: androidx.collection.LruCache#toString():
     Removed method androidx.collection.LruCache.toString()
 RemovedMethod: androidx.collection.SimpleArrayMap#SimpleArrayMap(androidx.collection.SimpleArrayMap<K,V>):
