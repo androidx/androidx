@@ -23,23 +23,26 @@ import androidx.paging.PagingSource.LoadResult.Page
  */
 internal sealed class ViewportHint(
     /**
-     * Distance from hint to first loaded item: `anchorPosition - firstLoadedItemPosition`
+     * Number of loaded items presented before this hint. Calculated as the distance from this
+     * hint to first loaded item being presented: `anchorPosition - firstLoadedItemPosition`
      *
      * Zero indicates access at boundary
-     * Positive -> Within loaded range or in placeholders if greater than size of last page.
-     * Negative -> placeholder access.
+     * Positive -> Within loaded range or in placeholders after presented items if greater
+     * than the size of all presented items.
+     * Negative -> placeholder access before first loaded item.
      *
-     * Note: Does not include placeholders.
      */
     val presentedItemsBefore: Int,
     /**
-     * Distance from hint to last presented item: `size - index - placeholdersAfter - 1`
+     * Number of loaded items presented after this hint. Calculated as the distance from this
+     * hint to last loaded item being presented:
+     * `presenterSize - anchorPosition - placeholdersAfter - 1`
      *
      * Zero indicates access at boundary
-     * Positive -> Within loaded range or in placeholders if greater than size of last page.
-     * Negative -> placeholder access.
+     * Positive -> Within loaded range or in placeholders before presented items if greater
+     * than the size of all presented items.
+     * Negative -> placeholder access after last loaded item.
      *
-     * Note: Does not include placeholders.
      */
     val presentedItemsAfter: Int,
     /**
