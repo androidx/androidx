@@ -29,7 +29,6 @@ import androidx.health.connect.client.records.BodyTemperature
 import androidx.health.connect.client.records.BodyWaterMass
 import androidx.health.connect.client.records.BoneMass
 import androidx.health.connect.client.records.CervicalMucus
-import androidx.health.connect.client.records.CervicalPosition
 import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
 import androidx.health.connect.client.records.Distance
 import androidx.health.connect.client.records.ElevationGained
@@ -88,7 +87,6 @@ private val ALL_RECORDS_TYPES =
         BodyWaterMass::class,
         BoneMass::class,
         CervicalMucus::class,
-        CervicalPosition::class,
         CyclingPedalingCadenceSeries::class,
         Distance::class,
         ElevationGained::class,
