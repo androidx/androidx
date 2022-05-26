@@ -344,12 +344,21 @@ class EGLExt private constructor() {
          * Creates an EGLImage from the provided [HardwareBuffer]. This handles
          * internally creating an EGLClientBuffer and an [EGLImageKHR] from the client buffer.
          *
+         * When this [EGLImageKHR] instance is no longer necessary, consumers should be sure to
+         * call the corresponding method [eglDestroyImageKHR] to deallocate the resource.
+         *
          * @param eglDisplay EGLDisplay connection associated with the EGLImage to create
          * @param hardwareBuffer Backing [HardwareBuffer] for the generated EGLImage instance
          *
          * @return an [EGLImageKHR] instance representing the [EGLImageKHR] created from the
          * HardwareBuffer. Because this is created internally through EGL's eglCreateImageKR method,
          * this has the KHR suffix.
+         *
+         * This can return null if the EGL_ANDROID_image_native_buffer and EGL_KHR_image_base
+         * extensions are not supported or if allocation of the buffer fails.
+         *
+         * See
+         * www.khronos.org/registry/EGL/extensions/ANDROID/EGL_ANDROID_get_native_client_buffer.txt
          */
         @JvmStatic
         @RequiresApi(Build.VERSION_CODES.O)
@@ -413,6 +422,9 @@ class EGLExt private constructor() {
          *
          * Consumers should ensure that the EGL_KHR_fence_sync EGL extension is supported before
          * invoking this method otherwise a null EGLSyncFenceKHR object is returned.
+         *
+         * Additionally when the [EGLSyncKHR] instance is no longer necessary, consumers are
+         * encouraged to call [eglDestroySyncKHR] to deallocate this resource.
          *
          * See: https://www.khronos.org/registry/EGL/extensions/KHR/EGL_KHR_fence_sync.txt
          *
