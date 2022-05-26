@@ -80,6 +80,9 @@ import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.IcingSearchEngine;
+import com.google.android.icing.proto.DebugInfoProto;
+import com.google.android.icing.proto.DebugInfoResultProto;
+import com.google.android.icing.proto.DebugInfoVerbosity;
 import com.google.android.icing.proto.DeleteByQueryResultProto;
 import com.google.android.icing.proto.DeleteResultProto;
 import com.google.android.icing.proto.DocumentProto;
@@ -2037,6 +2040,33 @@ public final class AppSearchImpl implements Closeable {
                 .setAliveDocumentsCount(aliveDocuments)
                 .setAliveNamespacesCount(aliveNamespaces)
                 .build();
+    }
+
+    /**
+     * Returns the native debug info capsuled in {@link DebugInfoResultProto} directly from
+     * IcingSearchEngine.
+     *
+     * @param verbosity The verbosity of the debug info. {@link DebugInfoVerbosity.Code#BASIC}
+     *                  will return the simplest debug information.
+     *                  {@link DebugInfoVerbosity.Code#DETAILED} will return more detailed
+     *                  debug information as indicated in the comments in debug.proto
+     */
+    @NonNull
+    public DebugInfoProto getRawDebugInfoProto(@NonNull DebugInfoVerbosity.Code verbosity)
+            throws AppSearchException {
+        mReadWriteLock.readLock().lock();
+        try {
+            throwIfClosedLocked();
+            LogUtil.piiTrace(TAG, "getDebugInfo, request");
+            DebugInfoResultProto debugInfoResult = mIcingSearchEngineLocked.getDebugInfo(
+                    verbosity);
+            LogUtil.piiTrace(TAG, "getDebugInfo, response", debugInfoResult.getStatus(),
+                    debugInfoResult);
+            checkSuccess(debugInfoResult.getStatus());
+            return debugInfoResult.getDebugInfo();
+        } finally {
+            mReadWriteLock.readLock().unlock();
+        }
     }
 
     /**
