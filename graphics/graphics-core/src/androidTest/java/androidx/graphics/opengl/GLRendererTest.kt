@@ -36,7 +36,7 @@ import android.view.SurfaceHolder
 import android.view.TextureView
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
-import androidx.graphics.lowlatency.FrontBufferedRenderer
+import androidx.graphics.lowlatency.HardwareBufferRenderer
 import androidx.graphics.lowlatency.RenderBuffer
 import androidx.graphics.lowlatency.RenderFence
 import androidx.graphics.opengl.egl.EglManager
@@ -814,7 +814,7 @@ class GLRendererTest {
         val glRenderer = GLRenderer().apply { start() }
         var renderBuffer: RenderBuffer? = null
 
-        val callbacks = object : FrontBufferedRenderer.RenderCallbacks {
+        val callbacks = object : HardwareBufferRenderer.RenderCallbacks {
             override fun obtainRenderBuffer(egl: EglSpec): RenderBuffer =
                 RenderBuffer(
                     egl,
@@ -833,7 +833,7 @@ class GLRendererTest {
                 GLES20.glFlush()
             }
 
-            override fun onDrawComplete(frontBuffer: RenderBuffer) {
+            override fun onDrawComplete(renderBuffer: RenderBuffer) {
                 renderLatch.countDown()
             }
         }
@@ -841,7 +841,7 @@ class GLRendererTest {
         glRenderer.createRenderTarget(
             width,
             height,
-            FrontBufferedRenderer(callbacks)
+            HardwareBufferRenderer(callbacks)
         ).requestRender()
 
         var hardwareBuffer: HardwareBuffer? = null

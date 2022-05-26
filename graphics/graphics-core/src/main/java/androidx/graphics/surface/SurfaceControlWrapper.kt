@@ -43,12 +43,12 @@ internal class JniBindings {
 
         external fun nTransactionSetOnComplete(
             surfaceTransaction: Long,
-            listener: SurfaceControlCompat.TransactionCompletedListener
+            listener: SurfaceControlWrapper.TransactionCompletedListener
         )
 
         external fun nTransactionSetOnCommit(
             surfaceTransaction: Long,
-            listener: SurfaceControlCompat.TransactionCommittedListener
+            listener: SurfaceControlWrapper.TransactionCommittedListener
         )
 
         external fun nExtractFenceFd(
@@ -100,9 +100,9 @@ internal class JniBindings {
 
 /**
  * Handle to an on-screen Surface managed by the system compositor. By constructing
- * a [Surface] from this SurfaceControlCompat you can submit buffers to be composited. Using
- * [SurfaceControlCompat.Transaction] you can manipulate various properties of how the buffer will be
- * displayed on-screen. SurfaceControl's are arranged into a scene-graph like hierarchy, and
+ * a [Surface] from this [SurfaceControlWrapper] you can submit buffers to be composited. Using
+ * [SurfaceControlWrapper.Transaction] you can manipulate various properties of how the buffer will be
+ * displayed on-screen. SurfaceControls are arranged into a scene-graph like hierarchy, and
  * as such any SurfaceControl may have a parent. Geometric properties like transform, crop, and
  * Z-ordering will be inherited from the parent, as if the child were content in the parents
  * buffer stream.
@@ -112,9 +112,9 @@ internal class JniBindings {
  * initially exposed for SurfaceControl.
  */
 @RequiresApi(Build.VERSION_CODES.Q)
-class SurfaceControlCompat internal constructor(
+internal class SurfaceControlWrapper internal constructor(
     surface: Surface? = null,
-    surfaceControl: SurfaceControlCompat? = null,
+    surfaceControl: SurfaceControlWrapper? = null,
     debugName: String
 ) {
     private var mNativeSurfaceControl: Long = 0
@@ -141,10 +141,10 @@ class SurfaceControlCompat internal constructor(
          * Buffers which are replaced or removed from the scene in the transaction invoking
          * this callback may be reused after this point.
          *
-         * @param latchTimeNanos Timestamp in nano seconds of when frame was latched by
+         * @param latchTimeNanos Timestamp in nanoseconds of when frame was latched by
          * the framework.
          *
-         * @param presentTimeNanos  System time in nano seconds of when callback is called.
+         * @param presentTimeNanos  System time in nanoseconds of when callback is called.
          */
         fun onComplete(latchTimeNanos: Long, presentTimeNanos: Long)
     }
@@ -274,7 +274,7 @@ class SurfaceControlCompat internal constructor(
          */
         @JvmOverloads
         fun setBuffer(
-            surfaceControl: SurfaceControlCompat,
+            surfaceControl: SurfaceControlWrapper,
             hardwareBuffer: HardwareBuffer,
             syncFence: SyncFenceCompat = SyncFenceCompat(-1)
         ): Transaction {
@@ -288,8 +288,9 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
-         * Updates the visibility of the given [SurfaceControlCompat]. If visibility is set to
-         * false, the [SurfaceControlCompat] and all surfaces in the subtree will be hidden.
+         * Updates the visibility of the given [SurfaceControlWrapper]. If visibility is set to
+         * false, the [SurfaceControlWrapper] and all surfaces in the subtree will be hidden.
+         * By default SurfaceControls are visible.
          *
          * @param surfaceControl The SurfaceControl for which to set the visibility
          * This value cannot be null.
@@ -298,7 +299,7 @@ class SurfaceControlCompat internal constructor(
          * will be visible.
          */
         fun setVisibility(
-            surfaceControl: SurfaceControlCompat,
+            surfaceControl: SurfaceControlWrapper,
             visibility: Boolean
         ): Transaction {
             JniBindings.nSetVisibility(
@@ -310,18 +311,20 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
-         * Updates z order index for [SurfaceControlCompat]. Note that the z order for a
+         * Updates z order index for [SurfaceControlWrapper]. Note that the z order for a
          * surface is relative to other surfaces that are siblings of this surface.
          * Behavior of siblings with the same z order is undefined.
          *
          * Z orders can range from Integer.MIN_VALUE to Integer.MAX_VALUE. Default z order
-         * index is 0.
+         * index is 0. [SurfaceControlWrapper] instances are positioned back-to-front. That is
+         * lower z order values are rendered below other [SurfaceControlWrapper] instances with
+         * higher z order values.
          *
          * @param surfaceControl surface control to set the z order of.
          *
          * @param zOrder desired layer z order to set the surfaceControl.
          */
-        fun setLayer(surfaceControl: SurfaceControlCompat, zOrder: Int): Transaction {
+        fun setLayer(surfaceControl: SurfaceControlWrapper, zOrder: Int): Transaction {
             JniBindings.nSetZOrder(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
@@ -344,7 +347,7 @@ class SurfaceControlCompat internal constructor(
          * is equivalent to not setting a damage region at all.
          */
         fun setDamageRegion(
-            surfaceControl: SurfaceControlCompat,
+            surfaceControl: SurfaceControlWrapper,
             region: Region?
         ): Transaction {
             JniBindings.nSetDamageRegion(
@@ -370,8 +373,8 @@ class SurfaceControlCompat internal constructor(
          * @param newParent the new parent we want to set the surface control to. Can be null.
          */
         fun reparent(
-            surfaceControl: SurfaceControlCompat,
-            newParent: SurfaceControlCompat?
+            surfaceControl: SurfaceControlWrapper,
+            newParent: SurfaceControlWrapper?
         ): Transaction {
             JniBindings.nTransactionReparent(
                 mNativeSurfaceTransaction,
@@ -401,7 +404,7 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
-         * Update whether the content in the buffer associated with this surface is complete
+         * Update whether the content in the buffer associated with this surface is completely
          * opaque. If true, every pixel of content in the buffer must be opaque or visual errors
          * can occur.
          *
@@ -410,7 +413,7 @@ class SurfaceControlCompat internal constructor(
          * @param isOpaque true if buffers alpha should be ignored
          */
         fun setOpaque(
-            surfaceControl: SurfaceControlCompat,
+            surfaceControl: SurfaceControlWrapper,
             isOpaque: Boolean
         ): Transaction {
             JniBindings.nSetBufferTransparency(
@@ -433,7 +436,7 @@ class SurfaceControlCompat internal constructor(
          * @throws IllegalArgumentException if alpha is out of range.
          */
         fun setAlpha(
-            surfaceControl: SurfaceControlCompat,
+            surfaceControl: SurfaceControlWrapper,
             alpha: Float
         ): Transaction {
             if (alpha < 0.0f || alpha > 1.0f) {
@@ -473,12 +476,12 @@ class SurfaceControlCompat internal constructor(
             return true
         }
         if ((other == null) or
-            (other?.javaClass != SurfaceControlCompat::class.java)
+            (other?.javaClass != SurfaceControlWrapper::class.java)
         ) {
             return false
         }
 
-        other as SurfaceControlCompat
+        other as SurfaceControlWrapper
         if (other.mNativeSurfaceControl == this.mNativeSurfaceControl) {
             return true
         }
@@ -507,18 +510,18 @@ class SurfaceControlCompat internal constructor(
     }
 
     /**
-     * Builder class for [SurfaceControlCompat].
+     * Builder class for [SurfaceControlWrapper].
      *
      * Requires a parent surface. Debug name is default empty string.
      */
-    class Builder private constructor(surface: Surface?, surfaceControl: SurfaceControlCompat?) {
+    class Builder private constructor(surface: Surface?, surfaceControl: SurfaceControlWrapper?) {
         private var mSurface: Surface? = surface
-        private var mSurfaceControl: SurfaceControlCompat? = surfaceControl
+        private var mSurfaceControl: SurfaceControlWrapper? = surfaceControl
         private var mDebugName: String = ""
 
         constructor(surface: Surface) : this(surface, null) {}
 
-        constructor(surfaceControl: SurfaceControlCompat) : this(null, surfaceControl) {}
+        constructor(surfaceControl: SurfaceControlWrapper) : this(null, surfaceControl) {}
 
         @Suppress("MissingGetterMatchingBuilder")
         fun setDebugName(debugName: String): Builder {
@@ -527,10 +530,10 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
-         * Builds the [SurfaceControlCompat] object
+         * Builds the [SurfaceControlWrapper] object
          */
-        fun build(): SurfaceControlCompat {
-            return SurfaceControlCompat(mSurface, mSurfaceControl, mDebugName)
+        fun build(): SurfaceControlWrapper {
+            return SurfaceControlWrapper(mSurface, mSurfaceControl, mDebugName)
         }
     }
 }

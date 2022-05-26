@@ -69,11 +69,11 @@ bool createSolidBuffer(JNIEnv *env, jobject thiz, int32_t width, int32_t height,
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_androidx_graphics_surface_SurfaceControlCompatTest_00024Companion_nGetSolidBuffer(JNIEnv *env,
-                                                                          jobject thiz,
-                                                                          jint width,
-                                                                          jint height,
-                                                                          jint color) {
+Java_androidx_graphics_surface_SurfaceControlWrapperTest_00024Companion_nGetSolidBuffer(JNIEnv *env,
+                                                                                        jobject thiz,
+                                                                                        jint width,
+                                                                                        jint height,
+                                                                                        jint color) {
     AHardwareBuffer *tempBuffer;
     if (createSolidBuffer(env, thiz, width, height, static_cast<uint32_t>(color), &tempBuffer,
                           nullptr)) {

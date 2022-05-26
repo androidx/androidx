@@ -23,7 +23,7 @@ import android.view.SurfaceHolder
 import android.view.SurfaceView
 import android.widget.FrameLayout
 
-class SurfaceControlCompatTestActivity : Activity() {
+class SurfaceControlWrapperTestActivity : Activity() {
     lateinit var mSurfaceView: SurfaceView
     lateinit var mFrameLayout: FrameLayout
     lateinit var mLayoutParams: FrameLayout.LayoutParams

@@ -33,8 +33,8 @@ import java.util.concurrent.atomic.AtomicBoolean
  * backed by a [HardwareBuffer] object
  */
 @RequiresApi(Build.VERSION_CODES.O)
-internal class FrontBufferedRenderer(
-    private val frontBufferRenderCallback: RenderCallbacks
+internal class HardwareBufferRenderer(
+    private val hardwareBufferRendererCallbacks: RenderCallbacks
 ) : GLRenderer.RenderCallback {
 
     private val mClear = AtomicBoolean(false)
@@ -53,41 +53,43 @@ internal class FrontBufferedRenderer(
 
     override fun onDrawFrame(eglManager: EglManager) {
         val egl = eglManager.eglSpec
-        val buffer = frontBufferRenderCallback.obtainRenderBuffer(egl)
+        val buffer = hardwareBufferRendererCallbacks.obtainRenderBuffer(egl)
         var renderFence: RenderFence? = null
         try {
             buffer.makeCurrent()
             if (mClear.getAndSet(false)) {
+                GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
                 GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+            } else {
+                hardwareBufferRendererCallbacks.onDraw(eglManager)
             }
-            frontBufferRenderCallback.onDraw(eglManager)
             GLES20.glFlush()
             renderFence = RenderFence(egl)
             renderFence.awaitForever()
-            // At this point the hardwarebuffer has the contents of the GL rendering
+            // At this point the HardwareBuffer has the contents of the GL rendering
             // Create a surface Control transaction to dispatch this request
-            frontBufferRenderCallback.onDrawComplete(buffer)
+            hardwareBufferRendererCallbacks.onDrawComplete(buffer)
         } finally {
             renderFence?.close()
         }
     }
 
     /**
-     * Callbacks invoked to render content leveraging a [FrontBufferedRenderer]
+     * Callbacks invoked to render content leveraging a [HardwareBufferRenderer]
      */
     interface RenderCallbacks {
 
         /**
          * Obtain a [RenderBuffer] to render content into. The [RenderBuffer] obtained here
-         * is expected to be managed by the consumer of [FrontBufferedRenderer]. That is
+         * is expected to be managed by the consumer of [HardwareBufferRenderer]. That is
          * callers of this API are expected to be maintaining a reference to the returned
          * [RenderBuffer] here and calling [RenderBuffer.close] where appropriate as this will
-         * these instances will not be released by [FrontBufferedRenderer]
+         * these instances will not be released by [HardwareBufferRenderer]
          */
         fun obtainRenderBuffer(egl: EglSpec): RenderBuffer
 
         /**
-         * Draw contents into the front buffer
+         * Draw contents into the [HardwareBuffer]
          */
         fun onDraw(eglManager: EglManager)
 
@@ -95,6 +97,6 @@ internal class FrontBufferedRenderer(
          * Callback when [onDraw] is complete and the contents of the draw
          * are reflected in the corresponding [HardwareBuffer]
          */
-        fun onDrawComplete(frontBuffer: RenderBuffer)
+        fun onDrawComplete(renderBuffer: RenderBuffer)
     }
 }
