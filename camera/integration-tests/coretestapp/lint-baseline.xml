@@ -2,14 +2,34 @@
 <issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="                &amp;&amp; getCameraInfo().isZslSupported() ? View.VISIBLE : View.GONE);"
+        errorLine2="                                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="777"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="            return ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG;"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
+            line="355"
+            column="33"/>
+    </issue>
+
+    <issue
         id="SyntheticAccessor"
         message="Access to `private` field `mImageAnalysisResult` of class `CameraXActivity` requires synthetic accessor"
         errorLine1="            mImageAnalysisResult.setValue("
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="213"
-            column="13"/>
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
@@ -18,9 +38,7 @@
         errorLine1="                if (!mAnalysisIdlingResource.isIdleNow()) {"
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="216"
-            column="22"/>
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
@@ -29,9 +47,7 @@
         errorLine1="                    mAnalysisIdlingResource.decrement();"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="217"
-            column="21"/>
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
@@ -40,9 +56,7 @@
         errorLine1="                        mImageSavedIdlingResource.increment();"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="572"
-            column="25"/>
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
@@ -51,9 +65,7 @@
         errorLine1="                        createDefaultPictureFolderIfNotExist();"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="575"
-            column="25"/>
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
@@ -62,9 +74,7 @@
         errorLine1="                                mImageCaptureExecutorService,"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="584"
-            column="33"/>
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
@@ -73,9 +83,7 @@
         errorLine1="                                            mImageSavedIdlingResource.decrement();"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="593"
-            column="45"/>
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
@@ -84,9 +92,7 @@
         errorLine1="                                            mImageSavedIdlingResource.decrement();"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"
-            line="615"
-            column="45"/>
+            file="src/main/java/androidx/camera/integration/core/CameraXActivity.java"/>
     </issue>
 
     <issue
@@ -95,9 +101,7 @@
         errorLine1="                            if (mCameraProvider != null) {"
         errorLine2="                                ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"
-            line="262"
-            column="33"/>
+            file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"/>
     </issue>
 
     <issue
@@ -106,9 +110,7 @@
         errorLine1="                                startCamera();"
         errorLine2="                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"
-            line="263"
-            column="33"/>
+            file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"/>
     </issue>
 
     <issue
@@ -117,9 +119,7 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"
-            line="97"
-            column="26"/>
+            file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"/>
     </issue>
 
     <issue
@@ -128,9 +128,7 @@
         errorLine1="    public static View chooseViewFinder(@Nullable Bundle intentExtras,"
         errorLine2="                  ~~~~">
         <location
-            file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"
-            line="202"
-            column="19"/>
+            file="src/main/java/androidx/camera/integration/core/OpenGLActivity.java"/>
     </issue>
 
 </issues>

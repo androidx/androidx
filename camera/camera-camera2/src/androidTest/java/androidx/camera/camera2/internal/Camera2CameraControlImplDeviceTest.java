@@ -121,6 +121,7 @@ public final class Camera2CameraControlImplDeviceTest {
     private HandlerThread mHandlerThread;
     private Handler mHandler;
     private CameraCharacteristics mCameraCharacteristics;
+    private CameraCharacteristicsCompat mCameraCharacteristicsCompat;
     private boolean mHasFlashUnit;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraUseCaseAdapter mCamera;
@@ -145,9 +146,9 @@ public final class Camera2CameraControlImplDeviceTest {
         mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
-        CameraCharacteristicsCompat cameraCharacteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(mCameraCharacteristics);
-        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristicsCompat,
+        mCameraCharacteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                mCameraCharacteristics);
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristicsCompat,
                 executorService, executorService, mControlUpdateCallback);
 
         mCamera2CameraControlImpl.incrementUseCount();
@@ -172,9 +173,7 @@ public final class Camera2CameraControlImplDeviceTest {
     }
 
     private boolean isAndroidRZoomEnabled() {
-        return (Build.VERSION.SDK_INT >= 30
-                && mCameraCharacteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
-                != null);
+        return ZoomControl.isAndroidRZoomSupported(mCameraCharacteristicsCompat);
     }
 
     private int getMaxAfRegionCount() {
@@ -271,7 +270,15 @@ public final class Camera2CameraControlImplDeviceTest {
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_AUTO_FLASH);
         assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(
                 ImageCapture.FLASH_MODE_AUTO);
-        assertThat(mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isTrue();
+        // ZSL only support API >= 23. ZslControlImpl will be created for API >= 23, otherwise
+        // ZslControlNoOpImpl will be created, which always return false for this flag.
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertThat(
+                    mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isTrue();
+        } else {
+            assertThat(
+                    mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isFalse();
+        }
     }
 
     @Test
@@ -305,7 +312,15 @@ public final class Camera2CameraControlImplDeviceTest {
         assertAeMode(camera2Config, CONTROL_AE_MODE_ON_ALWAYS_FLASH);
 
         assertThat(mCamera2CameraControlImpl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
-        assertThat(mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isTrue();
+        // ZSL only support API >= 23. ZslControlImpl will be created for API >= 23, otherwise
+        // ZslControlNoOpImpl will be created, which always return false for this flag.
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertThat(
+                    mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isTrue();
+        } else {
+            assertThat(
+                    mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isFalse();
+        }
     }
 
     @Test

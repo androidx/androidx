@@ -270,6 +270,10 @@ public final class TemplateSurfaceView extends SurfaceView {
         requireNonNull(mServiceDispatcher);
 
         ISurfaceControl surfaceControl = surfacePackage.getSurfaceControl();
+        if (getDisplay() == null) {
+            Log.e(TAG, "TemplateSurfaceView has no display");
+            return;
+        }
         SurfaceWrapper surfaceWrapper = mSurfaceWrapperProvider.createSurfaceWrapper();
         mServiceDispatcher.dispatch("setSurfaceWrapper", () ->
                 surfaceControl.setSurfaceWrapper(Bundleable.create(surfaceWrapper)));

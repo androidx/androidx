@@ -60,6 +60,8 @@ import androidx.camera.core.impl.utils.CloseGuardHelper;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.core.internal.utils.ArrayRingBuffer;
+import androidx.camera.core.internal.utils.RingBuffer;
 import androidx.camera.video.StreamInfo.StreamState;
 import androidx.camera.video.internal.AudioSource;
 import androidx.camera.video.internal.AudioSourceAccessException;
@@ -86,9 +88,7 @@ import androidx.camera.video.internal.encoder.EncoderImpl;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.OutputConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
-import androidx.camera.video.internal.utils.ArrayDequeRingBuffer;
 import androidx.camera.video.internal.utils.OutputUtil;
-import androidx.camera.video.internal.utils.RingBuffer;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
 import androidx.core.util.Preconditions;
@@ -383,7 +383,7 @@ public final class Recorder implements VideoOutput {
     // the beginning of the recording.
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @NonNull
-    final RingBuffer<EncodedData> mPendingAudioRingBuffer = new ArrayDequeRingBuffer<>(
+    final RingBuffer<EncodedData> mPendingAudioRingBuffer = new ArrayRingBuffer<>(
             AUDIO_CACHE_SIZE);
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     Throwable mAudioErrorCause = null;
@@ -1547,8 +1547,9 @@ public final class Recorder implements VideoOutput {
     private List<EncodedData> getAudioDataToWriteAndClearCache(long firstVideoDataTimeUs) {
         List<EncodedData> res = new ArrayList<>();
 
-        EncodedData data;
-        while ((data = mPendingAudioRingBuffer.poll()) != null) {
+        while (!mPendingAudioRingBuffer.isEmpty()) {
+            EncodedData data = mPendingAudioRingBuffer.dequeue();
+
             // Add all audio data that has timestamp greater than or equal to the first video data
             // timestamp.
             if (data.getPresentationTimeUs() >= firstVideoDataTimeUs) {
@@ -1765,7 +1766,7 @@ public final class Recorder implements VideoOutput {
                                         // BufferCopiedEncodedData will be automatically released
                                         // by garbage collection, there is no need to call its
                                         // close() function.
-                                        mPendingAudioRingBuffer.offer(
+                                        mPendingAudioRingBuffer.enqueue(
                                                 new BufferCopiedEncodedData(encodedData));
 
                                         if (mPendingFirstVideoData != null) {
@@ -1924,7 +1925,7 @@ public final class Recorder implements VideoOutput {
             mRecordingStopError = stopError;
             mRecordingStopErrorCause = errorCause;
             if (isAudioEnabled()) {
-                mPendingAudioRingBuffer.clear();
+                clearPendingAudioRingBuffer();
                 if (explicitlyStopTime == null) {
                     mAudioEncoder.stop();
                 } else {
@@ -1979,6 +1980,13 @@ public final class Recorder implements VideoOutput {
     private static void notifyEncoderSourceStopped(@NonNull Encoder encoder) {
         if (encoder instanceof EncoderImpl) {
             ((EncoderImpl) encoder).signalSourceStopped();
+        }
+    }
+
+    @ExecutedBy("mSequentialExecutor")
+    private void clearPendingAudioRingBuffer() {
+        while (!mPendingAudioRingBuffer.isEmpty()) {
+            mPendingAudioRingBuffer.dequeue();
         }
     }
 
@@ -2101,7 +2109,7 @@ public final class Recorder implements VideoOutput {
         mRecordingStopError = ERROR_UNKNOWN;
         mRecordingStopErrorCause = null;
         mAudioErrorCause = null;
-        mPendingAudioRingBuffer.clear();
+        clearPendingAudioRingBuffer();
 
         switch (mAudioState) {
             case IDLING:

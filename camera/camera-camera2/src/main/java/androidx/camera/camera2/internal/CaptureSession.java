@@ -35,6 +35,7 @@ import androidx.camera.camera2.internal.compat.params.InputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.camera2.internal.compat.workaround.StillCaptureFlow;
+import androidx.camera.camera2.internal.compat.workaround.TorchStateReset;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -129,6 +130,7 @@ final class CaptureSession implements CaptureSessionInterface {
     @GuardedBy("mSessionLock")
     CallbackToFutureAdapter.Completer<Void> mReleaseCompleter;
     final StillCaptureFlow mStillCaptureFlow = new StillCaptureFlow();
+    final TorchStateReset mTorchStateReset = new TorchStateReset();
 
     /**
      * Constructor for CaptureSession.
@@ -763,6 +765,30 @@ final class CaptureSession implements CaptureSessionInterface {
                                         }
                                     }
                                 });
+                    }
+                    if (mTorchStateReset.isTorchResetRequired(captureRequests, isStillCapture)) {
+                        callbackAggregator.addCamera2Callbacks(
+                                captureRequests.get(captureRequests.size() - 1),
+                                Collections.singletonList(new CaptureCallback() {
+
+                                    @Override
+                                    public void onCaptureCompleted(
+                                            @NonNull CameraCaptureSession session,
+                                            @NonNull CaptureRequest request,
+                                            @NonNull TotalCaptureResult result) {
+                                        synchronized (mSessionLock) {
+                                            if (mSessionConfig == null) {
+                                                return;
+                                            }
+                                            CaptureConfig repeatingConfig =
+                                                    mSessionConfig.getRepeatingCaptureConfig();
+                                            Logger.d(TAG, "Submit FLASH_MODE_OFF request");
+                                            issueCaptureRequests(Collections.singletonList(
+                                                    mTorchStateReset.createTorchResetRequest(
+                                                            repeatingConfig)));
+                                        }
+                                    }
+                                }));
                     }
                     return mSynchronizedCaptureSession.captureBurstRequests(captureRequests,
                             callbackAggregator);

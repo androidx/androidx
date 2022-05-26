@@ -7,9 +7,7 @@
         errorLine1="                return mock(android.os.CancellationSignal.class);"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="70"
-            column="29"/>
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                provider.getBiometricCancellationSignal();"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="148"
-            column="26"/>
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        doThrow(NullPointerException.class).when(biometricSignal).cancel();"
         errorLine2="                                                                  ~~~~~~">
         <location
-            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="152"
-            column="67"/>
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        assertThat(provider.getBiometricCancellationSignal()).isNotEqualTo(biometricSignal);"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"
-            line="157"
-            column="29"/>
+            file="src/test/java/androidx/biometric/CancellationSignalProviderTest.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="            return result.getAuthenticationType();"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/biometric/AuthenticationCallbackProvider.java"
-            line="189"
-            column="20"/>
+            file="src/main/java/androidx/biometric/AuthenticationCallbackProvider.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            return biometricManager.canAuthenticate(authenticators);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/biometric/BiometricManager.java"
-            line="1026"
-            column="20"/>
+            file="src/main/java/androidx/biometric/BiometricManager.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="            return biometricManager.canAuthenticate();"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/biometric/BiometricManager.java"
-            line="1062"
-            column="20"/>
+            file="src/main/java/androidx/biometric/BiometricManager.java"/>
     </issue>
 
 </issues>

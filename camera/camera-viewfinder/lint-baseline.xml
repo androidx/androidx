@@ -7,9 +7,7 @@
         errorLine1="    ListenableFuture&lt;O> apply(@Nullable I input) throws Exception;"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/viewfinder/internal/utils/futures/AsyncFunction.java"
-            line="51"
-            column="5"/>
+            file="src/main/java/androidx/camera/viewfinder/internal/utils/futures/AsyncFunction.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    void onFailure(Throwable t);"
         errorLine2="                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/viewfinder/internal/utils/futures/FutureCallback.java"
-            line="51"
-            column="20"/>
+            file="src/main/java/androidx/camera/viewfinder/internal/utils/futures/FutureCallback.java"/>
     </issue>
 
 </issues>

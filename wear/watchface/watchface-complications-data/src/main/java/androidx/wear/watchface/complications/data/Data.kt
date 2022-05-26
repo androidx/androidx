@@ -762,7 +762,8 @@ public class RangedValueComplicationData internal constructor(
     tapAction: PendingIntent?,
     validTimeRange: TimeRange?,
     cachedWireComplicationData: WireComplicationData?,
-    dataSource: ComponentName?
+    dataSource: ComponentName?,
+    drawSegmented: Boolean
 ) : ComplicationData(
     TYPE,
     tapAction = tapAction,
@@ -770,6 +771,17 @@ public class RangedValueComplicationData internal constructor(
     validTimeRange = validTimeRange ?: TimeRange.ALWAYS,
     dataSource = dataSource
 ) {
+    /**
+     * Optional hints that the ranged value indicator (typically a line or arc) should be drawn
+     * using segments, where one segment = 1 unit. Intended for integral ranged values E.g. number
+     * of cups of water drunk today.
+     */
+    @ComplicationExperimental
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ComplicationExperimental
+    @get:JvmName("isDrawSegmented")
+    val drawSegmented: Boolean = drawSegmented
+
     /**
      * Builder for [RangedValueComplicationData].
      *
@@ -794,6 +806,7 @@ public class RangedValueComplicationData internal constructor(
         private var text: ComplicationText? = null
         private var cachedWireComplicationData: WireComplicationData? = null
         private var dataSource: ComponentName? = null
+        private var drawSegmented = false
 
         init {
             require(max != Float.MAX_VALUE) {
@@ -838,6 +851,16 @@ public class RangedValueComplicationData internal constructor(
             this.dataSource = dataSource
         }
 
+        /**
+         * Sets the optional hint that the ranged value indicator (typically a line or arc) should
+         * be drawn using segments, where one segment = 1 unit. Intended for integral ranged values
+         * E.g. number of cups of water drunk today.
+         */
+        @ComplicationExperimental
+        public fun setDrawSegmented(drawSegmented: Boolean): Builder = apply {
+            this.drawSegmented = drawSegmented
+        }
+
         internal fun setCachedWireComplicationData(
             cachedWireComplicationData: WireComplicationData?
         ): Builder = apply {
@@ -857,7 +880,8 @@ public class RangedValueComplicationData internal constructor(
                 tapAction,
                 validTimeRange,
                 cachedWireComplicationData,
-                dataSource
+                dataSource,
+                drawSegmented
             )
     }
 
@@ -872,6 +896,7 @@ public class RangedValueComplicationData internal constructor(
         }.build().also { cachedWireComplicationData = it }
     }
 
+    @OptIn(ComplicationExperimental::class)
     override fun fillWireComplicationDataBuilder(builder: WireComplicationDataBuilder) {
         builder.setRangedValue(value)
         builder.setRangedMinValue(min)
@@ -888,8 +913,10 @@ public class RangedValueComplicationData internal constructor(
         )
         setValidTimeRange(validTimeRange, builder)
         builder.setTapActionLostDueToSerialization(tapActionLostDueToSerialization)
+        builder.setDrawSegmented(drawSegmented)
     }
 
+    @OptIn(ComplicationExperimental::class)
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -907,10 +934,12 @@ public class RangedValueComplicationData internal constructor(
         if (tapAction != other.tapAction) return false
         if (validTimeRange != other.validTimeRange) return false
         if (dataSource != other.dataSource) return false
+        if (drawSegmented != other.drawSegmented) return false
 
         return true
     }
 
+    @OptIn(ComplicationExperimental::class)
     override fun hashCode(): Int {
         var result = value.hashCode()
         result = 31 * result + min.hashCode()
@@ -923,9 +952,11 @@ public class RangedValueComplicationData internal constructor(
         result = 31 * result + (tapAction?.hashCode() ?: 0)
         result = 31 * result + validTimeRange.hashCode()
         result = 31 * result + dataSource.hashCode()
+        result = 31 * result + drawSegmented.hashCode()
         return result
     }
 
+    @OptIn(ComplicationExperimental::class)
     override fun toString(): String {
         val valueString = if (WireComplicationData.shouldRedact()) {
             "REDACTED"
@@ -936,7 +967,8 @@ public class RangedValueComplicationData internal constructor(
             "monochromaticImage=$monochromaticImage, title=$title, text=$text, " +
             "contentDescription=$contentDescription), " +
             "tapActionLostDueToSerialization=$tapActionLostDueToSerialization, " +
-            "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource)"
+            "tapAction=$tapAction, validTimeRange=$validTimeRange, dataSource=$dataSource, " +
+            "drawSegmented=$drawSegmented)"
     }
 
     override fun hasPlaceholderFields() = value == PLACEHOLDER || text?.isPlaceholder() == true ||
@@ -2087,6 +2119,7 @@ internal fun WireComplicationData.toPlaceholderComplicationData(): ComplicationD
             setTitle(shortTitle?.toApiComplicationTextPlaceholderAware())
             setText(shortText?.toApiComplicationTextPlaceholderAware())
             setDataSource(dataSource)
+            setDrawSegmented(drawSegmented)
         }.build()
 
     MonochromaticImageComplicationData.TYPE.toWireComplicationType() ->
@@ -2209,6 +2242,7 @@ public fun WireComplicationData.toApiComplicationData(): ComplicationData {
                 setText(shortText?.toApiComplicationText())
                 setCachedWireComplicationData(wireComplicationData)
                 setDataSource(dataSource)
+                setDrawSegmented(drawSegmented)
             }.build()
 
         MonochromaticImageComplicationData.TYPE.toWireComplicationType() ->

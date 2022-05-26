@@ -60,7 +60,6 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -522,7 +521,6 @@ class WatchFaceControlClientTest {
         headlessInstance.close()
     }
 
-    @OptIn(WatchFaceFlavorsExperimental::class)
     @Test
     fun headlessUserStyleFlavors() {
         val headlessInstance = service.createHeadlessWatchFaceClient(
@@ -1060,6 +1058,29 @@ class WatchFaceControlClientTest {
             contentDescriptionLabels[4].getTextAt(context.resources, Instant.EPOCH)
         ).isEqualTo("After")
         assertThat(contentDescriptionLabels[4].tapAction).isEqualTo(pendingIntent2)
+    }
+
+    @Test
+    fun contentDescriptionLabels_after_close() {
+        val deferredInteractiveInstance = handlerCoroutineScope.async {
+            service.getOrCreateInteractiveWatchFaceClient(
+                "testId",
+                deviceConfig,
+                systemState,
+                null,
+                complications
+            )
+        }
+
+        // Create the engine which triggers creation of InteractiveWatchFaceClient.
+        createEngine()
+
+        // Wait for the instance to be created.
+        val interactiveInstance = awaitWithTimeout(deferredInteractiveInstance)
+
+        assertThat(interactiveInstance.contentDescriptionLabels).isNotEmpty()
+        interactiveInstance.close()
+        assertThat(interactiveInstance.contentDescriptionLabels).isEmpty()
     }
 
     @SuppressLint("NewApi") // renderWatchFaceToBitmap
@@ -1605,6 +1626,31 @@ class WatchFaceControlClientTest {
             interactiveInstance.close()
         }
     }
+
+    @Test
+    fun headlessLifeCycle() {
+        val headlessInstance = service.createHeadlessWatchFaceClient(
+            "id",
+            ComponentName(
+                "androidx.wear.watchface.client.test",
+                "androidx.wear.watchface.client.test.TestLifeCycleWatchFaceService"
+            ),
+            deviceConfig,
+            400,
+            400
+        )!!
+
+        // Blocks until the headless instance has been fully constructed.
+        headlessInstance.userStyleSchema
+        headlessInstance.close()
+
+        assertThat(TestLifeCycleWatchFaceService.lifeCycleEvents).containsExactly(
+            "WatchFaceService.onCreate",
+            "Renderer.constructed",
+            "Renderer.onDestroy",
+            "WatchFaceService.onDestroy"
+        )
+    }
 }
 
 internal class TestExampleCanvasAnalogWatchFaceService(
@@ -2030,6 +2076,51 @@ internal class TestEdgeComplicationWatchFaceService(
                 zonedDateTime: ZonedDateTime
             ) {
             }
+        }
+    )
+}
+
+internal class TestLifeCycleWatchFaceService : WatchFaceService() {
+    companion object {
+        val lifeCycleEvents = ArrayList<String>()
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        lifeCycleEvents.add("WatchFaceService.onCreate")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        lifeCycleEvents.add("WatchFaceService.onDestroy")
+    }
+
+    override suspend fun createWatchFace(
+        surfaceHolder: SurfaceHolder,
+        watchState: WatchState,
+        complicationSlotsManager: ComplicationSlotsManager,
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = WatchFace(
+        WatchFaceType.DIGITAL,
+        @Suppress("deprecation")
+        object : Renderer.GlesRenderer(
+            surfaceHolder,
+            currentUserStyleRepository,
+            watchState,
+            16
+        ) {
+            init {
+                lifeCycleEvents.add("Renderer.constructed")
+            }
+
+            override fun onDestroy() {
+                super.onDestroy()
+                lifeCycleEvents.add("Renderer.onDestroy")
+            }
+
+            override fun render(zonedDateTime: ZonedDateTime) {}
+
+            override fun renderHighlightLayer(zonedDateTime: ZonedDateTime) {}
         }
     )
 }

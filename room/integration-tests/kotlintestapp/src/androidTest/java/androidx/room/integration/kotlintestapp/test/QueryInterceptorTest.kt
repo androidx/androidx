@@ -48,7 +48,7 @@ class QueryInterceptorTest {
     @JvmField
     val countingTaskExecutorRule = CountingTaskExecutorRule()
     lateinit var mDatabase: QueryInterceptorTestDatabase
-    var queryAndArgs = CopyOnWriteArrayList<Pair<String, ArrayList<Any>>>()
+    var queryAndArgs = CopyOnWriteArrayList<Pair<String, ArrayList<Any?>>>()
 
     @Entity(tableName = "queryInterceptorTestDatabase")
     data class QueryInterceptorEntity(@PrimaryKey val id: String, val description: String)
@@ -82,10 +82,12 @@ class QueryInterceptorTest {
             ApplicationProvider.getApplicationContext(),
             QueryInterceptorTestDatabase::class.java
         ).setQueryCallback(
-            RoomDatabase.QueryCallback { sqlQuery, bindArgs ->
-                val argTrace = ArrayList<Any>()
-                argTrace.addAll(bindArgs)
-                queryAndArgs.add(Pair(sqlQuery, argTrace))
+            object : RoomDatabase.QueryCallback {
+                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                    val argTrace = ArrayList<Any?>()
+                    argTrace.addAll(bindArgs)
+                    queryAndArgs.add(Pair(sqlQuery, argTrace))
+                }
             },
             MoreExecutors.directExecutor()
         ).build()
@@ -144,7 +146,7 @@ class QueryInterceptorTest {
         mDatabase.queryInterceptorDao().insert(
             QueryInterceptorEntity("Insert", "Inserted a placeholder query")
         )
-        mDatabase.openHelper.writableDatabase.compileStatement(
+        mDatabase.getOpenHelper().writableDatabase.compileStatement(
             "DELETE FROM queryInterceptorTestDatabase WHERE id=?"
         ).execute()
         assertQueryLogged("DELETE FROM queryInterceptorTestDatabase WHERE id=?", emptyList())
@@ -152,7 +154,7 @@ class QueryInterceptorTest {
 
     @Test
     fun testLoggingSupportSQLiteQuery() {
-        mDatabase.openHelper.writableDatabase.query(
+        mDatabase.getOpenHelper().writableDatabase.query(
             SimpleSQLiteQuery(
                 "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                     "VALUES (?,?)",
@@ -168,7 +170,7 @@ class QueryInterceptorTest {
 
     @Test
     fun testNullBindArgument() {
-        mDatabase.openHelper.writableDatabase.query(
+        mDatabase.getOpenHelper().writableDatabase.query(
             SimpleSQLiteQuery(
                 "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                     "VALUES (?,?)",
@@ -188,10 +190,12 @@ class QueryInterceptorTest {
             ApplicationProvider.getApplicationContext(),
             QueryInterceptorTestDatabase::class.java
         ).setQueryCallback(
-            RoomDatabase.QueryCallback { sqlQuery, bindArgs ->
-                val argTrace = ArrayList<Any>()
-                argTrace.addAll(bindArgs)
-                queryAndArgs.add(Pair(sqlQuery, argTrace))
+            object : RoomDatabase.QueryCallback {
+                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                    val argTrace = ArrayList<Any?>()
+                    argTrace.addAll(bindArgs)
+                    queryAndArgs.add(Pair(sqlQuery, argTrace))
+                }
             },
             MoreExecutors.directExecutor()
         )

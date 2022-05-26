@@ -41,6 +41,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.GridView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -3978,6 +3979,10 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
                                 isLayoutHierarchical(recycler, state),
                                 getSelectionModeForAccessibility(recycler, state));
         info.setCollectionInfo(collectionInfo);
+        // Set the class name so this is treated as a grid. A11y services should identify grids
+        // and list via CollectionInfos, but an almost empty grid may be incorrectly identified
+        // as a list.
+        info.setClassName(GridView.class.getName());
         leaveContext();
     }
 }

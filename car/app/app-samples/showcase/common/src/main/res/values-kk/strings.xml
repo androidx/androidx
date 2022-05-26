@@ -36,8 +36,7 @@
     <string name="on_action_title" msgid="4129601573763429611">"Қосу"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Өшіру"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Параметрлер"</string>
-    <!-- no translation found for accept_action_title (4899660585470647578) -->
-    <skip />
+    <string name="accept_action_title" msgid="4899660585470647578">"Қабылдау"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"Қабылдамау"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"Жарайды"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Лақтыру"</string>
@@ -46,6 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"Сонда да қайталап көру"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"Иә"</string>
     <string name="no_action_title" msgid="1452124604210014010">"Жоқ"</string>
+    <string name="disable_all_rows" msgid="3003225080532928046">"Барлық жолды өшіру"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"Барлық жолды қосу"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"Қате туралы хабарланды!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"Ұлғайтылды."</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"Кішірейтілді."</string>
@@ -141,14 +142,10 @@
     <string name="importance_title" msgid="9034862997821839831">"Маңыздылығы"</string>
     <string name="category_title" msgid="4783851267093259949">"Санат"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"Ағымдағы"</string>
-    <!-- no translation found for default_importance (6347996298832939989) -->
-    <skip />
-    <!-- no translation found for high_importance (5009120714837304882) -->
-    <skip />
-    <!-- no translation found for low_importance (4721161314404294033) -->
-    <skip />
-    <!-- no translation found for unknown_importance (909001735933359216) -->
-    <skip />
+    <string name="default_importance" msgid="6347996298832939989">"Әдепкі"</string>
+    <string name="high_importance" msgid="5009120714837304882">"Жоғары"</string>
+    <string name="low_importance" msgid="4721161314404294033">"Төмен"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"Белгісіз"</string>
     <string name="notification_demo" msgid="1819496937832036387">"Хабарландырудың демо нұсқасы"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"Басқаларының демо нұсқасы"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"Навигация бойынша өтудің демо нұсқасы"</string>
@@ -281,6 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"1-опция"</string>
     <string name="option_2_title" msgid="1905146448697963818">"2-опция"</string>
     <string name="option_3_title" msgid="6319268250436119258">"3-опция"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"Ауыстырып қосқышы бар жол"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"Ауыстырып қосқышы бар жол және белгіше"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"Ауыстырып қосқышы бар жол, белгіше, боялған мәтін"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"Қосымша мәтін"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Үзіндіні таңдауға болатын тізім"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Тапсырманы шектеудің демо нұсқасы"</string>
@@ -289,13 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"Ілгері жүру үшін басыңыз."</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Ауыстырғыш сынағы"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Күй бақыланатын өзгерістерге рұқсат берілген."</string>
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Ауыстырғыш сынағын қосу"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"Ауыстырғыш сынағын қосу үшін осы күйді тексеріңіз."</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"Ауыстырғыш сынағы"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"Күй бақыланатын өзгерістерге рұқсат берілген."</string>
     <string name="image_test_title" msgid="8273863429801477547">"Сынақ суреті"</string>
     <string name="image_test_text" msgid="6264812093895530445">"Суретті өзгертуге рұқсат берілді."</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Қосымша дерек"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"\"Артқа\" операциясында өзгертуге рұқсат етілген"</string>
+    <string name="toggle_test_enabled" msgid="982370904182034076">"Ауыстырғыш сынағы қосылған."</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"Ауыстырғыш сынағы өшірілген."</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"\"Басқалары\" үлгісінің демо нұсқасы"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Презентацияның демо нұсқасы"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Түс реңкі өзгерген ресурс векторы"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Сурет ресурсының бит картасы"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Боялған мәтін маркері"</string>

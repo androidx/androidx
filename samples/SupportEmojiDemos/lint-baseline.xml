@@ -7,9 +7,7 @@
         errorLine1="    static synchronized Config get() {"
         errorLine2="    ^">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/Config.java"
-            line="92"
-            column="5"/>
+            file="src/main/java/com/example/android/support/text/emoji/Config.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    static synchronized void load(final Context context) {"
         errorLine2="    ^">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/EmojiRepo.java"
-            line="40"
-            column="5"/>
+            file="src/main/java/com/example/android/support/text/emoji/EmojiRepo.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="60"
-            column="9"/>
+            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                    read(context);"
         errorLine2="                    ~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/EmojiRepo.java"
-            line="45"
-            column="21"/>
+            file="src/main/java/com/example/android/support/text/emoji/EmojiRepo.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                holder = new ViewHolder();"
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ListFragment.java"
-            line="75"
-            column="26"/>
+            file="src/main/java/com/example/android/support/text/emoji/ListFragment.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            init();"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="75"
-            column="13"/>
+            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    public ConfigLayout(Context context) {"
         errorLine2="                        ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="41"
-            column="25"/>
+            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    public ConfigLayout(Context context, AttributeSet attrs) {"
         errorLine2="                        ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="46"
-            column="25"/>
+            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public ConfigLayout(Context context, AttributeSet attrs) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="46"
-            column="42"/>
+            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public ConfigLayout(Context context, AttributeSet attrs,"
         errorLine2="                        ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="51"
-            column="25"/>
+            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public ConfigLayout(Context context, AttributeSet attrs,"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="51"
-            column="42"/>
+            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public ConfigLayout(Context context, AttributeSet attrs,"
         errorLine2="                        ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="58"
-            column="25"/>
+            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public ConfigLayout(Context context, AttributeSet attrs,"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"
-            line="58"
-            column="42"/>
+            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public CustomTextView(Context context) {"
         errorLine2="                          ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/CustomTextView.java"
-            line="38"
-            column="27"/>
+            file="src/main/java/com/example/android/support/text/emoji/CustomTextView.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public CustomTextView(Context context, @Nullable AttributeSet attrs) {"
         errorLine2="                          ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/CustomTextView.java"
-            line="42"
-            column="27"/>
+            file="src/main/java/com/example/android/support/text/emoji/CustomTextView.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    public CustomTextView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {"
         errorLine2="                          ~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/CustomTextView.java"
-            line="46"
-            column="27"/>
+            file="src/main/java/com/example/android/support/text/emoji/CustomTextView.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ListFragment.java"
-            line="47"
-            column="12"/>
+            file="src/main/java/com/example/android/support/text/emoji/ListFragment.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ListFragment.java"
-            line="47"
-            column="30"/>
+            file="src/main/java/com/example/android/support/text/emoji/ListFragment.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                      ~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ListFragment.java"
-            line="47"
-            column="55"/>
+            file="src/main/java/com/example/android/support/text/emoji/ListFragment.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/ListFragment.java"
-            line="48"
-            column="13"/>
+            file="src/main/java/com/example/android/support/text/emoji/ListFragment.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/MainActivity.java"
-            line="29"
-            column="29"/>
+            file="src/main/java/com/example/android/support/text/emoji/MainActivity.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="85"
-            column="12"/>
+            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="                             ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="85"
-            column="30"/>
+            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    public View onCreateView(LayoutInflater inflater, ViewGroup container,"
         errorLine2="                                                      ~~~~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="85"
-            column="55"/>
+            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="            Bundle savedInstanceState) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"
-            line="86"
-            column="13"/>
+            file="src/main/java/com/example/android/support/text/emoji/MainFragment.java"/>
     </issue>
 
 </issues>

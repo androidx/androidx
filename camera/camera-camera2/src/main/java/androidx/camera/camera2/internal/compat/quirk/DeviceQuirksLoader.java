@@ -77,6 +77,9 @@ public class DeviceQuirksLoader {
         if (CaptureSessionOnClosedNotCalledQuirk.load()) {
             quirks.add(new CaptureSessionOnClosedNotCalledQuirk());
         }
+        if (TorchIsClosedAfterImageCapturingQuirk.load()) {
+            quirks.add(new TorchIsClosedAfterImageCapturingQuirk());
+        }
 
         return quirks;
     }

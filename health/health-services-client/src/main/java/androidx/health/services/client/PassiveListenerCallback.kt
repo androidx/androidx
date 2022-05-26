@@ -17,34 +17,50 @@
 package androidx.health.services.client
 
 import androidx.health.services.client.data.DataPoint
+import androidx.health.services.client.data.HealthEvent
 import androidx.health.services.client.data.PassiveGoal
 import androidx.health.services.client.data.UserActivityInfo
 
 /** A callback for receiving passive monitoring updates. */
-// TODO(b/227475943): Update method naming to be past tense, add onRegistered and
-//  onRegistrationFailed, open up visibility, and consider renaming to PassiveMonitoringCallback
-internal interface PassiveListenerCallback {
+public interface PassiveListenerCallback {
+
+    /** Called when this callback has been successfully registered with Health Services. */
+    public fun onRegistered()
+
+    /**
+     * Called when Health Services reports a failure with the registration of this callback.
+     *
+     * @param throwable a [Throwable] sent by Health Services with information about the failure
+     */
+    public fun onRegistrationFailed(throwable: Throwable)
 
     /**
      * Called when new [DataPoint]s are generated.
      *
      * @param dataPoints a list of new [DataPoint]s generated
      */
-    public fun onNewDataPoints(dataPoints: List<DataPoint>) {}
+    public fun onNewDataPointsReceived(dataPoints: List<DataPoint>) {}
 
     /**
      * Called when new [UserActivityInfo] is generated.
      *
      * @param info a new [UserActivityInfo] representing the current state
      */
-    public fun onUserActivityInfo(info: UserActivityInfo) {}
+    public fun onUserActivityInfoReceived(info: UserActivityInfo) {}
 
     /**
      * Called when a [PassiveGoal] has been completed.
      *
-     * @param goal the goal that has been completed
+     * @param goal the [PassiveGoal] that has been completed
      */
     public fun onGoalCompleted(goal: PassiveGoal) {}
+
+    /**
+     * Called when a [HealthEvent] has been detected.
+     *
+     * @param event the [HealthEvent] that has been detected
+     */
+    public fun onHealthEventReceived(event: HealthEvent) {}
 
     /**
      * Called when the client has lost permission for the passive listener request. If this happens,

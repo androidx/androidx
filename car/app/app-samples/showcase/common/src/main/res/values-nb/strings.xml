@@ -36,8 +36,7 @@
     <string name="on_action_title" msgid="4129601573763429611">"På"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Av"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Innstillinger"</string>
-    <!-- no translation found for accept_action_title (4899660585470647578) -->
-    <skip />
+    <string name="accept_action_title" msgid="4899660585470647578">"Godta"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"Avvis"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"OK"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Avbryt med en feil"</string>
@@ -46,6 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"Prøv likevel"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"Ja"</string>
     <string name="no_action_title" msgid="1452124604210014010">"Nei"</string>
+    <string name="disable_all_rows" msgid="3003225080532928046">"Slå av alle rader"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"Slå på alle rader"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"Feilen er rapportert!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"Zoomet inn"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"Zoomet ut"</string>
@@ -141,14 +142,10 @@
     <string name="importance_title" msgid="9034862997821839831">"Viktighet"</string>
     <string name="category_title" msgid="4783851267093259949">"Kategori"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"Kontinuerlig"</string>
-    <!-- no translation found for default_importance (6347996298832939989) -->
-    <skip />
-    <!-- no translation found for high_importance (5009120714837304882) -->
-    <skip />
-    <!-- no translation found for low_importance (4721161314404294033) -->
-    <skip />
-    <!-- no translation found for unknown_importance (909001735933359216) -->
-    <skip />
+    <string name="default_importance" msgid="6347996298832939989">"Standard"</string>
+    <string name="high_importance" msgid="5009120714837304882">"Høy"</string>
+    <string name="low_importance" msgid="4721161314404294033">"Lav"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"Ukjent"</string>
     <string name="notification_demo" msgid="1819496937832036387">"Varseldemo"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"Diverse demoer"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"Navigasjonsdemo"</string>
@@ -281,6 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"Alternativ 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Alternativ 2"</string>
     <string name="option_3_title" msgid="6319268250436119258">"Alternativ 3"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"Rad med alternativknapp"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"Rad med alternativknapp og ikon"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"Rad med alternativknapp og ikon og farget tekst"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"Noe tilleggstekst"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Eksempel på velgbar liste"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demo av oppgavebegrensning"</string>
@@ -289,13 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"Klikk for å fortsette"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Test av/på-knapp"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Dynamiske endringer er tillatt"</string>
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Aktiver test av av/på-knapp"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"Merk av her for å aktivere testen av av/på-knappen"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"Test av av/på-knapp"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"Dynamiske endringer er tillatt"</string>
     <string name="image_test_title" msgid="8273863429801477547">"Bildetest"</string>
     <string name="image_test_text" msgid="6264812093895530445">"Bildeendringer tillates"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Tilleggsdata"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"Oppdateringer tillates ved tilbakeoperasjoner."</string>
+    <string name="toggle_test_enabled" msgid="982370904182034076">"Test av av/på-knapp er aktivert"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"Test av av/på-knapp er deaktivert"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demoer av diverse maler"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demoer i fokus"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Ressursvektor med justert fargetone"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Punktgrafikk av bilderessurs"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Farget tekstmarkør"</string>

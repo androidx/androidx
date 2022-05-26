@@ -7,9 +7,7 @@
         errorLine1="        assertFalse(1 in array)"
         errorLine2="                      ~~">
         <location
-            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
-            line="42"
-            column="23"/>
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        assertTrue(1 in array)"
         errorLine2="                     ~~">
         <location
-            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
-            line="44"
-            column="22"/>
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        assertFalse(2 in array)"
         errorLine2="                      ~~">
         <location
-            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
-            line="52"
-            column="23"/>
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        assertTrue(2 in array)"
         errorLine2="                     ~~">
         <location
-            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
-            line="55"
-            column="22"/>
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        view.updatePaddingRelative(start = 10, end = 20)"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="142"
-            column="14"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        assertEquals(10, view.paddingStart)"
         errorLine2="                              ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="143"
-            column="31"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        assertEquals(20, view.paddingEnd)"
         errorLine2="                              ~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="145"
-            column="31"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="        view.setPaddingRelative(10, 20, 30, 40)"
         errorLine2="             ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="151"
-            column="14"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="        view.updatePaddingRelative()"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="152"
-            column="14"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        assertEquals(10, view.paddingStart)"
         errorLine2="                              ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="153"
-            column="31"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        assertEquals(30, view.paddingEnd)"
         errorLine2="                              ~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="155"
-            column="31"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    addPauseListener(listener)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/Animator.kt"
-            line="124"
-            column="5"/>
+            file="src/main/java/androidx/core/animation/Animator.kt"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    @Px start: Int = paddingStart,"
         errorLine2="                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/View.kt"
-            line="140"
-            column="22"/>
+            file="src/main/java/androidx/core/view/View.kt"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    @Px end: Int = paddingEnd,"
         errorLine2="                   ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/View.kt"
-            line="142"
-            column="20"/>
+            file="src/main/java/androidx/core/view/View.kt"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    setPaddingRelative(start, top, end, bottom)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/View.kt"
-            line="145"
-            column="5"/>
+            file="src/main/java/androidx/core/view/View.kt"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    postOnAnimationDelayed(runnable, delayInMillis)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/View.kt"
-            line="208"
-            column="5"/>
+            file="src/main/java/androidx/core/view/View.kt"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    @Px start: Int = marginStart,"
         errorLine2="                     ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/ViewGroup.kt"
-            line="158"
-            column="22"/>
+            file="src/main/java/androidx/core/view/ViewGroup.kt"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    @Px end: Int = marginEnd,"
         errorLine2="                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/ViewGroup.kt"
-            line="160"
-            column="20"/>
+            file="src/main/java/androidx/core/view/ViewGroup.kt"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    marginStart = start"
         errorLine2="    ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/ViewGroup.kt"
-            line="163"
-            column="5"/>
+            file="src/main/java/androidx/core/view/ViewGroup.kt"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    marginEnd = end"
         errorLine2="    ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/ViewGroup.kt"
-            line="165"
-            column="5"/>
+            file="src/main/java/androidx/core/view/ViewGroup.kt"/>
     </issue>
 
 </issues>

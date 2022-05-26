@@ -41,28 +41,28 @@ class PowerMetricTest {
             .associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
 
         val actualMetrics = PowerMetric(
-            PowerMetric.Type.Energy(categories)
+            PowerMetric.Energy(categories)
         ).getMetrics(captureInfo, traceFile.absolutePath)
 
         assertEquals(
             IterationResult(
                 singleMetrics = mapOf(
-                    "energyRailsCpuBigUws" to 31935.0,
-                    "energyRailsCpuLittleUws" to 303264.0,
-                    "energyRailsCpuMidUws" to 55179.0,
-                    "energyRailsDisplayUws" to 1006934.0,
-                    "energyRailsGpuUws" to 66555.0,
-                    "energyRailsDdrAUws" to 48458.0,
-                    "energyRailsDdrBUws" to 54988.0,
-                    "energyRailsDdrCUws" to 100082.0,
-                    "energyRailsMemoryInterfaceUws" to 151912.0,
-                    "energyRailsTpuUws" to 50775.0,
-                    "energyRailsAocLogicUws" to 74972.0,
-                    "energyRailsAocMemoryUws" to 19601.0,
-                    "energyRailsModemUws" to 8369.0,
-                    "energyRailsRadioFrontendUws" to 0.0,
-                    "energyRailsWifiBtUws" to 493868.0,
-                    "energyRailsSystemFabricUws" to 122766.0,
+                    "energyComponentCpuBigUws" to 31935.0,
+                    "energyComponentCpuLittleUws" to 303264.0,
+                    "energyComponentCpuMidUws" to 55179.0,
+                    "energyComponentDisplayUws" to 1006934.0,
+                    "energyComponentGpuUws" to 66555.0,
+                    "energyComponentDdrAUws" to 48458.0,
+                    "energyComponentDdrBUws" to 54988.0,
+                    "energyComponentDdrCUws" to 100082.0,
+                    "energyComponentMemoryInterfaceUws" to 151912.0,
+                    "energyComponentTpuUws" to 50775.0,
+                    "energyComponentAocLogicUws" to 74972.0,
+                    "energyComponentAocMemoryUws" to 19601.0,
+                    "energyComponentModemUws" to 8369.0,
+                    "energyComponentRadioFrontendUws" to 0.0,
+                    "energyComponentWifiBtUws" to 493868.0,
+                    "energyComponentSystemFabricUws" to 122766.0,
                     "energyTotalUws" to 2589658.0
                 ),
                 sampledMetrics = emptyMap()
@@ -79,18 +79,18 @@ class PowerMetricTest {
             .associateWith { PowerCategoryDisplayLevel.TOTAL }
 
         val actualMetrics = PowerMetric(
-            PowerMetric.Type.Power(categories)
+            PowerMetric.Power(categories)
         ).getMetrics(captureInfo, traceFile.absolutePath)
 
         assertEquals(
             IterationResult(
                 singleMetrics = mapOf(
-                    "powerCpuUw" to 80.940907,
-                    "powerDisplayUw" to 208.777524,
-                    "powerGpuUw" to 13.799502,
-                    "powerMemoryUw" to 73.69686899999999,
-                    "powerMachineLearningUw" to 10.52768,
-                    "powerNetworkUw" to 123.74248399999999,
+                    "powerCategoryCpuUw" to 80.940907,
+                    "powerCategoryDisplayUw" to 208.777524,
+                    "powerCategoryGpuUw" to 13.799502,
+                    "powerCategoryMemoryUw" to 73.69686899999999,
+                    "powerCategoryMachineLearningUw" to 10.52768,
+                    "powerCategoryNetworkUw" to 123.74248399999999,
                     "powerUncategorizedUw" to 25.454282,
                     "powerTotalUw" to 536.939248
                 ),
@@ -114,17 +114,17 @@ class PowerMetricTest {
         )
 
         val actualMetrics = PowerMetric(
-            PowerMetric.Type.Power(categories)
+            PowerMetric.Power(categories)
         ).getMetrics(captureInfo, traceFile.absolutePath)
 
         assertEquals(
             IterationResult(
                 singleMetrics = mapOf(
-                    "powerCpuUw" to 80.940907,
-                    "powerDisplayUw" to 208.777524,
-                    "powerMemoryUw" to 73.69686899999999,
-                    "powerNetworkUw" to 123.74248399999999,
-                    "powerRailsSystemFabricUw" to 25.454282,
+                    "powerCategoryCpuUw" to 80.940907,
+                    "powerCategoryDisplayUw" to 208.777524,
+                    "powerCategoryMemoryUw" to 73.69686899999999,
+                    "powerCategoryNetworkUw" to 123.74248399999999,
+                    "powerComponentSystemFabricUw" to 25.454282,
                     "powerUnselectedUw" to 24.327182,
                     "powerTotalUw" to 536.939248
                 ),
@@ -143,12 +143,35 @@ class PowerMetricTest {
             .associateWith { PowerCategoryDisplayLevel.BREAKDOWN }
 
         val actualMetrics = PowerMetric(
-            PowerMetric.Type.Energy(categories)
+            PowerMetric.Energy(categories)
         ).getMetrics(captureInfo, traceFile.absolutePath)
 
         assertEquals(
             IterationResult(
                 singleMetrics = emptyMap(),
+                sampledMetrics = emptyMap()
+            ), actualMetrics
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
+    @Test
+    fun successfulFixedTraceBatteryDischarge() {
+        assumeTrue(isAbiSupported())
+
+        val traceFile = createTempFileFromAsset("api31_battery_discharge", ".perfetto-trace")
+
+        val actualMetrics = PowerMetric(
+            PowerMetric.Battery()
+        ).getMetrics(captureInfo, traceFile.absolutePath)
+
+        assertEquals(
+            IterationResult(
+                singleMetrics = mapOf(
+                    "batteryStartMah" to 1020.0,
+                    "batteryEndMah" to 1007.0,
+                    "batteryDiffMah" to 13.0
+                ),
                 sampledMetrics = emptyMap()
             ), actualMetrics
         )

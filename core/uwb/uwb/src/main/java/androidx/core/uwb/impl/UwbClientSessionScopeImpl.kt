@@ -56,7 +56,7 @@ internal class UwbClientSessionScopeImpl(
             RangingParameters.UWB_CONFIG_ID_3 ->
                 com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.CONFIG_ID_3
             else ->
-                com.google.android.gms.nearby.uwb.RangingParameters.UwbConfigId.UNKNOWN
+                throw IllegalArgumentException("The selected UWB Config Id is not a valid id.")
         }
         val updateRate = when (parameters.updateRateType) {
             RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC ->
@@ -66,7 +66,8 @@ internal class UwbClientSessionScopeImpl(
             RangingParameters.RANGING_UPDATE_RATE_INFREQUENT ->
                 com.google.android.gms.nearby.uwb.RangingParameters.RangingUpdateRate.INFREQUENT
             else ->
-                com.google.android.gms.nearby.uwb.RangingParameters.RangingUpdateRate.UNKNOWN
+                throw IllegalArgumentException("The selected ranging update rate is not a valid" +
+                    " update rate.")
         }
         val parametersBuilder = com.google.android.gms.nearby.uwb.RangingParameters.Builder()
             .setSessionId(parameters.sessionId)

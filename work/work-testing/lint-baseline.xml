@@ -7,9 +7,7 @@
         errorLine1="            .setTriggeredContentAuthorities(authorities.toList())"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"
-            line="102"
-            column="14"/>
+            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            .setTriggeredContentUris(contentUris.toList())"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"
-            line="103"
-            column="14"/>
+            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        assertThat(worker.triggeredContentAuthorities, containsInAnyOrder(*authorities))"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"
-            line="109"
-            column="27"/>
+            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        assertThat(worker.triggeredContentAuthorities, containsInAnyOrder(*authorities))"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"
-            line="109"
-            column="27"/>
+            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        assertThat(worker.triggeredContentUris, containsInAnyOrder(*contentUris))"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"
-            line="110"
-            column="27"/>
+            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        assertThat(worker.triggeredContentUris, containsInAnyOrder(*contentUris))"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"
-            line="110"
-            column="27"/>
+            file="src/androidTest/java/androidx/work/testing/TestWorkerBuilderTest.kt"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="    UUID getId() {"
         errorLine2="         ~~~~~">
         <location
-            file="src/main/java/androidx/work/testing/TestListenableWorkerBuilder.java"
-            line="108"
-            column="10"/>
+            file="src/main/java/androidx/work/testing/TestListenableWorkerBuilder.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    Data getInputData() {"
         errorLine2="         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/testing/TestListenableWorkerBuilder.java"
-            line="116"
-            column="10"/>
+            file="src/main/java/androidx/work/testing/TestListenableWorkerBuilder.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    List&lt;String> getTags() {"
         errorLine2="                 ~~~~~~~">
         <location
-            file="src/main/java/androidx/work/testing/TestListenableWorkerBuilder.java"
-            line="124"
-            column="18"/>
+            file="src/main/java/androidx/work/testing/TestListenableWorkerBuilder.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    int getRunAttemptCount() {"
         errorLine2="        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/testing/TestListenableWorkerBuilder.java"
-            line="131"
-            column="9"/>
+            file="src/main/java/androidx/work/testing/TestListenableWorkerBuilder.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    WorkerFactory getWorkerFactory() {"
         errorLine2="                  ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/work/testing/TestListenableWorkerBuilder.java"
-            line="148"
-            column="19"/>
+            file="src/main/java/androidx/work/testing/TestListenableWorkerBuilder.java"/>
     </issue>
 
 </issues>

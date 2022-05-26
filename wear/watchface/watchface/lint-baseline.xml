@@ -7,9 +7,7 @@
         errorLine1="        HeadlessWatchFaceImpl.dump(indentingPrintWriter)"
         errorLine2="                              ~~~~">
         <location
-            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
-            line="2295"
-            column="31"/>
+            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        complicationSlotsManager.addTapListener("
         errorLine2="        ^">
         <location
-            file="src/test/java/androidx/wear/watchface/TestCommon.kt"
-            line="101"
-            column="9"/>
+            file="src/test/java/androidx/wear/watchface/TestCommon.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            complicationSlotsManager.watchState,"
         errorLine2="                                     ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/watchface/ComplicationSlot.kt"
-            line="271"
-            column="38"/>
+            file="src/main/java/androidx/wear/watchface/ComplicationSlot.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                            if (engine.deferredWatchFaceImpl.isCompleted) {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/watchface/control/InteractiveInstanceManager.kt"
-            line="125"
-            column="40"/>
+            file="src/main/java/androidx/wear/watchface/control/InteractiveInstanceManager.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                    it.deferredWatchFaceImpl.await()"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/watchface/control/InteractiveWatchFaceImpl.kt"
-            line="119"
-            column="24"/>
+            file="src/main/java/androidx/wear/watchface/control/InteractiveWatchFaceImpl.kt"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                return engine.deferredWatchFaceImpl.await().WFEditorDelegate()"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/watchface/WatchFace.kt"
-            line="214"
-            column="31"/>
+            file="src/main/java/androidx/wear/watchface/WatchFace.kt"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                return engine.deferredWatchFaceImpl.await().WFEditorDelegate()"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/watchface/WatchFace.kt"
-            line="214"
-            column="31"/>
+            file="src/main/java/androidx/wear/watchface/WatchFace.kt"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                complicationSlotsManager.watchState = watchState"
         errorLine2="                                         ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"
-            line="1761"
-            column="42"/>
+            file="src/main/java/androidx/wear/watchface/WatchFaceService.kt"/>
     </issue>
 
 </issues>

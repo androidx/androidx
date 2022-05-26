@@ -34,6 +34,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.guava)
+    testImplementation(libs.truth)
 }
 
 androidx {

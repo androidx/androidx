@@ -255,9 +255,13 @@ package androidx.room {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface MapInfo {
     method public abstract String keyColumn() default "";
+    method public abstract String keyTable() default "";
     method public abstract String valueColumn() default "";
+    method public abstract String valueTable() default "";
     property public abstract String keyColumn;
+    property public abstract String keyTable;
     property public abstract String valueColumn;
+    property public abstract String valueTable;
   }
 
   @IntDef({androidx.room.OnConflictStrategy.Companion.NONE, androidx.room.OnConflictStrategy.Companion.REPLACE, androidx.room.OnConflictStrategy.Companion.ROLLBACK, androidx.room.OnConflictStrategy.Companion.ABORT, androidx.room.OnConflictStrategy.Companion.FAIL, androidx.room.OnConflictStrategy.Companion.IGNORE}) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface OnConflictStrategy {
@@ -344,6 +348,7 @@ package androidx.room {
 
   public class RoomWarnings {
     ctor @Deprecated public RoomWarnings();
+    field public static final String AMBIGUOUS_COLUMN_IN_RESULT = "ROOM_AMBIGUOUS_COLUMN_IN_RESULT";
     field public static final String CANNOT_CREATE_VERIFICATION_DATABASE = "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
     field public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
     field public static final androidx.room.RoomWarnings.Companion Companion;

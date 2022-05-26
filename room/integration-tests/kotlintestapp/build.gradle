@@ -101,6 +101,8 @@ dependencies {
     androidTestImplementation(project(":room:room-guava"))
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-paging-guava"))
+    androidTestImplementation(project(":room:room-paging-rxjava2"))
+    androidTestImplementation(project(":room:room-paging-rxjava3"))
     // we need latest guava android because room-paging-guava's guava-android gets override by
     // its kotlinx-coroutines-guava dependency's guava-jre version
     androidTestImplementation(libs.guavaAndroid)

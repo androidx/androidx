@@ -7,9 +7,7 @@
         errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
         errorLine2="                              ~~~~~~">
         <location
-            file="src/main/java/androidx/media/test/lib/CustomParcelable.java"
-            line="41"
-            column="31"/>
+            file="src/main/java/androidx/media/test/lib/CustomParcelable.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public static void callMediaBrowserServiceMethod(int methodId, Object arg, Context context) {"
         errorLine2="                                                                   ~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="57"
-            column="68"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    public static void callMediaBrowserServiceMethod(int methodId, Object arg, Context context) {"
         errorLine2="                                                                               ~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="57"
-            column="80"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public static void callMediaSessionMethod(int methodId, Object arg, Context context) {"
         errorLine2="                                                            ~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="69"
-            column="61"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public static void callMediaSessionMethod(int methodId, Object arg, Context context) {"
         errorLine2="                                                                        ~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="69"
-            column="73"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            int methodId, Object arg, Context context, Parcelable token) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="82"
-            column="27"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="            int methodId, Object arg, Context context, Parcelable token) {"
         errorLine2="                                      ~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="82"
-            column="39"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="            int methodId, Object arg, Context context, Parcelable token) {"
         errorLine2="                                                       ~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="82"
-            column="56"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            int methodId, Object arg, Context context, Parcelable token) {"
         errorLine2="                          ~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="96"
-            column="27"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="            int methodId, Object arg, Context context, Parcelable token) {"
         errorLine2="                                      ~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="96"
-            column="39"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="            int methodId, Object arg, Context context, Parcelable token) {"
         errorLine2="                                                       ~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"
-            line="96"
-            column="56"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/IntentUtil.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public static void waitFor(final PollingCheckCondition condition) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/PollingCheck.java"
-            line="76"
-            column="38"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/PollingCheck.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    public static void waitFor(long timeout, final PollingCheckCondition condition) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/PollingCheck.java"
-            line="90"
-            column="52"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/PollingCheck.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    public static void assertBundleEquals(Bundle expected, Bundle observed) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/TestUtil.java"
-            line="32"
-            column="43"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/TestUtil.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public static void assertBundleEquals(Bundle expected, Bundle observed) {"
         errorLine2="                                                           ~~~~~~">
         <location
-            file="src/main/java/android/support/mediacompat/testlib/util/TestUtil.java"
-            line="32"
-            column="60"/>
+            file="src/main/java/android/support/mediacompat/testlib/util/TestUtil.java"/>
     </issue>
 
 </issues>

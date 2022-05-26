@@ -17,6 +17,10 @@
 package androidx.wear.tiles.material.layouts;
 
 import static androidx.wear.tiles.DimensionBuilders.wrap;
+import static androidx.wear.tiles.material.Helper.checkNotNull;
+import static androidx.wear.tiles.material.Helper.checkTag;
+import static androidx.wear.tiles.material.Helper.getMetadataTagName;
+import static androidx.wear.tiles.material.Helper.getTagBytes;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_BUTTON_1_SIZE;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_BUTTON_2_SIZE;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_BUTTON_3_PLUS_SIZE;
@@ -26,6 +30,7 @@ import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_BUTTON_S
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
@@ -34,6 +39,8 @@ import androidx.wear.tiles.LayoutElementBuilders.Column;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.LayoutElementBuilders.Row;
 import androidx.wear.tiles.LayoutElementBuilders.Spacer;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
+import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.material.Button;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
@@ -47,9 +54,14 @@ import java.util.List;
  * LayoutDefaults#MULTI_BUTTON_MAX_NUMBER} number of buttons arranged inline with the Material
  * guidelines. Can be used as a content passed in to the {@link PrimaryLayout}, but if there is
  * {@link LayoutDefaults#MULTI_BUTTON_MAX_NUMBER} buttons it should be used on its own.
+ *
+ * <p>For additional examples and suggested layouts see <a
+ * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
  */
-// TODO(b/215323986): Link visuals.
 public class MultiButtonLayout implements LayoutElement {
+    /** Tool tag for Metadata in Modifiers, so we know that Box is actually a MultiButtonLayout. */
+    static final String METADATA_TAG = "MBL";
+
     /** Button distribution where the first row has more buttons than other rows. */
     public static final int FIVE_BUTTON_DISTRIBUTION_TOP_HEAVY = 1;
 
@@ -119,7 +131,16 @@ public class MultiButtonLayout implements LayoutElement {
             }
 
             LayoutElement buttons = buildButtons(buttonNum);
-            Box.Builder elementBuilder = new Box.Builder().addContent(buttons);
+            Box.Builder elementBuilder =
+                    new Box.Builder()
+                        .setModifiers(
+                            new Modifiers.Builder()
+                                .setMetadata(
+                                    new ElementMetadata.Builder()
+                                        .setTagData(getTagBytes(METADATA_TAG))
+                                        .build())
+                                .build())
+                        .addContent(buttons);
 
             return new MultiButtonLayout(elementBuilder.build());
         }
@@ -283,6 +304,12 @@ public class MultiButtonLayout implements LayoutElement {
         return buttons;
     }
 
+    /** Returns metadata tag set to this MultiButtonLayouts. */
+    @NonNull
+    String getMetadataTag() {
+        return getMetadataTagName(checkNotNull(mElement.getModifiers()));
+    }
+
     /**
      * Gets the button distribution from this layout for the case when there is 5 buttons in the
      * layout. If there is more or less buttons than 5, default {@link
@@ -313,6 +340,23 @@ public class MultiButtonLayout implements LayoutElement {
             }
         }
         return buttons;
+    }
+
+    /**
+     * Returns MultiButtonLayout object from the given LayoutElement if that element can be
+     * converted to MultiButtonLayout. Otherwise, returns null.
+     */
+    @Nullable
+    public static MultiButtonLayout fromLayoutElement(@NonNull LayoutElement element) {
+        if (!(element instanceof Box)) {
+            return null;
+        }
+        Box boxElement = (Box) element;
+        if (!checkTag(boxElement.getModifiers(), METADATA_TAG)) {
+            return null;
+        }
+        // Now we are sure that this element is a MultiButtonLayout.
+        return new MultiButtonLayout(boxElement);
     }
 
     /** @hide */

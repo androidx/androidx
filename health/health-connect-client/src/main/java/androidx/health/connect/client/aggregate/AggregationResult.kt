@@ -15,9 +15,8 @@
  */
 package androidx.health.connect.client.aggregate
 
+import androidx.health.connect.client.aggregate.AggregateMetric.Converter
 import androidx.health.connect.client.metadata.DataOrigin
-import java.lang.IllegalArgumentException
-import java.time.Duration
 
 /**
  * Contains results of requested [AggregateMetric].
@@ -25,10 +24,10 @@ import java.time.Duration
  * To retrieve aggregate metrics:
  * ```
  * val result = healthConnectClient.aggregate(
- *   metrics = setOf(Steps.TOTAL, Distance.TOTAL)
+ *   metrics = setOf(Steps.COUNT_TOTAL, Distance.DISTANCE_TOTAL)
  * )
- * val totalSteps = result.getMetric(Steps.TOTAL)
- * val totalDistance = result.getMetric(Distance.TOTAL)
+ * val totalSteps = result[Steps.COUNT_TOTAL]
+ * val totalDistance = result[Distance.DISTANCE_TOTAL]
  * ```
  *
  * @see [androidx.health.connect.client.HealthConnectClient.aggregate]
@@ -48,13 +47,24 @@ internal constructor(
      * @param metric an aggregate metric identifier.
      * @return whether given metric is set.
      */
-    fun hasMetric(metric: AggregateMetric<*>): Boolean {
-        return when (metric.type) {
-            Long::class, Duration::class -> longValues.containsKey(metric.metricKey)
-            Double::class -> doubleValues.containsKey(metric.metricKey)
-            else -> false
+    @Deprecated(
+        message = "Please use contains(AggregateMetric)",
+        replaceWith = ReplaceWith("contains(metric)"),
+    )
+    fun hasMetric(metric: AggregateMetric<*>): Boolean = contains(metric)
+
+    /**
+     * Checks whether the aggregation result contains a metric or not. If there is no relevant
+     * record that contribute to requested metric, the metric will not be provided.
+     *
+     * @param metric an aggregate metric identifier.
+     * @return whether given metric is set.
+     */
+    operator fun contains(metric: AggregateMetric<*>): Boolean =
+        when (metric.converter) {
+            is Converter.FromLong -> metric.metricKey in longValues
+            is Converter.FromDouble -> metric.metricKey in doubleValues
         }
-    }
 
     /**
      * Retrieves a metric with given metric identifier.
@@ -63,17 +73,28 @@ internal constructor(
      * provided.
      *
      * @return the value of the metric, or null if not set.
-     * @throws IllegalArgumentException for invalid argument with metric not defined within SDK.
      *
-     * @see hasMetric
+     * @see contains
      */
-    fun <T : Any> getMetric(metric: AggregateMetric<T>): T? {
-        @Suppress("UNCHECKED_CAST")
-        return when (metric.type) {
-            Long::class -> longValues[metric.metricKey] as? T
-            Duration::class -> longValues[metric.metricKey]?.let { Duration.ofMillis(it) } as? T
-            Double::class -> doubleValues[metric.metricKey] as? T
-            else -> throw IllegalArgumentException("Unsupported metric type")
+    @Deprecated(
+        message = "Please use get(AggregateMetric)",
+        replaceWith = ReplaceWith("get(metric)"),
+    )
+    fun <T : Any> getMetric(metric: AggregateMetric<T>): T? = get(metric)
+
+    /**
+     * Retrieves a metric with given metric identifier.
+     *
+     * If there are no relevant records contributing to the requested metric, the metric will not be
+     * provided.
+     *
+     * @return the value of the metric, or null if not set.
+     *
+     * @see contains
+     */
+    operator fun <T : Any> get(metric: AggregateMetric<T>): T? =
+        when (metric.converter) {
+            is Converter.FromLong -> longValues[metric.metricKey]?.let(metric.converter)
+            is Converter.FromDouble -> doubleValues[metric.metricKey]?.let(metric.converter)
         }
-    }
 }

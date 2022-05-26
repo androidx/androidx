@@ -19,7 +19,6 @@ package androidx.camera.core.impl;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 
 import android.graphics.Rect;
-import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -60,12 +59,9 @@ public interface CameraControlInternal extends CameraControl {
 
     /**
      * Adds zero-shutter lag config to {@link SessionConfig}.
-     * @param resolution surface resolution.
      * @param sessionConfigBuilder session config builder.
      */
-    void addZslConfig(
-            @NonNull Size resolution,
-            @NonNull SessionConfig.Builder sessionConfigBuilder);
+    void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder);
 
     /**
      * Sets the flag if zero-shutter lag needs to be disabled by user case config.
@@ -161,8 +157,7 @@ public interface CameraControlInternal extends CameraControl {
         }
 
         @Override
-        public void addZslConfig(@NonNull Size resolution,
-                @NonNull SessionConfig.Builder sessionConfigBuilder) {
+        public void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder) {
         }
 
         @NonNull

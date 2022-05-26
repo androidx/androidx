@@ -33,7 +33,6 @@ import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeSpec
 import java.util.ArrayDeque
 import javax.lang.model.element.Modifier.PRIVATE
-import javax.lang.model.element.Modifier.PROTECTED
 import javax.lang.model.element.Modifier.PUBLIC
 
 /**
@@ -104,7 +103,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
             methodSpecs.add(
                 MethodSpec.methodBuilder(methodName).apply {
                     if (isPrimaryMethod) {
-                        addModifiers(PROTECTED)
+                        addModifiers(PUBLIC)
                         addAnnotation(Override::class.java)
                     } else {
                         addModifiers(PRIVATE)
@@ -172,7 +171,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
 
     private fun createOnCreate(scope: CodeGenScope): MethodSpec {
         return MethodSpec.methodBuilder("onCreate").apply {
-            addModifiers(PROTECTED)
+            addModifiers(PUBLIC)
             addAnnotation(Override::class.java)
             addParameter(SupportDbTypeNames.DB, "_db")
             invokeCallbacks(scope, "onCreate")

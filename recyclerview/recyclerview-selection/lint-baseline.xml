@@ -7,9 +7,7 @@
         errorLine1="    @MainThread"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/recyclerview/selection/OperationMonitor.java"
-            line="71"
-            column="5"/>
+            file="src/main/java/androidx/recyclerview/selection/OperationMonitor.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    @MainThread"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/recyclerview/selection/OperationMonitor.java"
-            line="82"
-            column="5"/>
+            file="src/main/java/androidx/recyclerview/selection/OperationMonitor.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="    /** @hide */"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/recyclerview/selection/OperationMonitor.java"
-            line="97"
-            column="5"/>
+            file="src/main/java/androidx/recyclerview/selection/OperationMonitor.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    /** @hide */"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/recyclerview/selection/OperationMonitor.java"
-            line="109"
-            column="5"/>
+            file="src/main/java/androidx/recyclerview/selection/OperationMonitor.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    /**"
         errorLine2="    ^">
         <location
-            file="src/main/java/androidx/recyclerview/selection/OperationMonitor.java"
-            line="115"
-            column="5"/>
+            file="src/main/java/androidx/recyclerview/selection/OperationMonitor.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public abstract boolean setItemsSelected(@NonNull Iterable&lt;K> keys, boolean selected);"
         errorLine2="                                                                        ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"
-            line="166"
-            column="73"/>
+            file="src/main/java/androidx/recyclerview/selection/SelectionTracker.java"/>
     </issue>
 
 </issues>

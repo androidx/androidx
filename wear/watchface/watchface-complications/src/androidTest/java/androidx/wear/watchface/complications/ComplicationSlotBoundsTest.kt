@@ -53,15 +53,21 @@ class ComplicationSlotBoundsTest {
             bounds.perComplicationTypeBounds[ComplicationType.SHORT_TEXT]
         ).isEqualTo(RectF(0.2f, 0.4f, 0.3f, 0.1f))
 
+        val widthPixels = context.resources.displayMetrics.widthPixels
+
         assertThat(
             bounds.perComplicationTypeBounds[ComplicationType.LONG_TEXT]
-        ).isEqualTo(RectF(0.6f, 0.8f, 0.7f, 0.5f))
+        ).isEqualTo(RectF(
+            96f * context.resources.displayMetrics.density / widthPixels,
+            96f * context.resources.displayMetrics.density / widthPixels,
+            192f * context.resources.displayMetrics.density / widthPixels,
+            192f * context.resources.displayMetrics.density / widthPixels
+        ))
 
         assertThat(
             bounds.perComplicationTypeBounds[ComplicationType.RANGED_VALUE]
         ).isEqualTo(RectF(0.3f, 0.3f, 0.5f, 0.7f))
 
-        val widthPixels = context.resources.displayMetrics.widthPixels
         val center = context.resources.getDimension(R.dimen.complication_center) / widthPixels
         val halfSize =
             context.resources.getDimension(R.dimen.complication_size) / widthPixels / 2.0f

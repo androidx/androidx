@@ -439,6 +439,7 @@ package androidx.appcompat.widget {
     method public boolean isOverflowMenuShowing();
     method public void onConfigurationChanged(android.content.res.Configuration!);
     method public void onDetachedFromWindow();
+    method public void setIconTint(android.content.res.ColorStateList?);
     method public void setOnMenuItemClickListener(androidx.appcompat.widget.ActionMenuView.OnMenuItemClickListener!);
     method public void setOverflowIcon(android.graphics.drawable.Drawable?);
     method public void setPopupTheme(@StyleRes int);
@@ -989,6 +990,7 @@ package androidx.appcompat.widget {
     method public void setContentInsetStartWithNavigation(int);
     method public void setContentInsetsAbsolute(int, int);
     method public void setContentInsetsRelative(int, int);
+    method public void setIconTint(android.content.res.ColorStateList?);
     method public void setLogo(@DrawableRes int);
     method public void setLogo(android.graphics.drawable.Drawable!);
     method public void setLogoDescription(@StringRes int);

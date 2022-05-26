@@ -52,6 +52,28 @@ package androidx.wear.watchface.style {
     property public final java.util.Map<java.lang.String,byte[]> userStyleMap;
   }
 
+  public final class UserStyleFlavor {
+    ctor public UserStyleFlavor(String id, androidx.wear.watchface.style.UserStyleData style, java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications);
+    ctor public UserStyleFlavor(String id, androidx.wear.watchface.style.UserStyle style, java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public UserStyleFlavor(androidx.wear.watchface.style.data.UserStyleFlavorWireFormat wireFormat);
+    method public java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> getComplications();
+    method public String getId();
+    method public androidx.wear.watchface.style.UserStyleData getStyle();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.UserStyleFlavorWireFormat toWireFormat();
+    property public final java.util.Map<java.lang.Integer,androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy> complications;
+    property public final String id;
+    property public final androidx.wear.watchface.style.UserStyleData style;
+  }
+
+  public final class UserStyleFlavors {
+    ctor public UserStyleFlavors(java.util.List<androidx.wear.watchface.style.UserStyleFlavor> flavors);
+    ctor public UserStyleFlavors();
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public UserStyleFlavors(androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat wireFormat);
+    method public java.util.List<androidx.wear.watchface.style.UserStyleFlavor> getFlavors();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.wear.watchface.style.data.UserStyleFlavorsWireFormat toWireFormat();
+    property public final java.util.List<androidx.wear.watchface.style.UserStyleFlavor> flavors;
+  }
+
   public final class UserStyleSchema {
     ctor public UserStyleSchema(java.util.List<? extends androidx.wear.watchface.style.UserStyleSetting> userStyleSettings);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public UserStyleSchema(androidx.wear.watchface.style.data.UserStyleSchemaWireFormat wireFormat);

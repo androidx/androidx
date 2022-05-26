@@ -36,8 +36,7 @@
     <string name="on_action_title" msgid="4129601573763429611">"Hidup"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Mati"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Tetapan"</string>
-    <!-- no translation found for accept_action_title (4899660585470647578) -->
-    <skip />
+    <string name="accept_action_title" msgid="4899660585470647578">"Terima"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"Tolak"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"OK"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Baling"</string>
@@ -46,6 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"Cuba Juga"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"Ya"</string>
     <string name="no_action_title" msgid="1452124604210014010">"Tidak"</string>
+    <string name="disable_all_rows" msgid="3003225080532928046">"Lumpuhkan Semua Baris"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"Dayakan Semua Baris"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"Pepijat dilaporkan!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"Dizum masuk"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"Dizum keluar"</string>
@@ -141,14 +142,10 @@
     <string name="importance_title" msgid="9034862997821839831">"Kepentingan"</string>
     <string name="category_title" msgid="4783851267093259949">"Kategori"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"Sedang berlangsung"</string>
-    <!-- no translation found for default_importance (6347996298832939989) -->
-    <skip />
-    <!-- no translation found for high_importance (5009120714837304882) -->
-    <skip />
-    <!-- no translation found for low_importance (4721161314404294033) -->
-    <skip />
-    <!-- no translation found for unknown_importance (909001735933359216) -->
-    <skip />
+    <string name="default_importance" msgid="6347996298832939989">"Lalai"</string>
+    <string name="high_importance" msgid="5009120714837304882">"Tinggi"</string>
+    <string name="low_importance" msgid="4721161314404294033">"Rendah"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"Tidak diketahui"</string>
     <string name="notification_demo" msgid="1819496937832036387">"Demo Pemberitahuan"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"Pelbagai Demo"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"Demo Navigasi"</string>
@@ -281,6 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"Pilihan 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Pilihan 2"</string>
     <string name="option_3_title" msgid="6319268250436119258">"Pilihan 3"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"Baris dengan Butang Radio"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"Baris dengan Butang dan Ikon Radio"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"Baris dengan Butang dan Ikon Radio serta Teks Berwarna"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"Beberapa teks tambahan"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Senarai sampel yang boleh dipilih"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Demo Sekatan Tugasan"</string>
@@ -289,13 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"Klik untuk maju"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Togol ujian"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Perubahan keadaan dibenarkan"</string>
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Dayakan Ujian Togol"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"Tandakan tetapan ini untuk mendayakan ujian togol"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"Ujian togol"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"Perubahan berkeadaan dibenarkan"</string>
     <string name="image_test_title" msgid="8273863429801477547">"Ujian imej"</string>
     <string name="image_test_text" msgid="6264812093895530445">"Perubahan imej dibenarkan"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Data Tambahan"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"Kemaskinian dibenarkan pada operasi belakang."</string>
+    <string name="toggle_test_enabled" msgid="982370904182034076">"Ujian Togol Didayakan"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"Ujian Togol Dilumpuhkan"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Pelbagai Demo Templat"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Demo Wadah"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Vektor sumber diwarnai"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Peta bit sumber imej"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Penanda teks berwarna"</string>

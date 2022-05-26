@@ -17,6 +17,7 @@
 package androidx.wear.compose.foundation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -86,12 +87,14 @@ internal class CurvedTextChild(
     val style: @Composable () -> CurvedTextStyle = { CurvedTextStyle() },
     val overflow: TextOverflow
 ) : CurvedChild() {
-    private val delegate: CurvedTextDelegate = CurvedTextDelegate()
+    private lateinit var delegate: CurvedTextDelegate
     private lateinit var actualStyle: CurvedTextStyle
 
     @Composable
     override fun SubComposition() {
         actualStyle = DefaultCurvedTextStyles + style()
+        // Avoid recreating the delegate if possible, as it's expensive
+        delegate = remember { CurvedTextDelegate() }
     }
 
     override fun CurvedMeasureScope.initializeMeasure(

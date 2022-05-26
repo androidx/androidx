@@ -36,8 +36,7 @@
     <string name="on_action_title" msgid="4129601573763429611">"Vuliwe"</string>
     <string name="off_action_title" msgid="8669201170189204848">"Valiwe"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"Amasethingi"</string>
-    <!-- no translation found for accept_action_title (4899660585470647578) -->
-    <skip />
+    <string name="accept_action_title" msgid="4899660585470647578">"Yamukela"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"Nqaba"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"KULUNGILE"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"Phonsa"</string>
@@ -46,6 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"Zama Noma Kunjalo"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"Yebo"</string>
     <string name="no_action_title" msgid="1452124604210014010">"Cha"</string>
+    <string name="disable_all_rows" msgid="3003225080532928046">"Khubaza Yonke Imigqa"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"Nika Amandla Yonke Imigqa"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"Isiphazamisi sibikiwe!"</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"Kusondezwe isithombe"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"Kuhlehliswe isithombe"</string>
@@ -141,14 +142,10 @@
     <string name="importance_title" msgid="9034862997821839831">"Ukubaluleka"</string>
     <string name="category_title" msgid="4783851267093259949">"Isigaba"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"Okuqhubekayo"</string>
-    <!-- no translation found for default_importance (6347996298832939989) -->
-    <skip />
-    <!-- no translation found for high_importance (5009120714837304882) -->
-    <skip />
-    <!-- no translation found for low_importance (4721161314404294033) -->
-    <skip />
-    <!-- no translation found for unknown_importance (909001735933359216) -->
-    <skip />
+    <string name="default_importance" msgid="6347996298832939989">"Okuzenzekelayo"</string>
+    <string name="high_importance" msgid="5009120714837304882">"Phezulu"</string>
+    <string name="low_importance" msgid="4721161314404294033">"Kuphansi"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"Akwaziwa"</string>
     <string name="notification_demo" msgid="1819496937832036387">"Idemo Yesaziso"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"Amademo Ahlukahlukene"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"Idemo Yokufuna"</string>
@@ -281,6 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"Inketho 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"Inketho 2"</string>
     <string name="option_3_title" msgid="6319268250436119258">"Inketho 3"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"Umugqa Onenkinobho Yokukhetha"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"Umugqa Onenkinobho Yokukhetha kanye Nesithonjana"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"Umugqa Onenkinobho Yokukhetha kanye nesithonjana Nombhalo Onemibala"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"Omunye umbhalo owengeziwe"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Isampula lohlu olukhethekayo"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Idemo Yokukhawulelwa Komsebenzi"</string>
@@ -289,13 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"Chofoza ukuze uye phambili"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"Guqula ukuhlola"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"Izinguquko ezisemthethweni zivunyelwe"</string>
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"Nika Amandla Ukuhlola Kokuguqula"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"Hlola lena ukuze unike amandla ukuhlola kokuguqula"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"Ukuhlola kokuguqula"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"Izinguquko ezisemthethweni zivunyelwe"</string>
     <string name="image_test_title" msgid="8273863429801477547">"Isivivinyo somfanekiso"</string>
     <string name="image_test_text" msgid="6264812093895530445">"Izinguquko zomfanekiso zivunyelwe"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"Idatha Eyengeziwe"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"Izibuyekezo zivunyelwe ukusebenza ngemuva."</string>
+    <string name="toggle_test_enabled" msgid="982370904182034076">"Ukuhlola Kokuguqula Kunikwe Amandla"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"Ukuhlola Kokuguqula Kukhutshaziwe"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Amademo Ezifanekiso Ezixubile"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"Bonisa Amademo"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"translatable=falseGoogle Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"Ivekhtha yensiza enemibala"</string>
     <string name="location_2_description" msgid="3331356135359047166">"Umfanekiso wensiza ye-bitmap"</string>
     <string name="location_3_description" msgid="3982142774088944850">"Umaka wombala wombhalo"</string>

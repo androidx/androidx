@@ -7,9 +7,7 @@
         errorLine1="        Camera2ImplConfig.Builder camera2ConfigurationBuilder = new Camera2ImplConfig.Builder();"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"
-            line="40"
-            column="65"/>
+            file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            camera2ConfigurationBuilder.setCaptureRequestOption(captureParameter.first,"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"
-            line="43"
-            column="41"/>
+            file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            camera2ConfigurationBuilder.setCaptureRequestOption(captureParameter.first,"
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"
-            line="43"
-            column="65"/>
+            file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                    captureParameter.second);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"
-            line="44"
-            column="21"/>
+            file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        captureConfigBuilder.addImplementationOptions(camera2ConfigurationBuilder.build());"
         errorLine2="                                                                                  ~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"
-            line="48"
-            column="83"/>
+            file="src/main/java/androidx/camera/extensions/internal/AdaptingCaptureStage.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                CaptureRequestOptions.Builder.from(parameters).build();"
         errorLine2="                                              ~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="120"
-            column="47"/>
+            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                CaptureRequestOptions.Builder.from(parameters).build();"
         errorLine2="                                                   ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="120"
-            column="52"/>
+            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                CaptureRequestOptions.Builder.from(parameters).build();"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="120"
-            column="64"/>
+            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="            Camera2ImplConfig.Builder camera2ConfigBuilder = new Camera2ImplConfig.Builder();"
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="263"
-            column="62"/>
+            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="                camera2ConfigBuilder.setCaptureRequestOption(objKey,"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="267"
-            column="38"/>
+            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="                camera2ConfigBuilder.setCaptureRequestOption(objKey,"
         errorLine2="                                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="267"
-            column="62"/>
+            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="                        implRequest.getParameters().get(objKey));"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="268"
-            column="25"/>
+            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="            mParameters = camera2ConfigBuilder.build();"
         errorLine2="                                               ~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"
-            line="270"
-            column="48"/>
+            file="src/main/java/androidx/camera/extensions/internal/sessionprocessor/AdvancedSessionProcessor.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="                new Camera2ImplConfig.Extender&lt;>(builder).setCameraEventCallback("
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"
-            line="113"
-            column="17"/>
+            file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="                new Camera2ImplConfig.Extender&lt;>(builder).setCameraEventCallback("
         errorLine2="                                                 ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"
-            line="113"
-            column="50"/>
+            file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="                new Camera2ImplConfig.Extender&lt;>(builder).setCameraEventCallback("
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"
-            line="113"
-            column="59"/>
+            file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="                        new CameraEventCallbacks(imageCaptureEventAdapter));"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"
-            line="114"
-            column="25"/>
+            file="src/main/java/androidx/camera/extensions/internal/ImageCaptureConfigProvider.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="                new Camera2ImplConfig.Extender&lt;>(builder).setCameraEventCallback("
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"
-            line="115"
-            column="17"/>
+            file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="                new Camera2ImplConfig.Extender&lt;>(builder).setCameraEventCallback("
         errorLine2="                                                 ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"
-            line="115"
-            column="50"/>
+            file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="                new Camera2ImplConfig.Extender&lt;>(builder).setCameraEventCallback("
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"
-            line="115"
-            column="59"/>
+            file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="                        new CameraEventCallbacks(previewEventAdapter));"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"
-            line="116"
-            column="25"/>
+            file="src/main/java/androidx/camera/extensions/internal/PreviewConfigProvider.java"/>
     </issue>
 
 </issues>

@@ -7,9 +7,7 @@
         errorLine1="            throw new AssertionError(&quot;interrupted&quot;, e);"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"
-            line="290"
-            column="19"/>
+            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            throw new AssertionError(&quot;drain timed out&quot;, e);"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"
-            line="292"
-            column="19"/>
+            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            throw new AssertionError(&quot;interrupted&quot;, e);"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"
-            line="327"
-            column="19"/>
+            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="            throw new AssertionError(&quot;execution error&quot;, e);"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"
-            line="329"
-            column="19"/>
+            file="src/androidTest/java/androidx/room/integration/testapp/test/QueryTransactionTest.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    public void abstractDao() {"
         errorLine2="                ~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/integration/testapp/test/DefaultDaoMethodsTest.java"
-            line="117"
-            column="17"/>
+            file="src/androidTest/java/androidx/room/integration/testapp/test/DefaultDaoMethodsTest.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="    public void interfaceDao() {"
         errorLine2="                ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/room/integration/testapp/test/DefaultDaoMethodsTest.java"
-            line="133"
-            column="17"/>
+            file="src/androidTest/java/androidx/room/integration/testapp/test/DefaultDaoMethodsTest.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="            mDatabase.getCustomerDao().insert(customer);"
         errorLine2="            ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"
-            line="58"
-            column="13"/>
+            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="            final LiveData&lt;List&lt;Customer>> customers = mDatabase.getCustomerDao().all();"
         errorLine2="                                                       ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"
-            line="73"
-            column="56"/>
+            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    public String getName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/Customer.java"
-            line="45"
-            column="12"/>
+            file="src/main/java/androidx/room/integration/testapp/database/Customer.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="    public void setName(String name) {"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/Customer.java"
-            line="49"
-            column="25"/>
+            file="src/main/java/androidx/room/integration/testapp/database/Customer.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="    public String getLastName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/Customer.java"
-            line="53"
-            column="12"/>
+            file="src/main/java/androidx/room/integration/testapp/database/Customer.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="    public void setLastName(String lastName) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/Customer.java"
-            line="57"
-            column="29"/>
+            file="src/main/java/androidx/room/integration/testapp/database/Customer.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="    void insert(Customer customer);"
         errorLine2="                ~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/CustomerDao.java"
-            line="37"
-            column="17"/>
+            file="src/main/java/androidx/room/integration/testapp/database/CustomerDao.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="    void insertAll(Customer[] customers);"
         errorLine2="                   ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/CustomerDao.java"
-            line="44"
-            column="20"/>
+            file="src/main/java/androidx/room/integration/testapp/database/CustomerDao.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    LiveData&lt;List&lt;Customer>> all();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/CustomerDao.java"
-            line="56"
-            column="5"/>
+            file="src/main/java/androidx/room/integration/testapp/database/CustomerDao.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="    public Description(int productId, String text) {"
         errorLine2="                                      ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/Description.java"
-            line="32"
-            column="39"/>
+            file="src/main/java/androidx/room/integration/testapp/database/Description.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="    public String getText() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/Description.java"
-            line="41"
-            column="12"/>
+            file="src/main/java/androidx/room/integration/testapp/database/Description.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public Product(int id, String name) {"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/Product.java"
-            line="38"
-            column="28"/>
+            file="src/main/java/androidx/room/integration/testapp/database/Product.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="    public String getName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/Product.java"
-            line="51"
-            column="12"/>
+            file="src/main/java/androidx/room/integration/testapp/database/Product.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="    public void setName(String name) {"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/Product.java"
-            line="55"
-            column="25"/>
+            file="src/main/java/androidx/room/integration/testapp/database/Product.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    void insert(Product product);"
         errorLine2="                ~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/ProductDao.java"
-            line="35"
-            column="17"/>
+            file="src/main/java/androidx/room/integration/testapp/database/ProductDao.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    void addReview(Review review);"
         errorLine2="                   ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/ProductDao.java"
-            line="41"
-            column="20"/>
+            file="src/main/java/androidx/room/integration/testapp/database/ProductDao.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    List&lt;Review> getProductReviews(int productId);"
         errorLine2="    ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/ProductDao.java"
-            line="47"
-            column="5"/>
+            file="src/main/java/androidx/room/integration/testapp/database/ProductDao.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    void addDescription(Description description);"
         errorLine2="                        ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/ProductFtsDao.java"
-            line="35"
-            column="25"/>
+            file="src/main/java/androidx/room/integration/testapp/database/ProductFtsDao.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="    List&lt;Product> getProductsWithDescription(String query);"
         errorLine2="    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/ProductFtsDao.java"
-            line="42"
-            column="5"/>
+            file="src/main/java/androidx/room/integration/testapp/database/ProductFtsDao.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="    List&lt;Product> getProductsWithDescription(String query);"
         errorLine2="                                             ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/ProductFtsDao.java"
-            line="42"
-            column="46"/>
+            file="src/main/java/androidx/room/integration/testapp/database/ProductFtsDao.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="    public abstract CustomerDao getCustomerDao();"
         errorLine2="                    ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/SampleDatabase.java"
-            line="31"
-            column="21"/>
+            file="src/main/java/androidx/room/integration/testapp/database/SampleDatabase.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="    public abstract ProductDao getProductDao();"
         errorLine2="                    ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/SampleDatabase.java"
-            line="36"
-            column="21"/>
+            file="src/main/java/androidx/room/integration/testapp/database/SampleDatabase.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="    public static Intent intentFor(Context context, String databaseName) {"
         errorLine2="                  ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"
-            line="99"
-            column="19"/>
+            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="    public static Intent intentFor(Context context, String databaseName) {"
         errorLine2="                                   ~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"
-            line="99"
-            column="36"/>
+            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="    public static Intent intentFor(Context context, String databaseName) {"
         errorLine2="                                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"
-            line="99"
-            column="53"/>
+            file="src/main/java/androidx/room/integration/testapp/SampleDatabaseService.java"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="    public abstract ProductFtsDao getProductDao();"
         errorLine2="                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/integration/testapp/database/SampleFtsDatabase.java"
-            line="31"
-            column="21"/>
+            file="src/main/java/androidx/room/integration/testapp/database/SampleFtsDatabase.java"/>
     </issue>
 
 </issues>

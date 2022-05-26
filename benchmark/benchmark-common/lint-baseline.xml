@@ -7,9 +7,7 @@
         errorLine1="                BACKGROUND_SPINNING_PROCESS_NAME"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/benchmark/ShellTest.kt"
-            line="48"
-            column="17"/>
+            file="src/androidTest/java/androidx/benchmark/ShellTest.kt"/>
     </issue>
 
 </issues>

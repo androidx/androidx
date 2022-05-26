@@ -7,9 +7,7 @@
         errorLine1="    public void registersCallback_byController_notifiesOnCallbackRegistered()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/android/support/mediacompat/service/MediaSessionCompatRegistrationCallbackTest.java"
-            line="78"
-            column="17"/>
+            file="src/androidTest/java/android/support/mediacompat/service/MediaSessionCompatRegistrationCallbackTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public void unregistersCallback_byController_notifiesOnCallbackUnregistered()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/android/support/mediacompat/service/MediaSessionCompatRegistrationCallbackTest.java"
-            line="106"
-            column="17"/>
+            file="src/androidTest/java/android/support/mediacompat/service/MediaSessionCompatRegistrationCallbackTest.java"/>
     </issue>
 
 </issues>

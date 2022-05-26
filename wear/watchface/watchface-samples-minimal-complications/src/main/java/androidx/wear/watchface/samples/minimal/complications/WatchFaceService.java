@@ -78,7 +78,8 @@ public class WatchFaceService extends ListenableWatchFaceService {
 
     @NotNull
     @Override
-    public ComplicationSlotInflationFactory getComplicationSlotInflationFactory() {
+    public ComplicationSlotInflationFactory getComplicationSlotInflationFactory(
+            @NonNull CurrentUserStyleRepository currentUserStyleRepository) {
         final Context context = this;
         return new ComplicationSlotInflationFactory() {
             @NonNull

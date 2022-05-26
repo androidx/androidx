@@ -17,7 +17,6 @@
 package androidx.camera.camera2.internal;
 
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
-import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING;
 
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
 
@@ -356,14 +355,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @Override
     public boolean isZslSupported() {
-        return Build.VERSION.SDK_INT >= 23
-                && (isYuvReprocessingSupported() || isPrivateReprocessingSupported());
-    }
-
-    @Override
-    public boolean isYuvReprocessingSupported() {
-        return isCapabilitySupported(mCameraCharacteristicsCompat,
-                REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING);
+        return Build.VERSION.SDK_INT >= 23 && isPrivateReprocessingSupported();
     }
 
     @Override

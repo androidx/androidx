@@ -1277,6 +1277,7 @@ package androidx.appcompat.widget {
     method public void onDetachedFromWindow();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.appcompat.view.menu.MenuBuilder! peekMenu();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setExpandedActionViewsExclusive(boolean);
+    method public void setIconTint(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void setMenuCallbacks(androidx.appcompat.view.menu.MenuPresenter.Callback!, androidx.appcompat.view.menu.MenuBuilder.Callback!);
     method public void setOnMenuItemClickListener(androidx.appcompat.widget.ActionMenuView.OnMenuItemClickListener!);
     method public void setOverflowIcon(android.graphics.drawable.Drawable?);
@@ -2124,6 +2125,7 @@ package androidx.appcompat.widget {
     method public void setContentInsetStartWithNavigation(int);
     method public void setContentInsetsAbsolute(int, int);
     method public void setContentInsetsRelative(int, int);
+    method public void setIconTint(android.content.res.ColorStateList?);
     method public void setLogo(@DrawableRes int);
     method public void setLogo(android.graphics.drawable.Drawable!);
     method public void setLogoDescription(@StringRes int);

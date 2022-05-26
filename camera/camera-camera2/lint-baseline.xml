@@ -2,14 +2,56 @@
 <issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="    public boolean isZslSupported() {"
+        errorLine2="                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/Camera2CameraInfoImpl.java"
+            line="358"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="        return Build.VERSION.SDK_INT >= 23"
+        errorLine2="               ^">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/Camera2CameraInfoImpl.java"
+            line="359"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="                        captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/Camera2UseCaseConfigFactory.java"
+            line="69"
+            column="53"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="                        captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/Camera2UseCaseConfigFactory.java"
+            line="97"
+            column="53"/>
+    </issue>
+
+    <issue
         id="NewApi"
         message="Field requires API level 30 (current min is 21): `android.hardware.camera2.CaptureRequest#CONTROL_ZOOM_RATIO`"
         errorLine1="                CaptureRequest.CONTROL_ZOOM_RATIO, null);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/camera/camera2/internal/ZoomControlDeviceTest.java"
-            line="271"
-            column="17"/>
+            file="src/androidTest/java/androidx/camera/camera2/internal/ZoomControlDeviceTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +60,7 @@
         errorLine1="                return (Size) getSurfaceSize.invoke(null, surface);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"
-            line="237"
-            column="31"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"/>
     </issue>
 
     <issue
@@ -29,9 +69,7 @@
         errorLine1="                return (int) detectSurfaceType.invoke(null, surface);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"
-            line="257"
-            column="30"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"/>
     </issue>
 
     <issue
@@ -40,9 +78,7 @@
         errorLine1="                return (int) getGenerationId.invoke(surface);"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"
-            line="273"
-            column="30"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatBaseImpl.java"/>
     </issue>
 
     <issue
@@ -51,9 +87,7 @@
         errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/AeFpsRange.java"
-            line="56"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/AeFpsRange.java"/>
     </issue>
 
     <issue
@@ -62,9 +96,7 @@
         errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/AeFpsRange.java"
-            line="56"
-            column="51"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/AeFpsRange.java"/>
     </issue>
 
     <issue
@@ -73,9 +105,7 @@
         errorLine1="                    mAeTargetFpsRange);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/AeFpsRange.java"
-            line="57"
-            column="21"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/AeFpsRange.java"/>
     </issue>
 
     <issue
@@ -84,9 +114,7 @@
         errorLine1="        builder.setCaptureRequestOption(CaptureRequest.CONTROL_ZOOM_RATIO, mCurrentZoomRatio);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/AndroidRZoomImpl.java"
-            line="60"
-            column="17"/>
+            file="src/main/java/androidx/camera/camera2/internal/AndroidRZoomImpl.java"/>
     </issue>
 
     <issue
@@ -95,9 +123,7 @@
         errorLine1="        builder.setCaptureRequestOption(CaptureRequest.CONTROL_ZOOM_RATIO, mCurrentZoomRatio);"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/AndroidRZoomImpl.java"
-            line="60"
-            column="41"/>
+            file="src/main/java/androidx/camera/camera2/internal/AndroidRZoomImpl.java"/>
     </issue>
 
     <issue
@@ -106,9 +132,7 @@
         errorLine1="        builder.setCaptureRequestOption(CaptureRequest.CONTROL_ZOOM_RATIO, mCurrentZoomRatio);"
         errorLine2="                                                                           ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/AndroidRZoomImpl.java"
-            line="60"
-            column="76"/>
+            file="src/main/java/androidx/camera/camera2/internal/AndroidRZoomImpl.java"/>
     </issue>
 
     <issue
@@ -117,9 +141,7 @@
         errorLine1="            builder.setCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION,"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/CropRegionZoomImpl.java"
-            line="67"
-            column="21"/>
+            file="src/main/java/androidx/camera/camera2/internal/CropRegionZoomImpl.java"/>
     </issue>
 
     <issue
@@ -128,9 +150,7 @@
         errorLine1="            builder.setCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION,"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/CropRegionZoomImpl.java"
-            line="67"
-            column="45"/>
+            file="src/main/java/androidx/camera/camera2/internal/CropRegionZoomImpl.java"/>
     </issue>
 
     <issue
@@ -139,9 +159,7 @@
         errorLine1="                    mCurrentCropRect);"
         errorLine2="                    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/CropRegionZoomImpl.java"
-            line="68"
-            column="21"/>
+            file="src/main/java/androidx/camera/camera2/internal/CropRegionZoomImpl.java"/>
     </issue>
 
     <issue
@@ -150,9 +168,7 @@
         errorLine1="        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/ExposureControl.java"
-            line="129"
-            column="23"/>
+            file="src/main/java/androidx/camera/camera2/internal/ExposureControl.java"/>
     </issue>
 
     <issue
@@ -161,9 +177,7 @@
         errorLine1="        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION,"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/ExposureControl.java"
-            line="129"
-            column="47"/>
+            file="src/main/java/androidx/camera/camera2/internal/ExposureControl.java"/>
     </issue>
 
     <issue
@@ -172,9 +186,7 @@
         errorLine1="                mExposureStateImpl.getExposureCompensationIndex());"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/ExposureControl.java"
-            line="130"
-            column="17"/>
+            file="src/main/java/androidx/camera/camera2/internal/ExposureControl.java"/>
     </issue>
 
     <issue
@@ -183,9 +195,7 @@
         errorLine1="        configBuilder.setCaptureRequestOption("
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="188"
-            column="23"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -194,9 +204,7 @@
         errorLine1="                CaptureRequest.CONTROL_AF_MODE, mCameraControl.getSupportedAfMode(afMode));"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="189"
-            column="17"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -205,9 +213,7 @@
         errorLine1="                CaptureRequest.CONTROL_AF_MODE, mCameraControl.getSupportedAfMode(afMode));"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="189"
-            column="49"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -216,9 +222,7 @@
         errorLine1="            configBuilder.setCaptureRequestOption("
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="192"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -227,9 +231,7 @@
         errorLine1="                    CaptureRequest.CONTROL_AF_REGIONS, mAfRects);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="193"
-            column="21"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -238,9 +240,7 @@
         errorLine1="                    CaptureRequest.CONTROL_AF_REGIONS, mAfRects);"
         errorLine2="                                                       ~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="193"
-            column="56"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -249,9 +249,7 @@
         errorLine1="            configBuilder.setCaptureRequestOption("
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="196"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -260,9 +258,7 @@
         errorLine1="                    CaptureRequest.CONTROL_AE_REGIONS, mAeRects);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="197"
-            column="21"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -271,9 +267,7 @@
         errorLine1="                    CaptureRequest.CONTROL_AE_REGIONS, mAeRects);"
         errorLine2="                                                       ~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="197"
-            column="56"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -282,9 +276,7 @@
         errorLine1="            configBuilder.setCaptureRequestOption("
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="200"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -293,9 +285,7 @@
         errorLine1="                    CaptureRequest.CONTROL_AWB_REGIONS, mAwbRects);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="201"
-            column="21"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -304,9 +294,7 @@
         errorLine1="                    CaptureRequest.CONTROL_AWB_REGIONS, mAwbRects);"
         errorLine2="                                                        ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="201"
-            column="57"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -315,9 +303,7 @@
         errorLine1="        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="376"
-            column="51"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -326,9 +312,7 @@
         errorLine1="        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="377"
-            column="23"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -337,9 +321,7 @@
         errorLine1="        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="377"
-            column="47"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -348,9 +330,7 @@
         errorLine1="                CaptureRequest.CONTROL_AF_TRIGGER_START);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="378"
-            column="17"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -359,9 +339,7 @@
         errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="385"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -370,9 +348,7 @@
         errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="385"
-            column="51"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -381,9 +357,7 @@
         errorLine1="                    mCameraControl.getSupportedAeMode(CaptureRequest.CONTROL_AE_MODE_ON));"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="386"
-            column="21"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -392,9 +366,7 @@
         errorLine1="        builder.addImplementationOptions(configBuilder.build());"
         errorLine2="                                                       ~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="388"
-            column="56"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -403,9 +375,7 @@
         errorLine1="        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="436"
-            column="51"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -414,9 +384,7 @@
         errorLine1="        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="437"
-            column="23"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -425,9 +393,7 @@
         errorLine1="        configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="437"
-            column="47"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -436,9 +402,7 @@
         errorLine1="                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="438"
-            column="17"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -447,9 +411,7 @@
         errorLine1="        builder.addImplementationOptions(configBuilder.build());"
         errorLine2="                                                       ~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="439"
-            column="56"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -458,9 +420,7 @@
         errorLine1="        Camera2ImplConfig.Builder configBuilder = new Camera2ImplConfig.Builder();"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="478"
-            column="51"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -469,9 +429,7 @@
         errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="480"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -480,9 +438,7 @@
         errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AF_TRIGGER,"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="480"
-            column="51"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -491,9 +447,7 @@
         errorLine1="                    CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="481"
-            column="21"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -502,9 +456,7 @@
         errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="484"
-            column="27"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -513,9 +465,7 @@
         errorLine1="            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="484"
-            column="51"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -524,9 +474,7 @@
         errorLine1="                    CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="485"
-            column="21"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -535,9 +483,7 @@
         errorLine1="        builder.addImplementationOptions(configBuilder.build());"
         errorLine2="                                                       ~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"
-            line="487"
-            column="56"/>
+            file="src/main/java/androidx/camera/camera2/internal/FocusMeteringControl.java"/>
     </issue>
 
     <issue
@@ -546,9 +492,7 @@
         errorLine1="        Camera2ImplConfig.Builder camera2ConfigBuilder = new Camera2ImplConfig.Builder();"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpacker.java"
-            line="54"
-            column="58"/>
+            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpacker.java"/>
     </issue>
 
     <issue
@@ -557,9 +501,7 @@
         errorLine1="        builder.addImplementationOptions(camera2ConfigBuilder.build());"
         errorLine2="                                                              ~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpacker.java"
-            line="61"
-            column="63"/>
+            file="src/main/java/androidx/camera/camera2/internal/ImageCaptureOptionUnpacker.java"/>
     </issue>
 
     <issue
@@ -568,9 +510,7 @@
         errorLine1="                builder.setCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, true);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"
-            line="55"
-            column="25"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"/>
     </issue>
 
     <issue
@@ -579,9 +519,7 @@
         errorLine1="                builder.setCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, true);"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"
-            line="55"
-            column="49"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"/>
     </issue>
 
     <issue
@@ -590,9 +528,7 @@
         errorLine1="                builder.setCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, true);"
         errorLine2="                                                                                   ~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"
-            line="55"
-            column="84"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"/>
     </issue>
 
     <issue
@@ -601,9 +537,7 @@
         errorLine1="                builder.setCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, false);"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"
-            line="59"
-            column="25"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"/>
     </issue>
 
     <issue
@@ -612,9 +546,7 @@
         errorLine1="                builder.setCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, false);"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"
-            line="59"
-            column="49"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"/>
     </issue>
 
     <issue
@@ -623,9 +555,7 @@
         errorLine1="                builder.setCaptureRequestOption(CaptureRequest.CONTROL_ENABLE_ZSL, false);"
         errorLine2="                                                                                   ~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"
-            line="59"
-            column="84"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/ImageCapturePixelHDRPlus.java"/>
     </issue>
 
     <issue
@@ -634,9 +564,7 @@
         errorLine1="        Camera2ImplConfig.Builder camera2ConfigBuilder = new Camera2ImplConfig.Builder();"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"
-            line="48"
-            column="58"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"/>
     </issue>
 
     <issue
@@ -645,9 +573,7 @@
         errorLine1="        camera2ConfigBuilder.setCaptureRequestOption(CaptureRequest.TONEMAP_MODE,"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"
-            line="49"
-            column="30"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"/>
     </issue>
 
     <issue
@@ -656,9 +582,7 @@
         errorLine1="        camera2ConfigBuilder.setCaptureRequestOption(CaptureRequest.TONEMAP_MODE,"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"
-            line="49"
-            column="54"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"/>
     </issue>
 
     <issue
@@ -667,9 +591,7 @@
         errorLine1="                CaptureRequest.TONEMAP_MODE_HIGH_QUALITY);"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"
-            line="50"
-            column="17"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"/>
     </issue>
 
     <issue
@@ -678,9 +600,7 @@
         errorLine1="        sessionBuilder.addImplementationOptions(camera2ConfigBuilder.build());"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"
-            line="51"
-            column="70"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/workaround/PreviewPixelHDRnet.java"/>
     </issue>
 
     <issue
@@ -689,9 +609,7 @@
         errorLine1="    @RequiresApi(21)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatApi24Impl.java"
-            line="102"
-            column="5"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatApi24Impl.java"/>
     </issue>
 
     <issue
@@ -700,9 +618,7 @@
         errorLine1="    @RequiresApi(21)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatApi26Impl.java"
-            line="167"
-            column="5"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/OutputConfigurationCompatApi26Impl.java"/>
     </issue>
 
     <issue
@@ -711,9 +627,7 @@
         errorLine1="    public static List&lt;OutputConfiguration> transformFromCompat("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="137"
-            column="19"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
     <issue
@@ -722,9 +636,7 @@
         errorLine1="    public List&lt;OutputConfigurationCompat> getOutputConfigurations() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="162"
-            column="12"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
     <issue
@@ -733,9 +645,7 @@
         errorLine1="    public CameraCaptureSession.StateCallback getStateCallback() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="171"
-            column="12"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
     <issue
@@ -744,9 +654,7 @@
         errorLine1="    public Executor getExecutor() {"
         errorLine2="           ~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="180"
-            column="12"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
     <issue
@@ -755,9 +663,7 @@
         errorLine1="    public InputConfigurationCompat getInputConfiguration() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="189"
-            column="12"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
     <issue
@@ -766,9 +672,7 @@
         errorLine1="    public CaptureRequest getSessionParameters() {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="211"
-            column="12"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
     <issue
@@ -777,9 +681,7 @@
         errorLine1="    public void setSessionParameters(CaptureRequest params) {"
         errorLine2="                                     ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"
-            line="233"
-            column="38"/>
+            file="src/main/java/androidx/camera/camera2/internal/compat/params/SessionConfigurationCompat.java"/>
     </issue>
 
 </issues>

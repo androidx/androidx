@@ -60,12 +60,23 @@ class BackStackState implements Parcelable {
                 continue;
             }
             // Otherwise, retrieve any saved state, clearing it out for future calls
-            Bundle fragmentState = fm.getFragmentStore().setSavedState(fWho, null);
-            if (fragmentState != null) {
-                FragmentState fs = fragmentState.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
+            Bundle stateBundle = fm.getFragmentStore().setSavedState(fWho, null);
+            if (stateBundle != null) {
+                ClassLoader classLoader = fm.getHost().getContext().getClassLoader();
+                FragmentState fs = stateBundle.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
                 if (fs != null) {
-                    Fragment fragment = fs.instantiate(fm.getFragmentFactory(),
-                            fm.getHost().getContext().getClassLoader());
+                    Fragment fragment = fs.instantiate(fm.getFragmentFactory(), classLoader);
+
+                    // Instantiate the fragment's arguments
+                    Bundle state = fm.getFragmentStore().getSavedState(fragment.mWho);
+                    Bundle arguments = state != null
+                            ? state.getBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG)
+                            : null;
+                    if (arguments != null) {
+                        arguments.setClassLoader(classLoader);
+                    }
+                    fragment.setArguments(arguments);
+
                     fragments.put(fragment.mWho, fragment);
                 }
             }

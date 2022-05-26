@@ -209,6 +209,15 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         )
     }
 
+    @Test
+    fun canCaptureMultipleImagesWithZsl() {
+        skipTestOnCameraPipeConfig()
+
+        canTakeMultipleImages(
+            ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG)
+        )
+    }
+
     private fun canTakeMultipleImages(builder: ImageCapture.Builder): Unit = runBlocking {
         val useCase = builder.build()
         withContext(Dispatchers.Main) {

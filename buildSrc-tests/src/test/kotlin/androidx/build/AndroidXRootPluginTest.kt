@@ -16,78 +16,20 @@
 
 package androidx.build
 
-import androidx.testutils.gradle.ProjectSetupRule
-import java.io.File
 import net.saff.checkmark.Checkmark.Companion.check
-import org.gradle.testkit.runner.GradleRunner
 import org.junit.Assert
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import org.junit.rules.TestRule
-import org.junit.runner.Description
-import org.junit.runners.model.Statement
 
 class AndroidXRootPluginTest {
     @Test
-    fun rootProjectConfigurationHasAndroidXTasks() {
-        TemporaryFolder().wrap { tmpFolder ->
-            ProjectSetupRule().wrap { setup ->
-                val props = setup.props
+    fun rootProjectConfigurationHasAndroidXTasks() = pluginTest {
+        writeRootSettingsFile()
+        writeRootBuildFile()
+        Assert.assertTrue(privateJar.path, privateJar.exists())
 
-                fun buildSrcFile(path: String) =
-                    File(props.tipOfTreeMavenRepoPath, "../../../buildSrc/$path")
-
-                val privateJar = buildSrcFile("private/build/libs/private.jar")
-                val publicJar = buildSrcFile("public/build/libs/public.jar")
-
-                val settingsGradleText = """
-                  pluginManagement {
-                    ${setup.repositories}
-                  }
-                """.trimIndent()
-
-                File(setup.rootDir, "settings.gradle").writeText(settingsGradleText)
-
-                val buildGradleText = """
-                  buildscript {
-                    project.ext.outDir = file("${tmpFolder.newFolder().path}")
-                    project.ext.supportRootFolder = file("${tmpFolder.newFolder().path}")
-
-                    ${setup.repositories}
-
-                    dependencies {
-                      classpath(project.files("${privateJar.path}"))
-                      classpath(project.files("${publicJar.path}"))
-                      classpath '${props.agpDependency}'
-                      classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:${props.kotlinVersion}'
-                    }
-                  }
-
-                  apply plugin: androidx.build.AndroidXRootImplPlugin
-                """.trimIndent()
-
-                File(setup.rootDir, "build.gradle").writeText(buildGradleText)
-                Assert.assertTrue(privateJar.path, privateJar.exists())
-                GradleRunner.create().withProjectDir(setup.rootDir)
-                    .withArguments("tasks", "--stacktrace")
-                    .build().output.check {
-                        it.contains("listAndroidXProperties - Lists AndroidX-specific properties")
-                    }
-            }
+        // --stacktrace gives more details on failure.
+        runGradle("tasks", "--stacktrace").output.check {
+            it.contains("listAndroidXProperties - Lists AndroidX-specific properties")
         }
-    }
-
-    companion object {
-        /**
-         * JUnit 4 [TestRule]s are traditionally added to a test class as public JVM fields
-         * with a @[org.junit.Rule] annotation.  This works decently in Java, but has drawbacks,
-         * such as requiring all methods in a test class to be subject to the same [TestRule]s, and
-         * making it difficult to configure [TestRule]s in different ways between test methods.
-         * With lambdas, objects that have been built as [TestRule] can use this extension function
-         * to allow per-method custom application.
-         */
-        private fun <T : TestRule> T.wrap(fn: (T) -> Unit) = apply(object : Statement() {
-            override fun evaluate() = fn(this@wrap)
-        }, Description.EMPTY).evaluate()
     }
 }

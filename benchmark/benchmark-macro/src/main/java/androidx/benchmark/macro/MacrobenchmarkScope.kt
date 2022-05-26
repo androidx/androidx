@@ -222,6 +222,23 @@ public class MacrobenchmarkScope(
     }
 
     /**
+     * Deletes the Shader cache for an application.
+     *
+     * Enables measurement of shader-cache startup cost during
+     * [cold starts](androidx.benchmark.macro.StartupMode.COLD).
+     */
+    public fun dropShaderCache() {
+        Log.d(TAG, "Dropping shader cache for $packageName")
+        // Shader cache is stored in the codeCacheDirectory
+        // https://source.corp.google.com/android-internal/frameworks/base/core/java/android/app/ActivityThread.java;l=6410
+        val shaderCachePath = instrumentation.targetContext.codeCacheDir.absolutePath
+        val output = Shell.executeScript("rm -rf $shaderCachePath")
+        check(output.isBlank()) {
+            "Unable to drop shader cache for $packageName ($output)"
+        }
+    }
+
+    /**
      * Drop caches via setprop added in API 31
      *
      * Feature for dropping caches without root added in 31: https://r.android.com/1584525

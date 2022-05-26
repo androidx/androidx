@@ -56,7 +56,7 @@ public class ComparisonType private constructor(public val id: Int, public val n
         // which it did for UNKNOWN.
         // TODO(b/175064823): investigate adding EQUAL comparison type
 
-        /** The ComparisonType is unknown, or this library version is too old to recognize it. */
+        /** The comparison type is unknown, or this library version is too old to recognize it. */
         @JvmField
         public val UNKNOWN: ComparisonType = ComparisonType(0, "UNKNOWN")
 

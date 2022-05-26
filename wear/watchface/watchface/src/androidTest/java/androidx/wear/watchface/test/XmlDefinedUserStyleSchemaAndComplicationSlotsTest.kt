@@ -37,7 +37,6 @@ import androidx.wear.watchface.ComplicationSlotsManager
 import androidx.wear.watchface.RenderParameters
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
-import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
@@ -92,8 +91,9 @@ class TestXmlWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
-    override fun getComplicationSlotInflationFactory() =
-        object : ComplicationSlotInflationFactory() {
+    override fun getComplicationSlotInflationFactory(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = object : ComplicationSlotInflationFactory() {
             override fun getCanvasComplicationFactory(slotId: Int): CanvasComplicationFactory {
                 return CanvasComplicationFactory { _, _ ->
                     object : CanvasComplication {
@@ -218,7 +218,6 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         assertThat(existingInstance).isNull()
     }
 
-    @OptIn(WatchFaceFlavorsExperimental::class)
     @Test
     public fun staticSchemaAndComplicationsRead() {
         val service = TestXmlWatchFaceService(

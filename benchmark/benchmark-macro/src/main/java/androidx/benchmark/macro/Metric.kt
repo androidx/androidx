@@ -21,13 +21,16 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Shell
+import androidx.benchmark.macro.BatteryCharge.hasMinimumCharge
 import androidx.benchmark.macro.PowerRail.hasMetrics
 import androidx.benchmark.macro.perfetto.AudioUnderrunQuery
+import androidx.benchmark.macro.perfetto.BatteryDischargeQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery
 import androidx.benchmark.macro.perfetto.FrameTimingQuery.SubMetric
 import androidx.benchmark.macro.perfetto.PerfettoResultsParser.parseStartupResult
 import androidx.benchmark.macro.perfetto.PerfettoTraceProcessor
 import androidx.benchmark.macro.perfetto.PowerQuery
+import androidx.benchmark.macro.perfetto.Slice
 import androidx.benchmark.macro.perfetto.StartupTimingQuery
 import androidx.benchmark.macro.perfetto.camelCase
 import androidx.test.platform.app.InstrumentationRegistry
@@ -358,39 +361,52 @@ public class TraceSectionMetric(
     }
 }
 /**
- * Captures the change of power rails metrics over time for specified duration.  A configurable
- * output of rails and subsystems will be generated.  Subsystems outputs will include the sum of
- * all rails within it.  A metric total will also be generated, as well as a metric which is the
- * sum of all other metrics not displayed.
+ * Captures the change of power, energy or battery charge metrics over time for specified duration.
+ * A configurable output of power, energy, subsystems, and battery charge will be generated.
+ * Subsystem outputs will include the sum of all power or energy metrics within it.  A metric total
+ * will also be generated for power and energy, as well as a metric which is the sum of all
+ * unselected metrics.
  *
  * @param `type` - Either [Type.Energy] or [Type.Power], which can be configured to show components
- * of system power usage.
+ * of system power usage, or [Type.Battery], which will halt charging of device to measure power
+ * drain.
  *
- * The sum of all categories will be displayed as a `Total` metric.  The sum of all unrequested
- * categories will be displayed as an `Unselected` metric.  The subsystems that have not been
- * categorized will be displayed as an `Uncategorized` metric.
+ * For [Type.Energy] or [Type.Power], the sum of all categories will be displayed as a `Total`
+ * metric.  The sum of all unrequested categories will be displayed as an `Unselected` metric.  The
+ * subsystems that have not been categorized will be displayed as an `Uncategorized` metric.
+ *
+ * For [Type.Battery], the charge for the start of the run and the end of the run will be displayed.
+ * An additional `Diff` metric will be displayed to indicate the charge drain over the course of
+ * the test.
  *
  * The metrics will be stored in the format `<type><name><unit>`.  This outputs measurements like
  * the following:
  *
  * Power metrics example:
  * ```
- * powerDisplayUw           min       128.2,   median       128.7,   max       129.8
- * powerRailsCpuBigUw       min         1.9,   median         2.9,   max         3.4
- * powerRailsCpuLittleUw    min        65.8,   median        76.2,   max        79.7
- * powerRailsCpuMidUw       min        10.8,   median        13.3,   max        13.6
- * powerTotalUw             min       362.4,   median       395.2,   max       400.6
- * powerUnselectedUw        min       155.3,   median       170.8,   max       177.8
+ * powerCategoryDisplayUw       min       128.2,   median       128.7,   max       129.8
+ * powerComponentCpuBigUw       min         1.9,   median         2.9,   max         3.4
+ * powerComponentCpuLittleUw    min        65.8,   median        76.2,   max        79.7
+ * powerComponentCpuMidUw       min        10.8,   median        13.3,   max        13.6
+ * powerTotalUw                 min       362.4,   median       395.2,   max       400.6
+ * powerUnselectedUw            min       155.3,   median       170.8,   max       177.8
  * ```
  *
  * Energy metrics example:
  * ```
- * energyDisplayUws         min   610,086.0,   median   623,183.0,   max   627,259.0
- * energyRailsCpuBigUws     min     9,233.0,   median    13,566.0,   max    16,536.0
- * energyRailsCpuLittleUws  min   318,591.0,   median   368,211.0,   max   379,106.0
- * energyRailsCpuMidUws     min    52,143.0,   median    64,462.0,   max    64,893.0
- * energyTotalUws           min 1,755,261.0,   median 1,880,687.0,   max 1,935,402.0
- * energyUnselectedUws      min   752,111.0,   median   813,036.0,   max   858,934.0
+ * energyCategoryDisplayUws     min    610,086.0,   median    623,183.0,   max    627,259.0
+ * energyComponentCpuBigUws     min      9,233.0,   median     13,566.0,   max     16,536.0
+ * energyComponentCpuLittleUws  min    318,591.0,   median    368,211.0,   max    379,106.0
+ * energyComponentCpuMidUws     min     52,143.0,   median     64,462.0,   max     64,893.0
+ * energyTotalUws               min  1,755,261.0,   median  1,880,687.0,   max  1,935,402.0
+ * energyUnselectedUws          min    752,111.0,   median    813,036.0,   max    858,934.0
+ * ```
+ *
+ * Battery metrics example:
+ * ```
+ * batteryDiffMah       min         2.0,   median         2.0,   max         4.0
+ * batteryEndMah        min     3,266.0,   median     3,270.0,   max     3,276.0
+ * batteryStartMah      min     3,268.0,   median     3,274.0,   max     3,278.0
  * ```
  *
  * This measurement is not available prior to API 29.
@@ -401,8 +417,24 @@ public class PowerMetric(
     private val type: Type
 ) : Metric() {
 
-    internal companion object {
+    companion object {
         internal const val MEASURE_BLOCK_SECTION_NAME = "measureBlock"
+
+        fun Battery(): Type.Battery {
+            return Type.Battery()
+        }
+
+        fun Energy(
+            categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
+        ): Type.Energy {
+            return Type.Energy(categories)
+        }
+
+        fun Power(
+            categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
+        ): Type.Power {
+            return Type.Power(categories)
+        }
     }
 
     /**
@@ -414,22 +446,35 @@ public class PowerMetric(
      * category will have metrics displayed independently or summed for a total metric of the
      * category.
      */
-    sealed class Type(var categories: Map<PowerCategory, PowerCategoryDisplayLevel>) {
+    sealed class Type(var categories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()) {
         class Power(
             powerCategories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
         ) : Type(powerCategories)
         class Energy(
             energyCategories: Map<PowerCategory, PowerCategoryDisplayLevel> = emptyMap()
         ) : Type(energyCategories)
+        class Battery : Type()
     }
 
     internal override fun configure(packageName: String) {
-        hasMetrics(throwOnMissingMetrics = true)
+        if (type is Type.Energy || type is Type.Power) {
+            hasMetrics(throwOnMissingMetrics = true)
+        } else {
+            hasMinimumCharge(throwOnMissingMetrics = true)
+        }
     }
 
-    internal override fun start() {}
+    internal override fun start() {
+        if (type is Type.Battery) {
+            Shell.executeCommand("setprop power.battery_input.suspended true")
+        }
+    }
 
-    internal override fun stop() {}
+    internal override fun stop() {
+        if (type is Type.Battery) {
+            Shell.executeCommand("setprop power.battery_input.suspended false")
+        }
+    }
 
     internal override fun getMetrics(captureInfo: CaptureInfo, tracePath: String): IterationResult {
         // collect metrics between trace point flags
@@ -437,39 +482,60 @@ public class PowerMetric(
             .firstOrNull()
             ?: return IterationResult.EMPTY
 
+        if (type is Type.Battery) {
+            return getBatteryDischargeMetrics(tracePath, slice)
+        }
+
+        return getPowerMetrics(tracePath, slice)
+    }
+
+    private fun getBatteryDischargeMetrics(tracePath: String, slice: Slice): IterationResult {
+        val metrics = BatteryDischargeQuery.getBatteryDischargeMetrics(tracePath, slice)
+
+        val metricMap: Map<String, Double> = metrics.associate { measurement ->
+            getLabel(measurement.name) to measurement.chargeMah
+        }
+
+        return IterationResult(
+            singleMetrics = metricMap,
+            sampledMetrics = emptyMap())
+    }
+
+    private fun getPowerMetrics(tracePath: String, slice: Slice): IterationResult {
         val metrics = PowerQuery.getPowerMetrics(tracePath, slice)
 
-        val label = if (type is Type.Power) "power%sUw" else "energy%sUws"
-
-        val metricMap: Map<String, Double> = getSpecifiedMetrics(metrics, label)
+        val metricMap: Map<String, Double> = getSpecifiedMetrics(metrics)
         if (metricMap.isEmpty()) {
             return IterationResult(
                 singleMetrics = emptyMap(),
                 sampledMetrics = emptyMap())
         }
 
-        val extraMetrics: Map<String, Double> = getTotalAndUnselectedMetrics(metrics, label)
+        val extraMetrics: Map<String, Double> = getTotalAndUnselectedMetrics(metrics)
 
         return IterationResult(
             singleMetrics = metricMap + extraMetrics,
             sampledMetrics = emptyMap())
     }
 
+    private fun getLabel(metricName: String, displayType: String = ""): String {
+        return when (type) {
+            is Type.Power -> "power${displayType}${metricName}Uw"
+            is Type.Energy -> "energy${displayType}${metricName}Uws"
+            is Type.Battery -> "battery${metricName}Mah"
+        }
+    }
+
     private fun getTotalAndUnselectedMetrics(
-        metrics: Map<PowerCategory, PowerQuery.CategoryMeasurement>,
-        label: String
+        metrics: Map<PowerCategory, PowerQuery.CategoryMeasurement>
     ): Map<String, Double> {
         return mapOf(
-            String.format(
-                label,
-                "Total"
-            ) to metrics.values.fold(0.0) { total, next ->
+            getLabel("Total") to
+                metrics.values.fold(0.0) { total, next ->
                 total + next.getValue(type)
             },
-            String.format(
-                label,
-                "Unselected"
-            ) to metrics.filter { (category, _) ->
+            getLabel("Unselected") to
+                metrics.filter { (category, _) ->
                 !type.categories.containsKey(category)
             }.values.fold(0.0) { total, next ->
                 total + next.getValue(type)
@@ -480,27 +546,25 @@ public class PowerMetric(
     }
 
     private fun getSpecifiedMetrics(
-        metrics: Map<PowerCategory, PowerQuery.CategoryMeasurement>,
-        label: String
+        metrics: Map<PowerCategory, PowerQuery.CategoryMeasurement>
     ): Map<String, Double> {
         return metrics.filter { (category, _) ->
             type.categories.containsKey(category)
         }.map { (category, measurement) ->
+            val sectionName = if (category == PowerCategory.UNCATEGORIZED) "" else "Category"
             when (type.categories[category]) {
                 // if total category specified, create component of sum total of category
                 PowerCategoryDisplayLevel.TOTAL -> listOf(
-                    String.format(
-                        label,
-                        category.toString().camelCase()
+                    getLabel(
+                        category.toString().camelCase(), sectionName
                     ) to measurement.components.fold(0.0) { total, next ->
                         total + next.getValue(type)
                     }
                 )
                 // if breakdown, append all ComponentMeasurements metrics from category
                 else -> measurement.components.map { component ->
-                    String.format(
-                        label,
-                        component.name
+                    getLabel(
+                        component.name, "Component"
                     ) to component.getValue(type)
                 }
             }

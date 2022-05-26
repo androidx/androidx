@@ -15,11 +15,11 @@
  */
 package androidx.health.platform.client.impl.data
 
+import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
 import android.os.Parcelable.Creator
 import android.os.SharedMemory
-import android.system.OsConstants
 import androidx.annotation.RestrictTo
 import com.google.protobuf.MessageLite
 
@@ -51,22 +51,8 @@ abstract class ProtoParcelable<T : MessageLite> : ProtoData<T>(), Parcelable {
             dest.writeByteArray(bytes)
         } else {
             dest.writeInt(STORE_SHARED_MEMORY)
-            writeToParcelUsingSharedMemory(dest, flags)
-        }
-    }
-
-    /**
-     * Flattens the underlying proto into `dest` using [SharedMemory].
-     *
-     * @see Parcelable.writeToParcel
-     */
-    @Suppress("NewApi") // API only ever used on SDK 27 and above.
-    private fun writeToParcelUsingSharedMemory(dest: Parcel, flags: Int) {
-        SharedMemory.create("ProtoParcelable", bytes.size).use { memory ->
-            memory.setProtect(OsConstants.PROT_READ or OsConstants.PROT_WRITE)
-            memory.mapReadWrite().put(bytes)
-            memory.setProtect(OsConstants.PROT_READ)
-            memory.writeToParcel(dest, flags)
+            @Suppress("NewApi") // API only ever used on SDK 27 and above.
+            SharedMemory27Impl.writeToParcelUsingSharedMemory("ProtoParcelable", bytes, dest, flags)
         }
     }
 
@@ -84,7 +70,7 @@ abstract class ProtoParcelable<T : MessageLite> : ProtoData<T>(), Parcelable {
             crossinline parser: (ByteArray) -> U
         ): Creator<U> {
             return object : Creator<U> {
-                @Suppress("NewApi") // API only ever used on SDK 27 and above.
+                @SuppressLint("NewApi") // API only ever used on SDK 27 and above.
                 override fun createFromParcel(source: Parcel): U? {
                     when (val storage = source.readInt()) {
                         STORE_IN_PLACE -> {
@@ -92,11 +78,8 @@ abstract class ProtoParcelable<T : MessageLite> : ProtoData<T>(), Parcelable {
                             return parser(payload)
                         }
                         STORE_SHARED_MEMORY -> {
-                            SharedMemory.CREATOR.createFromParcel(source).use { memory ->
-                                val buffer = memory.mapReadOnly()
-                                val payload = ByteArray(buffer.remaining())
-                                buffer.get(payload)
-                                return parser(payload)
+                            return SharedMemory27Impl.parseParcelUsingSharedMemory(source) {
+                                parser(it)
                             }
                         }
                         else -> throw IllegalArgumentException("Unknown storage: $storage")

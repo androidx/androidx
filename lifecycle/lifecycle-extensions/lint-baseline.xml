@@ -7,9 +7,7 @@
         errorLine1="public class ViewModelProviders {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/lifecycle/ViewModelProviders.java"
-            line="33"
-            column="14"/>
+            file="src/main/java/androidx/lifecycle/ViewModelProviders.java"/>
     </issue>
 
 </issues>

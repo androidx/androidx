@@ -74,14 +74,17 @@ internal class LayoutGenerator {
      * information extracted from the input.
      */
     fun generateAllFiles(
-        files: List<File>,
+        containerFiles: List<File>,
+        childrenFiles: List<File>,
         outputResourcesDir: File
     ): GeneratedFiles {
         val outputLayoutDir = outputResourcesDir.resolve("layout")
         val outputLayoutDirS = outputResourcesDir.resolve("layout-v31")
+        val outputLayoutDirT = outputResourcesDir.resolve("layout-v33")
         val outputValueDir = outputResourcesDir.resolve("values")
         outputLayoutDir.mkdirs()
         outputLayoutDirS.mkdirs()
+        outputLayoutDirT.mkdirs()
         outputValueDir.mkdirs()
         val generatedFiles = generateSizeLayouts(outputLayoutDir) +
             generateComplexLayouts(outputLayoutDir) +
@@ -91,9 +94,12 @@ internal class LayoutGenerator {
             generateRootElements(outputLayoutDir) +
             generateRootAliases(outputValueDir)
         return GeneratedFiles(
-            generatedContainers = files.associateWith {
+            generatedContainers = containerFiles.associateWith {
                 generateContainers(it, outputLayoutDir)
             },
+            generatedChildren = childrenFiles
+                .filter { isTopLevelLayout(it) }
+                .associateWith { generateBoxChildrenForT(it, outputLayoutDirT) },
             extraFiles = generatedFiles,
         )
     }
@@ -413,6 +419,26 @@ internal class LayoutGenerator {
         }
     }
 
+    private fun generateBoxChildrenForT(
+        file: File,
+        outputLayoutDir: File,
+    ): List<BoxChildProperties> =
+        crossProduct(
+            HorizontalAlignment.values().toList(),
+            VerticalAlignment.values().toList()
+        ).map { (horizontalAlignment, verticalAlignment) ->
+            val generated = generateAlignedLayout(
+                parseLayoutTemplate(file),
+                horizontalAlignment,
+                verticalAlignment,
+            )
+            val output = outputLayoutDir.resolveRes(
+                makeBoxChildResourceName(file, horizontalAlignment, verticalAlignment)
+            )
+            writeGeneratedLayout(generated, output)
+            BoxChildProperties(output, horizontalAlignment, verticalAlignment)
+        }
+
     /**
      * Generate a simple layout.
      *
@@ -440,6 +466,25 @@ internal class LayoutGenerator {
             setNamedItemNS(generated.androidLayoutDirection("locale"))
         }
         return generated
+    }
+
+    /**
+     * This function is used to generate FrameLayout children with "layout_gravity" set for
+     * Android T+. We can ignore size here since it is set programmatically for T+.
+     */
+    private fun generateAlignedLayout(
+        document: Document,
+        horizontalAlignment: HorizontalAlignment,
+        verticalAlignment: VerticalAlignment,
+    ) = generateSimpleLayout(document, ValidSize.Wrap, ValidSize.Wrap).apply {
+        documentElement.attributes.setNamedItemNS(
+            androidGravity(
+                listOfNotNull(
+                    horizontalAlignment.resourceName,
+                    verticalAlignment.resourceName
+                ).joinToString(separator = "|")
+            )
+        )
     }
 
     private fun generateRootAliases(outputValueDir: File) =
@@ -474,6 +519,11 @@ internal class LayoutGenerator {
         writeGeneratedLayout(document, file)
         return file
     }
+
+    private fun isTopLevelLayout(file: File) =
+        parseLayoutTemplate(file).run {
+            if (documentElement.appAttr("isTopLevelLayout")?.nodeValue == "true") true else false
+        }
 }
 
 /** Maximum number of children generated in containers. */
@@ -487,6 +537,7 @@ internal const val RootLayoutAliasCount = 100
 
 internal data class GeneratedFiles(
     val generatedContainers: Map<File, List<ContainerProperties>>,
+    val generatedChildren: Map<File, List<BoxChildProperties>>,
     val extraFiles: Set<File>
 )
 
@@ -502,6 +553,12 @@ internal data class ContainerProperties(
     val containerOrientation: ContainerOrientation,
     val horizontalAlignment: HorizontalAlignment?,
     val verticalAlignment: VerticalAlignment?,
+)
+
+internal data class BoxChildProperties(
+    val generatedFile: File,
+    val horizontalAlignment: HorizontalAlignment,
+    val verticalAlignment: VerticalAlignment,
 )
 
 internal enum class ValidSize(val androidValue: String, val resourceName: String) {
@@ -557,6 +614,7 @@ internal val StubSizes = listOf(ValidSize.Wrap, ValidSize.Match)
 internal fun getChildMergeFilenameWithoutExtension(childCount: Int) = "merge_${childCount}child"
 
 private val AndroidNS = "http://schemas.android.com/apk/res/android"
+private val AppNS = "http://schemas.android.com/apk/res-auto"
 
 internal fun Document.androidAttr(name: String, value: String) =
     createAttributeNS(AndroidNS, "android:$name").apply {
@@ -565,6 +623,9 @@ internal fun Document.androidAttr(name: String, value: String) =
 
 internal fun Node.androidAttr(name: String): Node? =
     attributes.getNamedItemNS(AndroidNS, name)
+
+internal fun Node.appAttr(name: String): Node? =
+    attributes.getNamedItemNS(AppNS, name)
 
 internal fun Document.attribute(name: String, value: String): Node? =
     createAttribute(name).apply { textContent = value }

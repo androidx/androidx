@@ -20,7 +20,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.UiThread
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.IndentingPrintWriter
-import androidx.wear.watchface.WatchFaceFlavorsExperimental
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.control.data.ComplicationRenderParams
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
@@ -33,7 +32,8 @@ import kotlinx.coroutines.withContext
  */
 @RequiresApi(27)
 internal class HeadlessWatchFaceImpl(
-    internal var engine: WatchFaceService.EngineWrapper?
+    internal var engine: WatchFaceService.EngineWrapper?,
+    internal var watchFaceService: WatchFaceService?
 ) : IHeadlessWatchFace.Stub() {
 
     internal companion object {
@@ -113,7 +113,6 @@ internal class HeadlessWatchFaceImpl(
             watchFaceInitDetails.userStyleRepository.schema.getDigestHash()
         }
 
-    @OptIn(WatchFaceFlavorsExperimental::class)
     override fun getUserStyleFlavors() =
         WatchFaceService.deferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
             engine,
@@ -131,6 +130,9 @@ internal class HeadlessWatchFaceImpl(
                     synchronized(this@HeadlessWatchFaceImpl) {
                         engine!!.onDestroy()
                         engine = null
+
+                        watchFaceService!!.onDestroy()
+                        watchFaceService = null
                     }
                 }
             }

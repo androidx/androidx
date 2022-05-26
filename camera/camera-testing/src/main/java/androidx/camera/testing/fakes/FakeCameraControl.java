@@ -141,8 +141,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     }
 
     @Override
-    public void addZslConfig(@NonNull Size resolution,
-            @NonNull SessionConfig.Builder sessionConfigBuilder) {
+    public void addZslConfig(@NonNull SessionConfig.Builder sessionConfigBuilder) {
         // Override if Zero-Shutter Lag needs to add config to session config.
         mIsZslConfigAdded = true;
     }

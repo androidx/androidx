@@ -76,6 +76,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
+@org.junit.Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
 @RunWith(JUnit4.class)
 public class InvalidationTrackerTest {
     private InvalidationTracker mTracker;

@@ -230,20 +230,6 @@ public final class CameraUseCaseAdapter implements Camera {
             // Detaches the unnecessary existing extra use cases
             detachUnnecessaryUseCases(removedExtraUseCases);
 
-            // TODO(b/231905455): move to attachUseCase and reset in detachUseCase to handle use
-            //  case bind/rebind.
-            boolean isZslDisabledByCameraConfig = false;
-            boolean isZslDisabledByExtendedConfig = false;
-            for (UseCase useCase : newUseCases) {
-                ConfigPair configPair = configs.get(useCase);
-                isZslDisabledByCameraConfig = configPair.mCameraConfig != null
-                        && configPair.mCameraConfig.isZslDisabled(false);
-                isZslDisabledByExtendedConfig = configPair.mExtendedConfig != null
-                        && configPair.mExtendedConfig.isZslDisabled(false);
-            }
-            mCameraInternal.getCameraControlInternal().setZslDisabledByUserCaseConfig(
-                    isZslDisabledByCameraConfig || isZslDisabledByExtendedConfig);
-
             // At this point the binding will succeed since all the calculations are done
             // Do all attaching related work
             for (UseCase useCase : newUseCases) {

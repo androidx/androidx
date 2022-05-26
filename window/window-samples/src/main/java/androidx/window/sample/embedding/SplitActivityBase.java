@@ -25,7 +25,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.LayoutDirection;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
@@ -268,9 +267,16 @@ public class SplitActivityBase extends AppCompatActivity
         Set<SplitPairFilter> pairFilters = new HashSet<>();
         pairFilters.add(new SplitPairFilter(componentName(SplitActivityA.class),
                 componentName("*"), null));
-        SplitPairRule rule = new SplitPairRule(pairFilters, SplitRule.FINISH_NEVER,
-                SplitRule.FINISH_NEVER, true, minSplitWidth,
-                /*minSplitWidth*/0, SPLIT_RATIO, LayoutDirection.LOCALE);
+        SplitPairRule rule = new SplitPairRule.Builder(
+                pairFilters,
+                minSplitWidth,
+                0 /* minSmallestWidth */
+        )
+                .setFinishPrimaryWithSecondary(SplitRule.FINISH_NEVER)
+                .setFinishSecondaryWithPrimary(SplitRule.FINISH_NEVER)
+                .setClearTop(true)
+                .setSplitRatio(SPLIT_RATIO)
+                .build();
         if (mViewBinding.splitMainCheckBox.isChecked()) {
             mSplitController.registerRule(rule);
         }
@@ -280,9 +286,16 @@ public class SplitActivityBase extends AppCompatActivity
         Intent intent = new Intent();
         intent.setComponent(
                 componentName("androidx.window.sample.embedding.SplitActivityPlaceholder"));
-        SplitPlaceholderRule placeholderRule = new SplitPlaceholderRule(activityFilters, intent,
-                mViewBinding.useStickyPlaceholderCheckBox.isChecked(), SplitRule.FINISH_ADJACENT,
-                minSplitWidth, 0 /* minSmallestWidth */, SPLIT_RATIO, LayoutDirection.LOCALE);
+        SplitPlaceholderRule placeholderRule = new SplitPlaceholderRule.Builder(
+                activityFilters,
+                intent,
+                minSplitWidth,
+                0 /* minSmallestWidth */
+        )
+                .setSticky(mViewBinding.useStickyPlaceholderCheckBox.isChecked())
+                .setFinishPrimaryWithSecondary(SplitRule.FINISH_ADJACENT)
+                .setSplitRatio(SPLIT_RATIO)
+                .build();
         if (mViewBinding.usePlaceholderCheckBox.isChecked()) {
             mSplitController.registerRule(placeholderRule);
         }
@@ -290,12 +303,22 @@ public class SplitActivityBase extends AppCompatActivity
         pairFilters = new HashSet<>();
         pairFilters.add(new SplitPairFilter(componentName(SplitActivityB.class),
                 componentName(SplitActivityC.class), null));
-        rule = new SplitPairRule(pairFilters,
-                mViewBinding.finishBCCheckBox.isChecked()
-                        ? SplitRule.FINISH_ALWAYS : SplitRule.FINISH_NEVER,
-                mViewBinding.finishBCCheckBox.isChecked()
-                        ? SplitRule.FINISH_ALWAYS : SplitRule.FINISH_NEVER,
-                true, minSplitWidth, /*minSplitWidth*/0, SPLIT_RATIO, LayoutDirection.LOCALE);
+        rule = new SplitPairRule.Builder(
+                pairFilters,
+                minSplitWidth,
+                0 /* minSmallestWidth */
+        )
+                .setFinishPrimaryWithSecondary(
+                        mViewBinding.finishBCCheckBox.isChecked()
+                                ? SplitRule.FINISH_ALWAYS : SplitRule.FINISH_NEVER
+                )
+                .setFinishSecondaryWithPrimary(
+                        mViewBinding.finishBCCheckBox.isChecked()
+                                ? SplitRule.FINISH_ALWAYS : SplitRule.FINISH_NEVER
+                )
+                .setClearTop(true)
+                .setSplitRatio(SPLIT_RATIO)
+                .build();
         if (mViewBinding.splitBCCheckBox.isChecked()) {
             mSplitController.registerRule(rule);
         }
@@ -303,15 +326,25 @@ public class SplitActivityBase extends AppCompatActivity
         pairFilters = new HashSet<>();
         pairFilters.add(new SplitPairFilter(componentName("androidx.window.*"),
                 componentName(SplitActivityF.class), null));
-        rule = new SplitPairRule(pairFilters, SplitRule.FINISH_NEVER, SplitRule.FINISH_NEVER, true,
-                minSplitWidth, /*minSplitWidth*/0, SPLIT_RATIO, LayoutDirection.LOCALE);
+        rule = new SplitPairRule.Builder(
+                pairFilters,
+                minSplitWidth,
+                0 /* minSmallestWidth */
+        )
+                .setFinishPrimaryWithSecondary(SplitRule.FINISH_NEVER)
+                .setFinishSecondaryWithPrimary(SplitRule.FINISH_NEVER)
+                .setClearTop(true)
+                .setSplitRatio(SPLIT_RATIO)
+                .build();
         if (mViewBinding.splitWithFCheckBox.isChecked()) {
             mSplitController.registerRule(rule);
         }
 
         activityFilters = new HashSet<>();
         activityFilters.add(new ActivityFilter(componentName(SplitActivityE.class), null));
-        ActivityRule activityRule = new ActivityRule(activityFilters, true);
+        ActivityRule activityRule = new ActivityRule.Builder(activityFilters)
+                .setAlwaysExpand(true)
+                .build();
         if (mViewBinding.fullscreenECheckBox.isChecked()) {
             mSplitController.registerRule(activityRule);
         }

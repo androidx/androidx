@@ -32,6 +32,7 @@ import androidx.room.ext.isNotVoidObject
 import androidx.room.ext.isUUID
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.preconditions.checkTypeOrNull
 import androidx.room.processor.Context
 import androidx.room.processor.EntityProcessor
 import androidx.room.processor.FieldProcessor
@@ -48,6 +49,8 @@ import androidx.room.solver.binderprovider.ListenableFuturePagingSourceQueryResu
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxCallableQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxJava2PagingSourceQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxJava3PagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.prepared.binderprovider.GuavaListenableFuturePreparedQueryResultBinderProvider
@@ -201,6 +204,8 @@ class TypeAdapterStore private constructor(
             addAll(RxCallableQueryResultBinderProvider.getAll(context))
             add(DataSourceQueryResultBinderProvider(context))
             add(DataSourceFactoryQueryResultBinderProvider(context))
+            add(RxJava2PagingSourceQueryResultBinderProvider(context))
+            add(RxJava3PagingSourceQueryResultBinderProvider(context))
             add(ListenableFuturePagingSourceQueryResultBinderProvider(context))
             add(PagingSourceQueryResultBinderProvider(context))
             add(CoroutineFlowResultBinderProvider(context))
@@ -502,6 +507,8 @@ class TypeAdapterStore private constructor(
 
             val resultAdapter = findQueryResultAdapter(mapType, query, extras) ?: return null
             return ImmutableMapQueryResultAdapter(
+                context = context,
+                parsedQuery = query,
                 keyTypeArg = keyTypeArg,
                 valueTypeArg = valueTypeArg,
                 resultAdapter = resultAdapter
@@ -554,10 +561,12 @@ class TypeAdapterStore private constructor(
                 logger = context.logger
             )
             return GuavaImmutableMultimapQueryResultAdapter(
+                context = context,
+                parsedQuery = query,
                 keyTypeArg = keyTypeArg,
                 valueTypeArg = valueTypeArg,
-                keyRowAdapter = keyRowAdapter,
-                valueRowAdapter = valueRowAdapter,
+                keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
+                valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
                 immutableClassName = immutableClassName
             )
         } else if (typeMirror.isTypeOf(java.util.Map::class) ||
@@ -628,12 +637,13 @@ class TypeAdapterStore private constructor(
                         mapInfo = mapInfo,
                         logger = context.logger
                     )
-
                     return MapQueryResultAdapter(
+                        context = context,
+                        parsedQuery = query,
                         keyTypeArg = keyTypeArg,
                         valueTypeArg = valueTypeArg,
-                        keyRowAdapter = keyRowAdapter,
-                        valueRowAdapter = valueRowAdapter,
+                        keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
+                        valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
                         valueCollectionType = mapValueTypeArg,
                         isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP,
                         isSparseArray = isSparseArray
@@ -664,10 +674,12 @@ class TypeAdapterStore private constructor(
                     logger = context.logger
                 )
                 return MapQueryResultAdapter(
+                    context = context,
+                    parsedQuery = query,
                     keyTypeArg = keyTypeArg,
                     valueTypeArg = mapValueTypeArg,
-                    keyRowAdapter = keyRowAdapter,
-                    valueRowAdapter = valueRowAdapter,
+                    keyRowAdapter = checkTypeOrNull(keyRowAdapter) ?: return null,
+                    valueRowAdapter = checkTypeOrNull(valueRowAdapter) ?: return null,
                     valueCollectionType = null,
                     isArrayMap = typeMirror.rawType.typeName == ARRAY_MAP,
                     isSparseArray = isSparseArray

@@ -20,12 +20,18 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.tiles.ActionBuilders.LaunchAction;
+import androidx.wear.tiles.LayoutElementBuilders.Box;
+import androidx.wear.tiles.LayoutElementBuilders.Column;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
+import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.material.Button;
 import androidx.wear.tiles.material.ButtonDefaults;
 
@@ -34,13 +40,14 @@ import org.junit.runner.RunWith;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
 public class MultiButtonLayoutTest {
-    private final Context mContext = ApplicationProvider.getApplicationContext();
-    private final Clickable mClickable =
+    private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
+    private static final Clickable CLICKABLE =
             new Clickable.Builder()
                     .setOnClick(new LaunchAction.Builder().build())
                     .setId("action_id")
@@ -49,7 +56,7 @@ public class MultiButtonLayoutTest {
     @Test
     public void test_1button() {
         Button button1 =
-                new Button.Builder(mContext, mClickable)
+                new Button.Builder(CONTEXT, CLICKABLE)
                         .setTextContent("1")
                         .setSize(ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE)
                         .build();
@@ -57,15 +64,13 @@ public class MultiButtonLayoutTest {
         MultiButtonLayout layout =
                 new MultiButtonLayout.Builder().addButtonContent(button1).build();
 
-        assertThat(layout.getButtonContents()).hasSize(1);
-        assertThat(layout.getButtonContents().get(0).toLayoutElementProto())
-                .isEqualTo(button1.toLayoutElementProto());
+        assertLayout(layout, Arrays.asList(button1));
     }
 
     @Test
     public void test_2buttons() {
-        Button button1 = new Button.Builder(mContext, mClickable).setTextContent("1").build();
-        Button button2 = new Button.Builder(mContext, mClickable).setTextContent("2").build();
+        Button button1 = new Button.Builder(CONTEXT, CLICKABLE).setTextContent("1").build();
+        Button button2 = new Button.Builder(CONTEXT, CLICKABLE).setTextContent("2").build();
 
         MultiButtonLayout layout =
                 new MultiButtonLayout.Builder()
@@ -73,11 +78,7 @@ public class MultiButtonLayoutTest {
                         .addButtonContent(button2)
                         .build();
 
-        assertThat(layout.getButtonContents()).hasSize(2);
-        assertThat(layout.getButtonContents().get(0).toLayoutElementProto())
-                .isEqualTo(button1.toLayoutElementProto());
-        assertThat(layout.getButtonContents().get(1).toLayoutElementProto())
-                .isEqualTo(button2.toLayoutElementProto());
+        assertLayout(layout, Arrays.asList(button1, button2));
     }
 
     @Test
@@ -85,7 +86,7 @@ public class MultiButtonLayoutTest {
         List<Button> buttons = new ArrayList<>();
         int size = 5;
         for (int i = 0; i < size; i++) {
-            buttons.add(new Button.Builder(mContext, mClickable).setTextContent("" + i).build());
+            buttons.add(new Button.Builder(CONTEXT, CLICKABLE).setTextContent("" + i).build());
         }
 
         MultiButtonLayout.Builder layoutBuilder = new MultiButtonLayout.Builder();
@@ -96,23 +97,70 @@ public class MultiButtonLayoutTest {
                 MultiButtonLayout.FIVE_BUTTON_DISTRIBUTION_TOP_HEAVY);
         MultiButtonLayout layout = layoutBuilder.build();
 
-        assertThat(layout.getButtonContents()).hasSize(size);
+        assertLayout(layout, buttons);
         assertThat(layout.getFiveButtonDistribution())
                 .isEqualTo(MultiButtonLayout.FIVE_BUTTON_DISTRIBUTION_TOP_HEAVY);
-        for (int i = 0; i < size; i++) {
-            assertThat(layout.getButtonContents().get(i).toLayoutElementProto())
-                    .isEqualTo(buttons.get(i).toLayoutElementProto());
-        }
     }
 
     @Test
     public void test_too_many_button() {
-        Button button = new Button.Builder(mContext, mClickable).setTextContent("1").build();
+        Button button = new Button.Builder(CONTEXT, CLICKABLE).setTextContent("1").build();
         MultiButtonLayout.Builder layoutBuilder = new MultiButtonLayout.Builder();
         for (int i = 0; i < LayoutDefaults.MULTI_BUTTON_MAX_NUMBER + 1; i++) {
             layoutBuilder.addButtonContent(button);
         }
 
         assertThrows(IllegalArgumentException.class, layoutBuilder::build);
+    }
+
+    @Test
+    public void testWrongElement() {
+        Column box = new Column.Builder().build();
+
+        assertThat(MultiButtonLayout.fromLayoutElement(box)).isNull();
+    }
+
+    @Test
+    public void testWrongBox() {
+        Box box = new Box.Builder().build();
+
+        assertThat(MultiButtonLayout.fromLayoutElement(box)).isNull();
+    }
+
+    @Test
+    public void testWrongTag() {
+        Box box =
+                new Box.Builder()
+                    .setModifiers(
+                        new Modifiers.Builder()
+                            .setMetadata(
+                                new ElementMetadata.Builder()
+                                    .setTagData("test".getBytes(UTF_8))
+                                    .build())
+                            .build())
+                    .build();
+
+        assertThat(MultiButtonLayout.fromLayoutElement(box)).isNull();
+    }
+
+    private void assertLayout(MultiButtonLayout actualLayout, List<Button> expectedButtons) {
+        assertLayoutIsEqual(actualLayout, expectedButtons);
+
+        Box box = new Box.Builder().addContent(actualLayout).build();
+
+        MultiButtonLayout newLayout = MultiButtonLayout.fromLayoutElement(box.getContents().get(0));
+
+        assertThat(newLayout).isNotNull();
+        assertLayoutIsEqual(newLayout, expectedButtons);
+    }
+
+    private void assertLayoutIsEqual(MultiButtonLayout actualLayout, List<Button> expectedButtons) {
+        int size = expectedButtons.size();
+        assertThat(actualLayout.getMetadataTag()).isEqualTo(MultiButtonLayout.METADATA_TAG);
+        assertThat(actualLayout.getButtonContents()).hasSize(size);
+        for (int i = 0; i < size; i++) {
+            assertThat(actualLayout.getButtonContents().get(i).toLayoutElementProto())
+                    .isEqualTo(expectedButtons.get(i).toLayoutElementProto());
+        }
     }
 }

@@ -91,16 +91,16 @@ public class EvStatus {
      * Constructs an empty instance, used by serialization code.
      */
     private EvStatus() {
-        mEvChargePortOpen = CarValue.UNIMPLEMENTED_BOOLEAN;
-        mEvChargePortConnected = CarValue.UNIMPLEMENTED_BOOLEAN;
+        mEvChargePortOpen = CarValue.UNKNOWN_BOOLEAN;
+        mEvChargePortConnected = CarValue.UNKNOWN_BOOLEAN;
     }
 
     /**
      * A builder of {@link EvStatus}.
      */
     public static final class Builder {
-        CarValue<Boolean> mEvChargePortOpen = CarValue.UNIMPLEMENTED_BOOLEAN;
-        CarValue<Boolean> mEvChargePortConnected = CarValue.UNIMPLEMENTED_BOOLEAN;
+        CarValue<Boolean> mEvChargePortOpen = CarValue.UNKNOWN_BOOLEAN;
+        CarValue<Boolean> mEvChargePortConnected = CarValue.UNKNOWN_BOOLEAN;
 
         /**
          * Sets if the EV charge port is open with a {@link CarValue}.

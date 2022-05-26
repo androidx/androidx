@@ -7,9 +7,7 @@
         errorLine1="                        Log.e(TAG, &quot;Error reading preferences.&quot;, e)"
         errorLine2="                              ~~~">
         <location
-            file="src/main/java/com/example/datastoresampleapp/KotlinSerializationActivity.kt"
-            line="99"
-            column="31"/>
+            file="src/main/java/com/example/datastoresampleapp/KotlinSerializationActivity.kt"/>
     </issue>
 
 </issues>

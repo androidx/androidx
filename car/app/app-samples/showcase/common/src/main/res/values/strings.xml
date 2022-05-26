@@ -383,10 +383,11 @@
 
   <!-- StartScreen -->
   <string name="misc_templates_demos_title">Misc Templates Demos</string>
+  <string name="cal_api_level_prefix" translatable="false">CAL API Level: %d</string>
   <string name="showcase_demos_title">Showcase Demos</string>
 
   <!-- Location Strings -->
-  <string name="location_1_title"> translatable="false"Google Kirkland</string>
+  <string name="location_1_title" translatable="false">Google Kirkland</string>
   <string name="location_1_address" translatable="false">747 6th St South, Kirkland, WA 98033</string>
   <string name="location_1_description">Tinted resource vector</string>
   <string name="location_1_phone" translatable="false">+14257395600</string>

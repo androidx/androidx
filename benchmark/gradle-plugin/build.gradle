@@ -27,7 +27,7 @@ apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 dependencies {
     implementation(findGradleKotlinDsl())
     implementation(gradleApi())
-    implementation("com.android.tools.build:gradle:4.0.0-beta04")
+    implementation("com.android.tools.build:gradle:7.0.0")
     implementation(libs.kotlinStdlib)
 
     testImplementation(gradleTestKit())

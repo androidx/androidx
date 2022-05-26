@@ -7,9 +7,7 @@
         errorLine1="public class AdvertisingIdUtils {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/ads/identifier/AdvertisingIdUtils.java"
-            line="42"
-            column="14"/>
+            file="src/main/java/androidx/ads/identifier/AdvertisingIdUtils.java"/>
     </issue>
 
 </issues>

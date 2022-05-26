@@ -30,15 +30,15 @@ import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
-import androidx.glance.currentState
-import androidx.glance.unit.ColorProvider
 import androidx.glance.appwidget.template.ListTemplate
-import androidx.glance.template.ListTemplateItem
+import androidx.glance.currentState
 import androidx.glance.template.ListTemplateData
+import androidx.glance.template.ListTemplateItem
 import androidx.glance.template.TemplateImageButton
 import androidx.glance.template.TemplateImageWithDescription
 import androidx.glance.template.TemplateText
 import androidx.glance.template.TemplateTextButton
+import androidx.glance.unit.ColorProvider
 
 class ListDemoWidget : GlanceAppWidget() {
     override val sizeMode = SizeMode.Exact
@@ -48,19 +48,19 @@ class ListDemoWidget : GlanceAppWidget() {
         val state = currentState<Preferences>()
         val content = mutableListOf<ListTemplateItem>()
         for (i in 1..(state[CountKey] ?: 1)) {
-            var title = "Item $i"
+            var label = "Item $i"
             if (state[ItemClickedKey] == i) {
-                title = "$title (clicked)"
+                label = "$label (clicked)"
             }
             content.add(
                 ListTemplateItem(
-                    title = TemplateText(title, TemplateText.Type.Title),
-                    body = TemplateText(
+                    title = TemplateText(
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-                        TemplateText.Type.Label
+                        TemplateText.Type.Title
                     ),
+                    body = TemplateText(label, TemplateText.Type.Label),
                     image = TemplateImageWithDescription(
-                        ImageProvider(R.drawable.compose), "List item $i image"
+                        ImageProvider(R.drawable.ic_favorite), "List item $i image"
                     ),
                     button = TemplateImageButton(
                         actionRunCallback<ListTemplateItemAction>(

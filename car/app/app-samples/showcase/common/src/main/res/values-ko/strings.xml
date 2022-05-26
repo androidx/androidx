@@ -36,8 +36,7 @@
     <string name="on_action_title" msgid="4129601573763429611">"켜짐"</string>
     <string name="off_action_title" msgid="8669201170189204848">"꺼짐"</string>
     <string name="settings_action_title" msgid="8616900063253887861">"설정"</string>
-    <!-- no translation found for accept_action_title (4899660585470647578) -->
-    <skip />
+    <string name="accept_action_title" msgid="4899660585470647578">"허용"</string>
     <string name="reject_action_title" msgid="6730366705938402668">"거부"</string>
     <string name="ok_action_title" msgid="7128494973966098611">"확인"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"발생"</string>
@@ -46,6 +45,8 @@
     <string name="try_anyway_action_title" msgid="7384500054249311718">"무시하고 계속"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"예"</string>
     <string name="no_action_title" msgid="1452124604210014010">"아니요"</string>
+    <string name="disable_all_rows" msgid="3003225080532928046">"모든 행 사용 중지"</string>
+    <string name="enable_all_rows" msgid="7274285275711872091">"모든 행 사용 설정"</string>
     <string name="bug_reported_toast_msg" msgid="2487119172744644317">"버그가 신고되었습니다."</string>
     <string name="zoomed_in_toast_msg" msgid="8915301497303842649">"확대됨"</string>
     <string name="zoomed_out_toast_msg" msgid="6260981223227212493">"축소됨"</string>
@@ -141,14 +142,10 @@
     <string name="importance_title" msgid="9034862997821839831">"중요도"</string>
     <string name="category_title" msgid="4783851267093259949">"카테고리"</string>
     <string name="ongoing_title" msgid="4957996003270280496">"진행 중"</string>
-    <!-- no translation found for default_importance (6347996298832939989) -->
-    <skip />
-    <!-- no translation found for high_importance (5009120714837304882) -->
-    <skip />
-    <!-- no translation found for low_importance (4721161314404294033) -->
-    <skip />
-    <!-- no translation found for unknown_importance (909001735933359216) -->
-    <skip />
+    <string name="default_importance" msgid="6347996298832939989">"기본"</string>
+    <string name="high_importance" msgid="5009120714837304882">"높음"</string>
+    <string name="low_importance" msgid="4721161314404294033">"낮음"</string>
+    <string name="unknown_importance" msgid="909001735933359216">"알 수 없음"</string>
     <string name="notification_demo" msgid="1819496937832036387">"알림 데모"</string>
     <string name="misc_demo_title" msgid="7399959062407349380">"기타 데모"</string>
     <string name="navigating_demo_title" msgid="7454579665387386476">"경로 안내 데모"</string>
@@ -281,6 +278,9 @@
     <string name="option_1_title" msgid="7221252541651471199">"옵션 1"</string>
     <string name="option_2_title" msgid="1905146448697963818">"옵션 2"</string>
     <string name="option_3_title" msgid="6319268250436119258">"옵션 3"</string>
+    <string name="option_row_radio_title" msgid="5978617101267398181">"라디오 버튼이 있는 행"</string>
+    <string name="option_row_radio_icon_title" msgid="3304229002524317977">"라디오 버튼과 아이콘이 있는 행"</string>
+    <string name="option_row_radio_icon_colored_text_title" msgid="947641896184637026">"라디오 버튼과 아이콘이 있는 행 및 색상이 지정된 텍스트"</string>
     <string name="some_additional_text" msgid="4009872495806318260">"일부 추가 텍스트"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"샘플 선택 가능 목록"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"작업 제한사항 데모"</string>
@@ -289,13 +289,18 @@
     <string name="task_step_of_text" msgid="4646729781462227219">"클릭하여 진행"</string>
     <string name="toggle_test_title" msgid="924485265152862631">"전환 테스트"</string>
     <string name="toggle_test_text" msgid="8107217216013312857">"스테이트풀(Stateful) 변경은 허용됨"</string>
+    <string name="toggle_test_first_toggle_title" msgid="3635022201072117680">"전환 테스트 사용 설정"</string>
+    <string name="toggle_test_first_toggle_text" msgid="5914741538328669668">"전환 테스트를 사용 설정하려면 이 항목 선택"</string>
+    <string name="toggle_test_second_toggle_title" msgid="1083594617400613969">"전환 테스트"</string>
+    <string name="toggle_test_second_toggle_text" msgid="1813071017415876745">"스테이트풀(Stateful) 변경은 허용됨"</string>
     <string name="image_test_title" msgid="8273863429801477547">"이미지 테스트"</string>
     <string name="image_test_text" msgid="6264812093895530445">"이미지 변경이 허용됨"</string>
     <string name="additional_data_title" msgid="3546689652240300617">"추가 데이터"</string>
     <string name="additional_data_text" msgid="2846223398214158872">"뒤로 작업에서 업데이트가 허용되었습니다."</string>
+    <string name="toggle_test_enabled" msgid="982370904182034076">"전환 테스트 사용 설정됨"</string>
+    <string name="toggle_test_disabled" msgid="8366040658408451664">"전환 테스트 사용 중지됨"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"기타 템플릿 데모"</string>
     <string name="showcase_demos_title" msgid="1542092687878113304">"쇼케이스 데모"</string>
-    <string name="location_1_title" msgid="3939821089928425181">"Google Kirkland"</string>
     <string name="location_1_description" msgid="4801052291684791371">"색조가 들어간 리소스 벡터"</string>
     <string name="location_2_description" msgid="3331356135359047166">"이미지 리소스 비트맵"</string>
     <string name="location_3_description" msgid="3982142774088944850">"색상이 지정된 텍스트 마커"</string>
