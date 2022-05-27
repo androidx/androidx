@@ -13,46 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.collection
 
-package androidx.collection;
+internal abstract class IndexBasedArrayIterator<T>(startingSize: Int) : MutableIterator<T> {
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+    private var size = startingSize
+    private var index = 0
+    private var canRemove = false
 
-abstract class IndexBasedArrayIterator<T> implements Iterator<T> {
-    private int mSize;
-    private int mIndex;
-    private boolean mCanRemove;
+    protected abstract fun elementAt(index: Int): T
+    protected abstract fun removeAt(index: Int)
 
-    IndexBasedArrayIterator(int startingSize) {
-        mSize = startingSize;
-    }
+    override fun hasNext(): Boolean = index < size
 
-    protected abstract T elementAt(int index);
-    protected abstract void removeAt(int index);
-
-    @Override
-    public final boolean hasNext() {
-        return mIndex < mSize;
-    }
-
-    @Override
-    public T next() {
-        if (!hasNext()) throw new NoSuchElementException();
-        T res = elementAt(mIndex);
-        mIndex++;
-        mCanRemove = true;
-        return res;
-    }
-
-    @Override
-    public void remove() {
-        if (!mCanRemove) {
-            throw new IllegalStateException();
+    override fun next(): T {
+        if (!hasNext()) {
+            throw NoSuchElementException()
         }
+
+        val res = elementAt(index)
+        index++
+        canRemove = true
+        return res
+    }
+
+    override fun remove() {
+        check(canRemove) { "Call next() before removing an element." }
         // Attempt removal first so an UnsupportedOperationException retains a valid state.
-        removeAt(--mIndex);
-        mSize--;
-        mCanRemove = false;
+        removeAt(--index)
+        size--
+        canRemove = false
     }
 }
