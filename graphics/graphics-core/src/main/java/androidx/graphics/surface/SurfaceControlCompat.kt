@@ -16,9 +16,12 @@
 
 package androidx.graphics.surface
 
+import android.hardware.HardwareBuffer
 import android.os.Build
 import android.view.Surface
+import android.view.SurfaceControl
 import androidx.annotation.RequiresApi
+import androidx.hardware.SyncFenceCompat
 import java.util.concurrent.Executor
 
 internal class JniBindings {
@@ -40,12 +43,42 @@ internal class JniBindings {
             listener: SurfaceControlCompat.TransactionCommittedListener
         )
 
+        external fun nExtractFenceFd(
+            syncFence: SyncFenceCompat
+        ): Int
+
+        external fun nSetBuffer(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            hardwareBuffer: HardwareBuffer,
+            acquireFieldFd: SyncFenceCompat
+        )
+
+        external fun nSetVisibility(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            visibility: Byte
+        )
+
         init {
             System.loadLibrary("graphics-core")
         }
     }
 }
 
+/**
+ * Handle to an on-screen Surface managed by the system compositor. By constructing
+ * a [Surface] from this SurfaceControlCompat you can submit buffers to be composited. Using
+ * [SurfaceControlCompat.Transaction] you can manipulate various properties of how the buffer will be
+ * displayed on-screen. SurfaceControl's are arranged into a scene-graph like hierarchy, and
+ * as such any SurfaceControl may have a parent. Geometric properties like transform, crop, and
+ * Z-ordering will be inherited from the parent, as if the child were content in the parents
+ * buffer stream.
+ *
+ * Compatibility class for [SurfaceControl]. This differs by being built upon the equivalent API
+ * within the Android NDK. It introduces some APIs into earlier platform releases than what was
+ * initially exposed for SurfaceControl.
+ */
 @RequiresApi(Build.VERSION_CODES.Q)
 class SurfaceControlCompat internal constructor(
     surface: Surface? = null,
@@ -61,14 +94,13 @@ class SurfaceControlCompat internal constructor(
             mNativeSurfaceControl =
                 JniBindings.nCreate(surfaceControl.mNativeSurfaceControl, debugName)
         }
-
         if (mNativeSurfaceControl == 0L) {
             throw IllegalArgumentException()
         }
     }
 
     /**
-     * Callback interface for usage with addTransactionCompletedListener
+     * Callback interface for usage with [Transaction.addTransactionCompletedListener]
      */
     interface TransactionCompletedListener {
         /**
@@ -86,7 +118,7 @@ class SurfaceControlCompat internal constructor(
     }
 
     /**
-     * Callback interface for usage with addTransactionCommittedListener
+     * Callback interface for usage with [Transaction.addTransactionCommittedListener]
      */
     interface TransactionCommittedListener {
         /**
@@ -106,6 +138,9 @@ class SurfaceControlCompat internal constructor(
         fun onCommit(latchTimeNanos: Long, presentTimeNanos: Long)
     }
 
+    /**
+     * Compatibility class for ASurfaceTransaction.
+     */
     class Transaction() {
         private var mNativeSurfaceTransaction: Long
 
@@ -117,7 +152,7 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
-         * Commits the updates accumulated in \a transaction.
+         * Commits the updates accumulated in this transaction.
          *
          * This is the equivalent of ASurfaceTransaction_apply.
          *
@@ -187,7 +222,63 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
-         * Destroys the \a transaction object.
+         * Updates the [HardwareBuffer] displayed for the provided surfaceControl. Takes an
+         * optional [SyncFenceCompat] that is signalled when all pending work for the buffer
+         * is complete and the buffer can be safely read.
+         *
+         * The frameworks takes ownership of the syncFence passed and is responsible for closing
+         * it.
+         *
+         * Note that the buffer must be allocated with [HardwareBuffer.USAGE_COMPOSER_OVERLAY] and
+         * [HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE] as the surface control might be
+         * composited using an overlay or the GPU.
+         *
+         * @param surfaceControl The surfaceControl to update. Can not be null.
+         *
+         * @param hardwareBuffer The buffer to be displayed. This can not be null.
+         *
+         * @param syncFence The presentation fence. If null or invalid, this is equivalent to not
+         * including it.
+         */
+        @JvmOverloads
+        fun setBuffer(
+            surfaceControl: SurfaceControlCompat,
+            hardwareBuffer: HardwareBuffer,
+            syncFence: SyncFenceCompat = SyncFenceCompat(-1)
+        ): Transaction {
+            JniBindings.nSetBuffer(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                hardwareBuffer,
+                syncFence
+            )
+            return this
+        }
+
+        /**
+         * Updates the visibility of the given [SurfaceControlCompat]. If visibility is set to
+         * false, the [SurfaceControlCompat] and all surfaces in the subtree will be hidden.
+         *
+         * @param surfaceControl The SurfaceControl for which to set the visibility
+         * This value cannot be null.
+         *
+         * @param visibility the new visibility. A value of true means the surface and its children
+         * will be visible.
+         */
+        fun setVisibility(
+            surfaceControl: SurfaceControlCompat,
+            visibility: Boolean
+        ): Transaction {
+            JniBindings.nSetVisibility(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                if (visibility) 1 else 0
+            )
+            return this
+        }
+
+        /**
+         * Destroys the transaction object.
          */
         fun close() {
             if (mNativeSurfaceTransaction != 0L) {
@@ -229,7 +320,7 @@ class SurfaceControlCompat internal constructor(
     }
 
     /**
-     * Builder class for SurfaceControlCompat.
+     * Builder class for [SurfaceControlCompat].
      *
      * Requires a parent surface. Debug name is default empty string.
      */
@@ -249,7 +340,7 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
-         * Builds the SurfaceControlCompat object
+         * Builds the [SurfaceControlCompat] object
          */
         fun build(): SurfaceControlCompat {
             return SurfaceControlCompat(mSurface, mSurfaceControl, mDebugName)
