@@ -37,7 +37,6 @@ import androidx.health.connect.client.records.BoneMass
 import androidx.health.connect.client.records.CervicalMucus
 import androidx.health.connect.client.records.CervicalMucus.Amount
 import androidx.health.connect.client.records.CervicalMucus.Texture
-import androidx.health.connect.client.records.CervicalPosition
 import androidx.health.connect.client.records.CyclingPedalingCadence
 import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
 import androidx.health.connect.client.records.Distance
@@ -242,21 +241,6 @@ class AllRecordsConverterTest {
             CervicalMucus(
                 texture = Texture.CLEAR,
                 amount = Amount.HEAVY,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testCervicalPosition() {
-        val data =
-            CervicalPosition(
-                position = null,
-                dilation = null,
-                firmness = null,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA

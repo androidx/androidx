@@ -32,7 +32,6 @@ import androidx.health.connect.client.records.BodyTemperature
 import androidx.health.connect.client.records.BodyWaterMass
 import androidx.health.connect.client.records.BoneMass
 import androidx.health.connect.client.records.CervicalMucus
-import androidx.health.connect.client.records.CervicalPosition
 import androidx.health.connect.client.records.CyclingPedalingCadence
 import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
 import androidx.health.connect.client.records.Distance
@@ -153,15 +152,6 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 CervicalMucus(
                     texture = getEnum("texture"),
                     amount = getEnum("amount"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "CervicalPosition" ->
-                CervicalPosition(
-                    position = getEnum("position"),
-                    dilation = getEnum("dilation"),
-                    firmness = getEnum("firmness"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
