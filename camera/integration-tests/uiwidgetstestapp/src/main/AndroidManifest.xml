@@ -59,6 +59,11 @@
             android:exported="false"
             android:name=".foldable.FoldableCameraActivity"
             android:label="Foldable Test" />
+
+        <activity
+            android:exported="false"
+            android:name=".compose.ComposeCameraActivity"
+            android:label="Compose"/>
     </application>
 
     <uses-permission android:name="android.permission.CAMERA" />
