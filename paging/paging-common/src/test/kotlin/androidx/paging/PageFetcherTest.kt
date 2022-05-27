@@ -263,7 +263,7 @@ class PageFetcherTest {
             )
 
             // append a page
-            fetcherState.pagingDataList[0].receiver.accessHint(
+            fetcherState.pagingDataList[0].hintReceiver.accessHint(
                 ViewportHint.Access(
                     pageOffset = 0,
                     indexInPage = 1,
@@ -315,7 +315,7 @@ class PageFetcherTest {
                 createRefresh(50..51),
             )
             // prepend a page
-            fetcherState.pagingDataList[0].receiver.accessHint(
+            fetcherState.pagingDataList[0].hintReceiver.accessHint(
                 ViewportHint.Access(
                     pageOffset = 0,
                     indexInPage = -1,
@@ -536,7 +536,7 @@ class PageFetcherTest {
         // Assert onBoundary is not called for non-terminal page load.
         assertTrue { remoteMediatorMock.loadEvents.isEmpty() }
 
-        fetcherState.pagingDataList[0].receiver.accessHint(
+        fetcherState.pagingDataList[0].hintReceiver.accessHint(
             ViewportHint.Access(
                 pageOffset = 0,
                 indexInPage = 1,
@@ -583,7 +583,7 @@ class PageFetcherTest {
             )
 
             // Jump due to sufficiently large presentedItemsBefore
-            fetcherState.pagingDataList[0].receiver.accessHint(
+            fetcherState.pagingDataList[0].hintReceiver.accessHint(
                 ViewportHint.Access(
                     pageOffset = 0,
                     // indexInPage value is incorrect, but should not be considered for jumps
@@ -606,7 +606,7 @@ class PageFetcherTest {
             )
 
             // Jump due to sufficiently large presentedItemsAfter
-            fetcherState.pagingDataList[1].receiver.accessHint(
+            fetcherState.pagingDataList[1].hintReceiver.accessHint(
                 ViewportHint.Access(
                     pageOffset = 0,
                     // indexInPage value is incorrect, but should not be considered for jumps
@@ -771,10 +771,10 @@ class PageFetcherTest {
             remoteMediator = remoteMediator,
         )
 
-        var receiver: UiReceiver? = null
+        var receiver: HintReceiver? = null
         val job = launch {
             pageFetcher.flow.collectLatest {
-                receiver = it.receiver
+                receiver = it.hintReceiver
                 it.flow.collect { }
             }
         }
@@ -874,10 +874,10 @@ class PageFetcherTest {
             remoteMediator = remoteMediator,
         )
 
-        var receiver: UiReceiver? = null
+        var receiver: HintReceiver? = null
         val job = launch {
             pageFetcher.flow.collectLatest {
-                receiver = it.receiver
+                receiver = it.hintReceiver
                 it.flow.collect { }
             }
         }
@@ -1022,7 +1022,7 @@ class PageFetcherTest {
             advanceUntilIdle()
 
             // Trigger access to allow PagingState to get populated for next generation.
-            pagingData.receiver.accessHint(
+            pagingData.hintReceiver.accessHint(
                 ViewportHint.Access(
                     pageOffset = 0,
                     indexInPage = 1,
@@ -1080,7 +1080,7 @@ class PageFetcherTest {
 
             advanceUntilIdle()
             // Trigger APPEND in third generation.
-            pagingData.receiver.accessHint(
+            pagingData.hintReceiver.accessHint(
                 ViewportHint.Access(
                     pageOffset = 0,
                     indexInPage = 2,
@@ -1263,7 +1263,8 @@ class PageFetcherTest {
         fetcherState.job.cancel()
     }
 
-    @Suppress("DEPRECATION") // b/220884819
+    @Suppress("DEPRECATION")
+    // b/220884819
     @Test
     fun injectRemoteEvents_remoteLoadAcrossGenerations() = runBlockingTest {
         val neverEmitCh = Channel<Int>()
