@@ -26,7 +26,7 @@ import com.google.devtools.ksp.symbol.KSType
 internal class KspAnnotation(
     val env: KspProcessingEnv,
     val ksAnnotated: KSAnnotation
-) : InternalXAnnotation {
+) : InternalXAnnotation() {
 
     val ksType: KSType by lazy { ksAnnotated.annotationType.resolve() }
 
@@ -41,7 +41,25 @@ internal class KspAnnotation(
     }
 
     override val annotationValues: List<XAnnotationValue> by lazy {
-        ksAnnotated.arguments.map { KspAnnotationValue(env, this, it) }
+        // In KSP the annotation members may be represented by constructor parameters in kotlin
+        // source or by abstract methods in java source so we check both.
+        val typesByName = if (typeElement.getConstructors().single().parameters.isNotEmpty()) {
+            typeElement.getConstructors()
+                .single()
+                .parameters
+                .associate { it.name to it.type }
+        } else {
+            typeElement.getDeclaredMethods()
+                .filter { it.isAbstract() }
+                .associate { it.name to it.returnType }
+        }
+        ksAnnotated.arguments.map {
+            val valueName = it.name?.asString()
+                ?: error("Value argument $it does not have a name.")
+            val valueType = typesByName[valueName]
+                ?: error("Value type not found for $valueName.")
+            KspAnnotationValue(env, this, valueType, it)
+        }
     }
 
     override fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T> {

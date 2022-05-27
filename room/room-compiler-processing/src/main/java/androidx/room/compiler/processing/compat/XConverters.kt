@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XExecutableType
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.XType
@@ -118,6 +119,12 @@ object XConverters {
     @JvmStatic
     fun AnnotationMirror.toXProcessing(env: XProcessingEnv): XAnnotation =
         JavacAnnotation(env as JavacProcessingEnv, this)
+
+    @JvmStatic
+    fun AnnotationValue.toXProcessing(method: ExecutableElement, env: XProcessingEnv):
+        XAnnotationValue = JavacAnnotationValue(
+            env as JavacProcessingEnv, method.toXProcessing(env) as XMethodElement, this
+        )
 
     @JvmStatic
     fun Filer.toXProcessing(env: XProcessingEnv): XFiler =
