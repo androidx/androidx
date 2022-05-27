@@ -33,6 +33,8 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import kotlinx.coroutines.launch
 import java.time.Instant
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 /** An interactive watch face instance with SysUI and WCS facing interfaces.*/
 internal class InteractiveWatchFaceImpl(
@@ -65,7 +67,7 @@ internal class InteractiveWatchFaceImpl(
     override fun unused18() {}
 
     override fun getWatchFaceOverlayStyle(): WatchFaceOverlayStyleWireFormat? =
-        WatchFaceService.deferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
+        WatchFaceService.awaitDeferredWatchFaceAndComplicationManagerThenRunOnBinderThread(
             engine,
             "InteractiveWatchFaceImpl.getWatchFaceOverlayStyle"
         ) { watchFaceInitDetails ->
@@ -113,15 +115,19 @@ internal class InteractiveWatchFaceImpl(
     }
 
     override fun release(): Unit = TraceEvent("InteractiveWatchFaceImpl.release").use {
-        uiThreadCoroutineScope.launch {
-            engine?.let {
-                try {
-                    it.deferredWatchFaceImpl.await()
-                } catch (e: Exception) {
-                    // deferredWatchFaceImpl may have completed with an exception. This will
-                    // have already been reported so we can ignore it.
+        // Note this is a one way method called on a binder thread, so it shouldn't matter if we
+        // block.
+        runBlocking {
+            withContext(uiThreadCoroutineScope.coroutineContext) {
+                engine?.let {
+                    try {
+                        it.deferredWatchFaceImpl.await()
+                    } catch (e: Exception) {
+                        // deferredWatchFaceImpl may have completed with an exception. This will
+                        // have already been reported so we can ignore it.
+                    }
+                    InteractiveInstanceManager.releaseInstance(instanceId)
                 }
-                InteractiveInstanceManager.releaseInstance(instanceId)
             }
         }
     }
@@ -177,8 +183,11 @@ internal class InteractiveWatchFaceImpl(
     }
 
     fun onDestroy() {
-        uiThreadCoroutineScope.launch {
-            engine = null
+        // Note this is almost certainly called on the ui thread, from release() above.
+        runBlocking {
+            withContext(uiThreadCoroutineScope.coroutineContext) {
+                engine = null
+            }
         }
     }
 }
