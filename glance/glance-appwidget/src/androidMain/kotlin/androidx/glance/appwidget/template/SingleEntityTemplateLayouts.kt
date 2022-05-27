@@ -18,7 +18,6 @@ package androidx.glance.appwidget.template
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
@@ -34,8 +33,9 @@ import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
-import androidx.glance.template.TemplateMode
+import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.SingleEntityTemplateData
+import androidx.glance.template.TemplateMode
 import androidx.glance.template.TemplateText
 
 // TODO: Define template layouts for other surfaces
@@ -47,17 +47,7 @@ import androidx.glance.template.TemplateText
  */
 @Composable
 public fun SingleEntityTemplate(data: SingleEntityTemplateData) {
-    // TODO: Add parameters here for other layout info, such as color preferences
-    val height = LocalSize.current.height
-    val width = LocalSize.current.width
-    val mode = if (height <= Dp(240f) && width <= Dp(240f)) {
-        TemplateMode.Collapsed
-    } else if ((width / height) < (3.0 / 2.0)) {
-        TemplateMode.Vertical
-    } else {
-        TemplateMode.Horizontal
-    }
-    when (mode) {
+    when (LocalTemplateMode.current) {
         TemplateMode.Collapsed -> WidgetLayoutCollapsed(data)
         TemplateMode.Vertical -> WidgetLayoutVertical(data)
         TemplateMode.Horizontal -> WidgetLayoutHorizontal(data)

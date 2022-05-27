@@ -29,6 +29,7 @@ import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.appwidget.template.GlanceTemplateAppWidget
 import androidx.glance.currentState
 import androidx.glance.appwidget.template.SingleEntityTemplate
 import androidx.glance.template.SingleEntityTemplateData
@@ -53,11 +54,11 @@ class ButtonAction : ActionCallback {
     }
 }
 
-class SingleEntityWidget : GlanceAppWidget() {
+class SingleEntityWidget : GlanceTemplateAppWidget() {
     override val sizeMode = SizeMode.Exact
 
     @Composable
-    override fun Content() {
+    override fun TemplateContent() {
         SingleEntityTemplate(
             createData(getHeader(currentState<Preferences>()[PressedKey] == true))
         )
