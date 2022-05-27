@@ -3356,4 +3356,51 @@ public abstract class AppSearchSessionCtsTestBase {
                         newSchema).setForceOverride(true).build();
         mDb1.setSchemaAsync(newRequestForced).get();
     }
+
+    @Test
+    public void testEmojiSnippet() throws Exception {
+        // Schema registration
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(AppSearchEmail.SCHEMA).build()).get();
+
+        // String:     "Luca Brasi sleeps with the 🐟🐟🐟."
+        //              ^    ^     ^      ^    ^   ^ ^  ^ ^
+        // UTF8 idx:    0    5     11     18   23 27 3135 39
+        // UTF16 idx:   0    5     11     18   23 27 2931 33
+        // Breaks into segments: "Luca", "Brasi", "sleeps", "with", "the", "🐟", "🐟"
+        // and "🐟".
+        // Index a document to instance 1.
+        String sicilianMessage = "Luca Brasi sleeps with the 🐟🐟🐟.";
+        AppSearchEmail inEmail1 =
+                new AppSearchEmail.Builder("namespace", "uri1")
+                        .setBody(sicilianMessage)
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail1).build()));
+
+        AppSearchEmail inEmail2 =
+                new AppSearchEmail.Builder("namespace", "uri2")
+                        .setBody("Some other content.")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(inEmail2).build()));
+
+        // Query for "🐟"
+        SearchResults searchResults = mDb1.search("🐟", new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .setSnippetCount(1)
+                .setSnippetCountPerProperty(1)
+                .build());
+        List<SearchResult> page = searchResults.getNextPageAsync().get();
+        assertThat(page).hasSize(1);
+        assertThat(page.get(0).getGenericDocument()).isEqualTo(inEmail1);
+        List<SearchResult.MatchInfo> matches = page.get(0).getMatchInfos();
+        assertThat(matches).hasSize(1);
+        assertThat(matches.get(0).getPropertyPath()).isEqualTo("body");
+        assertThat(matches.get(0).getFullText()).isEqualTo(sicilianMessage);
+        assertThat(matches.get(0).getExactMatch()).isEqualTo("🐟");
+        if (mDb1.getFeatures().isFeatureSupported(Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)) {
+            assertThat(matches.get(0).getSubmatch()).isEqualTo("🐟");
+        }
+    }
 }
