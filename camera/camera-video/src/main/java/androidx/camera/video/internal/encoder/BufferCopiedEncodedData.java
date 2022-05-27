@@ -81,7 +81,9 @@ public class BufferCopiedEncodedData implements EncodedData {
 
         // Copy only the part that contents data
         ByteBuffer copiedByteBuffer = ByteBuffer.allocate(bufferInfo.size);
+        copiedByteBuffer.order(byteBuffer.order());
         copiedByteBuffer.put(byteBuffer);
+        copiedByteBuffer.flip();
 
         return copiedByteBuffer;
     }
