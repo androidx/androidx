@@ -37,6 +37,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -261,6 +262,43 @@ class SurfaceControlCompatTest {
             // ensure activity is destroyed after any failures
             scenario.moveToState(Lifecycle.State.DESTROYED)
         }
+    }
+
+    @Test
+    fun testTransactionIsValid_valid() {
+        var surfaceControl = SurfaceControl.Builder()
+            .setName("SurfaceControlCompact_createFromWindow")
+            .build()
+        var scCompat: SurfaceControlCompat? = null
+        try {
+            scCompat = SurfaceControlCompat.Builder(Surface(surfaceControl))
+                .setDebugName("SurfaceControlCompatTest")
+                .build()
+        } catch (e: IllegalArgumentException) {
+            fail()
+        }
+
+        assertTrue(scCompat!!.isValid())
+    }
+
+    @Test
+    fun testTransactionIsValid_validNotValid() {
+        var surfaceControl = SurfaceControl.Builder()
+            .setName("SurfaceControlCompact_createFromWindow")
+            .build()
+        var scCompat: SurfaceControlCompat? = null
+
+        try {
+            scCompat = SurfaceControlCompat.Builder(Surface(surfaceControl))
+                .setDebugName("SurfaceControlCompatTest")
+                .build()
+        } catch (e: IllegalArgumentException) {
+            fail()
+        }
+
+        assertTrue(scCompat!!.isValid())
+        scCompat.release()
+        assertFalse(scCompat.isValid())
     }
 
     @Test

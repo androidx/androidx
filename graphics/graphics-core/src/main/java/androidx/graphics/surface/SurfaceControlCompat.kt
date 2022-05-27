@@ -292,6 +292,11 @@ class SurfaceControlCompat internal constructor(
         }
     }
 
+    /**
+     * Check whether this instance points to a valid layer with the system-compositor.
+     */
+    fun isValid(): Boolean = mNativeSurfaceControl != 0L
+
     override fun equals(other: Any?): Boolean {
         if (other == this) {
             return true
@@ -314,9 +319,20 @@ class SurfaceControlCompat internal constructor(
         return mNativeSurfaceControl.hashCode()
     }
 
-    protected fun finalize() {
+    /**
+     * Release the local reference to the server-side surface. The surface may continue to exist
+     * on-screen as long as its parent continues to exist. To explicitly remove a surface from the
+     * screen use [Transaction.reparent] with a null-parent. After release, [isValid] will return
+     * false and other methods will throw an exception. Always call release() when you're done with
+     * a SurfaceControl.
+     */
+    fun release() {
         JniBindings.nRelease(mNativeSurfaceControl)
         mNativeSurfaceControl = 0
+    }
+
+    protected fun finalize() {
+        release()
     }
 
     /**

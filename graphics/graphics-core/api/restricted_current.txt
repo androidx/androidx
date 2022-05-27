@@ -169,6 +169,8 @@ package androidx.graphics.surface {
 
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class SurfaceControlCompat {
     method protected void finalize();
+    method public boolean isValid();
+    method public void release();
   }
 
   public static final class SurfaceControlCompat.Builder {
