@@ -13,14 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.impl.converters.response
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.impl.converters.records.toRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.platform.client.proto.ResponseProto
 
-/** Converts public API object into internal proto for ipc. */
+/**
+ * Converts public API object into internal proto for ipc.
+ *
+ * @suppress
+ */
 @Suppress("UNCHECKED_CAST") // Safe to cast as the type should match
 fun <T : Record> toReadRecordsResponse(
     proto: ResponseProto.ReadDataRangeResponse

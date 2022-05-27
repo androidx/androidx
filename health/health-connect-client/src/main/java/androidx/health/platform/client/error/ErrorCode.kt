@@ -17,7 +17,11 @@ package androidx.health.platform.client.error
 
 import androidx.annotation.IntDef
 
-/** List of error codes returned by Health Platform, used in [ErrorStatus]. */
+/**
+ * List of error codes returned by Health Platform, used in [ErrorStatus].
+ *
+ * @suppress
+ */
 @IntDef(
     ErrorCode.PROVIDER_NOT_INSTALLED,
     ErrorCode.PROVIDER_NOT_ENABLED,

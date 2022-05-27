@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.impl.converters.permission
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeKClass
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeName
 import androidx.health.connect.client.permission.AccessTypes
