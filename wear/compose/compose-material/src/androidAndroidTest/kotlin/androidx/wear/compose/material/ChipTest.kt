@@ -274,7 +274,8 @@ class ChipSizeTest {
                 )
             }
 
-        rule.onRoot().assertWidthIsEqualTo(52.dp).assertHeightIsEqualTo(32.dp)
+        rule.onRoot().assertWidthIsEqualTo(ChipDefaults.IconOnlyCompactChipWidth)
+            .assertHeightIsEqualTo(ChipDefaults.CompactChipHeight)
     }
 
     @Test
@@ -289,7 +290,7 @@ class ChipSizeTest {
                 )
             }
 
-        rule.onRoot().assertHeightIsEqualTo(32.dp)
+        rule.onRoot().assertHeightIsEqualTo(48.dp)
     }
 
     @Test
@@ -303,7 +304,8 @@ class ChipSizeTest {
                 )
             }
 
-        rule.onRoot().assertWidthIsEqualTo(52.dp).assertHeightIsEqualTo(32.dp)
+        rule.onRoot().assertWidthIsEqualTo(ChipDefaults.IconOnlyCompactChipWidth)
+            .assertHeightIsEqualTo(ChipDefaults.CompactChipHeight)
     }
 
     @Test
@@ -342,7 +344,10 @@ class ChipSizeTest {
             .getUnclippedBoundsInRoot()
 
         rule.onNodeWithContentDescription(iconTag, useUnmergedTree = true)
-            .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
+            .assertTopPositionInRootIsEqualTo(
+                (itemBounds.height - iconBounds.height) / 2 +
+                    ChipDefaults.CompactChipTapTargetPadding.calculateTopPadding()
+            )
     }
 
     @Test
@@ -362,7 +367,10 @@ class ChipSizeTest {
             .getUnclippedBoundsInRoot()
 
         rule.onNodeWithContentDescription(iconTag, useUnmergedTree = true)
-            .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
+            .assertTopPositionInRootIsEqualTo(
+                (itemBounds.height - iconBounds.height) / 2 +
+                    ChipDefaults.CompactChipTapTargetPadding.calculateTopPadding()
+            )
     }
 
     private fun verifyHeight(expectedHeight: Dp) {
