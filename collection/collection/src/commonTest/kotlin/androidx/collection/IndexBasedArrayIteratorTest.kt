@@ -13,146 +13,128 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.collection
 
-package androidx.collection;
+import kotlin.test.Test
+import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 
-import static com.google.common.truth.Truth.assertThat;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
-
-@RunWith(JUnit4.class)
-public class IndexBasedArrayIteratorTest {
-
+internal class IndexBasedArrayIteratorTest {
     @Test
-    public void iterateAll() {
-        Iterator<String> iterator = new ArraySet<>(setOf("a", "b", "c")).iterator();
-        assertThat(toList(iterator)).containsExactly("a", "b", "c");
+    fun iterateAll() {
+        val iterator = ArraySet(setOf("a", "b", "c")).iterator()
+        assertContentEquals(listOf("a", "b", "c"), iterator.convertToList())
     }
 
     @Test
-    public void iterateEmptyList() {
-        Iterator<String> iterator = new ArraySet<String>().iterator();
-        assertThat(iterator.hasNext()).isFalse();
+    fun iterateEmptyList() {
+        val iterator = ArraySet<String>().iterator()
+        assertFalse(iterator.hasNext())
     }
-
-    @Test(expected = NoSuchElementException.class)
-    public void iterateEmptyListThrowsUponNext() {
-        Iterator<String> iterator = new ArraySet<String>().iterator();
-        iterator.next();
-    }
-
-    @Test(expected = IllegalStateException.class)
-    public void removeSameItemTwice() {
-        Iterator<String> iterator = new ArraySet<>(listOf("a", "b", "c")).iterator();
-        iterator.next(); // move to next
-        iterator.remove();
-        iterator.remove();
-    }
-
 
     @Test
-    public void removeLast() {
+    fun iterateEmptyListThrowsUponNext() {
+        assertFailsWith<NoSuchElementException> {
+            val iterator = ArraySet<String>().iterator()
+            iterator.next()
+        }
+    }
+
+    @Test
+    fun removeSameItemTwice() {
+        assertFailsWith<IllegalStateException> {
+            val iterator = ArraySet(listOf("a", "b", "c")).iterator()
+            iterator.next() // move to next
+            iterator.remove()
+            iterator.remove()
+        }
+    }
+
+    @Test
+    fun removeLast() {
         removeViaIterator(
-                /* original= */ setOf("a", "b", "c"),
-                /* toBeRemoved= */ setOf("c"),
-                /* expected= */ setOf("a", "b"));
+            original = setOf("a", "b", "c"),
+            toBeRemoved = setOf("c"),
+            expected = setOf("a", "b")
+        )
     }
 
     @Test
-    public void removeFirst() {
+    fun removeFirst() {
         removeViaIterator(
-                /* original= */ setOf("a", "b", "c"),
-                /* toBeRemoved= */ setOf("a"),
-                /* expected= */ setOf("b", "c"));
+            original = setOf("a", "b", "c"),
+            toBeRemoved = setOf("a"),
+            expected = setOf("b", "c")
+        )
     }
 
     @Test
-    public void removeMid() {
+    fun removeMid() {
         removeViaIterator(
-                /* original= */ setOf("a", "b", "c"),
-                /* toBeRemoved= */ setOf("b"),
-                /* expected= */ setOf("a", "c"));
+            original = setOf("a", "b", "c"),
+            toBeRemoved = setOf("b"),
+            expected = setOf("a", "c")
+        )
     }
 
     @Test
-    public void removeConsecutive() {
+    fun removeConsecutive() {
         removeViaIterator(
-                /* original= */ setOf("a", "b", "c", "d"),
-                /* toBeRemoved= */ setOf("b", "c"),
-                /* expected= */ setOf("a", "d"));
+            original = setOf("a", "b", "c", "d"),
+            toBeRemoved = setOf("b", "c"),
+            expected = setOf("a", "d")
+        )
     }
 
     @Test
-    public void removeLastTwo() {
+    fun removeLastTwo() {
         removeViaIterator(
-                /* original= */ setOf("a", "b", "c", "d"),
-                /* toBeRemoved= */ setOf("c", "d"),
-                /* expected= */ setOf("a", "b"));
+            original = setOf("a", "b", "c", "d"),
+            toBeRemoved = setOf("c", "d"),
+            expected = setOf("a", "b")
+        )
     }
 
     @Test
-    public void removeFirstTwo() {
+    fun removeFirstTwo() {
         removeViaIterator(
-                /* original= */ setOf("a", "b", "c", "d"),
-                /* toBeRemoved= */ setOf("a", "b"),
-                /* expected= */ setOf("c", "d"));
+            original = setOf("a", "b", "c", "d"),
+            toBeRemoved = setOf("a", "b"),
+            expected = setOf("c", "d")
+        )
     }
 
     @Test
-    public void removeMultiple() {
+    fun removeMultiple() {
         removeViaIterator(
-                /* original= */ setOf("a", "b", "c", "d"),
-                /* toBeRemoved= */ setOf("a", "c"),
-                /* expected= */ setOf("b", "d"));
+            original = setOf("a", "b", "c", "d"),
+            toBeRemoved = setOf("a", "c"),
+            expected = setOf("b", "d")
+        )
     }
 
-    private static void removeViaIterator(
-            Set<String> original,
-            Set<String> toBeRemoved,
-            Set<String> expected) {
-        ArraySet<String> subject = new ArraySet<>(original);
-        Iterator<String> iterator = subject.iterator();
+    private fun removeViaIterator(
+        original: Set<String>,
+        toBeRemoved: Set<String>,
+        expected: Set<String>
+    ) {
+        val subject = ArraySet(original)
+        val iterator = subject.iterator()
         while (iterator.hasNext()) {
-            String next = iterator.next();
+            val next = iterator.next()
             if (toBeRemoved.contains(next)) {
-                iterator.remove();
+                iterator.remove()
             }
         }
-        assertThat(subject).containsExactlyElementsIn(expected);
+        assertEquals(expected, subject)
     }
 
-    @SuppressWarnings("unchecked")
-    private static <V> List<V> listOf(V... values) {
-        List<V> list = new ArrayList<>();
-        for (V value : values) {
-            list.add(value);
+    private fun <V> Iterator<V>.convertToList(): List<V> =
+        buildList {
+            for (item in this@convertToList) {
+                add(item)
+            }
         }
-        return list;
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <V> Set<V> setOf(V... values) {
-        Set<V> set = new HashSet<>();
-        for (V value : values) {
-            set.add(value);
-        }
-        return set;
-    }
-
-    private static <V> List<V> toList(Iterator<V> iterator) {
-        List<V> list = new ArrayList<>();
-        while (iterator.hasNext()) {
-            list.add(iterator.next());
-        }
-        return list;
-    }
 }
