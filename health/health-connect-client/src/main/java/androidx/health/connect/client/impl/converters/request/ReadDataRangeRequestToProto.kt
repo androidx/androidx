@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.impl.converters.request
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeName
 import androidx.health.connect.client.impl.converters.time.toProto
 import androidx.health.connect.client.metadata.DataOrigin
@@ -23,7 +26,11 @@ import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.RequestProto
 
-/** Converts public API object into internal proto for ipc. */
+/**
+ * Converts public API object into internal proto for ipc.
+ *
+ * @suppress
+ */
 fun <T : Record> toReadDataRangeRequestProto(
     request: ReadRecordsRequest<T>
 ): RequestProto.ReadDataRangeRequest {

@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.impl.converters.request
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeName
 import androidx.health.connect.client.impl.converters.time.toProto
 import androidx.health.connect.client.records.Record
@@ -23,7 +26,11 @@ import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.RequestProto
 import kotlin.reflect.KClass
 
-/** Converts public API object into internal proto for ipc. */
+/**
+ * Converts public API object into internal proto for ipc.
+ *
+ * @suppress
+ */
 fun toDeleteDataRangeRequestProto(
     dataTypeKC: KClass<out Record>,
     timeRangeFilter: TimeRangeFilter

@@ -24,6 +24,8 @@ import java.time.ZoneOffset
  * Captures the estimated active energy burned by the user (in kilocalories), excluding basal
  * metabolic rate (BMR). Each record represents the total kilocalories burned over a time interval,
  * so both the start and end times should be set.
+ *
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ActiveEnergyBurned(

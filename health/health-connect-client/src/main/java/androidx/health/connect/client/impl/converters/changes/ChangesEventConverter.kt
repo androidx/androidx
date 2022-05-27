@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.impl.converters.changes
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.changes.Change
 import androidx.health.connect.client.changes.ChangesEvent
 import androidx.health.connect.client.changes.DeletionChange

@@ -23,6 +23,8 @@ import java.time.ZoneOffset
 /**
  * Captures user's heart rate variability (HRV) measured as the difference between the widths of the
  * histogram of differences between adjacent heart beats measured at selected heights.
+ *
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class HeartRateVariabilityDifferentialIndex(

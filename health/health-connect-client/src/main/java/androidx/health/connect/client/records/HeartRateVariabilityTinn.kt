@@ -23,6 +23,8 @@ import java.time.ZoneOffset
 /**
  * Captures user's heart rate variability (HRV) as measured by the Triangular Interpolation
  * (baseline width) of a histogram displaying NN intervals.
+ *
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class HeartRateVariabilityTinn(

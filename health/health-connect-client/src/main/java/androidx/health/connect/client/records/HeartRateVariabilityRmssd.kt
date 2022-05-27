@@ -23,6 +23,8 @@ import java.time.ZoneOffset
 /**
  * Captures user's heart rate variability (HRV) as measured by the root mean square of successive
  * differences (RMSSD) between normal heartbeats.
+ *
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class HeartRateVariabilityRmssd(

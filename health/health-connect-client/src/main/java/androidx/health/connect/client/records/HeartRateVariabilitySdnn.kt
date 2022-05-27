@@ -23,6 +23,8 @@ import java.time.ZoneOffset
 /**
  * Captures user's heart rate variability (HRV) as measured by the standard deviation of all N-N
  * intervals.
+ *
+ * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class HeartRateVariabilitySdnn(
