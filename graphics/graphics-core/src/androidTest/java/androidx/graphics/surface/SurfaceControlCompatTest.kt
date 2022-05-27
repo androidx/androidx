@@ -304,6 +304,112 @@ class SurfaceControlCompatTest {
     }
 
     @Test
+    fun testTransactionReparent_null() {
+        val listener = TransactionOnCompleteListener()
+        val scenario = ActivityScenario.launch(SurfaceControlCompatTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val scCompat = SurfaceControlCompat
+                            .Builder(it.getSurfaceView().holder.surface)
+                            .setDebugName("SurfaceControlCompatTest")
+                            .build()
+
+                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                        val buffer =
+                            nGetSolidBuffer(
+                                it.DEFAULT_WIDTH,
+                                it.DEFAULT_HEIGHT,
+                                Color.BLUE
+                            )
+                        assertNotNull(buffer)
+
+                        SurfaceControlCompat.Transaction()
+                            .setBuffer(scCompat, buffer)
+                            .reparent(scCompat, null)
+                            .commit()
+
+                        // Trying to set a callback with a transaction of a null reparent doesn't
+                        // get called, so lets set a listener for a 2nd transaction instead. This
+                        // should be placed in the queue where this will be executed after the
+                        // reparent transaction
+                        SurfaceControlCompat.Transaction()
+                            .addTransactionCompletedListener(executor!!, listener)
+                            .commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            assertTrue(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
+            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
+            val coord = intArrayOf(0, 0)
+            it.mSurfaceView.getLocationOnScreen(coord)
+            assertEquals(Color.BLACK, bitmap.getPixel(coord[0], coord[1]))
+        }
+    }
+
+    @Test
+    fun testTransactionReparent_childOfSibling() {
+        val listener = TransactionOnCompleteListener()
+        val scenario = ActivityScenario.launch(SurfaceControlCompatTestActivity::class.java)
+            .moveToState(
+                Lifecycle.State.CREATED
+            ).onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val scCompat = SurfaceControlCompat
+                            .Builder(it.getSurfaceView().holder.surface)
+                            .setDebugName("SurfaceControlCompatTest")
+                            .build()
+                        val scCompat2 = SurfaceControlCompat
+                            .Builder(it.getSurfaceView().holder.surface)
+                            .setDebugName("SurfaceControlCompat")
+                            .build()
+
+                        // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                        val buffer =
+                            nGetSolidBuffer(
+                                it.DEFAULT_WIDTH,
+                                it.DEFAULT_HEIGHT,
+                                Color.BLUE
+                            )
+                        assertNotNull(buffer)
+
+                        val buffer2 =
+                            nGetSolidBuffer(
+                                it.DEFAULT_WIDTH,
+                                it.DEFAULT_HEIGHT,
+                                Color.GREEN
+                            )
+                        assertNotNull(buffer2)
+
+                        SurfaceControlCompat.Transaction()
+                            .addTransactionCompletedListener(executor!!, listener)
+                            .setBuffer(scCompat, buffer)
+                            .setBuffer(scCompat2, buffer2)
+                            .reparent(scCompat, scCompat2)
+                            .commit()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+
+        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            assertTrue(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
+            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
+            val coord = intArrayOf(0, 0)
+            it.mSurfaceView.getLocationOnScreen(coord)
+            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+        }
+    }
+
+    @Test
     fun testExtractSyncFenceFd() {
         val fileDescriptor = 7
         val syncFence = SyncFenceCompat(7)
