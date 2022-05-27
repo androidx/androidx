@@ -204,8 +204,8 @@ public class ProgressIndicatorLayout implements LayoutElement {
         }
     }
 
-    private boolean isElementPresent(@ContentBits int elementBitPosition) {
-        return (getMetadataTag()[FLAG_INDEX] & elementBitPosition) == elementBitPosition;
+    private boolean areElementsPresent(@ContentBits int elementFlag) {
+        return (getMetadataTag()[FLAG_INDEX] & elementFlag) == elementFlag;
     }
 
     /** Returns metadata tag set to this ProgressIndicatorLayout. */
@@ -217,7 +217,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
     /** Returns the inner content from this layout. */
     @Nullable
     public LayoutElement getContent() {
-        if (isElementPresent(CONTENT_PRESENT)) {
+        if (areElementsPresent(CONTENT_PRESENT)) {
             return ((Box) mContents.get(0)).getContents().get(0);
         }
         return null;
@@ -226,8 +226,8 @@ public class ProgressIndicatorLayout implements LayoutElement {
     /** Returns the progress indicator content from this layout. */
     @Nullable
     public LayoutElement getProgressIndicatorContent() {
-        if (isElementPresent(PROGRESS_INDICATOR_PRESENT)) {
-            return mContents.get(isElementPresent(CONTENT_PRESENT) ? 1 : 0);
+        if (areElementsPresent(PROGRESS_INDICATOR_PRESENT)) {
+            return mContents.get(areElementsPresent(CONTENT_PRESENT) ? 1 : 0);
         }
         return null;
     }

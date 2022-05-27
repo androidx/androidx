@@ -504,12 +504,12 @@ public class Chip implements LayoutElement {
 
         if (!getMetadataTag().equals(METADATA_TAG_CUSTOM_CONTENT)) {
             if (getMetadataTag().equals(METADATA_TAG_ICON)) {
-                Image icon = checkNotNull(getIconObject());
+                Image icon = checkNotNull(getIconContentObject());
                 iconTintColor = checkNotNull(checkNotNull(icon.getColorFilter()).getTint());
             }
 
-            contentColor = checkNotNull(getPrimaryTextObject()).getColor();
-            Text label = getLabelObject();
+            contentColor = checkNotNull(getPrimaryTextContentObject()).getColor();
+            Text label = getLabelContentObject();
             if (label != null) {
                 secondaryContentColor = label.getColor();
             }
@@ -550,37 +550,37 @@ public class Chip implements LayoutElement {
 
     /** Returns primary text from this Chip if it has been added. Otherwise, it returns null. */
     @Nullable
-    public String getPrimaryText() {
-        Text primaryText = getPrimaryTextObject();
+    public String getPrimaryTextContent() {
+        Text primaryText = getPrimaryTextContentObject();
         return primaryText != null ? primaryText.getText() : null;
     }
 
     /** Returns label text from this Chip if it has been added. Otherwise, it returns null. */
     @Nullable
-    public String getLabel() {
-        Text label = getLabelObject();
+    public String getLabelContent() {
+        Text label = getLabelContentObject();
         return label != null ? label.getText() : null;
     }
 
     /** Returns icon id from this Chip if it has been added. Otherwise, it returns null. */
     @Nullable
-    public String getIcon() {
-        Image icon = getIconObject();
+    public String getIconContent() {
+        Image icon = getIconContentObject();
         return icon != null ? checkNotNull(icon.getResourceId()).getValue() : null;
     }
 
     @Nullable
-    private Text getPrimaryTextObject() {
+    private Text getPrimaryTextContentObject() {
         return getPrimaryOrLabelTextContent(0);
     }
 
     @Nullable
-    private Text getLabelObject() {
+    private Text getLabelContentObject() {
         return getPrimaryOrLabelTextContent(1);
     }
 
     @Nullable
-    private Image getIconObject() {
+    private Image getIconContentObject() {
         if (!getMetadataTag().equals(METADATA_TAG_ICON)) {
             return null;
         }

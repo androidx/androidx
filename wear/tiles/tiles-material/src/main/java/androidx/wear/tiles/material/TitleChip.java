@@ -179,7 +179,7 @@ public class TitleChip implements LayoutElement {
     /** Returns text content of this Chip. */
     @NonNull
     public String getText() {
-        return checkNotNull(mElement.getPrimaryText());
+        return checkNotNull(mElement.getPrimaryTextContent());
     }
 
     /** Returns the horizontal alignment of the content in this Chip. */

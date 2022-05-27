@@ -78,7 +78,17 @@ public class TestCasesGenerator {
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .build());
-
+        testCases.put(
+                "default_longtext_primarychiplayout_golden" + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setPrimaryChipContent(
+                                new CompactChip.Builder(
+                                                context,
+                                                "Too_long_textToo_long_textToo_long_text",
+                                                clickable,
+                                                deviceParameters)
+                                        .build())
+                        .build());
         testCases.put(
                 "coloredbox_primarylabel_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
