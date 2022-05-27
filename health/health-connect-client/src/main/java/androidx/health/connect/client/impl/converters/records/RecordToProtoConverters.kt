@@ -32,7 +32,6 @@ import androidx.health.connect.client.records.BodyTemperature
 import androidx.health.connect.client.records.BodyWaterMass
 import androidx.health.connect.client.records.BoneMass
 import androidx.health.connect.client.records.CervicalMucus
-import androidx.health.connect.client.records.CervicalPosition
 import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
 import androidx.health.connect.client.records.Distance
 import androidx.health.connect.client.records.ElevationGained
@@ -141,15 +140,6 @@ fun Record.toProto(): DataProto.DataPoint =
                 .apply {
                     texture?.let { putValues("texture", enumVal(it)) }
                     amount?.let { putValues("amount", enumVal(it)) }
-                }
-                .build()
-        is CervicalPosition ->
-            instantaneousProto()
-                .setDataType(protoDataType("CervicalPosition"))
-                .apply {
-                    position?.let { putValues("position", enumVal(it)) }
-                    dilation?.let { putValues("dilation", enumVal(it)) }
-                    firmness?.let { putValues("firmness", enumVal(it)) }
                 }
                 .build()
         is CyclingPedalingCadenceSeries ->
