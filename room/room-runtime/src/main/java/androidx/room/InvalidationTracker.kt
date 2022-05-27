@@ -196,7 +196,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
             name = name,
             serviceIntent = serviceIntent,
             invalidationTracker = this,
-            executor = database.getQueryExecutor()
+            executor = database.queryExecutor
         )
     }
 
@@ -352,7 +352,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         }
         if (!initialized) {
             // trigger initialization
-            database.getOpenHelper().writableDatabase
+            database.openHelper.writableDatabase
         }
         if (!initialized) {
             Log.e(LOG_TAG, "database is not initialized even though it is open")
@@ -386,7 +386,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
 
                     // This transaction has to be on the underlying DB rather than the RoomDatabase
                     // in order to avoid a recursive loop after endTransaction.
-                    val db = database.getOpenHelper().writableDatabase
+                    val db = database.openHelper.writableDatabase
                     db.beginTransactionNonExclusive()
                     val invalidatedTableIds: Set<Int>
                     try {
@@ -456,7 +456,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
             // db isn't closed until refresh is completed. This increment call must be
             // matched with a corresponding call in refreshRunnable.
             autoCloser?.incrementCountAndEnsureDbIsOpen()
-            database.getQueryExecutor().execute(refreshRunnable)
+            database.queryExecutor.execute(refreshRunnable)
         }
     }
 
@@ -549,7 +549,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         if (!database.isOpen) {
             return
         }
-        syncTriggers(database.getOpenHelper().writableDatabase)
+        syncTriggers(database.openHelper.writableDatabase)
     }
 
     /**

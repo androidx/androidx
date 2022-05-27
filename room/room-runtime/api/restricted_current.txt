@@ -118,6 +118,9 @@ package androidx.room {
     method @Deprecated public void setTransactionSuccessful();
     property public androidx.room.InvalidationTracker invalidationTracker;
     property public boolean isOpen;
+    property public androidx.sqlite.db.SupportSQLiteOpenHelper openHelper;
+    property public java.util.concurrent.Executor queryExecutor;
+    property public java.util.concurrent.Executor transactionExecutor;
     field public static final androidx.room.RoomDatabase.Companion Companion;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int MAX_BIND_PARAMETER_CNT = 999; // 0x3e7
     field @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected java.util.List<? extends androidx.room.RoomDatabase.Callback>? mCallbacks;

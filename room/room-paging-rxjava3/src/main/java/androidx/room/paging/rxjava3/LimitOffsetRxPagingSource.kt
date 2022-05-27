@@ -62,7 +62,7 @@ abstract class LimitOffsetRxPagingSource<Value : Any>(
     }
 
     override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, Value>> {
-        val scheduler = Schedulers.from(db.getQueryExecutor())
+        val scheduler = Schedulers.from(db.queryExecutor)
         return createSingle {
             observer.registerIfNecessary(db)
             val tempCount = itemCount.get()

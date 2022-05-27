@@ -146,7 +146,7 @@ class QueryInterceptorTest {
         mDatabase.queryInterceptorDao().insert(
             QueryInterceptorEntity("Insert", "Inserted a placeholder query")
         )
-        mDatabase.getOpenHelper().writableDatabase.compileStatement(
+        mDatabase.openHelper.writableDatabase.compileStatement(
             "DELETE FROM queryInterceptorTestDatabase WHERE id=?"
         ).execute()
         assertQueryLogged("DELETE FROM queryInterceptorTestDatabase WHERE id=?", emptyList())
@@ -154,7 +154,7 @@ class QueryInterceptorTest {
 
     @Test
     fun testLoggingSupportSQLiteQuery() {
-        mDatabase.getOpenHelper().writableDatabase.query(
+        mDatabase.openHelper.writableDatabase.query(
             SimpleSQLiteQuery(
                 "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                     "VALUES (?,?)",
@@ -170,7 +170,7 @@ class QueryInterceptorTest {
 
     @Test
     fun testNullBindArgument() {
-        mDatabase.getOpenHelper().writableDatabase.query(
+        mDatabase.openHelper.writableDatabase.query(
             SimpleSQLiteQuery(
                 "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                     "VALUES (?,?)",

@@ -84,8 +84,8 @@ class AlteredTableColumnOrderTest {
 
     @Test
     fun verifyDifferentColumnOrder() {
-        val c1 = cleanDb.getOpenHelper().writableDatabase.query("SELECT * FROM Foo")
-        val c2 = migratedDb.getOpenHelper().writableDatabase.query("SELECT * FROM Foo")
+        val c1 = cleanDb.openHelper.writableDatabase.query("SELECT * FROM Foo")
+        val c2 = migratedDb.openHelper.writableDatabase.query("SELECT * FROM Foo")
         try {
             val columnNames1 = c1.columnNames
             val columnNames2 = c2.columnNames
