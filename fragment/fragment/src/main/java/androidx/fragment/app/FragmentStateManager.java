@@ -320,7 +320,7 @@ class FragmentStateManager {
                                 Log.d(TAG, "movefrom ACTIVITY_CREATED: " + mFragment);
                             }
                             if (mFragment.mBeingSaved) {
-                                saveState();
+                                mFragmentStore.setSavedState(mFragment.mWho, saveState());
                             } else if (mFragment.mView != null) {
                                 // Need to save the current view state if not done already
                                 // by saveInstanceState()
@@ -347,7 +347,7 @@ class FragmentStateManager {
                         case Fragment.ATTACHED:
                             if (mFragment.mBeingSaved
                                     && mFragmentStore.getSavedState(mFragment.mWho) == null) {
-                                saveState();
+                                mFragmentStore.setSavedState(mFragment.mWho, saveState());
                             }
                             destroy();
                             break;
@@ -657,7 +657,8 @@ class FragmentStateManager {
         mDispatcher.dispatchOnFragmentStopped(mFragment, false);
     }
 
-    void saveState() {
+    @NonNull
+    Bundle saveState() {
         FragmentState fs = new FragmentState(mFragment);
 
         if (mFragment.mState > Fragment.INITIALIZING && fs.mSavedFragmentState == null) {
@@ -684,7 +685,7 @@ class FragmentStateManager {
         Bundle stateBundle = new Bundle();
         stateBundle.putParcelable(FragmentManager.FRAGMENT_STATE_TAG, fs);
         stateBundle.putBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG, mFragment.mArguments);
-        mFragmentStore.setSavedState(mFragment.mWho, stateBundle);
+        return stateBundle;
     }
 
     @Nullable

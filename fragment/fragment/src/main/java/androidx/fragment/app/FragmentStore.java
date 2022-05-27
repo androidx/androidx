@@ -129,7 +129,7 @@ class FragmentStore {
                         // (i.e., add transaction + saveBackStack())
                         // we still want to save the bare minimum of state
                         // relating to this Fragment
-                        fragmentStateManager.saveState();
+                        setSavedState(f.mWho, fragmentStateManager.saveState());
                     }
                     makeInactive(fragmentStateManager);
                 }
@@ -210,7 +210,7 @@ class FragmentStore {
             if (fragmentStateManager != null) {
                 Fragment f = fragmentStateManager.getFragment();
 
-                fragmentStateManager.saveState();
+                setSavedState(f.mWho, fragmentStateManager.saveState());
                 active.add(f.mWho);
 
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
