@@ -181,10 +181,13 @@ constructor(
         }
         val extras = MutableCreationExtras(defaultCreationExtras)
         extras[VIEW_MODEL_KEY] = key
-        return factory.create(
-            modelClass,
-            extras
-        ).also { store.put(key, it) }
+        // AGP has some desugaring issues associated with compileOnly dependencies so we need to
+        // fall back to the other create method to keep from crashing.
+        return try {
+            factory.create(modelClass, extras)
+        } catch (e: AbstractMethodError) {
+            factory.create(modelClass)
+        }.also { store.put(key, it) }
     }
 
     /**
