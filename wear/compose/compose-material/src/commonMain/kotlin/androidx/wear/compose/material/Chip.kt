@@ -267,7 +267,9 @@ public fun Chip(
  *
  * The [CompactChip] is Stadium shaped and has a max height designed to take no more than one line
  * of text of [Typography.caption1] style and/or one icon. The default max height is
- * [ChipDefaults.CompactChipHeight].
+ * [ChipDefaults.CompactChipHeight]. This includes a visible chip height of 32.dp and
+ * 8.dp of padding above and below the chip in order to meet accessibility guidelines that
+ * request a minimum of 48.dp height and width of tappable area.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -349,7 +351,8 @@ public fun CompactChip(
                 }
             },
             onClick = onClick,
-            modifier = modifier.height(ChipDefaults.CompactChipHeight),
+            modifier = modifier.height(ChipDefaults.CompactChipHeight)
+                .padding(ChipDefaults.CompactChipTapTargetPadding),
             icon = icon,
             colors = colors,
             enabled = enabled,
@@ -363,7 +366,8 @@ public fun CompactChip(
             onClick = onClick,
             modifier = modifier
                 .height(ChipDefaults.CompactChipHeight)
-                .width(ChipDefaults.IconOnlyCompactChipWidth),
+                .width(ChipDefaults.IconOnlyCompactChipWidth)
+                .padding(ChipDefaults.CompactChipTapTargetPadding),
             colors = colors,
             enabled = enabled,
             interactionSource = interactionSource,
@@ -665,10 +669,24 @@ public object ChipDefaults {
     internal val Height = 52.dp
 
     /**
-     * The height applied for the [CompactChip].
-     * Note that you can override it by applying Modifier.height directly on [CompactChip].
+     * The height applied for the [CompactChip]. This includes a visible chip height of 32.dp and
+     * 8.dp of padding above and below the chip in order to meet accessibility guidelines that
+     * request a minimum of 48.dp height and width of tappable area.
+     *
+     * Note that you can override it by adjusting Modifier.height and Modifier.padding directly on
+     * [CompactChip].
      */
-    internal val CompactChipHeight = 32.dp
+    internal val CompactChipHeight = 48.dp
+
+    /**
+     * The default padding to be provided around a [CompactChip] in order to ensure that its
+     * tappable area meets minimum UX guidance.
+     */
+    // TODO(b/234119038): Make this public in 1.1
+    internal val CompactChipTapTargetPadding: PaddingValues = PaddingValues(
+        top = 8.dp,
+        bottom = 8.dp
+    )
 
     /**
      * The default width applied for the [CompactChip] when it has no label provided.
