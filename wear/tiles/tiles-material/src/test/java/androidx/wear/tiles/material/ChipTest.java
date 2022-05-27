@@ -311,21 +311,21 @@ public class ChipTest {
         }
 
         if (expectedPrimaryText == null) {
-            assertThat(actualChip.getPrimaryText()).isNull();
+            assertThat(actualChip.getPrimaryTextContent()).isNull();
         } else {
-            assertThat(actualChip.getPrimaryText()).isEqualTo(expectedPrimaryText);
+            assertThat(actualChip.getPrimaryTextContent()).isEqualTo(expectedPrimaryText);
         }
 
         if (expectedLabel == null) {
-            assertThat(actualChip.getLabel()).isNull();
+            assertThat(actualChip.getLabelContent()).isNull();
         } else {
-            assertThat(actualChip.getLabel()).isEqualTo(expectedLabel);
+            assertThat(actualChip.getLabelContent()).isEqualTo(expectedLabel);
         }
 
         if (expectedIcon == null) {
-            assertThat(actualChip.getIcon()).isNull();
+            assertThat(actualChip.getIconContent()).isNull();
         } else {
-            assertThat(actualChip.getIcon()).isEqualTo(expectedIcon);
+            assertThat(actualChip.getIconContent()).isEqualTo(expectedIcon);
         }
 
         if (expectedCustomContent == null) {

@@ -55,9 +55,9 @@ package androidx.wear.tiles.material {
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getCustomContent();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getHeight();
     method public int getHorizontalAlignment();
-    method public String? getIcon();
-    method public String? getLabel();
-    method public String? getPrimaryText();
+    method public String? getIconContent();
+    method public String? getLabelContent();
+    method public String? getPrimaryTextContent();
     method public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth();
   }
 

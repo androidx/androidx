@@ -209,7 +209,8 @@ public class TestCasesGenerator {
                 new CompactChip.Builder(context, "Abcdefghi", clickable, deviceParameters).build());
         testCases.put(
                 "compactchip_default_toolong_golden" + goldenSuffix,
-                new CompactChip.Builder(context, "AbcdefghiEXTRA", clickable, deviceParameters)
+                new CompactChip.Builder(
+                                context, "AbcdefghiEXTRAEXTRAEXTRA", clickable, deviceParameters)
                         .build());
         testCases.put(
                 "compactchip_custom_default_golden" + goldenSuffix,
