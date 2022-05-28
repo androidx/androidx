@@ -14,23 +14,31 @@
  * limitations under the License.
  */
 
-pluginManagement {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-        google()
-    }
-}
+package androidx.build.importMaven
 
-dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-        google()
-        gradlePluginPortal()
+import com.google.common.truth.Truth.assertThat
+import okio.FileSystem
+import org.junit.Test
+
+class ImportVersionCatalogTest {
+    init {
+        enableInfoLogs()
     }
-    versionCatalogs {
-        create("importMavenLibs") {
-            from(files("importMaven.versions.toml"))
-        }
+
+    @Test
+    fun load() {
+        val path = EnvironmentConfig.supportRoot.resolve("gradle/libs.versions.toml")
+        val versions = ImportVersionCatalog.load(
+            FileSystem.SYSTEM,
+            path
+        )
+        assertThat(
+            versions.size
+        ).isAtLeast(20)
+        assertThat(
+            versions.any {
+                it.contains("kotlin-gradle-plugin")
+            }
+        ).isTrue()
     }
 }
