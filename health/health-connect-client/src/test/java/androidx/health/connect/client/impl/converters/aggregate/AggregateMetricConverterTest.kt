@@ -15,10 +15,10 @@
  */
 package androidx.health.connect.client.impl.converters.aggregate
 
-import androidx.health.connect.client.records.ActivitySession
-import androidx.health.connect.client.records.Distance
-import androidx.health.connect.client.records.HeartRateSeries
-import androidx.health.connect.client.records.Steps
+import androidx.health.connect.client.records.ActivitySessionRecord
+import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.StepsRecord
 import androidx.health.platform.client.proto.RequestProto
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
 class AggregateMetricConverterTest {
     @Test
     fun aggregateMetric_toProto() {
-        assertThat(Steps.COUNT_TOTAL.toProto())
+        assertThat(StepsRecord.COUNT_TOTAL.toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
                     .setDataTypeName("Steps")
@@ -37,7 +37,7 @@ class AggregateMetricConverterTest {
                     .setFieldName("count")
                     .build()
             )
-        assertThat(Distance.DISTANCE_TOTAL.toProto())
+        assertThat(DistanceRecord.DISTANCE_TOTAL.toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
                     .setDataTypeName("Distance")
@@ -45,7 +45,7 @@ class AggregateMetricConverterTest {
                     .setFieldName("distance")
                     .build()
             )
-        assertThat(ActivitySession.ACTIVE_TIME_TOTAL.toProto())
+        assertThat(ActivitySessionRecord.ACTIVE_TIME_TOTAL.toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
                     .setDataTypeName("ActiveTime")
@@ -53,7 +53,7 @@ class AggregateMetricConverterTest {
                     .setFieldName("time")
                     .build()
             )
-        assertThat(HeartRateSeries.MEASUREMENTS_COUNT.toProto())
+        assertThat(HeartRateRecord.MEASUREMENTS_COUNT.toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
                     .setDataTypeName("HeartRate")
