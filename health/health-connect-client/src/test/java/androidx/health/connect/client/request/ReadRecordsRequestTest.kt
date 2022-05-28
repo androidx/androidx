@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.request
 
-import androidx.health.connect.client.records.Steps
+import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.time.Instant
@@ -33,7 +33,7 @@ class ReadRecordsRequestTest {
     fun negativePageSize_throws() {
         assertFailsWith<IllegalArgumentException> {
             ReadRecordsRequest(
-                recordType = Steps::class,
+                recordType = StepsRecord::class,
                 timeRangeFilter = TimeRangeFilter.none(),
                 pageSize = -1
             )
@@ -44,7 +44,7 @@ class ReadRecordsRequestTest {
     fun zeroPageSize_throws() {
         assertFailsWith<IllegalArgumentException> {
             ReadRecordsRequest(
-                recordType = Steps::class,
+                recordType = StepsRecord::class,
                 timeRangeFilter = TimeRangeFilter.none(),
                 pageSize = 0
             )
@@ -54,20 +54,20 @@ class ReadRecordsRequestTest {
     @Test
     fun openEndedTimeRange_success() {
         ReadRecordsRequest(
-            recordType = Steps::class,
+            recordType = StepsRecord::class,
             timeRangeFilter = TimeRangeFilter.none(),
         )
     }
 
     @Test
     fun closedTimeRange_success() {
-        ReadRecordsRequest(recordType = Steps::class, timeRangeFilter = closedTimeRange)
+        ReadRecordsRequest(recordType = StepsRecord::class, timeRangeFilter = closedTimeRange)
     }
 
     @Test
     fun pageTokenWithPageSize_success() {
         ReadRecordsRequest(
-            recordType = Steps::class,
+            recordType = StepsRecord::class,
             timeRangeFilter = closedTimeRange,
             pageSize = 10,
             pageToken = "token"

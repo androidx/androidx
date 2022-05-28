@@ -18,7 +18,7 @@ package androidx.health.connect.client.permission
 import android.content.Context
 import android.content.Intent
 import androidx.health.connect.client.HealthConnectClient
-import androidx.health.connect.client.records.Steps
+import androidx.health.connect.client.records.StepsRecord
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.PermissionProto
 import androidx.health.platform.client.service.HealthDataServiceConstants
@@ -47,7 +47,7 @@ class HealthDataRequestPermissionsTest {
         val intent =
             requestPermissionContract.createIntent(
                 context,
-                setOf(Permission.createReadPermission(Steps::class))
+                setOf(Permission.createReadPermission(StepsRecord::class))
             )
 
         assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
@@ -60,7 +60,7 @@ class HealthDataRequestPermissionsTest {
         val intent =
             requestPermissionContract.createIntent(
                 context,
-                setOf(Permission.createReadPermission(Steps::class))
+                setOf(Permission.createReadPermission(StepsRecord::class))
             )
 
         assertThat(intent.action).isEqualTo("androidx.health.ACTION_REQUEST_PERMISSIONS")
@@ -100,7 +100,7 @@ class HealthDataRequestPermissionsTest {
         )
         val result = requestPermissionContract.parseResult(0, intent)
 
-        assertThat(result).containsExactly(Permission.createReadPermission(Steps::class))
+        assertThat(result).containsExactly(Permission.createReadPermission(StepsRecord::class))
     }
 
     @Test
@@ -109,7 +109,7 @@ class HealthDataRequestPermissionsTest {
         val result =
             requestPermissionContract.getSynchronousResult(
                 context,
-                setOf(Permission.createReadPermission(Steps::class))
+                setOf(Permission.createReadPermission(StepsRecord::class))
             )
 
         assertThat(result).isNull()

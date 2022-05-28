@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.permission
 
-import androidx.health.connect.client.records.Steps
+import androidx.health.connect.client.records.StepsRecord
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -26,15 +26,15 @@ class PermissionTest {
 
     @Test
     fun createReadPermission() {
-        val permission = Permission.createReadPermission(Steps::class)
+        val permission = Permission.createReadPermission(StepsRecord::class)
         assertThat(permission.accessType).isEqualTo(AccessTypes.READ)
-        assertThat(permission.recordType).isEqualTo(Steps::class)
+        assertThat(permission.recordType).isEqualTo(StepsRecord::class)
     }
 
     @Test
     fun createWritePermission() {
-        val permission = Permission.createWritePermission(Steps::class)
+        val permission = Permission.createWritePermission(StepsRecord::class)
         assertThat(permission.accessType).isEqualTo(AccessTypes.WRITE)
-        assertThat(permission.recordType).isEqualTo(Steps::class)
+        assertThat(permission.recordType).isEqualTo(StepsRecord::class)
     }
 }
