@@ -94,6 +94,7 @@ import com.google.android.icing.proto.GetResultSpecProto;
 import com.google.android.icing.proto.GetSchemaResultProto;
 import com.google.android.icing.proto.IcingSearchEngineOptions;
 import com.google.android.icing.proto.InitializeResultProto;
+import com.google.android.icing.proto.LogSeverity;
 import com.google.android.icing.proto.NamespaceStorageInfoProto;
 import com.google.android.icing.proto.OptimizeResultProto;
 import com.google.android.icing.proto.PersistToDiskResultProto;
@@ -2589,6 +2590,36 @@ public final class AppSearchImpl implements Closeable {
             checkSuccess(optimizeResultProto.getStatus());
         } finally {
             mReadWriteLock.writeLock().unlock();
+        }
+    }
+
+    /**
+     * Sync the current Android logging level to Icing for the entire process. No lock required.
+     */
+    public static void syncLoggingLevelToIcing() {
+        String icingTag = IcingSearchEngine.getLoggingTag();
+        if (icingTag == null) {
+            Log.e(TAG, "Received null logging tag from Icing");
+            return;
+        }
+        if (LogUtil.DEBUG) {
+            if (Log.isLoggable(icingTag, Log.VERBOSE)) {
+                IcingSearchEngine.setLoggingLevel(LogSeverity.Code.VERBOSE, /*verbosity=*/
+                        (short) 1);
+                return;
+            } else if (Log.isLoggable(icingTag, Log.DEBUG)) {
+                IcingSearchEngine.setLoggingLevel(LogSeverity.Code.DBG);
+                return;
+            }
+        }
+        if (Log.isLoggable(icingTag, Log.INFO)) {
+            IcingSearchEngine.setLoggingLevel(LogSeverity.Code.INFO);
+        } else if (Log.isLoggable(icingTag, Log.WARN)) {
+            IcingSearchEngine.setLoggingLevel(LogSeverity.Code.WARNING);
+        } else if (Log.isLoggable(icingTag, Log.ERROR)) {
+            IcingSearchEngine.setLoggingLevel(LogSeverity.Code.ERROR);
+        } else {
+            IcingSearchEngine.setLoggingLevel(LogSeverity.Code.FATAL);
         }
     }
 
