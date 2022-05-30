@@ -125,6 +125,28 @@ class TextLayoutIntrinsicWidthTest {
         assertLineCount(defaultText)
     }
 
+    @Test
+    fun intrinsicWidth_sameInLtrAndRtl() {
+        val text = SpannableString("asdf")
+
+        val intrinsicsLtr = LayoutIntrinsics(text, defaultPaint, LayoutCompat.TEXT_DIRECTION_LTR)
+        val intrinsicsRtl = LayoutIntrinsics(text, defaultPaint, LayoutCompat.TEXT_DIRECTION_RTL)
+
+        assertThat(intrinsicsLtr.maxIntrinsicWidth).isEqualTo(intrinsicsRtl.maxIntrinsicWidth)
+    }
+
+    @Test
+    fun intrinsicWidth_sameInLtrAndRtl_withLetterSpacing() {
+        val text = SpannableString("asdf").apply {
+            setSpan(LetterSpacingSpanPx(letterSpacingPx))
+        }
+
+        val intrinsicsLtr = LayoutIntrinsics(text, defaultPaint, LayoutCompat.TEXT_DIRECTION_LTR)
+        val intrinsicsRtl = LayoutIntrinsics(text, defaultPaint, LayoutCompat.TEXT_DIRECTION_RTL)
+
+        assertThat(intrinsicsLtr.maxIntrinsicWidth).isEqualTo(intrinsicsRtl.maxIntrinsicWidth)
+    }
+
     private fun assertLineCount(text: CharSequence, paint: TextPaint = defaultPaint) {
         val intrinsics = LayoutIntrinsics(text, paint, LayoutCompat.TEXT_DIRECTION_LTR)
         assertThat(
