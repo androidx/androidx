@@ -35,7 +35,8 @@ import androidx.annotation.IntDef
     ErrorCode.INVALID_UID,
     ErrorCode.DATABASE_ERROR,
     ErrorCode.INTERNAL_ERROR,
-    ErrorCode.CHANGES_TOKEN_OUTDATED
+    ErrorCode.CHANGES_TOKEN_OUTDATED,
+    ErrorCode.TRANSACTION_TOO_LARGE
 )
 annotation class ErrorCode {
     companion object {
@@ -89,5 +90,8 @@ annotation class ErrorCode {
          * after its last sync and before this call.
          */
         const val CHANGES_TOKEN_OUTDATED = 10008
+
+        /** Remote end failed to deliver response, likely due to parcel too large. */
+        const val TRANSACTION_TOO_LARGE = 10010
     }
 }
