@@ -71,6 +71,25 @@ import java.util.List;
  *
  * <p>For additional examples and suggested layouts see <a
  * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * PrimaryLayout pl = new PrimaryLayout...
+ * Box box = new Box.Builder().addContent(pl).build();
+ *
+ * PrimaryLayout myPl = (PrimaryLayout) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link PrimaryLayout} object from any layout element, {@link
+ * #fromLayoutElement} method should be used, i.e.:
+ *
+ * <pre>{@code
+ * PrimaryLayout myPl = PrimaryLayout.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class PrimaryLayout implements LayoutElement {
     /**
@@ -443,11 +462,15 @@ public class PrimaryLayout implements LayoutElement {
     }
 
     /**
-     * Returns PrimaryLayout object from the given LayoutElement if that element can be converted to
-     * PrimaryLayout. Otherwise, returns null.
+     * Returns PrimaryLayout object from the given LayoutElement (e.g. one retrieved from a
+     * container's content with {@code container.getContents().get(index)}) if that element can be
+     * converted to PrimaryLayout. Otherwise, it will return null.
      */
     @Nullable
     public static PrimaryLayout fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof PrimaryLayout) {
+            return (PrimaryLayout) element;
+        }
         if (!(element instanceof Box)) {
             return null;
         }

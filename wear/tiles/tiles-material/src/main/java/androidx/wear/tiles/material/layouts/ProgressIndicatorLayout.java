@@ -55,6 +55,26 @@ import java.util.List;
  *
  * <p>For additional examples and suggested layouts see <a
  * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * ProgressIndicatorLayout pil = new ProgressIndicatorLayout...
+ * Box box = new Box.Builder().addContent(pil).build();
+ *
+ * ProgressIndicatorLayout myPil = (ProgressIndicatorLayout) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link ProgressIndicatorLayout} object from any layout element, {@link
+ * #fromLayoutElement} method should be used, i.e.:
+ *
+ * <pre>{@code
+ * ProgressIndicatorLayout myPil =
+ *   ProgressIndicatorLayout.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class ProgressIndicatorLayout implements LayoutElement {
     /**
@@ -233,11 +253,15 @@ public class ProgressIndicatorLayout implements LayoutElement {
     }
 
     /**
-     * Returns ProgressIndicatorLayout object from the given LayoutElement if that element can be
-     * converted to ProgressIndicatorLayout. Otherwise, returns null.
+     * Returns ProgressIndicatorLayout object from the given LayoutElement (e.g. one retrieved from
+     * a container's content with {@code container.getContents().get(index)}) if that element can be
+     * converted to ProgressIndicatorLayout. Otherwise, it will return null.
      */
     @Nullable
     public static ProgressIndicatorLayout fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof ProgressIndicatorLayout) {
+            return (ProgressIndicatorLayout) element;
+        }
         if (!(element instanceof Box)) {
             return null;
         }

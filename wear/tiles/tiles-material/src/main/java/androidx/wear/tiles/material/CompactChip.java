@@ -46,6 +46,25 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
  * e.g. {@link ChipDefaults#COMPACT_PRIMARY_COLORS} to get a color scheme for a primary {@link
  * CompactChip}.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * CompactChip chip = new CompactChip...
+ * Box box = new Box.Builder().addContent(chip).build();
+ *
+ * CompactChip myChip = (CompactChip) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link CompactChip} object from any layout element, {@link
+ * #fromLayoutElement} method should be used, i.e.:
+ *
+ * <pre>{@code
+ * CompactChip myChip = CompactChip.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class CompactChip implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a CompactChip. */
@@ -144,11 +163,15 @@ public class CompactChip implements LayoutElement {
     }
 
     /**
-     * Returns CompactChip object from the given LayoutElement if that element can be converted to
-     * CompactChip. Otherwise, returns null.
+     * Returns CompactChip object from the given LayoutElement (e.g. one retrieved from a
+     * container's content with {@code container.getContents().get(index)}) if that element can be
+     * converted to CompactChip. Otherwise, it will return null.
      */
     @Nullable
     public static CompactChip fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof CompactChip) {
+            return (CompactChip) element;
+        }
         if (!(element instanceof Box)) {
             return null;
         }
