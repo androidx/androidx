@@ -38,7 +38,10 @@ plugins {
  *  Additionally, using the prebuilts reference directly (instead of the project reference)
  *  resulted in the project not getting published to Maven or Snapshot Builds (androidx.dev).
  */
-def reusePrebuiltsAar = true
+
+def reusePrebuiltsAar = Boolean.parseBoolean(
+        System.getProperty("TRACING_PERFETTO_REUSE_PREBUILTS_AAR", "true")
+)
 def prebuiltsAarVersion = androidx.LibraryVersions.TRACING_PERFETTO
 def unzippedPrebuiltsAarDir = "$buildDir/unzipped-aar"
 
