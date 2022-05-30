@@ -211,7 +211,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
     /** Returns metadata tag set to this ProgressIndicatorLayout. */
     @NonNull
     byte[] getMetadataTag() {
-        return getMetadataTagBytes(checkNotNull(mImpl.getModifiers()));
+        return getMetadataTagBytes(checkNotNull(checkNotNull(mImpl.getModifiers()).getMetadata()));
     }
 
     /** Returns the inner content from this layout. */

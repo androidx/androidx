@@ -439,7 +439,7 @@ public class PrimaryLayout implements LayoutElement {
     /** Returns metadata tag set to this PrimaryLayout. */
     @NonNull
     byte[] getMetadataTag() {
-        return getMetadataTagBytes(checkNotNull(mImpl.getModifiers()));
+        return getMetadataTagBytes(checkNotNull(checkNotNull(mImpl.getModifiers()).getMetadata()));
     }
 
     /**

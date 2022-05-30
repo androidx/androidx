@@ -176,7 +176,8 @@ public class MultiSlotLayout implements LayoutElement {
     /** Returns metadata tag set to this MultiSlotLayout. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(checkNotNull(mElement.getModifiers()));
+        return getMetadataTagName(
+                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
     }
 
     /**

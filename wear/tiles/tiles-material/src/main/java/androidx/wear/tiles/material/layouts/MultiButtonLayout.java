@@ -307,7 +307,8 @@ public class MultiButtonLayout implements LayoutElement {
     /** Returns metadata tag set to this MultiButtonLayouts. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(checkNotNull(mElement.getModifiers()));
+        return getMetadataTagName(
+                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
     }
 
     /**

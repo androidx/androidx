@@ -285,7 +285,7 @@ public class Text implements LayoutElement {
     /** Returns metadata tag set to this Text, which should be {@link #METADATA_TAG}. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(checkNotNull(getModifiers()));
+        return getMetadataTagName(checkNotNull(checkNotNull(getModifiers()).getMetadata()));
     }
 
     /**
