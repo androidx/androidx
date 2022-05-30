@@ -19,6 +19,7 @@ package androidx.tracing.perfetto
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
@@ -85,6 +86,14 @@ class TracingReceiver : BroadcastReceiver() {
         val srcPath = intent.extras?.getString(KEY_PATH)
 
         val response: EnableTracingResponse = when {
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.R -> {
+                // TODO(234351579): Support API < 30
+                EnableTracingResponse(
+                    exitCode = RESULT_CODE_ERROR_OTHER,
+                    errorMessage = "SDK version not supported. " +
+                        "Current minimum SDK = ${Build.VERSION_CODES.R}"
+                )
+            }
             srcPath != null && context != null -> {
                 try {
                     val dstFile = copyExternalLibraryFile(context, srcPath)

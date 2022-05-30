@@ -94,6 +94,7 @@ public class PerfettoCapture(
      * Enables Perfetto SDK tracing in an app if present. Provides required binary dependencies to
      * the app if they're missing and the [provideBinariesIfMissing] parameter is set to `true`.
      */
+    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
     fun enableAndroidxTracingPerfetto(
         targetPackage: String,
         provideBinariesIfMissing: Boolean
