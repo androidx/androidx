@@ -24,22 +24,17 @@ import java.time.Instant
 import java.time.ZoneOffset
 
 /**
- * Captures any activity a user does. This can be common fitness activities like running or
- * different sports, as well as activities like meditation, gardening, and sleep.
+ * Captures any exercise a user does. This can be common fitness exercise like running or different
+ * sports.
  *
- * If the user was doing more than one activity during that time period, create a session for the
- * main activity type, and multiple segments for the different activity types. For example, if they
- * did a little bit of kick boxing and boxing during a mixed martial arts class, create a session
- * for mixed martial arts. You can then breakdown the different activity types into segments.
- *
- * Each record needs a start time and end time. Data points don't need to be back-to-back or
- * directly after each other, there can be gaps in between.
+ * Each record needs a start time and end time. Records don't need to be back-to-back or directly
+ * after each other, there can be gaps in between.
  */
-public class ActivitySessionRecord(
+public class ExerciseSessionRecord(
     /**
-     * Type of activity (e.g. walking, swimming). Required field. Allowed values: [ActivityType].
+     * Type of exercise (e.g. walking, swimming). Required field. Allowed values: [ExerciseType].
      */
-    @property:ActivityTypes public val activityType: String,
+    @property:ExerciseTypes public val exerciseType: String,
     /** Title of the session. Optional field. */
     public val title: String? = null,
     /** Additional notes for the session. Optional field. */
@@ -52,9 +47,9 @@ public class ActivitySessionRecord(
 ) : IntervalRecord {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ActivitySessionRecord) return false
+        if (other !is ExerciseSessionRecord) return false
 
-        if (activityType != other.activityType) return false
+        if (exerciseType != other.exerciseType) return false
         if (title != other.title) return false
         if (notes != other.notes) return false
         if (startTime != other.startTime) return false
@@ -68,7 +63,7 @@ public class ActivitySessionRecord(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + activityType.hashCode()
+        result = 31 * result + exerciseType.hashCode()
         result = 31 * result + title.hashCode()
         result = 31 * result + notes.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
@@ -90,12 +85,12 @@ public class ActivitySessionRecord(
                 aggregationType = AggregateMetric.AggregationType.TOTAL,
                 fieldName = "time",
             )
-        // Active time requires computing total time from ActivityEvent/Session and is not a
+        // Active time requires computing total time from ExerciseEvent/Session and is not a
         // straightforward Duration aggregation.
     }
 
-    /** List of supported activities on Health Platform. */
-    public object ActivityType {
+    /** List of supported exercise type on Health Platform. */
+    public object ExerciseType {
         const val BACK_EXTENSION = "back_extension"
         const val BADMINTON = "badminton"
         const val BARBELL_SHOULDER_PRESS = "barbell_shoulder_press"
@@ -191,91 +186,91 @@ public class ActivitySessionRecord(
     @StringDef(
         value =
             [
-                ActivityType.BACK_EXTENSION,
-                ActivityType.BADMINTON,
-                ActivityType.BARBELL_SHOULDER_PRESS,
-                ActivityType.BASEBALL,
-                ActivityType.BASKETBALL,
-                ActivityType.BENCH_PRESS,
-                ActivityType.BENCH_SIT_UP,
-                ActivityType.BIKING,
-                ActivityType.BIKING_STATIONARY,
-                ActivityType.BOOT_CAMP,
-                ActivityType.BOXING,
-                ActivityType.BURPEE,
-                ActivityType.CALISTHENICS,
-                ActivityType.CRICKET,
-                ActivityType.CRUNCH,
-                ActivityType.DANCING,
-                ActivityType.DEADLIFT,
-                ActivityType.DUMBBELL_CURL_LEFT_ARM,
-                ActivityType.DUMBBELL_CURL_RIGHT_ARM,
-                ActivityType.DUMBBELL_FRONT_RAISE,
-                ActivityType.DUMBBELL_LATERAL_RAISE,
-                ActivityType.DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM,
-                ActivityType.DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM,
-                ActivityType.DUMBBELL_TRICEPS_EXTENSION_TWO_ARM,
-                ActivityType.ELLIPTICAL,
-                ActivityType.EXERCISE_CLASS,
-                ActivityType.FENCING,
-                ActivityType.FOOTBALL_AMERICAN,
-                ActivityType.FOOTBALL_AUSTRALIAN,
-                ActivityType.FORWARD_TWIST,
-                ActivityType.FRISBEE_DISC,
-                ActivityType.GOLF,
-                ActivityType.GUIDED_BREATHING,
-                ActivityType.GYMNASTICS,
-                ActivityType.HANDBALL,
-                ActivityType.HIGH_INTENSITY_INTERVAL_TRAINING,
-                ActivityType.HIKING,
-                ActivityType.ICE_HOCKEY,
-                ActivityType.ICE_SKATING,
-                ActivityType.JUMPING_JACK,
-                ActivityType.JUMP_ROPE,
-                ActivityType.LAT_PULL_DOWN,
-                ActivityType.LUNGE,
-                ActivityType.MARTIAL_ARTS,
-                ActivityType.MEDITATION,
-                ActivityType.PADDLING,
-                ActivityType.PARA_GLIDING,
-                ActivityType.PILATES,
-                ActivityType.PLANK,
-                ActivityType.RACQUETBALL,
-                ActivityType.ROCK_CLIMBING,
-                ActivityType.ROLLER_HOCKEY,
-                ActivityType.ROWING,
-                ActivityType.ROWING_MACHINE,
-                ActivityType.RUGBY,
-                ActivityType.RUNNING,
-                ActivityType.RUNNING_TREADMILL,
-                ActivityType.SAILING,
-                ActivityType.SCUBA_DIVING,
-                ActivityType.SKATING,
-                ActivityType.SKIING,
-                ActivityType.SNOWBOARDING,
-                ActivityType.SNOWSHOEING,
-                ActivityType.SOCCER,
-                ActivityType.SOFTBALL,
-                ActivityType.SQUASH,
-                ActivityType.SQUAT,
-                ActivityType.STAIR_CLIMBING,
-                ActivityType.STAIR_CLIMBING_MACHINE,
-                ActivityType.STRENGTH_TRAINING,
-                ActivityType.STRETCHING,
-                ActivityType.SURFING,
-                ActivityType.SWIMMING_OPEN_WATER,
-                ActivityType.SWIMMING_POOL,
-                ActivityType.TABLE_TENNIS,
-                ActivityType.TENNIS,
-                ActivityType.UPPER_TWIST,
-                ActivityType.VOLLEYBALL,
-                ActivityType.WALKING,
-                ActivityType.WATER_POLO,
-                ActivityType.WEIGHTLIFTING,
-                ActivityType.WHEELCHAIR,
-                ActivityType.WORKOUT,
-                ActivityType.YOGA,
+                ExerciseType.BACK_EXTENSION,
+                ExerciseType.BADMINTON,
+                ExerciseType.BARBELL_SHOULDER_PRESS,
+                ExerciseType.BASEBALL,
+                ExerciseType.BASKETBALL,
+                ExerciseType.BENCH_PRESS,
+                ExerciseType.BENCH_SIT_UP,
+                ExerciseType.BIKING,
+                ExerciseType.BIKING_STATIONARY,
+                ExerciseType.BOOT_CAMP,
+                ExerciseType.BOXING,
+                ExerciseType.BURPEE,
+                ExerciseType.CALISTHENICS,
+                ExerciseType.CRICKET,
+                ExerciseType.CRUNCH,
+                ExerciseType.DANCING,
+                ExerciseType.DEADLIFT,
+                ExerciseType.DUMBBELL_CURL_LEFT_ARM,
+                ExerciseType.DUMBBELL_CURL_RIGHT_ARM,
+                ExerciseType.DUMBBELL_FRONT_RAISE,
+                ExerciseType.DUMBBELL_LATERAL_RAISE,
+                ExerciseType.DUMBBELL_TRICEPS_EXTENSION_LEFT_ARM,
+                ExerciseType.DUMBBELL_TRICEPS_EXTENSION_RIGHT_ARM,
+                ExerciseType.DUMBBELL_TRICEPS_EXTENSION_TWO_ARM,
+                ExerciseType.ELLIPTICAL,
+                ExerciseType.EXERCISE_CLASS,
+                ExerciseType.FENCING,
+                ExerciseType.FOOTBALL_AMERICAN,
+                ExerciseType.FOOTBALL_AUSTRALIAN,
+                ExerciseType.FORWARD_TWIST,
+                ExerciseType.FRISBEE_DISC,
+                ExerciseType.GOLF,
+                ExerciseType.GUIDED_BREATHING,
+                ExerciseType.GYMNASTICS,
+                ExerciseType.HANDBALL,
+                ExerciseType.HIGH_INTENSITY_INTERVAL_TRAINING,
+                ExerciseType.HIKING,
+                ExerciseType.ICE_HOCKEY,
+                ExerciseType.ICE_SKATING,
+                ExerciseType.JUMPING_JACK,
+                ExerciseType.JUMP_ROPE,
+                ExerciseType.LAT_PULL_DOWN,
+                ExerciseType.LUNGE,
+                ExerciseType.MARTIAL_ARTS,
+                ExerciseType.MEDITATION,
+                ExerciseType.PADDLING,
+                ExerciseType.PARA_GLIDING,
+                ExerciseType.PILATES,
+                ExerciseType.PLANK,
+                ExerciseType.RACQUETBALL,
+                ExerciseType.ROCK_CLIMBING,
+                ExerciseType.ROLLER_HOCKEY,
+                ExerciseType.ROWING,
+                ExerciseType.ROWING_MACHINE,
+                ExerciseType.RUGBY,
+                ExerciseType.RUNNING,
+                ExerciseType.RUNNING_TREADMILL,
+                ExerciseType.SAILING,
+                ExerciseType.SCUBA_DIVING,
+                ExerciseType.SKATING,
+                ExerciseType.SKIING,
+                ExerciseType.SNOWBOARDING,
+                ExerciseType.SNOWSHOEING,
+                ExerciseType.SOCCER,
+                ExerciseType.SOFTBALL,
+                ExerciseType.SQUASH,
+                ExerciseType.SQUAT,
+                ExerciseType.STAIR_CLIMBING,
+                ExerciseType.STAIR_CLIMBING_MACHINE,
+                ExerciseType.STRENGTH_TRAINING,
+                ExerciseType.STRETCHING,
+                ExerciseType.SURFING,
+                ExerciseType.SWIMMING_OPEN_WATER,
+                ExerciseType.SWIMMING_POOL,
+                ExerciseType.TABLE_TENNIS,
+                ExerciseType.TENNIS,
+                ExerciseType.UPPER_TWIST,
+                ExerciseType.VOLLEYBALL,
+                ExerciseType.WALKING,
+                ExerciseType.WATER_POLO,
+                ExerciseType.WEIGHTLIFTING,
+                ExerciseType.WHEELCHAIR,
+                ExerciseType.WORKOUT,
+                ExerciseType.YOGA,
             ]
     )
-    annotation class ActivityTypes
+    annotation class ExerciseTypes
 }

@@ -20,9 +20,6 @@ package androidx.health.connect.client.impl.converters.records
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.ActiveEnergyBurnedRecord
-import androidx.health.connect.client.records.ActivityEventRecord
-import androidx.health.connect.client.records.ActivityLapRecord
-import androidx.health.connect.client.records.ActivitySessionRecord
 import androidx.health.connect.client.records.BasalBodyTemperatureRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
@@ -35,6 +32,10 @@ import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseEventRecord
+import androidx.health.connect.client.records.ExerciseLapRecord
+import androidx.health.connect.client.records.ExerciseRepetitionsRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
@@ -56,7 +57,6 @@ import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
-import androidx.health.connect.client.records.RepetitionsRecord
 import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SeriesRecord
@@ -295,12 +295,12 @@ fun Record.toProto(): DataProto.DataPoint =
                 .setDataType(protoDataType("ActiveEnergyBurned"))
                 .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
-        is ActivityEventRecord ->
+        is ExerciseEventRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivityEvent"))
                 .apply { putValues("eventType", enumVal(eventType)) }
                 .build()
-        is ActivityLapRecord ->
+        is ExerciseLapRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivityLap"))
                 .apply {
@@ -309,11 +309,11 @@ fun Record.toProto(): DataProto.DataPoint =
                     }
                 }
                 .build()
-        is ActivitySessionRecord ->
+        is ExerciseSessionRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivitySession"))
                 .apply {
-                    putValues("activityType", enumVal(activityType))
+                    putValues("activityType", enumVal(exerciseType))
                     title?.let { putValues("title", stringVal(it)) }
                     notes?.let { putValues("notes", stringVal(it)) }
                 }
@@ -472,7 +472,7 @@ fun Record.toProto(): DataProto.DataPoint =
                     name?.let { putValues("name", stringVal(it)) }
                 }
                 .build()
-        is RepetitionsRecord ->
+        is ExerciseRepetitionsRecord ->
             intervalProto()
                 .setDataType(protoDataType("Repetitions"))
                 .apply {

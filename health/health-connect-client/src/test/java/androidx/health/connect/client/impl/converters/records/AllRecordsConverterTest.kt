@@ -15,13 +15,9 @@
  */
 package androidx.health.connect.client.impl.converters.records
 
+import androidx.health.connect.client.impl.converters.datatype.toDataTypeName
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.ActiveEnergyBurnedRecord
-import androidx.health.connect.client.records.ActivityEventRecord
-import androidx.health.connect.client.records.ActivityEventRecord.EventType
-import androidx.health.connect.client.records.ActivityLapRecord
-import androidx.health.connect.client.records.ActivitySessionRecord
-import androidx.health.connect.client.records.ActivitySessionRecord.ActivityType
 import androidx.health.connect.client.records.BasalBodyTemperatureRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
@@ -38,6 +34,12 @@ import androidx.health.connect.client.records.CyclingPedalingCadence
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseEventRecord
+import androidx.health.connect.client.records.ExerciseEventRecord.EventType
+import androidx.health.connect.client.records.ExerciseLapRecord
+import androidx.health.connect.client.records.ExerciseRepetitionsRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord.ExerciseType
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRate
 import androidx.health.connect.client.records.HeartRateRecord
@@ -62,7 +64,7 @@ import androidx.health.connect.client.records.OvulationTestRecord.Result
 import androidx.health.connect.client.records.OxygenSaturationRecord
 import androidx.health.connect.client.records.Power
 import androidx.health.connect.client.records.PowerRecord
-import androidx.health.connect.client.records.RepetitionsRecord
+import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
@@ -134,6 +136,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(dataOnlyRequired)
         assertThat(toRecord(dataOnlyRequired.toProto())).isEqualTo(dataOnlyRequired)
         assertThat(toRecord(dataAllFields.toProto())).isEqualTo(dataAllFields)
     }
@@ -148,6 +151,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -164,6 +168,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -180,6 +185,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -193,6 +199,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -207,6 +214,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -220,6 +228,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -233,6 +242,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -247,6 +257,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -272,6 +283,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA,
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -301,6 +313,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA,
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -314,6 +327,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -327,6 +341,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -340,6 +355,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -353,6 +369,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -366,6 +383,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -379,6 +397,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -392,6 +411,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -405,6 +425,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -418,6 +439,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -431,6 +453,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -444,6 +467,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -457,6 +481,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -470,6 +495,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -483,6 +509,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -496,6 +523,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -521,6 +549,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA,
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -534,6 +563,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -547,6 +577,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -560,6 +591,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -585,6 +617,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA,
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -610,6 +643,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA,
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -624,6 +658,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -637,6 +672,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -650,6 +686,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -665,6 +702,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -680,13 +718,14 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testActivityEvent() {
         val data =
-            ActivityEventRecord(
+            ExerciseEventRecord(
                 eventType = EventType.PAUSE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -695,13 +734,14 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testActivityLap() {
         val data =
-            ActivityLapRecord(
+            ExerciseLapRecord(
                 length = 1.meters,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -710,14 +750,15 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testActivitySession() {
         val data =
-            ActivitySessionRecord(
-                activityType = ActivityType.BACK_EXTENSION,
+            ExerciseSessionRecord(
+                exerciseType = ExerciseType.BACK_EXTENSION,
                 title = null,
                 notes = null,
                 startTime = START_TIME,
@@ -727,6 +768,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -742,6 +784,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -757,6 +800,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -772,6 +816,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -787,6 +832,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -845,15 +891,16 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testRepetitions() {
         val data =
-            RepetitionsRecord(
+            ExerciseRepetitionsRecord(
                 count = 1,
-                type = ActivityType.JUMPING_JACK,
+                type = ExerciseType.JUMPING_JACK,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -861,6 +908,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -877,6 +925,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -892,6 +941,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -907,6 +957,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -923,6 +974,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -938,6 +990,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -953,6 +1006,7 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
@@ -968,6 +1022,13 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
+    }
+
+    private inline fun <reified T : Record> checkProtoAndRecordTypeNameMatch(record: T) {
+        val serializedTypeName = record.toProto().dataType.name
+
+        assertThat(T::class.toDataTypeName()).isEqualTo(serializedTypeName)
     }
 }
