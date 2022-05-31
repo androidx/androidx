@@ -571,7 +571,7 @@ public object ScalingLazyColumnDefaults {
         maxElementHeight: Float = 0.6f,
         minTransitionArea: Float = 0.35f,
         maxTransitionArea: Float = 0.55f,
-        scaleInterpolator: Easing = CubicBezierEasing(0.25f, 0.00f, 0.75f, 1.00f),
+        scaleInterpolator: Easing = CubicBezierEasing(0.3f, 0f, 0.7f, 1f),
         viewportVerticalOffsetResolver: (Constraints) -> Int = { (it.maxHeight / 20f).toInt() }
     ): ScalingParams = DefaultScalingParams(
         edgeScale = edgeScale,
