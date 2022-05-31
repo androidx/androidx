@@ -226,7 +226,148 @@ package androidx.car.app.hardware {
 
 }
 
+package androidx.car.app.hardware.climate {
+
+  @MainThread @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimate {
+    method public void fetchClimateProfile(java.util.concurrent.Executor, androidx.car.app.hardware.climate.ClimateProfileRequest, androidx.car.app.hardware.climate.CarClimateProfileCallback);
+    method public void registerClimateStateCallback(java.util.concurrent.Executor, androidx.car.app.hardware.climate.RegisterClimateStateRequest, androidx.car.app.hardware.climate.CarClimateStateCallback);
+    method public <E> void setClimateState(java.util.concurrent.Executor, androidx.car.app.hardware.climate.ClimateStateRequest<E!>, androidx.car.app.hardware.common.CarSetOperationStatusCallback);
+    method public void unregisterClimateStateCallback(androidx.car.app.hardware.climate.CarClimateStateCallback);
+  }
+
+  @MainThread @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class CarClimateFeature {
+    method public java.util.List<androidx.car.app.hardware.common.CarZone!> getCarZones();
+    method public int getFeature();
+  }
+
+  public static final class CarClimateFeature.Builder {
+    ctor public CarClimateFeature.Builder(int);
+    method public androidx.car.app.hardware.climate.CarClimateFeature.Builder addCarZones(androidx.car.app.hardware.common.CarZone!...);
+    method public androidx.car.app.hardware.climate.CarClimateFeature build();
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimateProfileCallback {
+    method public default void onCabinTemperatureProfileAvailable(boolean, java.util.List<java.lang.Float!>, java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onCarZoneMappingInfoProfileAvailable(androidx.car.app.hardware.common.CarZone, java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onDefrosterProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onElectricDefrosterProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onFanDirectionProfileAvailable(java.util.List<java.lang.Integer!>, java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onFanSpeedLevelProfileAvailable(java.util.List<java.lang.Integer!>, java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onHvacAcProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onHvacAutoModeProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onHvacAutoRecirculationProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onHvacDualModeProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onHvacMaxAcModeProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onHvacPowerProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onHvacRecirculationProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onMaxDefrosterProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onSeatTemperatureLevelProfileAvailable(java.util.List<java.lang.Integer!>, java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onSeatVentilationLevelProfileAvailable(java.util.List<java.lang.Integer!>, java.util.List<androidx.car.app.hardware.common.CarZone!>);
+    method public default void onSteeringWheelHeatProfileAvailable(java.util.List<androidx.car.app.hardware.common.CarZone!>);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarClimateStateCallback {
+    method public default void onCabinTemperatureStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Float!>);
+    method public default void onDefrosterStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+    method public default void onElectricDefrosterStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+    method public default void onFanDirectionStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
+    method public default void onFanSpeedLevelStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
+    method public default void onHvacAcStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+    method public default void onHvacAutoModeStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+    method public default void onHvacAutoRecirculationStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+    method public default void onHvacDualModeStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+    method public default void onHvacMaxAcModeStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+    method public default void onHvacPowerStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+    method public default void onHvacRecirculationStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+    method public default void onMaxDefrosterStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+    method public default void onSeatTemperatureLevelStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
+    method public default void onSeatVentilationLevelStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Integer!>);
+    method public default void onSteeringWheelHeatStateAvailable(androidx.car.app.hardware.common.CarValue<java.lang.Boolean!>);
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class ClimateProfileRequest {
+    method public java.util.Set<java.lang.Integer!> getAllClimateProfiles();
+    method public java.util.List<androidx.car.app.hardware.climate.CarClimateFeature!> getClimateProfileFeatures();
+    field public static final int FEATURE_CABIN_TEMPERATURE = 4; // 0x4
+    field public static final int FEATURE_CAR_ZONE_MAPPING = 17; // 0x11
+    field public static final int FEATURE_FAN_DIRECTION = 6; // 0x6
+    field public static final int FEATURE_FAN_SPEED = 5; // 0x5
+    field public static final int FEATURE_HVAC_AC = 2; // 0x2
+    field public static final int FEATURE_HVAC_AUTO_MODE = 12; // 0xc
+    field public static final int FEATURE_HVAC_AUTO_RECIRCULATION = 11; // 0xb
+    field public static final int FEATURE_HVAC_DEFROSTER = 14; // 0xe
+    field public static final int FEATURE_HVAC_DUAL_MODE = 13; // 0xd
+    field public static final int FEATURE_HVAC_ELECTRIC_DEFROSTER = 16; // 0x10
+    field public static final int FEATURE_HVAC_MAX_AC = 3; // 0x3
+    field public static final int FEATURE_HVAC_MAX_DEFROSTER = 15; // 0xf
+    field public static final int FEATURE_HVAC_POWER = 1; // 0x1
+    field public static final int FEATURE_HVAC_RECIRCULATION = 10; // 0xa
+    field public static final int FEATURE_SEAT_TEMPERATURE_LEVEL = 7; // 0x7
+    field public static final int FEATURE_SEAT_VENTILATION_LEVEL = 8; // 0x8
+    field public static final int FEATURE_STEERING_WHEEL_HEAT = 9; // 0x9
+  }
+
+  public static final class ClimateProfileRequest.Builder {
+    ctor public ClimateProfileRequest.Builder();
+    method public androidx.car.app.hardware.climate.ClimateProfileRequest.Builder addClimateProfileFeatures(androidx.car.app.hardware.climate.CarClimateFeature!...);
+    method public androidx.car.app.hardware.climate.ClimateProfileRequest build();
+    method public androidx.car.app.hardware.climate.ClimateProfileRequest.Builder setAllClimateProfiles();
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class ClimateStateRequest<T> {
+    method public java.util.List<androidx.car.app.hardware.common.CarZone!> getCarZones();
+    method public int getRequestedFeature();
+    method public T getRequestedValue();
+  }
+
+  public static final class ClimateStateRequest.Builder<T> {
+    ctor public ClimateStateRequest.Builder(int, T!);
+    method public androidx.car.app.hardware.climate.ClimateStateRequest.Builder<T!> addCarZones(androidx.car.app.hardware.common.CarZone);
+    method public androidx.car.app.hardware.climate.ClimateStateRequest<T!> build();
+  }
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public final class RegisterClimateStateRequest {
+    method public java.util.List<androidx.car.app.hardware.climate.CarClimateFeature!> getClimateRegisterFeatures();
+  }
+
+  public static final class RegisterClimateStateRequest.Builder {
+    ctor public RegisterClimateStateRequest.Builder(boolean);
+    method public androidx.car.app.hardware.climate.RegisterClimateStateRequest.Builder addClimateRegisterFeatures(androidx.car.app.hardware.climate.CarClimateFeature!...);
+    method public androidx.car.app.hardware.climate.RegisterClimateStateRequest build();
+  }
+
+}
+
 package androidx.car.app.hardware.common {
+
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.ExperimentalCarApi @androidx.car.app.annotations.RequiresCarApi(5) public interface CarSetOperationStatusCallback {
+    method public default void onSetCarClimateStateCabinTemperature(int);
+    method public default void onSetCarClimateStateDefroster(int);
+    method public default void onSetCarClimateStateElectricDefroster(int);
+    method public default void onSetCarClimateStateFanDirection(int);
+    method public default void onSetCarClimateStateFanSpeedLevel(int);
+    method public default void onSetCarClimateStateHvacAc(int);
+    method public default void onSetCarClimateStateHvacAutoMode(int);
+    method public default void onSetCarClimateStateHvacAutoRecirculation(int);
+    method public default void onSetCarClimateStateHvacDualMode(int);
+    method public default void onSetCarClimateStateHvacMaxAcMode(int);
+    method public default void onSetCarClimateStateHvacPower(int);
+    method public default void onSetCarClimateStateHvacRecirculation(int);
+    method public default void onSetCarClimateStateMaxDefroster(int);
+    method public default void onSetCarClimateStateSeatTemperatureLevel(int);
+    method public default void onSetCarClimateStateSeatVentilationLevel(int);
+    method public default void onSetCarClimateStateSteeringWheelHeat(int);
+    method public static String toString(int);
+    field public static final int OPERATION_STATUS_FEATURE_SETTING_NOT_ALLOWED = 4; // 0x4
+    field public static final int OPERATION_STATUS_FEATURE_TEMPORARILY_UNAVAILABLE = 3; // 0x3
+    field public static final int OPERATION_STATUS_FEATURE_UNIMPLEMENTED = 1; // 0x1
+    field public static final int OPERATION_STATUS_FEATURE_UNSUPPORTED = 2; // 0x2
+    field public static final int OPERATION_STATUS_ILLEGAL_CAR_HARDWARE_STATE = 7; // 0x7
+    field public static final int OPERATION_STATUS_INSUFFICIENT_PERMISSION = 6; // 0x6
+    field public static final int OPERATION_STATUS_SUCCESS = 0; // 0x0
+    field public static final int OPERATION_STATUS_UNSUPPORTED_VALUE = 5; // 0x5
+    field public static final int OPERATION_STATUS_UPDATE_TIMEOUT = 8; // 0x8
+  }
 
   @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(3) public final class CarUnit {
     method public static String toString(int);
