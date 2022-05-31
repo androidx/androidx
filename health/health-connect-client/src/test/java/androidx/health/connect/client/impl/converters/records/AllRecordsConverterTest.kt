@@ -15,9 +15,6 @@
  */
 package androidx.health.connect.client.impl.converters.records
 
-import androidx.health.connect.client.metadata.DataOrigin
-import androidx.health.connect.client.metadata.Device
-import androidx.health.connect.client.metadata.Metadata
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.ActiveEnergyBurnedRecord
 import androidx.health.connect.client.records.ActivityEventRecord
@@ -30,13 +27,13 @@ import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
 import androidx.health.connect.client.records.BloodPressureRecord
 import androidx.health.connect.client.records.BodyFatRecord
-import androidx.health.connect.client.records.BodyTemperatureRecord
 import androidx.health.connect.client.records.BodyTemperatureMeasurementLocation
+import androidx.health.connect.client.records.BodyTemperatureRecord
 import androidx.health.connect.client.records.BodyWaterMassRecord
 import androidx.health.connect.client.records.BoneMassRecord
 import androidx.health.connect.client.records.CervicalMucusRecord
-import androidx.health.connect.client.records.CervicalMucusRecord.Sensation
 import androidx.health.connect.client.records.CervicalMucusRecord.Appearance
+import androidx.health.connect.client.records.CervicalMucusRecord.Sensation
 import androidx.health.connect.client.records.CyclingPedalingCadence
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
@@ -49,8 +46,8 @@ import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
 import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
 import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
 import androidx.health.connect.client.records.HeightRecord
@@ -74,9 +71,9 @@ import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.SleepStageRecord.StageType
 import androidx.health.connect.client.records.Speed
 import androidx.health.connect.client.records.SpeedRecord
-import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.StepsCadence
 import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.SwimmingStrokesRecord
 import androidx.health.connect.client.records.SwimmingStrokesRecord.SwimmingType
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
@@ -85,6 +82,9 @@ import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
+import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.Device
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.meters
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat

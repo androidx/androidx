@@ -18,6 +18,8 @@ package androidx.health.connect.client.metadata;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.health.connect.client.records.metadata.DeviceTypes;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;

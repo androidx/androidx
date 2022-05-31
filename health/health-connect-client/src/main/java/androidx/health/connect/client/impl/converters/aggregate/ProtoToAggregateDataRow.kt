@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
-import androidx.health.connect.client.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
 import java.time.LocalDateTime

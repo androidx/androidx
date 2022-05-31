@@ -18,10 +18,10 @@
 package androidx.health.connect.client.impl.converters.records
 
 import androidx.annotation.RestrictTo
-import androidx.health.connect.client.metadata.Device
-import androidx.health.connect.client.metadata.Metadata
 import androidx.health.connect.client.records.InstantaneousRecord
 import androidx.health.connect.client.records.IntervalRecord
+import androidx.health.connect.client.records.metadata.Device
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
 

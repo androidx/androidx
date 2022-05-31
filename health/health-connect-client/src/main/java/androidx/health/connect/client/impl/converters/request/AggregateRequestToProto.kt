@@ -20,7 +20,7 @@ package androidx.health.connect.client.impl.converters.request
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.impl.converters.aggregate.toProto
 import androidx.health.connect.client.impl.converters.time.toProto
-import androidx.health.connect.client.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
