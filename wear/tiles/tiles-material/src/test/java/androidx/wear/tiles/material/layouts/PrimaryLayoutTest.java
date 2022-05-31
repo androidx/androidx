@@ -210,6 +210,8 @@ public class PrimaryLayoutTest {
                 expectedPrimaryChip,
                 expectedPrimaryLabel,
                 expectedSecondaryLabel);
+
+        assertThat(PrimaryLayout.fromLayoutElement(actualLayout)).isEqualTo(actualLayout);
     }
 
     private void assertLayoutIsEqual(

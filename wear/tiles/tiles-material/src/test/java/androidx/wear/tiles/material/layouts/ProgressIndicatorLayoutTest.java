@@ -146,6 +146,8 @@ public class ProgressIndicatorLayoutTest {
 
         assertThat(newLayout).isNotNull();
         assertLayoutIsEqual(newLayout, expectedProgressIndicator, expectedContent);
+
+        assertThat(ProgressIndicatorLayout.fromLayoutElement(actualLayout)).isEqualTo(actualLayout);
     }
 
     private void assertLayoutIsEqual(

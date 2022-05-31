@@ -195,6 +195,7 @@ public class ChipTest {
                 expectedLabel,
                 expectedIcon,
                 expectedCustomContent);
+
         assertFromLayoutElementChipIsEqual(
                 actualChip,
                 hAlign,
@@ -205,6 +206,8 @@ public class ChipTest {
                 expectedLabel,
                 expectedIcon,
                 expectedCustomContent);
+
+        assertThat(Chip.fromLayoutElement(actualChip)).isEqualTo(actualChip);
     }
 
     @Test

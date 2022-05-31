@@ -79,6 +79,25 @@ import java.util.Map;
  *
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
  * e.g. {@link ChipDefaults#PRIMARY_COLORS} to get a color scheme for a primary {@link Chip}.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * Chip chip = new Chip...
+ * Box box = new Box.Builder().addContent(chip).build();
+ *
+ * Chip myChip = (Chip) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link Chip} object from any layout element, {@link #fromLayoutElement}
+ * method should be used, i.e.:
+ *
+ * <pre>{@code
+ * Chip myChip = Chip.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class Chip implements LayoutElement {
     /**
@@ -622,15 +641,20 @@ public class Chip implements LayoutElement {
     /** Returns metadata tag set to this Chip. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(checkNotNull(mElement.getModifiers()));
+        return getMetadataTagName(
+                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
     }
 
     /**
-     * Returns Chip object from the given LayoutElement if that element can be converted to Chip.
-     * Otherwise, returns null.
+     * Returns Chip object from the given LayoutElement (e.g. one retrieved from a container's
+     * content with {@code container.getContents().get(index)}) if that element can be converted to
+     * Chip. Otherwise, it will return null.
      */
     @Nullable
     public static Chip fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof Chip) {
+            return (Chip) element;
+        }
         if (!(element instanceof Box)) {
             return null;
         }
