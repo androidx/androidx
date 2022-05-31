@@ -104,6 +104,11 @@ public class DrawableUtils {
      * there is a known issue in the given drawable's implementation.
      */
     public static boolean canSafelyMutateDrawable(@NonNull Drawable drawable) {
+        if (Build.VERSION.SDK_INT >= 17) {
+            // We'll never return false on API level >= 17, stop early.
+            return true;
+        }
+
         if (Build.VERSION.SDK_INT < 15 && drawable instanceof InsetDrawable) {
             return false;
         } else if (Build.VERSION.SDK_INT < 15 && drawable instanceof GradientDrawable) {
