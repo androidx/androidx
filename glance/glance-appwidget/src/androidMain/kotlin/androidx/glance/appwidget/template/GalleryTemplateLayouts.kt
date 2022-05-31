@@ -17,11 +17,9 @@
 package androidx.glance.appwidget.template
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
-import androidx.glance.LocalSize
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
@@ -30,9 +28,10 @@ import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.padding
 import androidx.glance.layout.width
-import androidx.glance.text.Text
 import androidx.glance.template.GalleryTemplateData
+import androidx.glance.template.LocalTemplateMode
 import androidx.glance.template.TemplateMode
+import androidx.glance.text.Text
 
 /**
  * Composable layout for a gallery template app widget. The template is optimized to show images.
@@ -41,16 +40,7 @@ import androidx.glance.template.TemplateMode
  */
 @Composable
 public fun GalleryTemplate(data: GalleryTemplateData) {
-    val height = LocalSize.current.height
-    val width = LocalSize.current.width
-    val mode = if (height <= Dp(240f) && width <= Dp(240f)) {
-        TemplateMode.Collapsed
-    } else if ((width / height) < (3.0 / 2.0)) {
-        TemplateMode.Vertical
-    } else {
-        TemplateMode.Horizontal
-    }
-    when (mode) {
+    when (LocalTemplateMode.current) {
         TemplateMode.Collapsed -> WidgetLayoutCollapsed(data)
         TemplateMode.Vertical -> WidgetLayoutVertical(data)
         TemplateMode.Horizontal -> WidgetLayoutHorizontal(data)
