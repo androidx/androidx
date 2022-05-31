@@ -32,12 +32,10 @@ import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year
  *
  * @see android.icu.text.DateFormat
  */
-class DateTimeFormatterCommonOptions : DateTimeFormatterOptions {
+class DateTimeFormatterCommonOptions {
     companion object {
         // TODO: Add a way to combine a predefined data + a predefined time,
         // for example `ABBR_MONTH_DAY` + `HOUR_MINUTE`
-        // For now it is possible to do this, if need be:
-        // `DateTimeFormatterOptions.fromString(ABBR_MONTH_DAY.toString() + HOUR_MINUTE.toString())`
 
         /** Constant for date skeleton with abbreviated month and day. E.g. "Mar 27".
          * @see android.icu.text.DateFormat.ABBR_MONTH_DAY

@@ -24,6 +24,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlin.test.assertFailsWith
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -402,5 +403,20 @@ class DateTimeFormatterTest {
             if (isIcuAvailable) "9:42 PM GMT-6" else "8:42 PM PDT",
             DateTimeFormatter(appContext, options, locale).format(coloradoTime)
         )
+    }
+
+    @Test @SmallTest
+    fun testEmptySkeleton() {
+        val options = SkeletonOptions.fromString("")
+        assertEquals("",
+            DateTimeFormatter(appContext, options, Locale.US).format(testDate)
+        )
+    }
+
+    @Test @SmallTest
+    fun testInvalidSkeletonField_throwsIAE() {
+        assertFailsWith<IllegalArgumentException> {
+            SkeletonOptions.fromString("fiInNopPRtT")
+        }
     }
 }

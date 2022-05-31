@@ -81,14 +81,14 @@ class DateTimeFormatJdkStylesTest {
     private fun checkDate(locale: Locale, javaStyle: @DateTimeStyle Int) {
         val jdkFormatter = DateFormat.getDateInstance(javaStyle, locale)
         val options = DateTimeFormatterJdkStyleOptions.createDateInstance(javaStyle)
-        val compatFormatter = DateTimeFormatter(appContext, options, locale)
+        val compatFormatter = DateTimeFormatter(options, locale)
         assertEquals(jdkFormatter.format(testCalendar.time), compatFormatter.format(testCalendar))
     }
 
     private fun checkTime(locale: Locale, javaStyle: @DateTimeStyle Int) {
         val jdkFormatter = DateFormat.getTimeInstance(javaStyle, locale)
         val options = DateTimeFormatterJdkStyleOptions.createTimeInstance(javaStyle)
-        val compatFormatter = DateTimeFormatter(appContext, options, locale)
+        val compatFormatter = DateTimeFormatter(options, locale)
         assertEquals(jdkFormatter.format(testCalendar.time), compatFormatter.format(testCalendar))
     }
 
@@ -100,7 +100,7 @@ class DateTimeFormatJdkStylesTest {
         val jdkFormatter = DateFormat.getDateTimeInstance(javaDateStyle, javaTimeStyle, locale)
         val options =
             DateTimeFormatterJdkStyleOptions.createDateTimeInstance(javaDateStyle, javaTimeStyle)
-        val compatFormatter = DateTimeFormatter(appContext, options, locale)
+        val compatFormatter = DateTimeFormatter(options, locale)
         assertEquals(jdkFormatter.format(testCalendar.time), compatFormatter.format(testCalendar))
     }
 
