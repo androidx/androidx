@@ -119,8 +119,8 @@ internal class RoomTrackingLiveData<T> (
 
     val queryExecutor: Executor
         get() = if (inTransaction) {
-            database.getTransactionExecutor()
+            database.transactionExecutor
         } else {
-            database.getQueryExecutor()
+            database.queryExecutor
         }
 }
