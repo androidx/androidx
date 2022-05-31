@@ -30,6 +30,7 @@ import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.updateAppWidgetState
+import androidx.glance.appwidget.template.GlanceTemplateAppWidget
 import androidx.glance.appwidget.template.ListTemplate
 import androidx.glance.currentState
 import androidx.glance.template.ListTemplateData
@@ -40,11 +41,11 @@ import androidx.glance.template.TemplateText
 import androidx.glance.template.TemplateTextButton
 import androidx.glance.unit.ColorProvider
 
-class ListDemoWidget : GlanceAppWidget() {
+class ListDemoWidget : GlanceTemplateAppWidget() {
     override val sizeMode = SizeMode.Exact
 
     @Composable
-    override fun Content() {
+    override fun TemplateContent() {
         val state = currentState<Preferences>()
         val content = mutableListOf<ListTemplateItem>()
         for (i in 1..(state[CountKey] ?: 1)) {
