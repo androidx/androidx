@@ -152,6 +152,8 @@ public class MultiButtonLayoutTest {
 
         assertThat(newLayout).isNotNull();
         assertLayoutIsEqual(newLayout, expectedButtons);
+
+        assertThat(MultiButtonLayout.fromLayoutElement(actualLayout)).isEqualTo(actualLayout);
     }
 
     private void assertLayoutIsEqual(MultiButtonLayout actualLayout, List<Button> expectedButtons) {

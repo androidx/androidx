@@ -67,6 +67,25 @@ import java.util.Map;
  * <p>The recommended set of {@link ButtonColors} styles can be obtained from {@link
  * ButtonDefaults}., e.g. {@link ButtonDefaults#PRIMARY_BUTTON_COLORS} to get a color scheme for a
  * primary {@link Button}.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * Button button = new Button...
+ * Box box = new Box.Builder().addContent(button).build();
+ *
+ * Button myButton = (Button) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link Button} object from any layout element, {@link #fromLayoutElement}
+ * method should be used, i.e.:
+ *
+ * <pre>{@code
+ * Button myButton = Button.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class Button implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a Button with text. */
@@ -536,15 +555,20 @@ public class Button implements LayoutElement {
     /** Returns metadata tag set to this Button. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(checkNotNull(mElement.getModifiers()));
+        return getMetadataTagName(
+                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
     }
 
     /**
-     * Returns Button object from the given LayoutElement if that element can be converted to
-     * Button. Otherwise, returns null.
+     * Returns Button object from the given LayoutElement (e.g. one retrieved from a container's
+     * content with {@code container.getContents().get(index)}) if that element can be converted to
+     * Button. Otherwise, it will return null.
      */
     @Nullable
     public static Button fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof Button) {
+            return (Button) element;
+        }
         if (!(element instanceof Box)) {
             return null;
         }

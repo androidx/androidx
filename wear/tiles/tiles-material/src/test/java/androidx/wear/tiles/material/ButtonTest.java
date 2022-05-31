@@ -277,6 +277,8 @@ public class ButtonTest {
                 expectedIconContent,
                 expectedImageContent,
                 expectedCustomContent);
+
+        assertThat(Button.fromLayoutElement(actualButton)).isEqualTo(actualButton);
     }
 
     private void assertButtonIsEqual(
