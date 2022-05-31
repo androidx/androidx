@@ -70,6 +70,7 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestCompileOnly(project(":camera:camera-extensions-stub"))
 
     // Testing resource dependency for manifest
