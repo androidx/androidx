@@ -15,7 +15,9 @@
  */
 package androidx.tracing.perfetto
 
+import android.os.Build
 import android.util.JsonWriter
+import androidx.annotation.RequiresApi
 import androidx.tracing.perfetto.TracingReceiver.Companion.KEY_ERROR_MESSAGE
 import androidx.tracing.perfetto.TracingReceiver.Companion.KEY_EXIT_CODE
 import androidx.tracing.perfetto.TracingReceiver.Companion.KEY_REQUIRED_VERSION
@@ -50,6 +52,7 @@ object Tracing {
      */
     private val enableTracingLock = ReentrantReadWriteLock()
 
+    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
     fun enable(path: String? = null): EnableTracingResponse {
         enableTracingLock.readLock().withLock {
             if (isEnabled) return EnableTracingResponse(RESULT_CODE_ALREADY_ENABLED)
