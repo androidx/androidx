@@ -15,8 +15,7 @@
   -->
 
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center_vertical|start"
-    android:src="@drawable/switch_thumb_animated"
-    style="@style/Glance.AppWidget.SwitchThumb"/>
+    android:layout_width="42dp"
+    android:layout_height="28dp"
+    android:src="@drawable/glance_switch_track"
+    style="@style/Glance.AppWidget.SwitchTrack"/>

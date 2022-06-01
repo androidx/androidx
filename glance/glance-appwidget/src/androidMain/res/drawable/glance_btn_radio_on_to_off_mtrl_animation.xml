@@ -14,20 +14,16 @@
      limitations under the License.
 -->
 
-<animated-selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/on"
-        android:state_enabled="true"
-        android:drawable="@drawable/btn_radio_on_mtrl" />
-    <item
-        android:id="@+id/off"
-        android:drawable="@drawable/btn_radio_off_mtrl" />
-    <transition
-        android:fromId="@+id/on"
-        android:toId="@+id/off"
-        android:drawable="@drawable/btn_radio_on_to_off_mtrl_animation" />
-    <transition
-        android:fromId="@+id/off"
-        android:toId="@+id/on"
-        android:drawable="@drawable/btn_radio_off_to_on_mtrl_animation" />
-</animated-selector>
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:drawable="@drawable/glance_btn_radio_on_mtrl" >
+    <target
+        android:name="ring_outer"
+        android:animation="@anim/glance_btn_radio_to_off_mtrl_ring_outer_animation" />
+    <target
+        android:name="ring_outer_path"
+        android:animation="@anim/glance_btn_radio_to_off_mtrl_ring_outer_path_animation" />
+    <target
+        android:name="dot_group"
+        android:animation="@anim/glance_btn_radio_to_off_mtrl_dot_group_animation" />
+</animated-vector>

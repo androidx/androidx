@@ -268,12 +268,12 @@ class SwitchTranslatorTest {
     private val ViewGroup.thumbImageView: ImageView?
         get() = findView {
             shadowOf(it.drawable).createdFromResId ==
-                androidx.glance.appwidget.R.drawable.switch_thumb_animated
+                androidx.glance.appwidget.R.drawable.glance_switch_thumb_animated
         }
 
     private val ViewGroup.trackImageView: ImageView?
         get() = findView {
             shadowOf(it.drawable).createdFromResId ==
-                androidx.glance.appwidget.R.drawable.switch_track
+                androidx.glance.appwidget.R.drawable.glance_switch_track
         }
 }

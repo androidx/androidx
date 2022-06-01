@@ -31,14 +31,14 @@
             android:valueFrom="0.9"
             android:valueTo="0.5"
             android:valueType="floatType"
-            android:interpolator="@interpolator/btn_radio_to_off_mtrl_animation_interpolator_0" />
+            android:interpolator="@interpolator/glance_btn_radio_to_off_mtrl_animation_interpolator_0" />
         <objectAnimator
             android:duration="300"
             android:propertyName="scaleX"
             android:valueFrom="0.5"
             android:valueTo="1.0"
             android:valueType="floatType"
-            android:interpolator="@interpolator/btn_radio_to_off_mtrl_animation_interpolator_0" />
+            android:interpolator="@interpolator/glance_btn_radio_to_off_mtrl_animation_interpolator_0" />
     </set>
     <set
         android:ordering="sequentially" >
@@ -55,13 +55,13 @@
             android:valueFrom="0.9"
             android:valueTo="0.5"
             android:valueType="floatType"
-            android:interpolator="@interpolator/btn_radio_to_off_mtrl_animation_interpolator_0" />
+            android:interpolator="@interpolator/glance_btn_radio_to_off_mtrl_animation_interpolator_0" />
         <objectAnimator
             android:duration="300"
             android:propertyName="scaleY"
             android:valueFrom="0.5"
             android:valueTo="1.0"
             android:valueType="floatType"
-            android:interpolator="@interpolator/btn_radio_to_off_mtrl_animation_interpolator_0" />
+            android:interpolator="@interpolator/glance_btn_radio_to_off_mtrl_animation_interpolator_0" />
     </set>
 </set>
