@@ -16,7 +16,6 @@
 
 package androidx.camera.integration.view
 
-import android.annotation.SuppressLint
 import android.graphics.RectF
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -44,7 +43,6 @@ class MlKitFragment : Fragment() {
     private lateinit var toggle: ToggleButton
     private val barcodeScanner = BarcodeScanning.getClient()
 
-    @SuppressLint("UnsafeOptInUsageError")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

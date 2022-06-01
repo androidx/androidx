@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.ExperimentalAnalyzer;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageProxy;
@@ -78,7 +77,6 @@ import java.util.concurrent.Executor;
  *
  * @see ImageAnalysis.Analyzer
  */
-@ExperimentalAnalyzer
 @RequiresApi(21)
 public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
 
