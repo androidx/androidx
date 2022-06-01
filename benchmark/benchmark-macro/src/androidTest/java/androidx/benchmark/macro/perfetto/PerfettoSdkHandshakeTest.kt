@@ -16,6 +16,8 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.Packages
@@ -33,12 +35,14 @@ import org.junit.runners.Parameterized
 import org.junit.runners.Parameterized.Parameters
 
 private const val tracingPerfettoVersion = "1.0.0-alpha01" // TODO(224510255): get by 'reflection'
+private const val minSupportedSdk = Build.VERSION_CODES.R // TODO(234351579): Support API < 30
 
 @RunWith(Parameterized::class)
 /**
  * End-to-end test verifying the process of enabling Perfetto SDK tracing using a broadcast.
  * @see [androidx.tracing.perfetto.TracingReceiver]
  */
+@RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
 class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
     private val perfettoCapture = PerfettoCapture()
     private val targetPackage = Packages.TARGET
@@ -78,6 +82,7 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
     @Test
     fun test_enable() {
         assumeTrue(isAbiSupported())
+        assumeTrue(Build.VERSION.SDK_INT >= minSupportedSdk)
 
         // start the process if required to already be running when the handshake starts
         if (testConfig.packageAlive) enablePackage()
@@ -107,8 +112,9 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
     }
 
     @Test
-    fun test_detectUnsupported() {
+    fun test_detectUnsupported_abi() {
         assumeTrue(!isAbiSupported())
+        assumeTrue(Build.VERSION.SDK_INT >= minSupportedSdk)
 
         if (testConfig.packageAlive) enablePackage()
 
@@ -118,8 +124,24 @@ class PerfettoSdkHandshakeTest(private val testConfig: TestConfig) {
                 shouldProvideBinaries(testConfig.sdkDelivery)
             )
         } catch (e: IllegalStateException) {
-            assertThat(e.message).contains("Unsupported ABI")
+            assertThat(e.message).ignoringCase().contains("Unsupported ABI")
         }
+    }
+
+    @Test
+    fun test_detectUnsupported_sdk() {
+        assumeTrue(isAbiSupported())
+        assumeTrue(Build.VERSION.SDK_INT < minSupportedSdk)
+
+        if (testConfig.packageAlive) enablePackage()
+
+        val response =
+            perfettoCapture.enableAndroidxTracingPerfetto(
+                targetPackage,
+                shouldProvideBinaries(testConfig.sdkDelivery)
+            )
+
+        assertThat(response).ignoringCase().contains("SDK version not supported")
     }
 
     private fun enablePackage() {
