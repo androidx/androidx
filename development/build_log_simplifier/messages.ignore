@@ -10,6 +10,7 @@ WARN: Attempt to load key 'java\.correct\.class\.type\.by\.place\.resolve\.scope
 PROGRESS: Rendering
 No docs found on supertype with \{@inheritDoc\} method .*
 Can't find node by signature .*
+Exception while resolving link to Module: Package:androidx\.datastore\.core GroupNode:IOException
 java\.lang\.IllegalStateException: Unsupported Receiver
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlUriProvider\$DefaultImpls\.mainUri\(JavaLayoutHtmlFormat\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.mainUri\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
@@ -98,6 +99,7 @@ Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphic
 Exception while resolving link to Module: Package:androidx\.compose\.ui\.input\.key GroupNode:NativeKeyEvent
 java\.lang\.IllegalStateException: Unsupported GroupNode
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.renderedSignature\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
+at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$generateClassLike\$[0-9]+\$\$special\$\$inlined\$with\$lambda\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$generatePackage\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
@@ -110,6 +112,7 @@ at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLi
 Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics Function:compositeOver Receiver:<this>
 Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:NativeCanvas
 at kotlinx\.html\.Gen_tag_groupsKt\.pre\(gen\-tag\-groups\.kt:[0-9]+\)
+at kotlinx\.html\.Gen_tag_groupsKt\.pre\$default\(gen\-tag\-groups\.kt:[0-9]+\)
 Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:NativePaint
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$propertyLikeSummaryRow\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
 at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$propertyLikeSummaryRow\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
