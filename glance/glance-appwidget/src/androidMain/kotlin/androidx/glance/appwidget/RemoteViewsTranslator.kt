@@ -60,7 +60,7 @@ internal fun translateComposition(
     context: Context,
     appWidgetId: Int,
     element: RemoteViewsRoot,
-    layoutConfiguration: LayoutConfiguration?,
+    layoutConfiguration: LayoutConfiguration,
     rootViewIndex: Int,
     layoutSize: DpSize,
 ) =
@@ -104,7 +104,7 @@ internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
     val isRtl: Boolean,
-    val layoutConfiguration: LayoutConfiguration?,
+    val layoutConfiguration: LayoutConfiguration,
     val itemPosition: Int,
     val isLazyCollectionDescendant: Boolean = false,
     val lastViewId: AtomicInteger = AtomicInteger(0),
@@ -228,9 +228,6 @@ private fun RemoteViews.translateEmittableBox(
         element.modifier,
         viewDef
     )
-    element.children.forEach {
-        it.modifier = it.modifier.then(AlignmentModifier(element.contentAlignment))
-    }
     setChildren(
         translationContext,
         viewDef,
@@ -259,7 +256,7 @@ private fun RemoteViews.translateEmittableRow(
     )
     setLinearLayoutGravity(
         viewDef.mainViewId,
-        Alignment(element.horizontalAlignment, element.verticalAlignment).toGravity()
+        element.horizontalAlignment.toGravity()
     )
     applyModifiers(
         translationContext.canUseSelectableGroup(),
@@ -296,7 +293,7 @@ private fun RemoteViews.translateEmittableColumn(
     )
     setLinearLayoutGravity(
         viewDef.mainViewId,
-        Alignment(element.horizontalAlignment, element.verticalAlignment).toGravity()
+        element.verticalAlignment.toGravity()
     )
     applyModifiers(
         translationContext.canUseSelectableGroup(),
@@ -389,7 +386,7 @@ internal fun RemoteViews.setChildren(
 /**
  * Add stable view if on Android S+, otherwise simply add the view.
  */
-internal fun RemoteViews.addChildView(viewId: Int, childView: RemoteViews, stableId: Int) {
+private fun RemoteViews.addChildView(viewId: Int, childView: RemoteViews, stableId: Int) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         RemoteViewsTranslatorApi31Impl.addChildView(this, viewId, childView, stableId)
         return

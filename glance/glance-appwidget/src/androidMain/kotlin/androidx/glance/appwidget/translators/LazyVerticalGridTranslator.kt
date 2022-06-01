@@ -89,7 +89,7 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
                 translateComposition(
                     childContext.forLazyViewItem(position, LazyVerticalGridItemStartingViewId),
                     listOf(itemEmittable),
-                    translationContext.layoutConfiguration?.addLayout(itemEmittable) ?: -1,
+                    translationContext.layoutConfiguration.addLayout(itemEmittable),
                 )
             )
             // If the user specifies any explicit ids, we assume the list to be stable
