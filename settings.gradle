@@ -507,6 +507,7 @@ includeProject(":compose:ui:ui-test:ui-test-samples", "compose/ui/ui-test/sample
 includeProject(":compose:ui:ui-test-font", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-test-junit4", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-test-manifest", [BuildType.COMPOSE])
+includeProject(":compose:ui:ui-test-manifest-lint", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-test-manifest:integration-tests:testapp", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-text", [BuildType.COMPOSE])
 includeProject(":compose:ui:ui-text-google-fonts", [BuildType.COMPOSE])
