@@ -17,18 +17,28 @@
 package androidx.work.impl
 
 import android.content.Context
+import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.work.Configuration
 import androidx.work.DatabaseTest
+import androidx.work.ForegroundInfo
 import androidx.work.ListenableWorker
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.worker.LatchWorker
 import androidx.work.worker.StopLatchWorker
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.Executor
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
@@ -41,11 +51,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.Executor
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
 class ProcessorTests : DatabaseTest() {
@@ -56,10 +61,10 @@ class ProcessorTests : DatabaseTest() {
     lateinit var defaultExecutor: ExecutorService
     lateinit var backgroundExecutor: ExecutorService
     lateinit var serialExecutor: SerialExecutorImpl
+    val context = ApplicationProvider.getApplicationContext<Context>().applicationContext
 
     @Before
     fun setUp() {
-        val context = ApplicationProvider.getApplicationContext<Context>().applicationContext
         // first worker will take over the first thread with its doWork
         // second worker will execute on the second thread
         defaultExecutor = Executors.newFixedThreadPool(2)
@@ -143,6 +148,35 @@ class ProcessorTests : DatabaseTest() {
         firstWorker.countDown()
         blockedThread.shutdown()
         assertTrue(blockedThread.awaitTermination(3, TimeUnit.SECONDS))
+    }
+
+    @Test
+    @MediumTest
+    fun testStartForegroundStopWork() {
+        val request = OneTimeWorkRequest.Builder(LatchWorker::class.java).build()
+        insertWork(request)
+        val workRunId = WorkRunId(request.workSpec.id)
+        processor.startWork(workRunId)
+
+        val channel = NotificationChannelCompat
+            .Builder("test", NotificationManagerCompat.IMPORTANCE_DEFAULT)
+            .setName("hello")
+            .build()
+        NotificationManagerCompat.from(context).createNotificationChannel(channel)
+        val notification = NotificationCompat.Builder(context, "test")
+            .setOngoing(true)
+            .setTicker("ticker")
+            .setContentText("content text")
+            .setSmallIcon(androidx.core.R.drawable.notification_bg)
+            .build()
+        val info = ForegroundInfo(1, notification)
+        processor.startForeground(workRunId.workSpecId, info)
+        // won't actually stopWork, because stopForeground should be used
+        processor.stopWork(workRunId)
+        processor.startWork(WorkRunId(request.workSpec.id))
+        assertTrue(processor.isEnqueued(workRunId.workSpecId))
+        val firstWorker = runBlocking { lastCreatedWorker.filterNotNull().first() }
+        (firstWorker as LatchWorker).mLatch.countDown()
     }
 
     @After

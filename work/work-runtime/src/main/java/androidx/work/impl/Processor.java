@@ -120,7 +120,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
             // and new work with those constraints are added.
             if (isEnqueued(id)) {
                 // there must be another run if it is enqueued.
-                mWorkRuns.get(workRunId.getWorkSpecId()).add(workRunId);
+                mWorkRuns.get(id).add(workRunId);
                 Logger.get().debug(TAG, "Work " + id + " is already enqueued for processing");
                 return false;
             }
@@ -180,7 +180,9 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
         synchronized (mLock) {
             Logger.get().debug(TAG, "Processor stopping foreground work " + id);
             wrapper = mForegroundWorkMap.remove(id);
-            mWorkRuns.remove(id);
+            if (wrapper != null) {
+                mWorkRuns.remove(id);
+            }
         }
         // Move interrupt() outside the critical section.
         // This is because calling interrupt() eventually calls ListenableWorker.onStopped()
@@ -203,13 +205,17 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
             // scheduled the work, and not others. This means others are still notified about
             // completion, but we avoid a accidental "stops" and lot of redundant work when
             // attempting to stop.
-            Set<WorkRunId> runs = mWorkRuns.get(runId.getWorkSpecId());
+            wrapper = mEnqueuedWorkMap.remove(id);
+            if (wrapper == null) {
+                Logger.get().debug(TAG, "WorkerWrapper could not be found for " + id);
+                return false;
+            }
+            Set<WorkRunId> runs = mWorkRuns.get(id);
             if (runs == null || !runs.contains(runId)) {
                 return false;
             }
             Logger.get().debug(TAG, "Processor stopping background work " + id);
             mWorkRuns.remove(id);
-            wrapper = mEnqueuedWorkMap.remove(id);
         }
         // Move interrupt() outside the critical section.
         // This is because calling interrupt() eventually calls ListenableWorker.onStopped()
@@ -236,6 +242,9 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
             if (wrapper == null) {
                 // Fallback to enqueued Work
                 wrapper = mEnqueuedWorkMap.remove(id);
+            }
+            if (wrapper != null) {
+                mWorkRuns.remove(id);
             }
         }
         // Move interrupt() outside the critical section.
