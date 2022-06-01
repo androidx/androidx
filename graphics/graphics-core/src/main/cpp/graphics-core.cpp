@@ -21,6 +21,7 @@
 #include <poll.h>
 #include <unistd.h>
 #include <ctime>
+#include <unistd.h>
 #include <android/native_activity.h>
 #include <android/surface_control.h>
 #include <android/api-level.h>
@@ -313,5 +314,65 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nSetVisibility(
         auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
         auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
         ASurfaceTransaction_setVisibility(st, sc, jVisibility);
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_JniBindings_00024Companion_nSetZOrder(
+        JNIEnv *env, jobject thiz,
+        jlong surfaceTransaction, jlong surfaceControl, jint z_order)  {
+    if (android_get_device_api_level() >= 29) {
+        auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
+        auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+        ASurfaceTransaction_setZOrder(st, sc, z_order);
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_JniBindings_00024Companion_nSetDamageRegion(
+        JNIEnv *env, jobject thiz,
+        jlong surfaceTransaction, jlong surfaceControl,
+        jobject rect)  {
+    if (android_get_device_api_level() >= 29) {
+        auto st = reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction);
+        auto sc = reinterpret_cast<ASurfaceControl *>(surfaceControl);
+
+        if(rect == nullptr) {
+            ASurfaceTransaction_setDamageRegion(st, sc, nullptr, 0);
+            return;
+        }
+
+        jclass cls = env->GetObjectClass(rect);
+
+        jfieldID left = env->GetFieldID(cls, "left", "I");
+        jint leftVal = env->GetIntField(rect, left);
+
+        jfieldID top = env->GetFieldID(cls, "top", "I");
+        jint topVal = env->GetIntField(rect, top);
+
+        jfieldID right = env->GetFieldID(cls, "right", "I");
+        jint rightVal = env->GetIntField(rect, right);
+
+        jfieldID bottom = env->GetFieldID(cls, "bottom", "I");
+        jint bottomVal = env->GetIntField(rect, bottom);
+
+        ARect rectArray[1];
+        rectArray[0] = (ARect){ leftVal, topVal, rightVal, bottomVal};
+
+        ASurfaceTransaction_setDamageRegion(st, sc, rectArray, 1);
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_JniBindings_00024Companion_nSetDesiredPresentTime(
+        JNIEnv *env, jobject thiz,
+        jlong surfaceTransaction, int64_t desiredPresentTimeNano)  {
+    if (android_get_device_api_level() >= 29) {
+        ASurfaceTransaction_setDesiredPresentTime(
+                reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction),
+                desiredPresentTimeNano);
     }
 }
