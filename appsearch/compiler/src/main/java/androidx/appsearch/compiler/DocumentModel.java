@@ -46,6 +46,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.ElementFilter;
+import javax.lang.model.util.Types;
 
 /**
  * Processes @Document annotations.
@@ -66,6 +67,7 @@ class DocumentModel {
 
     private final IntrospectionHelper mHelper;
     private final TypeElement mClass;
+    private final Types mTypeUtil;
     // The name of the original class annotated with @Document
     private final String mQualifiedDocumentClassName;
     private String mSchemaName;
@@ -107,6 +109,7 @@ class DocumentModel {
 
         mHelper = new IntrospectionHelper(env);
         mClass = clazz;
+        mTypeUtil = env.getTypeUtils();
 
         if (generatedAutoValueElement != null) {
             mIsAutoValueDocument = true;
@@ -284,7 +287,7 @@ class DocumentModel {
         Set<Modifier> methodModifiers = method.getModifiers();
         return methodModifiers.contains(Modifier.STATIC)
                 && !methodModifiers.contains(Modifier.PRIVATE)
-                && method.getReturnType() == mClass.asType();
+                && mTypeUtil.isSameType(method.getReturnType(), mClass.asType());
     }
 
     /**
