@@ -27,6 +27,7 @@ import android.car.VehicleAreaSeat;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
+import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -36,12 +37,16 @@ import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.info.AutomotiveCarInfo;
 import androidx.car.app.hardware.info.EnergyProfile;
+import androidx.car.app.utils.LogTags;
+
+import com.google.common.collect.ImmutableBiMap;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -109,37 +114,36 @@ public final class PropertyUtils {
     };
 
     @ExperimentalCarApi
-    private static final SparseArray<CarZone> AREAID_TO_CARZONE = new SparseArray<CarZone>() {
-        {
-            append(VehicleAreaSeat.SEAT_ROW_1_LEFT,
-                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                            .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build());
-            append(VehicleAreaSeat.SEAT_ROW_1_CENTER,
-                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                            .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build());
-            append(VehicleAreaSeat.SEAT_ROW_1_RIGHT,
-                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
-                            .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build());
-            append(VehicleAreaSeat.SEAT_ROW_2_LEFT,
-                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
-                            .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build());
-            append(VehicleAreaSeat.SEAT_ROW_2_CENTER,
-                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
-                            .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build());
-            append(VehicleAreaSeat.SEAT_ROW_2_RIGHT,
-                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
-                            .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build());
-            append(VehicleAreaSeat.SEAT_ROW_3_LEFT,
-                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
-                            .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build());
-            append(VehicleAreaSeat.SEAT_ROW_3_CENTER,
-                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
-                            .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build());
-            append(VehicleAreaSeat.SEAT_ROW_3_RIGHT,
-                    new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
-                            .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build());
-        }
-    };
+    static final ImmutableBiMap<CarZone, Integer> CAR_ZONE_TO_AREA_ID =
+            new ImmutableBiMap.Builder<CarZone, Integer>()
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build(),
+                            VehicleAreaSeat.SEAT_ROW_1_LEFT)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build(),
+                            VehicleAreaSeat.SEAT_ROW_1_CENTER)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build(),
+                            VehicleAreaSeat.SEAT_ROW_1_RIGHT)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build(),
+                            VehicleAreaSeat.SEAT_ROW_2_LEFT)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build(),
+                            VehicleAreaSeat.SEAT_ROW_2_CENTER)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build(),
+                            VehicleAreaSeat.SEAT_ROW_2_RIGHT)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build(),
+                            VehicleAreaSeat.SEAT_ROW_3_LEFT)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build(),
+                            VehicleAreaSeat.SEAT_ROW_3_CENTER)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build(),
+                            VehicleAreaSeat.SEAT_ROW_3_RIGHT)
+                    .buildOrThrow();
 
     // Permissions for writing properties. They are system level permissions.
     private static final SparseArray<String> PERMISSION_WRITE_PROPERTY = new SparseArray<String>() {
@@ -300,7 +304,8 @@ public final class PropertyUtils {
         if (propertyValue.getAreaId() == VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL) {
             carZones = Collections.singletonList(CarZone.CAR_ZONE_GLOBAL);
         } else {
-            carZones = mapAreaIdToCarZones(propertyValue.getAreaId());
+            carZones = Collections.singletonList(CAR_ZONE_TO_AREA_ID.inverse().get(
+                    propertyValue.getAreaId()));
         }
         return CarPropertyResponse.builder().setValue(propertyValue.getValue())
                 .setPropertyId(propertyValue.getPropertyId())
@@ -382,19 +387,30 @@ public final class PropertyUtils {
         }
     }
 
-    /**
-     * Builds a list of {@link CarZone}s from the {@link CarPropertyValue#getAreaId()}.
-     */
     @OptIn(markerClass = ExperimentalCarApi.class)
-    static List<CarZone> mapAreaIdToCarZones(int areaId) {
-        List<CarZone> carZones = new ArrayList<>();
-        for (int i = 0; i < AREAID_TO_CARZONE.size(); i++) {
-            int key = AREAID_TO_CARZONE.keyAt(i);
-            if ((key & areaId) != key) {
-                carZones.add(AREAID_TO_CARZONE.valueAt(i));
+    static List<PropertyIdAreaId> getPropertyIdWithAreaIds(Map<Integer, List<CarZone>>
+            propertyIdToCarZones) {
+        List<PropertyIdAreaId> propertyIdWithAreaIds = new ArrayList<>();
+        for (Map.Entry<Integer, List<CarZone>> propertyIdWithCarZones :
+                propertyIdToCarZones.entrySet()) {
+            for (CarZone carZone : propertyIdWithCarZones.getValue()) {
+                if (CAR_ZONE_TO_AREA_ID.containsKey(carZone)) {
+                    propertyIdWithAreaIds.add(PropertyIdAreaId.builder()
+                            .setAreaId(CAR_ZONE_TO_AREA_ID.get(carZone))
+                            .setPropertyId(propertyIdWithCarZones.getKey())
+                            .build());
+                } else {
+                    Log.w(LogTags.TAG_CAR_HARDWARE,
+                            "Could not find area Id for car zone: " + carZone.toString()
+                                    +  " for property: " + propertyIdWithCarZones.getKey());
+                }
             }
         }
-        return carZones;
+        if (propertyIdWithAreaIds.isEmpty()) {
+            throw new IllegalStateException("Could not create uIds for the given property Ids and "
+                    + "their corresponding car zones.");
+        }
+        return propertyIdWithAreaIds;
     }
 
     private PropertyUtils() {

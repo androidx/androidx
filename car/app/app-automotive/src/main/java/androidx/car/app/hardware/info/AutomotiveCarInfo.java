@@ -30,19 +30,20 @@ import static android.car.VehiclePropertyIds.INFO_MAKE;
 import static android.car.VehiclePropertyIds.INFO_MODEL;
 import static android.car.VehiclePropertyIds.INFO_MODEL_YEAR;
 import static android.car.VehiclePropertyIds.PERF_ODOMETER;
+import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED;
+import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY;
 import static android.car.VehiclePropertyIds.RANGE_REMAINING;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.hardware.common.CarValueUtils.getCarValue;
 
 import static java.util.Objects.requireNonNull;
 
-import android.car.VehiclePropertyIds;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -50,6 +51,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarPropertyResponse;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.hardware.common.CarZone;
 import androidx.car.app.hardware.common.GetPropertyRequest;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 import androidx.car.app.hardware.common.OnCarPropertyResponseListener;
@@ -57,11 +59,11 @@ import androidx.car.app.hardware.common.PropertyManager;
 import androidx.car.app.hardware.common.PropertyUtils;
 import androidx.car.app.utils.LogTags;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,13 +78,15 @@ import java.util.stream.Collectors;
  */
 @RestrictTo(LIBRARY)
 public class AutomotiveCarInfo implements CarInfo {
-    @VisibleForTesting
-    static final List<Integer> ENERGY_LEVEL_REQUEST =
-            Arrays.asList(EV_BATTERY_LEVEL, FUEL_LEVEL,
-                    FUEL_LEVEL_LOW, RANGE_REMAINING,
-                    DISTANCE_DISPLAY_UNITS, FUEL_VOLUME_DISPLAY_UNITS);
+    static final List<CarZone> GLOBAL_CAR_ZONE = Arrays.asList(getGlobalCarZone());
+
     @VisibleForTesting
     static final float DEFAULT_SAMPLE_RATE = 5f;
+
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    private static CarZone getGlobalCarZone() {
+        return CarZone.CAR_ZONE_GLOBAL;
+    }
 
     /*
      * ELECTRONIC_TOLL_COLLECTION_CARD_STATUS in VehiclePropertyIds. The property is added after
@@ -94,15 +98,37 @@ public class AutomotiveCarInfo implements CarInfo {
     public static final int SPEED_DISPLAY_UNIT_ID = 289408516;
 
     private static final float UNKNOWN_CAPACITY = Float.NEGATIVE_INFINITY;
-    private static final List<Integer> MILEAGE_REQUEST =
-            Arrays.asList(PERF_ODOMETER, DISTANCE_DISPLAY_UNITS);
-    static final List<Integer> TOLL_REQUEST =
-            Collections.singletonList(TOLL_CARD_STATUS_ID);
-    private static final List<Integer> SPEED_REQUEST =
-            Arrays.asList(VehiclePropertyIds.PERF_VEHICLE_SPEED,
-                    VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY, SPEED_DISPLAY_UNIT_ID);
-    private static final List<Integer> EV_STATUS_REQUEST = Arrays.asList(EV_CHARGE_PORT_OPEN,
-            EV_CHARGE_PORT_CONNECTED);
+    static final ImmutableMap<Integer, List<CarZone>> ENERGY_LEVEL_REQUEST = ImmutableMap.<Integer,
+                    List<CarZone>>builder()
+            .put(EV_BATTERY_LEVEL, GLOBAL_CAR_ZONE)
+            .put(FUEL_LEVEL, GLOBAL_CAR_ZONE)
+            .put(FUEL_LEVEL_LOW, GLOBAL_CAR_ZONE)
+            .put(RANGE_REMAINING, GLOBAL_CAR_ZONE)
+            .put(DISTANCE_DISPLAY_UNITS, GLOBAL_CAR_ZONE)
+            .put(FUEL_VOLUME_DISPLAY_UNITS, GLOBAL_CAR_ZONE)
+            .buildKeepingLast();
+    private static final ImmutableMap<Integer, List<CarZone>> MILEAGE_REQUEST =
+            ImmutableMap.<Integer,
+                            List<CarZone>>builder()
+                    .put(PERF_ODOMETER, GLOBAL_CAR_ZONE)
+                    .put(DISTANCE_DISPLAY_UNITS, GLOBAL_CAR_ZONE)
+                    .buildKeepingLast();
+    static final ImmutableMap<Integer, List<CarZone>> TOLL_REQUEST = ImmutableMap.<Integer,
+                    List<CarZone>>builder()
+            .put(TOLL_CARD_STATUS_ID, GLOBAL_CAR_ZONE)
+            .buildKeepingLast();
+    private static final ImmutableMap<Integer, List<CarZone>> SPEED_REQUEST = ImmutableMap.<Integer,
+                    List<CarZone>>builder()
+            .put(PERF_VEHICLE_SPEED, GLOBAL_CAR_ZONE)
+            .put(PERF_VEHICLE_SPEED_DISPLAY, GLOBAL_CAR_ZONE)
+            .put(SPEED_DISPLAY_UNIT_ID, GLOBAL_CAR_ZONE)
+            .buildKeepingLast();
+    private static final ImmutableMap<Integer, List<CarZone>> EV_STATUS_REQUEST =
+            ImmutableMap.<Integer,
+                            List<CarZone>>builder()
+                    .put(EV_CHARGE_PORT_OPEN, GLOBAL_CAR_ZONE)
+                    .put(EV_CHARGE_PORT_CONNECTED, GLOBAL_CAR_ZONE)
+                    .buildKeepingLast();
     private final Map<OnCarDataAvailableListener<?>, OnCarPropertyResponseListener> mListenerMap =
             new HashMap<>();
     private final PropertyManager mPropertyManager;
@@ -225,12 +251,6 @@ public class AutomotiveCarInfo implements CarInfo {
     @Override
     public void removeEvStatusListener(@NonNull OnCarDataAvailableListener<EvStatus> listener) {
         removeListenerImpl(listener);
-    }
-
-    static <T> CarValue<T> getCarValue(CarPropertyResponse<?> response, @Nullable T value) {
-        long timestampMillis = response.getTimestampMillis();
-        int status = response.getStatus();
-        return new CarValue<>(value, timestampMillis, status);
     }
 
     void getCapacitiesThenEnergyLevel(@NonNull Executor executor,
@@ -438,10 +458,10 @@ public class AutomotiveCarInfo implements CarInfo {
                 CarValue<Integer> displayUnitValue = CarValue.UNKNOWN_INTEGER;
                 for (CarPropertyResponse<?> response : carPropertyResponses) {
                     switch (response.getPropertyId()) {
-                        case VehiclePropertyIds.PERF_VEHICLE_SPEED:
+                        case PERF_VEHICLE_SPEED:
                             rawSpeedValue = getCarValue(response, (Float) response.getValue());
                             break;
-                        case VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY:
+                        case PERF_VEHICLE_SPEED_DISPLAY:
                             displaySpeedValue = getCarValue(response, (Float) response.getValue());
                             break;
                         case SPEED_DISPLAY_UNIT_ID:
