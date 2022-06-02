@@ -27,8 +27,15 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                api(libs.kotlinStdlib)
+                api(libs.kotlinStdlibCommon)
                 api(libs.kotlinTestCommon)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTestCommon)
+                implementation(libs.kotlinTestAnnotationsCommon)
             }
         }
 
@@ -36,6 +43,13 @@ kotlin {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinTest)
+            }
+        }
+
+        jvmTest {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(libs.kotlinTest)
             }
         }
     }

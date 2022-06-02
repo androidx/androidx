@@ -16,8 +16,8 @@
 
 package androidx.datastore.core
 
-import androidx.testutils.assertThrows
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import java.io.File
 import java.io.IOException
 import kotlinx.coroutines.ExperimentalCoroutinesApi

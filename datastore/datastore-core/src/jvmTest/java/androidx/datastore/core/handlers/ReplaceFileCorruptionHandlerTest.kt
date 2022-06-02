@@ -18,8 +18,12 @@ package androidx.datastore.core.handlers
 
 import androidx.datastore.core.SingleProcessDataStore
 import androidx.datastore.core.TestingSerializer
-import androidx.testutils.assertThrows
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
+import java.io.File
+import java.io.IOException
+import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
@@ -29,14 +33,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.rules.Timeout
-import java.io.File
-import java.io.IOException
-import java.util.concurrent.TimeUnit
 
-@kotlinx.coroutines.ExperimentalCoroutinesApi
-@kotlinx.coroutines.InternalCoroutinesApi
-@kotlinx.coroutines.ObsoleteCoroutinesApi
-@kotlinx.coroutines.FlowPreview
+@OptIn(ExperimentalCoroutinesApi::class)
 class ReplaceFileCorruptionHandlerTest {
     @get:Rule
     val tmp = TemporaryFolder()
