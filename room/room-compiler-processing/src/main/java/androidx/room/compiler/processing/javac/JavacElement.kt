@@ -31,7 +31,7 @@ import kotlin.reflect.KClass
 
 @Suppress("UnstableApiUsage")
 internal abstract class JavacElement(
-    protected val env: JavacProcessingEnv,
+    internal val env: JavacProcessingEnv,
     open val element: Element
 ) : XElement, XEquality, InternalXAnnotated {
     override fun <T : Annotation> getAnnotations(
