@@ -69,6 +69,11 @@ if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
   export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
 fi
 
+# unzip native dependencies for KMP (konan)
+KONAN_HOST_LIBS="$OUT_DIR/konan-host-libs"
+$SCRIPT_DIR/prepare-linux-sysroot.sh "$KONAN_HOST_LIBS"
+export LD_LIBRARY_PATH=$KONAN_HOST_LIBS
+
 # run the build
 if run ./gradlew --ci saveSystemStats "$@"; then
   echo build passed
