@@ -16,26 +16,24 @@
 
 package androidx.datastore.core
 
-import androidx.testutils.assertThrows
-import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.test.runTest
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import org.junit.rules.Timeout
+import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
+import org.junit.Rule
+import org.junit.rules.TemporaryFolder
+import org.junit.rules.Timeout
 
-@kotlinx.coroutines.ExperimentalCoroutinesApi
-@kotlinx.coroutines.InternalCoroutinesApi
-@kotlinx.coroutines.ObsoleteCoroutinesApi
-@kotlinx.coroutines.FlowPreview
+@OptIn(ExperimentalCoroutinesApi::class)
 class DataMigrationInitializerTest {
     @get:Rule
     val timeout = Timeout(10, TimeUnit.SECONDS)
@@ -46,7 +44,7 @@ class DataMigrationInitializerTest {
     private lateinit var serializer: TestingSerializer
     private lateinit var testFile: File
 
-    @Before
+    @BeforeTest
     fun setUp() {
         serializer = TestingSerializer()
         testFile = tmp.newFile()

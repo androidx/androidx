@@ -69,10 +69,9 @@ kotlin {
         jvmTest {
             dependencies {
                 implementation(libs.junit)
-                implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinTest)
-                implementation(libs.truth)
-                implementation(project(":internal-testutils-truth"))
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(project(":internal-testutils-kmp"))
             }
         }
 
