@@ -52,9 +52,9 @@ import java.util.concurrent.Executor;
 /**
  * An implementation of {@link ImageAnalysis.Analyzer} with MLKit libraries.
  *
- * <p> This class is a wrapper of one or many MLKit {@link Detector}s. It forwards
- * {@link ImageAnalysis} frames to all the {@link Detector}s sequentially. Once all the
- * {@link Detector}s finish analyzing the frame, {@link Consumer#accept} will be
+ * <p> This class is a wrapper of one or many MLKit {@code Detector}s. It forwards
+ * {@link ImageAnalysis} frames to all the {@code Detector}s sequentially. Once all the
+ * {@code Detector}s finish analyzing the frame, {@link Consumer#accept} will be
  * invoked with the aggregated analysis results.
  *
  * <p> This class is designed to work seamlessly with the {@code CameraController} class in
@@ -111,7 +111,7 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
      * the result maps to the pixel (0, h) in the original buffer.
      *
      * <p>The constructor throws {@link IllegalArgumentException} if
-     * {@link Detector#getDetectorType()} is TYPE_SEGMENTATION and {@code targetCoordinateSystem}
+     * {@code Detector#getDetectorType()} is TYPE_SEGMENTATION and {@code targetCoordinateSystem}
      * is COORDINATE_SYSTEM_ORIGINAL. Currently MLKit does not support transformation with
      * segmentation.
      */
@@ -229,7 +229,7 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
     }
 
     /**
-     * Gets the recommended resolution for the given {@link Detector} type.
+     * Gets the recommended resolution for the given {@code Detector} type.
      *
      * <p> The resolution can be found on MLKit's DAC page.
      */
@@ -283,7 +283,7 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
         }
 
         /**
-         * Get the analysis result for the given MLKit {@link Detector}.
+         * Get the analysis result for the given MLKit {@code Detector}.
          *
          * <p>Returns {@code null} if the detection is unsuccessful.
          *
@@ -292,7 +292,7 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
          * However, if {@link #getThrowable} returns a non-null {@link Throwable}, then this
          * method will always return {@code null}.
          *
-         * @param detector has to be one of the {@link Detector}s provided in
+         * @param detector has to be one of the {@code Detector}s provided in
          *                 {@link MlKitAnalyzer}'s constructor.
          */
         @Nullable
@@ -303,11 +303,11 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
         }
 
         /**
-         * The error returned from the given {@link Detector}.
+         * The error returned from the given {@code Detector}.
          *
-         * <p>Returns {@code null} if the {@link Detector} finishes without exceptions.
+         * <p>Returns {@code null} if the {@code Detector} finishes without exceptions.
          *
-         * @param detector has to be one of the {@link Detector}s provided in
+         * @param detector has to be one of the {@code Detector}s provided in
          *                 {@link MlKitAnalyzer}'s constructor.
          */
         @Nullable
