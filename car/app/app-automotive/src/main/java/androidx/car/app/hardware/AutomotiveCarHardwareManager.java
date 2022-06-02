@@ -47,9 +47,10 @@ public final class AutomotiveCarHardwareManager implements CarHardwareManager {
 
     public AutomotiveCarHardwareManager(@NonNull Context context) {
         Context appContext = requireNonNull(context.getApplicationContext());
-        mCarInfo = new AutomotiveCarInfo(new PropertyManager(appContext));
+        PropertyManager mPropertyManager = new PropertyManager(appContext);
+        mCarInfo = new AutomotiveCarInfo(mPropertyManager);
         mCarSensors = new AutomotiveCarSensors();
-        mCarClimate = new AutomotiveCarClimate();
+        mCarClimate = new AutomotiveCarClimate(mPropertyManager);
     }
 
     /** @hide */
