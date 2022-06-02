@@ -14,10 +14,10 @@
   limitations under the License.
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <style name="Glance.AppWidget.Box" parent=""/>
 
-    <style name="Base.Glance.AppWidget.Button" parent="">
+    <style name="Base.Glance.AppWidget.Button" parent="" tools:ignore="ResourceName">
         <!--
             For all buttons and compound buttons, we reset the foreground (ripple) set by the 
             parent Glance.AppWidget theme, since buttons have ripple backgrounds by default.
@@ -56,7 +56,7 @@
     <style name="Glance.AppWidget.RadioButtonIcon" parent=""/>
     <style name="Glance.AppWidget.RadioButtonText" parent=""/>
 
-    <style name="Base.Glance.AppWidget.Background" parent="">
+    <style name="Base.Glance.AppWidget.Background" parent="" tools:ignore="ResourceName">
         <item name="android:id">@android:id/background</item>
     </style>
 
@@ -66,14 +66,15 @@
     </style>
 
     <style name="Glance.AppWidget.Background.Error">
-        <item name="android:background">@drawable/error_layout_background</item>
+        <item name="android:background">@drawable/glance_error_layout_background</item>
     </style>
 
     <style name="Glance.AppWidget.Background.Loading">
-        <item name="android:background">@drawable/loading_layout_background</item>
+        <item name="android:background">@drawable/glance_loading_layout_background</item>
     </style>
 
-    <style name="Widget.Glance.AppWidget.CallbackTrampoline" parent="android:Theme">
+    <style name="Widget.Glance.AppWidget.CallbackTrampoline" parent="android:Theme"
+        tools:ignore="ResourceName">
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowIsTranslucent">true</item>
     </style>

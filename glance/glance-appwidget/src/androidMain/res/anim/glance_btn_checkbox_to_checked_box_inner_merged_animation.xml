@@ -22,7 +22,7 @@
             android:valueFrom="M -7.0,-7.0 l 14.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l 0.0,14.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l -14.0,0.0 c 0.0,0.0 0.0,0.0 0.0,0.0 l 0.0,-14.0 c 0.0,0.0 0.0,0.0 0.0,0.0 Z M 7.0,-9.0 c 0.0,0.0 -14.0,0.0 -14.0,0.0 c -1.1044921875,0.0 -2.0,0.8955078125 -2.0,2.0 c 0.0,0.0 0.0,14.0 0.0,14.0 c 0.0,1.1044921875 0.8955078125,2.0 2.0,2.0 c 0.0,0.0 14.0,0.0 14.0,0.0 c 1.1044921875,0.0 2.0,-0.8955078125 2.0,-2.0 c 0.0,0.0 0.0,-14.0 0.0,-14.0 c 0.0,-1.1044921875 -0.8955078125,-2.0 -2.0,-2.0 c 0.0,0.0 0.0,0.0 0.0,0.0 Z"
             android:valueTo="M 0.0,-0.05 l 0.0,0.0 c 0.02761423749,0.0 0.05,0.02238576251 0.05,0.05 l 0.0,0.0 c 0.0,0.02761423749 -0.02238576251,0.05 -0.05,0.05 l 0.0,0.0 c -0.02761423749,0.0 -0.05,-0.02238576251 -0.05,-0.05 l 0.0,0.0 c 0.0,-0.02761423749 0.02238576251,-0.05 0.05,-0.05 Z M 7.0,-9.0 c 0.0,0.0 -14.0,0.0 -14.0,0.0 c -1.1044921875,0.0 -2.0,0.8955078125 -2.0,2.0 c 0.0,0.0 0.0,14.0 0.0,14.0 c 0.0,1.1044921875 0.8955078125,2.0 2.0,2.0 c 0.0,0.0 14.0,0.0 14.0,0.0 c 1.1044921875,0.0 2.0,-0.8955078125 2.0,-2.0 c 0.0,0.0 0.0,-14.0 0.0,-14.0 c 0.0,-1.1044921875 -0.8955078125,-2.0 -2.0,-2.0 c 0.0,0.0 0.0,0.0 0.0,0.0 Z"
             android:valueType="pathType"
-            android:interpolator="@interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_1"/>
+            android:interpolator="@interpolator/glance_btn_checkbox_unchecked_mtrl_animation_interpolator_1"/>
     <set android:ordering="sequentially">
         <objectAnimator
                 android:duration="166"
@@ -35,6 +35,6 @@
                 android:propertyName="fillAlpha"
                 android:valueFrom="1.0"
                 android:valueTo="0.0"
-                android:interpolator="@interpolator/btn_checkbox_unchecked_mtrl_animation_interpolator_0"/>
+                android:interpolator="@interpolator/glance_btn_checkbox_unchecked_mtrl_animation_interpolator_0"/>
     </set>
 </set>

@@ -14,8 +14,9 @@
   limitations under the License.
   -->
 
-<ViewStub xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="0dp"
-    android:layout_height="0dp"
-    android:visibility="gone"
-    android:layout="@layout/text" />
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical|start"
+    android:src="@drawable/glance_switch_thumb_animated"
+    style="@style/Glance.AppWidget.SwitchThumb"/>
