@@ -69,7 +69,7 @@ class RangingParameters(
          * <p> Typical use case: device tracking tags
          */
         @JvmField
-        internal val UWB_CONFIG_ID_1 = 1
+        val UWB_CONFIG_ID_1 = 1
 
         /**
          * Pre-defined one-to-many STATIC STS DS-TWR ranging

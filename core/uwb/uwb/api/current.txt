@@ -35,6 +35,7 @@ package androidx.core.uwb {
     field public static final int RANGING_UPDATE_RATE_AUTOMATIC;
     field public static final int RANGING_UPDATE_RATE_FREQUENT;
     field public static final int RANGING_UPDATE_RATE_INFREQUENT;
+    field public static final int UWB_CONFIG_ID_1;
   }
 
   public static final class RangingParameters.Companion {
