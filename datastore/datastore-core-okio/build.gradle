@@ -77,7 +77,6 @@ kotlin {
                     implementation(libs.atomicFu)
                 }
             }
-            nativeTest
         }
         all {
             languageSettings.optIn("kotlin.RequiresOptIn")
