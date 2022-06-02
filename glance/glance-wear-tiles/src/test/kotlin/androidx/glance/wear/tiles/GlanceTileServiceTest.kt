@@ -39,6 +39,7 @@ import androidx.wear.tiles.TimelineBuilders
 import androidx.wear.tiles.testing.TestTileClient
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.guava.await
@@ -152,9 +153,10 @@ class GlanceTileServiceTest {
             "android_" + ovalBitmapHashCode,
             "android_" + R.drawable.ic_launcher_background
         )
-        resourcesIds.sortDescending()
+
         val resourcesVersion = Arrays.hashCode(resourcesIds).toString()
-        assertThat(tile.resourcesVersion).isEqualTo(resourcesVersion)
+        assertWithMessage("tile.resourcesVersion")
+            .that(tile.resourcesVersion).isEqualTo(resourcesVersion)
 
         // No freshness interval (for now)
         assertThat(tile.freshnessIntervalMillis).isEqualTo(0)

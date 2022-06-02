@@ -62,7 +62,7 @@ private fun WearLayout(data: SingleEntityTemplateData) {
         contentAlignment = Alignment.TopCenter
     ) {
         Image(
-            ImageProvider(R.drawable.single_entity_bg),
+            ImageProvider(R.drawable.glance_single_entity_bg),
             contentDescription = null,
             modifier = GlanceModifier.fillMaxSize())
         Column(

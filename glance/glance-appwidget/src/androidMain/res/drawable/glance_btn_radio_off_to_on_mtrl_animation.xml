@@ -16,14 +16,14 @@
 
 <animated-vector
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:drawable="@drawable/btn_radio_off_mtrl" >
+    android:drawable="@drawable/glance_btn_radio_off_mtrl" >
     <target
         android:name="ring_outer"
-        android:animation="@anim/btn_radio_to_on_mtrl_ring_outer_animation" />
+        android:animation="@anim/glance_btn_radio_to_on_mtrl_ring_outer_animation" />
     <target
         android:name="ring_outer_path"
-        android:animation="@anim/btn_radio_to_on_mtrl_ring_outer_path_animation" />
+        android:animation="@anim/glance_btn_radio_to_on_mtrl_ring_outer_path_animation" />
     <target
         android:name="dot_group"
-        android:animation="@anim/btn_radio_to_on_mtrl_dot_group_animation" />
+        android:animation="@anim/glance_btn_radio_to_on_mtrl_dot_group_animation" />
 </animated-vector>

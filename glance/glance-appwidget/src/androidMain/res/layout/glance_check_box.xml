@@ -14,9 +14,14 @@
   limitations under the License.
   -->
 
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="32dp"
-    android:layout_height="32dp"
-    android:src="@drawable/abc_btn_check_material_anim_enabled"
-    android:layout_centerVertical="true"
-    style="@style/Glance.AppWidget.CheckBoxIcon"/>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:textDirection="locale"
+    style="@style/Glance.AppWidget.CheckBox">
+    <ViewStub
+        android:id="@id/checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout="@layout/glance_check_box_view" />
+</FrameLayout>

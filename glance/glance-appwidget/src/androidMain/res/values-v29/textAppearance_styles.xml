@@ -14,7 +14,8 @@
   limitations under the License.
   -->
 
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="ResourceName">
     <style name="TextAppearance.Bold" parent="">
         <item name="android:textFontWeight">700</item>
         <item name="android:fontFamily">sans-serif</item>
