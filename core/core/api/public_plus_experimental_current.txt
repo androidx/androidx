@@ -1552,7 +1552,7 @@ package androidx.core.location {
     method public static long getElapsedRealtimeMillis(android.location.Location);
     method public static long getElapsedRealtimeNanos(android.location.Location);
     method @FloatRange(from=0.0) public static float getMslAltitudeAccuracyMeters(android.location.Location);
-    method @FloatRange public static double getMslAltitudeMeters(android.location.Location);
+    method public static double getMslAltitudeMeters(android.location.Location);
     method public static float getSpeedAccuracyMetersPerSecond(android.location.Location);
     method public static float getVerticalAccuracyMeters(android.location.Location);
     method public static boolean hasBearingAccuracy(android.location.Location);
@@ -1566,7 +1566,7 @@ package androidx.core.location {
     method public static void setBearingAccuracyDegrees(android.location.Location, float);
     method public static void setMock(android.location.Location, boolean);
     method public static void setMslAltitudeAccuracyMeters(android.location.Location, @FloatRange(from=0.0) float);
-    method public static void setMslAltitudeMeters(android.location.Location, @FloatRange double);
+    method public static void setMslAltitudeMeters(android.location.Location, double);
     method public static void setSpeedAccuracyMetersPerSecond(android.location.Location, float);
     method public static void setVerticalAccuracyMeters(android.location.Location, float);
     field public static final String EXTRA_BEARING_ACCURACY = "bearingAccuracy";
