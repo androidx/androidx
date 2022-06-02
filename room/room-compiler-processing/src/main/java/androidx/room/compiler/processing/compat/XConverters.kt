@@ -144,4 +144,24 @@ object XConverters {
     @JvmStatic
     fun TypeMirror.toXProcessing(env: XProcessingEnv): XType =
         (env as JavacProcessingEnv).wrap(this, null, null)
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XType.getProcessingEnv(): XProcessingEnv = (this as JavacType).env
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XElement.getProcessingEnv(): XProcessingEnv = (this as JavacElement).env
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XAnnotation.getProcessingEnv(): XProcessingEnv = (this as JavacAnnotation).env
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XAnnotationValue.getProcessingEnv(): XProcessingEnv = (this as JavacAnnotationValue).env
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XExecutableType.getProcessingEnv(): XProcessingEnv = (this as JavacExecutableType).env
 }
