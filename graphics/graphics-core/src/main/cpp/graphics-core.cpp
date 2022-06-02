@@ -376,3 +376,29 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nSetDesiredPresentTime
                 desiredPresentTimeNano);
     }
 }
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_JniBindings_00024Companion_nSetBufferTransparency(
+        JNIEnv *env, jobject thiz,
+        jlong surfaceTransaction, jlong surfaceControl, jbyte transparency)  {
+    if (android_get_device_api_level() >= 29) {
+        ASurfaceTransaction_setBufferTransparency(
+                reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction),
+                reinterpret_cast<ASurfaceControl *>(surfaceControl),
+                transparency);
+    }
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_JniBindings_00024Companion_nSetBufferAlpha(
+        JNIEnv *env, jobject thiz,
+        jlong surfaceTransaction, jlong surfaceControl, jfloat alpha)  {
+    if (android_get_device_api_level() >= 29) {
+        ASurfaceTransaction_setBufferAlpha(
+        reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction),
+        reinterpret_cast<ASurfaceControl *>(surfaceControl),
+        alpha);
+    }
+}

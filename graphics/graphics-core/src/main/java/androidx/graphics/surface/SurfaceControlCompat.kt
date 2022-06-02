@@ -74,6 +74,18 @@ internal class JniBindings {
             desiredPresentTime: Long
         )
 
+        external fun nSetBufferTransparency(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            transparency: Byte,
+        )
+
+        external fun nSetBufferAlpha(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            alpha: Float
+        )
+
         init {
             System.loadLibrary("graphics-core")
         }
@@ -353,6 +365,54 @@ class SurfaceControlCompat internal constructor(
          */
         fun setDesiredPresentTime(desiredPresentTimeNano: Long): Transaction {
             JniBindings.nSetDesiredPresentTime(mNativeSurfaceTransaction, desiredPresentTimeNano)
+            return this
+        }
+
+        /**
+         * Update whether the content in the buffer associated with this surface is complete
+         * opaque. If true, every pixel of content in the buffer must be opaque or visual errors
+         * can occur.
+         *
+         * @param surfaceControl surface control to set the transparency of.
+         *
+         * @param isOpaque true if buffers alpha should be ignored
+         */
+        fun setOpaque(
+            surfaceControl: SurfaceControlCompat,
+            isOpaque: Boolean
+        ): Transaction {
+            JniBindings.nSetBufferTransparency(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                if (isOpaque) 2 else 0
+            )
+            return this
+        }
+
+        /**
+         * Sets the alpha for the buffer. It uses a premultiplied blending.
+         *
+         * The passsed in alpha must be inclusively between 0.0 and 1.0.
+         *
+         * @paaram surfaceControl The surface control that we want to set the alpha of.
+         *
+         * @param alpha alpha value within the range [0, 1].
+         *
+         * @throws IllegalArgumentException if alpha is out of range.
+         */
+        fun setAlpha(
+            surfaceControl: SurfaceControlCompat,
+            alpha: Float
+        ): Transaction {
+            if (alpha < 0.0f || alpha > 1.0f) {
+                throw IllegalArgumentException("Alpha value must be between 0.0 and 1.0.")
+            } else {
+                JniBindings.nSetBufferAlpha(
+                    mNativeSurfaceTransaction,
+                    surfaceControl.mNativeSurfaceControl,
+                    alpha
+                )
+            }
             return this
         }
 
