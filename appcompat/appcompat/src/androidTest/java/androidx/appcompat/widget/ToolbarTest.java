@@ -21,22 +21,17 @@ import static androidx.appcompat.testutils.TestUtils.assertCenterPixelOfColor;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtils;
-import androidx.appcompat.view.menu.ActionMenuItemView;
-import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -174,58 +169,5 @@ public class ToolbarTest {
                 0xFFFF00FF,
                 10,
                 false);
-    }
-
-    @Test
-    @UiThreadTest
-    public void testToolbarIconTint() {
-        final ColorStateList colors = ColorStateList.valueOf(Color.RED);
-        final Toolbar toolbar = mActivity.findViewById(R.id.toolbar_icons);
-
-        // `menu_first` and `menu_second` are children of the menu in `toolbar_icons`
-        final ActionMenuItemView firstMenuItem = mActivity.findViewById(R.id.menu_first);
-        assertNotEquals(firstMenuItem.getItemData().getIconTintList(), colors);
-
-        final ActionMenuItemView secondMenuItem = mActivity.findViewById(R.id.menu_second);
-        assertNotEquals(secondMenuItem.getItemData().getIconTintList(), colors);
-
-        toolbar.setIconTint(colors);
-
-        // check that the tint lists are updated
-        assertEquals(firstMenuItem.getItemData().getIconTintList(), colors);
-        assertEquals(secondMenuItem.getItemData().getIconTintList(), colors);
-    }
-
-    @Test
-    @UiThreadTest
-    public void testToolbarIconTintMenuAdded() {
-        final ColorStateList colors = ColorStateList.valueOf(Color.RED);
-        final Toolbar toolbar = mActivity.findViewById(R.id.toolbar_no_menu);
-        toolbar.setIconTint(colors);
-
-        // Calling getMenu makes the toolbar create a menu
-        toolbar.getMenu();
-        // Find the ActionMenuView to add a child
-        final int childCount = toolbar.getChildCount();
-        for (int i = 0; i < childCount; i++) {
-            View v = toolbar.getChildAt(i);
-            if (v instanceof ActionMenuView) {
-                final ActionMenuView actionMenuView = (ActionMenuView) v;
-
-                // check that initially the tint of this icon is not the menu color
-                final ActionMenuItemView firstMenuItem = mActivity.findViewById(R.id.menu_first);
-                assertNotEquals(firstMenuItem.getItemData().getIconTintList(), colors);
-
-                // add item to menu, check that tint is now set
-                actionMenuView.attachViewToParent(firstMenuItem, actionMenuView.getChildCount(),
-                        new ActionMenuView.LayoutParams(0, 0));
-                assertEquals(firstMenuItem.getItemData().getIconTintList(), colors);
-
-                // check that adding item without item data doesn't fail
-                ActionMenuItemView secondMenuItem = new ActionMenuItemView(v.getContext());
-                actionMenuView.addView(secondMenuItem);
-                assertNull(secondMenuItem.getItemData());
-            }
-        }
     }
 }
