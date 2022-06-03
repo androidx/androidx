@@ -143,4 +143,14 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
         assumeTrue(BuildCompat.isAtLeastT());
         super.testPutLargeDocumentBatch();
     }
+
+    @Override
+    @Test
+    public void testSetSchemaWithIncompatibleNestedSchema() throws Exception {
+        // TODO(b/230879098) This bug was fixed in Android T, but will currently fail on S_V2
+        // devices and below. However, we could implement a workaround in platform-storage.
+        // Implement that workaround and enable on S and S_V2.
+        assumeTrue(BuildCompat.isAtLeastT());
+        super.testSetSchemaWithIncompatibleNestedSchema();
+    }
 }
