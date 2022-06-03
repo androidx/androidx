@@ -48,6 +48,17 @@ public final class CarValueUtils {
         return new CarValue<>(value, timestampMillis, status, zones);
     }
 
+    /**
+     * Builds {@link CarValue} from an existing {@link CarPropertyResponse}.
+     */
+    @NonNull
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    @SuppressWarnings("unchecked")
+    public static <T> CarValue<T> getCarValue(@NonNull CarPropertyResponse<?> response) {
+        return new CarValue<>((T) response.getValue(), response.getTimestampMillis(),
+                response.getStatus());
+    }
+
     private CarValueUtils() {
     }
 }
