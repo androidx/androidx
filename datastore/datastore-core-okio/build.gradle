@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.Multiplatform
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -24,13 +25,7 @@ plugins {
     id("org.jetbrains.kotlin.multiplatform")
 }
 
-def boolProperty(name) {
-    return project.providers.gradleProperty(name).getOrNull()?.toBoolean()
-}
-
-def playground = androidx.build.StudioType.isPlayground(project)
-//Native on by default in playground
-def enableNative = boolProperty('androidx.kmp.native.enabled') ?: playground
+def enableNative = Multiplatform.isKotlinNativeEnabled(project)
 
 kotlin {
     jvm {
