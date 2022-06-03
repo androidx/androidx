@@ -23,6 +23,7 @@ import androidx.asynclayoutinflater.test.R;
 public class TestActivity extends AppCompatActivity {
 
     private AsyncLayoutInflater mAsyncLayoutInflater;
+    private AsyncLayoutInflater mAsyncLayoutInflaterBgCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
