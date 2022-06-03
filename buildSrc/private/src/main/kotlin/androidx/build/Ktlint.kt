@@ -20,7 +20,6 @@ import androidx.build.logging.TERMINAL_RED
 import androidx.build.logging.TERMINAL_RESET
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
-import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileTree
