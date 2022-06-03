@@ -296,22 +296,24 @@ public final class PropertyUtils {
     @NonNull
     @OptIn(markerClass = ExperimentalCarApi.class)
     public static CarPropertyResponse<?> convertPropertyValueToPropertyResponse(
-            @NonNull CarPropertyValue<?> propertyValue) {
-        int status = mapToStatusCodeInCarValue(propertyValue.getStatus());
-        long timestamp = TimeUnit.MILLISECONDS.convert(propertyValue.getTimestamp(),
-                TimeUnit.NANOSECONDS);
-        List<CarZone> carZones;
-        if (propertyValue.getAreaId() == VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL) {
-            carZones = Collections.singletonList(CarZone.CAR_ZONE_GLOBAL);
-        } else {
-            carZones = Collections.singletonList(CAR_ZONE_TO_AREA_ID.inverse().get(
-                    propertyValue.getAreaId()));
+            @NonNull CarPropertyValue<?> carPropertyValue) {
+        CarPropertyResponse.Builder<Object> carPropertyResponseBuilder =
+                CarPropertyResponse.builder().setPropertyId(
+                        carPropertyValue.getPropertyId()).setTimestampMillis(
+                        TimeUnit.MILLISECONDS.convert(carPropertyValue.getTimestamp(),
+                                TimeUnit.NANOSECONDS)).setCarZones(
+                        carPropertyValue.getAreaId() == VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL
+                                ? Collections.singletonList(CarZone.CAR_ZONE_GLOBAL)
+                                : Collections.singletonList(CAR_ZONE_TO_AREA_ID.inverse().get(
+                                        carPropertyValue.getAreaId())));
+
+        int status = mapToStatusCodeInCarValue(carPropertyValue.getStatus());
+        carPropertyResponseBuilder.setStatus(status);
+        if (status == CarValue.STATUS_SUCCESS) {
+            carPropertyResponseBuilder.setValue(carPropertyValue.getValue());
         }
-        return CarPropertyResponse.builder().setValue(propertyValue.getValue())
-                .setPropertyId(propertyValue.getPropertyId())
-                .setCarZones(carZones)
-                .setStatus(status)
-                .setTimestampMillis(timestamp).build();
+
+        return carPropertyResponseBuilder.build();
     }
 
     /**
