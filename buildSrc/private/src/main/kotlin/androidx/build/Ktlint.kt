@@ -48,12 +48,27 @@ val bundlingAttribute: Attribute<String> =
 private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
     return files(
         configurations.findByName("ktlint") ?: configurations.create("ktlint") {
-            val version = project.extensions.getByType(
-                VersionCatalogsExtension::class.java
-            ).find("libs").get().findVersion("ktlint").get().requiredVersion
+            val version = project.getVersionByName("ktlint")
             val dependency = dependencies.create("com.pinterest:ktlint:$version")
             it.dependencies.add(dependency)
             it.attributes.attribute(bundlingAttribute, "external")
+            if (StudioType.isPlayground(project)) {
+                val snapshotActualVersion =
+                    project.getVersionByName("ktlintSnapshotResolvedVersion")
+                it.resolutionStrategy.eachDependency {
+                    if (it.requested.group == "com.pinterest" ||
+                        it.requested.group == "com.pinterest.ktlint"
+                    ) {
+                        it.useVersion(snapshotActualVersion)
+                        it.because(
+                            """
+                        AndroidX's importMaven does not preserve actual snapshot versions, hence
+                        we cannot use it. But for playground, we have to enforce it.
+                    """.trimIndent()
+                        )
+                    }
+                }
+            }
         }
     )
 }
