@@ -16,14 +16,14 @@
 
 package androidx.graphics.lowlatency
 
-import android.view.SurfaceControl
 import androidx.graphics.opengl.GLRenderer
+import androidx.graphics.surface.SurfaceControlCompat
 
 /**
  * Interface used to define a parent for rendering dry and wet layers.
  * This provides the following facilities:
  *
- * 1) Specifying a parent [SurfaceControl] for a front buffered wet layer
+ * 1) Specifying a parent [SurfaceControlCompat] for a front buffered wet layer
  * 2) Creating a [GLRenderer.RenderTarget] for rendering double buffered dry layer
  * 3) Providing callbacks for consumers to know when to recreate dependencies based on
  * the size/state of the parent, as well as allowing consumers to provide parameters
@@ -31,12 +31,13 @@ import androidx.graphics.opengl.GLRenderer
  */
 internal interface ParentRenderLayer {
     /**
-     * Modify the provided [SurfaceControl.Transaction] to reparent the provided
-     * child [SurfaceControl] to a [SurfaceControl] provided by the parent rendering layer
+     * Modify the provided [SurfaceControlCompat.Transaction] to reparent the provided
+     * child [SurfaceControlCompat] to a [SurfaceControlCompat] provided by the parent rendering
+     * layer
      */
     fun buildReparentTransaction(
-        child: SurfaceControl,
-        transaction: SurfaceControl.Transaction,
+        child: SurfaceControlCompat,
+        transaction: SurfaceControlCompat.Transaction,
     )
 
     /**
@@ -65,7 +66,7 @@ internal interface ParentRenderLayer {
     /**
      * Release all resources associated with this [ParentRenderLayer] instance
      */
-    fun release(transaction: SurfaceControl.Transaction)
+    fun release(transaction: SurfaceControlCompat.Transaction)
 
     /**
      * Callbacks to be implemented by the consumer of [ParentRenderLayer] to be alerted
@@ -102,10 +103,10 @@ internal interface ParentRenderLayer {
         fun obtainDryLayerParams(): MutableCollection<Any?>
 
         /**
-         * Obtain a handle to the wet layer [SurfaceControl] to be used in transactions to
+         * Obtain a handle to the wet layer [SurfaceControlCompat] to be used in transactions to
          * atomically update dry layer content as well as hiding the visibility of the wet layer
          */
-        fun getWetLayerSurfaceControl(): SurfaceControl?
+        fun getWetLayerSurfaceControl(): SurfaceControlCompat?
 
         /**
          * Obtain a handle to the [RenderBufferPool] to get [RenderBuffer] instances for

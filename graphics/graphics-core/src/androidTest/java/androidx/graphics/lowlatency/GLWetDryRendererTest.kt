@@ -20,9 +20,9 @@ import android.graphics.Color
 import android.hardware.HardwareBuffer
 import android.opengl.GLES20
 import android.os.Build
-import android.view.SurfaceControl
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EglManager
+import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.opengl.egl.deviceSupportsNativeAndroidFence
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
@@ -69,14 +69,17 @@ class GLWetDryRendererTest {
             }
 
             override fun onWetLayerRenderComplete(
-                wetLayerSurfaceControl: SurfaceControl,
-                transaction: SurfaceControl.Transaction
+                wetLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
             ) {
                 transaction.addTransactionCommittedListener(
-                    Executors.newSingleThreadExecutor()
-                ) {
-                    renderLatch.countDown()
-                }
+                    Executors.newSingleThreadExecutor(),
+                    object : SurfaceControlCompat.TransactionCommittedListener {
+                        override fun onTransactionCommitted() {
+                            renderLatch.countDown()
+                        }
+                    }
+                )
             }
         }
         var renderer: GLWetDryRenderer? = null
@@ -139,14 +142,16 @@ class GLWetDryRendererTest {
             }
 
             override fun onDryLayerRenderComplete(
-                wetLayerSurfaceControl: SurfaceControl,
-                transaction: SurfaceControl.Transaction
+                wetLayerSurfaceControl: SurfaceControlCompat,
+                transaction: SurfaceControlCompat.Transaction
             ) {
                 transaction.addTransactionCommittedListener(
-                    Executors.newSingleThreadExecutor()
-                ) {
-                    renderLatch.countDown()
-                }
+                    Executors.newSingleThreadExecutor(),
+                    object : SurfaceControlCompat.TransactionCommittedListener {
+                        override fun onTransactionCommitted() {
+                            renderLatch.countDown()
+                        }
+                    })
             }
         }
         var renderer: GLWetDryRenderer? = null

@@ -83,10 +83,10 @@ class GLRendererTest {
                     10,
                     10,
                     object : GLRenderer.RenderCallback {
-                    override fun onDrawFrame(eglManager: EglManager) {
-                        // NO-OP
-                    }
-                })
+                        override fun onDrawFrame(eglManager: EglManager) {
+                            // NO-OP
+                        }
+                    })
             }
             fail("Start should be called first")
         } catch (exception: IllegalStateException) {
