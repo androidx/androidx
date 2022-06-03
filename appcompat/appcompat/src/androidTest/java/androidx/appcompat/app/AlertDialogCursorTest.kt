@@ -99,12 +99,12 @@ class AlertDialogCursorTest {
         // will get notified of any change to the underlying cursor.
         activityScenarioRule.withActivity {
             cursor?.close()
+            alertDialog?.dismiss()
             true // Must return non-null Unit
         }
 
         database.close()
         databaseFile.delete()
-        alertDialog?.dismiss()
     }
 
     @Test
