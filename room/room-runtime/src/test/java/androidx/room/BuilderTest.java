@@ -345,6 +345,21 @@ public class BuilderTest {
     }
 
     @Test
+    public void autoMigrationShouldBeAddedToMigrations_WhenManualDowngradeMigrationIsPresent() {
+        Context context = mock(Context.class);
+
+        BuilderTest_TestDatabase_Impl db =
+                (BuilderTest_TestDatabase_Impl) Room.inMemoryDatabaseBuilder(context,
+                                TestDatabase.class)
+                        .addMigrations(new EmptyMigration(1, 0))
+                        .build();
+
+        DatabaseConfiguration config = db.mDatabaseConfiguration;
+
+        assertThat(config.migrationContainer.findMigrationPath(1, 2), is(db.mAutoMigrations));
+    }
+
+    @Test
     public void fallbackToDestructiveMigrationOnDowngrade_withProvidedValues_falseForDowngrades() {
         Context context = mock(Context.class);
 

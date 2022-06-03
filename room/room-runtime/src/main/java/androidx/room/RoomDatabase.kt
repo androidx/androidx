@@ -212,8 +212,7 @@ abstract class RoomDatabase {
         }
         val autoMigrations = getAutoMigrations(autoMigrationSpecs)
         for (autoMigration in autoMigrations) {
-            val migrationExists = configuration.migrationContainer.getMigrations()
-                .containsKey(autoMigration.startVersion)
+            val migrationExists = configuration.migrationContainer.contains(autoMigration)
             if (!migrationExists) {
                 configuration.migrationContainer.addMigrations(autoMigration)
             }
@@ -1451,6 +1450,22 @@ abstract class RoomDatabase {
                 }
             }
             return result
+        }
+
+        /**
+         * Indicates if the given migration is contained within the [MigrationContainer] based
+         * on its start-end versions.
+         *
+         * @param migration Migration to compare.
+         * @return True if 1 migration has the same start-end versions, false otherwise.
+         */
+        operator fun contains(migration: Migration): Boolean {
+            val migrations = getMigrations()
+            if (migrations.containsKey(migration.startVersion)) {
+                val startVersionMatches = migrations[migration.startVersion] ?: emptyMap()
+                return startVersionMatches.containsKey(migration.endVersion)
+            }
+            return false
         }
     }
 
