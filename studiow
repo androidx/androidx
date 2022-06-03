@@ -31,6 +31,9 @@ function usage() {
   echo " media"
   echo "  Open the project subset media: Media, Media2, and MediaRouter"
   echo
+  echo " kmp"
+  echo "  Open the project subset KMP: Projects that have KMP builds"
+  echo
   echo " w, wear"
   echo "  Open the project subset for Wear OS libraries"
   echo
@@ -94,6 +97,9 @@ while [ "$1" != "" ]; do
   fi
   if [ "$subsetArg" == "g" -o "$subsetArg" == "glance" ]; then
       newSubset=glance
+  fi
+  if [ "$subsetArg" == "k" -o "$subsetArg" == "kmp" ]; then
+      newSubset=kmp
   fi
   if [ "$subsetArg" == "a" -o "$subsetArg" == "all" ]; then
     newSubset=all

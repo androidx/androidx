@@ -15,6 +15,7 @@
  */
 
 
+import androidx.build.Multiplatform
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -26,17 +27,7 @@ plugins {
     id("org.jetbrains.kotlin.multiplatform")
 }
 
-// This should be true when building from GitHub, and false when building
-// from AOSP.  Use this to block out any features or code that we're not
-// ready to build yet in AOSP
-
-def boolProperty(name) {
-    return project.providers.gradleProperty(name).getOrNull()?.toBoolean()
-}
-
-def playground = androidx.build.StudioType.isPlayground(project)
-//Native on by default in playground
-def enableNative = boolProperty('androidx.kmp.native.enabled') ?: playground
+def enableNative = Multiplatform.isKotlinNativeEnabled(project)
 
 kotlin {
     jvm {
