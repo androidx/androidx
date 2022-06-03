@@ -62,9 +62,9 @@ private fun Project.getKtlintConfiguration(): ConfigurableFileCollection {
                         it.useVersion(snapshotActualVersion)
                         it.because(
                             """
-                        AndroidX's importMaven does not preserve actual snapshot versions, hence
-                        we cannot use it. But for playground, we have to enforce it.
-                    """.trimIndent()
+                            AndroidX's importMaven does not preserve actual snapshot versions, hence
+                            we cannot use it. But for playground, we have to enforce it.
+                            """.trimIndent()
                         )
                     }
                 }
