@@ -54,58 +54,41 @@ import org.mockito.Mockito
 @RunWith(AndroidJUnit4::class)
 class AlertDialogCursorTest {
     @Rule
-    val mActivityTestRule: ActivityTestRule<AlertDialogTestActivity> = ActivityTestRule(
+    val activityTestRule: ActivityTestRule<AlertDialogTestActivity> = ActivityTestRule(
         AlertDialogTestActivity::class.java
     )
 
-    private var mButton: Button? = null
-    private var mTextContent: Array<String> = emptyArray()
-    private var mCheckedContent: BooleanArray = booleanArrayOf()
-    private var mProjectionWithChecked: Array<String> = emptyArray()
-    private var mProjectionWithoutChecked: Array<String> = emptyArray()
-    private var mDatabase: SQLiteDatabase? = null
-    private var mDatabaseFile: File? = null
-    private var mCursor: Cursor? = null
-    private var mAlertDialog: AlertDialog? = null
+    private lateinit var button: Button
+    private lateinit var databaseFile: File
+    private lateinit var database: SQLiteDatabase
+
+    private var cursor: Cursor? = null
+    private var alertDialog: AlertDialog? = null
 
     @Before
     fun setUp() {
-        // Ideally these constant arrays would be defined as final static fields on the
-        // class level, but for some reason those get reset to null on v9- devices after
-        // the first test method has been executed.
-        mTextContent = arrayOf("Adele", "Beyonce", "Ciara", "Dido")
-        mCheckedContent = booleanArrayOf(false, false, true, false)
-        mProjectionWithChecked = arrayOf(
-            "_id", // 0
-            TEXT_COLUMN_NAME, // 1
-            CHECKED_COLUMN_NAME // 2
-        )
-        mProjectionWithoutChecked = arrayOf(
-            "_id", // 0
-            TEXT_COLUMN_NAME // 1
-        )
-
-        val activity = mActivityTestRule.activity
-        mButton = activity.findViewById<View>(R.id.test_button) as Button
+        val activity = activityTestRule.activity
+        button = activity.findViewById<View>(R.id.test_button) as Button
 
         val dbDir = activity.getDir("tests", Context.MODE_PRIVATE)
-        mDatabaseFile = File(dbDir, "database_alert_dialog_test.db")
-        if (mDatabaseFile!!.exists()) {
-            mDatabaseFile!!.delete()
+        databaseFile = File(dbDir, "database_alert_dialog_test.db")
+        if (databaseFile.exists()) {
+            databaseFile.delete()
         }
 
-        mDatabase = SQLiteDatabase.openOrCreateDatabase(mDatabaseFile!!.path, null)
-        Assert.assertNotNull(mDatabase)
+        database = SQLiteDatabase.openOrCreateDatabase(databaseFile.path, null)
+        Assert.assertNotNull(database)
+
         // Create and populate a test table
-        mDatabase!!.execSQL(
+        database.execSQL(
             "CREATE TABLE test (_id INTEGER PRIMARY KEY, " + TEXT_COLUMN_NAME +
                 " TEXT, " + CHECKED_COLUMN_NAME + " INTEGER);"
         )
-        for (i in mTextContent.indices) {
-            mDatabase!!.execSQL(
+        for (i in TEXT_CONTENT.indices) {
+            database.execSQL(
                 "INSERT INTO test (" + TEXT_COLUMN_NAME + ", " +
-                    CHECKED_COLUMN_NAME + ") VALUES ('" + mTextContent[i] + "', " +
-                    (if (mCheckedContent[i]) "1" else "0") + ");"
+                    CHECKED_COLUMN_NAME + ") VALUES ('" + TEXT_CONTENT[i] + "', " +
+                    (if (CHECKED_CONTENT[i]) "1" else "0") + ");"
             )
         }
     }
@@ -113,29 +96,35 @@ class AlertDialogCursorTest {
     @After
     @Throws(Throwable::class)
     fun tearDown() {
-        mCursor?.let { cursor ->
+        cursor?.let { cursor ->
             // Close the cursor on the UI thread as the list view in the alert dialog
             // will get notified of any change to the underlying cursor.
-            mActivityTestRule.runOnUiThread {
+            activityTestRule.runOnUiThread {
                 cursor.close()
             }
         }
-        mDatabase?.close()
-        mDatabaseFile?.delete()
-        mAlertDialog?.dismiss()
+        database.close()
+        databaseFile.delete()
+        alertDialog?.dismiss()
     }
 
-    private fun wireBuilder(builder: AlertDialog.Builder) {
-        mButton!!.setOnClickListener { mAlertDialog = builder.show() }
-    }
-
-    private fun verifySimpleItemsContent(
-        expectedContent: Array<String>,
-        onClickListener: DialogInterface.OnClickListener
-    ) {
-        val expectedCount = expectedContent.size
+    @Test
+    fun testSimpleItemsFromCursor() {
+        cursor = database.query(
+            "test", PROJECTION_WITHOUT_CHECKED,
+            null, null, null, null, null
+        )
+        Assert.assertNotNull(cursor)
+        val mockClickListener = Mockito.mock(
+            DialogInterface.OnClickListener::class.java
+        )
+        val builder = AlertDialog.Builder(activityTestRule.activity)
+            .setTitle(R.string.alert_dialog_title)
+            .setCursor(cursor, mockClickListener, "text")
+        button.setOnClickListener { alertDialog = builder.show() }
+        val expectedCount = TEXT_CONTENT.size
         Espresso.onView(ViewMatchers.withId(R.id.test_button)).perform(ViewActions.click())
-        val listView = mAlertDialog!!.listView
+        val listView = alertDialog!!.listView
         Assert.assertNotNull("List view is shown", listView)
         val listAdapter = listView.adapter
         Assert.assertEquals(
@@ -146,7 +135,7 @@ class AlertDialogCursorTest {
         // Test that all items are showing
         Espresso.onView(ViewMatchers.withText("Dialog title")).inRoot(RootMatchers.isDialog())
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        for (s in expectedContent) {
+        for (s in TEXT_CONTENT) {
             val rowInteraction = Espresso.onData(
                 AllOf.allOf(
                     Is.`is`(
@@ -162,11 +151,12 @@ class AlertDialogCursorTest {
         }
 
         // Verify that our click listener hasn't been called yet
-        Mockito.verify(onClickListener, Mockito.never()).onClick(
+        Mockito.verify(mockClickListener, Mockito.never()).onClick(
             ArgumentMatchers.any(
                 DialogInterface::class.java
             ), ArgumentMatchers.any(Int::class.javaPrimitiveType)
         )
+
         // Test that a click on an item invokes the registered listener
         val indexToClick = expectedCount - 2
         val interactionForClick = Espresso.onData(
@@ -177,29 +167,12 @@ class AlertDialogCursorTest {
                     )
                 ),
                 TestUtilsMatchers.withCursorItemContent(
-                    TEXT_COLUMN_NAME, expectedContent[indexToClick]
+                    TEXT_COLUMN_NAME, TEXT_CONTENT[indexToClick]
                 )
             )
         )
         interactionForClick.inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
-        Mockito.verify(onClickListener, Mockito.times(1)).onClick(mAlertDialog, indexToClick)
-    }
-
-    @Test
-    fun testSimpleItemsFromCursor() {
-        mCursor = mDatabase!!.query(
-            "test", mProjectionWithoutChecked,
-            null, null, null, null, null
-        )
-        Assert.assertNotNull(mCursor)
-        val mockClickListener = Mockito.mock(
-            DialogInterface.OnClickListener::class.java
-        )
-        val builder = AlertDialog.Builder(mActivityTestRule.activity)
-            .setTitle(R.string.alert_dialog_title)
-            .setCursor(mCursor, mockClickListener, "text")
-        wireBuilder(builder)
-        verifySimpleItemsContent(mTextContent, mockClickListener)
+        Mockito.verify(mockClickListener, Mockito.times(1)).onClick(alertDialog, indexToClick)
     }
 
     /**
@@ -212,11 +185,11 @@ class AlertDialogCursorTest {
      * passed boolean array
      */
     private fun verifyMultiChoiceItemsState(
-        expectedContent: Array<String>,
+        @Suppress("SameParameterValue") expectedContent: Array<String>,
         checkedTracker: BooleanArray
     ) {
         val expectedCount = expectedContent.size
-        val listView = mAlertDialog!!.listView
+        val listView = alertDialog!!.listView
         Assert.assertNotNull("List view is shown", listView)
         val listAdapter = listView.adapter
         Assert.assertEquals(
@@ -253,13 +226,39 @@ class AlertDialogCursorTest {
         }
     }
 
-    private fun verifyMultiChoiceItemsContent(
-        expectedContent: Array<String>,
-        checkedTracker: BooleanArray
-    ) {
-        val expectedCount = expectedContent.size
+    @LargeTest
+    @Test
+    fun testMultiChoiceItemsFromCursor() {
+        cursor = database.query(
+            "test", PROJECTION_WITH_CHECKED,
+            null, null, null, null, null
+        )
+        Assert.assertNotNull(cursor)
+        val checkedTracker = CHECKED_CONTENT.clone()
+        val builder = AlertDialog.Builder(activityTestRule.activity)
+            .setTitle(R.string.alert_dialog_title)
+            .setMultiChoiceItems(
+                cursor, CHECKED_COLUMN_NAME, TEXT_COLUMN_NAME
+            ) { _: DialogInterface?, which: Int, isChecked: Boolean ->
+                // Update the underlying database with the new checked
+                // state for the specific row
+                cursor!!.moveToPosition(which)
+                val valuesToUpdate = ContentValues()
+                valuesToUpdate.put(CHECKED_COLUMN_NAME, if (isChecked) 1 else 0)
+                database.update(
+                    "test", valuesToUpdate,
+                    "$TEXT_COLUMN_NAME = ?", arrayOf(cursor!!.getString(1))
+                )
+                cursor!!.requery()
+                checkedTracker[which] = isChecked
+            }
+        button.setOnClickListener { alertDialog = builder.show() }
+
+        // Pass the same boolean[] array as used for initialization since our click listener
+        // will be updating its content.
+        val expectedCount = TEXT_CONTENT.size
         Espresso.onView(ViewMatchers.withId(R.id.test_button)).perform(ViewActions.click())
-        val listView = mAlertDialog!!.listView
+        val listView = alertDialog!!.listView
         Assert.assertNotNull("List view is shown", listView)
         val listAdapter = listView.adapter
         Assert.assertEquals(
@@ -270,7 +269,7 @@ class AlertDialogCursorTest {
         // Test that all items are showing
         Espresso.onView(ViewMatchers.withText("Dialog title")).inRoot(RootMatchers.isDialog())
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        verifyMultiChoiceItemsState(expectedContent, checkedTracker)
+        verifyMultiChoiceItemsState(TEXT_CONTENT, checkedTracker)
 
         // We're going to click item #1 and test that the click listener has been invoked to
         // update the original state array
@@ -283,17 +282,17 @@ class AlertDialogCursorTest {
                         SQLiteCursor::class.java
                     )
                 ),
-                TestUtilsMatchers.withCursorItemContent(TEXT_COLUMN_NAME, expectedContent[1])
+                TestUtilsMatchers.withCursorItemContent(TEXT_COLUMN_NAME, TEXT_CONTENT[1])
             )
         )
         interactionForClick.inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
-        verifyMultiChoiceItemsState(expectedContent, expectedAfterClick1)
+        verifyMultiChoiceItemsState(TEXT_CONTENT, expectedAfterClick1)
 
         // Now click item #1 again and test that the click listener has been invoked to update the
         // original state array again
         expectedAfterClick1[1] = !expectedAfterClick1[1]
         interactionForClick.inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
-        verifyMultiChoiceItemsState(expectedContent, expectedAfterClick1)
+        verifyMultiChoiceItemsState(TEXT_CONTENT, expectedAfterClick1)
 
         // Now we're going to click the last item and test that the click listener has been invoked
         // to update the original state array
@@ -308,45 +307,12 @@ class AlertDialogCursorTest {
                 ),
                 TestUtilsMatchers.withCursorItemContent(
                     TEXT_COLUMN_NAME,
-                    expectedContent[expectedCount - 1]
+                    TEXT_CONTENT[expectedCount - 1]
                 )
             )
         )
         interactionForClick.inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
-        verifyMultiChoiceItemsState(expectedContent, expectedAfterClickLast)
-    }
-
-    @LargeTest
-    @Test
-    fun testMultiChoiceItemsFromCursor() {
-        mCursor = mDatabase!!.query(
-            "test", mProjectionWithChecked,
-            null, null, null, null, null
-        )
-        Assert.assertNotNull(mCursor)
-        val checkedTracker = mCheckedContent.clone()
-        val builder = AlertDialog.Builder(mActivityTestRule.activity)
-            .setTitle(R.string.alert_dialog_title)
-            .setMultiChoiceItems(
-                mCursor, CHECKED_COLUMN_NAME, TEXT_COLUMN_NAME
-            ) { _: DialogInterface?, which: Int, isChecked: Boolean ->
-                // Update the underlying database with the new checked
-                // state for the specific row
-                mCursor!!.moveToPosition(which)
-                val valuesToUpdate = ContentValues()
-                valuesToUpdate.put(CHECKED_COLUMN_NAME, if (isChecked) 1 else 0)
-                mDatabase!!.update(
-                    "test", valuesToUpdate,
-                    "$TEXT_COLUMN_NAME = ?", arrayOf(mCursor!!.getString(1))
-                )
-                mCursor!!.requery()
-                checkedTracker[which] = isChecked
-            }
-        wireBuilder(builder)
-
-        // Pass the same boolean[] array as used for initialization since our click listener
-        // will be updating its content.
-        verifyMultiChoiceItemsContent(mTextContent, checkedTracker)
+        verifyMultiChoiceItemsState(TEXT_CONTENT, expectedAfterClickLast)
     }
 
     /**
@@ -359,11 +325,11 @@ class AlertDialogCursorTest {
      * integer index.
      */
     private fun verifySingleChoiceItemsState(
-        expectedContent: Array<String>,
+        @Suppress("SameParameterValue") expectedContent: Array<String>,
         currentlyExpectedSelectionIndex: Int
     ) {
         val expectedCount = expectedContent.size
-        val listView = mAlertDialog!!.listView
+        val listView = alertDialog!!.listView
         Assert.assertNotNull("List view is shown", listView)
         val listAdapter = listView.adapter
         Assert.assertEquals(
@@ -400,23 +366,34 @@ class AlertDialogCursorTest {
         }
     }
 
-    private fun verifySingleChoiceItemsContent(
-        expectedContent: Array<String>,
-        @Suppress("SameParameterValue") initialSelectionIndex: Int,
-        onClickListener: DialogInterface.OnClickListener
-    ) {
-        val expectedCount = expectedContent.size
-        var currentlyExpectedSelectionIndex = initialSelectionIndex
+    @LargeTest
+    @Test
+    fun testSingleChoiceItemsFromCursor() {
+        cursor = database.query(
+            "test", PROJECTION_WITHOUT_CHECKED,
+            null, null, null, null, null
+        )
+        Assert.assertNotNull(cursor)
+
+        val mockClickListener = Mockito.mock(
+            DialogInterface.OnClickListener::class.java
+        )
+        val builder = AlertDialog.Builder(activityTestRule.activity)
+            .setTitle(R.string.alert_dialog_title)
+            .setSingleChoiceItems(cursor, 2, TEXT_COLUMN_NAME, mockClickListener)
+        button.setOnClickListener { alertDialog = builder.show() }
+        val expectedCount = TEXT_CONTENT.size
+        var currentlyExpectedSelectionIndex = 2
         Espresso.onView(ViewMatchers.withId(R.id.test_button)).perform(ViewActions.click())
 
         // Test that all items are showing
         Espresso.onView(ViewMatchers.withText("Dialog title")).inRoot(RootMatchers.isDialog())
             .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex)
+        verifySingleChoiceItemsState(TEXT_CONTENT, currentlyExpectedSelectionIndex)
 
         // We're going to click the first unselected item and test that the click listener has
         // been invoked.
-        currentlyExpectedSelectionIndex = if (currentlyExpectedSelectionIndex == 0) 1 else 0
+        currentlyExpectedSelectionIndex = 0
         var interactionForClick = Espresso.onData(
             AllOf.allOf(
                 Is.`is`(
@@ -426,20 +403,20 @@ class AlertDialogCursorTest {
                 ),
                 TestUtilsMatchers.withCursorItemContent(
                     TEXT_COLUMN_NAME,
-                    expectedContent[currentlyExpectedSelectionIndex]
+                    TEXT_CONTENT[currentlyExpectedSelectionIndex]
                 )
             )
         )
         interactionForClick.inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
-        Mockito.verify(onClickListener, Mockito.times(1))
-            .onClick(mAlertDialog, currentlyExpectedSelectionIndex)
-        verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex)
+        Mockito.verify(mockClickListener, Mockito.times(1))
+            .onClick(alertDialog, currentlyExpectedSelectionIndex)
+        verifySingleChoiceItemsState(TEXT_CONTENT, currentlyExpectedSelectionIndex)
 
         // Now click the same item again and test that the selection has not changed
         interactionForClick.inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
-        Mockito.verify(onClickListener, Mockito.times(2))
-            .onClick(mAlertDialog, currentlyExpectedSelectionIndex)
-        verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex)
+        Mockito.verify(mockClickListener, Mockito.times(2))
+            .onClick(alertDialog, currentlyExpectedSelectionIndex)
+        verifySingleChoiceItemsState(TEXT_CONTENT, currentlyExpectedSelectionIndex)
 
         // Now we're going to click the last item and test that the click listener has been invoked
         // to update the original state array
@@ -453,36 +430,30 @@ class AlertDialogCursorTest {
                 ),
                 TestUtilsMatchers.withCursorItemContent(
                     TEXT_COLUMN_NAME,
-                    expectedContent[currentlyExpectedSelectionIndex]
+                    TEXT_CONTENT[currentlyExpectedSelectionIndex]
                 )
             )
         )
         interactionForClick.inRoot(RootMatchers.isDialog()).perform(ViewActions.click())
-        Mockito.verify(onClickListener, Mockito.times(1))
-            .onClick(mAlertDialog, currentlyExpectedSelectionIndex)
-        verifySingleChoiceItemsState(expectedContent, currentlyExpectedSelectionIndex)
-    }
-
-    @LargeTest
-    @Test
-    fun testSingleChoiceItemsFromCursor() {
-        mCursor = mDatabase!!.query(
-            "test", mProjectionWithoutChecked,
-            null, null, null, null, null
-        )
-        Assert.assertNotNull(mCursor)
-        val mockClickListener = Mockito.mock(
-            DialogInterface.OnClickListener::class.java
-        )
-        val builder = AlertDialog.Builder(mActivityTestRule.activity)
-            .setTitle(R.string.alert_dialog_title)
-            .setSingleChoiceItems(mCursor, 2, TEXT_COLUMN_NAME, mockClickListener)
-        wireBuilder(builder)
-        verifySingleChoiceItemsContent(mTextContent, 2, mockClickListener)
+        Mockito.verify(mockClickListener, Mockito.times(1))
+            .onClick(alertDialog, currentlyExpectedSelectionIndex)
+        verifySingleChoiceItemsState(TEXT_CONTENT, currentlyExpectedSelectionIndex)
     }
 
     companion object {
         private const val TEXT_COLUMN_NAME = "text"
         private const val CHECKED_COLUMN_NAME = "checked"
+
+        private val TEXT_CONTENT: Array<String> = arrayOf("Adele", "Beyonce", "Ciara", "Dido")
+        private val CHECKED_CONTENT: BooleanArray = booleanArrayOf(false, false, true, false)
+        private val PROJECTION_WITH_CHECKED: Array<String> = arrayOf(
+            "_id", // 0
+            TEXT_COLUMN_NAME, // 1
+            CHECKED_COLUMN_NAME // 2
+        )
+        private val PROJECTION_WITHOUT_CHECKED: Array<String> = arrayOf(
+            "_id", // 0
+            TEXT_COLUMN_NAME // 1
+        )
     }
 }
