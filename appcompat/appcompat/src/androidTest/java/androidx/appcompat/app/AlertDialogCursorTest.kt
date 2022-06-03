@@ -34,9 +34,10 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.rule.ActivityTestRule
+import androidx.testutils.withActivity
 import java.io.File
 import org.hamcrest.Matchers
 import org.hamcrest.core.AllOf
@@ -53,10 +54,8 @@ import org.mockito.Mockito
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class AlertDialogCursorTest {
-    @Rule
-    val activityTestRule: ActivityTestRule<AlertDialogTestActivity> = ActivityTestRule(
-        AlertDialogTestActivity::class.java
-    )
+    @get:Rule
+    val activityScenarioRule = ActivityScenarioRule(AlertDialogTestActivity::class.java)
 
     private lateinit var button: Button
     private lateinit var databaseFile: File
@@ -67,7 +66,7 @@ class AlertDialogCursorTest {
 
     @Before
     fun setUp() {
-        val activity = activityTestRule.activity
+        val activity = activityScenarioRule.withActivity { this }
         button = activity.findViewById<View>(R.id.test_button) as Button
 
         val dbDir = activity.getDir("tests", Context.MODE_PRIVATE)
@@ -96,13 +95,13 @@ class AlertDialogCursorTest {
     @After
     @Throws(Throwable::class)
     fun tearDown() {
-        cursor?.let { cursor ->
-            // Close the cursor on the UI thread as the list view in the alert dialog
-            // will get notified of any change to the underlying cursor.
-            activityTestRule.runOnUiThread {
-                cursor.close()
-            }
+        // Close the cursor on the UI thread as the list view in the alert dialog
+        // will get notified of any change to the underlying cursor.
+        activityScenarioRule.withActivity {
+            cursor?.close()
+            true // Must return non-null Unit
         }
+
         database.close()
         databaseFile.delete()
         alertDialog?.dismiss()
@@ -118,7 +117,7 @@ class AlertDialogCursorTest {
         val mockClickListener = Mockito.mock(
             DialogInterface.OnClickListener::class.java
         )
-        val builder = AlertDialog.Builder(activityTestRule.activity)
+        val builder = AlertDialog.Builder(activityScenarioRule.withActivity { this })
             .setTitle(R.string.alert_dialog_title)
             .setCursor(cursor, mockClickListener, "text")
         button.setOnClickListener { alertDialog = builder.show() }
@@ -235,7 +234,7 @@ class AlertDialogCursorTest {
         )
         Assert.assertNotNull(cursor)
         val checkedTracker = CHECKED_CONTENT.clone()
-        val builder = AlertDialog.Builder(activityTestRule.activity)
+        val builder = AlertDialog.Builder(activityScenarioRule.withActivity { this })
             .setTitle(R.string.alert_dialog_title)
             .setMultiChoiceItems(
                 cursor, CHECKED_COLUMN_NAME, TEXT_COLUMN_NAME
@@ -378,7 +377,7 @@ class AlertDialogCursorTest {
         val mockClickListener = Mockito.mock(
             DialogInterface.OnClickListener::class.java
         )
-        val builder = AlertDialog.Builder(activityTestRule.activity)
+        val builder = AlertDialog.Builder(activityScenarioRule.withActivity { this })
             .setTitle(R.string.alert_dialog_title)
             .setSingleChoiceItems(cursor, 2, TEXT_COLUMN_NAME, mockClickListener)
         button.setOnClickListener { alertDialog = builder.show() }
