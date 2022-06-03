@@ -54,7 +54,6 @@ import androidx.appcompat.testutils.TestUtilsMatchers;
 import androidx.test.espresso.DataInteraction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.ActivityTestRule;
 
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -65,12 +64,12 @@ import org.junit.runner.RunWith;
 
 import java.io.File;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"ResultOfMethodCallIgnored", "deprecation"})
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class AlertDialogCursorTest {
     @Rule
-    public final ActivityTestRule<AlertDialogTestActivity> mActivityTestRule;
+    public final androidx.test.rule.ActivityTestRule<AlertDialogTestActivity> mActivityTestRule;
 
     private Button mButton;
 
@@ -90,7 +89,8 @@ public class AlertDialogCursorTest {
     private AlertDialog mAlertDialog;
 
     public AlertDialogCursorTest() {
-        mActivityTestRule = new ActivityTestRule<>(AlertDialogTestActivity.class);
+        mActivityTestRule = new androidx.test.rule.ActivityTestRule<>(
+                AlertDialogTestActivity.class);
     }
 
     @Before
@@ -137,12 +137,9 @@ public class AlertDialogCursorTest {
         if (mCursor != null) {
             // Close the cursor on the UI thread as the list view in the alert dialog
             // will get notified of any change to the underlying cursor.
-            mActivityTestRule.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mCursor.close();
-                    mCursor = null;
-                }
+            mActivityTestRule.runOnUiThread(() -> {
+                mCursor.close();
+                mCursor = null;
             });
         }
         if (mDatabase != null) {
@@ -157,12 +154,7 @@ public class AlertDialogCursorTest {
     }
 
     private void wireBuilder(final AlertDialog.Builder builder) {
-        mButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mAlertDialog = builder.show();
-            }
-        });
+        mButton.setOnClickListener(v -> mAlertDialog = builder.show());
     }
 
     private void verifySimpleItemsContent(String[] expectedContent,
@@ -180,10 +172,10 @@ public class AlertDialogCursorTest {
 
         // Test that all items are showing
         onView(withText("Dialog title")).inRoot(isDialog()).check(matches(isDisplayed()));
-        for (int i = 0; i < expectedCount; i++) {
+        for (String s : expectedContent) {
             DataInteraction rowInteraction = onData(allOf(
                     is(instanceOf(SQLiteCursor.class)),
-                    TestUtilsMatchers.withCursorItemContent(TEXT_COLUMN_NAME, expectedContent[i])));
+                    TestUtilsMatchers.withCursorItemContent(TEXT_COLUMN_NAME, s)));
             rowInteraction.inRoot(isDialog()).check(matches(isDisplayed()));
         }
 
@@ -236,7 +228,8 @@ public class AlertDialogCursorTest {
                 expectedCount, listAdapter.getCount());
 
         for (int i = 0; i < expectedCount; i++) {
-            Matcher checkedStateMatcher = checkedTracker[i] ? TestUtilsMatchers.isCheckedTextView() :
+            Matcher<View> checkedStateMatcher = checkedTracker[i] ?
+                    TestUtilsMatchers.isCheckedTextView() :
                     TestUtilsMatchers.isNonCheckedTextView();
             // Check that the corresponding row is rendered as CheckedTextView with expected
             // checked state.
@@ -308,21 +301,17 @@ public class AlertDialogCursorTest {
         AlertDialog.Builder builder = new AlertDialog.Builder(mActivityTestRule.getActivity())
                 .setTitle(R.string.alert_dialog_title)
                 .setMultiChoiceItems(mCursor, CHECKED_COLUMN_NAME, TEXT_COLUMN_NAME,
-                        new DialogInterface.OnMultiChoiceClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which,
-                                    boolean isChecked) {
-                                // Update the underlying database with the new checked
-                                // state for the specific row
-                                mCursor.moveToPosition(which);
-                                ContentValues valuesToUpdate = new ContentValues();
-                                valuesToUpdate.put(CHECKED_COLUMN_NAME, isChecked ? 1 : 0);
-                                mDatabase.update("test", valuesToUpdate,
-                                        TEXT_COLUMN_NAME + " = ?",
-                                        new String[] { mCursor.getString(1) } );
-                                mCursor.requery();
-                                checkedTracker[which] = isChecked;
-                            }
+                        (dialog, which, isChecked) -> {
+                            // Update the underlying database with the new checked
+                            // state for the specific row
+                            mCursor.moveToPosition(which);
+                            ContentValues valuesToUpdate = new ContentValues();
+                            valuesToUpdate.put(CHECKED_COLUMN_NAME, isChecked ? 1 : 0);
+                            mDatabase.update("test", valuesToUpdate,
+                                    TEXT_COLUMN_NAME + " = ?",
+                                    new String[] { mCursor.getString(1) } );
+                            mCursor.requery();
+                            checkedTracker[which] = isChecked;
                         });
         wireBuilder(builder);
 
@@ -352,7 +341,7 @@ public class AlertDialogCursorTest {
                 expectedCount, listAdapter.getCount());
 
         for (int i = 0; i < expectedCount; i++) {
-            Matcher checkedStateMatcher = (i == currentlyExpectedSelectionIndex) ?
+            Matcher<View> checkedStateMatcher = (i == currentlyExpectedSelectionIndex) ?
                     TestUtilsMatchers.isCheckedTextView() :
                     TestUtilsMatchers.isNonCheckedTextView();
             // Check that the corresponding row is rendered as CheckedTextView with expected
@@ -369,6 +358,7 @@ public class AlertDialogCursorTest {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     private void verifySingleChoiceItemsContent(String[] expectedContent,
             int initialSelectionIndex, DialogInterface.OnClickListener onClickListener) {
         final int expectedCount = expectedContent.length;
