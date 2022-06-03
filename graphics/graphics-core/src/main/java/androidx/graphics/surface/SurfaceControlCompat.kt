@@ -35,6 +35,12 @@ internal class JniBindings {
         external fun nTransactionCreate(): Long
         external fun nTransactionDelete(surfaceTransaction: Long)
         external fun nTransactionApply(surfaceTransaction: Long)
+        external fun nTransactionReparent(
+            surfaceTransaction: Long,
+            surfaceControl: Long,
+            newParent: Long
+        )
+
         external fun nTransactionSetOnComplete(
             surfaceTransaction: Long,
             listener: SurfaceControlCompat.TransactionCompletedListener
@@ -344,7 +350,33 @@ class SurfaceControlCompat internal constructor(
             JniBindings.nSetDamageRegion(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
-                region?.bounds
+                region?.bounds)
+            return this
+        }
+
+        /**
+         * Re-parents a given layer to a new parent. Children inherit transform
+         * (position, scaling) crop, visibility, and Z-ordering from their parents, as
+         * if the children were pixels within the parent Surface.
+         *
+         * Any children of the reparented surfaceControl will remain children of
+         * the surfaceControl.
+         *
+         * The newParent can be null. Surface controls with a null parent do not
+         * appear on the display.
+         *
+         * @param surfaceControl The surface control to reparent
+         *
+         * @param newParent the new parent we want to set the surface control to. Can be null.
+         */
+        fun reparent(
+            surfaceControl: SurfaceControlCompat,
+            newParent: SurfaceControlCompat?
+        ): Transaction {
+            JniBindings.nTransactionReparent(
+                mNativeSurfaceTransaction,
+                surfaceControl.mNativeSurfaceControl,
+                newParent?.mNativeSurfaceControl ?: 0L
             )
             return this
         }

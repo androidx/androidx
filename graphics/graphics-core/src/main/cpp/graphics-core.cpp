@@ -109,6 +109,19 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nTransactionApply(
     }
 }
 
+extern "C"
+JNIEXPORT void JNICALL
+Java_androidx_graphics_surface_JniBindings_00024Companion_nTransactionReparent(
+        JNIEnv *env, jobject thiz,
+        jlong surfaceTransaction, jlong surfaceControl, jlong newParent) {
+    if (android_get_device_api_level() >= 29) {
+        auto parent = (newParent!=0L) ? reinterpret_cast<ASurfaceControl *>(newParent) : nullptr;
+        ASurfaceTransaction_reparent(reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction),
+                                     reinterpret_cast<ASurfaceControl *>(surfaceControl),
+                                     parent);
+    }
+}
+
 static struct {
     bool CLASS_INFO_INITIALIZED = false;
     jclass clazz{};
