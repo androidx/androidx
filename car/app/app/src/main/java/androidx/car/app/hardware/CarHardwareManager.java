@@ -27,6 +27,7 @@ import androidx.car.app.CarAppMetadataHolderService;
 import androidx.car.app.CarContext;
 import androidx.car.app.HostDispatcher;
 import androidx.car.app.HostException;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.hardware.climate.CarClimate;
 import androidx.car.app.hardware.info.CarInfo;
@@ -62,6 +63,7 @@ public interface CarHardwareManager extends Manager {
      * Returns the {@link CarClimate} that can be used to query climate information from the
      * car hardware.
      */
+    @ExperimentalCarApi
     @SuppressWarnings({"HiddenTypeParameter", "UnavailableSymbol"})
     default @NonNull CarClimate getCarClimate() {
         throw new UnsupportedOperationException();
