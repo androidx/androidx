@@ -40,8 +40,9 @@ namespace tracing_perfetto {
     }
 
     void TraceEventBegin(int key, const char *traceInfo) {
+        // Note: key is ignored for now
         TRACE_EVENT_BEGIN(CATEGORY_RENDERING, nullptr, [&](perfetto::EventContext ctx) {
-            ctx.event()->set_name(std::string(traceInfo) + " key=" + std::to_string(key));
+            ctx.event()->set_name(traceInfo);
         });
     }
 

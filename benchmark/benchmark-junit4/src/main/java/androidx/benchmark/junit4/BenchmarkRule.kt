@@ -86,9 +86,12 @@ public class BenchmarkRule internal constructor(
      * (and would trigger warnings if they did, e.g. debuggable=true)
      * Is always true when called non-internally.
      */
-    private val enableReport: Boolean
+    private val enableReport: Boolean,
+    private val packages: List<String> = emptyList() // TODO: revisit if needed
 ) : TestRule {
     public constructor() : this(true)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public constructor(packages: List<String>) : this(true, packages)
 
     internal // synthetic access
     val internalState = BenchmarkState()
@@ -210,7 +213,7 @@ public class BenchmarkRule internal constructor(
 
             val tracePath = PerfettoCaptureWrapper().record(
                 benchmarkName = uniqueName,
-                packages = emptyList(), // NOTE: intentionally don't pass app package!
+                packages = packages,
             ) {
                 UserspaceTracing.commitToTrace() // clear buffer
 
