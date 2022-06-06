@@ -23,6 +23,7 @@ import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
+import static androidx.work.impl.model.WorkSpecKt.generationalId;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -44,6 +45,7 @@ import androidx.work.WorkerParameters;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.foreground.ForegroundProcessor;
 import androidx.work.impl.model.DependencyDao;
+import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTagDao;
@@ -127,6 +129,11 @@ public class WorkerWrapper implements Runnable {
         mWorkSpecDao = mWorkDatabase.workSpecDao();
         mDependencyDao = mWorkDatabase.dependencyDao();
         mWorkTagDao = mWorkDatabase.workTagDao();
+    }
+
+    @NonNull
+    public WorkGenerationalId getWorkGenerationalId() {
+        return generationalId(mWorkSpec);
     }
 
     public @NonNull ListenableFuture<Boolean> getFuture() {

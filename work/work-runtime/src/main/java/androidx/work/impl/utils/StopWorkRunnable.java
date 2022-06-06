@@ -32,15 +32,15 @@ public class StopWorkRunnable implements Runnable {
     private static final String TAG = Logger.tagWithPrefix("StopWorkRunnable");
 
     private final WorkManagerImpl mWorkManagerImpl;
-    private final StartStopToken mWorkSpecId;
+    private final StartStopToken mToken;
     private final boolean mStopInForeground;
 
     public StopWorkRunnable(
             @NonNull WorkManagerImpl workManagerImpl,
-            @NonNull StartStopToken workSpecId,
+            @NonNull StartStopToken startStopToken,
             boolean stopInForeground) {
         mWorkManagerImpl = workManagerImpl;
-        mWorkSpecId = workSpecId;
+        mToken = startStopToken;
         mStopInForeground = stopInForeground;
     }
     @Override
@@ -49,19 +49,19 @@ public class StopWorkRunnable implements Runnable {
         if (mStopInForeground) {
             isStopped = mWorkManagerImpl
                     .getProcessor()
-                    .stopForegroundWork(mWorkSpecId.getWorkSpecId());
+                    .stopForegroundWork(mToken);
         } else {
             // This call is safe to make for foreground work because Processor ignores requests
             // to stop for foreground work.
             isStopped = mWorkManagerImpl
                     .getProcessor()
-                    .stopWork(mWorkSpecId);
+                    .stopWork(mToken);
         }
 
         Logger.get().debug(
                 TAG,
-                "StopWorkRunnable for " + mWorkSpecId.getWorkSpecId() + "; Processor.stopWork = "
-                        + isStopped);
+                "StopWorkRunnable for " + mToken.getId().getWorkSpecId() + "; Processor"
+                + ".stopWork" + " = " + isStopped);
 
     }
 }
