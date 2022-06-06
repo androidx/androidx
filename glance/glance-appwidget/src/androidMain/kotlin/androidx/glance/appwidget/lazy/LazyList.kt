@@ -35,7 +35,7 @@ import androidx.glance.layout.wrapContentHeight
  */
 // TODO(b/198618359): interaction handling
 @Composable
-public fun LazyColumn(
+fun LazyColumn(
     modifier: GlanceModifier = GlanceModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: LazyListScope.() -> Unit
@@ -235,7 +235,7 @@ inline fun <T> LazyListScope.itemsIndexed(
 
 internal abstract class EmittableLazyList : EmittableWithChildren(resetsDepthForChildren = true) {
     override var modifier: GlanceModifier = GlanceModifier
-    public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+    var horizontalAlignment: Alignment.Horizontal = Alignment.Start
 
     override fun toString() =
         "EmittableLazyList(modifier=$modifier, horizontalAlignment=$horizontalAlignment, " +

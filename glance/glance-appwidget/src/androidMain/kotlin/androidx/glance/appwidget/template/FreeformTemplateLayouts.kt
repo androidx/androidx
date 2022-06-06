@@ -39,7 +39,7 @@ import androidx.glance.unit.ColorProvider
  * @param data the data that defines the widget
  */
 @Composable
-public fun FreeformTemplate(data: FreeformTemplateData) {
+fun FreeformTemplate(data: FreeformTemplateData) {
     when (LocalTemplateMode.current) {
         TemplateMode.Collapsed -> WidgetLayoutCollapsed(data)
         TemplateMode.Vertical -> WidgetLayoutVertical(data)

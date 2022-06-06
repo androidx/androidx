@@ -32,7 +32,7 @@ import androidx.glance.unit.ResourceColorProvider
  * Returns a [ColorProvider] that provides [day] when night mode is off, and [night] when night
  * mode is on.
  */
-public fun ColorProvider(day: Color, night: Color): ColorProvider {
+fun ColorProvider(day: Color, night: Color): ColorProvider {
     return DayNightColorProvider(day, night)
 }
 

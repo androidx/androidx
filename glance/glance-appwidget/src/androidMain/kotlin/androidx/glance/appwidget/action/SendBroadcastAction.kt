@@ -46,7 +46,7 @@ internal class SendBroadcastIntentAction(
  * @param action of the BroadcastReceiver to launch
  * @param componentName optional [ComponentName] of the target BroadcastReceiver
  */
-public fun actionSendBroadcast(
+fun actionSendBroadcast(
     action: String,
     componentName: ComponentName? = null
 ): Action = SendBroadcastActionAction(action, componentName)
@@ -57,7 +57,7 @@ public fun actionSendBroadcast(
  *
  * @param intent the [Intent] used to launch the [BroadcastReceiver]
  */
-public fun actionSendBroadcast(intent: Intent): Action =
+fun actionSendBroadcast(intent: Intent): Action =
     SendBroadcastIntentAction(intent)
 
 /**
@@ -65,7 +65,7 @@ public fun actionSendBroadcast(intent: Intent): Action =
  *
  * @param componentName component of the [BroadcastReceiver] to launch
  */
-public fun actionSendBroadcast(componentName: ComponentName): Action =
+fun actionSendBroadcast(componentName: ComponentName): Action =
     SendBroadcastComponentAction(componentName)
 
 /**
@@ -73,12 +73,12 @@ public fun actionSendBroadcast(componentName: ComponentName): Action =
  *
  * @param receiver class of the [BroadcastReceiver] to launch
  */
-public fun <T : BroadcastReceiver> actionSendBroadcast(receiver: Class<T>): Action =
+fun <T : BroadcastReceiver> actionSendBroadcast(receiver: Class<T>): Action =
     SendBroadcastClassAction(receiver)
 
 /**
  * Creates an [Action] that launches the specified [BroadcastReceiver] when triggered.
  */
 @Suppress("MissingNullability") // Shouldn't need to specify @NonNull. b/199284086
-public inline fun <reified T : BroadcastReceiver> actionSendBroadcast(): Action =
+inline fun <reified T : BroadcastReceiver> actionSendBroadcast(): Action =
     actionSendBroadcast(T::class.java)
