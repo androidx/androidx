@@ -35,8 +35,8 @@ import androidx.health.connect.client.records.BodyTemperatureMeasurementLocation
 import androidx.health.connect.client.records.BodyWaterMassRecord
 import androidx.health.connect.client.records.BoneMassRecord
 import androidx.health.connect.client.records.CervicalMucusRecord
-import androidx.health.connect.client.records.CervicalMucusRecord.Amount
-import androidx.health.connect.client.records.CervicalMucusRecord.Texture
+import androidx.health.connect.client.records.CervicalMucusRecord.Sensation
+import androidx.health.connect.client.records.CervicalMucusRecord.Appearance
 import androidx.health.connect.client.records.CyclingPedalingCadence
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
@@ -239,8 +239,8 @@ class AllRecordsConverterTest {
     fun testCervicalMucus() {
         val data =
             CervicalMucusRecord(
-                texture = Texture.CLEAR,
-                amount = Amount.HEAVY,
+                appearance = Appearance.CLEAR,
+                sensation = Sensation.HEAVY,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA

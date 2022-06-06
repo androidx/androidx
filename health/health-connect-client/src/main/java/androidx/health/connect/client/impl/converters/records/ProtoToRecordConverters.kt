@@ -150,8 +150,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "CervicalMucus" ->
                 CervicalMucusRecord(
-                    texture = getEnum("texture"),
-                    amount = getEnum("amount"),
+                    appearance = getEnum("texture"),
+                    sensation = getEnum("amount"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata

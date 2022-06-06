@@ -18,34 +18,36 @@ package androidx.health.connect.client.records
 import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
 import androidx.health.connect.client.metadata.Metadata
+import androidx.health.connect.client.records.CervicalMucusRecord.Appearances
+import androidx.health.connect.client.records.CervicalMucusRecord.Sensations
 import java.time.Instant
 import java.time.ZoneOffset
 
 /**
  * Captures the description of cervical mucus. Each record represents a self-assessed description of
  * cervical mucus for a user. All fields are optional and can be used to describe the look and feel
- * of cervical mucus, and the amount.
+ * of cervical mucus.
+ *
+ * @param appearance The consistency of the user's cervical mucus. Optional field. Allowed values:
+ * [Appearances].
+ *
+ * @param sensation The feel of the user's cervical mucus. Optional field. Allowed values:
+ * [Sensations].
  */
 public class CervicalMucusRecord(
-    /**
-     * The consistency or texture of the user's cervical mucus. Optional field. Allowed values:
-     * [Textures].
-     */
-    @property:Textures public val texture: String? = null,
-    /**
-     * The amount of cervical mucus the user observes. Optional field. Allowed values: [Amounts].
-     */
-    @property:Amounts public val amount: String? = null,
+    @property:Appearances public val appearance: String? = null,
+    @property:Sensations public val sensation: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is CervicalMucusRecord) return false
 
-        if (texture != other.texture) return false
-        if (amount != other.amount) return false
+        if (appearance != other.appearance) return false
+        if (sensation != other.sensation) return false
         if (time != other.time) return false
         if (zoneOffset != other.zoneOffset) return false
         if (metadata != other.metadata) return false
@@ -55,39 +57,39 @@ public class CervicalMucusRecord(
 
     override fun hashCode(): Int {
         var result = 0
-        result = 31 * result + texture.hashCode()
-        result = 31 * result + amount.hashCode()
+        result = 31 * result + appearance.hashCode()
+        result = 31 * result + sensation.hashCode()
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
         return result
     }
 
-    /** List of supported Cervical Mucus Amount types on Health Platform. */
-    public object Amount {
+    /** List of supported Cervical Mucus Sensation types on Health Platform. */
+    public object Sensation {
         const val LIGHT = "light"
         const val MEDIUM = "medium"
         const val HEAVY = "heavy"
     }
 
     /**
-     * List of supported Cervical Mucus Amount types on Health Platform.
+     * List of supported Cervical Mucus Sensation types on Health Platform.
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @StringDef(
         value =
             [
-                Amount.LIGHT,
-                Amount.MEDIUM,
-                Amount.HEAVY,
+                Sensation.LIGHT,
+                Sensation.MEDIUM,
+                Sensation.HEAVY,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class Amounts
+    annotation class Sensations
 
-    /** The consistency or texture of the user's cervical mucus. */
-    public object Texture {
+    /** The consistency or appearance of the user's cervical mucus. */
+    public object Appearance {
         const val DRY = "dry"
         const val STICKY = "sticky"
         const val CREAMY = "creamy"
@@ -96,20 +98,20 @@ public class CervicalMucusRecord(
     }
 
     /**
-     * The consistency or texture of the user's cervical mucus.
+     * The consistency or appearance of the user's cervical mucus.
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @StringDef(
         value =
             [
-                Texture.DRY,
-                Texture.STICKY,
-                Texture.CREAMY,
-                Texture.WATERY,
-                Texture.CLEAR,
+                Appearance.DRY,
+                Appearance.STICKY,
+                Appearance.CREAMY,
+                Appearance.WATERY,
+                Appearance.CLEAR,
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class Textures
+    annotation class Appearances
 }
