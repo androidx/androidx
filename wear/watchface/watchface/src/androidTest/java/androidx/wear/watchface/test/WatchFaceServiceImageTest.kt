@@ -194,7 +194,7 @@ internal class TestControllableWatchFaceService(
     ) {
     }
 
-    override fun expectPreRInitFlow() = false
+    override fun isPreAndroidR() = false
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 }

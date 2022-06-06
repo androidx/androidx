@@ -2296,7 +2296,9 @@ public class EditorSessionTest {
                     watchState,
                     mockWatchFaceHostApi,
                     CompletableDeferred(),
-                    CoroutineScope(handler.asCoroutineDispatcher())
+                    CoroutineScope(handler.asCoroutineDispatcher()),
+                    ApplicationProvider.getApplicationContext<Context>().contentResolver,
+                    ambientSettingAvailable = false
                 ),
                 null
             )

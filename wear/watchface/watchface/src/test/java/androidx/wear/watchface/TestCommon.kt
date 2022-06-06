@@ -166,7 +166,7 @@ internal class TestWatchFaceService(
         complicationCache?.set(fileName, byteArray)
     }
 
-    override fun expectPreRInitFlow() = preAndroidR
+    override fun isPreAndroidR() = preAndroidR
 }
 
 /**

@@ -89,7 +89,7 @@ internal class TestCanvasAnalogWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
-    override fun expectPreRInitFlow() = preRInitFlow
+    override fun isPreAndroidR() = preRInitFlow
 
     override fun readDirectBootPrefs(
         context: Context,
