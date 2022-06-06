@@ -1238,7 +1238,7 @@ public class GenericDocument {
          *                {@link AppSearchSchema.PropertyConfig#getName}.
          * @param values the {@code String} values of the property.
          * @throws IllegalArgumentException if no values are provided, or if a passed in
-         *                                  {@code String} is {@code null}.
+         *                                  {@code String} is {@code null} or "".
          */
         @NonNull
         public BuilderType setPropertyString(@NonNull String name, @NonNull String... values) {
@@ -1257,6 +1257,7 @@ public class GenericDocument {
          *                for this property as given in
          *                {@link AppSearchSchema.PropertyConfig#getName}.
          * @param values the {@code boolean} values of the property.
+         * @throws IllegalArgumentException if the name is empty or {@code null}.
          */
         @NonNull
         public BuilderType setPropertyBoolean(@NonNull String name, @NonNull boolean... values) {
@@ -1275,6 +1276,7 @@ public class GenericDocument {
          *                for this property as given in
          *                {@link AppSearchSchema.PropertyConfig#getName}.
          * @param values the {@code long} values of the property.
+         * @throws IllegalArgumentException if the name is empty or {@code null}.
          */
         @NonNull
         public BuilderType setPropertyLong(@NonNull String name, @NonNull long... values) {
@@ -1293,6 +1295,7 @@ public class GenericDocument {
          *                for this property as given in
          *                {@link AppSearchSchema.PropertyConfig#getName}.
          * @param values the {@code double} values of the property.
+         * @throws IllegalArgumentException if the name is empty or {@code null}.
          */
         @NonNull
         public BuilderType setPropertyDouble(@NonNull String name, @NonNull double... values) {
@@ -1311,7 +1314,7 @@ public class GenericDocument {
          *                {@link AppSearchSchema.PropertyConfig#getName}.
          * @param values the {@code byte[]} of the property.
          * @throws IllegalArgumentException if no values are provided, or if a passed in
-         *                                  {@code byte[]} is {@code null}.
+         *                                  {@code byte[]} is {@code null}, or if name is empty.
          */
         @NonNull
         public BuilderType setPropertyBytes(@NonNull String name, @NonNull byte[]... values) {
@@ -1331,7 +1334,8 @@ public class GenericDocument {
          *                {@link AppSearchSchema.PropertyConfig#getName}.
          * @param values the {@link GenericDocument} values of the property.
          * @throws IllegalArgumentException if no values are provided, or if a passed in
-         *                                  {@link GenericDocument} is {@code null}.
+         *                                  {@link GenericDocument} is {@code null}, or if name
+         *                                  is empty.
          */
         @NonNull
         public BuilderType setPropertyDocument(
@@ -1361,6 +1365,7 @@ public class GenericDocument {
 
         private void putInPropertyBundle(@NonNull String name, @NonNull String[] values)
                 throws IllegalArgumentException {
+            validatePropertyName(name);
             for (int i = 0; i < values.length; i++) {
                 if (values[i] == null) {
                     throw new IllegalArgumentException("The String at " + i + " is null.");
@@ -1370,14 +1375,17 @@ public class GenericDocument {
         }
 
         private void putInPropertyBundle(@NonNull String name, @NonNull boolean[] values) {
+            validatePropertyName(name);
             mProperties.putBooleanArray(name, values);
         }
 
         private void putInPropertyBundle(@NonNull String name, @NonNull double[] values) {
+            validatePropertyName(name);
             mProperties.putDoubleArray(name, values);
         }
 
         private void putInPropertyBundle(@NonNull String name, @NonNull long[] values) {
+            validatePropertyName(name);
             mProperties.putLongArray(name, values);
         }
 
@@ -1388,6 +1396,7 @@ public class GenericDocument {
          * into ArrayList<Bundle>, and each elements will contain a one dimension byte[].
          */
         private void putInPropertyBundle(@NonNull String name, @NonNull byte[][] values) {
+            validatePropertyName(name);
             ArrayList<Bundle> bundles = new ArrayList<>(values.length);
             for (int i = 0; i < values.length; i++) {
                 if (values[i] == null) {
@@ -1401,6 +1410,7 @@ public class GenericDocument {
         }
 
         private void putInPropertyBundle(@NonNull String name, @NonNull GenericDocument[] values) {
+            validatePropertyName(name);
             Parcelable[] documentBundles = new Parcelable[values.length];
             for (int i = 0; i < values.length; i++) {
                 if (values[i] == null) {
@@ -1428,6 +1438,13 @@ public class GenericDocument {
                 mBundle = BundleUtil.deepCopy(mBundle);
                 mProperties = mBundle.getBundle(PROPERTIES_FIELD);
                 mBuilt = false;
+            }
+        }
+
+        /** Method to ensure property names are not blank */
+        private void validatePropertyName(@NonNull String name) {
+            if (name.isEmpty()) {
+                throw new IllegalArgumentException("Property name cannot be blank.");
             }
         }
     }

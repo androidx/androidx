@@ -139,9 +139,15 @@ public class PropertyPath implements Iterable<PropertyPath.PathSegment> {
                     "Malformed path (']' not followed by '.'): " + path);
         }
         String indexStr = path.substring(controlPos + 1, endBracketIdx);
-        int index = Integer.parseInt(indexStr);
+        int index;
+        try {
+            index = Integer.parseInt(indexStr);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException(
+                    "Malformed path (\"" + indexStr + "\" as path index)");
+        }
         if (index < 0) {
-            throw new IllegalArgumentException("Path index less than 0");
+            throw new IllegalArgumentException("Malformed path (path index less than 0)");
         }
         mPathList.add(new PathSegment(propertyName, index));
         // Remaining path is everything after the [n]
