@@ -138,8 +138,8 @@ fun Record.toProto(): DataProto.DataPoint =
             instantaneousProto()
                 .setDataType(protoDataType("CervicalMucus"))
                 .apply {
-                    texture?.let { putValues("texture", enumVal(it)) }
-                    amount?.let { putValues("amount", enumVal(it)) }
+                    appearance?.let { putValues("texture", enumVal(it)) }
+                    sensation?.let { putValues("amount", enumVal(it)) }
                 }
                 .build()
         is CyclingPedalingCadenceRecord ->
