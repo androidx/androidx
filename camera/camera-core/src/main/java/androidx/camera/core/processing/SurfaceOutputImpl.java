@@ -25,6 +25,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
@@ -75,9 +76,9 @@ public final class SurfaceOutputImpl implements SurfaceOutput {
             throws ExecutionException, InterruptedException,
             DeferrableSurface.SurfaceClosedException {
         mSettableSurface = settableSurface;
-        mSettableSurface.incrementUseCount();
         Preconditions.checkState(settableSurface.getSurface().isDone());
         mSurface = settableSurface.getSurface().get();
+        mSettableSurface.incrementUseCount();
         mAdditionalTransform = new float[16];
         System.arraycopy(additionalTransform, 0, mAdditionalTransform, 0,
                 additionalTransform.length);
@@ -173,6 +174,18 @@ public final class SurfaceOutputImpl implements SurfaceOutput {
             }
         }
         mSettableSurface.decrementUseCount();
+    }
+
+    /**
+     * Returns the close state.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    public boolean isClosed() {
+        synchronized (mLock) {
+            return mIsClosed;
+        }
     }
 
     /**
