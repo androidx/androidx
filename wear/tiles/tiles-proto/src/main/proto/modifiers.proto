@@ -85,7 +85,9 @@ message Background {
 // Metadata about an element. For use by libraries building higher-level
 // components only. This can be used to track component metadata.
 message ElementMetadata {
-  // Property describing the element with which it is associated
+  // Property describing the element with which it is associated. For use by
+  // libraries building higher-level components only. This can be used to track
+  // component metadata.
   bytes tag_data = 1;
 }
 
