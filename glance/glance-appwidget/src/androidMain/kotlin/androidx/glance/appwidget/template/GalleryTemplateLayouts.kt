@@ -39,7 +39,7 @@ import androidx.glance.text.Text
  * @param data the data that defines the widget
  */
 @Composable
-public fun GalleryTemplate(data: GalleryTemplateData) {
+fun GalleryTemplate(data: GalleryTemplateData) {
     when (LocalTemplateMode.current) {
         TemplateMode.Collapsed -> WidgetLayoutCollapsed(data)
         TemplateMode.Vertical -> WidgetLayoutVertical(data)

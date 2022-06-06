@@ -46,7 +46,7 @@ import androidx.glance.template.TemplateText
  * @param data the data that defines the widget
  */
 @Composable
-public fun SingleEntityTemplate(data: SingleEntityTemplateData) {
+fun SingleEntityTemplate(data: SingleEntityTemplateData) {
     when (LocalTemplateMode.current) {
         TemplateMode.Collapsed -> WidgetLayoutCollapsed(data)
         TemplateMode.Vertical -> WidgetLayoutVertical(data)

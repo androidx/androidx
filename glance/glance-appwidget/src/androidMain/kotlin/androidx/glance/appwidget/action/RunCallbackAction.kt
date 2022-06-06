@@ -23,12 +23,12 @@ import androidx.glance.action.ActionParameters
 import androidx.glance.action.actionParametersOf
 
 internal class RunCallbackAction(
-    public val callbackClass: Class<out ActionCallback>,
-    public val parameters: ActionParameters
+    val callbackClass: Class<out ActionCallback>,
+    val parameters: ActionParameters
 ) : Action {
     companion object {
 
-        public suspend fun run(
+        suspend fun run(
             context: Context,
             className: String,
             glanceId: GlanceId,
@@ -51,7 +51,7 @@ internal class RunCallbackAction(
  * implementing class must have a public zero argument constructor, this is used to instantiate
  * the class at runtime.
  */
-public interface ActionCallback {
+interface ActionCallback {
     /**
      * Performs the work associated with this action. Called when the action is triggered.
      *
@@ -72,7 +72,7 @@ public interface ActionCallback {
  * @param callbackClass the class that implements [ActionCallback]
  * @param parameters the parameters associated with the action
  */
-public fun <T : ActionCallback> actionRunCallback(
+fun <T : ActionCallback> actionRunCallback(
     callbackClass: Class<T>,
     parameters: ActionParameters = actionParametersOf()
 ): Action = RunCallbackAction(callbackClass, parameters)
@@ -83,6 +83,6 @@ public fun <T : ActionCallback> actionRunCallback(
  * @param parameters the parameters associated with the action
  */
 @Suppress("MissingNullability") // Shouldn't need to specify @NonNull. b/199284086
-public inline fun <reified T : ActionCallback> actionRunCallback(
+inline fun <reified T : ActionCallback> actionRunCallback(
     parameters: ActionParameters = actionParametersOf()
 ): Action = actionRunCallback(T::class.java, parameters)

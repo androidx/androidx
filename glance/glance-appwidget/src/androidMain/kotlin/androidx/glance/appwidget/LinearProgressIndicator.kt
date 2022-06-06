@@ -33,7 +33,7 @@ import androidx.glance.unit.ColorProvider
  * progress has not reached that area of the overall indicator yet.
  */
 @Composable
-public fun LinearProgressIndicator(
+fun LinearProgressIndicator(
     /*@FloatRange(from = 0.0, to = 1.0)*/
     progress: Float,
     modifier: GlanceModifier = GlanceModifier,
@@ -60,7 +60,7 @@ public fun LinearProgressIndicator(
  * progress has not reached that area of the overall indicator yet.
  */
 @Composable
-public fun LinearProgressIndicator(
+fun LinearProgressIndicator(
     modifier: GlanceModifier = GlanceModifier,
     color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider,
     backgroundColor: ColorProvider = ProgressIndicatorDefaults.BackgroundColorProvider
@@ -95,7 +95,7 @@ internal class EmittableLinearProgressIndicator : Emittable {
 /**
  * Contains the default values used for [LinearProgressIndicator].
  */
-public object ProgressIndicatorDefaults {
+object ProgressIndicatorDefaults {
 
   /**
    * Default color for [LinearProgressIndicator].
