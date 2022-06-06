@@ -62,11 +62,15 @@ fun ScalingLazyColumnDetail() {
         Dp(applicationContext.resources.configuration.screenHeightDp.toFloat()).roundToPx()
     }
     val halfScreenHeightPx = screenHeightPx / 2f
-    ScalingLazyColumn(state = state) {
+    ScalingLazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        state = state
+    ) {
         item {
-            ListHeader {
-                Text(text = "Screen height :${screenHeightPx}px")
-            }
+            Text(
+                text = "Screen height: ${screenHeightPx}px",
+                style = MaterialTheme.typography.caption1
+            )
         }
         items(20, key = { ix -> ix }) { ix ->
             val item = state.layoutInfo.visibleItemsInfo.find { i -> i.index == ix + 1 }
