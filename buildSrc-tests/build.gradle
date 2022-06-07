@@ -35,6 +35,8 @@ dependencies {
         // Optional dependency where Ivy fails to parse the POM file.
         exclude(group:"net.java.dev.msv", module:"xsdlib")
     }
+    // Required for dom4j to parse comments correctly.
+    implementation(libs.xerces)
 
     testImplementation(libs.junit)
     testImplementation(libs.truth)
