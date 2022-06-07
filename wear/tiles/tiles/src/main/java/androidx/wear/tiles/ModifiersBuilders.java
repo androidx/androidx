@@ -552,8 +552,8 @@ public final class ModifiersBuilders {
         }
 
         /**
-         * Gets property describing the element with which it is associated. Intended for testing
-         * purposes only.
+         * Gets property describing the element with which it is associated. For use by libraries
+         * building higher-level components only. This can be used to track component metadata.
          */
         @NonNull
         public byte[] getTagData() {
@@ -581,7 +581,11 @@ public final class ModifiersBuilders {
 
             public Builder() {}
 
-            /** Sets property describing the element with which it is associated. */
+            /**
+             * Sets property describing the element with which it is associated. For use by
+             * libraries building higher-level components only. This can be used to track component
+             * metadata.
+             */
             @NonNull
             public Builder setTagData(@NonNull byte[] tagData) {
                 mImpl.setTagData(ByteString.copyFrom(tagData));
@@ -669,7 +673,7 @@ public final class ModifiersBuilders {
 
         /**
          * Gets metadata about an element. For use by libraries building higher-level components
-         * only. This can be used to track component metadata. Intended for testing purposes only.
+         * only. This can be used to track component metadata.
          */
         @Nullable
         public ElementMetadata getMetadata() {
