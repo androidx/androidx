@@ -1031,10 +1031,10 @@ public final class CameraUtil {
      *
      * <p>For b/167201193
      *
-     * <P>Try to use the CameraXConfig to initialize CameraX when it fails to detect the valid
-     * lens facing info from camera characteristics. It throws an exception if it cannot
-     * successfully init CameraX (or throws AssumptionViolatedException when it is not in the
-     * CameraX lab).
+     * <P>Verify the lensFacing info is available in the CameraCharacteristic, or initialize
+     * CameraX with the CameraXConfig if it is provided. Throws an exception to interrupt the
+     * test if it detects incorrect info, or throws AssumptionViolatedException when it is not in
+     * the CameraX lab.
      */
     public static class PreTestCameraIdList implements TestRule {
         final boolean mThrowOnError = Log.isLoggable("CameraXDumpIdList", Log.DEBUG);
@@ -1064,24 +1064,18 @@ public final class CameraUtil {
                     if (mCameraIdListCorrect.get() == null) {
                         if (isCameraLensFacingInfoAvailable()) {
                             mCameraIdListCorrect.set(true);
-                        } else if (mCameraXConfig != null) {
-                            try {
-                                CameraXUtil.initialize(ApplicationProvider.getApplicationContext(),
-                                        mCameraXConfig).get(10, TimeUnit.SECONDS);
-                                Logger.i(LOG_TAG, "Successfully init CameraX");
-                                mCameraIdListCorrect.set(true);
-                            } catch (Exception e) {
-                                Logger.w(LOG_TAG, "CameraX init fail");
-                                mCameraIdListCorrect.set(false);
-                            } finally {
-                                try {
-                                    CameraXUtil.shutdown().get(10, TimeUnit.SECONDS);
-                                } catch (Exception e) {
-                                    // Ignore all exceptions in the shutdown process.
-                                }
-                            }
                         } else {
                             mCameraIdListCorrect.set(false);
+                        }
+
+                        // Always try to initialize CameraX if the CameraXConfig has been set.
+                        if (mCameraXConfig != null) {
+                            if (checkLensFacingByCameraXConfig(
+                                    ApplicationProvider.getApplicationContext(), mCameraXConfig)) {
+                                mCameraIdListCorrect.set(true);
+                            } else {
+                                mCameraIdListCorrect.set(false);
+                            }
                         }
                     }
 
@@ -1100,6 +1094,40 @@ public final class CameraUtil {
                 }
             };
         }
+    }
+
+    static boolean checkLensFacingByCameraXConfig(@NonNull Context context,
+            @NonNull CameraXConfig config) {
+        try {
+            // Shutdown exist instances, if there is any
+            CameraXUtil.shutdown().get(10, TimeUnit.SECONDS);
+
+            CameraXUtil.initialize(context, config).get(10, TimeUnit.SECONDS);
+            CameraX camerax = CameraXUtil.getOrCreateInstance(context, null).get(5,
+                    TimeUnit.SECONDS);
+            LinkedHashSet<CameraInternal> cameras = camerax.getCameraRepository().getCameras();
+
+            PackageManager pm = context.getPackageManager();
+            boolean backFeature = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA);
+            boolean frontFeature = pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT);
+            if (backFeature) {
+                CameraSelector.DEFAULT_BACK_CAMERA.select(cameras);
+            }
+            if (frontFeature) {
+                CameraSelector.DEFAULT_FRONT_CAMERA.select(cameras);
+            }
+            Logger.i(LOG_TAG, "Successfully init CameraX");
+            return true;
+        } catch (Exception e) {
+            Logger.w(LOG_TAG, "CameraX init fail", e);
+        } finally {
+            try {
+                CameraXUtil.shutdown().get(10, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                // Ignore all exceptions in the shutdown process.
+            }
+        }
+        return false;
     }
 
     /**
