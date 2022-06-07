@@ -20,6 +20,7 @@ import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
@@ -396,6 +397,50 @@ public class ComplicationSlot
         )
     }
 
+    private class ComplicationDataHistoryEntry(
+        val complicationData: ComplicationData,
+        val time: Instant
+    )
+
+    /**
+     * There doesn't seem to be a convenient ring buffer in the standard library so implement our
+     * own one.
+     */
+    private class RingBuffer(val size: Int) : Iterable<ComplicationDataHistoryEntry> {
+        private val entries = arrayOfNulls<ComplicationDataHistoryEntry>(size)
+        private var readIndex = 0
+        private var writeIndex = 0
+
+        fun push(entry: ComplicationDataHistoryEntry) {
+            writeIndex = (writeIndex + 1) % size
+            if (writeIndex == readIndex) {
+                readIndex = (readIndex + 1) % size
+            }
+            entries[writeIndex] = entry
+        }
+
+        override fun iterator() = object : Iterator<ComplicationDataHistoryEntry> {
+            var iteratorReadIndex = readIndex
+
+            override fun hasNext() = iteratorReadIndex != writeIndex
+
+            override fun next(): ComplicationDataHistoryEntry {
+                iteratorReadIndex = (iteratorReadIndex + 1) % size
+                return entries[iteratorReadIndex]!!
+            }
+        }
+    }
+
+    /**
+     * In userdebug builds maintain a history of the last [MAX_COMPLICATION_HISTORY_ENTRIES]-1
+     * complications, which is logged in dumpsys to help debug complication issues.
+     */
+    private val complicationHistory = if (Build.TYPE.equals("userdebug")) {
+        RingBuffer(MAX_COMPLICATION_HISTORY_ENTRIES)
+    } else {
+        null
+    }
+
     init {
         require(id >= 0) { "id must be >= 0" }
         require(accessibilityTraversalIndex >= 0) {
@@ -404,6 +449,9 @@ public class ComplicationSlot
     }
 
     public companion object {
+        /** The maximum number of entries in [complicationHistory] plus one. */
+        private const val MAX_COMPLICATION_HISTORY_ENTRIES = 50
+
         internal val unitSquare = RectF(0f, 0f, 1f, 1f)
 
         /**
@@ -870,6 +918,7 @@ public class ComplicationSlot
         loadDrawablesAsynchronous: Boolean,
         instant: Instant
     ) {
+        complicationHistory?.push(ComplicationDataHistoryEntry(complicationData, instant))
         timelineComplicationData = complicationData
         timelineEntries = complicationData.asWireComplicationData().timelineEntries?.map {
             it
@@ -1073,6 +1122,14 @@ public class ComplicationSlot
         @OptIn(ComplicationExperimental::class)
         writer.println("boundingArc=$boundingArc")
         writer.println("bounds=[$bounds]")
+        writer.println("data history")
+        complicationHistory?.let {
+            writer.increaseIndent()
+            for (entry in it) {
+                writer.println("${entry.complicationData} @ ${entry.time}")
+            }
+            writer.decreaseIndent()
+        }
         writer.decreaseIndent()
     }
 
