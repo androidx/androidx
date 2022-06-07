@@ -19,6 +19,7 @@ CARDVIEW = "1.1.0-alpha01"
 CAR_APP = "1.3.0-alpha01"
 COLLECTION = "1.3.0-alpha01"
 COMPOSE = "1.2.0-rc01"
+COMPOSE_COMPILER = "1.2.0"
 COMPOSE_MATERIAL3 = "1.0.0-alpha14"
 COMPOSE_RUNTIME_TRACING = "1.0.0-alpha01"
 CONTENTPAGER = "1.1.0-alpha01"
@@ -151,7 +152,7 @@ CARDVIEW = { group = "androidx.cardview", atomicGroupVersion = "versions.CARDVIE
 CAR_APP = { group = "androidx.car.app", atomicGroupVersion = "versions.CAR_APP" }
 COLLECTION = { group = "androidx.collection", atomicGroupVersion = "versions.COLLECTION" }
 COMPOSE_ANIMATION = { group = "androidx.compose.animation", atomicGroupVersion = "versions.COMPOSE" }
-COMPOSE_COMPILER = { group = "androidx.compose.compiler", atomicGroupVersion = "versions.COMPOSE" }
+COMPOSE_COMPILER = { group = "androidx.compose.compiler", atomicGroupVersion = "versions.COMPOSE_COMPILER" }
 COMPOSE_DESKTOP = { group = "androidx.compose.desktop", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_FOUNDATION = { group = "androidx.compose.foundation", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_MATERIAL = { group = "androidx.compose.material", atomicGroupVersion = "versions.COMPOSE" }
