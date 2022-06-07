@@ -42,13 +42,13 @@ package androidx.core.uwb {
   }
 
   public final class RangingPosition {
-    ctor public RangingPosition(androidx.core.uwb.RangingMeasurement distance, androidx.core.uwb.RangingMeasurement? azimuth, androidx.core.uwb.RangingMeasurement? elevation, long elapsedRealtimeNanos);
+    ctor public RangingPosition(androidx.core.uwb.RangingMeasurement? distance, androidx.core.uwb.RangingMeasurement? azimuth, androidx.core.uwb.RangingMeasurement? elevation, long elapsedRealtimeNanos);
     method public androidx.core.uwb.RangingMeasurement? getAzimuth();
-    method public androidx.core.uwb.RangingMeasurement getDistance();
+    method public androidx.core.uwb.RangingMeasurement? getDistance();
     method public long getElapsedRealtimeNanos();
     method public androidx.core.uwb.RangingMeasurement? getElevation();
     property public final androidx.core.uwb.RangingMeasurement? azimuth;
-    property public final androidx.core.uwb.RangingMeasurement distance;
+    property public final androidx.core.uwb.RangingMeasurement? distance;
     property public final long elapsedRealtimeNanos;
     property public final androidx.core.uwb.RangingMeasurement? elevation;
   }
