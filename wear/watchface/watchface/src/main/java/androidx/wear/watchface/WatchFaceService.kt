@@ -450,10 +450,13 @@ public abstract class WatchFaceService : WallpaperService() {
     protected open fun createComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository
     ): ComplicationSlotsManager =
-        xmlSchemaAndComplicationSlotsDefinition.buildComplicationSlotsManager(
-            currentUserStyleRepository,
-            getComplicationSlotInflationFactory(currentUserStyleRepository)
-        )
+        if (xmlSchemaAndComplicationSlotsDefinition.complicationSlots.isEmpty())
+            ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
+        else
+            xmlSchemaAndComplicationSlotsDefinition.buildComplicationSlotsManager(
+                currentUserStyleRepository,
+                getComplicationSlotInflationFactory(currentUserStyleRepository)
+            )
 
     /**
      * Used when inflating [ComplicationSlot]s from XML to provide a
@@ -482,7 +485,7 @@ public abstract class WatchFaceService : WallpaperService() {
      *
      * If an androidx.wear.watchface.XmlSchemaAndComplicationSlotsDefinition metadata tag is defined
      * for your WatchFaceService 's manifest, and your XML includes <ComplicationSlot> tags then you
-     * must override this method. An exception will be thrown if the implementation returns null.
+     * must override this method. A [NotImplementedError] exception will be thrown if you don't.
      *
      * @param currentUserStyleRepository The [CurrentUserStyleRepository] constructed using the
      * [UserStyleSchema] returned by [createUserStyleSchema].
@@ -491,7 +494,11 @@ public abstract class WatchFaceService : WallpaperService() {
     @WorkerThread
     protected open fun getComplicationSlotInflationFactory(
         currentUserStyleRepository: CurrentUserStyleRepository
-    ): ComplicationSlotInflationFactory? = getComplicationSlotInflationFactory()
+    ): ComplicationSlotInflationFactory =
+        getComplicationSlotInflationFactory()
+            ?: throw NotImplementedError(
+                "You must override WatchFaceService.getComplicationSlotInflationFactory " +
+                "to provide additional details needed to inflate ComplicationSlotsManager")
 
     /**
      * If the WatchFaceService's manifest doesn't define a
