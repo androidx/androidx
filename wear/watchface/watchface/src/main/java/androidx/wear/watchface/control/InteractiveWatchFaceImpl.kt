@@ -103,7 +103,10 @@ internal class InteractiveWatchFaceImpl(
         WatchFaceService.awaitDeferredWatchFaceImplThenRunOnUiThreadBlocking(
             engine,
             "InteractiveWatchFaceImpl.setWatchUiState"
-        ) { engine?.setWatchUiState(watchUiState) }
+        ) {
+            engine?.systemHasSentWatchUiState = true
+            engine?.setWatchUiState(watchUiState)
+        }
     }
 
     override fun getInstanceId(): String = instanceId

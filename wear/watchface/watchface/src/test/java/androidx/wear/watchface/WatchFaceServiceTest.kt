@@ -34,6 +34,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Parcel
+import android.provider.Settings
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.Constants
@@ -793,7 +794,7 @@ public class WatchFaceServiceTest {
         watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
 
-        watchFaceImpl.broadcastsReceiver!!.mockTimeReceiver.onReceive(
+        watchFaceImpl.broadcastsReceiver!!.receiver.onReceive(
             context,
             Intent(WatchFaceImpl.MOCK_TIME_INTENT).apply {
                 putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
@@ -821,7 +822,7 @@ public class WatchFaceServiceTest {
         watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
 
-        watchFaceImpl.broadcastsReceiver!!.mockTimeReceiver.onReceive(
+        watchFaceImpl.broadcastsReceiver!!.receiver.onReceive(
             context,
             Intent(WatchFaceImpl.MOCK_TIME_INTENT).apply {
                 putExtra(WatchFaceImpl.EXTRA_MOCK_TIME_SPEED_MULTIPLIER, 2.0f)
@@ -1144,7 +1145,7 @@ public class WatchFaceServiceTest {
         )
 
         // The delay should change when battery is low.
-        watchFaceImpl.broadcastsReceiver!!.actionBatteryLowReceiver.onReceive(
+        watchFaceImpl.broadcastsReceiver!!.receiver.onReceive(
             context,
             Intent(Intent.ACTION_BATTERY_LOW)
         )
@@ -1153,7 +1154,7 @@ public class WatchFaceServiceTest {
         )
 
         // And go back to normal when battery is OK.
-        watchFaceImpl.broadcastsReceiver!!.actionBatteryOkayReceiver.onReceive(
+        watchFaceImpl.broadcastsReceiver!!.receiver.onReceive(
             context,
             Intent(Intent.ACTION_BATTERY_OKAY)
         )
@@ -1175,7 +1176,7 @@ public class WatchFaceServiceTest {
         )
 
         // The delay should change when battery is low.
-        watchFaceImpl.broadcastsReceiver!!.actionBatteryLowReceiver.onReceive(
+        watchFaceImpl.broadcastsReceiver!!.receiver.onReceive(
             context,
             Intent(Intent.ACTION_BATTERY_LOW)
         )
@@ -1184,7 +1185,7 @@ public class WatchFaceServiceTest {
         )
 
         // And go back to normal when power is connected.
-        watchFaceImpl.broadcastsReceiver!!.actionPowerConnectedReceiver.onReceive(
+        watchFaceImpl.broadcastsReceiver!!.receiver.onReceive(
             context,
             Intent(Intent.ACTION_POWER_CONNECTED)
         )
@@ -4909,6 +4910,296 @@ public class WatchFaceServiceTest {
                 assertThat(buffer[index++]).isEqualTo(3.toByte())
             }
         }
+    }
+
+    @Test
+    public fun onActionScreenOff_preR() {
+        Settings.Global.putInt(
+            context.contentResolver,
+            BroadcastsObserver.AMBIENT_ENABLED_PATH,
+            1
+        )
+
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.DIGITAL,
+            emptyList(),
+            { _, currentUserStyleRepository, watchState ->
+                TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                )
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            true,
+            null,
+            choreographer
+        )
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        "TestID",
+                        DeviceConfig(
+                            false,
+                            false,
+                            0,
+                            0
+                        ),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        emptyList()
+                    ),
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+
+        watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
+
+        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+        assertThat(watchState.isAmbient.value).isFalse()
+    }
+
+    @Test
+    public fun onActionScreenOff_ambientNotEnabled() {
+        Settings.Global.putInt(
+            context.contentResolver,
+            BroadcastsObserver.AMBIENT_ENABLED_PATH,
+            0
+        )
+
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.DIGITAL,
+            emptyList(),
+            { _, currentUserStyleRepository, watchState ->
+                TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                )
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            false,
+            null,
+            choreographer
+        )
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        "TestID",
+                        DeviceConfig(
+                            false,
+                            false,
+                            0,
+                            0
+                        ),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        emptyList()
+                    ),
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+
+        watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
+
+        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+        assertThat(watchState.isAmbient.value).isFalse()
+    }
+
+    @Test
+    public fun onActionScreenOff_onActionScreenOn_ambientEnabled() {
+        Settings.Global.putInt(
+            context.contentResolver,
+            BroadcastsObserver.AMBIENT_ENABLED_PATH,
+            1
+        )
+
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.DIGITAL,
+            emptyList(),
+            { _, currentUserStyleRepository, watchState ->
+                TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                )
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            false,
+            null,
+            choreographer
+        )
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        "TestID",
+                        DeviceConfig(
+                            false,
+                            false,
+                            0,
+                            0
+                        ),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        emptyList()
+                    ),
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+
+        watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
+
+        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+        assertThat(watchState.isAmbient.value).isTrue()
+
+        watchFaceImpl.broadcastsObserver.onActionScreenOn()
+        assertThat(watchState.isAmbient.value).isFalse()
+    }
+
+    @Test
+    public fun onActionTimeTick() {
+        testWatchFaceService = TestWatchFaceService(
+            WatchFaceType.DIGITAL,
+            emptyList(),
+            { _, currentUserStyleRepository, watchState ->
+                TestRenderer(
+                    surfaceHolder,
+                    currentUserStyleRepository,
+                    watchState,
+                    INTERACTIVE_UPDATE_RATE_MS
+                )
+            },
+            UserStyleSchema(emptyList()),
+            watchState,
+            handler,
+            null,
+            false,
+            null,
+            choreographer
+        )
+
+        InteractiveInstanceManager
+            .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
+                InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
+                    WallpaperInteractiveWatchFaceInstanceParams(
+                        "TestID",
+                        DeviceConfig(
+                            false,
+                            false,
+                            0,
+                            0
+                        ),
+                        WatchUiState(false, 0),
+                        UserStyle(emptyMap()).toWireFormat(),
+                        emptyList()
+                    ),
+                    object : IPendingInteractiveWatchFace.Stub() {
+                        override fun getApiVersion() =
+                            IPendingInteractiveWatchFace.API_VERSION
+
+                        override fun onInteractiveWatchFaceCreated(
+                            iInteractiveWatchFace: IInteractiveWatchFace
+                        ) {
+                            interactiveWatchFaceInstance = iInteractiveWatchFace
+                        }
+
+                        override fun onInteractiveWatchFaceCrashed(exception: CrashInfoParcel?) {
+                            fail("WatchFace crashed: $exception")
+                        }
+                    }
+                )
+            )
+
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+        engineWrapper.onVisibilityChanged(true)
+
+        watchFaceImpl = engineWrapper.getWatchFaceImplOrNull()!!
+        watchState.isAmbient.value = true
+
+        val renderer = watchFaceImpl.renderer as TestRenderer
+        renderer.lastOnDrawZonedDateTime = null
+
+        // Calling onActionTimeTick while ambient and before setWatchUiState has been called should
+        // render a frame.
+        watchFaceImpl.broadcastsObserver.onActionTimeTick()
+        assertThat(renderer.lastOnDrawZonedDateTime).isNotNull()
+
+        // However if systemHasSentWatchUiState is true then onActionTimeTick will be ignored.
+        engineWrapper.systemHasSentWatchUiState = true
+        renderer.lastOnDrawZonedDateTime = null
+        watchFaceImpl.broadcastsObserver.onActionTimeTick()
+        assertThat(renderer.lastOnDrawZonedDateTime).isNull()
     }
 
     private fun getLeftShortTextComplicationDataText(): CharSequence {
