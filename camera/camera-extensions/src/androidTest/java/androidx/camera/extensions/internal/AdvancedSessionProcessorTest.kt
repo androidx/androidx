@@ -451,11 +451,11 @@ class AdvancedSessionProcessorTest {
                 }
             })
 
-        assertThat(latchPreviewFrame.await(2, TimeUnit.SECONDS)).isTrue()
-        assertThat(deferCapturedImage.awaitWithTimeout(2000).image!!.format)
+        assertThat(latchPreviewFrame.await(3, TimeUnit.SECONDS)).isTrue()
+        assertThat(deferCapturedImage.awaitWithTimeout(5000).image!!.format)
             .isEqualTo(ImageFormat.JPEG)
         imageAnalysis?.let {
-            assertThat(latchAnalysis.await(2, TimeUnit.SECONDS)).isTrue()
+            assertThat(latchAnalysis.await(3, TimeUnit.SECONDS)).isTrue()
         }
     }
 }
