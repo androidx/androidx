@@ -421,7 +421,7 @@ class CachingTest {
     private val PagingData<Item>.version
         get(): Int {
             return (
-                (receiver as PageFetcher<*, *>.PagerUiReceiver<*, *>)
+                (hintReceiver as PageFetcher<*, *>.PagerHintReceiver<*, *>)
                     .pageFetcherSnapshot.pagingSource as StringPagingSource
                 ).version
         }
@@ -435,7 +435,7 @@ class CachingTest {
                 val expectedVersion = pagingData.version
                 val items = mutableListOf<Item>()
                 yield() // this yield helps w/ cancellation wrt mapLatest
-                val receiver = pagingData.receiver
+                val receiver = pagingData.hintReceiver
                 var loadedPageCount = 0
                 pagingData.flow.filterIsInstance<PageEvent.Insert<Item>>()
                     .onEach {
@@ -504,7 +504,7 @@ class CachingTest {
 
         private suspend fun collectPassively() {
             source.collect {
-                receivedPagingDataCount ++
+                receivedPagingDataCount++
                 // clear to latest
                 val list = mutableListOf<Item>()
                 items = list
