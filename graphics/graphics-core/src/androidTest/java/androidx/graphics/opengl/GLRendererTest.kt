@@ -32,6 +32,8 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.view.PixelCopy
 import android.view.Surface
+import android.view.SurfaceHolder
+import android.view.TextureView
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.lowlatency.FrontBufferedRenderer
@@ -379,6 +381,81 @@ class GLRendererTest {
         assertTrue(glRenderer.isRunning())
         glRenderer.stop(true)
         assertFalse(glRenderer.isRunning())
+    }
+
+    @Test
+    fun testMultipleSurfaceHolderDestroyCallbacks() {
+        val destroyLatch = CountDownLatch(1)
+        val renderer = GLRenderer().apply { start() }
+        val scenario = withGLTestActivity {
+            assertNotNull(surfaceView)
+
+            var renderTarget: GLRenderer.RenderTarget? = null
+            val callbacks = object : SurfaceHolder.Callback {
+                override fun surfaceCreated(p0: SurfaceHolder) {
+                    // no-op
+                }
+
+                override fun surfaceChanged(p0: SurfaceHolder, p1: Int, p2: Int, p3: Int) {
+                    // no-op
+                }
+
+                override fun surfaceDestroyed(p0: SurfaceHolder) {
+                    renderTarget?.detach(true)
+                    destroyLatch.countDown()
+                }
+            }
+            surfaceView.holder.addCallback(callbacks)
+            renderTarget = renderer.attach(surfaceView, ColorRenderCallback(Color.RED))
+        }
+
+        val tearDownLatch = CountDownLatch(1)
+        scenario.moveToState(State.DESTROYED)
+        assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
+        renderer.stop(true) {
+            tearDownLatch.countDown()
+        }
+        assertTrue(tearDownLatch.await(3000, TimeUnit.MILLISECONDS))
+    }
+
+    @Test
+    fun testMultipleTextureViewDestroyCallbacks() {
+        val destroyLatch = CountDownLatch(1)
+        val renderer = GLRenderer().apply { start() }
+        val scenario = withGLTestActivity {
+            assertNotNull(textureView)
+
+            val renderTarget = renderer.attach(textureView, ColorRenderCallback(Color.RED))
+            val listener = textureView.surfaceTextureListener
+            textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+                override fun onSurfaceTextureAvailable(p0: SurfaceTexture, p1: Int, p2: Int) {
+                    listener?.onSurfaceTextureAvailable(p0, p1, p2)
+                }
+
+                override fun onSurfaceTextureSizeChanged(p0: SurfaceTexture, p1: Int, p2: Int) {
+                    listener?.onSurfaceTextureSizeChanged(p0, p1, p2)
+                }
+
+                override fun onSurfaceTextureDestroyed(p0: SurfaceTexture): Boolean {
+                    renderTarget.detach(true)
+                    listener?.onSurfaceTextureDestroyed(p0)
+                    destroyLatch.countDown()
+                    return true
+                }
+
+                override fun onSurfaceTextureUpdated(p0: SurfaceTexture) {
+                    listener?.onSurfaceTextureUpdated(p0)
+                }
+            }
+        }
+
+        val tearDownLatch = CountDownLatch(1)
+        scenario.moveToState(State.DESTROYED)
+        assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
+        renderer.stop(true) {
+            tearDownLatch.countDown()
+        }
+        assertTrue(tearDownLatch.await(3000, TimeUnit.MILLISECONDS))
     }
 
     @Test
@@ -805,11 +882,12 @@ class GLRendererTest {
      * lifecycle to the resumed state so we can issue rendering commands into the corresponding
      * SurfaceView/TextureView
      */
-    private fun withGLTestActivity(block: GLTestActivity.() -> Unit) {
+    private fun withGLTestActivity(
+        block: GLTestActivity.() -> Unit
+    ): ActivityScenario<GLTestActivity> =
         ActivityScenario.launch(GLTestActivity::class.java).moveToState(State.RESUMED).onActivity {
             block(it!!)
         }
-    }
 
     /**
      * Helper RenderCallback that renders a solid color and invokes the provided CountdownLatch

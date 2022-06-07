@@ -463,6 +463,15 @@ class GLRenderer(
                  */
                 @Volatile var renderLatch: CountDownLatch? = null
 
+                /**
+                 * [CountDownLatch] used when issuing a blocking call to
+                 * [SurfaceHolder.Callback.surfaceDestroyed]
+                 * In this case we need to signal the condition of either the request to detach
+                 * has completed in case the GLRenderer has been forcefully stopped via
+                 * [GLRenderer.stop] with the cancel pending flag set to true.
+                 */
+                val detachLatch: CountDownLatch = CountDownLatch(1)
+
                 val renderTarget = RenderTarget(token, this@GLRenderer) @WorkerThread {
                     isAttached = false
                     // SurfaceHolder.add/remove callback is thread safe
@@ -470,18 +479,22 @@ class GLRenderer(
                     // Countdown in case we have been detached while waiting for a render
                     // to be completed
                     renderLatch?.countDown()
+                    detachLatch.countDown()
                 }
 
                 override fun surfaceRedrawNeeded(p0: SurfaceHolder) {
-                    val latch = CountDownLatch(1).also { renderLatch = it }
-                    // Request a render and block until the rendering is complete
-                    // surfaceRedrawNeeded is invoked on older API levels and is replaced with
-                    // surfaceRedrawNeededAsync for newer API levels which is non-blocking
-                    renderTarget.requestRender @WorkerThread {
-                        latch.countDown()
+                    // If the [RenderTarget] has already been detached then skip rendering
+                    if (detachLatch.count > 0) {
+                        val latch = CountDownLatch(1).also { renderLatch = it }
+                        // Request a render and block until the rendering is complete
+                        // surfaceRedrawNeeded is invoked on older API levels and is replaced with
+                        // surfaceRedrawNeededAsync for newer API levels which is non-blocking
+                        renderTarget.requestRender @WorkerThread {
+                            latch.countDown()
+                        }
+                        latch.await()
+                        renderLatch = null
                     }
-                    latch.await()
-                    renderLatch = null
                 }
 
                 override fun surfaceRedrawNeededAsync(
@@ -514,10 +527,11 @@ class GLRenderer(
                 }
 
                 override fun surfaceDestroyed(holder: SurfaceHolder) {
-                    val detachLatch = CountDownLatch(1)
-                    renderTarget.detach(true) {
-                        detachLatch.countDown()
-                    }
+                    // Issue a request to detech the [RenderTarget]. Even if it was
+                    // previously detached this request is a no-op and the corresponding
+                    // [CountDownLatch] will signal when the [RenderTarget] detachment is complete
+                    // or instantaneously if it was already detached
+                    renderTarget.detach(true)
                     detachLatch.await()
                 }
             }
@@ -566,10 +580,12 @@ class GLRenderer(
         val thread = mGLThread
         if (thread != null) {
             val token = sToken.getAndIncrement()
+            val detachLatch = CountDownLatch(1)
             val renderTarget = RenderTarget(token, this) @WorkerThread {
                 textureView.handler?.post {
                     textureView.surfaceTextureListener = null
                 }
+                detachLatch.countDown()
             }
             textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
                 override fun onSurfaceTextureAvailable(
@@ -590,10 +606,11 @@ class GLRenderer(
                 }
 
                 override fun onSurfaceTextureDestroyed(p0: SurfaceTexture): Boolean {
-                    val detachLatch = CountDownLatch(1)
-                    renderTarget.detach(true) {
-                        detachLatch.countDown()
-                    }
+                    // Issue a request to detech the [RenderTarget]. Even if it was
+                    // previously detached this request is a no-op and the corresponding
+                    // [CountDownLatch] will signal when the [RenderTarget] detachment is complete
+                    // or instantaneously if it was already detached
+                    renderTarget.detach(true)
                     detachLatch.await()
                     return true
                 }

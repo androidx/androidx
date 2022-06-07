@@ -268,20 +268,19 @@ internal class GLThread(
 
     @WorkerThread
     private fun releaseResourcesInternalAndQuit(callback: Runnable?) {
-        mEglManager?.let { eglManager ->
-            for (session in mSurfaceSessions) {
-                disposeSurfaceSession(session.value)
-            }
-            callback?.run()
-            mSurfaceSessions.clear()
-            for (eglCallback in mEglContextCallback) {
-                eglCallback.onEglContextDestroyed(eglManager)
-            }
-            mEglContextCallback.clear()
-            eglManager.release()
-            mEglManager = null
-            quit()
+        val eglManager = obtainEglManager()
+        for (session in mSurfaceSessions) {
+            disposeSurfaceSession(session.value)
         }
+        callback?.run()
+        mSurfaceSessions.clear()
+        for (eglCallback in mEglContextCallback) {
+            eglCallback.onEglContextDestroyed(eglManager)
+        }
+        mEglContextCallback.clear()
+        eglManager.release()
+        mEglManager = null
+        quit()
     }
 
     @WorkerThread
