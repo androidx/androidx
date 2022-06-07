@@ -17,9 +17,10 @@
 package androidx.health.services.client.impl
 
 import android.content.Context
+import androidx.annotation.RestrictTo
 import androidx.core.content.ContextCompat
 import androidx.health.services.client.ExerciseClient
-import androidx.health.services.client.ExerciseUpdateListener
+import androidx.health.services.client.ExerciseUpdateCallback
 import androidx.health.services.client.data.ExerciseCapabilities
 import androidx.health.services.client.data.ExerciseConfig
 import androidx.health.services.client.data.ExerciseGoal
@@ -39,8 +40,10 @@ import androidx.health.services.client.impl.request.ExerciseGoalRequest
 import androidx.health.services.client.impl.request.FlushRequest
 import androidx.health.services.client.impl.request.PrepareExerciseRequest
 import androidx.health.services.client.impl.request.StartExerciseRequest
+import com.google.common.util.concurrent.FutureCallback
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.SettableFuture
 import java.util.concurrent.Executor
 
 /**
@@ -48,8 +51,11 @@ import java.util.concurrent.Executor
  *
  * @hide
  */
-internal class ServiceBackedExerciseClient
-private constructor(private val context: Context, connectionManager: ConnectionManager) :
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+internal class ServiceBackedExerciseClient(
+    private val context: Context,
+    connectionManager: ConnectionManager = HsConnectionManager.getInstance(context)
+) :
     ExerciseClient,
     Client<IExerciseApiService>(
         CLIENT_CONFIGURATION,
@@ -60,7 +66,7 @@ private constructor(private val context: Context, connectionManager: ConnectionM
 
     private val packageName = context.packageName
 
-    override fun prepareExercise(configuration: WarmUpConfig): ListenableFuture<Void> =
+    override fun prepareExerciseAsync(configuration: WarmUpConfig): ListenableFuture<Void> =
         execute { service, resultFuture ->
             service.prepareExercise(
                 PrepareExerciseRequest(packageName, configuration),
@@ -68,7 +74,7 @@ private constructor(private val context: Context, connectionManager: ConnectionM
             )
         }
 
-    override fun startExercise(configuration: ExerciseConfig): ListenableFuture<Void> =
+    override fun startExerciseAsync(configuration: ExerciseConfig): ListenableFuture<Void> =
         execute { service, resultFuture ->
             service.startExercise(
                 StartExerciseRequest(packageName, configuration),
@@ -76,54 +82,71 @@ private constructor(private val context: Context, connectionManager: ConnectionM
             )
         }
 
-    override fun pauseExercise(): ListenableFuture<Void> = execute { service, resultFuture ->
+    override fun pauseExerciseAsync(): ListenableFuture<Void> = execute { service, resultFuture ->
         service.pauseExercise(packageName, StatusCallback(resultFuture))
     }
 
-    override fun resumeExercise(): ListenableFuture<Void> = execute { service, resultFuture ->
+    override fun resumeExerciseAsync(): ListenableFuture<Void> = execute { service, resultFuture ->
         service.resumeExercise(packageName, StatusCallback(resultFuture))
     }
 
-    override fun endExercise(): ListenableFuture<Void> = execute { service, resultFuture ->
+    override fun endExerciseAsync(): ListenableFuture<Void> = execute { service, resultFuture ->
         service.endExercise(packageName, StatusCallback(resultFuture))
     }
 
-    override fun flushExercise(): ListenableFuture<Void> {
+    override fun flushExerciseAsync(): ListenableFuture<Void> {
         val request = FlushRequest(packageName)
         return execute { service, resultFuture ->
             service.flushExercise(request, StatusCallback(resultFuture))
         }
     }
 
-    override fun markLap(): ListenableFuture<Void> = execute { service, resultFuture ->
+    override fun markLapAsync(): ListenableFuture<Void> = execute { service, resultFuture ->
         service.markLap(packageName, StatusCallback(resultFuture))
     }
 
-    override val currentExerciseInfo: ListenableFuture<ExerciseInfo>
-        get() = execute { service, resultFuture ->
+    override fun getCurrentExerciseInfoAsync(): ListenableFuture<ExerciseInfo> {
+        return execute { service, resultFuture ->
             service.getCurrentExerciseInfo(packageName, ExerciseInfoCallback(resultFuture))
-        }
-
-    override fun setUpdateListener(listener: ExerciseUpdateListener): ListenableFuture<Void> =
-        setUpdateListener(listener, ContextCompat.getMainExecutor(context))
-
-    override fun setUpdateListener(
-        listener: ExerciseUpdateListener,
-        executor: Executor
-    ): ListenableFuture<Void> {
-        val listenerStub =
-            ExerciseUpdateListenerStub.ExerciseUpdateListenerCache.INSTANCE.getOrCreate(
-                listener,
-                executor
-            )
-        return registerListener(listenerStub.listenerKey) { service, resultFuture ->
-            service.setUpdateListener(packageName, listenerStub, StatusCallback(resultFuture))
         }
     }
 
-    override fun clearUpdateListener(listener: ExerciseUpdateListener): ListenableFuture<Void> {
+    override fun setUpdateCallback(callback: ExerciseUpdateCallback) {
+        setUpdateCallback(ContextCompat.getMainExecutor(context), callback)
+    }
+
+    override fun setUpdateCallback(
+        executor: Executor,
+        callback: ExerciseUpdateCallback
+    ) {
         val listenerStub =
-            ExerciseUpdateListenerStub.ExerciseUpdateListenerCache.INSTANCE.remove(listener)
+            ExerciseUpdateListenerStub.ExerciseUpdateListenerCache.INSTANCE.getOrCreate(
+                callback,
+                executor
+            )
+        val future =
+            registerListener(listenerStub.listenerKey) { service, result: SettableFuture<Void?> ->
+                service.setUpdateListener(packageName, listenerStub, StatusCallback(result))
+            }
+        Futures.addCallback(
+            future,
+            object : FutureCallback<Void?> {
+                override fun onSuccess(result: Void?) {
+                    callback.onRegistered()
+                }
+
+                override fun onFailure(t: Throwable) {
+                    callback.onRegistrationFailed(t)
+                }
+            },
+            executor)
+    }
+
+    override fun clearUpdateCallbackAsync(
+        callback: ExerciseUpdateCallback
+    ): ListenableFuture<Void> {
+        val listenerStub =
+            ExerciseUpdateListenerStub.ExerciseUpdateListenerCache.INSTANCE.remove(callback)
                 ?: return Futures.immediateFailedFuture(
                     IllegalArgumentException("Given listener was not added.")
                 )
@@ -132,7 +155,7 @@ private constructor(private val context: Context, connectionManager: ConnectionM
         }
     }
 
-    override fun addGoalToActiveExercise(exerciseGoal: ExerciseGoal): ListenableFuture<Void> =
+    override fun addGoalToActiveExerciseAsync(exerciseGoal: ExerciseGoal): ListenableFuture<Void> =
         execute { service, resultFuture ->
             service.addGoalToActiveExercise(
                 ExerciseGoalRequest(packageName, exerciseGoal),
@@ -140,15 +163,16 @@ private constructor(private val context: Context, connectionManager: ConnectionM
             )
         }
 
-    override fun removeGoalFromActiveExercise(exerciseGoal: ExerciseGoal): ListenableFuture<Void> =
-        execute { service, resultFuture ->
-            service.removeGoalFromActiveExercise(
-                ExerciseGoalRequest(packageName, exerciseGoal),
-                StatusCallback(resultFuture)
-            )
-        }
+    override fun removeGoalFromActiveExerciseAsync(
+        exerciseGoal: ExerciseGoal
+    ): ListenableFuture<Void> = execute { service, resultFuture ->
+        service.removeGoalFromActiveExercise(
+            ExerciseGoalRequest(packageName, exerciseGoal),
+            StatusCallback(resultFuture)
+        )
+    }
 
-    override fun overrideAutoPauseAndResumeForActiveExercise(
+    override fun overrideAutoPauseAndResumeForActiveExerciseAsync(
         enabled: Boolean
     ): ListenableFuture<Void> = execute { service, resultFuture ->
         service.overrideAutoPauseAndResumeForActiveExercise(
@@ -157,22 +181,16 @@ private constructor(private val context: Context, connectionManager: ConnectionM
         )
     }
 
-    override val capabilities: ListenableFuture<ExerciseCapabilities>
-        get() =
-            Futures.transform(
-                execute { service -> service.getCapabilities(CapabilitiesRequest(packageName)) },
-                { response -> response?.exerciseCapabilities },
-                ContextCompat.getMainExecutor(context)
-            )
+    override fun getCapabilitiesAsync(): ListenableFuture<ExerciseCapabilities> =
+        Futures.transform(
+            execute { service -> service.getCapabilities(CapabilitiesRequest(packageName)) },
+            { response -> response!!.exerciseCapabilities },
+            ContextCompat.getMainExecutor(context)
+        )
 
     internal companion object {
         private const val CLIENT = "HealthServicesExerciseClient"
         private val CLIENT_CONFIGURATION =
             ClientConfiguration(CLIENT, SERVICE_PACKAGE_NAME, EXERCISE_API_BIND_ACTION)
-
-        @JvmStatic
-        fun getClient(context: Context): ServiceBackedExerciseClient {
-            return ServiceBackedExerciseClient(context, HsConnectionManager.getInstance(context))
-        }
     }
 }

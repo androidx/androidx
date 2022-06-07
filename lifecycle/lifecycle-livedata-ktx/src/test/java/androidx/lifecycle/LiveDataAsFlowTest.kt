@@ -75,6 +75,7 @@ class LiveDataAsFlowTest {
         scopes.advanceTimeBy(200)
         assertThat(collected).isEqualTo(listOf(1))
         scopes.advanceTimeBy(800)
+        testScope.testScheduler.advanceUntilIdle()
         assertThat(collected).isEqualTo(listOf(1, 2, 4))
         job.cancel()
         scopes.triggerAllActions()

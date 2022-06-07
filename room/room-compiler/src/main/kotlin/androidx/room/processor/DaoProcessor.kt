@@ -31,6 +31,7 @@ import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
 import androidx.room.vo.KotlinBoxedPrimitiveMethodDelegate
 import androidx.room.vo.KotlinDefaultMethodDelegate
+import androidx.room.vo.Warning
 
 class DaoProcessor(
     baseContext: Context,
@@ -83,6 +84,13 @@ class DaoProcessor(
                     PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } <= 1, method,
                     ProcessorErrors.INVALID_ANNOTATION_COUNT_IN_DAO_METHOD
                 )
+                if (method.hasAnnotation(JvmName::class)) {
+                    context.logger.w(
+                        Warning.JVM_NAME_ON_OVERRIDDEN_METHOD,
+                        method,
+                        ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
+                    )
+                }
                 if (method.hasAnnotation(Query::class)) {
                     Query::class
                 } else if (method.hasAnnotation(Insert::class)) {
@@ -164,9 +172,7 @@ class DaoProcessor(
         // Kotlin.
         val unannotatedMethods = methods[Any::class] ?: emptyList<XMethodElement>()
         val delegatingMethods =
-            if (element.superType != null ||
-                element.getSuperInterfaceElements().isNotEmpty()
-            ) {
+            if (element.superClass != null || element.getSuperInterfaceElements().isNotEmpty()) {
                 matchKotlinBoxedPrimitiveMethods(
                     unannotatedMethods,
                     methods.values.flatten() - unannotatedMethods

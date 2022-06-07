@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -7,9 +7,7 @@
         errorLine1="        assertThat(actions.get(0).getIcon().getResId()).isEqualTo(icon1);"
         errorLine2="                                            ~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/notification/CarAppExtenderTest.java"
-            line="209"
-            column="45"/>
+            file="src/test/java/androidx/car/app/notification/CarAppExtenderTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        assertThat(actions.get(1).getIcon().getResId()).isEqualTo(icon2);"
         errorLine2="                                            ~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/notification/CarAppExtenderTest.java"
-            line="212"
-            column="45"/>
+            file="src/test/java/androidx/car/app/notification/CarAppExtenderTest.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
         errorLine2="                                                                 ~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/CarAppServiceTest.java"
-            line="231"
-            column="66"/>
+            file="src/test/java/androidx/car/app/CarContextTest.java"/>
     </issue>
 
     <issue
@@ -40,53 +34,7 @@
         errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
         errorLine2="                                                                              ~~~">
         <location
-            file="src/test/java/androidx/car/app/CarAppServiceTest.java"
-            line="231"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 23): `android.content.res.Configuration#getLocales`"
-        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
-        errorLine2="                                                                 ~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/CarAppServiceTest.java"
-            line="294"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 23): `android.os.LocaleList#get`"
-        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
-        errorLine2="                                                                              ~~~">
-        <location
-            file="src/test/java/androidx/car/app/CarAppServiceTest.java"
-            line="294"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 23): `android.content.res.Configuration#getLocales`"
-        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
-        errorLine2="                                                                 ~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/CarContextTest.java"
-            line="245"
-            column="66"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 23): `android.os.LocaleList#get`"
-        errorLine1="        assertThat(mCarContext.getResources().getConfiguration().getLocales().get(0))"
-        errorLine2="                                                                              ~~~">
-        <location
-            file="src/test/java/androidx/car/app/CarContextTest.java"
-            line="245"
-            column="79"/>
+            file="src/test/java/androidx/car/app/CarContextTest.java"/>
     </issue>
 
     <issue
@@ -95,9 +43,7 @@
         errorLine1="        assertThat(changed.getChannelId()).isEqualTo(EXTENDED_CHANNEL);"
         errorLine2="                           ~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"
-            line="112"
-            column="28"/>
+            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"/>
     </issue>
 
     <issue
@@ -106,9 +52,7 @@
         errorLine1="        assertThat(output.getChannelId()).isEqualTo(DEFAULT_CHANNEL);"
         errorLine2="                          ~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"
-            line="137"
-            column="27"/>
+            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"/>
     </issue>
 
     <issue
@@ -117,9 +61,7 @@
         errorLine1="        assertThat(output.getChannelId()).isEqualTo(DEFAULT_CHANNEL);"
         errorLine2="                          ~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"
-            line="165"
-            column="27"/>
+            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"/>
     </issue>
 
     <issue
@@ -128,9 +70,7 @@
         errorLine1="        ZonedDateTime zonedDateTime = ZonedDateTime.parse(&quot;2020-05-14T19:57:00-07:00[US/Pacific]&quot;);"
         errorLine2="                                                    ~~~~~">
         <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
-            line="135"
-            column="53"/>
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
     </issue>
 
     <issue
@@ -139,9 +79,7 @@
         errorLine1="        DateTimeWithZone dateTimeWithZone = DateTimeWithZone.create(zonedDateTime);"
         errorLine2="                                                             ~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
-            line="136"
-            column="62"/>
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
     </issue>
 
     <issue
@@ -150,9 +88,7 @@
         errorLine1="        assertDateTimeWithZoneEquals(zonedDateTime, dateTimeWithZone);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
-            line="138"
-            column="9"/>
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
     </issue>
 
     <issue
@@ -161,9 +97,7 @@
         errorLine1="                    DateTimeWithZone.create(null);"
         errorLine2="                                     ~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
-            line="147"
-            column="38"/>
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
     </issue>
 
     <issue
@@ -172,9 +106,7 @@
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                                                                            ~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
-            line="156"
-            column="77"/>
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
     </issue>
 
     <issue
@@ -183,9 +115,7 @@
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                         ~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
-            line="156"
-            column="26"/>
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
     </issue>
 
     <issue
@@ -194,9 +124,7 @@
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                                                                            ~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
-            line="174"
-            column="77"/>
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
     </issue>
 
     <issue
@@ -205,9 +133,7 @@
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                         ~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
-            line="174"
-            column="26"/>
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
     </issue>
 
     <issue
@@ -216,9 +142,7 @@
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                                                                            ~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
-            line="193"
-            column="77"/>
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
     </issue>
 
     <issue
@@ -227,9 +151,7 @@
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                         ~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
-            line="193"
-            column="26"/>
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
     </issue>
 
     <issue
@@ -238,9 +160,7 @@
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                                                                            ~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
-            line="212"
-            column="77"/>
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
     </issue>
 
     <issue
@@ -249,9 +169,7 @@
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                         ~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"
-            line="212"
-            column="26"/>
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
     </issue>
 
     <issue
@@ -260,9 +178,7 @@
         errorLine1="                .stream()"
         errorLine2="                 ~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"
-            line="132"
-            column="18"/>
+            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"/>
     </issue>
 
     <issue
@@ -271,9 +187,7 @@
         errorLine1="                .mapToLong(List::size)"
         errorLine2="                 ~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"
-            line="133"
-            column="18"/>
+            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"/>
     </issue>
 
     <issue
@@ -282,9 +196,7 @@
         errorLine1="                .sum()).isEqualTo(6);"
         errorLine2="                 ~~~">
         <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"
-            line="134"
-            column="18"/>
+            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"/>
     </issue>
 
     <issue
@@ -293,9 +205,7 @@
         errorLine1="        packageInfo.signingInfo = mock(SigningInfo.class);"
         errorLine2="                                       ~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"
-            line="108"
-            column="40"/>
+            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"/>
     </issue>
 
     <issue
@@ -304,9 +214,7 @@
         errorLine1="        packageInfo.signingInfo = mock(SigningInfo.class);"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"
-            line="108"
-            column="9"/>
+            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"/>
     </issue>
 
     <issue
@@ -315,9 +223,7 @@
         errorLine1="        when(packageInfo.signingInfo.getSigningCertificateHistory()).thenReturn(signatures);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"
-            line="109"
-            column="38"/>
+            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"/>
     </issue>
 
     <issue
@@ -326,9 +232,7 @@
         errorLine1="        when(packageInfo.signingInfo.getSigningCertificateHistory()).thenReturn(signatures);"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"
-            line="109"
-            column="14"/>
+            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"/>
     </issue>
 
     <issue
@@ -337,9 +241,7 @@
         errorLine1="        ZonedDateTime arrivalTime = ZonedDateTime.parse(&quot;2020-05-14T19:57:00-07:00[US/Pacific]&quot;);"
         errorLine2="                                                  ~~~~~">
         <location
-            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
-            line="69"
-            column="51"/>
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"/>
     </issue>
 
     <issue
@@ -348,9 +250,7 @@
         errorLine1="        Duration remainingTime = Duration.ofHours(10);"
         errorLine2="                                          ~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
-            line="70"
-            column="43"/>
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"/>
     </issue>
 
     <issue
@@ -359,9 +259,7 @@
         errorLine1="                new TravelEstimate.Builder(mRemainingDistance, arrivalTime).setRemainingTime("
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
-            line="73"
-            column="17"/>
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"/>
     </issue>
 
     <issue
@@ -370,9 +268,7 @@
         errorLine1="                new TravelEstimate.Builder(mRemainingDistance, arrivalTime).setRemainingTime("
         errorLine2="                                                                            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
-            line="73"
-            column="77"/>
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"/>
     </issue>
 
     <issue
@@ -381,9 +277,7 @@
         errorLine1="        assertThat(travelEstimate.getRemainingTimeSeconds()).isEqualTo(remainingTime.getSeconds());"
         errorLine2="                                                                                     ~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
-            line="77"
-            column="86"/>
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"/>
     </issue>
 
     <issue
@@ -392,9 +286,7 @@
         errorLine1="        assertDateTimeWithZoneEquals(arrivalTime, travelEstimate.getArrivalTimeAtDestination());"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
-            line="78"
-            column="9"/>
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"/>
     </issue>
 
     <issue
@@ -403,9 +295,7 @@
         errorLine1="        ZonedDateTime arrivalTime = ZonedDateTime.parse(&quot;2020-05-14T19:57:00-07:00[US/Pacific]&quot;);"
         errorLine2="                                                  ~~~~~">
         <location
-            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
-            line="115"
-            column="51"/>
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"/>
     </issue>
 
     <issue
@@ -414,9 +304,7 @@
         errorLine1="                new TravelEstimate.Builder("
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
-            line="119"
-            column="17"/>
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"/>
     </issue>
 
     <issue
@@ -425,9 +313,7 @@
         errorLine1="                        remainingDistance, arrivalTime).setRemainingTime("
         errorLine2="                                                        ~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
-            line="120"
-            column="57"/>
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"/>
     </issue>
 
     <issue
@@ -436,9 +322,7 @@
         errorLine1="                        Duration.ofSeconds(REMAINING_TIME_UNKNOWN)).build();"
         errorLine2="                                 ~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
-            line="121"
-            column="34"/>
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"/>
     </issue>
 
     <issue
@@ -447,20 +331,16 @@
         errorLine1="        assertDateTimeWithZoneEquals(arrivalTime, travelEstimate.getArrivalTimeAtDestination());"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"
-            line="125"
-            column="9"/>
+            file="src/test/java/androidx/car/app/navigation/model/TravelEstimateTest.java"/>
     </issue>
 
     <issue
         id="WrongConstant"
-        message="Must be one of: CarAppApiLevels.UNKNOWN, CarAppApiLevels.LEVEL_1, CarAppApiLevels.LEVEL_2, CarAppApiLevels.LEVEL_3, CarAppApiLevels.LEVEL_4"
+        message="Must be one of: CarAppApiLevels.UNKNOWN, CarAppApiLevels.LEVEL_1, CarAppApiLevels.LEVEL_2, CarAppApiLevels.LEVEL_3, CarAppApiLevels.LEVEL_4, CarAppApiLevels.LEVEL_5"
         errorLine1="        mCarAppApiLevel = handshakeInfo.getHostCarAppApiLevel();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/car/app/CarContext.java"
-            line="645"
-            column="27"/>
+            file="src/main/java/androidx/car/app/CarContext.java"/>
     </issue>
 
     <issue
@@ -469,9 +349,7 @@
         errorLine1="            enumName = (String) nameMethod.invoke(obj);"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/car/app/serialization/Bundler.java"
-            line="343"
-            column="33"/>
+            file="src/main/java/androidx/car/app/serialization/Bundler.java"/>
     </issue>
 
     <issue
@@ -480,9 +358,7 @@
         errorLine1="            Object obj = converter.invoke(null, binder);"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/car/app/serialization/Bundler.java"
-            line="427"
-            column="26"/>
+            file="src/main/java/androidx/car/app/serialization/Bundler.java"/>
     </issue>
 
     <issue
@@ -491,9 +367,16 @@
         errorLine1="            return nameMethod.invoke(null, enumName);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/car/app/serialization/Bundler.java"
-            line="514"
-            column="20"/>
+            file="src/main/java/androidx/car/app/serialization/Bundler.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use @androidx.annotation.NonNull instead of @org.jetbrains.annotations.NotNull"
+        errorLine1="    public void sendPanModeChanged(boolean isInPanMode, @NonNull @NotNull OnDoneCallback callback) {"
+        errorLine2="                                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/navigation/model/PanModeDelegateImpl.java"/>
     </issue>
 
 </issues>

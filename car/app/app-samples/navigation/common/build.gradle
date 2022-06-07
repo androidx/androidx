@@ -23,14 +23,17 @@ android {
     defaultConfig {
         minSdkVersion 23
     }
+    namespace "androidx.car.app.sample.navigation.common"
 }
 
 dependencies {
     implementation(project(":car:app:app"))
 
-    api(libs.kotlinStdlib)
-    implementation 'androidx.core:core:1.5.0-alpha01'
+    implementation 'androidx.core:core:1.7.0'
     implementation project(path: ':annotation:annotation-experimental')
+    // There is an implicit compile-only dep due to :annotation-experimental
+    // Build will complain without this manual declaration.
+    compileOnly libs.kotlinStdlib
     implementation 'androidx.lifecycle:lifecycle-livedata:2.3.1'
     implementation 'androidx.activity:activity:1.2.3'
 }

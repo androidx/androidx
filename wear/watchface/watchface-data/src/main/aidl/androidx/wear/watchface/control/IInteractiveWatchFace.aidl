@@ -19,9 +19,10 @@ package androidx.wear.watchface.control;
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
 import androidx.wear.watchface.control.IWatchfaceReadyListener;
 import androidx.wear.watchface.control.data.WatchFaceRenderParams;
-import androidx.wear.watchface.data.WatchUiState;
 import androidx.wear.watchface.data.IdAndComplicationDataWireFormat;
 import androidx.wear.watchface.data.IdAndComplicationStateWireFormat;
+import androidx.wear.watchface.data.WatchFaceOverlayStyleWireFormat;
+import androidx.wear.watchface.data.WatchUiState;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 
@@ -33,12 +34,12 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat;
 interface IInteractiveWatchFace {
     // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
     // in the future to remain binary backwards compatible.
-    // Next Id: 19
+    // Next Id: 20
 
     /**
      * API version number. This should be incremented every time a new method is added.
      */
-    const int API_VERSION = 3;
+    const int API_VERSION = 4;
 
     /** Indicates a "down" touch event on the watch face. */
     const int TAP_TYPE_DOWN = 0;
@@ -185,16 +186,13 @@ interface IInteractiveWatchFace {
      */
     oneway void addWatchfaceReadyListener(in IWatchfaceReadyListener listener) = 17;
 
+    /** Unused. */
+    void unused18() = 18;
+
     /**
-     * Forwards a touch event for the WatchFace to process and returns the corresponding
-     * PendingIntent to be fired if any. The reason for using this is for 5 seconds after tapping
-     * the home button, background applications (such as the watch face) are not allowed by the
-     * framework to send intents which can look broken from the user's point of view.
+     * Returns the watch face's {@link WatchFaceOverlayStyle}.
      *
-     * @param xPos X Coordinate of the touch event
-     * @param yPos Y Coordinate of the touch event
-     * @param tapType One of {@link #TAP_TYPE_DOWN}, {@link #TAP_TYPE_CANCEL}, {@link #TAP_TYPE_UP}
-     * @since API version 3.
+     * @since API version 4.
      */
-    PendingIntent getPendingIntentForTouchEvent(in int xPos, in int yPos, in int tapType) = 18;
+    WatchFaceOverlayStyleWireFormat getWatchFaceOverlayStyle() = 19;
 }

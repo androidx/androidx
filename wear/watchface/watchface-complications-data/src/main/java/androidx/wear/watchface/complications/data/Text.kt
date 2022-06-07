@@ -76,6 +76,12 @@ public interface ComplicationText {
     /**
      * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun isPlaceholder(): Boolean = false
+
+    /**
+     * @hide
+     */
     @RestrictTo(RestrictTo.Scope.SUBCLASSES)
     public fun getTimeDependentText(): TimeDependentText
 
@@ -90,13 +96,67 @@ public interface ComplicationText {
     public companion object {
         @JvmField
         public val EMPTY: ComplicationText = PlainComplicationText.Builder("").build()
+
+        /**
+         * For use when the real data isn't available yet, this [ComplicationText] should be
+         * rendered as a placeholder. It is suggested that it should be rendered with a light grey
+         * box.
+         *
+         * Note a placeholder may only be used in the context of
+         * [NoDataComplicationData.placeholder].
+         */
+        @JvmField
+        public val PLACEHOLDER: ComplicationText =
+            PlainComplicationText.Builder(WireComplicationData.PLACEHOLDER_STRING).build()
     }
 }
 
 /** A [ComplicationText] that contains plain text. */
 public class PlainComplicationText internal constructor(
     delegate: WireComplicationText
-) : ComplicationText by DelegatingComplicationText(delegate) {
+) : ComplicationText {
+    private val delegate = DelegatingComplicationText(delegate)
+
+    override fun getTextAt(resources: Resources, instant: Instant) =
+        delegate.getTextAt(resources, instant)
+
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+        delegate.returnsSameText(firstInstant, secondInstant)
+
+    override fun getNextChangeTime(afterInstant: Instant): Instant =
+        delegate.getNextChangeTime(afterInstant)
+
+    override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    override fun getTimeDependentText() = delegate.getTimeDependentText()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toWireComplicationText() = delegate.toWireComplicationText()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PlainComplicationText
+
+        if (delegate != other.delegate) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return delegate.hashCode()
+    }
+
+    override fun toString() = delegate.toString()
+
     /**
      * A builder for [PlainComplicationText].
      *
@@ -207,6 +267,8 @@ public enum class TimeDifferenceStyle(internal val wireStyle: Int) {
 public class TimeDifferenceComplicationText internal constructor(
     delegate: WireComplicationText
 ) : ComplicationText by DelegatingComplicationText(delegate) {
+    private val delegate = DelegatingComplicationText(delegate)
+
     /**
      * Gets the smallest unit that may be shown in the time difference text. If specified, units
      * smaller than this minimum will not be included.
@@ -215,6 +277,42 @@ public class TimeDifferenceComplicationText internal constructor(
         if (getTimeDependentText() is TimeDifferenceText)
             (getTimeDependentText() as TimeDifferenceText).minimumUnit
         else null
+
+    override fun getTextAt(resources: Resources, instant: Instant) =
+        delegate.getTextAt(resources, instant)
+
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+        delegate.returnsSameText(firstInstant, secondInstant)
+
+    override fun getNextChangeTime(afterInstant: Instant): Instant =
+        delegate.getNextChangeTime(afterInstant)
+
+    override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    override fun getTimeDependentText() = delegate.getTimeDependentText()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toWireComplicationText() = delegate.toWireComplicationText()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TimeDifferenceComplicationText
+
+        if (delegate != other.delegate) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return delegate.hashCode()
+    }
+
+    override fun toString() = delegate.toString()
 
     /**
      * Builder for [ComplicationText] representing a time difference.
@@ -326,6 +424,44 @@ public enum class TimeFormatStyle(internal val wireStyle: Int) {
 public class TimeFormatComplicationText internal constructor(
     delegate: WireComplicationText
 ) : ComplicationText by DelegatingComplicationText(delegate) {
+    private val delegate = DelegatingComplicationText(delegate)
+
+    override fun getTextAt(resources: Resources, instant: Instant) =
+        delegate.getTextAt(resources, instant)
+
+    override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
+        delegate.returnsSameText(firstInstant, secondInstant)
+
+    override fun getNextChangeTime(afterInstant: Instant): Instant =
+        delegate.getNextChangeTime(afterInstant)
+
+    override fun isAlwaysEmpty() = delegate.isAlwaysEmpty()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.SUBCLASSES)
+    override fun getTimeDependentText() = delegate.getTimeDependentText()
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun toWireComplicationText() = delegate.toWireComplicationText()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as TimeFormatComplicationText
+
+        if (delegate != other.delegate) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return delegate.hashCode()
+    }
+
+    override fun toString() = delegate.toString()
+
     /**
      * A builder for [TimeFormatComplicationText].
      *
@@ -388,8 +524,18 @@ private class DelegatingComplicationText(
     override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
         delegate.returnsSameText(firstInstant.toEpochMilli(), secondInstant.toEpochMilli())
 
-    override fun getNextChangeTime(afterInstant: Instant) =
-        Instant.ofEpochMilli(delegate.getNextChangeTime(afterInstant.toEpochMilli()))
+    override fun getNextChangeTime(afterInstant: Instant): Instant {
+        val nextChangeTime = delegate.getNextChangeTime(afterInstant.toEpochMilli())
+        return if (nextChangeTime == Long.MAX_VALUE) {
+             Instant.MAX
+        } else {
+            Instant.ofEpochMilli(nextChangeTime)
+        }
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun isPlaceholder(): Boolean = delegate.isPlaceholder()
 
     override fun isAlwaysEmpty() = delegate.isAlwaysEmpty
     override fun getTimeDependentText(): TimeDependentText = delegate.timeDependentText
@@ -397,11 +543,42 @@ private class DelegatingComplicationText(
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun toWireComplicationText() = delegate
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        when (other) {
+            is DelegatingComplicationText -> {
+                return delegate == other.delegate
+            }
+            is PlainComplicationText -> {
+                return other.toWireComplicationText() == delegate
+            }
+            is TimeDifferenceComplicationText -> {
+                return other.toWireComplicationText() == delegate
+            }
+            is TimeFormatComplicationText -> {
+                return other.toWireComplicationText() == delegate
+            }
+        }
+        return false
+    }
+
+    override fun hashCode(): Int {
+        return delegate.hashCode()
+    }
+
+    override fun toString(): String {
+        return delegate.toString()
+    }
 }
 
 /** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
 internal fun WireComplicationText.toApiComplicationText(): ComplicationText =
     DelegatingComplicationText(this)
+
+/** Converts a [WireComplicationText] into an equivalent [ComplicationText] instead. */
+internal fun WireComplicationText.toApiComplicationTextPlaceholderAware(): ComplicationText =
+    if (isPlaceholder) { ComplicationText.PLACEHOLDER } else { DelegatingComplicationText(this) }
 
 /** Converts a [TimeZone] into an equivalent [java.util.TimeZone]. */
 internal fun TimeZone.asJavaTimeZone(): java.util.TimeZone =
@@ -417,8 +594,14 @@ private class DelegatingTimeDependentText(
     override fun returnsSameText(firstInstant: Instant, secondInstant: Instant) =
         delegate.returnsSameText(firstInstant.toEpochMilli(), secondInstant.toEpochMilli())
 
-    override fun getNextChangeTime(afterInstant: Instant) =
-        Instant.ofEpochMilli(delegate.getNextChangeTime(afterInstant.toEpochMilli()))
+    override fun getNextChangeTime(afterInstant: Instant): Instant {
+        val nextChangeTime = delegate.getNextChangeTime(afterInstant.toEpochMilli())
+        return if (nextChangeTime == Long.MAX_VALUE) {
+            Instant.MAX
+        } else {
+            Instant.ofEpochMilli(nextChangeTime)
+        }
+    }
 
     override fun isAlwaysEmpty() = false
 
@@ -430,6 +613,25 @@ private class DelegatingTimeDependentText(
         throw UnsupportedOperationException(
             "DelegatingTimeDependentText doesn't support asWireComplicationText"
         )
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as DelegatingTimeDependentText
+
+        if (delegate != other.delegate) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return delegate.hashCode()
+    }
+
+    override fun toString(): String {
+        return delegate.toString()
     }
 }
 

@@ -25,6 +25,10 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.GuavaUtilConcurrentTypeNames
+import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.LifecyclesTypeNames
+import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
@@ -50,6 +54,20 @@ class InsertionMethodProcessorTest {
                 package foo.bar;
                 import androidx.room.*;
                 import java.util.*;
+                @Dao
+                abstract class MyClass {
+                """
+        const val DAO_PREFIX_KT = """
+                package foo.bar
+                import androidx.room.*
+                import java.util.*
+                import io.reactivex.*         
+                io.reactivex.rxjava3.core.*
+                androidx.lifecycle.*
+                com.google.common.util.concurrent.*
+                org.reactivestreams.*
+                kotlinx.coroutines.flow.*
+            
                 @Dao
                 abstract class MyClass {
                 """
@@ -362,6 +380,7 @@ class InsertionMethodProcessorTest {
     @Test
     fun onConflict_EachValue() {
         listOf(
+            Pair("NONE", 0),
             Pair("REPLACE", 1),
             Pair("ROLLBACK", 2),
             Pair("ABORT", 3),
@@ -920,6 +939,39 @@ class InsertionMethodProcessorTest {
         }
     }
 
+    @Test
+    fun suspendReturnsDeferredType() {
+        listOf(
+            "${RxJava2TypeNames.FLOWABLE}<Int>",
+            "${RxJava2TypeNames.OBSERVABLE}<Int>",
+            "${RxJava2TypeNames.MAYBE}<Int>",
+            "${RxJava2TypeNames.SINGLE}<Int>",
+            "${RxJava2TypeNames.COMPLETABLE}",
+            "${RxJava3TypeNames.FLOWABLE}<Int>",
+            "${RxJava3TypeNames.OBSERVABLE}<Int>",
+            "${RxJava3TypeNames.MAYBE}<Int>",
+            "${RxJava3TypeNames.SINGLE}<Int>",
+            "${RxJava3TypeNames.COMPLETABLE}",
+            "${LifecyclesTypeNames.LIVE_DATA}<Int>",
+            "${LifecyclesTypeNames.COMPUTABLE_LIVE_DATA}<Int>",
+            "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
+            "${ReactiveStreamsTypeNames.PUBLISHER}<Int>",
+            "${KotlinTypeNames.FLOW}<Int>"
+        ).forEach { type ->
+            singleInsertMethodKotlin(
+                """
+                @Insert
+                abstract suspend fun foo(user: User): $type
+                """
+            ) { _, invocation ->
+                invocation.assertCompilationResult {
+                    val rawTypeName = type.substringBefore("<")
+                    hasErrorContaining(ProcessorErrors.suspendReturnsDeferredType(rawTypeName))
+                }
+            }
+        }
+    }
+
     fun singleInsertMethod(
         vararg input: String,
         additionalSources: List<Source> = emptyList(),
@@ -933,6 +985,47 @@ class InsertionMethodProcessorTest {
             COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
             COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX3_COMPLETABLE,
             COMMON.RX3_MAYBE, COMMON.RX3_SINGLE
+        )
+
+        runProcessorTest(
+            sources = commonSources + additionalSources + inputSource
+        ) { invocation ->
+            val (owner, methods) = invocation.roundEnv
+                .getElementsAnnotatedWith(Dao::class.qualifiedName!!)
+                .filterIsInstance<XTypeElement>()
+                .map {
+                    Pair(
+                        it,
+                        it.getAllMethods().filter {
+                            it.hasAnnotation(Insert::class)
+                        }.toList()
+                    )
+                }.first { it.second.isNotEmpty() }
+            val processor = InsertionMethodProcessor(
+                baseContext = invocation.context,
+                containing = owner.type,
+                executableElement = methods.first()
+            )
+            val processed = processor.process()
+            handler(processed, invocation)
+        }
+    }
+
+    fun singleInsertMethodKotlin(
+        vararg input: String,
+        additionalSources: List<Source> = emptyList(),
+        handler: (InsertionMethod, XTestInvocation) -> Unit
+    ) {
+        val inputSource = Source.kotlin(
+            "MyClass.kt",
+            DAO_PREFIX_KT + input.joinToString("\n") + DAO_SUFFIX
+        )
+        val commonSources = listOf(
+            COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.RX2_COMPLETABLE,
+            COMMON.RX2_MAYBE, COMMON.RX2_SINGLE, COMMON.RX2_FLOWABLE, COMMON.RX2_OBSERVABLE,
+            COMMON.RX3_COMPLETABLE, COMMON.RX3_MAYBE, COMMON.RX3_SINGLE, COMMON.RX3_FLOWABLE,
+            COMMON.RX3_OBSERVABLE, COMMON.LISTENABLE_FUTURE, COMMON.LIVE_DATA,
+            COMMON.COMPUTABLE_LIVE_DATA, COMMON.PUBLISHER, COMMON.FLOW, COMMON.GUAVA_ROOM
         )
 
         runProcessorTest(

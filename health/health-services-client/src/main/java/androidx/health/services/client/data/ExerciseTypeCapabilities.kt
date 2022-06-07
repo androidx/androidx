@@ -25,7 +25,9 @@ import androidx.health.services.client.proto.DataProto.ExerciseTypeCapabilities.
 @Suppress("ParcelCreator")
 public class ExerciseTypeCapabilities(
     public val supportedDataTypes: Set<DataType>,
+    /** Map from supported goals datatypes to a set of compatible [ComparisonType]s. */
     public val supportedGoals: Map<DataType, Set<ComparisonType>>,
+    /** Map from supported milestone datatypes to a set of compatible [ComparisonType]s. */
     public val supportedMilestones: Map<DataType, Set<ComparisonType>>,
     public val supportsAutoPauseAndResume: Boolean,
     public val supportsLaps: Boolean,
@@ -39,14 +41,22 @@ public class ExerciseTypeCapabilities(
             .supportedGoalsList
             .map { entry ->
                 DataType(entry.dataType) to
-                    entry.comparisonTypesList.mapNotNull { ComparisonType.fromProto(it) }.toSet()
+                    entry
+                        .comparisonTypesList
+                        .map { ComparisonType.fromProto(it) }
+                        .filter { it != ComparisonType.UNKNOWN }
+                        .toSet()
             }
             .toMap(),
         proto
             .supportedMilestonesList
             .map { entry ->
                 DataType(entry.dataType) to
-                    entry.comparisonTypesList.mapNotNull { ComparisonType.fromProto(it) }.toSet()
+                    entry
+                        .comparisonTypesList
+                        .map { ComparisonType.fromProto(it) }
+                        .filter { it != ComparisonType.UNKNOWN }
+                        .toSet()
             }
             .toMap(),
         supportsAutoPauseAndResume = proto.isAutoPauseAndResumeSupported,

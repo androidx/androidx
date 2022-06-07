@@ -21,12 +21,10 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowInsetsController;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 /**
@@ -124,22 +122,17 @@ public final class WindowCompat {
         }
     }
 
-
     /**
-     * Retrieves the single {@link WindowInsetsController} of the window this view is attached to.
+     * Retrieves the single {@link WindowInsetsControllerCompat} of the window this view is attached
+     * to.
      *
-     * @return The {@link WindowInsetsController} or {@code null} if the view is neither attached to
-     * a window nor a view tree with a decor.
+     * @return The {@link WindowInsetsControllerCompat} for the window.
      * @see Window#getInsetsController()
      */
-    @Nullable
+    @NonNull
     public static WindowInsetsControllerCompat getInsetsController(@NonNull Window window,
             @NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 30) {
-            return Api30Impl.getInsetsController(window);
-        } else {
-            return new WindowInsetsControllerCompat(window, view);
-        }
+        return new WindowInsetsControllerCompat(window, view);
     }
 
     @RequiresApi(16)
@@ -173,16 +166,6 @@ public final class WindowCompat {
         static void setDecorFitsSystemWindows(@NonNull Window window,
                 final boolean decorFitsSystemWindows) {
             window.setDecorFitsSystemWindows(decorFitsSystemWindows);
-        }
-
-        @DoNotInline
-        static WindowInsetsControllerCompat getInsetsController(@NonNull Window window) {
-            WindowInsetsController insetsController = window.getInsetsController();
-            if (insetsController != null) {
-                return WindowInsetsControllerCompat.toWindowInsetsControllerCompat(
-                        insetsController);
-            }
-            return null;
         }
     }
 

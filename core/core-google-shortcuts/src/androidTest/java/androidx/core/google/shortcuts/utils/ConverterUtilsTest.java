@@ -31,6 +31,8 @@ import com.google.firebase.appindexing.Indexable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.TimeZone;
+
 @RunWith(AndroidJUnit4.class)
 public class ConverterUtilsTest {
     private final Context mContext = ApplicationProvider.getApplicationContext();
@@ -55,6 +57,28 @@ public class ConverterUtilsTest {
                 .put(IndexableKeys.TTL_MILLIS, 0)
                 .put(IndexableKeys.CREATION_TIMESTAMP_MILLIS, 1);
         assertThat(ConverterUtils.buildBaseIndexableFromGenericDocument(
-                mContext, genericDocument).build()).isEqualTo(expectedIndexableBuilder.build());
+                mContext, "schema", genericDocument).build())
+                .isEqualTo(expectedIndexableBuilder.build());
+    }
+
+    @Test
+    @SmallTest
+    public void testConvertTimestampToISO8601Format_noTimezone_returnsFormatString() {
+        TimeZone.setDefault(TimeZone.getTimeZone("GMT"));
+        // 01/01/2020 12:00:00 GMT
+        long timestamp = 1577836800000L;
+        String formatString = ConverterUtils.convertTimestampToISO8601Format(timestamp, null);
+        assertThat(formatString).isEqualTo("2020-01-01T00:00:00+0000");
+    }
+
+    @Test
+    @SmallTest
+    public void testConvertTimestampToISO8601Format_withTimezone_returnsFormatString() {
+        // 01/01/2020 12:00:00 GMT
+        long timestamp = 1577836800000L;
+        String formatString = ConverterUtils.convertTimestampToISO8601Format(
+                timestamp,
+                TimeZone.getTimeZone("America/Los_Angeles"));
+        assertThat(formatString).isEqualTo("2019-12-31T16:00:00-0800");
     }
 }

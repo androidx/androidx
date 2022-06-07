@@ -19,7 +19,7 @@ package androidx.lifecycle
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.testing.TestLifecycleOwner
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
@@ -32,7 +32,7 @@ class LiveDataTest {
     @Test
     fun observe() {
         @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-        val lifecycleOwner = TestLifecycleOwner(coroutineDispatcher = TestCoroutineDispatcher())
+        val lifecycleOwner = TestLifecycleOwner(coroutineDispatcher = UnconfinedTestDispatcher())
 
         val liveData = MutableLiveData<String>()
         var value = ""

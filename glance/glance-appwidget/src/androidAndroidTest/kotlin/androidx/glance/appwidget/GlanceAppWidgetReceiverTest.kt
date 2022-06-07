@@ -27,16 +27,20 @@ import android.text.style.StyleSpan
 import android.text.style.TextAppearanceSpan
 import android.text.style.UnderlineSpan
 import android.view.View
+import android.widget.CompoundButton
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -45,17 +49,19 @@ import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.actionLaunchActivity
 import androidx.glance.action.actionParametersOf
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.action.toParametersKey
 import androidx.glance.appwidget.action.ActionCallback
+import androidx.glance.appwidget.action.ToggleableStateKey
 import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
 import androidx.glance.currentState
+import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.ContentScale
@@ -64,6 +70,7 @@ import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
+import androidx.glance.layout.padding
 import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentHeight
 import androidx.glance.state.PreferencesGlanceStateDefinition
@@ -72,21 +79,22 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.runBlocking
-import org.junit.Before
-import org.junit.Rule
-import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.runBlocking
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
 
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
@@ -387,7 +395,7 @@ class GlanceAppWidgetReceiverTest {
     @Test
     fun createButton() {
         TestGlanceAppWidget.uiDefinition = {
-            Button("Button", onClick = actionLaunchActivity<Activity>(), enabled = false)
+            Button("Button", onClick = actionStartActivity<Activity>(), enabled = false)
         }
 
         mHostRule.startHost()
@@ -480,7 +488,6 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     fun removeAppWidget() {
-        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
         TestGlanceAppWidget.uiDefinition = {
             Text("something")
         }
@@ -493,10 +500,8 @@ class GlanceAppWidgetReceiverTest {
         }
 
         runBlocking {
-            TestGlanceAppWidget.updateAppWidgetState<Preferences>(context, glanceId) { prefs ->
-                prefs.toMutablePreferences().apply {
-                    this[testKey] = 3
-                }
+            updateAppWidgetState(context, glanceId) {
+                it[testKey] = 3
             }
         }
 
@@ -544,8 +549,6 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     fun updateIf() {
-        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
-
         TestGlanceAppWidget.uiDefinition = {
             Text("before")
         }
@@ -556,14 +559,8 @@ class GlanceAppWidgetReceiverTest {
         runBlocking {
             appWidgetManager.getGlanceIds(TestGlanceAppWidget::class.java)
                 .forEach { glanceId ->
-                    updateAppWidgetState(
-                        context,
-                        PreferencesGlanceStateDefinition,
-                        glanceId
-                    ) { prefs ->
-                        prefs.toMutablePreferences().apply {
-                            this[testKey] = 2
-                        }
+                    updateAppWidgetState(context, glanceId) {
+                        it[testKey] = 2
                     }
                 }
         }
@@ -595,8 +592,6 @@ class GlanceAppWidgetReceiverTest {
 
     @Test
     fun viewState() {
-        TestGlanceAppWidget.stateDefinition = PreferencesGlanceStateDefinition
-
         TestGlanceAppWidget.uiDefinition = {
             val value = currentState<Preferences>()[testKey] ?: -1
             Text("Value = $value")
@@ -610,13 +605,8 @@ class GlanceAppWidgetReceiverTest {
         }
 
         runBlocking {
-            TestGlanceAppWidget.updateAppWidgetState<Preferences>(
-                context,
-                appWidgetId.get()
-            ) { prefs ->
-                prefs.toMutablePreferences().apply {
-                    this[testKey] = 2
-                }
+            updateAppWidgetState(context, appWidgetId.get()) {
+                it[testKey] = 2
             }
 
             val prefs =
@@ -652,8 +642,237 @@ class GlanceAppWidgetReceiverTest {
             checkNotNull(root.findChild<TextView> { it.text == "text1" }).performClick()
             checkNotNull(root.findChild<TextView> { it.text == "text2" }).performClick()
         }
-        CallbackTest.latch.await(5, TimeUnit.SECONDS)
+        assertThat(CallbackTest.latch.await(5, TimeUnit.SECONDS)).isTrue()
         assertThat(CallbackTest.received.get()).containsExactly(1, 2)
+    }
+
+    @Test
+    fun multipleActionCallback() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text(
+                "text1",
+                modifier = GlanceModifier.clickable(
+                    actionRunCallback<CallbackTest>(actionParametersOf(CallbackTest.key to 1))
+                ).clickable(
+                    actionRunCallback<CallbackTest>(actionParametersOf(CallbackTest.key to 2))
+                )
+            )
+        }
+
+        mHostRule.startHost()
+
+        CallbackTest.received.set(emptyList())
+        CallbackTest.latch = CountDownLatch(1)
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text == "text1" }).performClick()
+        }
+        assertThat(CallbackTest.latch.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(CallbackTest.received.get()).containsExactly(2)
+    }
+
+    @Test
+    fun wrapAroundFillMaxSize() {
+        TestGlanceAppWidget.uiDefinition = {
+            val wrapperModifier = GlanceModifier
+                .background(ColorProvider(Color.LightGray))
+                .fillMaxSize()
+                .padding(8.dp)
+            Column(modifier = wrapperModifier) {
+                val boxModifier = GlanceModifier
+                    .defaultWeight()
+                    .fillMaxWidth()
+                BoxRowBox(modifier = boxModifier, text = "Text 1")
+                BoxRowBox(modifier = boxModifier, text = "Text 2")
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onUnboxedHostView<LinearLayout> { column ->
+            val displayMetrics = column.context.resources.displayMetrics
+            val targetHeight = (column.height.pixelsToDp(displayMetrics) - 16.dp) / 2
+            val targetWidth = column.width.pixelsToDp(displayMetrics) - 16.dp
+
+            val text1 = checkNotNull(column.findChild<TextView> { it.text == "Text 1" })
+            val row1 = text1.getParentView<FrameLayout>().getParentView<LinearLayout>()
+            assertThat(row1.orientation).isEqualTo(LinearLayout.HORIZONTAL)
+            assertViewSize(row1, DpSize(targetWidth, targetHeight))
+
+            val text2 = checkNotNull(column.findChild<TextView> { it.text == "Text 2" })
+            val row2 = text2.getParentView<FrameLayout>().getParentView<LinearLayout>()
+            assertThat(row2.orientation).isEqualTo(LinearLayout.HORIZONTAL)
+            assertThat(row2.height).isGreaterThan(20.dp.toPixels(context))
+            assertViewSize(row2, DpSize(targetWidth, targetHeight))
+        }
+    }
+
+    @Test
+    fun compoundButtonAction() {
+        val checkbox = "checkbox"
+        val switch = "switch"
+
+        TestGlanceAppWidget.uiDefinition = {
+            Column {
+                CheckBox(
+                    checked = false,
+                    onCheckedChange = actionRunCallback<CompoundButtonActionTest>(
+                        actionParametersOf(CompoundButtonActionTest.key to checkbox)
+                    ),
+                    text = checkbox
+                )
+                Switch(
+                    checked = true,
+                    onCheckedChange = actionRunCallback<CompoundButtonActionTest>(
+                        actionParametersOf(CompoundButtonActionTest.key to switch)
+                    ),
+                    text = switch
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        CompoundButtonActionTest.received.set(emptyList())
+        CompoundButtonActionTest.latch = CountDownLatch(2)
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text == checkbox })
+                .performCompoundButtonClick()
+            checkNotNull(root.findChild<TextView> { it.text == switch })
+                .performCompoundButtonClick()
+        }
+        CompoundButtonActionTest.latch.await(5, TimeUnit.SECONDS)
+        assertThat(CompoundButtonActionTest.received.get()).containsExactly(
+            checkbox to true, switch to false
+        )
+    }
+
+    @Test
+    fun radioActionCallback() {
+        TestGlanceAppWidget.uiDefinition = {
+            RadioButton(
+                checked = true,
+                onClick = actionRunCallback<CallbackTest>(
+                    actionParametersOf(CallbackTest.key to 2)
+                ),
+                text = "text1"
+            )
+        }
+
+        mHostRule.startHost()
+
+        CallbackTest.received.set(emptyList())
+        CallbackTest.latch = CountDownLatch(1)
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text == "text1" })
+                .performCompoundButtonClick()
+        }
+        assertThat(CallbackTest.latch.await(5, TimeUnit.SECONDS)).isTrue()
+        assertThat(CallbackTest.received.get()).containsExactly(2)
+    }
+
+    @Test
+    fun unsetActionCallback() {
+        TestGlanceAppWidget.uiDefinition = {
+            val enabled = currentState<Preferences>()[testBoolKey] ?: true
+            Text(
+                "text1",
+                modifier = if (enabled) {
+                    GlanceModifier.clickable(
+                        actionRunCallback<CallbackTest>(actionParametersOf(CallbackTest.key to 1))
+                    )
+                } else GlanceModifier
+            )
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onHostView { root ->
+            val text = checkNotNull(root.findChild<TextView> { it.text == "text1" })
+            assertThat(text.hasOnClickListeners()).isTrue()
+        }
+
+        runBlocking {
+            updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
+                it[testBoolKey] = false
+            }
+            mHostRule.updateAppWidget()
+        }
+
+        mHostRule.onHostView { root ->
+            val view = checkNotNull(root.findChild<TextView> { it.text == "text1" })
+            assertThat(view.hasOnClickListeners()).isFalse()
+        }
+    }
+
+    @Test
+    fun unsetCompoundButtonActionCallback() {
+        TestGlanceAppWidget.uiDefinition = {
+            val enabled = currentState<Preferences>()[testBoolKey] ?: true
+            CheckBox(
+                checked = false,
+                onCheckedChange = if (enabled) {
+                    actionRunCallback<CompoundButtonActionTest>(
+                        actionParametersOf(CompoundButtonActionTest.key to "checkbox")
+                    )
+                } else null,
+                text = "checkbox"
+            )
+        }
+
+        mHostRule.startHost()
+
+        CompoundButtonActionTest.received.set(emptyList())
+        CompoundButtonActionTest.latch = CountDownLatch(1)
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text == "checkbox" })
+                .performCompoundButtonClick()
+        }
+        CompoundButtonActionTest.latch.await(5, TimeUnit.SECONDS)
+        assertThat(CompoundButtonActionTest.received.get()).containsExactly(
+            "checkbox" to true
+        )
+
+        runBlocking {
+            updateAppWidgetState(context, AppWidgetId(mHostRule.appWidgetId)) {
+                it[testBoolKey] = false
+            }
+            mHostRule.updateAppWidget()
+        }
+
+        CompoundButtonActionTest.received.set(emptyList())
+        CompoundButtonActionTest.latch = CountDownLatch(1)
+        mHostRule.onHostView { root ->
+            checkNotNull(root.findChild<TextView> { it.text == "checkbox" })
+                .performCompoundButtonClick()
+        }
+        assertThat(CompoundButtonActionTest.latch.await(5, TimeUnit.SECONDS)).isFalse()
+        assertThat(CompoundButtonActionTest.received.get()).isEmpty()
+    }
+
+    @SdkSuppress(minSdkVersion = 31)
+    @Test
+    fun compoundButtonsOnlyHaveOneAction() {
+        TestGlanceAppWidget.uiDefinition = {
+            Column {
+                CheckBox(
+                    checked = false,
+                    onCheckedChange = actionRunCallback<CompoundButtonActionTest>(
+                        actionParametersOf()
+                    ),
+                    text = "checkbox",
+                    modifier = GlanceModifier.clickable(
+                        actionRunCallback<CompoundButtonActionTest>(actionParametersOf())
+                    ),
+                )
+            }
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onHostView { root ->
+            val checkbox = checkNotNull(root.findChild<CompoundButton> { it.text == "checkbox" })
+            assertThat(checkbox.hasOnClickListeners()).isFalse()
+        }
     }
 
     // Check there is a single span of the given type and that it passes the [check].
@@ -679,26 +898,63 @@ class GlanceAppWidgetReceiverTest {
 }
 
 private val testKey = intPreferencesKey("testKey")
+private val testBoolKey = booleanPreferencesKey("testKey")
 
 internal class CallbackTest : ActionCallback {
-    override suspend fun onRun(
+    override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
         parameters: ActionParameters
     ) {
         val value = checkNotNull(parameters[key])
-        repeat(100) {
-            if (received.get().let { received.compareAndSet(it, it + value) }) {
-                latch.countDown()
-                return
-            }
-        }
-        error("Could not set the new list")
+        received.update { it + value }
+        latch.countDown()
     }
 
     companion object {
         lateinit var latch: CountDownLatch
         val received = AtomicReference<List<Int>>(emptyList())
         val key = testKey.toParametersKey()
+    }
+}
+
+@Composable
+private fun BoxRowBox(modifier: GlanceModifier, text: String) {
+    Box(modifier) {
+        val rowModifier = GlanceModifier
+            .background(ColorProvider(Color.Gray))
+            .fillMaxWidth()
+            .padding(8.dp)
+        Row(modifier = rowModifier) {
+            val boxModifier = GlanceModifier
+                .background(ColorProvider(Color.DarkGray))
+                .width(64.dp)
+                .fillMaxHeight()
+            Box(
+                modifier = boxModifier,
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text)
+            }
+        }
+    }
+}
+
+internal class CompoundButtonActionTest : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        val target = checkNotNull(parameters[key])
+        val value = checkNotNull(parameters[ToggleableStateKey])
+        received.update { it + (target to value) }
+        latch.countDown()
+    }
+
+    companion object {
+        lateinit var latch: CountDownLatch
+        val received = AtomicReference<List<Pair<String, Boolean>>>(emptyList())
+        val key = ActionParameters.Key<String>("eventTarget")
     }
 }

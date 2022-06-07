@@ -41,6 +41,8 @@ public class OptionWireFormat implements VersionedParcelable, Parcelable {
     @NonNull
     public byte[] mId = new byte[0];
 
+    // WARNING: This class is held in a list and can't change due to flaws in VersionedParcelable.
+
     OptionWireFormat() {
     }
 
@@ -61,6 +63,7 @@ public class OptionWireFormat implements VersionedParcelable, Parcelable {
 
     public static final Creator<OptionWireFormat> CREATOR =
             new Creator<OptionWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public OptionWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

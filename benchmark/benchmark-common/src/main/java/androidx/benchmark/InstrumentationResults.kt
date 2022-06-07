@@ -90,7 +90,8 @@ public object InstrumentationResults {
         key: String,
         nanos: Double,
         allocations: Double?,
-        traceRelPath: String?
+        traceRelPath: String?,
+        profilerResult: Profiler.ResultFile?
     ): String {
         return listOfNotNull(
             // for readability, report nanos with 10ths only if less than 100
@@ -108,6 +109,10 @@ public object InstrumentationResults {
             traceRelPath?.run {
                 // always fixed length
                 "[trace](file://$traceRelPath)"
+            },
+            profilerResult?.run {
+                // should be fixed length within a run, as each benchmark will use same profiler
+                "[$label](file://$outputRelativePath)"
             },
             key
         ).joinToString("    ")
@@ -145,11 +150,18 @@ public object InstrumentationResults {
         key: String,
         nanos: Double,
         allocations: Double?,
-        traceRelPath: String?
+        traceRelPath: String?,
+        profilerResult: Profiler.ResultFile?
     ): String {
         val warningLines =
             Errors.acquireWarningStringForLogging()?.split("\n") ?: listOf()
-        return (warningLines + ideSummaryLine(key, nanos, allocations, traceRelPath))
+        return (warningLines + ideSummaryLine(
+            key = key,
+            nanos = nanos,
+            allocations = allocations,
+            traceRelPath = traceRelPath,
+            profilerResult = profilerResult
+        ))
             // remove first line if empty
             .filterIndexed { index, it -> index != 0 || it.isNotBlank() }
             // join, prepending key to everything but first string,

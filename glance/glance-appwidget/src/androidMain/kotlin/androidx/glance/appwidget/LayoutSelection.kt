@@ -87,6 +87,14 @@ internal enum class LayoutType {
     CheckBoxBackport,
     Button,
     Frame,
+    LinearProgressIndicator,
+    CircularProgressIndicator,
+    VerticalGridOneColumn,
+    VerticalGridTwoColumns,
+    VerticalGridThreeColumns,
+    VerticalGridFourColumns,
+    VerticalGridFiveColumns,
+    VerticalGridAutoFit,
 
     // Note: Java keywords, such as 'switch', can't be used for layout ids.
     Swtch,
@@ -94,21 +102,35 @@ internal enum class LayoutType {
     ImageCrop,
     ImageFit,
     ImageFillBounds,
+    RadioButton,
+    RadioButtonBackport,
+    RadioRow,
+    RadioColumn,
 }
 
 /** Mapping from layout type to fixed layout (if any). */
 private val LayoutMap = mapOf(
-    LayoutType.Text to R.layout.text,
-    LayoutType.List to R.layout.list,
-    LayoutType.CheckBox to R.layout.check_box,
-    LayoutType.CheckBoxBackport to R.layout.check_box_backport,
-    LayoutType.Button to R.layout.button,
-    LayoutType.Swtch to R.layout.swtch,
-    LayoutType.SwtchBackport to R.layout.swtch_backport,
-    LayoutType.Frame to R.layout.frame,
-    LayoutType.ImageCrop to R.layout.image_crop,
-    LayoutType.ImageFit to R.layout.image_fit,
-    LayoutType.ImageFillBounds to R.layout.image_fill_bounds,
+    LayoutType.Text to R.layout.glance_text,
+    LayoutType.List to R.layout.glance_list,
+    LayoutType.CheckBox to R.layout.glance_check_box,
+    LayoutType.CheckBoxBackport to R.layout.glance_check_box_backport,
+    LayoutType.Button to R.layout.glance_button,
+    LayoutType.Swtch to R.layout.glance_swtch,
+    LayoutType.SwtchBackport to R.layout.glance_swtch_backport,
+    LayoutType.Frame to R.layout.glance_frame,
+    LayoutType.ImageCrop to R.layout.glance_image_crop,
+    LayoutType.ImageFit to R.layout.glance_image_fit,
+    LayoutType.ImageFillBounds to R.layout.glance_image_fill_bounds,
+    LayoutType.LinearProgressIndicator to R.layout.glance_linear_progress_indicator,
+    LayoutType.CircularProgressIndicator to R.layout.glance_circular_progress_indicator,
+    LayoutType.VerticalGridOneColumn to R.layout.glance_vertical_grid_one_column,
+    LayoutType.VerticalGridTwoColumns to R.layout.glance_vertical_grid_two_columns,
+    LayoutType.VerticalGridThreeColumns to R.layout.glance_vertical_grid_three_columns,
+    LayoutType.VerticalGridFourColumns to R.layout.glance_vertical_grid_four_columns,
+    LayoutType.VerticalGridFiveColumns to R.layout.glance_vertical_grid_five_columns,
+    LayoutType.VerticalGridAutoFit to R.layout.glance_vertical_grid_auto_fit,
+    LayoutType.RadioButton to R.layout.glance_radio_button,
+    LayoutType.RadioButtonBackport to R.layout.glance_radio_button_backport,
 )
 
 internal data class SizeSelector(
@@ -256,7 +278,8 @@ private fun RemoteViews.selectChild(
     children.values
         .filter { it != stubId }
         .forEach {
-            inflateViewStub(translationContext, it, R.layout.deleted_view, R.id.deletedViewId)
+            inflateViewStub(
+                translationContext, it, R.layout.glance_deleted_view, R.id.deletedViewId)
         }
     return stubId
 }

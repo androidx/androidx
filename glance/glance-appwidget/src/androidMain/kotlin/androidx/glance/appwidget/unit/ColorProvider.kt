@@ -32,12 +32,12 @@ import androidx.glance.unit.ResourceColorProvider
  * Returns a [ColorProvider] that provides [day] when night mode is off, and [night] when night
  * mode is on.
  */
-public fun ColorProvider(day: Color, night: Color): ColorProvider {
+fun ColorProvider(day: Color, night: Color): ColorProvider {
     return DayNightColorProvider(day, night)
 }
 
 internal data class DayNightColorProvider(val day: Color, val night: Color) : ColorProvider {
-    fun resolve(context: Context) = resolve(context.isNightMode)
+    override fun resolve(context: Context) = resolve(context.isNightMode)
 
     fun resolve(isNightMode: Boolean) = if (isNightMode) night else day
 }

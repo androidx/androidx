@@ -21,7 +21,8 @@ import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.testutils.DirectDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -115,7 +116,7 @@ class PageEventTest {
     }
 
     @Test
-    fun dropTransform() = runBlockingTest {
+    fun dropTransform() = runTest(UnconfinedTestDispatcher()) {
         val drop = Drop<Char>(
             loadType = PREPEND,
             minPageOffset = 0,
@@ -129,7 +130,7 @@ class PageEventTest {
     }
 
     @Test
-    fun stateTransform() = runBlockingTest {
+    fun stateTransform() = runTest(UnconfinedTestDispatcher()) {
         val state = localLoadStateUpdate<Char>(
             refreshLocal = LoadState.Loading
         )
@@ -140,7 +141,7 @@ class PageEventTest {
     }
 
     @Test
-    fun insertMap() = runBlockingTest {
+    fun insertMap() = runTest(UnconfinedTestDispatcher()) {
         val insert = localAppend(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
             placeholdersAfter = 4,
@@ -160,7 +161,7 @@ class PageEventTest {
     }
 
     @Test
-    fun insertMapTransformed() = runBlockingTest {
+    fun insertMapTransformed() = runTest(UnconfinedTestDispatcher()) {
         assertEquals(
             localAppend(
                 pages = listOf(
@@ -188,7 +189,7 @@ class PageEventTest {
     }
 
     @Test
-    fun insertFilter() = runBlockingTest {
+    fun insertFilter() = runTest(UnconfinedTestDispatcher()) {
         val insert = localAppend(
             pages = listOf(TransformablePage(listOf('a', 'b', 'c', 'd'))),
             placeholdersAfter = 4,
@@ -230,7 +231,7 @@ class PageEventTest {
     }
 
     @Test
-    fun insertFlatMap() = runBlockingTest {
+    fun insertFlatMap() = runTest(UnconfinedTestDispatcher()) {
         val insert = localAppend(
             pages = listOf(TransformablePage(listOf('a', 'b'))),
             placeholdersAfter = 4,
@@ -291,7 +292,7 @@ class PageEventTest {
         private val differ = TestPagingDataDiffer<String>(DirectDispatcher)
 
         @Test
-        fun map() = runBlockingTest {
+        fun map() = runTest(UnconfinedTestDispatcher()) {
             val transform = { it: String -> it + it }
             differ.collectFrom(original)
             val originalItems = differ.snapshot().items
@@ -302,7 +303,7 @@ class PageEventTest {
         }
 
         @Test
-        fun flatMap() = runBlockingTest {
+        fun flatMap() = runTest(UnconfinedTestDispatcher()) {
             val transform = { it: String -> listOf(it, it) }
             differ.collectFrom(original)
             val originalItems = differ.snapshot().items
@@ -313,7 +314,7 @@ class PageEventTest {
         }
 
         @Test
-        fun filter() = runBlockingTest {
+        fun filter() = runTest(UnconfinedTestDispatcher()) {
             val predicate = { it: String -> it != "b" }
             differ.collectFrom(original)
             val originalItems = differ.snapshot().items
@@ -324,7 +325,7 @@ class PageEventTest {
         }
 
         @Test
-        fun insertSeparators() = runBlockingTest {
+        fun insertSeparators() = runTest(UnconfinedTestDispatcher()) {
             val transform = { left: String?, right: String? ->
                 if (left == null || right == null) null else "|"
             }

@@ -81,7 +81,7 @@ const val EXAMPLE_OPENGL_COMPLICATION_ID = 101
  * NB this is open for testing.
  */
 open class ExampleOpenGLWatchFaceService : WatchFaceService() {
-    // Lazy because the context isn't initialized til later.
+    // Lazy because the context isn't initialized till later.
     private val watchFaceStyle by lazy {
         WatchFaceColorStyle.create(this, "white_style")
     }
@@ -170,6 +170,7 @@ open class ExampleOpenGLWatchFaceService : WatchFaceService() {
         )
 }
 
+@Suppress("Deprecation")
 class ExampleOpenGLRenderer(
     surfaceHolder: SurfaceHolder,
     private val currentUserStyleRepository: CurrentUserStyleRepository,
@@ -1156,6 +1157,13 @@ class Gles2TexturedTriangleList(
             GLES20.glDisableVertexAttribArray(textureCoordinateHandle)
             if (CHECK_GL_ERRORS) {
                 checkGlError("glDisableVertexAttribArray")
+            }
+        }
+
+        fun onDestroy() {
+            GLES20.glDeleteProgram(programId)
+            if (CHECK_GL_ERRORS) {
+                checkGlError("glDeleteProgram")
             }
         }
 

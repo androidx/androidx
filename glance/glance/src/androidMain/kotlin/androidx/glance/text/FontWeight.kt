@@ -19,14 +19,14 @@ package androidx.glance.text
 /**
  * Weight of a font.
  */
-@Suppress("INLINE_CLASS_DEPRECATED")
-public inline class FontWeight private constructor(
+@JvmInline
+value class FontWeight private constructor(
     /** numerical value for the weight (a number from 0 to 1000) **/
     val value: Int,
 ) {
-    public companion object {
-        public val Normal: FontWeight = FontWeight(400)
-        public val Medium: FontWeight = FontWeight(500)
-        public val Bold: FontWeight = FontWeight(700)
+    companion object {
+        val Normal: FontWeight = FontWeight(400)
+        val Medium: FontWeight = FontWeight(500)
+        val Bold: FontWeight = FontWeight(700)
     }
 }

@@ -18,6 +18,7 @@ package androidx.glance.wear.tiles
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.ui.graphics.toArgb
@@ -29,11 +30,14 @@ import androidx.glance.Emittable
 import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
 import androidx.glance.GlanceModifier
+import androidx.glance.semantics.SemanticsModifier
 import androidx.glance.VisibilityModifier
+import androidx.glance.action.Action
 import androidx.glance.action.ActionModifier
-import androidx.glance.action.LaunchActivityAction
-import androidx.glance.action.LaunchActivityClassAction
-import androidx.glance.action.LaunchActivityComponentAction
+import androidx.glance.wear.tiles.action.RunCallbackAction
+import androidx.glance.action.StartActivityAction
+import androidx.glance.action.StartActivityClassAction
+import androidx.glance.action.StartActivityComponentAction
 import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.ContentScale
@@ -46,22 +50,30 @@ import androidx.glance.layout.PaddingInDp
 import androidx.glance.layout.PaddingModifier
 import androidx.glance.layout.WidthModifier
 import androidx.glance.layout.collectPaddingInDp
+import androidx.glance.semantics.SemanticsProperties
 import androidx.glance.text.EmittableText
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.toEmittableText
 import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.Dimension
-import androidx.glance.unit.FixedColorProvider
-import androidx.glance.unit.ResourceColorProvider
-import androidx.glance.unit.resolve
 import androidx.glance.wear.tiles.curved.AnchorType
+import androidx.glance.wear.tiles.curved.ActionCurvedModifier
 import androidx.glance.wear.tiles.curved.CurvedTextStyle
+import androidx.glance.wear.tiles.curved.EmittableCurvedChild
+import androidx.glance.wear.tiles.curved.EmittableCurvedLine
 import androidx.glance.wear.tiles.curved.EmittableCurvedRow
+import androidx.glance.wear.tiles.curved.EmittableCurvedSpacer
 import androidx.glance.wear.tiles.curved.EmittableCurvedText
+import androidx.glance.wear.tiles.curved.GlanceCurvedModifier
 import androidx.glance.wear.tiles.curved.RadialAlignment
+import androidx.glance.wear.tiles.curved.SemanticsCurvedModifier
+import androidx.glance.wear.tiles.curved.SweepAngleModifier
+import androidx.glance.wear.tiles.curved.ThicknessModifier
+import androidx.glance.wear.tiles.curved.findModifier
 import androidx.wear.tiles.ActionBuilders
 import androidx.wear.tiles.ColorBuilders.argb
 import androidx.wear.tiles.DimensionBuilders
@@ -80,8 +92,14 @@ import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_MEDIUM
 import androidx.wear.tiles.LayoutElementBuilders.FONT_WEIGHT_NORMAL
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END
+import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_LEFT
+import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_RIGHT
 import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_START
 import androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment
+import androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_CENTER
+import androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_END
+import androidx.wear.tiles.LayoutElementBuilders.TEXT_ALIGN_START
+import androidx.wear.tiles.LayoutElementBuilders.TextAlignment
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_TOP
@@ -91,13 +109,21 @@ import androidx.wear.tiles.ResourceBuilders
 import java.io.ByteArrayOutputStream
 import java.util.Arrays
 
+internal const val GlanceWearTileTag = "GlanceWearTile"
+
 @VerticalAlignment
 private fun Alignment.Vertical.toProto(): Int =
     when (this) {
         Alignment.Vertical.Top -> VERTICAL_ALIGN_TOP
         Alignment.Vertical.CenterVertically -> VERTICAL_ALIGN_CENTER
         Alignment.Vertical.Bottom -> VERTICAL_ALIGN_BOTTOM
-        else -> throw IllegalArgumentException("Unknown vertical alignment type $this")
+        else -> {
+            Log.w(
+                GlanceWearTileTag,
+                "Unknown vertical alignment type $this, align to Top instead"
+            )
+            VERTICAL_ALIGN_TOP
+        }
     }
 
 @HorizontalAlignment
@@ -106,7 +132,13 @@ private fun Alignment.Horizontal.toProto(): Int =
         Alignment.Horizontal.Start -> HORIZONTAL_ALIGN_START
         Alignment.Horizontal.CenterHorizontally -> HORIZONTAL_ALIGN_CENTER
         Alignment.Horizontal.End -> HORIZONTAL_ALIGN_END
-        else -> throw IllegalArgumentException("Unknown horizontal alignment type $this")
+        else -> {
+            Log.w(
+                GlanceWearTileTag,
+                "Unknown horizontal alignment type $this, align to Start instead"
+            )
+            HORIZONTAL_ALIGN_START
+        }
     }
 
 private fun PaddingInDp.toProto(): ModifiersBuilders.Padding =
@@ -127,32 +159,42 @@ private fun BackgroundModifier.toProto(context: Context): ModifiersBuilders.Back
 
 private fun BorderModifier.toProto(context: Context): ModifiersBuilders.Border =
     ModifiersBuilders.Border.Builder()
-            .setWidth(dp(this.width.toDp(context.resources).value))
-            .setColor(argb(this.color.getColor(context)))
-            .build()
+        .setWidth(dp(this.width.toDp(context.resources).value))
+        .setColor(argb(this.color.getColor(context)))
+        .build()
 
-private fun ColorProvider.getColor(context: Context) = when (this) {
-    is FixedColorProvider -> color.toArgb()
-    is ResourceColorProvider -> resolve(context).toArgb()
-    else -> error("Unsupported color provider: $this")
-}
+private fun SemanticsModifier.toProto(): ModifiersBuilders.Semantics? =
+    this.configuration.getOrNull(SemanticsProperties.ContentDescription)?.let {
+        ModifiersBuilders.Semantics.Builder()
+            .setContentDescription(it.joinToString())
+            .build()
+    }
+
+private fun SemanticsCurvedModifier.toProto(): ModifiersBuilders.Semantics? =
+    this.configuration.getOrNull(SemanticsProperties.ContentDescription)?.let {
+        ModifiersBuilders.Semantics.Builder()
+            .setContentDescription(it.joinToString())
+            .build()
+    }
+
+private fun ColorProvider.getColor(context: Context) = resolve(context).toArgb()
 
 // TODO: handle parameters
-private fun LaunchActivityAction.toProto(context: Context): ActionBuilders.LaunchAction =
+private fun StartActivityAction.toProto(context: Context): ActionBuilders.LaunchAction =
     ActionBuilders.LaunchAction.Builder()
         .setAndroidActivity(
             ActionBuilders.AndroidActivity.Builder()
                 .setPackageName(
                     when (this) {
-                        is LaunchActivityComponentAction -> componentName.packageName
-                        is LaunchActivityClassAction -> context.packageName
+                        is StartActivityComponentAction -> componentName.packageName
+                        is StartActivityClassAction -> context.packageName
                         else -> error("Action type not defined in wear package: $this")
                     }
                 )
                 .setClassName(
                     when (this) {
-                        is LaunchActivityComponentAction -> componentName.className
-                        is LaunchActivityClassAction -> activityClass.name
+                        is StartActivityComponentAction -> componentName.className
+                        is StartActivityClassAction -> activityClass.name
                         else -> error("Action type not defined in wear package: $this")
                     }
                 )
@@ -160,18 +202,30 @@ private fun LaunchActivityAction.toProto(context: Context): ActionBuilders.Launc
         )
         .build()
 
-private fun ActionModifier.toProto(context: Context): ModifiersBuilders.Clickable {
+private fun Action.toClickable(context: Context): ModifiersBuilders.Clickable {
     val builder = ModifiersBuilders.Clickable.Builder()
 
-    val onClick = when (val action = this.action) {
-        is LaunchActivityAction -> action.toProto(context)
-        else -> throw IllegalArgumentException("Unknown Action $this")
+    when (this) {
+        is StartActivityAction -> {
+            builder.setOnClick(toProto(context))
+        }
+        is RunCallbackAction -> {
+            builder.setOnClick(ActionBuilders.LoadAction.Builder().build())
+                .setId(callbackClass.canonicalName!!)
+        }
+        else -> {
+            Log.e(GlanceWearTileTag, "Unknown Action $this, skipped")
+        }
     }
-
-    builder.setOnClick(onClick)
 
     return builder.build()
 }
+
+private fun ActionModifier.toProto(context: Context): ModifiersBuilders.Clickable =
+    this.action.toClickable(context)
+
+private fun ActionCurvedModifier.toProto(context: Context): ModifiersBuilders.Clickable =
+    this.action.toClickable(context)
 
 private fun Dimension.toContainerDimension(): DimensionBuilders.ContainerDimension =
     when (this) {
@@ -188,7 +242,10 @@ private fun AnchorType.toProto(): Int =
         AnchorType.Start -> ARC_ANCHOR_START
         AnchorType.Center -> ARC_ANCHOR_CENTER
         AnchorType.End -> ARC_ANCHOR_END
-        else -> throw IllegalArgumentException("Unknown arc anchor type $this")
+        else -> {
+            Log.w(GlanceWearTileTag, "Unknown arc anchor type $this, anchor to center instead")
+            ARC_ANCHOR_CENTER
+        }
     }
 
 @VerticalAlignment
@@ -197,7 +254,41 @@ private fun RadialAlignment.toProto(): Int =
         RadialAlignment.Outer -> VERTICAL_ALIGN_TOP
         RadialAlignment.Center -> VERTICAL_ALIGN_CENTER
         RadialAlignment.Inner -> VERTICAL_ALIGN_BOTTOM
-        else -> throw IllegalArgumentException("Unknown radial alignment $this")
+        else -> {
+            Log.w(
+                GlanceWearTileTag,
+                "Unknown radial alignment $this, align to center instead"
+            )
+            VERTICAL_ALIGN_CENTER
+        }
+    }
+
+@TextAlignment
+private fun TextAlign.toTextAlignment(isRtl: Boolean): Int =
+    when (this) {
+        TextAlign.Center -> TEXT_ALIGN_CENTER
+        TextAlign.End -> TEXT_ALIGN_END
+        TextAlign.Left -> if (isRtl) TEXT_ALIGN_END else TEXT_ALIGN_START
+        TextAlign.Right -> if (isRtl) TEXT_ALIGN_START else TEXT_ALIGN_END
+        TextAlign.Start -> TEXT_ALIGN_START
+        else -> {
+            Log.w(GlanceWearTileTag, "Unknown text alignment $this, align to Start instead")
+            TEXT_ALIGN_START
+        }
+    }
+
+@HorizontalAlignment
+private fun TextAlign.toHorizontalAlignment(): Int =
+    when (this) {
+        TextAlign.Center -> HORIZONTAL_ALIGN_CENTER
+        TextAlign.End -> HORIZONTAL_ALIGN_END
+        TextAlign.Left -> HORIZONTAL_ALIGN_LEFT
+        TextAlign.Right -> HORIZONTAL_ALIGN_RIGHT
+        TextAlign.Start -> HORIZONTAL_ALIGN_START
+        else -> {
+            Log.w(GlanceWearTileTag, "Unknown text alignment $this, align to Start instead")
+            HORIZONTAL_ALIGN_START
+        }
     }
 
 private fun Dimension.resolve(context: Context): Dimension {
@@ -330,7 +421,13 @@ private fun translateTextStyle(
                 FontWeight.Normal -> FONT_WEIGHT_NORMAL
                 FontWeight.Medium -> FONT_WEIGHT_MEDIUM
                 FontWeight.Bold -> FONT_WEIGHT_BOLD
-                else -> throw IllegalArgumentException("Unknown font weight $it")
+                else -> {
+                    Log.w(
+                        GlanceWearTileTag,
+                        "Unknown font weight $it, use Normal weight instead"
+                    )
+                    FONT_WEIGHT_NORMAL
+                }
             }
         )
     }
@@ -356,7 +453,13 @@ private fun translateTextStyle(
                 FontWeight.Normal -> FONT_WEIGHT_NORMAL
                 FontWeight.Medium -> FONT_WEIGHT_MEDIUM
                 FontWeight.Bold -> FONT_WEIGHT_BOLD
-                else -> throw IllegalArgumentException("Unknown font weight $it")
+                else -> {
+                    Log.w(
+                        GlanceWearTileTag,
+                        "Unknown font weight $it, use Normal weight instead"
+                    )
+                    FONT_WEIGHT_NORMAL
+                }
             }
         )
     }
@@ -374,12 +477,22 @@ private fun translateEmittableText(
 
     val textBuilder = LayoutElementBuilders.Text.Builder()
         .setText(element.text)
+        .setMaxLines(element.maxLines)
 
     element.style?.let { textBuilder.setFontStyle(translateTextStyle(context, it)) }
 
+    val textAlign: TextAlign? = element.style?.textAlign
+    if (textAlign != null) {
+        val isRtl = context.resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL
+        textBuilder.setMultilineAlignment(textAlign.toTextAlignment(isRtl))
+    }
+
     return if (width !is Dimension.Wrap || height !is Dimension.Wrap) {
-        LayoutElementBuilders.Box.Builder()
-            .setWidth(width.toContainerDimension())
+        val boxBuilder = LayoutElementBuilders.Box.Builder()
+        if (textAlign != null) {
+            boxBuilder.setHorizontalAlignment(textAlign.toHorizontalAlignment())
+        }
+        boxBuilder.setWidth(width.toContainerDimension())
             .setHeight(height.toContainerDimension())
             .setModifiers(translateModifiers(context, element.modifier))
             .addContent(textBuilder.build())
@@ -472,8 +585,20 @@ private fun translateEmittableCurvedRow(
         .setVerticalAlign(element.radialAlignment.toProto())
 
     // Add all the children first...
-    element.children.forEach {
-        arcBuilder.addContent(translateCompositionInArc(context, resourceBuilder, it))
+    element.children.forEach { curvedChild ->
+        if (curvedChild is EmittableCurvedChild) {
+            curvedChild.children.forEach {
+                arcBuilder.addContent(
+                    translateEmittableElementInArc(
+                        context,
+                        resourceBuilder,
+                        it,
+                        curvedChild.rotateContent)
+                )
+            }
+        } else {
+            arcBuilder.addContent(translateCurvedCompositionInArc(context, curvedChild))
+        }
     }
 
     return if (width is Dimension.Dp || height is Dimension.Dp) {
@@ -499,20 +624,71 @@ private fun translateEmittableCurvedText(
     val arcTextBuilder = LayoutElementBuilders.ArcText.Builder()
         .setText(element.text)
 
-    element.textStyle?.let {
+    element.style?.let {
         arcTextBuilder.setFontStyle(translateTextStyle(context, it))
     }
 
+    arcTextBuilder.setModifiers(translateCurvedModifiers(context, element.curvedModifier))
+
     return arcTextBuilder.build()
+}
+
+private fun translateEmittableCurvedLine(
+    context: Context,
+    element: EmittableCurvedLine
+): LayoutElementBuilders.ArcLayoutElement {
+    var sweepAngleDegrees =
+        element.curvedModifier.findModifier<SweepAngleModifier>() ?. degrees ?: 0f
+    var thickness = element.curvedModifier.findModifier<ThicknessModifier>() ?. thickness ?: 0.dp
+
+    return LayoutElementBuilders.ArcLine.Builder()
+        .setLength(degrees(sweepAngleDegrees))
+        .setThickness(dp(thickness.value))
+        .setColor(argb(element.color.getColor(context)))
+        .setModifiers(translateCurvedModifiers(context, element.curvedModifier))
+        .build()
+}
+
+private fun translateEmittableCurvedSpacer(
+    context: Context,
+    element: EmittableCurvedSpacer
+): LayoutElementBuilders.ArcLayoutElement {
+    var sweepAngleDegrees =
+        element.curvedModifier.findModifier<SweepAngleModifier>() ?. degrees ?: 0f
+    var thickness = element.curvedModifier.findModifier<ThicknessModifier>() ?. thickness ?: 0.dp
+
+    return LayoutElementBuilders.ArcSpacer.Builder()
+        .setLength(degrees(sweepAngleDegrees))
+        .setThickness(dp(thickness.value))
+        .setModifiers(translateCurvedModifiers(context, element.curvedModifier))
+        .build()
 }
 
 private fun translateEmittableElementInArc(
     context: Context,
     resourceBuilder: ResourceBuilders.Resources.Builder,
-    element: Emittable
+    element: Emittable,
+    rotateContent: Boolean
 ): LayoutElementBuilders.ArcLayoutElement = LayoutElementBuilders.ArcAdapter.Builder()
     .setContent(translateComposition(context, resourceBuilder, element))
+    .setRotateContents(rotateContent)
     .build()
+
+private fun translateCurvedModifiers(
+    context: Context,
+    curvedModifier: GlanceCurvedModifier
+): ModifiersBuilders.ArcModifiers =
+    curvedModifier.foldIn(ModifiersBuilders.ArcModifiers.Builder()) { builder, element ->
+       when (element) {
+           is ActionCurvedModifier -> builder.setClickable(element.toProto(context))
+           is ThicknessModifier -> builder /* Skip for now, handled elsewhere. */
+           is SweepAngleModifier -> builder /* Skip for now, handled elsewhere. */
+           is SemanticsCurvedModifier -> {
+               element.toProto()?.let { builder.setSemantics(it) } ?: builder
+           }
+           else -> throw IllegalArgumentException("Unknown curved modifier type")
+       }
+    }.build()
 
 private fun translateModifiers(
     context: Context,
@@ -530,6 +706,9 @@ private fun translateModifiers(
             is PaddingModifier -> builder // Processing that after
             is VisibilityModifier -> builder // Already processed
             is BorderModifier -> builder.setBorder(element.toProto(context))
+            is SemanticsModifier -> {
+                element.toProto()?.let { builder.setSemantics(it) } ?: builder
+            }
             else -> throw IllegalArgumentException("Unknown modifier type")
         }
     }
@@ -551,14 +730,17 @@ private fun translateModifiers(
         }
         .build()
 
-private fun translateCompositionInArc(
+private fun translateCurvedCompositionInArc(
     context: Context,
-    resourceBuilder: ResourceBuilders.Resources.Builder,
     element: Emittable
 ): LayoutElementBuilders.ArcLayoutElement {
     return when (element) {
         is EmittableCurvedText -> translateEmittableCurvedText(context, element)
-        else -> translateEmittableElementInArc(context, resourceBuilder, element)
+        is EmittableCurvedLine -> translateEmittableCurvedLine(context, element)
+        is EmittableCurvedSpacer -> translateEmittableCurvedSpacer(context, element)
+        else -> throw IllegalArgumentException(
+            "Unknown curved Element: $element"
+        )
     }
 }
 
@@ -595,13 +777,17 @@ internal fun translateComposition(
     return when (element) {
         is EmittableBox -> translateEmittableBox(context, resourceBuilder, element)
         is EmittableRow -> translateEmittableRow(context, resourceBuilder, element)
-        is EmittableColumn -> translateEmittableColumn(context, resourceBuilder, element)
+        is EmittableColumn ->
+            translateEmittableColumn(context, resourceBuilder, element)
         is EmittableText -> translateEmittableText(context, element)
-        is EmittableCurvedRow -> translateEmittableCurvedRow(context, resourceBuilder, element)
+        is EmittableCurvedRow ->
+            translateEmittableCurvedRow(context, resourceBuilder, element)
         is EmittableAndroidLayoutElement -> translateEmittableAndroidLayoutElement(element)
-        is EmittableButton -> translateEmittableText(context, element.toEmittableText())
+        is EmittableButton ->
+            translateEmittableText(context, element.toEmittableText())
         is EmittableSpacer -> translateEmittableSpacer(context, element)
-        is EmittableImage -> translateEmittableImage(context, resourceBuilder, element)
+        is EmittableImage ->
+            translateEmittableImage(context, resourceBuilder, element)
         else -> throw IllegalArgumentException("Unknown element $element")
     }
 }

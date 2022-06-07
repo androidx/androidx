@@ -21,6 +21,7 @@ import android.media.ImageReader;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CaptureProcessor;
@@ -28,10 +29,13 @@ import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -44,12 +48,30 @@ import java.util.concurrent.RejectedExecutionException;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class CaptureProcessorPipeline implements CaptureProcessor {
     private static final String TAG = "CaptureProcessorPipeline";
+    @NonNull
     private final CaptureProcessor mPreCaptureProcessor;
+    @NonNull
     private final CaptureProcessor mPostCaptureProcessor;
+    @NonNull
+    private final ListenableFuture<List<Void>> mUnderlyingCaptureProcessorsCloseFuture;
+    @NonNull
     final Executor mExecutor;
     private final int mMaxImages;
     private ImageReaderProxy mIntermediateImageReader = null;
     private ImageInfo mSourceImageInfo = null;
+
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
+    private boolean mClosed = false;
+
+    @GuardedBy("mLock")
+    private boolean mProcessing = false;
+
+    @GuardedBy("mLock")
+    CallbackToFutureAdapter.Completer<Void> mCloseCompleter;
+    @GuardedBy("mLock")
+    private ListenableFuture<Void> mCloseFuture;
 
     /**
      * Creates a {@link CaptureProcessorPipeline} to link two CaptureProcessors to process the
@@ -74,6 +96,12 @@ class CaptureProcessorPipeline implements CaptureProcessor {
             @NonNull CaptureProcessor postCaptureProcessor, @NonNull Executor executor) {
         mPreCaptureProcessor = preCaptureProcessor;
         mPostCaptureProcessor = postCaptureProcessor;
+
+        List<ListenableFuture<Void>> closeFutureList = new ArrayList<>();
+        closeFutureList.add(mPreCaptureProcessor.getCloseFuture());
+        closeFutureList.add(mPostCaptureProcessor.getCloseFuture());
+        mUnderlyingCaptureProcessorsCloseFuture = Futures.allAsList(closeFutureList);
+
         mExecutor = executor;
         mMaxImages = maxImages;
     }
@@ -86,6 +114,14 @@ class CaptureProcessorPipeline implements CaptureProcessor {
 
     @Override
     public void process(@NonNull ImageProxyBundle bundle) {
+        synchronized (mLock) {
+            if (mClosed) {
+                return;
+            }
+
+            mProcessing = true;
+        }
+
         List<Integer> ids = bundle.getCaptureIds();
         ListenableFuture<ImageProxy> imageProxyListenableFuture = bundle.getImageProxy(ids.get(0));
         Preconditions.checkArgument(imageProxyListenableFuture.isDone());
@@ -137,30 +173,113 @@ class CaptureProcessorPipeline implements CaptureProcessor {
     }
 
     void postProcess(ImageProxy imageProxy) {
-        Size resolution = new Size(imageProxy.getWidth(), imageProxy.getHeight());
+        boolean closed;
 
-        // Retrieves information from ImageInfo of source image to create a
-        // SettableImageProxyBundle and calls the post-processing CaptureProcessor to process it.
-        Preconditions.checkNotNull(mSourceImageInfo);
-        String tagBundleKey = mSourceImageInfo.getTagBundle().listKeys().iterator().next();
-        int captureId = (Integer) mSourceImageInfo.getTagBundle().getTag(tagBundleKey);
-        SettableImageProxy settableImageProxy =
-                new SettableImageProxy(imageProxy, resolution, mSourceImageInfo);
-        mSourceImageInfo = null;
+        synchronized (mLock) {
+            closed = mClosed;
+        }
 
-        SettableImageProxyBundle settableImageProxyBundle = new SettableImageProxyBundle(
-                Collections.singletonList(captureId), tagBundleKey);
-        settableImageProxyBundle.addImageProxy(settableImageProxy);
-        mPostCaptureProcessor.process(settableImageProxyBundle);
+        if (!closed) {
+            Size resolution = new Size(imageProxy.getWidth(), imageProxy.getHeight());
+
+            // Retrieves information from ImageInfo of source image to create a
+            // SettableImageProxyBundle and calls the post-processing CaptureProcessor to process
+            // it.
+            Preconditions.checkNotNull(mSourceImageInfo);
+            String tagBundleKey = mSourceImageInfo.getTagBundle().listKeys().iterator().next();
+            int captureId = (Integer) mSourceImageInfo.getTagBundle().getTag(tagBundleKey);
+            SettableImageProxy settableImageProxy =
+                    new SettableImageProxy(imageProxy, resolution, mSourceImageInfo);
+            mSourceImageInfo = null;
+
+            SettableImageProxyBundle settableImageProxyBundle = new SettableImageProxyBundle(
+                    Collections.singletonList(captureId), tagBundleKey);
+            settableImageProxyBundle.addImageProxy(settableImageProxy);
+
+            try {
+                mPostCaptureProcessor.process(settableImageProxyBundle);
+            } catch (Exception e) {
+                Logger.e(TAG, "Post processing image failed! " + e.getMessage());
+            }
+        }
+
+        synchronized (mLock) {
+            mProcessing = false;
+        }
+
+        closeAndCompleteFutureIfNecessary();
     }
 
     /**
      * Closes the objects generated when creating the {@link CaptureProcessorPipeline}.
      */
-    void close() {
-        if (mIntermediateImageReader != null) {
-            mIntermediateImageReader.clearOnImageAvailableListener();
-            mIntermediateImageReader.close();
+    @Override
+    public void close() {
+        synchronized (mLock) {
+            if (mClosed) {
+                return;
+            }
+
+            mClosed = true;
         }
+
+        mPreCaptureProcessor.close();
+        mPostCaptureProcessor.close();
+        closeAndCompleteFutureIfNecessary();
+    }
+
+    private void closeAndCompleteFutureIfNecessary() {
+        boolean closed;
+        boolean processing;
+        CallbackToFutureAdapter.Completer<Void> closeCompleter;
+
+        synchronized (mLock) {
+            closed = mClosed;
+            processing = mProcessing;
+            closeCompleter = mCloseCompleter;
+
+            if (closed && !processing) {
+                mIntermediateImageReader.close();
+            }
+        }
+
+        if (closed && !processing && closeCompleter != null) {
+            // Complete the capture process pipeline's close future after the underlying pre and
+            // post capture processors are closed.
+            mUnderlyingCaptureProcessorsCloseFuture.addListener(() -> closeCompleter.set(null),
+                    CameraXExecutors.directExecutor());
+        }
+    }
+
+    /**
+     * Returns a future that will complete when the CaptureProcessorPipeline is actually closed.
+     *
+     * @return A future that signals when the CaptureProcessorPipeline is actually closed
+     * (after all processing). Cancelling this future has no effect.
+     */
+    @NonNull
+    @Override
+    public ListenableFuture<Void> getCloseFuture() {
+        ListenableFuture<Void> closeFuture;
+        synchronized (mLock) {
+            if (mClosed && !mProcessing) {
+                // Everything should be closed but still need to wait for underlying capture
+                // processors being closed.
+                closeFuture = Futures.transform(mUnderlyingCaptureProcessorsCloseFuture,
+                        nullVoid -> null, CameraXExecutors.directExecutor());
+            } else {
+                if (mCloseFuture == null) {
+                    mCloseFuture = CallbackToFutureAdapter.getFuture(completer -> {
+                        // Should already be locked, but lock again to satisfy linter.
+                        synchronized (mLock) {
+                            mCloseCompleter = completer;
+                        }
+                        return "CaptureProcessorPipeline-close";
+                    });
+                }
+                closeFuture = Futures.nonCancellationPropagating(mCloseFuture);
+            }
+        }
+        return closeFuture;
     }
 }

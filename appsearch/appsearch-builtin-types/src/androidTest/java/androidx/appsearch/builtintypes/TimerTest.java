@@ -26,60 +26,124 @@ public class TimerTest {
     @Test
     public void testBuilder() {
         Timer timer = new Timer.Builder("namespace", "id1")
-                .setTtlMillis(6000)
+                .setDocumentScore(1)
+                .setDocumentTtlMillis(6000)
+                .setCreationTimestampMillis(100)
                 .setName("my timer")
                 .setDurationMillis(1000)
-                .setTimerStatus(Timer.STATUS_STARTED)
-                .setRemainingTimeMillis(500)
-                .setExpireTimeMillis(2000)
+                .setOriginalDurationMillis(800)
+                .setRemainingDurationMillis(500)
                 .setRingtone("clock://ringtone/1")
-                .setScore(1)
-                .setVibrate(true)
+                .setStatus(Timer.STATUS_STARTED)
+                .setShouldVibrate(true)
+                .setStartTimeMillis(100)
+                .setBaseTimeMillis(
+                        /*baseTimeMillis=*/750,
+                        /*baseTimeMillisInElapsedRealtime=*/700,
+                        /*bootCount=*/1)
                 .build();
 
         assertThat(timer.getNamespace()).isEqualTo("namespace");
         assertThat(timer.getId()).isEqualTo("id1");
-        assertThat(timer.getTtlMillis()).isEqualTo(6000);
+        assertThat(timer.getDocumentScore()).isEqualTo(1);
+        assertThat(timer.getDocumentTtlMillis()).isEqualTo(6000);
+        assertThat(timer.getCreationTimestampMillis()).isEqualTo(100);
         assertThat(timer.getName()).isEqualTo("my timer");
         assertThat(timer.getDurationMillis()).isEqualTo(1000);
-        assertThat(timer.getTimerStatus()).isEqualTo(1);
-        assertThat(timer.getRemainingTimeMillis()).isEqualTo(500);
-        assertThat(timer.getExpireTimeMillis()).isEqualTo(2000);
+        assertThat(timer.getOriginalDurationMillis()).isEqualTo(800);
+        assertThat(timer.getRemainingDurationMillis()).isEqualTo(500);
         assertThat(timer.getRingtone()).isEqualTo("clock://ringtone/1");
-        assertThat(timer.getScore()).isEqualTo(1);
-        assertThat(timer.isVibrate()).isEqualTo(true);
+        assertThat(timer.getStatus()).isEqualTo(Timer.STATUS_STARTED);
+        assertThat(timer.shouldVibrate()).isEqualTo(true);
+        assertThat(timer.getStartTimeMillis()).isEqualTo(100);
+        assertThat(timer.getBaseTimeMillis()).isEqualTo(750);
+        assertThat(timer.getBaseTimeMillisInElapsedRealtime()).isEqualTo(700);
+        assertThat(timer.getBootCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void testBuilderCopy_allFieldsCopied() {
+        Timer timer1 = new Timer.Builder("namespace", "id1")
+                .setDocumentScore(1)
+                .setDocumentTtlMillis(6000)
+                .setCreationTimestampMillis(100)
+                .setName("my timer")
+                .setDurationMillis(1000)
+                .setOriginalDurationMillis(800)
+                .setRemainingDurationMillis(500)
+                .setRingtone("clock://ringtone/1")
+                .setStatus(Timer.STATUS_STARTED)
+                .setShouldVibrate(true)
+                .setStartTimeMillis(100)
+                .setBaseTimeMillis(
+                        /*baseTimeMillis=*/750,
+                        /*baseTimeMillisInElapsedRealtime=*/700,
+                        /*bootCount=*/1)
+                .build();
+        Timer timer2 = new Timer.Builder(timer1).build();
+
+        assertThat(timer1.getNamespace()).isEqualTo(timer2.getNamespace());
+        assertThat(timer1.getId()).isEqualTo(timer2.getId());
+        assertThat(timer1.getDocumentScore()).isEqualTo(timer2.getDocumentScore());
+        assertThat(timer1.getDocumentTtlMillis()).isEqualTo(timer2.getDocumentTtlMillis());
+        assertThat(timer1.getCreationTimestampMillis())
+                .isEqualTo(timer2.getCreationTimestampMillis());
+        assertThat(timer1.getName()).isEqualTo(timer2.getName());
+        assertThat(timer1.getDurationMillis()).isEqualTo(timer2.getDurationMillis());
+        assertThat(timer1.getOriginalDurationMillis())
+                .isEqualTo(timer2.getOriginalDurationMillis());
+        assertThat(timer1.getRemainingDurationMillis())
+                .isEqualTo(timer2.getRemainingDurationMillis());
+        assertThat(timer1.getRingtone()).isEqualTo(timer2.getRingtone());
+        assertThat(timer1.getStatus()).isEqualTo(timer2.getStatus());
+        assertThat(timer1.shouldVibrate()).isEqualTo(timer2.shouldVibrate());
+        assertThat(timer1.getStartTimeMillis()).isEqualTo(timer2.getStartTimeMillis());
+        assertThat(timer1.getBaseTimeMillis()).isEqualTo(timer2.getBaseTimeMillis());
+        assertThat(timer1.getBaseTimeMillisInElapsedRealtime())
+                .isEqualTo(timer2.getBaseTimeMillisInElapsedRealtime());
+        assertThat(timer1.getBootCount()).isEqualTo(timer2.getBootCount());
     }
 
     @Test
     public void testToGenericDocument() throws Exception {
         Timer timer = new Timer.Builder("namespace", "id1")
-                .setTtlMillis(6000)
+                .setDocumentScore(1)
+                .setDocumentTtlMillis(6000)
+                .setCreationTimestampMillis(100)
                 .setName("my timer")
                 .setDurationMillis(1000)
-                .setTimerStatus(Timer.STATUS_STARTED)
-                .setRemainingTimeMillis(500)
-                .setExpireTimeMillis(2000)
+                .setOriginalDurationMillis(800)
+                .setRemainingDurationMillis(500)
                 .setRingtone("clock://ringtone/1")
-                .setScore(1)
-                .setVibrate(true)
+                .setStatus(Timer.STATUS_STARTED)
+                .setShouldVibrate(true)
+                .setStartTimeMillis(100)
+                .setBaseTimeMillis(
+                        /*baseTimeMillis=*/750,
+                        /*baseTimeMillisInElapsedRealtime=*/700,
+                        /*bootCount=*/1)
                 .build();
 
         GenericDocument genericDocument = GenericDocument.fromDocumentClass(timer);
+        assertThat(genericDocument.getSchemaType()).isEqualTo("builtin:Timer");
         assertThat(genericDocument.getNamespace()).isEqualTo("namespace");
         assertThat(genericDocument.getId()).isEqualTo("id1");
         assertThat(genericDocument.getScore()).isEqualTo(1);
         assertThat(genericDocument.getTtlMillis()).isEqualTo(6000);
-        assertThat(genericDocument.getSchemaType()).isEqualTo("Timer");
-        assertThat(genericDocument.getPropertyString("name"))
-                .isEqualTo("my timer");
+        assertThat(genericDocument.getCreationTimestampMillis()).isEqualTo(100);
+        assertThat(genericDocument.getPropertyString("name")).isEqualTo("my timer");
         assertThat(genericDocument.getPropertyLong("durationMillis")).isEqualTo(1000);
-        assertThat(genericDocument.getPropertyLong("timerStatus"))
-                .isEqualTo(1);
-        assertThat(genericDocument.getPropertyLong("remainingTimeMillis")).isEqualTo(500);
-        assertThat(genericDocument.getPropertyLong("expireTimeMillis"))
-                .isEqualTo(2000);
-        assertThat(genericDocument.getPropertyString("ringtone"))
-                .isEqualTo("clock://ringtone/1");
-        assertThat(genericDocument.getPropertyBoolean("vibrate")).isEqualTo(true);
+        assertThat(genericDocument.getPropertyLong("originalDurationMillis"))
+                .isEqualTo(800);
+        assertThat(genericDocument.getPropertyLong("remainingDurationMillis"))
+                .isEqualTo(500);
+        assertThat(genericDocument.getPropertyString("ringtone")).isEqualTo("clock://ringtone/1");
+        assertThat(genericDocument.getPropertyLong("status")).isEqualTo(1);
+        assertThat(genericDocument.getPropertyBoolean("shouldVibrate")).isTrue();
+        assertThat(genericDocument.getPropertyLong("startTimeMillis")).isEqualTo(100);
+        assertThat(genericDocument.getPropertyLong("baseTimeMillis")).isEqualTo(750);
+        assertThat(genericDocument.getPropertyLong("baseTimeMillisInElapsedRealtime"))
+                .isEqualTo(700);
+        assertThat(genericDocument.getPropertyLong("bootCount")).isEqualTo(1);
     }
 }

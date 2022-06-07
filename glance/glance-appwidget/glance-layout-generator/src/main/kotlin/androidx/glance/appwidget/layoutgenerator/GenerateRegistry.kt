@@ -386,7 +386,7 @@ private fun makeViewType(name: String) =
     MemberName("androidx.glance.appwidget.LayoutType", name)
 
 private fun String.toLayoutType(): String =
-    snakeRegex.replace(this) {
+    snakeRegex.replace(this.removePrefix("glance_")) {
         it.value.replace("_", "").uppercase()
     }.replaceFirstChar { it.uppercaseChar() }
 

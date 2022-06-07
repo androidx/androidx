@@ -61,7 +61,7 @@ public class BenchmarkState {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     constructor() {
         simplifiedTimingOnlyMode = false
-        profiler = null
+        profiler = Arguments.profiler
     }
 
     private var stages = listOf(
@@ -128,6 +128,7 @@ public class BenchmarkState {
      * Profiler reference which is null when [simplifiedTimingOnlyMode] = true
      */
     private val profiler: Profiler?
+    private var profilerResult: Profiler.ResultFile? = null
 
     /** @suppress */
     @SuppressLint("MethodNameUnits")
@@ -232,7 +233,7 @@ public class BenchmarkState {
                 UserspaceTracing.beginSection("Warmup")
             }
             RUNNING_TIME_STAGE -> {
-                profiler?.start(traceUniqueName)
+                profilerResult = profiler?.start(traceUniqueName)
                 UserspaceTracing.beginSection("Benchmark Time")
             }
             RUNNING_ALLOCATION_STAGE -> {
@@ -279,12 +280,11 @@ public class BenchmarkState {
             // profiling happens in RUNNING_TIME_STAGE
             profiler?.stop()
 
-            // skip allocation stage if we are only doing minimal looping (startupMode, dryRunMode,
-            // profilingMode), or if we only care about timing (checkForThermalThrottling)
+            // skip allocation stage if we are only doing minimal looping (startupMode, dryRunMode),
+            // or if we only care about timing (checkForThermalThrottling)
             if (simplifiedTimingOnlyMode ||
                 Arguments.startupMode ||
-                Arguments.dryRunMode ||
-                Arguments.profiler != null
+                Arguments.dryRunMode
             ) {
                 state++
             }
@@ -422,13 +422,7 @@ public class BenchmarkState {
         thermalThrottleSleepSeconds = 0
 
         if (!simplifiedTimingOnlyMode) {
-            if (!CpuInfo.locked &&
-                !IsolationActivity.sustainedPerformanceModeInUse &&
-                !Errors.isEmulator
-            ) {
-                ThrottleDetector.computeThrottleBaseline()
-            }
-
+            ThrottleDetector.computeThrottleBaselineIfNeeded()
             ThreadPriority.bumpCurrentThreadPriority()
         }
 
@@ -501,13 +495,15 @@ public class BenchmarkState {
                 key = key,
                 nanos = nanos,
                 allocations = allocations,
-                traceRelPath = null
+                traceRelPath = null,
+                profilerResult = null
             ),
             summaryV2 = ideSummaryLineWrapped(
                 key = key,
                 nanos = nanos,
                 allocations = allocations,
-                traceRelPath = tracePath?.let { Outputs.relativePathFor(it) }
+                traceRelPath = tracePath?.let { Outputs.relativePathFor(it) },
+                profilerResult = profilerResult
             ),
         )
         return status
@@ -599,7 +595,7 @@ public class BenchmarkState {
         private var firstBenchmark = true
 
         @Suppress("DEPRECATION")
-        @Experimental
+        @RequiresOptIn
         @Retention(AnnotationRetention.BINARY)
         @Target(AnnotationTarget.FUNCTION)
         public annotation class ExperimentalExternalReport
@@ -653,7 +649,8 @@ public class BenchmarkState {
                         key = fullTestName,
                         nanos = report.getMetricResult("timeNs").min,
                         allocations = null,
-                        traceRelPath = null
+                        traceRelPath = null,
+                        profilerResult = null
                     )
                 )
             }

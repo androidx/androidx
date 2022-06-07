@@ -26,22 +26,21 @@ import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.StaticList
 import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.internal.BUGANIZER_URL
-import kotlinx.coroutines.CoroutineDispatcher
+import java.util.concurrent.CopyOnWriteArrayList
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow.DROP_OLDEST
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
-import java.util.concurrent.CopyOnWriteArrayList
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class PagingDataDiffer<T : Any>(
     private val differCallback: DifferCallback,
-    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+    private val mainContext: CoroutineContext = Dispatchers.Main
 ) {
     private var presenter: PagePresenter<T> = PagePresenter.initial()
     private var receiver: UiReceiver? = null
@@ -143,7 +142,7 @@ public abstract class PagingDataDiffer<T : Any>(
             receiver = pagingData.receiver
 
             pagingData.flow.collect { event ->
-                withContext(mainDispatcher) {
+                withContext(mainContext) {
                     if (event is Insert && event.loadType == REFRESH) {
                         presentNewList(
                             pages = event.pages,

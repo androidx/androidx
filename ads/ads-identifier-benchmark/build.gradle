@@ -35,3 +35,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
 }
+
+android {
+    namespace "androidx.ads.identifier.benchmark"
+}

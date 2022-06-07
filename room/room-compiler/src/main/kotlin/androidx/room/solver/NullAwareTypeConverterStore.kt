@@ -52,6 +52,9 @@ class NullAwareTypeConverterStore(
      */
     private val knownColumnTypes: List<XType>
 ) : TypeConverterStore {
+    private val knownColumnTypeNames = knownColumnTypes.map {
+        it.typeName
+    }
     override val typeConverters = if (context.processingEnv.backend == Backend.KSP) {
         val processedConverters = typeConverters.toMutableList()
         // create copies for converters that receive non-null values
@@ -154,6 +157,11 @@ class NullAwareTypeConverterStore(
         return null
     }
 
+    private fun isColumnType(type: XType): Boolean {
+        // compare using type names to handle both null and non-null.
+        return knownColumnTypeNames.contains(type.typeName)
+    }
+
     private fun findConverterIntoStatementInternal(
         input: XType,
         columnTypes: List<XType>
@@ -162,7 +170,8 @@ class NullAwareTypeConverterStore(
         val queue = TypeConverterQueue(
             sourceType = input,
             // each converter is keyed on which type they will take us to
-            keyType = TypeConverter::to
+            keyType = TypeConverter::to,
+            isKnownColumnType = this::isColumnType
         )
 
         while (true) {
@@ -178,7 +187,8 @@ class NullAwareTypeConverterStore(
             columnTypes.forEach { columnType ->
                 if (columnType.isAssignableFrom(current.type)) {
                     queue.maybeEnqueue(
-                        current.appendConverter(
+                        prevEntry = current,
+                        converter = current.appendConverter(
                             UpCastTypeConverter(
                                 upCastFrom = current.type,
                                 upCastTo = columnType
@@ -188,7 +198,10 @@ class NullAwareTypeConverterStore(
                 }
             }
             getAllTypeConvertersFrom(current.type).forEach {
-                queue.maybeEnqueue(current.appendConverter(it))
+                queue.maybeEnqueue(
+                    prevEntry = current,
+                    converter = current.appendConverter(it)
+                )
             }
         }
         return null
@@ -237,7 +250,8 @@ class NullAwareTypeConverterStore(
             sourceType = output,
             // each converter is keyed on which type they receive as we are doing pathfinding
             // reverse here
-            keyType = TypeConverter::from
+            keyType = TypeConverter::from,
+            isKnownColumnType = this::isColumnType
         )
 
         while (true) {
@@ -253,7 +267,8 @@ class NullAwareTypeConverterStore(
             columnTypes.forEach { columnType ->
                 if (current.type.isAssignableFrom(columnType)) {
                     queue.maybeEnqueue(
-                        current.prependConverter(
+                        prevEntry = current,
+                        converter = current.prependConverter(
                             UpCastTypeConverter(
                                 upCastFrom = columnType,
                                 upCastTo = current.type
@@ -263,7 +278,10 @@ class NullAwareTypeConverterStore(
                 }
             }
             getAllTypeConvertersTo(current.type).forEach {
-                queue.maybeEnqueue(current.prependConverter(it))
+                queue.maybeEnqueue(
+                    prevEntry = current,
+                    converter = current.prependConverter(it)
+                )
             }
         }
         return null
@@ -348,6 +366,7 @@ class NullAwareTypeConverterStore(
      */
     private class TypeConverterQueue(
         sourceType: XType,
+        val isKnownColumnType: (XType) -> Boolean,
         val keyType: TypeConverter.() -> XType
     ) {
         // using insertion order as the tie breaker for reproducible builds.
@@ -361,7 +380,8 @@ class NullAwareTypeConverterStore(
             val typeConverterEntry = TypeConverterEntry(
                 tieBreakerPriority = insertionOrder++,
                 type = sourceType,
-                converter = null
+                converter = null,
+                convertsBetweenDbAndNonDbType = false
             )
             cheapestEntry[sourceType] = typeConverterEntry
             queue.add(typeConverterEntry)
@@ -384,14 +404,31 @@ class NullAwareTypeConverterStore(
          * or visited with a more expensive converter.
          */
         fun maybeEnqueue(
+            prevEntry: TypeConverterEntry,
             converter: TypeConverter
         ): Boolean {
             val keyType = converter.keyType()
+            val convertsBetweenDbAndNonDbType =
+                isKnownColumnType(converter.from) != isKnownColumnType(converter.to)
+            if (prevEntry.convertsBetweenDbAndNonDbType) {
+                // if previous entry converted from db type to user type (or vice versa), the new
+                // converter must also be converting between db type and non-db type.
+                if (!convertsBetweenDbAndNonDbType) {
+                    // prev entry already visited a column type, we cannot add any converters that
+                    // will visit a non-column type
+                    return false
+                }
+            }
             val existing = cheapestEntry[keyType]
             if (existing == null ||
                 (existing.converter != null && existing.converter.cost > converter.cost)
             ) {
-                val entry = TypeConverterEntry(insertionOrder++, keyType, converter)
+                val entry = TypeConverterEntry(
+                    tieBreakerPriority = insertionOrder++,
+                    type = keyType,
+                    converter = converter,
+                    convertsBetweenDbAndNonDbType = convertsBetweenDbAndNonDbType
+                )
                 cheapestEntry[keyType] = entry
                 queue.add(entry)
                 return true
@@ -404,7 +441,16 @@ class NullAwareTypeConverterStore(
         // when costs are equal, tieBreakerPriority is used
         val tieBreakerPriority: Int,
         val type: XType,
-        val converter: TypeConverter?
+        val converter: TypeConverter?,
+        /**
+         * If true, this entry converts between a column type and a non column type. Once a
+         * converter entry converts between a column type and user type, it can never go back. This
+         * is to ensure that we don't find converters between unrelated user types just because they
+         * both convert to the same database type.
+         * For instance, both TypeA and TypeB might be convertible to `String` to be persisted, yet,
+         * this doesn't mean TypeA can be converted into TypeB.
+         */
+        val convertsBetweenDbAndNonDbType: Boolean
     ) : Comparable<TypeConverterEntry> {
         override fun compareTo(other: TypeConverterEntry): Int {
             if (converter == null) {

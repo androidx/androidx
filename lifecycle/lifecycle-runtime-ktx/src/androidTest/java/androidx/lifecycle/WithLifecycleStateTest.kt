@@ -58,7 +58,8 @@ class WithLifecycleStateTest {
 
     @Test
     fun testBlockCancelledWhenInitiallyDestroyed() = runBlocking(Dispatchers.Main) {
-        val owner = FakeLifecycleOwner(Lifecycle.State.DESTROYED)
+        val owner = FakeLifecycleOwner(Lifecycle.State.CREATED)
+        owner.setState(Lifecycle.State.DESTROYED)
 
         val result = runCatching {
             owner.withStarted {}

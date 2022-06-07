@@ -92,6 +92,6 @@ public interface CameraDeviceSurfaceManager {
     @NonNull
     Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
             @NonNull String cameraId,
-            @NonNull List<SurfaceConfig> existingSurfaces,
+            @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs);
 }

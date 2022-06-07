@@ -31,7 +31,7 @@ import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
 
 internal abstract class JavacType(
-    protected val env: JavacProcessingEnv,
+    internal val env: JavacProcessingEnv,
     open val typeMirror: TypeMirror,
     private val maybeNullability: XNullability?,
 ) : XType, XEquality {
@@ -86,7 +86,8 @@ internal abstract class JavacType(
     override fun defaultValue(): String {
         return when (typeMirror.kind) {
             TypeKind.BOOLEAN -> "false"
-            TypeKind.BYTE, TypeKind.SHORT, TypeKind.INT, TypeKind.LONG, TypeKind.CHAR -> "0"
+            TypeKind.BYTE, TypeKind.SHORT, TypeKind.INT, TypeKind.CHAR -> "0"
+            TypeKind.LONG -> "0L"
             TypeKind.FLOAT -> "0f"
             TypeKind.DOUBLE -> "0.0"
             else -> "null"

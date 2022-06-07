@@ -17,6 +17,7 @@
 package androidx.fragment.app;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -44,6 +45,7 @@ class BackStackState implements Parcelable {
     }
 
     @NonNull
+    @SuppressWarnings("deprecation")
     List<BackStackRecord> instantiate(@NonNull FragmentManager fm,
             Map<String, Fragment> pendingSavedFragments) {
         // First instantiate the saved Fragments from state.
@@ -58,11 +60,25 @@ class BackStackState implements Parcelable {
                 continue;
             }
             // Otherwise, retrieve any saved state, clearing it out for future calls
-            FragmentState fragmentState = fm.getFragmentStore().setSavedState(fWho, null);
-            if (fragmentState != null) {
-                Fragment fragment = fragmentState.instantiate(fm.getFragmentFactory(),
-                        fm.getHost().getContext().getClassLoader());
-                fragments.put(fragment.mWho, fragment);
+            Bundle stateBundle = fm.getFragmentStore().setSavedState(fWho, null);
+            if (stateBundle != null) {
+                ClassLoader classLoader = fm.getHost().getContext().getClassLoader();
+                FragmentState fs = stateBundle.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
+                if (fs != null) {
+                    Fragment fragment = fs.instantiate(fm.getFragmentFactory(), classLoader);
+
+                    // Instantiate the fragment's arguments
+                    Bundle state = fm.getFragmentStore().getSavedState(fragment.mWho);
+                    Bundle arguments = state != null
+                            ? state.getBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG)
+                            : null;
+                    if (arguments != null) {
+                        arguments.setClassLoader(classLoader);
+                    }
+                    fragment.setArguments(arguments);
+
+                    fragments.put(fragment.mWho, fragment);
+                }
             }
         }
 

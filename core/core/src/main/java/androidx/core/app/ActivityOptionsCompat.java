@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -66,8 +67,8 @@ public class ActivityOptionsCompat {
     public static ActivityOptionsCompat makeCustomAnimation(@NonNull Context context,
             int enterResId, int exitResId) {
         if (Build.VERSION.SDK_INT >= 16) {
-            return new ActivityOptionsCompatImpl(ActivityOptions.makeCustomAnimation(context,
-                    enterResId, exitResId));
+            return new ActivityOptionsCompatImpl(
+                    Api16Impl.makeCustomAnimation(context, enterResId, exitResId));
         }
         return new ActivityOptionsCompat();
     }
@@ -96,8 +97,8 @@ public class ActivityOptionsCompat {
     public static ActivityOptionsCompat makeScaleUpAnimation(@NonNull View source,
             int startX, int startY, int startWidth, int startHeight) {
         if (Build.VERSION.SDK_INT >= 16) {
-            return new ActivityOptionsCompatImpl(ActivityOptions.makeScaleUpAnimation(
-                    source, startX, startY, startWidth, startHeight));
+            return new ActivityOptionsCompatImpl(Api16Impl.makeScaleUpAnimation(source, startX,
+                    startY, startWidth, startHeight));
         }
         return new ActivityOptionsCompat();
     }
@@ -120,8 +121,8 @@ public class ActivityOptionsCompat {
     public static ActivityOptionsCompat makeClipRevealAnimation(@NonNull View source,
             int startX, int startY, int width, int height) {
         if (Build.VERSION.SDK_INT >= 23) {
-            return new ActivityOptionsCompatImpl(ActivityOptions.makeClipRevealAnimation(
-                    source, startX, startY, width, height));
+            return new ActivityOptionsCompatImpl(
+                    Api23Impl.makeClipRevealAnimation(source, startX, startY, width, height));
         }
         return new ActivityOptionsCompat();
     }
@@ -149,8 +150,8 @@ public class ActivityOptionsCompat {
     public static ActivityOptionsCompat makeThumbnailScaleUpAnimation(@NonNull View source,
             @NonNull Bitmap thumbnail, int startX, int startY) {
         if (Build.VERSION.SDK_INT >= 16) {
-            return new ActivityOptionsCompatImpl(ActivityOptions.makeThumbnailScaleUpAnimation(
-                    source, thumbnail, startX, startY));
+            return new ActivityOptionsCompatImpl(
+                    Api16Impl.makeThumbnailScaleUpAnimation(source, thumbnail, startX, startY));
         }
         return new ActivityOptionsCompat();
     }
@@ -177,8 +178,9 @@ public class ActivityOptionsCompat {
     public static ActivityOptionsCompat makeSceneTransitionAnimation(@NonNull Activity activity,
             @NonNull View sharedElement, @NonNull String sharedElementName) {
         if (Build.VERSION.SDK_INT >= 21) {
-            return new ActivityOptionsCompatImpl(ActivityOptions.makeSceneTransitionAnimation(
-                    activity, sharedElement, sharedElementName));
+            return new ActivityOptionsCompatImpl(
+                    Api21Impl.makeSceneTransitionAnimation(activity, sharedElement,
+                            sharedElementName));
         }
         return new ActivityOptionsCompat();
     }
@@ -203,7 +205,7 @@ public class ActivityOptionsCompat {
     @NonNull
     @SuppressWarnings("unchecked")
     public static ActivityOptionsCompat makeSceneTransitionAnimation(@NonNull Activity activity,
-            Pair<View, String>... sharedElements) {
+            @Nullable Pair<View, String>... sharedElements) {
         if (Build.VERSION.SDK_INT >= 21) {
             android.util.Pair<View, String>[] pairs = null;
             if (sharedElements != null) {
@@ -214,7 +216,7 @@ public class ActivityOptionsCompat {
                 }
             }
             return new ActivityOptionsCompatImpl(
-                    ActivityOptions.makeSceneTransitionAnimation(activity, pairs));
+                    Api21Impl.makeSceneTransitionAnimation(activity, pairs));
         }
         return new ActivityOptionsCompat();
     }
@@ -232,7 +234,7 @@ public class ActivityOptionsCompat {
     @NonNull
     public static ActivityOptionsCompat makeTaskLaunchBehind() {
         if (Build.VERSION.SDK_INT >= 21) {
-            return new ActivityOptionsCompatImpl(ActivityOptions.makeTaskLaunchBehind());
+            return new ActivityOptionsCompatImpl(Api21Impl.makeTaskLaunchBehind());
         }
         return new ActivityOptionsCompat();
     }
@@ -244,7 +246,7 @@ public class ActivityOptionsCompat {
     @NonNull
     public static ActivityOptionsCompat makeBasic() {
         if (Build.VERSION.SDK_INT >= 23) {
-            return new ActivityOptionsCompatImpl(ActivityOptions.makeBasic());
+            return new ActivityOptionsCompatImpl(Api23Impl.makeBasic());
         }
         return new ActivityOptionsCompat();
     }
@@ -274,7 +276,7 @@ public class ActivityOptionsCompat {
         @Override
         public void requestUsageTimeReport(@NonNull PendingIntent receiver) {
             if (Build.VERSION.SDK_INT >= 23) {
-                mActivityOptions.requestUsageTimeReport(receiver);
+                Api23Impl.requestUsageTimeReport(mActivityOptions, receiver);
             }
         }
 
@@ -285,7 +287,7 @@ public class ActivityOptionsCompat {
                 return this;
             }
             return new ActivityOptionsCompatImpl(
-                    mActivityOptions.setLaunchBounds(screenSpacePixelRect));
+                    Api24Impl.setLaunchBounds(mActivityOptions, screenSpacePixelRect));
         }
 
         @Override
@@ -293,7 +295,7 @@ public class ActivityOptionsCompat {
             if (Build.VERSION.SDK_INT < 24) {
                 return null;
             }
-            return mActivityOptions.getLaunchBounds();
+            return Api24Impl.getLaunchBounds(mActivityOptions);
         }
     }
 
@@ -372,5 +374,97 @@ public class ActivityOptionsCompat {
      */
     public void requestUsageTimeReport(@NonNull PendingIntent receiver) {
         // Do nothing.
+    }
+
+    @RequiresApi(16)
+    static class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static ActivityOptions makeCustomAnimation(Context context, int enterResId, int exitResId) {
+            return ActivityOptions.makeCustomAnimation(context, enterResId, exitResId);
+        }
+
+        @DoNotInline
+        static ActivityOptions makeScaleUpAnimation(View source, int startX, int startY, int width,
+                int height) {
+            return ActivityOptions.makeScaleUpAnimation(source, startX, startY, width, height);
+        }
+
+        @DoNotInline
+        static ActivityOptions makeThumbnailScaleUpAnimation(View source, Bitmap thumbnail,
+                int startX, int startY) {
+            return ActivityOptions.makeThumbnailScaleUpAnimation(source, thumbnail, startX, startY);
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static ActivityOptions makeClipRevealAnimation(View source, int startX, int startY,
+                int width, int height) {
+            return ActivityOptions.makeClipRevealAnimation(source, startX, startY, width, height);
+        }
+
+        @DoNotInline
+        static ActivityOptions makeBasic() {
+            return ActivityOptions.makeBasic();
+        }
+
+        @DoNotInline
+        static void requestUsageTimeReport(ActivityOptions activityOptions,
+                PendingIntent receiver) {
+            activityOptions.requestUsageTimeReport(receiver);
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static ActivityOptions makeSceneTransitionAnimation(Activity activity, View sharedElement,
+                String sharedElementName) {
+            return ActivityOptions.makeSceneTransitionAnimation(activity, sharedElement,
+                    sharedElementName);
+        }
+
+        @SafeVarargs
+        @DoNotInline
+        static ActivityOptions makeSceneTransitionAnimation(Activity activity,
+                android.util.Pair<View, String>... sharedElements) {
+            return ActivityOptions.makeSceneTransitionAnimation(activity, sharedElements);
+        }
+
+        @DoNotInline
+        static ActivityOptions makeTaskLaunchBehind() {
+            return ActivityOptions.makeTaskLaunchBehind();
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static ActivityOptions setLaunchBounds(ActivityOptions activityOptions,
+                Rect screenSpacePixelRect) {
+            return activityOptions.setLaunchBounds(screenSpacePixelRect);
+        }
+
+        @DoNotInline
+        static Rect getLaunchBounds(ActivityOptions activityOptions) {
+            return activityOptions.getLaunchBounds();
+        }
     }
 }

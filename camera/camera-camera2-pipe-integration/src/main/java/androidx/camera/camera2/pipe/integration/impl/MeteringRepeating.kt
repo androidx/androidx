@@ -173,6 +173,8 @@ class MeteringRepeating(
 
         override fun setCameraSelector(cameraSelector: CameraSelector) = this
 
+        override fun setZslDisabled(disabled: Boolean) = this
+
         override fun build(): MeteringRepeating {
             return MeteringRepeating(cameraProperties, useCaseConfig)
         }

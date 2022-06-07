@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="SyntheticAccessor"
@@ -7,9 +7,7 @@
         errorLine1="                mSearchView.setQuery(((Cursor) mAdapter.getItem(position)).getString(1), true);"
         errorLine2="                                               ~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="127"
-            column="48"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                mSearchView.setQuery(((Cursor) mAdapter.getItem(position)).getString(1), true);"
         errorLine2="                ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="127"
-            column="17"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                mSearchView.setQuery(((Cursor) mAdapter.getItem(position)).getString(1), true);"
         errorLine2="                                               ~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="133"
-            column="48"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                mSearchView.setQuery(((Cursor) mAdapter.getItem(position)).getString(1), true);"
         errorLine2="                ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="133"
-            column="17"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                addSlice(Uri.parse(s));"
         errorLine2="                ~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="140"
-            column="17"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                mSearchView.clearFocus();"
         errorLine2="                ~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="141"
-            column="17"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                populateAdapter(s);"
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="147"
-            column="17"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="        IconCache cache = new IconCache();"
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="84"
-            column="27"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="                    if (SliceProvider.SLICE_TYPE.equals(typeCache.getType(provider))) {"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="97"
-            column="57"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
     <issue
@@ -106,163 +88,124 @@
         errorLine1="                        cache.loadIcon(iv, provider, pm);"
         errorLine2="                        ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="133"
-            column="25"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="104"
-            column="26"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public boolean onCreateOptionsMenu(Menu menu) {"
-        errorLine2="                                       ~~~~">
-        <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="180"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean onOptionsItemSelected(MenuItem item) {"
         errorLine2="                                         ~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="201"
-            column="42"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onSaveInstanceState(Bundle outState) {"
         errorLine2="                                       ~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="288"
-            column="40"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static void create(Context context, Consumer&lt;Uri> selectedCallback) {"
         errorLine2="                              ~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="80"
-            column="31"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static void create(Context context, Consumer&lt;Uri> selectedCallback) {"
         errorLine2="                                               ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="80"
-            column="48"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected static CharSequence findTitle(Context context, Slice loadedSlice,"
         errorLine2="                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="235"
-            column="22"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected static CharSequence findTitle(Context context, Slice loadedSlice,"
         errorLine2="                                            ~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="235"
-            column="45"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected static CharSequence findTitle(Context context, Slice loadedSlice,"
         errorLine2="                                                             ~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="235"
-            column="62"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            SliceMetadata metaData) {"
         errorLine2="            ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="236"
-            column="13"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected static Slice bindSliceSynchronous(Context context, SliceViewManager manager,"
         errorLine2="                     ~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="257"
-            column="22"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected static Slice bindSliceSynchronous(Context context, SliceViewManager manager,"
         errorLine2="                                                ~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="257"
-            column="49"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected static Slice bindSliceSynchronous(Context context, SliceViewManager manager,"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="257"
-            column="66"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            Uri slice) {"
         errorLine2="            ~~~">
         <location
-            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="258"
-            column="13"/>
+            file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"/>
     </issue>
 
 </issues>

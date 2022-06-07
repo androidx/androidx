@@ -631,6 +631,7 @@ public class ChecksumsTest {
     @SdkSuppress(minSdkVersion = 29)
     @LargeTest
     @Test
+    @SuppressWarnings("deprecation")
     public void testFixedAllFileChecksumsDirectExecutor() throws Exception {
         installPackage(TEST_FIXED_APK);
         assertTrue(isAppInstalled(FIXED_PACKAGE_NAME));
@@ -684,8 +685,13 @@ public class ChecksumsTest {
         assertNotNull(checksums);
         assertEquals(5, checksums.length);
         assertEquals(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, checksums[0].getType());
-        assertEquals("1e8f831ef35257ca30d11668520aaafc6da243e853531caabc3b7867986f8886",
-                bytesToHexString(checksums[0].getValue()));
+        if (Build.VERSION.SDK_INT < 33) {
+            assertEquals("1e8f831ef35257ca30d11668520aaafc6da243e853531caabc3b7867986f8886",
+                    bytesToHexString(checksums[0].getValue()));
+        } else {
+            assertEquals("0b9bd6ef683e0c4e8940aba6460382b33e607c0fcf487f3dc6a44b715615d166",
+                    bytesToHexString(checksums[0].getValue()));
+        }
         assertEquals(TYPE_WHOLE_MD5, checksums[1].getType());
         assertEquals(bytesToHexString(checksums[1].getValue()), "78e51e8c51e4adc6870cd71389e0f3db");
         assertEquals(TYPE_WHOLE_SHA1, checksums[2].getType());
@@ -895,7 +901,7 @@ public class ChecksumsTest {
     }
 
     private void validateFixedAllChecksums(Checksum[] checksums) {
-        if (Build.VERSION.SDK_INT < 31) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             validateFixedAllChecksumsFallback(checksums);
             return;
         }
@@ -903,8 +909,13 @@ public class ChecksumsTest {
         assertEquals(7, checksums.length);
         assertEquals(checksums[0].getType(),
                 android.content.pm.Checksum.TYPE_WHOLE_MERKLE_ROOT_4K_SHA256);
-        assertEquals(bytesToHexString(checksums[0].getValue()),
-                "90553b8d221ab1b900b242a93e4cc659ace3a2ff1d5c62e502488b385854e66a");
+        if (Build.VERSION.SDK_INT < 33) {
+            assertEquals(bytesToHexString(checksums[0].getValue()),
+                    "90553b8d221ab1b900b242a93e4cc659ace3a2ff1d5c62e502488b385854e66a");
+        } else {
+            assertEquals(bytesToHexString(checksums[0].getValue()),
+                    "759626c33083fbf43215cb5b17156977d963d4c6850c0cb4e73162a665db560b");
+        }
         assertEquals(checksums[1].getType(), android.content.pm.Checksum.TYPE_WHOLE_MD5);
         assertEquals(bytesToHexString(checksums[1].getValue()), TEST_FIXED_APK_MD5);
         assertEquals(checksums[2].getType(), android.content.pm.Checksum.TYPE_WHOLE_SHA1);
@@ -1048,6 +1059,7 @@ public class ChecksumsTest {
             }
         }
 
+        @SuppressWarnings("deprecation")
         void commitSession(PackageInstaller.Session session) throws Exception {
             final ResolvableFuture<Intent> result = ResolvableFuture.create();
 

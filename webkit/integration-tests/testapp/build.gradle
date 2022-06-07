@@ -25,6 +25,7 @@ plugins {
 dependencies {
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.core:core:1.1.0")
+    implementation("androidx.annotation:annotation:1.3.0")
     implementation(project(":webkit:webkit"))
     implementation(libs.guavaAndroid)
     implementation(libs.espressoIdlingNet)
@@ -35,7 +36,7 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(libs.espressoContrib, excludes.espresso)
+    androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
     androidTestImplementation(libs.espressoIdlingResource)
     androidTestImplementation(libs.espressoWeb, excludes.espresso)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
@@ -75,4 +76,5 @@ android {
             minifyEnabled true
         }
     }
+    namespace "com.example.androidx.webkit"
 }

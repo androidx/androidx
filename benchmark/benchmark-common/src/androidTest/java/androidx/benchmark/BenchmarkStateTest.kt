@@ -34,6 +34,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -194,6 +195,7 @@ public class BenchmarkStateTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     public fun bundle() {
         val bundle = BenchmarkState().apply {
             while (keepRunning()) {
@@ -256,7 +258,7 @@ public class BenchmarkStateTest {
     }
 
     @Suppress("DEPRECATION")
-    @UseExperimental(ExperimentalExternalReport::class)
+    @OptIn(ExperimentalExternalReport::class)
     @Test
     public fun reportResult() {
         BenchmarkState.reportData(
@@ -284,4 +286,51 @@ public class BenchmarkStateTest {
         )
         assertEquals(expectedReport, ResultWriter.reports.last())
     }
+
+    private fun validateProfilerUsage(simplifiedTimingOnlyMode: Boolean?) {
+        try {
+            profilerOverride = StackSamplingLegacy
+
+            val benchmarkState = if (simplifiedTimingOnlyMode != null) {
+                BenchmarkState(simplifiedTimingOnlyMode)
+            } else {
+                BenchmarkState()
+            }
+
+            // count iters with profiler enabled vs disabled
+            var profilerDisabledIterations = 0
+            var profilerEnabledIterations = 0
+            var profilerAllocationIterations = 0
+            while (benchmarkState.keepRunning()) {
+                if (StackSamplingLegacy.isRunning) {
+                    profilerEnabledIterations++
+                } else {
+                    profilerDisabledIterations++
+
+                    if (profilerEnabledIterations != 0) {
+                        // profiler will only be disabled after running during allocation phase
+                        profilerAllocationIterations++
+                    }
+                }
+            }
+
+            if (simplifiedTimingOnlyMode == true) {
+                // profiler should be always disabled
+                assertNotEquals(0, profilerDisabledIterations)
+                assertEquals(0, profilerEnabledIterations)
+                assertEquals(0, profilerAllocationIterations)
+            } else {
+                // first, profiler disabled, then enabled until end
+                assertNotEquals(0, profilerDisabledIterations)
+                assertNotEquals(0, profilerEnabledIterations)
+                assertNotEquals(0, profilerAllocationIterations)
+            }
+        } finally {
+            profilerOverride = null
+        }
+    }
+
+    @Test public fun profiler_default() = validateProfilerUsage(null)
+    @Test public fun profiler_false() = validateProfilerUsage(false)
+    @Test public fun profiler_true() = validateProfilerUsage(true)
 }

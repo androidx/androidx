@@ -18,11 +18,14 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
 import androidx.annotation.GuardedBy
 import androidx.annotation.RequiresApi
-import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.AfMode
+import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
@@ -31,14 +34,20 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
+import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.CaptureConfig.TEMPLATE_TYPE_NONE
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.MutableTagBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
+import dagger.Binds
+import dagger.Module
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import javax.inject.Inject
+
+private const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
 
 /**
  * The RequestControl provides a couple of APIs to update the config of the camera, it also stores
@@ -49,7 +58,6 @@ import javax.inject.Inject
  * type of the config can be removed or overridden respectively without interfering with the
  * other types.
  */
-@UseCaseCameraScope
 interface UseCaseCameraRequestControl {
     /**
      * The declaration order is the ordering to merge.
@@ -57,6 +65,8 @@ interface UseCaseCameraRequestControl {
     enum class Type {
         SESSION_CONFIG,
         DEFAULT,
+        FLASH,
+        TORCH,
         CAMERA2_CAMERA_CONTROL,
     }
 
@@ -86,7 +96,7 @@ interface UseCaseCameraRequestControl {
      *  empty will use the [RequestTemplate] that is previously specified.
      *  @param listeners to receive the capture results.
      */
-    fun appendParametersAsync(
+    fun addParametersAsync(
         type: Type = Type.DEFAULT,
         values: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
         optionPriority: Config.OptionPriority = defaultOptionPriority,
@@ -145,29 +155,36 @@ interface UseCaseCameraRequestControl {
     ): Deferred<Result3A>
 
     // Capture
-    fun issueSingleCapture(captureSequence: List<CaptureConfig>)
+    suspend fun issueSingleCaptureAsync(
+        captureSequence: List<CaptureConfig>,
+        captureMode: Int,
+        flashType: Int,
+        flashMode: Int,
+    ): List<Deferred<Void?>>
 }
 
+@UseCaseCameraScope
 class UseCaseCameraRequestControlImpl @Inject constructor(
-    private val graph: CameraGraph,
-    private val surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
+    private val configAdapter: CaptureConfigAdapter,
+    private val capturePipeline: CapturePipeline,
+    private val state: UseCaseCameraState,
     private val threads: UseCaseThreads,
+    private val useCaseGraphConfig: UseCaseGraphConfig,
 ) : UseCaseCameraRequestControl {
+    private val graph = useCaseGraphConfig.graph
 
     private data class InfoBundle(
         val options: Camera2ImplConfig.Builder = Camera2ImplConfig.Builder(),
         val tags: MutableMap<String, Any> = mutableMapOf(),
-        val listeners: MutableSet<Request.Listener> = mutableSetOf()
+        val listeners: MutableSet<Request.Listener> = mutableSetOf(),
+        var template: RequestTemplate? = null,
     )
 
     @GuardedBy("lock")
     private val infoBundleMap = mutableMapOf<UseCaseCameraRequestControl.Type, InfoBundle>()
     private val lock = Any()
 
-    private val state = UseCaseCameraState(graph, threads)
-    private val configAdapter = CaptureConfigAdapter(surfaceToStreamMap, threads.backgroundExecutor)
-
-    override fun appendParametersAsync(
+    override fun addParametersAsync(
         type: UseCaseCameraRequestControl.Type,
         values: Map<CaptureRequest.Key<*>, Any>,
         optionPriority: Config.OptionPriority,
@@ -180,11 +197,13 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
             it.options.addAllCaptureRequestOptionsWithPriority(values, optionPriority)
             it.tags.putAll(tags)
             it.listeners.addAll(listeners)
+            template?.let { template ->
+                it.template = template
+            }
         }
         infoBundleMap.merge()
     }.updateCameraStateAsync(
         streams = streams,
-        template = template,
     )
 
     override fun setConfigAsync(
@@ -202,20 +221,21 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
                 }
             },
             tags.toMutableMap(),
-            listeners.toMutableSet()
+            listeners.toMutableSet(),
+            template,
         )
         infoBundleMap.merge()
     }.updateCameraStateAsync(
         streams = streams,
-        template = template,
     )
 
     override fun setSessionConfigAsync(sessionConfig: SessionConfig): Deferred<Unit> {
+        val templateType = sessionConfig.repeatingCaptureConfig.templateType
         val repeatingStreamIds = mutableSetOf<StreamId>()
         val repeatingListeners = CameraCallbackMap()
 
         sessionConfig.repeatingCaptureConfig.surfaces.forEach {
-            surfaceToStreamMap[it]?.let { streamId ->
+            useCaseGraphConfig.surfaceToStreamMap[it]?.let { streamId ->
                 repeatingStreamIds.add(streamId)
             }
         }
@@ -227,12 +247,15 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
             )
         }
 
+        capturePipeline.template =
+            if (templateType != TEMPLATE_TYPE_NONE) templateType else DEFAULT_REQUEST_TEMPLATE
+
         return setConfigAsync(
             type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
             config = sessionConfig.implementationOptions,
             tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
             listeners = setOf(repeatingListeners),
-            template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
+            template = RequestTemplate(templateType),
             streams = repeatingStreamIds,
         )
     }
@@ -260,12 +283,28 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
         )
     }
 
-    override fun issueSingleCapture(captureSequence: List<CaptureConfig>) {
-        val sessionConfigOptions = synchronized(lock) {
+    override suspend fun issueSingleCaptureAsync(
+        captureSequence: List<CaptureConfig>,
+        captureMode: Int,
+        flashType: Int,
+        flashMode: Int,
+    ): List<Deferred<Void?>> {
+        return synchronized(lock) {
             infoBundleMap.merge()
-        }.options.build()
-
-        state.capture(captureSequence.map { configAdapter.mapToRequest(it, sessionConfigOptions) })
+        }.let { infoBundle ->
+            capturePipeline.submitStillCaptures(
+                requests = captureSequence.map {
+                    configAdapter.mapToRequest(
+                        captureConfig = it,
+                        requestTemplate = infoBundle.template!!,
+                        sessionConfigOptions = infoBundle.options.build()
+                    )
+                },
+                captureMode = captureMode,
+                flashType = flashType,
+                flashMode = flashMode,
+            )
+        }
     }
 
     /**
@@ -279,11 +318,16 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
      */
     private fun Map<UseCaseCameraRequestControl.Type, InfoBundle>.merge(): InfoBundle =
         InfoBundle().also {
+            it.template = RequestTemplate(DEFAULT_REQUEST_TEMPLATE)
+        }.also {
             UseCaseCameraRequestControl.Type.values().forEach { type ->
                 getOrElse(type) { InfoBundle() }.also { infoBundleInType ->
                     it.options.insertAllOptions(infoBundleInType.options.mutableConfig)
                     it.tags.putAll(infoBundleInType.tags)
                     it.listeners.addAll(infoBundleInType.listeners)
+                    infoBundleInType.template?.let { template ->
+                        it.template = template
+                    }
                 }
             }
         }
@@ -304,14 +348,51 @@ class UseCaseCameraRequestControlImpl @Inject constructor(
 
     private fun InfoBundle.updateCameraStateAsync(
         streams: Set<StreamId>? = null,
-        template: RequestTemplate? = null,
-    ) = state.updateAsync(
-        parameters = options.build().toParameters(),
-        appendParameters = false,
-        internalParameters = mapOf(CAMERAX_TAG_BUNDLE to toTagBundle()),
-        appendInternalParameters = false,
-        streams = streams,
-        template = template,
-        listeners = listeners,
-    )
+    ): Deferred<Unit> {
+        return threads.sequentialScope.async {
+            val implConfig = options.build().apply {
+                // TODO(wenhungteng@): Camera-pipe will provide a way to let clients override some
+                // of the 3A parameters, we may need to use that way instead of using
+                // CameraGraph.Session#update3A to control the 3A state.
+                update3A()
+            }
+
+            state.updateAsync(
+                parameters = implConfig.toParameters(),
+                appendParameters = false,
+                internalParameters = mapOf(CAMERAX_TAG_BUNDLE to toTagBundle()),
+                appendInternalParameters = false,
+                streams = streams,
+                template = template,
+                listeners = listeners,
+            ).join()
+        }
+    }
+
+    private suspend fun Camera2ImplConfig.update3A() {
+        val aeMode = getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE)?.let {
+            AeMode.fromIntOrNull(it)
+        }
+        val afMode = getCaptureRequestOption(CaptureRequest.CONTROL_AF_MODE)?.let {
+            AfMode.fromIntOrNull(it)
+        }
+        val awbMode = getCaptureRequestOption(CaptureRequest.CONTROL_AWB_MODE)?.let {
+            AwbMode.fromIntOrNull(it)
+        }
+
+        if (aeMode != null || afMode != null || awbMode != null) {
+            graph.acquireSession().use {
+                it.update3A(aeMode = aeMode, afMode = afMode, awbMode = awbMode)
+            }
+        }
+    }
+
+    @Module
+    abstract class Bindings {
+        @UseCaseCameraScope
+        @Binds
+        abstract fun provideRequestControls(
+            requestControl: UseCaseCameraRequestControlImpl
+        ): UseCaseCameraRequestControl
+    }
 }

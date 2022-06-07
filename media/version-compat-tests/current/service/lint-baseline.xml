@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="MissingTestSizeAnnotation"
@@ -7,9 +7,7 @@
         errorLine1="    public void registersCallback_byController_notifiesOnCallbackRegistered()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/android/support/mediacompat/service/MediaSessionCompatRegistrationCallbackTest.java"
-            line="78"
-            column="17"/>
+            file="src/androidTest/java/android/support/mediacompat/service/MediaSessionCompatRegistrationCallbackTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    public void unregistersCallback_byController_notifiesOnCallbackUnregistered()"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/android/support/mediacompat/service/MediaSessionCompatRegistrationCallbackTest.java"
-            line="106"
-            column="17"/>
+            file="src/androidTest/java/android/support/mediacompat/service/MediaSessionCompatRegistrationCallbackTest.java"/>
     </issue>
 
 </issues>

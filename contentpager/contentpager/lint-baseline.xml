@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="cli" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -7,9 +7,7 @@
         errorLine1="        c.setExtras(extras);"
         errorLine2="          ~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/contentpager/content/TestContentProvider.java"
-            line="245"
-            column="11"/>
+            file="src/androidTest/java/androidx/contentpager/content/TestContentProvider.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            setWindow(new CursorWindow(&quot;stevie&quot;));"
         errorLine2="                      ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/contentpager/content/TestContentProvider.java"
-            line="377"
-            column="23"/>
+            file="src/androidTest/java/androidx/contentpager/content/TestContentProvider.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        cursor.setExtras(extras);"
         errorLine2="               ~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/contentpager/content/TestQueryCallback.java"
-            line="51"
-            column="16"/>
+            file="src/androidTest/java/androidx/contentpager/content/TestQueryCallback.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="            extras = extras.deepCopy();"
         errorLine2="                            ~~~~~~~~">
         <location
-            file="src/main/java/androidx/contentpager/content/ContentPager.java"
-            line="504"
-            column="29"/>
+            file="src/main/java/androidx/contentpager/content/ContentPager.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="            return resolver.query("
         errorLine2="                            ~~~~~">
         <location
-            file="src/main/java/androidx/contentpager/content/Query.java"
-            line="116"
-            column="29"/>
+            file="src/main/java/androidx/contentpager/content/Query.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            return resolver.query("
         errorLine2="                            ~~~~~">
         <location
-            file="src/main/java/androidx/contentpager/content/Query.java"
-            line="125"
-            column="29"/>
+            file="src/main/java/androidx/contentpager/content/Query.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="            if (mCancellationSignal != null &amp;&amp; !mCancellationSignal.isCanceled()) {"
         errorLine2="                                                                    ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/contentpager/content/Query.java"
-            line="145"
-            column="69"/>
+            file="src/main/java/androidx/contentpager/content/Query.java"/>
     </issue>
 
     <issue
@@ -84,31 +70,25 @@
         errorLine1="                mCancellationSignal.cancel();"
         errorLine2="                                    ~~~~~~">
         <location
-            file="src/main/java/androidx/contentpager/content/Query.java"
-            line="149"
-            column="37"/>
+            file="src/main/java/androidx/contentpager/content/Query.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ContentPager(ContentResolver resolver, QueryRunner queryRunner) {"
         errorLine2="                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/contentpager/content/ContentPager.java"
-            line="218"
-            column="25"/>
+            file="src/main/java/androidx/contentpager/content/ContentPager.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ContentPager(ContentResolver resolver, QueryRunner queryRunner) {"
         errorLine2="                                                  ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/contentpager/content/ContentPager.java"
-            line="218"
-            column="51"/>
+            file="src/main/java/androidx/contentpager/content/ContentPager.java"/>
     </issue>
 
 </issues>

@@ -17,6 +17,7 @@
 package androidx.startup.testapp
 
 import android.os.Bundle
+import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 
@@ -27,5 +28,9 @@ class MainActivity : AppCompatActivity() {
 
         val notice = findViewById<TextView>(R.id.txtNotice)
         notice.setText(R.string.app_notice)
+        val secondary = findViewById<Button>(R.id.btnSecondary)
+        secondary.setOnClickListener {
+            SecondaryActivity.launchActivity(it.context)
+        }
     }
 }

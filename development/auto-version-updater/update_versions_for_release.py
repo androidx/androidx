@@ -23,6 +23,7 @@ from shutil import rmtree
 from shutil import copyfile
 from distutils.dir_util import copy_tree
 from distutils.dir_util import DistutilsFileError
+import toml
 
 # Import the JetpadClient from the parent directory
 sys.path.append("..")
@@ -32,8 +33,12 @@ from JetpadClient import *
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 FRAMEWORKS_SUPPORT_FP = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
-LIBRARY_VERSIONS_REL = './buildSrc/public/src/main/kotlin/androidx/build/LibraryVersions.kt'
+LIBRARY_VERSIONS_REL = './libraryversions.toml'
 LIBRARY_VERSIONS_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, LIBRARY_VERSIONS_REL)
+COMPOSE_VERSION_REL = './compose/runtime/runtime/src/commonMain/kotlin/androidx/compose/runtime/ComposeVersion.kt'
+COMPOSE_VERSION_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, COMPOSE_VERSION_REL)
+VERSION_CHECKER_REL = './compose/compiler/compiler-hosted/src/main/java/androidx/compose/compiler/plugins/kotlin/VersionChecker.kt'
+VERSION_CHECKER_FP = os.path.join(FRAMEWORKS_SUPPORT_FP, VERSION_CHECKER_REL)
 
 # Set up input arguments
 parser = argparse.ArgumentParser(
@@ -156,28 +161,24 @@ def get_higher_version(version_a, version_b):
     return version_a
 
 
-def should_update_version_in_library_versions_kt(line, new_version):
-    """Returns true if the new_version is greater than the version in line.
+def should_update_version_in_library_versions_toml(old_version, new_version, group_id):
+    """Whether or not this specific group ID and version should be updated.
+
+    Returns true if the new_version is greater than the version in line
+    and the group ID is not the set of group_ids_to_not_update.
 
     Args:
-        line: a line in LibraryVersions.kt file.
+        old_version: the old version from libraryversions.toml file.
         new_version: the version to check again.
+        group_id: group id of the version being considered
 
     Returns:
         True if should update version, false otherwise.
     """
-    if 'Version(' not in line:
-        return False
-    # Find the first piece with a numeric first character.
-    split_current_line = line.split('"')
-    i = 1
-    while (not split_current_line[i][0].isnumeric() and
-           i < len(split_current_line)):
-        i += 1
-    if i == len(split_current_line):
-        return False
-    version = split_current_line[i]
-    return new_version == get_higher_version(version, new_version)
+    # If we hit a group ID we should not update, just return.
+    group_ids_to_not_update = ["androidx.car"]
+    if group_id in group_ids_to_not_update: return False
+    return new_version == get_higher_version(old_version, new_version)
 
 
 def increment_version(version):
@@ -203,8 +204,28 @@ def increment_version(version):
     return new_version
 
 
-def update_versions_in_library_versions_kt(group_id, artifact_id, old_version):
-    """Updates the versions in the LibrarVersions.kt file.
+def increment_version_within_minor_version(version):
+    """Increments an androidx SemVer version without bumping the minor version.
+
+    Args:
+        version: the version to be incremented.
+
+    Returns:
+        The incremented version.
+    """
+    if "alpha" in version or "beta" in version or "rc0" in version:
+        version_prerelease_suffix = version[-2:]
+        new_version_prerelease_suffix = int(version_prerelease_suffix) + 1
+        new_version = version[:-2] + "%02d" % (new_version_prerelease_suffix,)
+    else:
+        bugfix_version = version.split(".")[2]
+        new_bugfix_version = str(int(bugfix_version) + 1)
+        new_version = ".".join(version.split(".")[0:2]) + "." + new_bugfix_version
+    return new_version
+
+
+def update_versions_in_library_versions_toml(group_id, artifact_id, old_version):
+    """Updates the versions in the libraryversions.toml file.
 
     This will take the old_version and increment it to find the appropriate
     new version.
@@ -221,62 +242,178 @@ def update_versions_in_library_versions_kt(group_id, artifact_id, old_version):
     artifact_id_variable_name = artifact_id.replace("androidx.","").replace("-","_").upper()
     new_version = increment_version(old_version)
     # Special case Compose because it uses the same version variable.
-    if group_id_variable_name.startswith("COMPOSE"):
-        group_id_variable_name = "COMPOSE"
+    if (group_id_variable_name.startswith("COMPOSE") and
+        group_id_variable_name != "COMPOSE_MATERIAL3"):
+            group_id_variable_name = "COMPOSE"
 
-    # Open file for reading and get all lines
-    with open(LIBRARY_VERSIONS_FP, 'r') as f:
-        library_versions_lines = f.readlines()
-    num_lines = len(library_versions_lines)
+    # Open toml file
+    library_versions = toml.load(LIBRARY_VERSIONS_FP)
     updated_version = False
 
     # First check any artifact ids with unique versions.
-    for i in range(num_lines):
-        cur_line = library_versions_lines[i]
-        # Skip any line that doesn't declare a version
-        if 'Version(' not in cur_line: continue
-        version_variable_name = cur_line.split('val ')[1].split(' =')[0]
-        if artifact_id_variable_name == version_variable_name:
-            if not should_update_version_in_library_versions_kt(cur_line, new_version):
-                break
-            # Found the correct variable to modify
-            if version_variable_name == "COMPOSE":
-                new_version_line = ("    val COMPOSE = Version("
-                                    "System.getenv(\"COMPOSE_CUSTOM_VERSION\") "
-                                    "?: \"" + new_version + "\")\n")
-            else:
-                new_version_line = "    val " + version_variable_name + \
-                                   " = Version(\"" + new_version + "\")\n"
-            library_versions_lines[i] = new_version_line
+    if artifact_id_variable_name in library_versions["versions"]:
+        old_version = library_versions["versions"][artifact_id_variable_name]
+        if should_update_version_in_library_versions_toml(old_version, new_version, group_id):
+            library_versions["versions"][artifact_id_variable_name] = new_version
             updated_version = True
-            break
 
     if not updated_version:
         # Then check any group ids.
-        for i in range(num_lines):
-            cur_line = library_versions_lines[i]
-            # Skip any line that doesn't declare a version
-            if 'Version(' not in cur_line: continue
-            version_variable_name = cur_line.split('val ')[1].split(' =')[0]
-            if group_id_variable_name == version_variable_name:
-                if not should_update_version_in_library_versions_kt(cur_line, new_version):
-                    break
-                # Found the correct variable to modify
-                if version_variable_name == "COMPOSE":
-                    new_version_line = ("    val COMPOSE = Version("
-                                        "System.getenv(\"COMPOSE_CUSTOM_VERSION\") "
-                                        "?: \"" + new_version + "\")\n")
-                else:
-                    new_version_line = "    val " + version_variable_name + \
-                                       " = Version(\"" + new_version + "\")\n"
-                library_versions_lines[i] = new_version_line
+        if group_id_variable_name in library_versions["versions"]:
+            old_version = library_versions["versions"][group_id_variable_name]
+            if should_update_version_in_library_versions_toml(old_version, new_version, group_id):
+                library_versions["versions"][group_id_variable_name] = new_version
                 updated_version = True
-                break
+
+    # sort the entries
+    library_versions["versions"] = dict(sorted(library_versions["versions"].items()))
+
+    # Open file for writing and write toml back
+    with open(LIBRARY_VERSIONS_FP, 'w') as f:
+        toml.dump(library_versions, f, encoder=toml.TomlPreserveInlineDictEncoder())
+    return updated_version
+
+
+
+def parse_version_checker_line(line):
+    runtime_version_str = line.split(' to ')[0].strip()
+    if runtime_version_str.isnumeric():
+        runtime_version = int(runtime_version_str)
+    else:
+        print_e("Could not parse Compose runtime version in %s. "
+                "Skipping the update of the Compose runtime version."
+                % VERSION_CHECKER_FP)
+        return None, None
+    compose_version = line.split(' to ')[1].split('"')[1].strip()
+    return (runtime_version, compose_version)
+
+
+
+def get_compose_to_runtime_version_map(compose_to_runtime_version_map):
+    """Generates the compose to runtime version map from VersionChecker.kt
+
+    Args:
+        lines: lines from VERSION_CHECKER_FP (VersionChecker.kt)
+        compose_to_runtime_version_map: map to populate
+    Returns:
+        highest_index: the highest line index reached in the file
+    """
+    # Highest line index in the map, used for new alpha/beta versions.
+    highest_index = -1
+    with open(VERSION_CHECKER_FP, 'r') as f:
+        version_checker_lines = f.readlines()
+    num_lines = len(version_checker_lines)
+    for i in range(num_lines):
+        cur_line = version_checker_lines[i]
+        # Skip any line that doesn't declare a version map.
+        if ' to "' not in cur_line: continue
+        (runtime_version, compose_version) = parse_version_checker_line(cur_line)
+        # If it returned none, we couldn't parse properly, so return.
+        if not runtime_version: return
+        compose_to_runtime_version_map[compose_version] = {
+            "runtime_version": runtime_version,
+            "file_index": i
+        }
+        if i > highest_index: highest_index = i
+    return highest_index
+
+def update_compose_runtime_version(group_id, artifact_id, old_version):
+    """Updates the compose runtime version in ComposeVersion.kt / VersionChecker.kt
+
+    This will take the old_version and increment it to find the appropriate
+    new version.
+
+    Internal version = current_version + 100 if alpha/beta + 1 if rc/stable
+
+    Args:
+        group_id: group_id of the existing library
+        artifact_id: artifact_id of the existing library
+        old_version: old version of the existing library
+
+    Returns:
+        Nothing
+    """
+    # New runtime version that will be used
+    new_compose_runtime_version = 0
+    # New compose version that will be used
+    updated_compose_version = increment_version_within_minor_version(old_version)
+    # Highest index in the file, used for new alpha/beta versions.
+    highest_index = -1
+    # Map of the compose version to it's runtime version.
+    compose_to_runtime_version_map = {}
+
+    highest_index = get_compose_to_runtime_version_map(compose_to_runtime_version_map)
+
+    # If the value has already been added, we're done!  We can return!
+    if updated_compose_version in compose_to_runtime_version_map.keys():
+        return
+    # If the old value isn't in the map, we can't be sure how to update,
+    # so we skip.
+    if old_version not in compose_to_runtime_version_map.keys():
+        print_e("Could not parse Compose runtime version in %s. "
+                "Skipping the update of the Compose runtime version."
+                % VERSION_CHECKER_FP)
+        return
+
+    # Open file for reading and get all lines, so we can update the current compose version.
+    with open(VERSION_CHECKER_FP, 'r') as f:
+        version_checker_lines = f.readlines()
+    num_lines = len(version_checker_lines)
+
+    for i in range(num_lines):
+        cur_line = version_checker_lines[i]
+        # Skip any line that doesn't declare the compiler/compose version
+        if 'const val compilerVersion: String = ' not in cur_line: continue
+        current_version = cur_line.split('const val compilerVersion: String = ')[1].strip('"\n')
+        # Only update if we have a higher version.
+        version_to_keep = get_higher_version(current_version, updated_compose_version)
+        new_version_line = '        const val compilerVersion: String = "%s"\n' % version_to_keep
+        version_checker_lines[i] = new_version_line
+        break
+
+    old_runtime_version = compose_to_runtime_version_map[old_version]["runtime_version"]
+    if "alpha" in updated_compose_version or "beta" in updated_compose_version:
+        new_compose_runtime_version = old_runtime_version + 100
+    else:
+        new_compose_runtime_version = old_runtime_version + 1
+    new_version_line = '            %d to "%s",\n' % (new_compose_runtime_version, updated_compose_version)
+    insert_line = compose_to_runtime_version_map[old_version]["file_index"] + 1
+    version_checker_lines.insert(insert_line, new_version_line)
+
+    # Open file for reading and get all lines
+    with open(COMPOSE_VERSION_FP, 'r') as f:
+        compose_version_lines = f.readlines()
+    num_lines = len(compose_version_lines)
+
+    for i in range(num_lines):
+        cur_line = compose_version_lines[i]
+        # Skip any line that doesn't declare the version
+        if 'const val version: Int = ' not in cur_line: continue
+        version_str = cur_line.split('const val version: Int = ')[1].strip()
+
+        if version_str.isnumeric():
+            current_runtime_version = int(version_str)
+        else:
+            print_e("Could not parse Compose runtime version in %s."
+                    "Skipping the update of the Compose runtime version."
+                    % COMPOSE_VERSION_FP)
+            return
+        # Only update if we have a new higher version.
+        if current_runtime_version < new_compose_runtime_version:
+            new_version_line = '    const val version: Int = %d\n' % new_compose_runtime_version
+            compose_version_lines[i] = new_version_line
+        break
+
 
     # Open file for writing and update all lines
-    with open(LIBRARY_VERSIONS_FP, 'w') as f:
-        f.writelines(library_versions_lines)
-    return updated_version
+    with open(COMPOSE_VERSION_FP, 'w') as f:
+        f.writelines(compose_version_lines)
+
+    # Open file for writing and update all lines
+    with open(VERSION_CHECKER_FP, 'w') as f:
+        f.writelines(version_checker_lines)
+
+    return
 
 
 def commit_updates(release_date):
@@ -304,8 +441,13 @@ def main(args):
                 # Only update versions for artifacts released from the AOSP
                 # androidx-main branch or from androidx release branches, but
                 # not from any other development branch.
-                updated = update_versions_in_library_versions_kt(group_id,
-                    artifact["artifactId"], artifact["version"])
+                updated = update_versions_in_library_versions_toml(group_id,
+                                                                   artifact["artifactId"], artifact["version"])
+            if (group_id == "androidx.compose.runtime" and
+                artifact["artifactId"] == "runtime"):
+                update_compose_runtime_version(group_id,
+                                               artifact["artifactId"],
+                                               artifact["version"])
             if not updated:
                 non_updated_libraries.append("%s:%s:%s" % (group_id,
                                              artifact["artifactId"],

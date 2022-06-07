@@ -66,6 +66,7 @@ class HardwareIdentityCredential extends IdentityCredential {
         mCredential = credential;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public @NonNull KeyPair createEphemeralKeyPair() {
         if (mEphemeralKeyPair == null) {
@@ -74,6 +75,7 @@ class HardwareIdentityCredential extends IdentityCredential {
         return mEphemeralKeyPair;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setReaderEphemeralPublicKey(@NonNull PublicKey readerEphemeralPublicKey)
             throws InvalidKeyException {
@@ -185,6 +187,7 @@ class HardwareIdentityCredential extends IdentityCredential {
         return mCredential.getCredentialKeyCertificateChain();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void setAllowUsingExhaustedKeys(boolean allowUsingExhaustedKeys) {
         mCredential.setAllowUsingExhaustedKeys(allowUsingExhaustedKeys);
@@ -197,6 +200,7 @@ class HardwareIdentityCredential extends IdentityCredential {
         return cryptoObject;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @NonNull
     public ResultData getEntries(
@@ -275,6 +279,7 @@ class HardwareIdentityCredential extends IdentityCredential {
 
     @RequiresApi(Build.VERSION_CODES.S)
     private static class ApiImplS {
+        @SuppressWarnings("deprecation")
         @DoNotInline
         static void callSetAllowUsingExpiredKeys(
                 @NonNull android.security.identity.IdentityCredential credential,

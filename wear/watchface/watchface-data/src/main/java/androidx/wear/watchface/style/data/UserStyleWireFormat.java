@@ -61,6 +61,7 @@ public class UserStyleWireFormat implements VersionedParcelable, Parcelable {
 
     public static final Parcelable.Creator<UserStyleWireFormat> CREATOR =
             new Parcelable.Creator<UserStyleWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public UserStyleWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

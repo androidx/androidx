@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -53,8 +52,12 @@ android {
     defaultConfig {
         multiDexEnabled = true
     }
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.camera.lifecycle"
 }
 
 androidx {

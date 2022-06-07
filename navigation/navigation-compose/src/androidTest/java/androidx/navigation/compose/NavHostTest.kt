@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -250,29 +251,50 @@ class NavHostTest {
     }
 
     @Test
+    fun testDialogSavedAfterConfigChange() {
+        lateinit var navController: NavHostController
+        val defaultText = "dialogText"
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = "dialog") {
+                dialog("dialog") {
+                    Text(defaultText)
+                }
+            }
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule.onNodeWithText(defaultText).assertIsDisplayed()
+    }
+
+    @Test
     fun testViewModelSavedAfterConfigChange() {
         lateinit var navController: NavHostController
+        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         lateinit var state: MutableState<Int>
         lateinit var viewModel: TestViewModel
         var savedState: Bundle? = null
         composeTestRule.setContent {
             val context = LocalContext.current
             state = remember { mutableStateOf(0) }
-            navController = if (savedState == null) {
-                rememberNavController()
-            } else {
-                NavHostController(context).apply {
-                    restoreState(savedState)
-                    setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
-                    navigatorProvider += ComposeNavigator()
-                    navigatorProvider += DialogNavigator()
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                navController = if (savedState == null) {
+                    rememberNavController()
+                } else {
+                    NavHostController(context).apply {
+                        restoreState(savedState)
+                        setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
+                        navigatorProvider += ComposeNavigator()
+                        navigatorProvider += DialogNavigator()
+                    }
                 }
-            }
-            if (state.value == 0) {
-                NavHost(navController, startDestination = "first") {
-                    composable("first") {
-                        val provider = ViewModelProvider(it)
-                        viewModel = provider.get("key", TestViewModel::class.java)
+                if (state.value == 0) {
+                    NavHost(navController, startDestination = "first") {
+                        composable("first") {
+                            val provider = ViewModelProvider(it)
+                            viewModel = provider.get("key", TestViewModel::class.java)
+                        }
                     }
                 }
             }
@@ -284,11 +306,13 @@ class NavHostTest {
         runOnUiThread {
             // dispose the NavHost
             state.value = 1
+            lifecycleOwner.currentState = Lifecycle.State.DESTROYED
         }
 
         // wait for recompose without NavHost then recompose with the NavHost
         composeTestRule.runOnIdle {
             state.value = 0
+            lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         }
 
         composeTestRule.runOnIdle {
@@ -301,28 +325,31 @@ class NavHostTest {
     @Test
     fun testSaveableStateClearedAfterConfigChange() {
         lateinit var navController: NavHostController
+        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         lateinit var state: MutableState<Int>
         var viewModel: BackStackEntryIdViewModel? = null
         var savedState: Bundle? = null
         composeTestRule.setContent {
             val context = LocalContext.current
-            state = remember { mutableStateOf(0) }
-            navController = if (savedState == null) {
-                rememberNavController()
-            } else {
-                NavHostController(context).apply {
-                    restoreState(savedState)
-                    setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
-                    navigatorProvider += ComposeNavigator()
-                    navigatorProvider += DialogNavigator()
-                }
-            }
-            if (state.value == 0) {
-                NavHost(navController, startDestination = "first") {
-                    composable("first") {
-                        viewModel = viewModel()
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                state = remember { mutableStateOf(0) }
+                navController = if (savedState == null) {
+                    rememberNavController()
+                } else {
+                    NavHostController(context).apply {
+                        restoreState(savedState)
+                        setViewModelStore(LocalViewModelStoreOwner.current!!.viewModelStore)
+                        navigatorProvider += ComposeNavigator()
+                        navigatorProvider += DialogNavigator()
                     }
-                    composable("second") { }
+                }
+                if (state.value == 0) {
+                    NavHost(navController, startDestination = "first") {
+                        composable("first") {
+                            viewModel = viewModel()
+                        }
+                        composable("second") { }
+                    }
                 }
             }
         }
@@ -338,11 +365,13 @@ class NavHostTest {
         runOnUiThread {
             // dispose the NavHost
             state.value = 1
+            lifecycleOwner.currentState = Lifecycle.State.DESTROYED
         }
 
         // wait for recompose without NavHost then recompose with the NavHost
         composeTestRule.runOnIdle {
             state.value = 0
+            lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         }
 
         composeTestRule.runOnIdle {
@@ -497,7 +526,6 @@ class NavHostTest {
         }
     }
 
-    @OptIn(androidx.navigation.NavControllerVisibleEntries::class)
     @Test
     fun testNavHostCrossFade() {
         lateinit var navController: NavHostController
@@ -783,6 +811,7 @@ class NavHostTest {
     @Test
     fun testNestedNavHostOnBackPressed() {
         val lifecycleOwner = TestLifecycleOwner()
+        var innerLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         val onBackPressedDispatcher = OnBackPressedDispatcher()
         val dispatcherOwner = object : OnBackPressedDispatcherOwner {
             override fun getLifecycle() = lifecycleOwner.lifecycle
@@ -796,12 +825,14 @@ class NavHostTest {
                 navController = rememberNavController()
                 NavHost(navController, first) {
                     composable(first) {
-                        // Note: you should not ever do this. Use the state of the single
-                        // NavHost to control the visibility of global UI
-                        innerNavController = rememberNavController()
-                        NavHost(innerNavController, "innerFirst") {
-                            composable("innerFirst") {}
-                            composable("innerSecond") {}
+                        CompositionLocalProvider(LocalLifecycleOwner provides innerLifecycleOwner) {
+                            // Note: you should not ever do this. Use the state of the single
+                            // NavHost to control the visibility of global UI
+                            innerNavController = rememberNavController()
+                            NavHost(innerNavController, "innerFirst") {
+                                composable("innerFirst") {}
+                                composable("innerSecond") {}
+                            }
                         }
                     }
                     composable(second) {}
@@ -820,9 +851,14 @@ class NavHostTest {
             navController.navigate(second)
         }
 
+        composeTestRule.runOnIdle {
+            innerLifecycleOwner.currentState = Lifecycle.State.DESTROYED
+        }
+
         // Now trigger the back button
         composeTestRule.runOnIdle {
             onBackPressedDispatcher.onBackPressed()
+            innerLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         }
 
         composeTestRule.waitForIdle()

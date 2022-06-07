@@ -16,7 +16,7 @@
 
 package androidx.benchmark.gradle
 
-import com.android.ddmlib.Log
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -24,7 +24,6 @@ import org.gradle.api.tasks.StopExecutionException
 import org.gradle.api.tasks.TaskAction
 import org.gradle.kotlin.dsl.property
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
 
 @Suppress("UnstableApiUsage")
 @DisableCachingByDefault(because = "Benchmark measurements are performed each task execution.")
@@ -80,8 +79,7 @@ open class BenchmarkReportTask : DefaultTask() {
             val outDir = File(benchmarkReportDir, deviceId)
             outDir.mkdirs()
             getReportsForDevice(adb, outDir, dataDir, deviceId)
-            Log.logAndDisplay(
-                Log.LogLevel.INFO,
+            logger.info(
                 "Benchmark",
                 "Benchmark report files generated at ${benchmarkReportDir.absolutePath}"
             )

@@ -12,8 +12,7 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.window.sample">
+    xmlns:tools="http://schemas.android.com/tools">
     <application
         android:allowBackup="true"
         android:label="@string/app_name"
@@ -33,12 +32,14 @@
         <activity
             android:name=".DisplayFeaturesConfigChangeActivity"
             android:exported="false"
+            android:supportsPictureInPicture="true"
             android:configChanges=
                 "orientation|screenSize|screenLayout|screenSize|layoutDirection|smallestScreenSize"
             android:label="@string/display_features_config_change" />
         <activity
             android:name=".DisplayFeaturesNoConfigChangeActivity"
             android:exported="false"
+            android:supportsPictureInPicture="true"
             android:label="@string/display_features_no_config_change" />
         <activity
             android:name=".SplitLayoutActivity"
@@ -133,6 +134,46 @@
             android:label="Placeholder"
             android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
             android:taskAffinity="androidx.window.sample.list_detail_split_affinity" />
+
+        <!-- Split PiP App -->
+
+        <activity
+            android:name=".embedding.SplitPipActivityA"
+            android:exported="true"
+            android:label="Split and PiP"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:supportsPictureInPicture="true"
+            android:taskAffinity="androidx.window.sample.split_pip">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".embedding.SplitPipActivityB"
+            android:exported="false"
+            android:label="PiP B"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:supportsPictureInPicture="true"
+            android:taskAffinity="androidx.window.sample.split_pip">
+        </activity>
+        <activity
+            android:name=".embedding.SplitPipActivityNoPip"
+            android:exported="false"
+            android:label="No PiP support"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.split_pip">
+        </activity>
+        <activity
+            android:name=".embedding.SplitPipActivityPlaceholder"
+            android:exported="false"
+            android:label="PiP Placeholder"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|colorMode|density|touchscreen"
+            android:taskAffinity="androidx.window.sample.split_pip">
+        </activity>
+
+        <!-- ActivityEmbedding Initializer -->
+
         <provider android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
             android:exported="false"

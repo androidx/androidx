@@ -1547,6 +1547,7 @@ public class MediaSessionCompat {
             }
 
             @Override
+            @SuppressWarnings("deprecation")
             public void onCommand(String command, Bundle extras, ResultReceiver cb) {
                 MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
                 if (sessionImpl == null) {
@@ -1762,6 +1763,7 @@ public class MediaSessionCompat {
             }
 
             @Override
+            @SuppressWarnings("deprecation")
             public void onCustomAction(String action, Bundle extras) {
                 MediaSessionImplApi21 sessionImpl = getSessionImplIfCallbackIsSet();
                 if (sessionImpl == null) {
@@ -2129,6 +2131,7 @@ public class MediaSessionCompat {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX) // accessed by media2-session
+        @SuppressWarnings("deprecation")
         public static Token fromBundle(Bundle tokenBundle) {
             if (tokenBundle == null) {
                 return null;
@@ -2144,6 +2147,7 @@ public class MediaSessionCompat {
 
         public static final Parcelable.Creator<Token> CREATOR
                 = new Parcelable.Creator<Token>() {
+                    @SuppressWarnings("deprecation")
                     @Override
                     public Token createFromParcel(Parcel in) {
                         Object inner;
@@ -2760,6 +2764,7 @@ public class MediaSessionCompat {
             editor.apply();
         }
 
+        @SuppressWarnings("deprecation")
         RemoteControlClient.MetadataEditor buildRccMetadata(Bundle metadata) {
             RemoteControlClient.MetadataEditor editor = mRcc.editMetadata(true);
             if (metadata == null) {
@@ -3853,6 +3858,7 @@ public class MediaSessionCompat {
         }
 
         @Override
+        @SuppressWarnings("deprecation")
         RemoteControlClient.MetadataEditor buildRccMetadata(Bundle metadata) {
             RemoteControlClient.MetadataEditor editor = super.buildRccMetadata(metadata);
             long actions = mState == null ? 0 : mState.getActions();

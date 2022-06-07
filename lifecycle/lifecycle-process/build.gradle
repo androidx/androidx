@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -27,11 +26,12 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.lifecycle.process"
 }
 
 dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
-    api("androidx.startup:startup-runtime:1.0.0")
+    api("androidx.startup:startup-runtime:1.1.1")
     api("androidx.annotation:annotation:1.2.0")
 
     testImplementation(libs.junit)

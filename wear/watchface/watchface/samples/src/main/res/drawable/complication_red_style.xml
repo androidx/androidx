@@ -21,7 +21,7 @@
     app:iconColor="@color/maroon"
     app:rangedValuePrimaryColor="@color/maroon_70"
     app:rangedValueRingWidth="2dp"
-    app:rangedValueSecondaryColor="@color/maroon_30"
+    app:rangedValueSecondaryColor="@color/transparent"
     app:textColor="@color/maroon"
     app:textTypeface="sans-serif-condensed"
     app:titleColor="@color/maroon_50"

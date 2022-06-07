@@ -5,6 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <!-- Used to display the snapshot of the surface view to avoid a visual glitch when app comes
+         to foreground. -->
+    <ImageView
+        android:id="@+id/template_view_snapshot"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <androidx.car.app.activity.renderer.surface.TemplateSurfaceView
         android:id="@+id/template_view_surface"
         android:layout_width="match_parent"

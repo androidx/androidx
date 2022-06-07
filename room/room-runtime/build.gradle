@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -30,6 +29,10 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.room"
+    kotlinOptions {
+        freeCompilerArgs += ["-Xjvm-default=all"]
+    }
 }
 
 dependencies {
@@ -41,6 +44,7 @@ dependencies {
     compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
     implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
     compileOnly libs.kotlinStdlib // Due to :annotation-experimental
+    lintChecks(project(":room:room-runtime-lint"))
 
     testImplementation("androidx.arch.core:core-testing:2.0.1")
     testImplementation(libs.junit)

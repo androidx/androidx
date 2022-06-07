@@ -7,9 +7,7 @@
         errorLine1="            super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="            ~~~~~">
         <location
-            file="src/androidTest/java/androidx/recyclerview/widget/BaseWrapContentWithAspectRatioTest.java"
-            line="75"
-            column="13"/>
+            file="src/androidTest/java/androidx/recyclerview/widget/BaseWrapContentWithAspectRatioTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            } else if (duplicateDiffs.getOrDefault(after[index].id, 0) > 0 &amp;&amp; item.newItem) {"
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/recyclerview/widget/DiffUtilTest.kt"
-            line="503"
-            column="39"/>
+            file="src/test/java/androidx/recyclerview/widget/DiffUtilTest.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            duplicateDiffs[it.id] = 1 + duplicateDiffs.getOrDefault(it.id, 1)"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/recyclerview/widget/DiffUtilTest.kt"
-            line="549"
-            column="56"/>
+            file="src/test/java/androidx/recyclerview/widget/DiffUtilTest.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="            duplicateDiffs[it.id] = -1 + duplicateDiffs.getOrDefault(it.id, 0)"
         errorLine2="                                                        ~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/recyclerview/widget/DiffUtilTest.kt"
-            line="552"
-            column="57"/>
+            file="src/test/java/androidx/recyclerview/widget/DiffUtilTest.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                + &quot;handle it properly&quot;, true, mRecyclerView.isScrollContainer());"
         errorLine2="                                                            ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewBasicTest.java"
-            line="105"
-            column="61"/>
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewBasicTest.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="            mRecyclerView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewFocusTest.java"
-            line="239"
-            column="27"/>
+            file="src/androidTest/java/androidx/recyclerview/widget/RecyclerViewFocusTest.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
         errorLine2="        ~~~~~">
         <location
-            file="src/androidTest/java/androidx/recyclerview/widget/TestContentView.java"
-            line="53"
-            column="9"/>
+            file="src/androidTest/java/androidx/recyclerview/widget/TestContentView.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                            getMinimumWidth()),"
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"
-            line="108"
-            column="29"/>
+            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="                            getMinimumHeight()));"
         errorLine2="                            ~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"
-            line="111"
-            column="29"/>
+            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="            super(source);"
         errorLine2="            ~~~~~">
         <location
-            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"
-            line="283"
-            column="13"/>
+            file="src/androidTest/java/androidx/recyclerview/widget/TestedFrameLayout.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        synchronized SyncQueueItem next() {"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/recyclerview/widget/MessageThreadUtil.java"
-            line="237"
-            column="9"/>
+            file="src/main/java/androidx/recyclerview/widget/MessageThreadUtil.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="        synchronized void sendMessageAtFrontOfQueue(SyncQueueItem item) {"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/recyclerview/widget/MessageThreadUtil.java"
-            line="246"
-            column="9"/>
+            file="src/main/java/androidx/recyclerview/widget/MessageThreadUtil.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="        synchronized void sendMessage(SyncQueueItem item) {"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/recyclerview/widget/MessageThreadUtil.java"
-            line="251"
-            column="9"/>
+            file="src/main/java/androidx/recyclerview/widget/MessageThreadUtil.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="        synchronized void removeMessages(int what) {"
         errorLine2="        ^">
         <location
-            file="src/main/java/androidx/recyclerview/widget/MessageThreadUtil.java"
-            line="263"
-            column="9"/>
+            file="src/main/java/androidx/recyclerview/widget/MessageThreadUtil.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="    public boolean hasFixedSize() {"
         errorLine2="                   ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="1106"
-            column="20"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="        public final boolean hasStableIds() {"
         errorLine2="                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="7555"
-            column="30"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="        public final void setIsRecyclable(boolean recyclable) {"
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11932"
-            column="27"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="    public void onChanged(int position, int count, Object payload) {"
         errorLine2="                                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/AdapterListUpdateCallback.java"
-            line="59"
-            column="52"/>
+            file="src/main/java/androidx/recyclerview/widget/AdapterListUpdateCallback.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="        public Builder&lt;T> setMainThreadExecutor(Executor executor) {"
         errorLine2="                                                ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/AsyncDifferConfig.java"
-            line="101"
-            column="49"/>
+            file="src/main/java/androidx/recyclerview/widget/AsyncDifferConfig.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="        public Builder&lt;T> setBackgroundThreadExecutor(Executor executor) {"
         errorLine2="                                                      ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/AsyncDifferConfig.java"
-            line="117"
-            column="55"/>
+            file="src/main/java/androidx/recyclerview/widget/AsyncDifferConfig.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="    public void onChanged(int position, int count, Object payload) {"
         errorLine2="                                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/BatchingListUpdateCallback.java"
-            line="109"
-            column="52"/>
+            file="src/main/java/androidx/recyclerview/widget/BatchingListUpdateCallback.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="    public boolean animateRemove(final RecyclerView.ViewHolder holder) {"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DefaultItemAnimator.java"
-            line="192"
-            column="40"/>
+            file="src/main/java/androidx/recyclerview/widget/DefaultItemAnimator.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="    public boolean animateAdd(final RecyclerView.ViewHolder holder) {"
         errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DefaultItemAnimator.java"
-            line="221"
-            column="37"/>
+            file="src/main/java/androidx/recyclerview/widget/DefaultItemAnimator.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="    public boolean animateMove(final RecyclerView.ViewHolder holder, int fromX, int fromY,"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DefaultItemAnimator.java"
-            line="255"
-            column="38"/>
+            file="src/main/java/androidx/recyclerview/widget/DefaultItemAnimator.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="    public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder,"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DefaultItemAnimator.java"
-            line="319"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/DefaultItemAnimator.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="    public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder,"
         errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DefaultItemAnimator.java"
-            line="319"
-            column="69"/>
+            file="src/main/java/androidx/recyclerview/widget/DefaultItemAnimator.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="    public void endAnimation(RecyclerView.ViewHolder item) {"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DefaultItemAnimator.java"
-            line="436"
-            column="30"/>
+            file="src/main/java/androidx/recyclerview/widget/DefaultItemAnimator.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="    public DividerItemDecoration(Context context, int orientation) {"
         errorLine2="                                 ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"
-            line="66"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {"
         errorLine2="                       ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"
-            line="112"
-            column="24"/>
+            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {"
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"
-            line="112"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"
-            line="112"
-            column="55"/>
+            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
         errorLine2="                               ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"
-            line="178"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
         errorLine2="                                             ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"
-            line="178"
-            column="46"/>
+            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
         errorLine2="                                                        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"
-            line="178"
-            column="57"/>
+            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="            RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"
-            line="179"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/DividerItemDecoration.java"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="    public GridLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                             ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="71"
-            column="30"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="    public GridLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                                              ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="71"
-            column="47"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -414,9 +340,7 @@
         errorLine1="    public GridLayoutManager(Context context, int spanCount) {"
         errorLine2="                             ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="84"
-            column="30"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -425,9 +349,7 @@
         errorLine1="    public GridLayoutManager(Context context, int spanCount,"
         errorLine2="                             ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="96"
-            column="30"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -436,9 +358,7 @@
         errorLine1="    public int getRowCountForAccessibility(RecyclerView.Recycler recycler,"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="117"
-            column="44"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -447,9 +367,7 @@
         errorLine1="            RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="118"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -458,9 +376,7 @@
         errorLine1="    public int getColumnCountForAccessibility(RecyclerView.Recycler recycler,"
         errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="131"
-            column="47"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -469,9 +385,7 @@
         errorLine1="            RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="132"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -480,9 +394,7 @@
         errorLine1="    public void onInitializeAccessibilityNodeInfoForItem(RecyclerView.Recycler recycler,"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="145"
-            column="58"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -491,9 +403,7 @@
         errorLine1="            RecyclerView.State state, View host, AccessibilityNodeInfoCompat info) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="146"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -502,9 +412,7 @@
         errorLine1="            RecyclerView.State state, View host, AccessibilityNodeInfoCompat info) {"
         errorLine2="                                      ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="146"
-            column="39"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -513,9 +421,7 @@
         errorLine1="            RecyclerView.State state, View host, AccessibilityNodeInfoCompat info) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="146"
-            column="50"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -524,9 +430,7 @@
         errorLine1="    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="166"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -535,9 +439,7 @@
         errorLine1="    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="166"
-            column="66"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -546,9 +448,7 @@
         errorLine1="    public void onLayoutCompleted(RecyclerView.State state) {"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="178"
-            column="35"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -557,9 +457,7 @@
         errorLine1="    public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {"
         errorLine2="                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="199"
-            column="30"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -568,9 +466,7 @@
         errorLine1="    public void onItemsChanged(RecyclerView recyclerView) {"
         errorLine2="                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="205"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -579,9 +475,7 @@
         errorLine1="    public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {"
         errorLine2="                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="211"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -590,9 +484,7 @@
         errorLine1="    public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount,"
         errorLine2="                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="217"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -601,9 +493,7 @@
         errorLine1="            Object payload) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="218"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -612,9 +502,7 @@
         errorLine1="    public void onItemsMoved(RecyclerView recyclerView, int from, int to, int itemCount) {"
         errorLine2="                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="224"
-            column="30"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -623,9 +511,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateDefaultLayoutParams() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="230"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -634,9 +520,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="241"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -645,9 +529,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="                                                          ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="241"
-            column="59"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -656,9 +538,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="                                                                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="241"
-            column="70"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -667,9 +547,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="246"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -678,9 +556,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="246"
-            column="59"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -689,9 +565,7 @@
         errorLine1="    public boolean checkLayoutParams(RecyclerView.LayoutParams lp) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="255"
-            column="38"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -700,9 +574,7 @@
         errorLine1="    public void setSpanSizeLookup(SpanSizeLookup spanSizeLookup) {"
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="265"
-            column="35"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -711,9 +583,7 @@
         errorLine1="    public SpanSizeLookup getSpanSizeLookup() {"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="274"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -722,9 +592,7 @@
         errorLine1="    public void setMeasuredDimension(Rect childrenBounds, int wSpec, int hSpec) {"
         errorLine2="                                     ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="289"
-            column="38"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -733,9 +601,7 @@
         errorLine1="    public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="374"
-            column="45"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -744,9 +610,7 @@
         errorLine1="            RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="375"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -755,9 +619,7 @@
         errorLine1="    public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="382"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -766,9 +628,7 @@
         errorLine1="            RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="383"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -777,9 +637,7 @@
         errorLine1="    public View onFocusSearchFailed(View focused, int direction,"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1076"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -788,9 +646,7 @@
         errorLine1="    public View onFocusSearchFailed(View focused, int direction,"
         errorLine2="                                    ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1076"
-            column="37"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -799,9 +655,7 @@
         errorLine1="            RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1077"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -810,9 +664,7 @@
         errorLine1="            RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1077"
-            column="45"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -821,9 +673,7 @@
         errorLine1="    public int computeHorizontalScrollRange(RecyclerView.State state) {"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1204"
-            column="45"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -832,9 +682,7 @@
         errorLine1="    public int computeVerticalScrollRange(RecyclerView.State state) {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1213"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -843,9 +691,7 @@
         errorLine1="    public int computeHorizontalScrollOffset(RecyclerView.State state) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1222"
-            column="46"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -854,9 +700,7 @@
         errorLine1="    public int computeVerticalScrollOffset(RecyclerView.State state) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1231"
-            column="44"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -865,9 +709,7 @@
         errorLine1="        public LayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1389"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -876,9 +718,7 @@
         errorLine1="        public LayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1389"
-            column="40"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -887,9 +727,7 @@
         errorLine1="        public LayoutParams(ViewGroup.MarginLayoutParams source) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1397"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -898,9 +736,7 @@
         errorLine1="        public LayoutParams(ViewGroup.LayoutParams source) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1401"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -909,9 +745,7 @@
         errorLine1="        public LayoutParams(RecyclerView.LayoutParams source) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"
-            line="1405"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/GridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -920,9 +754,7 @@
         errorLine1="    public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {"
         errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"
-            line="543"
-            column="28"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
     </issue>
 
     <issue
@@ -931,9 +763,7 @@
         errorLine1="    public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {"
         errorLine2="                                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"
-            line="543"
-            column="38"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
     </issue>
 
     <issue
@@ -942,9 +772,7 @@
         errorLine1="    public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"
-            line="543"
-            column="59"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
     </issue>
 
     <issue
@@ -953,9 +781,7 @@
         errorLine1="    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {"
         errorLine2="                       ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"
-            line="555"
-            column="24"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
     </issue>
 
     <issue
@@ -964,9 +790,7 @@
         errorLine1="    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {"
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"
-            line="555"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
     </issue>
 
     <issue
@@ -975,9 +799,7 @@
         errorLine1="    public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"
-            line="555"
-            column="55"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
     </issue>
 
     <issue
@@ -986,9 +808,7 @@
         errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
         errorLine2="                               ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"
-            line="933"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
     </issue>
 
     <issue
@@ -997,9 +817,7 @@
         errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
         errorLine2="                                             ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"
-            line="933"
-            column="46"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
     </issue>
 
     <issue
@@ -1008,9 +826,7 @@
         errorLine1="    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,"
         errorLine2="                                                        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"
-            line="933"
-            column="57"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
     </issue>
 
     <issue
@@ -1019,9 +835,7 @@
         errorLine1="            RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"
-            line="934"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
     </issue>
 
     <issue
@@ -1030,9 +844,7 @@
         errorLine1="        public ViewHolder chooseDropTarget(@NonNull ViewHolder selected,"
         errorLine2="               ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"
-            line="1804"
-            column="16"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
     </issue>
 
     <issue
@@ -1041,9 +853,7 @@
         errorLine1="                ViewHolder viewHolder,"
         errorLine2="                ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"
-            line="2107"
-            column="17"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchHelper.java"/>
     </issue>
 
     <issue
@@ -1052,9 +862,7 @@
         errorLine1="    void onDraw(Canvas c, RecyclerView recyclerView, View view,"
         errorLine2="                ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"
-            line="41"
-            column="17"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"/>
     </issue>
 
     <issue
@@ -1063,9 +871,7 @@
         errorLine1="    void onDraw(Canvas c, RecyclerView recyclerView, View view,"
         errorLine2="                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"
-            line="41"
-            column="27"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"/>
     </issue>
 
     <issue
@@ -1074,9 +880,7 @@
         errorLine1="    void onDraw(Canvas c, RecyclerView recyclerView, View view,"
         errorLine2="                                                     ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"
-            line="41"
-            column="54"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"/>
     </issue>
 
     <issue
@@ -1085,9 +889,7 @@
         errorLine1="    void onDrawOver(Canvas c, RecyclerView recyclerView, View view,"
         errorLine2="                    ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"
-            line="48"
-            column="21"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"/>
     </issue>
 
     <issue
@@ -1096,9 +898,7 @@
         errorLine1="    void onDrawOver(Canvas c, RecyclerView recyclerView, View view,"
         errorLine2="                              ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"
-            line="48"
-            column="31"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"/>
     </issue>
 
     <issue
@@ -1107,9 +907,7 @@
         errorLine1="    void onDrawOver(Canvas c, RecyclerView recyclerView, View view,"
         errorLine2="                                                         ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"
-            line="48"
-            column="58"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"/>
     </issue>
 
     <issue
@@ -1118,9 +916,7 @@
         errorLine1="    void clearView(View view);"
         errorLine2="                   ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"
-            line="55"
-            column="20"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"/>
     </issue>
 
     <issue
@@ -1129,9 +925,7 @@
         errorLine1="    void onSelected(View view);"
         errorLine2="                    ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"
-            line="61"
-            column="21"/>
+            file="src/main/java/androidx/recyclerview/widget/ItemTouchUIUtil.java"/>
     </issue>
 
     <issue
@@ -1140,9 +934,7 @@
         errorLine1="    public LinearLayoutManager(Context context) {"
         errorLine2="                               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="158"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1151,9 +943,7 @@
         errorLine1="    public LinearLayoutManager(Context context, @RecyclerView.Orientation int orientation,"
         errorLine2="                               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="168"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1162,9 +952,7 @@
         errorLine1="    public LinearLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                               ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="182"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1173,9 +961,7 @@
         errorLine1="    public LinearLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="182"
-            column="49"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1184,9 +970,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateDefaultLayoutParams() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="199"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1195,9 +979,7 @@
         errorLine1="    public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {"
         errorLine2="                                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="233"
-            column="38"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1206,9 +988,7 @@
         errorLine1="    public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="233"
-            column="57"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1217,9 +997,7 @@
         errorLine1="    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="242"
-            column="48"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1228,9 +1006,7 @@
         errorLine1="    public Parcelable onSaveInstanceState() {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="251"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1239,9 +1015,7 @@
         errorLine1="    public void onRestoreInstanceState(Parcelable state) {"
         errorLine2="                                       ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="278"
-            column="40"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1250,9 +1024,7 @@
         errorLine1="    public View findViewByPosition(int position) {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="409"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1261,9 +1033,7 @@
         errorLine1="    protected int getExtraLayoutSpace(RecyclerView.State state) {"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="449"
-            column="39"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1272,9 +1042,7 @@
         errorLine1="    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state,"
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="503"
-            column="40"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1283,9 +1051,7 @@
         errorLine1="    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state,"
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="503"
-            column="67"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1294,9 +1060,7 @@
         errorLine1="    public PointF computeScrollVectorForPosition(int targetPosition) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="512"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1305,9 +1069,7 @@
         errorLine1="    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="529"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1316,9 +1078,7 @@
         errorLine1="    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="529"
-            column="66"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1327,9 +1087,7 @@
         errorLine1="    public void onLayoutCompleted(RecyclerView.State state) {"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="727"
-            column="35"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1338,9 +1096,7 @@
         errorLine1="    public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1119"
-            column="45"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1349,9 +1105,7 @@
         errorLine1="            RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1120"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1360,9 +1114,7 @@
         errorLine1="    public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1131"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1371,9 +1123,7 @@
         errorLine1="            RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1132"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1382,9 +1132,7 @@
         errorLine1="    public int computeHorizontalScrollOffset(RecyclerView.State state) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1140"
-            column="46"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1393,9 +1141,7 @@
         errorLine1="    public int computeVerticalScrollOffset(RecyclerView.State state) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1145"
-            column="44"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1404,9 +1150,7 @@
         errorLine1="    public int computeHorizontalScrollExtent(RecyclerView.State state) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1150"
-            column="46"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1415,9 +1159,7 @@
         errorLine1="    public int computeVerticalScrollExtent(RecyclerView.State state) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1155"
-            column="44"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1426,9 +1168,7 @@
         errorLine1="    public int computeHorizontalScrollRange(RecyclerView.State state) {"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1160"
-            column="45"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1437,9 +1177,7 @@
         errorLine1="    public int computeVerticalScrollRange(RecyclerView.State state) {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1165"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1448,9 +1186,7 @@
         errorLine1="            LayoutPrefetchRegistry layoutPrefetchRegistry) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1291"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1459,9 +1195,7 @@
         errorLine1="    public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1370"
-            column="66"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1470,9 +1204,7 @@
         errorLine1="            LayoutPrefetchRegistry layoutPrefetchRegistry) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1371"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1481,9 +1213,7 @@
         errorLine1="    public void assertNotInLayoutOrScroll(String message) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="1412"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1492,9 +1222,7 @@
         errorLine1="    public View onFocusSearchFailed(View focused, int direction,"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="2066"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1503,9 +1231,7 @@
         errorLine1="    public View onFocusSearchFailed(View focused, int direction,"
         errorLine2="                                    ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="2066"
-            column="37"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1514,9 +1240,7 @@
         errorLine1="            RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="2067"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1525,9 +1249,7 @@
         errorLine1="            RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="2067"
-            column="45"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1536,9 +1258,7 @@
         errorLine1="        public SavedState(SavedState other) {"
         errorLine2="                          ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="2432"
-            column="27"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1547,9 +1267,7 @@
         errorLine1="        public void writeToParcel(Parcel dest, int flags) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"
-            line="2452"
-            column="35"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearLayoutManager.java"/>
     </issue>
 
     <issue
@@ -1558,9 +1276,7 @@
         errorLine1="    protected PointF mTargetVector;"
         errorLine2="              ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"
-            line="83"
-            column="15"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"/>
     </issue>
 
     <issue
@@ -1569,9 +1285,7 @@
         errorLine1="    public LinearSmoothScroller(Context context) {"
         errorLine2="                                ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"
-            line="93"
-            column="33"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"/>
     </issue>
 
     <issue
@@ -1580,9 +1294,7 @@
         errorLine1="    protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {"
         errorLine2="                                 ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"
-            line="109"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"/>
     </issue>
 
     <issue
@@ -1591,9 +1303,7 @@
         errorLine1="    protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {"
         errorLine2="                                                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"
-            line="109"
-            column="51"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"/>
     </issue>
 
     <issue
@@ -1602,9 +1312,7 @@
         errorLine1="    protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {"
         errorLine2="                                                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"
-            line="109"
-            column="77"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"/>
     </issue>
 
     <issue
@@ -1613,9 +1321,7 @@
         errorLine1="    protected void onSeekTargetStep(int dx, int dy, RecyclerView.State state, Action action) {"
         errorLine2="                                                    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"
-            line="123"
-            column="53"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"/>
     </issue>
 
     <issue
@@ -1624,9 +1330,7 @@
         errorLine1="    protected void onSeekTargetStep(int dx, int dy, RecyclerView.State state, Action action) {"
         errorLine2="                                                                              ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"
-            line="123"
-            column="79"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"/>
     </issue>
 
     <issue
@@ -1635,9 +1339,7 @@
         errorLine1="    protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {"
         errorLine2="                                           ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"
-            line="165"
-            column="44"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"/>
     </issue>
 
     <issue
@@ -1646,9 +1348,7 @@
         errorLine1="    protected void updateActionForInterimTarget(Action action) {"
         errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"
-            line="242"
-            column="49"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"/>
     </issue>
 
     <issue
@@ -1657,9 +1357,7 @@
         errorLine1="    public int calculateDyToMakeVisible(View view, int snapPreference) {"
         errorLine2="                                        ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"
-            line="313"
-            column="41"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"/>
     </issue>
 
     <issue
@@ -1668,9 +1366,7 @@
         errorLine1="    public int calculateDxToMakeVisible(View view, int snapPreference) {"
         errorLine2="                                        ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"
-            line="338"
-            column="41"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSmoothScroller.java"/>
     </issue>
 
     <issue
@@ -1679,9 +1375,7 @@
         errorLine1="    public int[] calculateDistanceToFinalSnap("
         errorLine2="           ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSnapHelper.java"
-            line="44"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSnapHelper.java"/>
     </issue>
 
     <issue
@@ -1690,9 +1384,7 @@
         errorLine1="    public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX,"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSnapHelper.java"
-            line="64"
-            column="39"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSnapHelper.java"/>
     </issue>
 
     <issue
@@ -1701,9 +1393,7 @@
         errorLine1="    public View findSnapView(RecyclerView.LayoutManager layoutManager) {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSnapHelper.java"
-            line="132"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSnapHelper.java"/>
     </issue>
 
     <issue
@@ -1712,9 +1402,7 @@
         errorLine1="    public View findSnapView(RecyclerView.LayoutManager layoutManager) {"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/LinearSnapHelper.java"
-            line="132"
-            column="30"/>
+            file="src/main/java/androidx/recyclerview/widget/LinearSnapHelper.java"/>
     </issue>
 
     <issue
@@ -1723,9 +1411,7 @@
         errorLine1="    public RecyclerView.LayoutManager getLayoutManager() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="54"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1734,9 +1420,7 @@
         errorLine1="    public abstract int getDecoratedStart(View view);"
         errorLine2="                                          ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="91"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1745,9 +1429,7 @@
         errorLine1="    public abstract int getDecoratedEnd(View view);"
         errorLine2="                                        ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="103"
-            column="41"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1756,9 +1438,7 @@
         errorLine1="    public abstract int getTransformedEndWithDecoration(View view);"
         errorLine2="                                                        ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="119"
-            column="57"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1767,9 +1447,7 @@
         errorLine1="    public abstract int getTransformedStartWithDecoration(View view);"
         errorLine2="                                                          ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="135"
-            column="59"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1778,9 +1456,7 @@
         errorLine1="    public abstract int getDecoratedMeasurement(View view);"
         errorLine2="                                                ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="145"
-            column="49"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1789,9 +1465,7 @@
         errorLine1="    public abstract int getDecoratedMeasurementInOther(View view);"
         errorLine2="                                                       ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="155"
-            column="56"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1800,9 +1474,7 @@
         errorLine1="    public abstract void offsetChild(View view, int offset);"
         errorLine2="                                     ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="199"
-            column="38"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1811,9 +1483,7 @@
         errorLine1="    public static OrientationHelper createOrientationHelper("
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="239"
-            column="19"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1822,9 +1492,7 @@
         errorLine1="            RecyclerView.LayoutManager layoutManager, @RecyclerView.Orientation int orientation) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="240"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1833,9 +1501,7 @@
         errorLine1="    public static OrientationHelper createHorizontalHelper("
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="256"
-            column="19"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1844,9 +1510,7 @@
         errorLine1="            RecyclerView.LayoutManager layoutManager) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="257"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1855,9 +1519,7 @@
         errorLine1="    public static OrientationHelper createVerticalHelper(RecyclerView.LayoutManager layoutManager) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="355"
-            column="19"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1866,9 +1528,7 @@
         errorLine1="    public static OrientationHelper createVerticalHelper(RecyclerView.LayoutManager layoutManager) {"
         errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"
-            line="355"
-            column="58"/>
+            file="src/main/java/androidx/recyclerview/widget/OrientationHelper.java"/>
     </issue>
 
     <issue
@@ -1877,9 +1537,7 @@
         errorLine1="    public View findSnapView(RecyclerView.LayoutManager layoutManager) {"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/PagerSnapHelper.java"
-            line="70"
-            column="30"/>
+            file="src/main/java/androidx/recyclerview/widget/PagerSnapHelper.java"/>
     </issue>
 
     <issue
@@ -1888,9 +1546,7 @@
         errorLine1="    public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX,"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/PagerSnapHelper.java"
-            line="80"
-            column="39"/>
+            file="src/main/java/androidx/recyclerview/widget/PagerSnapHelper.java"/>
     </issue>
 
     <issue
@@ -1899,9 +1555,7 @@
         errorLine1="    public CharSequence getAccessibilityClassName() {"
         errorLine2="           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="810"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -1910,9 +1564,7 @@
         errorLine1="    protected Parcelable onSaveInstanceState() {"
         errorLine2="              ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="1445"
-            column="15"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -1921,9 +1573,7 @@
         errorLine1="    protected void onRestoreInstanceState(Parcelable state) {"
         errorLine2="                                          ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="1459"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -1932,9 +1582,7 @@
         errorLine1="    protected void dispatchSaveInstanceState(SparseArray&lt;Parcelable> container) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="1481"
-            column="46"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -1943,9 +1591,7 @@
         errorLine1="    protected void dispatchRestoreInstanceState(SparseArray&lt;Parcelable> container) {"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="1489"
-            column="49"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -1954,9 +1600,7 @@
         errorLine1="    public void setLayoutTransition(LayoutTransition transition) {"
         errorLine2="                                    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2495"
-            column="37"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -1965,9 +1609,7 @@
         errorLine1="    public View focusSearch(View focused, int direction) {"
         errorLine2="           ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2983"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -1976,9 +1618,7 @@
         errorLine1="    public View focusSearch(View focused, int direction) {"
         errorLine2="                            ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="2983"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -1987,9 +1627,7 @@
         errorLine1="    public void requestChildFocus(View child, View focused) {"
         errorLine2="                                  ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3128"
-            column="35"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -1998,9 +1636,7 @@
         errorLine1="    public void requestChildFocus(View child, View focused) {"
         errorLine2="                                              ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3128"
-            column="47"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2009,9 +1645,7 @@
         errorLine1="    public boolean requestChildRectangleOnScreen(View child, Rect rect, boolean immediate) {"
         errorLine2="                                                 ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3174"
-            column="50"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2020,9 +1654,7 @@
         errorLine1="    public boolean requestChildRectangleOnScreen(View child, Rect rect, boolean immediate) {"
         errorLine2="                                                             ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3174"
-            column="62"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2031,9 +1663,7 @@
         errorLine1="    public void addFocusables(ArrayList&lt;View> views, int direction, int focusableMode) {"
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3179"
-            column="31"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2042,9 +1672,7 @@
         errorLine1="    protected boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {"
         errorLine2="                                                                 ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3186"
-            column="66"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2053,9 +1681,7 @@
         errorLine1="    public boolean onInterceptTouchEvent(MotionEvent e) {"
         errorLine2="                                         ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3398"
-            column="42"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2064,9 +1690,7 @@
         errorLine1="    public boolean onTouchEvent(MotionEvent e) {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3552"
-            column="33"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2075,9 +1699,7 @@
         errorLine1="    public boolean onGenericMotionEvent(MotionEvent event) {"
         errorLine2="                                        ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="3741"
-            column="41"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2086,9 +1708,7 @@
         errorLine1="    public void sendAccessibilityEventUnchecked(AccessibilityEvent event) {"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4019"
-            column="49"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2097,9 +1717,7 @@
         errorLine1="    public boolean dispatchPopulateAccessibilityEvent(AccessibilityEvent event) {"
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4027"
-            column="55"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2108,9 +1726,7 @@
         errorLine1="    protected void removeDetachedView(View child, boolean animate) {"
         errorLine2="                                      ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4645"
-            column="39"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2119,9 +1735,7 @@
         errorLine1="    public void draw(Canvas c) {"
         errorLine2="                     ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4740"
-            column="22"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2130,9 +1744,7 @@
         errorLine1="    public void onDraw(Canvas c) {"
         errorLine2="                       ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4801"
-            column="24"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2141,9 +1753,7 @@
         errorLine1="    protected boolean checkLayoutParams(ViewGroup.LayoutParams p) {"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4811"
-            column="41"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2152,9 +1762,7 @@
         errorLine1="    protected ViewGroup.LayoutParams generateDefaultLayoutParams() {"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4816"
-            column="15"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2163,9 +1771,7 @@
         errorLine1="    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4824"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2174,9 +1780,7 @@
         errorLine1="    public ViewGroup.LayoutParams generateLayoutParams(AttributeSet attrs) {"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4824"
-            column="56"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2185,9 +1789,7 @@
         errorLine1="    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4832"
-            column="15"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2196,9 +1798,7 @@
         errorLine1="    protected ViewGroup.LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="4832"
-            column="59"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2207,9 +1807,7 @@
         errorLine1="    public ViewHolder getChildViewHolder(@NonNull View child) {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5079"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2218,9 +1816,7 @@
         errorLine1="    public ViewHolder findViewHolderForItemId(long id) {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5297"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2229,9 +1825,7 @@
         errorLine1="    public boolean drawChild(Canvas canvas, View child, long drawingTime) {"
         errorLine2="                             ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5341"
-            column="30"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2240,9 +1834,7 @@
         errorLine1="    public boolean drawChild(Canvas canvas, View child, long drawingTime) {"
         errorLine2="                                            ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="5341"
-            column="45"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2251,9 +1843,7 @@
         errorLine1="        public void putRecycledView(ViewHolder scrap) {"
         errorLine2="                                    ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="6070"
-            column="37"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2262,9 +1852,7 @@
         errorLine1="        public void setMeasuredDimension(Rect childrenBounds, int wSpec, int hSpec) {"
         errorLine2="                                         ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8294"
-            column="42"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2273,9 +1861,7 @@
         errorLine1="        public void assertInLayoutOrScroll(String message) {"
         errorLine2="                                           ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8318"
-            column="44"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2284,9 +1870,7 @@
         errorLine1="        public void assertNotInLayoutOrScroll(String message) {"
         errorLine2="                                              ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8354"
-            column="47"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2295,9 +1879,7 @@
         errorLine1="        public void collectAdjacentPrefetchPositions(int dx, int dy, State state,"
         errorLine2="                                                                     ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8533"
-            column="70"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2306,9 +1888,7 @@
         errorLine1="                LayoutPrefetchRegistry layoutPrefetchRegistry) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8534"
-            column="17"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2317,9 +1897,7 @@
         errorLine1="                LayoutPrefetchRegistry layoutPrefetchRegistry) {"
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8562"
-            column="17"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2328,9 +1906,7 @@
         errorLine1="        public void postOnAnimation(Runnable action) {"
         errorLine2="                                    ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8595"
-            column="37"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2339,9 +1915,7 @@
         errorLine1="        public boolean removeCallbacks(Runnable action) {"
         errorLine2="                                       ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8613"
-            column="40"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2350,9 +1924,7 @@
         errorLine1="        public void onAttachedToWindow(RecyclerView view) {"
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8634"
-            column="40"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2361,9 +1933,7 @@
         errorLine1="        public void onDetachedFromWindow(RecyclerView view) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8641"
-            column="42"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2372,9 +1942,7 @@
         errorLine1="        public void onDetachedFromWindow(RecyclerView view, Recycler recycler) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8668"
-            column="42"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2383,9 +1951,7 @@
         errorLine1="        public void onDetachedFromWindow(RecyclerView view, Recycler recycler) {"
         errorLine2="                                                            ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8668"
-            column="61"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2394,9 +1960,7 @@
         errorLine1="        public void onLayoutChildren(Recycler recycler, State state) {"
         errorLine2="                                     ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8732"
-            column="38"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2405,9 +1969,7 @@
         errorLine1="        public void onLayoutChildren(Recycler recycler, State state) {"
         errorLine2="                                                        ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8732"
-            column="57"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2416,9 +1978,7 @@
         errorLine1="        public void onLayoutCompleted(State state) {"
         errorLine2="                                      ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8747"
-            column="39"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2427,9 +1987,7 @@
         errorLine1="        public abstract LayoutParams generateDefaultLayoutParams();"
         errorLine2="                        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8765"
-            column="25"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2438,9 +1996,7 @@
         errorLine1="        public boolean checkLayoutParams(LayoutParams lp) {"
         errorLine2="                                         ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8777"
-            column="42"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2449,9 +2005,7 @@
         errorLine1="        public LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {"
         errorLine2="               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8794"
-            column="16"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2460,9 +2014,7 @@
         errorLine1="        public LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {"
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8794"
-            column="50"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2471,9 +2023,7 @@
         errorLine1="        public LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8818"
-            column="16"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2482,9 +2032,7 @@
         errorLine1="        public LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="                                                 ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8818"
-            column="50"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2493,9 +2041,7 @@
         errorLine1="        public LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="                                                            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8818"
-            column="61"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2504,9 +2050,7 @@
         errorLine1="        public int scrollHorizontallyBy(int dx, Recycler recycler, State state) {"
         errorLine2="                                                ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8835"
-            column="49"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2515,9 +2059,7 @@
         errorLine1="        public int scrollHorizontallyBy(int dx, Recycler recycler, State state) {"
         errorLine2="                                                                   ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8835"
-            column="68"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2526,9 +2068,7 @@
         errorLine1="        public int scrollVerticallyBy(int dy, Recycler recycler, State state) {"
         errorLine2="                                              ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8852"
-            column="47"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2537,9 +2077,7 @@
         errorLine1="        public int scrollVerticallyBy(int dy, Recycler recycler, State state) {"
         errorLine2="                                                                 ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8852"
-            column="66"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2548,9 +2086,7 @@
         errorLine1="        public void smoothScrollToPosition(RecyclerView recyclerView, State state,"
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8899"
-            column="44"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2559,9 +2095,7 @@
         errorLine1="        public void smoothScrollToPosition(RecyclerView recyclerView, State state,"
         errorLine2="                                                                      ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8899"
-            column="71"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2570,9 +2104,7 @@
         errorLine1="        public void startSmoothScroll(SmoothScroller smoothScroller) {"
         errorLine2="                                      ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8914"
-            column="39"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2581,9 +2113,7 @@
         errorLine1="        public void endAnimation(View view) {"
         errorLine2="                                 ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8948"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2592,9 +2122,7 @@
         errorLine1="        public void addDisappearingView(View child) {"
         errorLine2="                                        ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8967"
-            column="41"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2603,9 +2131,7 @@
         errorLine1="        public void addDisappearingView(View child, int index) {"
         errorLine2="                                        ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8985"
-            column="41"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2614,9 +2140,7 @@
         errorLine1="        public void addView(View child) {"
         errorLine2="                            ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="8996"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2625,9 +2149,7 @@
         errorLine1="        public void addView(View child, int index) {"
         errorLine2="                            ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="9008"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2636,9 +2158,7 @@
         errorLine1="        public void removeView(View child) {"
         errorLine2="                               ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="9074"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2647,9 +2167,7 @@
         errorLine1="        public void attachView(@NonNull View child, int index, LayoutParams lp) {"
         errorLine2="                                                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="9251"
-            column="64"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2658,9 +2176,7 @@
         errorLine1="        public void onRestoreInstanceState(Parcelable state) {"
         errorLine2="                                           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="10733"
-            column="44"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2669,9 +2185,7 @@
         errorLine1="        public static Properties getProperties(@NonNull Context context,"
         errorLine2="                      ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="11061"
-            column="23"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2680,9 +2194,7 @@
         errorLine1="            int dyUnconsumed, int[] offsetInWindow) {"
         errorLine2="                              ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12086"
-            column="31"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2691,9 +2203,7 @@
         errorLine1="            int dyUnconsumed, int[] offsetInWindow, int type) {"
         errorLine2="                              ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12093"
-            column="31"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2702,9 +2212,7 @@
         errorLine1="            int dyUnconsumed, int[] offsetInWindow, int type, @NonNull int[] consumed) {"
         errorLine2="                              ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12100"
-            column="31"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2713,9 +2221,7 @@
         errorLine1="    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {"
         errorLine2="                                                           ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12106"
-            column="60"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2724,9 +2230,7 @@
         errorLine1="    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow) {"
         errorLine2="                                                                           ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12106"
-            column="76"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2735,9 +2239,7 @@
         errorLine1="    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow,"
         errorLine2="                                                           ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12111"
-            column="60"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2746,9 +2248,7 @@
         errorLine1="    public boolean dispatchNestedPreScroll(int dx, int dy, int[] consumed, int[] offsetInWindow,"
         errorLine2="                                                                           ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12111"
-            column="76"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2757,9 +2257,7 @@
         errorLine1="        public LayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12142"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2768,9 +2266,7 @@
         errorLine1="        public LayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12142"
-            column="40"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2779,9 +2275,7 @@
         errorLine1="        public LayoutParams(MarginLayoutParams source) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12150"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2790,9 +2284,7 @@
         errorLine1="        public LayoutParams(ViewGroup.LayoutParams source) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12154"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2801,9 +2293,7 @@
         errorLine1="        public LayoutParams(LayoutParams source) {"
         errorLine2="                            ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12158"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2812,9 +2302,7 @@
         errorLine1="        public int getChildPosition(View view) {"
         errorLine2="                                    ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12512"
-            column="37"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2823,9 +2311,7 @@
         errorLine1="        public View findViewByPosition(int position) {"
         errorLine2="               ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12526"
-            column="16"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2834,9 +2320,7 @@
         errorLine1="        protected void onChildAttachedToWindow(View child) {"
         errorLine2="                                               ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12539"
-            column="48"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2845,9 +2329,7 @@
         errorLine1="        public void writeToParcel(Parcel dest, int flags) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="12891"
-            column="35"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2856,9 +2338,7 @@
         errorLine1="        public void put(int resourceId, Object data) {"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"
-            line="13119"
-            column="41"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerView.java"/>
     </issue>
 
     <issue
@@ -2867,9 +2347,7 @@
         errorLine1="    public boolean performAccessibilityAction(View host, int action, Bundle args) {"
         errorLine2="                                              ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="59"
-            column="47"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"/>
     </issue>
 
     <issue
@@ -2878,9 +2356,7 @@
         errorLine1="    public boolean performAccessibilityAction(View host, int action, Bundle args) {"
         errorLine2="                                                                     ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="59"
-            column="70"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"/>
     </issue>
 
     <issue
@@ -2889,9 +2365,7 @@
         errorLine1="    public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {"
         errorLine2="                                                  ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="71"
-            column="51"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"/>
     </issue>
 
     <issue
@@ -2900,9 +2374,7 @@
         errorLine1="    public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {"
         errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="71"
-            column="62"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"/>
     </issue>
 
     <issue
@@ -2911,9 +2383,7 @@
         errorLine1="    public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {"
         errorLine2="                                               ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="79"
-            column="48"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"/>
     </issue>
 
     <issue
@@ -2922,9 +2392,7 @@
         errorLine1="    public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="79"
-            column="59"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"/>
     </issue>
 
     <issue
@@ -2933,9 +2401,7 @@
         errorLine1="        public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {"
         errorLine2="                                                      ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="142"
-            column="55"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"/>
     </issue>
 
     <issue
@@ -2944,9 +2410,7 @@
         errorLine1="        public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="142"
-            column="66"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"/>
     </issue>
 
     <issue
@@ -2955,9 +2419,7 @@
         errorLine1="        public boolean performAccessibilityAction(View host, int action, Bundle args) {"
         errorLine2="                                                  ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="159"
-            column="51"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"/>
     </issue>
 
     <issue
@@ -2966,9 +2428,7 @@
         errorLine1="        public boolean performAccessibilityAction(View host, int action, Bundle args) {"
         errorLine2="                                                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"
-            line="159"
-            column="74"/>
+            file="src/main/java/androidx/recyclerview/widget/RecyclerViewAccessibilityDelegate.java"/>
     </issue>
 
     <issue
@@ -2977,9 +2437,7 @@
         errorLine1="    public abstract boolean animateRemove(RecyclerView.ViewHolder holder);"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="188"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -2988,9 +2446,7 @@
         errorLine1="    public abstract boolean animateAdd(RecyclerView.ViewHolder holder);"
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="213"
-            column="40"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -2999,9 +2455,7 @@
         errorLine1="    public abstract boolean animateMove(RecyclerView.ViewHolder holder, int fromX, int fromY,"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="233"
-            column="41"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3010,9 +2464,7 @@
         errorLine1="    public abstract boolean animateChange(RecyclerView.ViewHolder oldHolder,"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="266"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3021,9 +2473,7 @@
         errorLine1="            RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop);"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="267"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3032,9 +2482,7 @@
         errorLine1="    public final void dispatchRemoveFinished(RecyclerView.ViewHolder item) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="276"
-            column="46"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3043,9 +2491,7 @@
         errorLine1="    public final void dispatchMoveFinished(RecyclerView.ViewHolder item) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="291"
-            column="44"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3054,9 +2500,7 @@
         errorLine1="    public final void dispatchAddFinished(RecyclerView.ViewHolder item) {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="301"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3065,9 +2509,7 @@
         errorLine1="    public final void dispatchChangeFinished(RecyclerView.ViewHolder item, boolean oldItem) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="316"
-            column="46"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3076,9 +2518,7 @@
         errorLine1="    public final void dispatchRemoveStarting(RecyclerView.ViewHolder item) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="326"
-            column="46"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3087,9 +2527,7 @@
         errorLine1="    public final void dispatchMoveStarting(RecyclerView.ViewHolder item) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="335"
-            column="44"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3098,9 +2536,7 @@
         errorLine1="    public final void dispatchAddStarting(RecyclerView.ViewHolder item) {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="344"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3109,9 +2545,7 @@
         errorLine1="    public final void dispatchChangeStarting(RecyclerView.ViewHolder item, boolean oldItem) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="357"
-            column="46"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3120,9 +2554,7 @@
         errorLine1="    public void onRemoveStarting(RecyclerView.ViewHolder item) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="370"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3131,9 +2563,7 @@
         errorLine1="    public void onRemoveFinished(RecyclerView.ViewHolder item) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="381"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3142,9 +2572,7 @@
         errorLine1="    public void onAddStarting(RecyclerView.ViewHolder item) {"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="393"
-            column="31"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3153,9 +2581,7 @@
         errorLine1="    public void onAddFinished(RecyclerView.ViewHolder item) {"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="404"
-            column="31"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3164,9 +2590,7 @@
         errorLine1="    public void onMoveStarting(RecyclerView.ViewHolder item) {"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="416"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3175,9 +2599,7 @@
         errorLine1="    public void onMoveFinished(RecyclerView.ViewHolder item) {"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="427"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3186,9 +2608,7 @@
         errorLine1="    public void onChangeStarting(RecyclerView.ViewHolder item, boolean oldItem) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="441"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3197,9 +2617,7 @@
         errorLine1="    public void onChangeFinished(RecyclerView.ViewHolder item, boolean oldItem) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"
-            line="454"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/SimpleItemAnimator.java"/>
     </issue>
 
     <issue
@@ -3208,9 +2626,7 @@
         errorLine1="    public int[] calculateScrollDistance(int velocityX, int velocityY) {"
         errorLine2="           ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SnapHelper.java"
-            line="136"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/SnapHelper.java"/>
     </issue>
 
     <issue
@@ -3219,9 +2635,7 @@
         errorLine1="    public abstract View findSnapView(RecyclerView.LayoutManager layoutManager);"
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SnapHelper.java"
-            line="289"
-            column="39"/>
+            file="src/main/java/androidx/recyclerview/widget/SnapHelper.java"/>
     </issue>
 
     <issue
@@ -3230,9 +2644,7 @@
         errorLine1="    public abstract int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX,"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SnapHelper.java"
-            line="302"
-            column="48"/>
+            file="src/main/java/androidx/recyclerview/widget/SnapHelper.java"/>
     </issue>
 
     <issue
@@ -3241,9 +2653,7 @@
         errorLine1="        public void onChanged(int position, int count, Object payload) {"
         errorLine2="                                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="865"
-            column="56"/>
+            file="src/main/java/androidx/recyclerview/widget/SortedList.java"/>
     </issue>
 
     <issue
@@ -3252,9 +2662,7 @@
         errorLine1="        public BatchedCallback(Callback&lt;T2> wrappedCallback) {"
         errorLine2="                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="951"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/SortedList.java"/>
     </issue>
 
     <issue
@@ -3263,9 +2671,7 @@
         errorLine1="        public void onChanged(int position, int count, Object payload) {"
         errorLine2="                                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SortedList.java"
-            line="982"
-            column="56"/>
+            file="src/main/java/androidx/recyclerview/widget/SortedList.java"/>
     </issue>
 
     <issue
@@ -3274,9 +2680,7 @@
         errorLine1="    public SortedListAdapterCallback(RecyclerView.Adapter adapter) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SortedListAdapterCallback.java"
-            line="33"
-            column="38"/>
+            file="src/main/java/androidx/recyclerview/widget/SortedListAdapterCallback.java"/>
     </issue>
 
     <issue
@@ -3285,9 +2689,7 @@
         errorLine1="    public void onChanged(int position, int count, Object payload) {"
         errorLine2="                                                   ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/SortedListAdapterCallback.java"
-            line="58"
-            column="52"/>
+            file="src/main/java/androidx/recyclerview/widget/SortedListAdapterCallback.java"/>
     </issue>
 
     <issue
@@ -3296,9 +2698,7 @@
         errorLine1="    public StaggeredGridLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                                      ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="227"
-            column="39"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3307,9 +2707,7 @@
         errorLine1="    public StaggeredGridLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,"
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="227"
-            column="56"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3318,9 +2716,7 @@
         errorLine1="    public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {"
         errorLine2="                                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="321"
-            column="38"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3329,9 +2725,7 @@
         errorLine1="    public void onDetachedFromWindow(RecyclerView view, RecyclerView.Recycler recycler) {"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="321"
-            column="57"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3340,9 +2734,7 @@
         errorLine1="    public void assertNotInLayoutOrScroll(String message) {"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="526"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3351,9 +2743,7 @@
         errorLine1="    public void setMeasuredDimension(Rect childrenBounds, int wSpec, int hSpec) {"
         errorLine2="                                     ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="583"
-            column="38"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3362,9 +2752,7 @@
         errorLine1="    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="603"
-            column="34"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3373,9 +2761,7 @@
         errorLine1="    public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="603"
-            column="66"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3384,9 +2770,7 @@
         errorLine1="    public void onLayoutCompleted(RecyclerView.State state) {"
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="733"
-            column="35"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3395,9 +2779,7 @@
         errorLine1="    public int[] findFirstVisibleItemPositions(int[] into) {"
         errorLine2="           ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="965"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3406,9 +2788,7 @@
         errorLine1="    public int[] findFirstVisibleItemPositions(int[] into) {"
         errorLine2="                                               ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="965"
-            column="48"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3417,9 +2797,7 @@
         errorLine1="    public int[] findFirstCompletelyVisibleItemPositions(int[] into) {"
         errorLine2="           ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="997"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3428,9 +2806,7 @@
         errorLine1="    public int[] findFirstCompletelyVisibleItemPositions(int[] into) {"
         errorLine2="                                                         ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="997"
-            column="58"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3439,9 +2815,7 @@
         errorLine1="    public int[] findLastVisibleItemPositions(int[] into) {"
         errorLine2="           ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1029"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3450,9 +2824,7 @@
         errorLine1="    public int[] findLastVisibleItemPositions(int[] into) {"
         errorLine2="                                              ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1029"
-            column="47"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3461,9 +2833,7 @@
         errorLine1="    public int[] findLastCompletelyVisibleItemPositions(int[] into) {"
         errorLine2="           ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1061"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3472,9 +2842,7 @@
         errorLine1="    public int[] findLastCompletelyVisibleItemPositions(int[] into) {"
         errorLine2="                                                        ~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1061"
-            column="57"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3483,9 +2851,7 @@
         errorLine1="    public int computeHorizontalScrollOffset(RecyclerView.State state) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1075"
-            column="46"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3494,9 +2860,7 @@
         errorLine1="    public int computeVerticalScrollOffset(RecyclerView.State state) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1090"
-            column="44"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3505,9 +2869,7 @@
         errorLine1="    public int computeHorizontalScrollExtent(RecyclerView.State state) {"
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1095"
-            column="46"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3516,9 +2878,7 @@
         errorLine1="    public int computeVerticalScrollExtent(RecyclerView.State state) {"
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1110"
-            column="44"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3527,9 +2887,7 @@
         errorLine1="    public int computeHorizontalScrollRange(RecyclerView.State state) {"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1115"
-            column="45"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3538,9 +2896,7 @@
         errorLine1="    public int computeVerticalScrollRange(RecyclerView.State state) {"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1130"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3549,9 +2905,7 @@
         errorLine1="    public void onRestoreInstanceState(Parcelable state) {"
         errorLine2="                                       ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1229"
-            column="40"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3560,9 +2914,7 @@
         errorLine1="    public Parcelable onSaveInstanceState() {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1243"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3571,9 +2923,7 @@
         errorLine1="    public void onInitializeAccessibilityEvent(AccessibilityEvent event) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1293"
-            column="48"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3582,9 +2932,7 @@
         errorLine1="    public void onItemsRemoved(RecyclerView recyclerView, int positionStart, int itemCount) {"
         errorLine2="                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1475"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3593,9 +2941,7 @@
         errorLine1="    public void onItemsAdded(RecyclerView recyclerView, int positionStart, int itemCount) {"
         errorLine2="                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1480"
-            column="30"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3604,9 +2950,7 @@
         errorLine1="    public void onItemsChanged(RecyclerView recyclerView) {"
         errorLine2="                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1485"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3615,9 +2959,7 @@
         errorLine1="    public void onItemsMoved(RecyclerView recyclerView, int from, int to, int itemCount) {"
         errorLine2="                             ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1491"
-            column="30"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3626,9 +2968,7 @@
         errorLine1="    public void onItemsUpdated(RecyclerView recyclerView, int positionStart, int itemCount,"
         errorLine2="                               ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1496"
-            column="32"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3637,9 +2977,7 @@
         errorLine1="            Object payload) {"
         errorLine2="            ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="1497"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3648,9 +2986,7 @@
         errorLine1="    public int scrollHorizontallyBy(int dx, RecyclerView.Recycler recycler,"
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2005"
-            column="45"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3659,9 +2995,7 @@
         errorLine1="            RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2006"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3670,9 +3004,7 @@
         errorLine1="    public int scrollVerticallyBy(int dy, RecyclerView.Recycler recycler,"
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2011"
-            column="43"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3681,9 +3013,7 @@
         errorLine1="            RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2012"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3692,9 +3022,7 @@
         errorLine1="    public PointF computeScrollVectorForPosition(int targetPosition) {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2025"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3703,9 +3031,7 @@
         errorLine1="    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state,"
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2042"
-            column="40"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3714,9 +3040,7 @@
         errorLine1="    public void smoothScrollToPosition(RecyclerView recyclerView, RecyclerView.State state,"
         errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2042"
-            column="67"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3725,9 +3049,7 @@
         errorLine1="    public void collectAdjacentPrefetchPositions(int dx, int dy, RecyclerView.State state,"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2084"
-            column="66"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3736,9 +3058,7 @@
         errorLine1="            LayoutPrefetchRegistry layoutPrefetchRegistry) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2085"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3747,9 +3067,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateDefaultLayoutParams() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2221"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3758,9 +3076,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2232"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3769,9 +3085,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="                                                          ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2232"
-            column="59"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3780,9 +3094,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateLayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="                                                                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2232"
-            column="70"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3791,9 +3103,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2237"
-            column="12"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3802,9 +3112,7 @@
         errorLine1="    public RecyclerView.LayoutParams generateLayoutParams(ViewGroup.LayoutParams lp) {"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2237"
-            column="59"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3813,9 +3121,7 @@
         errorLine1="    public boolean checkLayoutParams(RecyclerView.LayoutParams lp) {"
         errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2246"
-            column="38"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3824,9 +3130,7 @@
         errorLine1="    public View onFocusSearchFailed(View focused, int direction, RecyclerView.Recycler recycler,"
         errorLine2="                                    ~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2256"
-            column="37"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3835,9 +3139,7 @@
         errorLine1="    public View onFocusSearchFailed(View focused, int direction, RecyclerView.Recycler recycler,"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2256"
-            column="66"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3846,9 +3148,7 @@
         errorLine1="            RecyclerView.State state) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2257"
-            column="13"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3857,9 +3157,7 @@
         errorLine1="        public LayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="                            ~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2423"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3868,9 +3166,7 @@
         errorLine1="        public LayoutParams(Context c, AttributeSet attrs) {"
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2423"
-            column="40"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3879,9 +3175,7 @@
         errorLine1="        public LayoutParams(ViewGroup.MarginLayoutParams source) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2431"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3890,9 +3184,7 @@
         errorLine1="        public LayoutParams(ViewGroup.LayoutParams source) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2435"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3901,9 +3193,7 @@
         errorLine1="        public LayoutParams(RecyclerView.LayoutParams source) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="2439"
-            column="29"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3912,9 +3202,7 @@
         errorLine1="        public SavedState(SavedState other) {"
         errorLine2="                          ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="3164"
-            column="27"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3923,9 +3211,7 @@
         errorLine1="        public void writeToParcel(Parcel dest, int flags) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"
-            line="3198"
-            column="35"/>
+            file="src/main/java/androidx/recyclerview/widget/StaggeredGridLayoutManager.java"/>
     </issue>
 
     <issue
@@ -3934,9 +3220,7 @@
         errorLine1="        void addTile(int generation, TileList.Tile&lt;T> tile);"
         errorLine2="                                     ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ThreadUtil.java"
-            line="25"
-            column="38"/>
+            file="src/main/java/androidx/recyclerview/widget/ThreadUtil.java"/>
     </issue>
 
     <issue
@@ -3945,9 +3229,7 @@
         errorLine1="        void recycleTile(TileList.Tile&lt;T> tile);"
         errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/ThreadUtil.java"
-            line="39"
-            column="26"/>
+            file="src/main/java/androidx/recyclerview/widget/ThreadUtil.java"/>
     </issue>
 
     <issue
@@ -3956,9 +3238,7 @@
         errorLine1="        public Tile(Class&lt;T> klass, int size) {"
         errorLine2="                    ~~~~~~~~">
         <location
-            file="src/main/java/androidx/recyclerview/widget/TileList.java"
-            line="99"
-            column="21"/>
+            file="src/main/java/androidx/recyclerview/widget/TileList.java"/>
     </issue>
 
 </issues>

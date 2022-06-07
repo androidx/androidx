@@ -434,6 +434,7 @@ public final class CarNotificationManager {
     }
 
     @StyleRes
+    @SuppressWarnings("deprecation")
     private static int loadThemeId(Context context) {
         int theme = Resources.ID_NULL;
         ApplicationInfo applicationInfo;

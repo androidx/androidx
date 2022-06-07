@@ -19,10 +19,14 @@ package androidx.camera.core.impl;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
+import androidx.camera.core.impl.utils.futures.Futures;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * A processing step of the image capture pipeline.
@@ -57,4 +61,25 @@ public interface CaptureProcessor {
      * @param size for the surface.
      */
     void onResolutionUpdate(Size size);
+
+    /**
+     * Triggers to close the capture processor.
+     *
+     * <p>The capture processor might stop the in-progress task or have a flag to stop handling
+     * new tasks after this function is called. When the capture processor is closed completely,
+     * the {@link ListenableFuture} returned by {@link #getCloseFuture()} needs to be completed.
+     */
+    default void close() {
+        // No-op by default.
+    }
+
+    /**
+     * Returns the {@link ListenableFuture} which allows to know when the capture processor has
+     * been closed completely.
+     */
+    @NonNull
+    default ListenableFuture<Void> getCloseFuture() {
+        // Returns immediate future by default.
+        return Futures.immediateFuture(null);
+    }
 }

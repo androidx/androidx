@@ -18,7 +18,9 @@ package androidx.benchmark.macro
 
 import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
@@ -30,10 +32,10 @@ import androidx.benchmark.userspaceTrace
  * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RequiresApi(28)
 fun collectBaselineProfile(
     uniqueName: String,
     packageName: String,
-    setupBlock: MacrobenchmarkScope.() -> Unit,
     profileBlock: MacrobenchmarkScope.() -> Unit
 ) {
     require(Build.VERSION.SDK_INT >= 28) {
@@ -46,15 +48,21 @@ fun collectBaselineProfile(
     }
 
     val startTime = System.nanoTime()
-    val scope = MacrobenchmarkScope(packageName, /* launchWithClearTask */ true)
-    val speedProfile = CompilationMode.SpeedProfile(warmupIterations = 3)
+    val scope = MacrobenchmarkScope(packageName, launchWithClearTask = true)
+
+    // Disable because we're *creating* a baseline profile, not using it yet
+    val compilationMode = CompilationMode.Partial(
+        baselineProfileMode = BaselineProfileMode.Disable,
+        warmupIterations = 3
+    )
 
     // always kill the process at beginning of a collection.
     scope.killProcess()
     try {
         userspaceTrace("compile $packageName") {
-            speedProfile.compile(packageName) {
-                setupBlock(scope)
+            compilationMode.resetAndCompile(
+                packageName = packageName
+            ) {
                 profileBlock(scope)
             }
         }
@@ -76,8 +84,15 @@ fun collectBaselineProfile(
             val absolutePath = Outputs.writeFile(fileName, "baseline-profile") {
                 it.writeText(profile)
             }
+            // Write a file with a timestamp to be able to disambiguate between runs with the same
+            // unique name.
+            val tsFileName = "$uniqueName-baseline-prof-${Outputs.dateToFileName()}.txt"
+            val tsAbsolutePath = Outputs.writeFile(tsFileName, "baseline-profile-ts") {
+                Log.d(TAG, "Pull Baseline Profile with: `adb pull \"${it.absolutePath}\" .`")
+                it.writeText(profile)
+            }
             val totalRunTime = System.nanoTime() - startTime
-            val summary = summaryRecord(totalRunTime, absolutePath)
+            val summary = summaryRecord(totalRunTime, absolutePath, tsAbsolutePath)
             ideSummaryRecord(summaryV1 = summary, summaryV2 = summary)
             Log.d(TAG, "Total Run Time Ns: $totalRunTime")
         }
@@ -96,20 +111,40 @@ private fun profile(apkPath: String, pathOptions: List<String>): String {
             "profman --dump-classes-and-methods --profile-file=$currentPath --apk=$apkPath"
         )
         if (profile.isNotBlank()) {
-            return profile
+            return filterProfileRulesToTargetP(profile)
         }
     }
     throw IllegalStateException("The profile is empty.")
 }
 
-private fun summaryRecord(totalRunTime: Long, absolutePath: String): String {
-    val relativePath = Outputs.relativePathFor(absolutePath)
+@VisibleForTesting
+internal fun filterProfileRulesToTargetP(profile: String): String {
+    val rules = profile.lines()
+    val filteredRules = rules.filterNot { rule ->
+        // We want to filter out rules that are not supported on P. (b/216508418)
+        // These include rules that have array qualifiers and inline cache specifiers.
+        if (rule.startsWith("[")) { // Array qualifier
+            true
+        } else rule.contains("+") // Inline cache specifier
+    }
+    return filteredRules.joinToString(separator = "\n")
+}
+
+private fun summaryRecord(
+    totalRunTime: Long,
+    absolutePath: String,
+    tsAbsolutePath: String
+): String {
+    // Link to a path with timestamp to prevent studio from caching the file
+    val relativePath = Outputs.relativePathFor(tsAbsolutePath)
         .replace("(", "\\(")
         .replace(")", "\\)")
 
     return """
         Total run time Ns: $totalRunTime.
-
         Baseline profile [results](file://$relativePath)
+
+        To copy the profile use:
+        adb pull "$absolutePath" .
     """.trimIndent()
 }

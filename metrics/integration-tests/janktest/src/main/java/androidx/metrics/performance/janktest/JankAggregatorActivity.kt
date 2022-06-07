@@ -20,13 +20,15 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.metrics.performance.PerformanceMetricsState
 import androidx.metrics.performance.FrameData
 import androidx.metrics.performance.janktest.databinding.ActivityMainBinding
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import java.util.concurrent.Executors
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.asExecutor
 
 /**
  * This activity shows how to use JankStatsAggregator, a class in this test directory layered
@@ -39,7 +41,6 @@ class JankAggregatorActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-
     lateinit var jankStatsAggregator: JankStatsAggregator
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,10 +48,11 @@ class JankAggregatorActivity : AppCompatActivity() {
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val executor = Executors.newSingleThreadExecutor()
 
-        jankStatsAggregator = JankStatsAggregator.create(binding.root, executor, jankReportListener)
-        jankStatsAggregator.jankStats.addState("Activity", javaClass.simpleName)
+        val metricsStateHolder = PerformanceMetricsState.getForHierarchy(binding.root)
+        jankStatsAggregator = JankStatsAggregator(window, Dispatchers.Default.asExecutor(),
+            jankReportListener)
+        metricsStateHolder.state?.addState("Activity", javaClass.simpleName)
 
         setSupportActionBar(binding.toolbar)
 
@@ -66,17 +68,10 @@ class JankAggregatorActivity : AppCompatActivity() {
             totalFrames: Int,
             jankFrameData: List<FrameData>
         ) {
-            println("*** Jank Report ($reason), totalFrames = $totalFrames, " +
+            println("Jank Report ($reason), totalFrames = $totalFrames, " +
                 "jankFrames = ${jankFrameData.size}")
             for (frameData in jankFrameData) {
-                println(
-                    "***** Jank Report: frame start, duration, jank = " +
-                        "${frameData.frameStartNanos}, ${frameData.frameDurationNanos}, " +
-                        "${frameData.isJank}"
-                )
-                for (state in frameData.states) {
-                    println("    ${state.stateName}: ${state.state}")
-                }
+                println("$frameData")
             }
         }
     }

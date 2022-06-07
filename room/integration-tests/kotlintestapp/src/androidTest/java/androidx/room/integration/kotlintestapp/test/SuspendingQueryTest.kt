@@ -52,6 +52,7 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.DelicateCoroutinesApi
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
@@ -264,7 +265,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
             }
 
             try {
-                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                 database.withTransaction {
                     booksDao.insertBookSuspend(TestUtil.BOOK_2)
                     throw IOException("Boom!")
@@ -310,7 +310,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 )
 
                 try {
-                    @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                     database.withTransaction {
                         booksDao.insertBookSuspend(TestUtil.BOOK_1.copy(salesCnt = 0))
                         throw IOException("Boom!")
@@ -335,7 +334,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
             try {
                 database.withTransaction {
                     try {
-                        @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
                         database.withTransaction {
                             throw IOException("Boom!")
                         }
@@ -627,6 +625,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 TestUtil.PUBLISHER.name
             )
 
+            @OptIn(DelicateCoroutinesApi::class)
             async(newSingleThreadContext("asyncThread1")) {
                 database.withTransaction {
                     delay(100)
@@ -634,6 +633,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 }
             }
 
+            @OptIn(DelicateCoroutinesApi::class)
             async(newSingleThreadContext("asyncThread2")) {
                 database.withTransaction {
                     delay(100)
@@ -852,7 +852,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
     @Test
     @Suppress("DEPRECATION")
     fun withTransaction_endTransaction_error() {
-        @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
         runBlocking {
             try {
                 database.withTransaction {

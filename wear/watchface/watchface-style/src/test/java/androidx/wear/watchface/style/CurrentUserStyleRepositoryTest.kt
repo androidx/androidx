@@ -16,6 +16,9 @@
 
 package androidx.wear.watchface.style
 
+import android.graphics.drawable.Icon
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.CustomValueUserStyleSetting.CustomValueOption
@@ -673,6 +676,66 @@ class CurrentUserStyleRepositoryTest {
         assertThat(userStyleB).isNotEqualTo(userStyleC)
         assertThat(userStyleB).isNotEqualTo(userStyleD)
     }
+
+    @OptIn(ExperimentalHierarchicalStyle::class)
+    @Test
+    fun hierarchicalStyle() {
+        val twelveHourClockOption =
+            ListUserStyleSetting.ListOption(Option.Id("12_style"), "12", icon = null)
+
+        val twentyFourHourClockOption =
+            ListUserStyleSetting.ListOption(Option.Id("24_style"), "24", icon = null)
+
+        val digitalClockStyleSetting = ListUserStyleSetting(
+            UserStyleSetting.Id("digital_clock_style"),
+            "Clock style",
+            "Clock style setting",
+            null,
+            listOf(twelveHourClockOption, twentyFourHourClockOption),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+        )
+
+        val digitalWatchFaceType = ListUserStyleSetting.ListOption(
+            Option.Id("digital"),
+           "Digital",
+            icon = null,
+            childSettings = listOf(digitalClockStyleSetting, colorStyleSetting)
+        )
+
+        val analogWatchFaceType = ListUserStyleSetting.ListOption(
+            Option.Id("analog"),
+            "Analog",
+            icon = null,
+            childSettings = listOf(watchHandLengthStyleSetting, watchHandStyleSetting)
+        )
+
+        val watchFaceType = ListUserStyleSetting(
+            UserStyleSetting.Id("clock_type"),
+            "Watch face type",
+            "Analog or digital",
+            icon = null,
+            options = listOf(digitalWatchFaceType, analogWatchFaceType),
+            WatchFaceLayer.ALL_WATCH_FACE_LAYERS
+        )
+
+        val schema = UserStyleSchema(
+            listOf(
+                watchFaceType,
+                digitalClockStyleSetting,
+                colorStyleSetting,
+                watchHandLengthStyleSetting,
+                watchHandStyleSetting
+            )
+        )
+
+        assertThat(schema.rootUserStyleSettings).containsExactly(watchFaceType)
+
+        assertThat(watchFaceType.hasParent).isFalse()
+        assertThat(digitalClockStyleSetting.hasParent).isTrue()
+        assertThat(colorStyleSetting.hasParent).isTrue()
+        assertThat(watchHandLengthStyleSetting.hasParent).isTrue()
+        assertThat(watchHandStyleSetting.hasParent).isTrue()
+    }
 }
 
 @RunWith(StyleTestRunner::class)
@@ -718,5 +781,178 @@ public class MutableUserStyleTest {
         assertThrows(IllegalArgumentException::class.java) {
             mutableUserStyle[booleanSetting.id] = blueStyleOption.id
         }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.P)
+@RunWith(StyleTestRunner::class)
+class DigestHashTest {
+    @Test
+    public fun digestHashSensitiveToSettingChanges() {
+        val schema1 = UserStyleSchema(listOf(colorStyleSetting))
+        val schema2 = UserStyleSchema(listOf(colorStyleSetting, watchHandStyleSetting))
+        val schema3 = UserStyleSchema(
+            listOf(colorStyleSetting, watchHandStyleSetting, watchHandLengthStyleSetting)
+        )
+
+        val digestHash1 = schema1.getDigestHash()
+        val digestHash2 = schema2.getDigestHash()
+        val digestHash3 = schema3.getDigestHash()
+
+        assertThat(digestHash1).isNotEqualTo(digestHash2)
+        assertThat(digestHash1).isNotEqualTo(digestHash3)
+        assertThat(digestHash2).isNotEqualTo(digestHash3)
+    }
+
+    @Test
+    public fun digestHashSensitiveToOptionChanges() {
+        val colorStyleSetting1 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization", /* icon = */
+            null,
+            listOf(redStyleOption),
+            listOf(WatchFaceLayer.BASE)
+        )
+        val colorStyleSetting2 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization", /* icon = */
+            null,
+            listOf(redStyleOption, greenStyleOption,),
+            listOf(WatchFaceLayer.BASE)
+        )
+        val colorStyleSetting3 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization", /* icon = */
+            null,
+            listOf(redStyleOption, greenStyleOption, blueStyleOption),
+            listOf(WatchFaceLayer.BASE)
+        )
+
+        val schema1 = UserStyleSchema(listOf(colorStyleSetting1))
+        val schema2 = UserStyleSchema(listOf(colorStyleSetting2))
+        val schema3 = UserStyleSchema(listOf(colorStyleSetting3))
+
+        val digestHash1 = schema1.getDigestHash()
+        val digestHash2 = schema2.getDigestHash()
+        val digestHash3 = schema3.getDigestHash()
+
+        assertThat(digestHash1).isNotEqualTo(digestHash2)
+        assertThat(digestHash1).isNotEqualTo(digestHash3)
+        assertThat(digestHash2).isNotEqualTo(digestHash3)
+    }
+
+    @Test
+    public fun digestHashSensitiveToDisplayNameChanges() {
+        val colorStyleSetting1 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization", /* icon = */
+            null,
+            listOf(redStyleOption),
+            listOf(WatchFaceLayer.BASE)
+        )
+        val colorStyleSetting2 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors2",
+            "Watchface colorization", /* icon = */
+            null,
+            listOf(redStyleOption, greenStyleOption,),
+            listOf(WatchFaceLayer.BASE)
+        )
+
+        val schema1 = UserStyleSchema(listOf(colorStyleSetting1))
+        val schema2 = UserStyleSchema(listOf(colorStyleSetting2))
+
+        val digestHash1 = schema1.getDigestHash()
+        val digestHash2 = schema2.getDigestHash()
+
+        assertThat(digestHash1).isNotEqualTo(digestHash2)
+    }
+
+    @Test
+    public fun digestHashSensitiveToDescriptionChanges() {
+        val colorStyleSetting1 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization", /* icon = */
+            null,
+            listOf(redStyleOption),
+            listOf(WatchFaceLayer.BASE)
+        )
+        val colorStyleSetting2 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization2", /* icon = */
+            null,
+            listOf(redStyleOption),
+            listOf(WatchFaceLayer.BASE)
+        )
+
+        val schema1 = UserStyleSchema(listOf(colorStyleSetting1))
+        val schema2 = UserStyleSchema(listOf(colorStyleSetting2))
+
+        val digestHash1 = schema1.getDigestHash()
+        val digestHash2 = schema2.getDigestHash()
+
+        assertThat(digestHash1).isNotEqualTo(digestHash2)
+    }
+
+    @Test
+    public fun digestHashSensitiveToIconChanges() {
+        val colorStyleSetting1 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization", /* icon = */
+            Icon.createWithContentUri("/path1"),
+            listOf(redStyleOption),
+            listOf(WatchFaceLayer.BASE)
+        )
+        val colorStyleSetting2 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization", /* icon = */
+            Icon.createWithContentUri("/path2"),
+            listOf(redStyleOption),
+            listOf(WatchFaceLayer.BASE)
+        )
+
+        val schema1 = UserStyleSchema(listOf(colorStyleSetting1))
+        val schema2 = UserStyleSchema(listOf(colorStyleSetting2))
+
+        val digestHash1 = schema1.getDigestHash()
+        val digestHash2 = schema2.getDigestHash()
+
+        assertThat(digestHash1).isNotEqualTo(digestHash2)
+    }
+
+    @Test
+    public fun digestHashInsensitiveToLayersOrderChanges() {
+        val colorStyleSetting1 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization", /* icon = */
+            null,
+            listOf(redStyleOption),
+            listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS)
+        )
+        val colorStyleSetting2 = ListUserStyleSetting(
+            UserStyleSetting.Id("color_style_setting"),
+            "Colors",
+            "Watchface colorization", /* icon = */
+            null,
+            listOf(redStyleOption),
+            listOf(WatchFaceLayer.COMPLICATIONS, WatchFaceLayer.BASE)
+        )
+
+        val schema1 = UserStyleSchema(listOf(colorStyleSetting1))
+        val schema2 = UserStyleSchema(listOf(colorStyleSetting2))
+
+        val digestHash1 = schema1.getDigestHash()
+        val digestHash2 = schema2.getDigestHash()
+
+        assertThat(digestHash1).isEqualTo(digestHash2)
     }
 }

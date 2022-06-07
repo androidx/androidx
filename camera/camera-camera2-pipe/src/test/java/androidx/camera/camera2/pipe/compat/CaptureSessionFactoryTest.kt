@@ -33,23 +33,23 @@ import androidx.camera.camera2.pipe.config.Camera2CameraPipeModules
 import androidx.camera.camera2.pipe.config.CameraGraphModules
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
-import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
-import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
+import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import dagger.Component
 import dagger.Module
 import dagger.Provides
+import javax.inject.Singleton
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
-import javax.inject.Singleton
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -67,7 +67,7 @@ internal class CaptureSessionFactoryTest {
     }
 
     @Test
-    fun canCreateSessionFactoryTestComponent() = runBlockingTest {
+    fun canCreateSessionFactoryTestComponent() = runTest {
         val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
             .fakeCameraPipeModule(FakeCameraPipeModule(context, testCamera))
             .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))
@@ -78,7 +78,7 @@ internal class CaptureSessionFactoryTest {
     }
 
     @Test
-    fun createCameraCaptureSession() = runBlockingTest {
+    fun createCameraCaptureSession() = runTest {
         val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
             .fakeCameraPipeModule(FakeCameraPipeModule(context, testCamera))
             .threadConfigModule(ThreadConfigModule(CameraPipe.ThreadConfig()))

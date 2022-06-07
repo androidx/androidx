@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
+import androidx.build.BundleInsideHelper
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -22,10 +23,19 @@ plugins {
     id("kotlin-android")
 }
 
+BundleInsideHelper.forInsideAar(
+        project,
+        /* from = */ "com.google.protobuf",
+        /* to =   */ "androidx.test.screenshot.protobuf"
+)
+
 dependencies {
+    bundleInside(project(
+            path: ":test:screenshot:screenshot-proto",
+            configuration: "export"
+    ))
     implementation("androidx.annotation:annotation:1.0.0")
     implementation("androidx.core:core:1.5.0-rc02")
-    implementation("androidx.test.screenshot:screenshot-proto:1.0.0-alpha01")
 
     implementation(libs.kotlinStdlib)
     implementation(libs.junit)
@@ -40,5 +50,10 @@ dependencies {
 
 androidx {
     name = "AndroidX Library Screenshot Test"
+    type = LibraryType.INTERNAL_TEST_LIBRARY
     mavenGroup = LibraryGroups.TESTSCREENSHOT
+}
+
+android {
+    namespace "androidx.test.screenshot"
 }

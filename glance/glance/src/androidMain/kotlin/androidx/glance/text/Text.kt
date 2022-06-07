@@ -25,25 +25,39 @@ import androidx.glance.GlanceNode
 
 /**
  * Adds a text view to the glance view.
+ *
+ * @param text The text to be displayed.
+ * @param modifier [GlanceModifier] to apply to this layout node.
+ * @param style [TextStyle]] configuration for the text such as color, font, text align etc.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
-public fun Text(text: String, modifier: GlanceModifier = GlanceModifier, style: TextStyle? = null) {
+fun Text(
+    text: String,
+    modifier: GlanceModifier = GlanceModifier,
+    style: TextStyle? = null,
+    maxLines: Int = Int.MAX_VALUE,
+) {
     GlanceNode(
         factory = ::EmittableText,
         update = {
             this.set(text) { this.text = it }
             this.set(modifier) { this.modifier = it }
             this.set(style) { this.style = it }
+            this.set(maxLines) { this.maxLines = it }
         }
     )
 }
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EmittableText : Emittable {
+class EmittableText : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
-    public var text: String = ""
-    public var style: TextStyle? = null
+    var text: String = ""
+    var style: TextStyle? = null
+    var maxLines: Int = Int.MAX_VALUE
 
-    override fun toString(): String = "EmittableText($text, style=$style, modifier=$modifier)"
+    override fun toString(): String =
+        "EmittableText($text, style=$style, modifier=$modifier, maxLines=$maxLines)"
 }

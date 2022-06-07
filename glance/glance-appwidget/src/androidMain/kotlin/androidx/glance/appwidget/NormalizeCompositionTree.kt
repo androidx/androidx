@@ -24,14 +24,19 @@ import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.extractModifier
+import androidx.glance.findModifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.WidthModifier
+import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.unit.Dimension
 
 internal fun normalizeCompositionTree(root: RemoteViewsRoot) {
     coerceToOneChild(root)
+    root.normalizeSizes()
     root.transformTree { view ->
         if (view is EmittableLazyListItem) normalizeLazyListItem(view)
         view.transformBackgroundImage()
@@ -46,9 +51,37 @@ private fun coerceToOneChild(container: EmittableWithChildren) {
     container.children += box
 }
 
+/**
+ * Resolve mixing wrapToContent and fillMaxSize on containers.
+ *
+ * Make sure that if a node with wrapToContent has a child with fillMaxSize, then it becomes
+ * fillMaxSize. Otherwise, the behavior depends on the version of Android.
+ */
+private fun EmittableWithChildren.normalizeSizes() {
+    children.forEach { child ->
+        if (child is EmittableWithChildren) {
+            child.normalizeSizes()
+        }
+    }
+    if ((modifier.findModifier<HeightModifier>()?.height ?: Dimension.Wrap) is Dimension.Wrap &&
+        children.any { child ->
+            child.modifier.findModifier<HeightModifier>()?.height is Dimension.Fill
+        }
+    ) {
+        modifier = modifier.fillMaxHeight()
+    }
+    if ((modifier.findModifier<WidthModifier>()?.width ?: Dimension.Wrap) is Dimension.Wrap &&
+        children.any { child ->
+            child.modifier.findModifier<WidthModifier>()?.width is Dimension.Fill
+        }
+    ) {
+        modifier = modifier.fillMaxWidth()
+    }
+}
+
 /** Transform each node in the tree. */
 private fun EmittableWithChildren.transformTree(block: (Emittable) -> Emittable) {
-    children.forEachIndexed() { index, child ->
+    children.forEachIndexed { index, child ->
         val newChild = block(child)
         children[index] = newChild
         if (newChild is EmittableWithChildren) newChild.transformTree(block)

@@ -32,4 +32,5 @@ android {
         // part of CI.
         archivesBaseName = "core-remoteviews-demos-testapp"
     }
+    namespace "androidx.core.remoteviews.demos"
 }

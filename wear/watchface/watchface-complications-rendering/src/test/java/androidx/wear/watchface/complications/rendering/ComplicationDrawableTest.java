@@ -739,6 +739,7 @@ public class ComplicationDrawableTest {
             ApplicationProvider.getApplicationContext().startActivity(intent);
         }
 
+        @SuppressWarnings("deprecation")
         @Nullable
         @Override
         protected Object createWatchFace(@NonNull SurfaceHolder surfaceHolder,

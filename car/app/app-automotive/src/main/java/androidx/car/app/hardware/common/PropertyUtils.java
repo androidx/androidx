@@ -23,21 +23,32 @@ import static androidx.car.app.hardware.common.CarUnit.MILLILITER;
 import static androidx.car.app.hardware.common.CarUnit.US_GALLON;
 
 import android.car.Car;
+import android.car.VehicleAreaSeat;
+import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyValue;
+import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.info.AutomotiveCarInfo;
 import androidx.car.app.hardware.info.EnergyProfile;
+import androidx.car.app.utils.LogTags;
 
+import com.google.common.collect.ImmutableBiMap;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Utility functions to work with {@link android.car.hardware.CarPropertyValue}
@@ -59,6 +70,10 @@ public final class PropertyUtils {
     // System level permission in car-lib for controlling car's energy ports.
     private static final String CAR_PERMISSION_CONTROL_CAR_ENERGY_PORTS =
             "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
+
+    // System level permission in car-lib to access car specific communication channel.
+    private static final String CAR_PERMISSION_VENDOR_EXTENSION =
+            "android.car.permission.CAR_VENDOR_EXTENSION";
 
     // Index key is property id, value is the permission to read property.
     private static final SparseArray<String> PERMISSION_READ_PROPERTY = new SparseArray<String>() {
@@ -94,8 +109,41 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.CURRENT_GEAR, Car.PERMISSION_POWERTRAIN);
             append(VehiclePropertyIds.PARKING_BRAKE_ON, Car.PERMISSION_POWERTRAIN);
             append(VehiclePropertyIds.PARKING_BRAKE_AUTO_APPLY, Car.PERMISSION_POWERTRAIN);
+            append(VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS, Car.PERMISSION_READ_DISPLAY_UNITS);
         }
     };
+
+    @ExperimentalCarApi
+    static final ImmutableBiMap<CarZone, Integer> CAR_ZONE_TO_AREA_ID =
+            new ImmutableBiMap.Builder<CarZone, Integer>()
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build(),
+                            VehicleAreaSeat.SEAT_ROW_1_LEFT)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build(),
+                            VehicleAreaSeat.SEAT_ROW_1_CENTER)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_FIRST)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build(),
+                            VehicleAreaSeat.SEAT_ROW_1_RIGHT)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build(),
+                            VehicleAreaSeat.SEAT_ROW_2_LEFT)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build(),
+                            VehicleAreaSeat.SEAT_ROW_2_CENTER)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_SECOND)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build(),
+                            VehicleAreaSeat.SEAT_ROW_2_RIGHT)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_LEFT).build(),
+                            VehicleAreaSeat.SEAT_ROW_3_LEFT)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_CENTER).build(),
+                            VehicleAreaSeat.SEAT_ROW_3_CENTER)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build(),
+                            VehicleAreaSeat.SEAT_ROW_3_RIGHT)
+                    .buildOrThrow();
 
     // Permissions for writing properties. They are system level permissions.
     private static final SparseArray<String> PERMISSION_WRITE_PROPERTY = new SparseArray<String>() {
@@ -103,6 +151,8 @@ public final class PropertyUtils {
             append(VehiclePropertyIds.FUEL_DOOR_OPEN, CAR_PERMISSION_CONTROL_CAR_ENERGY_PORTS);
             append(VehiclePropertyIds.EV_CHARGE_PORT_OPEN, CAR_PERMISSION_CONTROL_CAR_ENERGY_PORTS);
             append(VehiclePropertyIds.RANGE_REMAINING, CAR_PERMISSION_ADJUST_RANGE_REMAINING);
+            append(VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS,
+                    Car.PERMISSION_CONTROL_DISPLAY_UNITS + CAR_PERMISSION_VENDOR_EXTENSION);
         }
     };
     private static final Set<Integer> ON_CHANGE_PROPERTIES =
@@ -153,7 +203,7 @@ public final class PropertyUtils {
     /**
      * Maps speed units in car service to speed units in {@link CarUnit}.
      */
-    public static @CarUnit.CarSpeedUnit int covertSpeedUnit(int vehicleUnit) {
+    public static @CarUnit.CarSpeedUnit int convertSpeedUnit(int vehicleUnit) {
         switch (vehicleUnit) {
             case VEHICLE_UNIT_METER_PER_SEC:
                 return CarUnit.METERS_PER_SEC;
@@ -169,7 +219,7 @@ public final class PropertyUtils {
     /**
      * Maps distance units in car service to distance units in {@link CarUnit}.
      */
-    public static @CarUnit.CarDistanceUnit int covertDistanceUnit(int vehicleUnit) {
+    public static @CarUnit.CarDistanceUnit int convertDistanceUnit(int vehicleUnit) {
         switch (vehicleUnit) {
             case VEHICLE_UNIT_METER:
                 return CarUnit.METER;
@@ -189,7 +239,7 @@ public final class PropertyUtils {
      */
     // TODO(b/202303614): Remove this annotation once FuelVolumeDisplayUnit is ready.
     @OptIn(markerClass = ExperimentalCarApi.class)
-    public static @CarUnit.CarVolumeUnit int covertVolumeUnit(int vehicleUnit) {
+    public static @CarUnit.CarVolumeUnit int convertVolumeUnit(int vehicleUnit) {
         switch (vehicleUnit) {
             case VEHICLE_UNIT_MILLILITER:
                 return MILLILITER;
@@ -207,7 +257,7 @@ public final class PropertyUtils {
     /**
      * Maps EV connector types in car service to types in {@link EnergyProfile}.
      */
-    public static @EnergyProfile.EvConnectorType int covertEvConnectorType(
+    public static @EnergyProfile.EvConnectorType int convertEvConnectorType(
             int vehicleEvConnectorType) {
         switch (vehicleEvConnectorType) {
             case 1: // IEC_TYPE_1_AC
@@ -237,6 +287,33 @@ public final class PropertyUtils {
             default:
                 return EnergyProfile.EVCONNECTOR_TYPE_UNKNOWN;
         }
+    }
+
+    /**
+     * Creates a response from {@link CarPropertyValue}.
+     */
+    @SuppressWarnings("unchecked")
+    @NonNull
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    public static CarPropertyResponse<?> convertPropertyValueToPropertyResponse(
+            @NonNull CarPropertyValue<?> carPropertyValue) {
+        CarPropertyResponse.Builder<Object> carPropertyResponseBuilder =
+                CarPropertyResponse.builder().setPropertyId(
+                        carPropertyValue.getPropertyId()).setTimestampMillis(
+                        TimeUnit.MILLISECONDS.convert(carPropertyValue.getTimestamp(),
+                                TimeUnit.NANOSECONDS)).setCarZones(
+                        carPropertyValue.getAreaId() == VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL
+                                ? Collections.singletonList(CarZone.CAR_ZONE_GLOBAL)
+                                : Collections.singletonList(CAR_ZONE_TO_AREA_ID.inverse().get(
+                                        carPropertyValue.getAreaId())));
+
+        int status = mapToStatusCodeInCarValue(carPropertyValue.getStatus());
+        carPropertyResponseBuilder.setStatus(status);
+        if (status == CarValue.STATUS_SUCCESS) {
+            carPropertyResponseBuilder.setValue(carPropertyValue.getValue());
+        }
+
+        return carPropertyResponseBuilder.build();
     }
 
     /**
@@ -310,6 +387,32 @@ public final class PropertyUtils {
                 throw new IllegalArgumentException("Invalid car property status: "
                         + carPropertyStatus);
         }
+    }
+
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    static List<PropertyIdAreaId> getPropertyIdWithAreaIds(Map<Integer, List<CarZone>>
+            propertyIdToCarZones) {
+        List<PropertyIdAreaId> propertyIdWithAreaIds = new ArrayList<>();
+        for (Map.Entry<Integer, List<CarZone>> propertyIdWithCarZones :
+                propertyIdToCarZones.entrySet()) {
+            for (CarZone carZone : propertyIdWithCarZones.getValue()) {
+                if (CAR_ZONE_TO_AREA_ID.containsKey(carZone)) {
+                    propertyIdWithAreaIds.add(PropertyIdAreaId.builder()
+                            .setAreaId(CAR_ZONE_TO_AREA_ID.get(carZone))
+                            .setPropertyId(propertyIdWithCarZones.getKey())
+                            .build());
+                } else {
+                    Log.w(LogTags.TAG_CAR_HARDWARE,
+                            "Could not find area Id for car zone: " + carZone.toString()
+                                    +  " for property: " + propertyIdWithCarZones.getKey());
+                }
+            }
+        }
+        if (propertyIdWithAreaIds.isEmpty()) {
+            throw new IllegalStateException("Could not create uIds for the given property Ids and "
+                    + "their corresponding car zones.");
+        }
+        return propertyIdWithAreaIds;
     }
 
     private PropertyUtils() {

@@ -28,6 +28,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
@@ -39,6 +40,33 @@ import java.util.concurrent.TimeUnit;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class TimeFormatText implements TimeDependentText {
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TimeFormatText that = (TimeFormatText) o;
+        return mStyle == that.mStyle && mTimePrecision == that.mTimePrecision
+                && Objects.equals(mDateFormat, that.mDateFormat) && Objects.equals(
+                mTimeZone, that.mTimeZone)
+                && Objects.equals(mDate.toString(), that.mDate.toString());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mDateFormat, mStyle, mTimeZone, mDate, mTimePrecision);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        if (ComplicationData.shouldRedact()) {
+            return "TimeFormatText{Redacted}";
+        }
+        return "TimeFormatText{mDateFormat=" + mDateFormat
+                + ", mStyle=" + mStyle + ", mTimeZone=" + mTimeZone + ", mDate=" + mDate
+                + ", mTimePrecision=" + mTimePrecision + '}';
+    }
 
     private static class DateTimeFormat {
         final String[] mFormatSymbols;
@@ -85,7 +113,7 @@ public final class TimeFormatText implements TimeDependentText {
     }
 
     TimeFormatText(SimpleDateFormat dateFormat,
-            @ComplicationText.TimeFormatStyle  int style,
+            @ComplicationText.TimeFormatStyle int style,
             TimeZone timeZone,
             long timePrecision) {
         mDateFormat = dateFormat;
@@ -97,7 +125,8 @@ public final class TimeFormatText implements TimeDependentText {
 
     private static class SerializedForm implements Serializable {
         SimpleDateFormat mDateFormat;
-        @ComplicationText.TimeFormatStyle int mStyle;
+        @ComplicationText.TimeFormatStyle
+        int mStyle;
         TimeZone mTimeZone;
         long mTimePrecision;
 
@@ -232,6 +261,7 @@ public final class TimeFormatText implements TimeDependentText {
         dest.writeSerializable(this.mTimeZone);
     }
 
+    @SuppressWarnings("deprecation")
     protected TimeFormatText(@NonNull Parcel in) {
         this.mDateFormat = (SimpleDateFormat) in.readSerializable();
         this.mStyle = in.readInt();

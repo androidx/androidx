@@ -85,13 +85,16 @@ public final class WindowInsetsControllerCompat {
 
     private final Impl mImpl;
 
+    /**
+     * This version fails to workaround
+     * <a href="https://issuetracker.google.com/issues/180881870">
+     *     https://issuetracker.google.com/issues/180881870
+     * </a>, but is present for backwards compatibility.
+     */
     @RequiresApi(30)
+    @Deprecated
     private WindowInsetsControllerCompat(@NonNull WindowInsetsController insetsController) {
-        if (SDK_INT >= 30) {
-            mImpl = new Impl30(insetsController, this);
-        } else {
-            mImpl = new Impl();
-        }
+        mImpl = new Impl30(insetsController, this);
     }
 
     public WindowInsetsControllerCompat(@NonNull Window window, @NonNull View view) {
@@ -113,11 +116,13 @@ public final class WindowInsetsControllerCompat {
      * compatibility purpose.
      *
      * @param insetsController The {@link WindowInsetsController} to wrap.
-     * @return The provided {@link WindowInsetsControllerCompat} wrapped into a
+     * @return The provided {@link WindowInsetsController} wrapped into a
      * {@link WindowInsetsControllerCompat}
+     * @deprecated Use {@link WindowCompat#getInsetsController(Window, View)} instead
      */
     @NonNull
     @RequiresApi(30)
+    @Deprecated
     public static WindowInsetsControllerCompat toWindowInsetsControllerCompat(
             @NonNull WindowInsetsController insetsController) {
         return new WindowInsetsControllerCompat(insetsController);
@@ -392,10 +397,10 @@ public final class WindowInsetsControllerCompat {
         @NonNull
         protected final Window mWindow;
 
-        @Nullable
+        @NonNull
         private final View mView;
 
-        Impl20(@NonNull Window window, @Nullable View view) {
+        Impl20(@NonNull Window window, @NonNull View view) {
             mWindow = window;
             mView = view;
         }
@@ -425,7 +430,7 @@ public final class WindowInsetsControllerCompat {
                     View view = mView;
 
 
-                    if (view != null && (view.isInEditMode() || view.onCheckIsTextEditor())) {
+                    if (view.isInEditMode() || view.onCheckIsTextEditor()) {
                         // The IME needs a text view to be focused to be shown
                         // The view given to retrieve this controller is a textView so we can assume
                         // that we can focus it in order to show the IME
@@ -617,6 +622,20 @@ public final class WindowInsetsControllerCompat {
 
         @Override
         void show(@InsetsType int types) {
+            if (mWindow != null && (types & WindowInsetsCompat.Type.IME) != 0 && SDK_INT < 32) {
+                InputMethodManager imm =
+                        (InputMethodManager) mWindow.getContext()
+                                .getSystemService(Context.INPUT_METHOD_SERVICE);
+
+                // This is a strange-looking workaround by making a call and ignoring the result.
+                // We don't use the return value here, but isActive() has the side-effect of
+                // calling a hidden method checkFocus(), which ensures that the IME state has the
+                // correct view in some situations (especially when the focused view changes).
+                // This is essentially a backport, since an equivalent checkFocus() call was
+                // added in API 32 to improve behavior:
+                // https://issuetracker.google.com/issues/189858204
+                imm.isActive();
+            }
             mInsetsController.show(types);
         }
 
@@ -635,13 +654,17 @@ public final class WindowInsetsControllerCompat {
         public void setAppearanceLightStatusBars(boolean isLight) {
             if (isLight) {
                 if (mWindow != null) {
-                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                    setSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
                 }
 
                 mInsetsController.setSystemBarsAppearance(
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
             } else {
+                if (mWindow != null) {
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                }
+
                 mInsetsController.setSystemBarsAppearance(
                         0,
                         WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
@@ -657,10 +680,18 @@ public final class WindowInsetsControllerCompat {
         @Override
         public void setAppearanceLightNavigationBars(boolean isLight) {
             if (isLight) {
+                if (mWindow != null) {
+                    setSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+                }
+
                 mInsetsController.setSystemBarsAppearance(
                         WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
                         WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
             } else {
+                if (mWindow != null) {
+                    unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+                }
+
                 mInsetsController.setSystemBarsAppearance(
                         0,
                         WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
@@ -766,6 +797,13 @@ public final class WindowInsetsControllerCompat {
             decorView.setSystemUiVisibility(
                     decorView.getSystemUiVisibility()
                             & ~systemUiFlag);
+        }
+
+        protected void setSystemUiFlag(int systemUiFlag) {
+            View decorView = mWindow.getDecorView();
+            decorView.setSystemUiVisibility(
+                    decorView.getSystemUiVisibility()
+                            | systemUiFlag);
         }
     }
 }

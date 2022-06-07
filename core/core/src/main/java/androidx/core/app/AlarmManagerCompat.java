@@ -16,12 +16,16 @@
 
 package androidx.core.app;
 
+import static android.app.AlarmManager.RTC_WAKEUP;
+
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Compatibility library for {@link AlarmManager} with fallbacks for older platforms.
@@ -59,11 +63,10 @@ public final class AlarmManagerCompat {
     public static void setAlarmClock(@NonNull AlarmManager alarmManager, long triggerTime,
             @NonNull PendingIntent showIntent, @NonNull PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 21) {
-            alarmManager.setAlarmClock(new AlarmManager.AlarmClockInfo(triggerTime, showIntent),
-                    operation);
+            Api21Impl.setAlarmClock(alarmManager,
+                    Api21Impl.createAlarmClockInfo(triggerTime, showIntent), operation);
         } else {
-            AlarmManagerCompat.setExact(alarmManager, AlarmManager.RTC_WAKEUP, triggerTime,
-                    operation);
+            AlarmManagerCompat.setExact(alarmManager, RTC_WAKEUP, triggerTime, operation);
         }
     }
 
@@ -117,7 +120,7 @@ public final class AlarmManagerCompat {
     public static void setAndAllowWhileIdle(@NonNull AlarmManager alarmManager, int type,
             long triggerAtMillis, @NonNull PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 23) {
-            alarmManager.setAndAllowWhileIdle(type, triggerAtMillis, operation);
+            Api23Impl.setAndAllowWhileIdle(alarmManager, type, triggerAtMillis, operation);
         } else {
             alarmManager.set(type, triggerAtMillis, operation);
         }
@@ -162,7 +165,7 @@ public final class AlarmManagerCompat {
     public static void setExact(@NonNull AlarmManager alarmManager, int type, long triggerAtMillis,
             @NonNull PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 19) {
-            alarmManager.setExact(type, triggerAtMillis, operation);
+            Api19Impl.setExact(alarmManager, type, triggerAtMillis, operation);
         } else {
             alarmManager.set(type, triggerAtMillis, operation);
         }
@@ -222,12 +225,63 @@ public final class AlarmManagerCompat {
     public static void setExactAndAllowWhileIdle(@NonNull AlarmManager alarmManager, int type,
             long triggerAtMillis, @NonNull PendingIntent operation) {
         if (Build.VERSION.SDK_INT >= 23) {
-            alarmManager.setExactAndAllowWhileIdle(type, triggerAtMillis, operation);
+            Api23Impl.setExactAndAllowWhileIdle(alarmManager, type, triggerAtMillis, operation);
         } else {
             AlarmManagerCompat.setExact(alarmManager, type, triggerAtMillis, operation);
         }
     }
 
     private AlarmManagerCompat() {
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setAlarmClock(AlarmManager alarmManager, Object info,
+                PendingIntent operation) {
+            alarmManager.setAlarmClock((AlarmManager.AlarmClockInfo) info, operation);
+        }
+
+        @DoNotInline
+        static AlarmManager.AlarmClockInfo createAlarmClockInfo(long triggerTime,
+                PendingIntent showIntent) {
+            return new AlarmManager.AlarmClockInfo(triggerTime, showIntent);
+        }
+    }
+
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setAndAllowWhileIdle(AlarmManager alarmManager, int type, long triggerAtMillis,
+                PendingIntent operation) {
+            alarmManager.setAndAllowWhileIdle(type, triggerAtMillis, operation);
+        }
+
+        @DoNotInline
+        static void setExactAndAllowWhileIdle(AlarmManager alarmManager, int type,
+                long triggerAtMillis, PendingIntent operation) {
+            alarmManager.setExactAndAllowWhileIdle(type, triggerAtMillis, operation);
+        }
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setExact(AlarmManager alarmManager, int type, long triggerAtMillis,
+                PendingIntent operation) {
+            alarmManager.setExact(type, triggerAtMillis, operation);
+        }
     }
 }

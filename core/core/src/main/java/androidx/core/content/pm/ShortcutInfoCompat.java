@@ -68,7 +68,7 @@ public class ShortcutInfoCompat {
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @IntDef({SURFACE_LAUNCHER})
+    @IntDef(flag = true, value = {SURFACE_LAUNCHER})
     @Retention(RetentionPolicy.SOURCE)
     public @interface Surface {}
 
@@ -510,8 +510,18 @@ public class ShortcutInfoCompat {
     /**
      * Return true if the shortcut is excluded from specified surface.
      */
-    public boolean isExcludedFrom(@Surface final int surface) {
-        return (mExcludedSurfaces & surface) > 0;
+    public boolean isExcludedFromSurfaces(@Surface int surface) {
+        return (mExcludedSurfaces & surface) != 0;
+    }
+
+    /**
+     * Returns a bitmask of all surfaces this shortcut is excluded from.
+     *
+     * @see ShortcutInfo.Builder#setExcludedFromSurfaces(int)
+     */
+    @Surface
+    public int getExcludedFromSurfaces() {
+        return mExcludedSurfaces;
     }
 
     /**
@@ -836,9 +846,8 @@ public class ShortcutInfoCompat {
          * actually sent to {@link ShortcutManager}. These shortcuts might still be made
          * available to other surfaces via alternative means.
          */
-        @SuppressWarnings("MissingGetterMatchingBuilder")
         @NonNull
-        public Builder setExcludedSurfaces(final int surfaces) {
+        public Builder setExcludedFromSurfaces(final int surfaces) {
             mInfo.mExcludedSurfaces = surfaces;
             return this;
         }

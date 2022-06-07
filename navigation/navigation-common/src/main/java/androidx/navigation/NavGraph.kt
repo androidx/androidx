@@ -353,7 +353,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() {
             if (startDestIdName == null) {
-                startDestIdName = startDestId.toString()
+                startDestIdName = startDestinationRoute ?: startDestId.toString()
             }
             return startDestIdName!!
         }

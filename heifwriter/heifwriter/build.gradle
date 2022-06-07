@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -10,6 +9,7 @@ android {
     defaultConfig {
         minSdkVersion 28
     }
+    namespace "androidx.heifwriter"
 }
 
 dependencies {

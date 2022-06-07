@@ -21,13 +21,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.fragment.app.testing.withFragment
+import androidx.lifecycle.DEFAULT_ARGS_KEY
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.SavedStateViewModelFactory
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
+import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.navigation.NavHostController
 import androidx.navigation.Navigation
 import androidx.navigation.createGraph
@@ -78,6 +84,30 @@ class NavGraphViewModelLazyTest {
         scenario.onFragment { fragment ->
             assertThat(fragment.viewModel).isNotNull()
             assertThat(fragment.savedStateViewModel).isNotNull()
+        }
+    }
+
+    @Test
+    fun vmInitializationRoute() {
+        val scenario = launchFragmentInContainer<TestRouteVMFragment>()
+        navController.setViewModelStore(ViewModelStore())
+        scenario.onFragment { fragment ->
+            Navigation.setViewNavController(fragment.requireView(), navController)
+        }
+        val navGraph = navController.navigatorProvider.navigation(
+            route = "vm_graph",
+            startDestination = "start_destination"
+        ) {
+            test("start_destination")
+        }
+        scenario.withFragment {
+            navController.setGraph(navGraph, null)
+        }
+
+        scenario.onFragment { fragment ->
+            assertThat(fragment.viewModel).isNotNull()
+            assertThat(fragment.savedStateViewModelCE).isNotNull()
+            assertThat(fragment.savedStateViewModelCE.defaultValue).isEqualTo("value")
         }
     }
 
@@ -238,6 +268,9 @@ class TestVMFragment : Fragment() {
 class TestRouteVMFragment : Fragment() {
     val viewModel: TestViewModel by navGraphViewModels("vm_graph")
     val savedStateViewModel: TestSavedStateViewModel by navGraphViewModels("vm_graph")
+    val savedStateViewModelCE: TestSavedStateViewModel by navGraphViewModels("vm_graph",
+        extrasProducer = { defaultViewModelCreationExtras }
+    )
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -245,7 +278,19 @@ class TestRouteVMFragment : Fragment() {
     ): View? {
         return View(activity)
     }
+
+    override fun getDefaultViewModelProviderFactory(): ViewModelProvider.Factory {
+        return SavedStateViewModelFactory()
+    }
+
+    override fun getDefaultViewModelCreationExtras(): CreationExtras {
+        val extras = MutableCreationExtras(super.getDefaultViewModelCreationExtras())
+        extras[DEFAULT_ARGS_KEY] = bundleOf("test" to "value")
+        return extras
+    }
 }
 
 class TestViewModel : ViewModel()
-class TestSavedStateViewModel(val savedStateHandle: SavedStateHandle) : ViewModel()
+class TestSavedStateViewModel(val savedStateHandle: SavedStateHandle) : ViewModel() {
+    val defaultValue = savedStateHandle.get<String>("test")
+}

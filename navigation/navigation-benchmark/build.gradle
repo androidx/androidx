@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -42,4 +41,8 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2018"
     description = "Navigation Benchmarks"
+}
+
+android {
+    namespace "androidx.navigation.benchmark"
 }

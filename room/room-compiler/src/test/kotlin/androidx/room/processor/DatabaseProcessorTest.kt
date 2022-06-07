@@ -1425,7 +1425,7 @@ class DatabaseProcessorTest {
                     arrayOf(URL("file://${resolverLib.absolutePath}")),
                     currentClassLoader,
                 )
-                DatabaseProcessingStep().process(invocation.processingEnv, roundElements)
+                DatabaseProcessingStep().process(invocation.processingEnv, roundElements, false)
             } finally {
                 Thread.currentThread().contextClassLoader = currentClassLoader
             }
@@ -1435,6 +1435,39 @@ class DatabaseProcessorTest {
         assertThat(
             File(schemaFolder.root, "schemas/foo.bar.MyDb/1.json").exists()
         ).isTrue()
+    }
+
+    @Test
+    fun jvmNameOnDaoMethod() {
+        val jvmNameInDaoGetter = Source.kotlin(
+            "MyDb.kt",
+            """
+                package foo.bar;
+                import androidx.room.*;
+                @Dao
+                interface MyDao
+                @Entity
+                data class MyEntity(@PrimaryKey val id:Int)
+                @Database(version = 1, entities = [MyEntity::class])
+                abstract class MyDb: RoomDatabase() {
+                    @Suppress("INAPPLICABLE_JVM_NAME")
+                    @get:JvmName("jvmDao")
+                    abstract val dao: MyDao
+                }
+                """
+        )
+        runProcessorTest(sources = listOf(jvmNameInDaoGetter)) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("foo.bar.MyDb")
+            DatabaseProcessor(
+                baseContext = invocation.context,
+                element = element
+            ).process()
+            invocation.assertCompilationResult {
+                hasWarningContaining(
+                    ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
+                )
+            }
+        }
     }
 
     private fun resolveDatabaseViews(

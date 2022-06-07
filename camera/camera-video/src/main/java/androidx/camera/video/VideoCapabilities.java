@@ -30,11 +30,15 @@ import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.video.internal.compat.quirk.VideoQualityNotSupportQuirk;
+import androidx.camera.video.internal.compat.quirk.ExcludeStretchedVideoQualityQuirk;
+import androidx.camera.video.internal.compat.quirk.ReportedVideoQualityNotSupportedQuirk;
+import androidx.camera.video.internal.compat.quirk.VideoEncoderCrashQuirk;
+import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -130,8 +134,8 @@ public final class VideoCapabilities {
      * Checks if the quality is supported.
      *
      * @param quality one of the quality constants. Possible values include
-     * {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link {@link Quality#SD},
-     * {@link Quality#HD}, {@link {@link Quality#FHD}, or {@link Quality#UHD}.
+     * {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link Quality#SD},
+     * {@link Quality#HD}, {@link Quality#FHD}, or {@link Quality#UHD}.
      * @return {@code true} if the quality is supported; {@code false} otherwise.
      * @throws IllegalArgumentException if not a quality constant.
      */
@@ -198,8 +202,21 @@ public final class VideoCapabilities {
     }
 
     private boolean isDeviceValidQuality(@NonNull Quality quality) {
-        VideoQualityNotSupportQuirk quirk = DeviceQuirks.get(VideoQualityNotSupportQuirk.class);
-        return quirk == null || !quirk.isProblematicVideoQuality(quality);
+        List<Class<? extends VideoQualityQuirk>> quirkList = Arrays.asList(
+                ExcludeStretchedVideoQualityQuirk.class,
+                ReportedVideoQualityNotSupportedQuirk.class,
+                VideoEncoderCrashQuirk.class
+        );
+
+        for (Class<? extends VideoQualityQuirk> quirkClass : quirkList) {
+            VideoQualityQuirk quirk = DeviceQuirks.get(quirkClass);
+
+            if (quirk != null && quirk.isProblematicVideoQuality(quality)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 }

@@ -150,11 +150,19 @@ public class MutablePreferences internal constructor(
 
     override operator fun <T> get(key: Key<T>): T? {
         @Suppress("UNCHECKED_CAST")
-        return preferencesMap[key] as T?
+        return when (val value = preferencesMap[key]) {
+            is ByteArray -> value.copyOf()
+            else -> value
+        } as T?
     }
 
     override fun asMap(): Map<Key<*>, Any> {
-        return Collections.unmodifiableMap(preferencesMap)
+        return Collections.unmodifiableMap(preferencesMap.entries.associate { entry ->
+            when (val value = entry.value) {
+                is ByteArray -> Pair(entry.key, value.copyOf())
+                else -> Pair(entry.key, entry.value)
+            }
+        })
     }
 
     // Mutating methods below:
@@ -188,6 +196,7 @@ public class MutablePreferences internal constructor(
             // Copy set so changes to input don't change Preferences. Wrap in unmodifiableSet so
             // returned instances can't be changed.
             is Set<*> -> preferencesMap[key] = Collections.unmodifiableSet(value.toSet())
+            is ByteArray -> preferencesMap[key] = value.copyOf()
             else -> preferencesMap[key] = value
         }
     }
@@ -265,14 +274,31 @@ public class MutablePreferences internal constructor(
 
     // Equals and hash code for use by DataStore
     override fun equals(other: Any?): Boolean {
-        if (other is MutablePreferences) {
-            return preferencesMap == other.preferencesMap
+        if (other !is MutablePreferences) {
+            return false
         }
-        return false
+
+        if (other.preferencesMap === preferencesMap) return true
+
+        if (other.preferencesMap.size != preferencesMap.size) return false
+
+        return other.preferencesMap.all { otherEntry ->
+            preferencesMap[otherEntry.key]?.let { value ->
+                when (val otherVal = otherEntry.value) {
+                    is ByteArray -> value is ByteArray && otherVal.contentEquals(value)
+                    else -> otherVal == value
+                }
+            } ?: false
+        }
     }
 
     override fun hashCode(): Int {
-        return preferencesMap.hashCode()
+        return preferencesMap.entries.sumOf { entry ->
+            when (val value = entry.value) {
+                is ByteArray -> value.contentHashCode()
+                else -> value.hashCode()
+            }
+        }
     }
 
     /**
@@ -284,7 +310,11 @@ public class MutablePreferences internal constructor(
             prefix = "{\n",
             postfix = "\n}"
         ) { entry ->
-            "  ${entry.key.name} = ${entry.value}"
+            val value = when (val value = entry.value) {
+                is ByteArray -> value.joinToString(", ", "[", "]")
+                else -> "${entry.value}"
+            }
+            "  ${entry.key.name} = $value"
         }
 }
 

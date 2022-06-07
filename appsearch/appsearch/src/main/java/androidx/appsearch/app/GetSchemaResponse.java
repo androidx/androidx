@@ -65,6 +65,7 @@ public final class GetSchemaResponse {
      * <p>It is inefficient to call this method repeatedly.
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     public Set<AppSearchSchema> getSchemas() {
         ArrayList<Bundle> schemaBundles = mBundle.getParcelableArrayList(SCHEMAS_FIELD);
         Set<AppSearchSchema> schemas = new ArraySet<>(schemaBundles.size());

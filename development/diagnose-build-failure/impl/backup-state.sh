@@ -2,24 +2,19 @@
 set -e
 
 stateDir="$1"
-gradlewDir="$2"
-moveArg="$3"
+moveArg="$2"
 
 scriptPath="$(cd $(dirname $0) && pwd)"
 supportRoot="$(cd $scriptPath/../../.. && pwd)"
 checkoutRoot="$(cd $supportRoot/../.. && pwd)"
 
 function usage() {
-  echo "usage: $0 <statePath> <gradlew dir>"
-  echo "Backs up build state for <gradlew dir> into <statePath>"
+  echo "usage: $0 <statePath>"
+  echo "Backs up build state into <statePath>"
   exit 1
 }
 
 if [ "$stateDir" == "" ]; then
-  usage
-fi
-
-if [ "$gradlewDir" == "" ]; then
   usage
 fi
 
@@ -41,7 +36,9 @@ stateDir="$(cd $stateDir && pwd)"
 if [ "$OUT_DIR" == "" ]; then
   OUT_DIR="$checkoutDir/out"
 else
-  GRADLE_USER_HOME="$OUT_DIR/.gradle"
+  if [ "$GRADLE_USER_HOME" == "" ]; then
+    GRADLE_USER_HOME="$OUT_DIR/.gradle"
+  fi
 fi
 
 if [ "$DIST_DIR" == "" ];then
@@ -56,7 +53,7 @@ fi
 function copy() {
   from="$1"
   to="$2"
-  rm "$to" -rf
+  rm -rf "$to"
   if [ -e "$from" ]; then
     mkdir -p "$(dirname $to)"
     if [ "$move" == "true" ]; then
@@ -65,7 +62,7 @@ function copy() {
       cp --preserve=all -rT "$from" "$to"
     fi
   else
-    rm "$to" -rf
+    rm -rf "$to"
   fi
 }
 
@@ -95,9 +92,9 @@ function backupState() {
     mv "$backupDir/out/.gradle" "$backupDir/gradleUserHome" 2>/dev/null || true
   fi
 
-  copy "$gradlewDir/.gradle"          "$backupDir/support/.gradle"
-  copy "$gradlewDir/buildSrc/.gradle" "$backupDir/buildSrc/.gradle"
-  copy "$gradlewDir/local.properties" "$backupDir/local.properties"
+  copy "$supportRoot/.gradle"          "$backupDir/support/.gradle"
+  copy "$supportRoot/buildSrc/.gradle" "$backupDir/buildSrc/.gradle"
+  copy "$supportRoot/local.properties" "$backupDir/local.properties"
 }
 
 backupState $stateDir

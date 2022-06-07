@@ -29,7 +29,8 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.ObsoleteCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -81,12 +82,12 @@ class PreferenceDataStoreDelegateTest {
     @get:Rule
     val tmp = TemporaryFolder()
 
-    private lateinit var dataStoreScope: TestCoroutineScope
+    private lateinit var dataStoreScope: TestScope
     private lateinit var context: Context
 
     @Before
     fun setUp() {
-        dataStoreScope = TestCoroutineScope()
+        dataStoreScope = TestScope(UnconfinedTestDispatcher())
         context = ApplicationProvider.getApplicationContext()
     }
 

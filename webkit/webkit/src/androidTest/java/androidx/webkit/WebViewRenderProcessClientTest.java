@@ -16,15 +16,18 @@
 
 package androidx.webkit;
 
+import android.os.Build;
 import android.view.KeyEvent;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -37,9 +40,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@FlakyTest(bugId = 204197604)
 @LargeTest
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 public class WebViewRenderProcessClientTest {
     WebViewOnUiThread mWebViewOnUiThread;
 
@@ -93,14 +97,16 @@ public class WebViewRenderProcessClientTest {
             @Nullable Runnable onUnresponsive) {
         return new WebViewRenderProcessClient() {
             @Override
-            public void onRenderProcessUnresponsive(WebView view, WebViewRenderProcess renderer) {
+            public void onRenderProcessUnresponsive(@NonNull WebView view,
+                    WebViewRenderProcess renderer) {
                 if (onResponsive != null) {
                     onResponsive.run();
                 }
             }
 
             @Override
-            public void onRenderProcessResponsive(WebView view, WebViewRenderProcess renderer) {
+            public void onRenderProcessResponsive(@NonNull WebView view,
+                    WebViewRenderProcess renderer) {
                 if (onUnresponsive != null) {
                     onUnresponsive.run();
                 }
@@ -116,7 +122,14 @@ public class WebViewRenderProcessClientTest {
         WebkitUtils.onMainThreadSync(() -> {
             WebView webView = mWebViewOnUiThread.getWebViewOnCurrentThread();
             webView.evaluateJavascript("blocker.block();", null);
-            blocker.waitForBlocked();
+        });
+        // Wait on the test instrumentation thread not the main thread. Blocking the main thread
+        // may block other async calls such as initializing the GPU service channel that happens on
+        // the UI thread and has to finish before the renderer can execute any javascript,
+        // see https://crbug.com/1269552.
+        blocker.waitForBlocked();
+        WebkitUtils.onMainThreadSync(() -> {
+            WebView webView = mWebViewOnUiThread.getWebViewOnCurrentThread();
             // Sending an input event that does not get acknowledged will cause
             // the unresponsive renderer event to fire.
             webView.dispatchKeyEvent(

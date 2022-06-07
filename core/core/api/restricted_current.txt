@@ -6,7 +6,7 @@ package android.support.v4.os {
     method public int describeContents();
     method protected void onReceiveResult(int, android.os.Bundle!);
     method public void send(int, android.os.Bundle!);
-    method public void writeToParcel(android.os.Parcel!, int);
+    method public void writeToParcel(android.os.Parcel, int);
     field public static final android.os.Parcelable.Creator<android.support.v4.os.ResultReceiver!>! CREATOR;
   }
 
@@ -41,13 +41,13 @@ package androidx.core.app {
     ctor protected ActivityCompat();
     method public static void finishAffinity(android.app.Activity);
     method public static void finishAfterTransition(android.app.Activity);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.ActivityCompat.PermissionCompatDelegate! getPermissionCompatDelegate();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.ActivityCompat.PermissionCompatDelegate? getPermissionCompatDelegate();
     method public static android.net.Uri? getReferrer(android.app.Activity);
     method @Deprecated public static boolean invalidateOptionsMenu(android.app.Activity!);
     method public static boolean isLaunchedFromBubble(android.app.Activity);
     method public static void postponeEnterTransition(android.app.Activity);
     method public static void recreate(android.app.Activity);
-    method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity!, android.view.DragEvent!);
+    method public static androidx.core.view.DragAndDropPermissionsCompat? requestDragAndDropPermissions(android.app.Activity, android.view.DragEvent);
     method public static void requestPermissions(android.app.Activity, String![], @IntRange(from=0) int);
     method public static <T extends android.view.View> T requireViewById(android.app.Activity, @IdRes int);
     method public static void setEnterSharedElementCallback(android.app.Activity, androidx.core.app.SharedElementCallback?);
@@ -146,6 +146,7 @@ package androidx.core.app {
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T extends androidx.core.app.ComponentActivity.ExtraData> T! getExtraData(Class<T!>!);
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void putExtraData(androidx.core.app.ComponentActivity.ExtraData!);
+    method protected final boolean shouldDumpInternalState(String![]?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean superDispatchKeyEvent(android.view.KeyEvent);
   }
 
@@ -206,6 +207,13 @@ package androidx.core.app {
     method @Deprecated protected abstract void onHandleWork(android.content.Intent);
     method @Deprecated public boolean onStopCurrentWork();
     method @Deprecated public void setInterruptIfStopped(boolean);
+  }
+
+  public final class MultiWindowModeChangedInfo {
+    ctor public MultiWindowModeChangedInfo(boolean);
+    ctor @RequiresApi(26) public MultiWindowModeChangedInfo(boolean, android.content.res.Configuration);
+    method @RequiresApi(26) public android.content.res.Configuration getNewConfig();
+    method public boolean isInMultiWindowMode();
   }
 
   public final class NavUtils {
@@ -858,6 +866,21 @@ package androidx.core.app {
     field public static final int IMPORTANCE_UNSPECIFIED = -1000; // 0xfffffc18
   }
 
+  public interface OnMultiWindowModeChangedProvider {
+    method public void addOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo!>);
+    method public void removeOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo!>);
+  }
+
+  public interface OnNewIntentProvider {
+    method public void addOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
+    method public void removeOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
+  }
+
+  public interface OnPictureInPictureModeChangedProvider {
+    method public void addOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo!>);
+    method public void removeOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo!>);
+  }
+
   public class Person {
     method @RequiresApi(28) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.Person fromAndroidPerson(android.app.Person);
     method public static androidx.core.app.Person fromBundle(android.os.Bundle);
@@ -886,6 +909,13 @@ package androidx.core.app {
     method public androidx.core.app.Person.Builder setUri(String?);
   }
 
+  public final class PictureInPictureModeChangedInfo {
+    ctor public PictureInPictureModeChangedInfo(boolean);
+    ctor @RequiresApi(26) public PictureInPictureModeChangedInfo(boolean, android.content.res.Configuration);
+    method @RequiresApi(26) public android.content.res.Configuration getNewConfig();
+    method public boolean isInPictureInPictureMode();
+  }
+
   @androidx.versionedparcelable.VersionedParcelize(jetifyAs="android.support.v4.app.RemoteActionCompat") public final class RemoteActionCompat implements androidx.versionedparcelable.VersionedParcelable {
     ctor public RemoteActionCompat(androidx.core.graphics.drawable.IconCompat, CharSequence, CharSequence, android.app.PendingIntent);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public RemoteActionCompat();
@@ -900,26 +930,26 @@ package androidx.core.app {
     method public void setShouldShowIcon(boolean);
     method public boolean shouldShowIcon();
     method @RequiresApi(26) public android.app.RemoteAction toRemoteAction();
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(4) public android.app.PendingIntent! mActionIntent;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(3) public CharSequence! mContentDescription;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(4) public android.app.PendingIntent mActionIntent;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(3) public CharSequence mContentDescription;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(5) public boolean mEnabled;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(1) public androidx.core.graphics.drawable.IconCompat! mIcon;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(1) public androidx.core.graphics.drawable.IconCompat mIcon;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(6) public boolean mShouldShowIcon;
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(2) public CharSequence! mTitle;
+    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @androidx.versionedparcelable.ParcelField(2) public CharSequence mTitle;
   }
 
   public final class RemoteInput {
-    method public static void addDataResultToIntent(androidx.core.app.RemoteInput!, android.content.Intent!, java.util.Map<java.lang.String!,android.net.Uri!>!);
-    method public static void addResultsToIntent(androidx.core.app.RemoteInput![]!, android.content.Intent!, android.os.Bundle!);
+    method public static void addDataResultToIntent(androidx.core.app.RemoteInput, android.content.Intent, java.util.Map<java.lang.String!,android.net.Uri!>);
+    method public static void addResultsToIntent(androidx.core.app.RemoteInput![], android.content.Intent, android.os.Bundle);
     method public boolean getAllowFreeFormInput();
-    method public java.util.Set<java.lang.String!>! getAllowedDataTypes();
-    method public CharSequence![]! getChoices();
-    method public static java.util.Map<java.lang.String!,android.net.Uri!>! getDataResultsFromIntent(android.content.Intent!, String!);
+    method public java.util.Set<java.lang.String!>? getAllowedDataTypes();
+    method public CharSequence![]? getChoices();
+    method public static java.util.Map<java.lang.String!,android.net.Uri!>? getDataResultsFromIntent(android.content.Intent, String);
     method @androidx.core.app.RemoteInput.EditChoicesBeforeSending public int getEditChoicesBeforeSending();
-    method public android.os.Bundle! getExtras();
-    method public CharSequence! getLabel();
-    method public String! getResultKey();
-    method public static android.os.Bundle! getResultsFromIntent(android.content.Intent!);
+    method public android.os.Bundle getExtras();
+    method public CharSequence? getLabel();
+    method public String getResultKey();
+    method public static android.os.Bundle? getResultsFromIntent(android.content.Intent);
     method @androidx.core.app.RemoteInput.Source public static int getResultsSource(android.content.Intent);
     method public boolean isDataOnly();
     method public static void setResultsSource(android.content.Intent, @androidx.core.app.RemoteInput.Source int);
@@ -1040,7 +1070,7 @@ package androidx.core.app {
     method public androidx.core.app.TaskStackBuilder addNextIntentWithParentStack(android.content.Intent);
     method public androidx.core.app.TaskStackBuilder addParentStack(android.app.Activity);
     method public androidx.core.app.TaskStackBuilder addParentStack(Class<?>);
-    method public androidx.core.app.TaskStackBuilder! addParentStack(android.content.ComponentName!);
+    method public androidx.core.app.TaskStackBuilder addParentStack(android.content.ComponentName);
     method public static androidx.core.app.TaskStackBuilder create(android.content.Context);
     method public android.content.Intent? editIntentAt(int);
     method @Deprecated public static androidx.core.app.TaskStackBuilder! from(android.content.Context!);
@@ -1049,7 +1079,7 @@ package androidx.core.app {
     method public android.content.Intent![] getIntents();
     method public android.app.PendingIntent? getPendingIntent(int, int);
     method public android.app.PendingIntent? getPendingIntent(int, int, android.os.Bundle?);
-    method @Deprecated public java.util.Iterator<android.content.Intent!>! iterator();
+    method @Deprecated public java.util.Iterator<android.content.Intent!> iterator();
     method public void startActivities();
     method public void startActivities(android.os.Bundle?);
   }
@@ -1096,6 +1126,7 @@ package androidx.core.content {
 
   public class FileProvider extends android.content.ContentProvider {
     ctor public FileProvider();
+    ctor protected FileProvider(@XmlRes int);
     method public int delete(android.net.Uri, String?, String![]?);
     method public String? getType(android.net.Uri);
     method public static android.net.Uri! getUriForFile(android.content.Context, String, java.io.File);
@@ -1128,6 +1159,16 @@ package androidx.core.content {
     method public static String? matches(String?, String![]);
     method public static String? matches(String![]?, String);
     method public static String![] matchesMany(String![]?, String);
+  }
+
+  public interface OnConfigurationChangedProvider {
+    method public void addOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration!>);
+    method public void removeOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration!>);
+  }
+
+  public interface OnTrimMemoryProvider {
+    method public void addOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
+    method public void removeOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
   }
 
   public final class PackageManagerCompat {
@@ -1209,6 +1250,7 @@ package androidx.core.content.pm {
     method public java.util.Set<java.lang.String!>? getCategories();
     method public CharSequence? getDisabledMessage();
     method public int getDisabledReason();
+    method @androidx.core.content.pm.ShortcutInfoCompat.Surface public int getExcludedFromSurfaces();
     method public android.os.PersistableBundle? getExtras();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.core.graphics.drawable.IconCompat! getIcon();
     method public String getId();
@@ -1227,7 +1269,7 @@ package androidx.core.content.pm {
     method public boolean isDeclaredInManifest();
     method public boolean isDynamic();
     method public boolean isEnabled();
-    method public boolean isExcludedFrom(@androidx.core.content.pm.ShortcutInfoCompat.Surface int);
+    method public boolean isExcludedFromSurfaces(@androidx.core.content.pm.ShortcutInfoCompat.Surface int);
     method public boolean isImmutable();
     method public boolean isPinned();
     method @RequiresApi(25) public android.content.pm.ShortcutInfo! toShortcutInfo();
@@ -1245,7 +1287,7 @@ package androidx.core.content.pm {
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setAlwaysBadged();
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setCategories(java.util.Set<java.lang.String!>);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setDisabledMessage(CharSequence);
-    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setExcludedSurfaces(int);
+    method public androidx.core.content.pm.ShortcutInfoCompat.Builder setExcludedFromSurfaces(int);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setExtras(android.os.PersistableBundle);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIcon(androidx.core.graphics.drawable.IconCompat!);
     method public androidx.core.content.pm.ShortcutInfoCompat.Builder setIntent(android.content.Intent);
@@ -1263,7 +1305,7 @@ package androidx.core.content.pm {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.core.content.pm.ShortcutInfoCompat.Builder setTransientExtras(android.os.Bundle);
   }
 
-  @IntDef({androidx.core.content.pm.ShortcutInfoCompat.SURFACE_LAUNCHER}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ShortcutInfoCompat.Surface {
+  @IntDef(flag=true, value={androidx.core.content.pm.ShortcutInfoCompat.SURFACE_LAUNCHER}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface ShortcutInfoCompat.Surface {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class ShortcutInfoCompatSaver<T> {
@@ -1371,6 +1413,7 @@ package androidx.core.content.res {
   }
 
   public final class ResourcesCompat {
+    method public static void clearCachesForTheme(android.content.res.Resources.Theme);
     method public static android.graphics.Typeface? getCachedFont(android.content.Context, @FontRes int) throws android.content.res.Resources.NotFoundException;
     method @ColorInt public static int getColor(android.content.res.Resources, @ColorRes int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
     method public static android.content.res.ColorStateList? getColorStateList(android.content.res.Resources, @ColorRes int, android.content.res.Resources.Theme?) throws android.content.res.Resources.NotFoundException;
@@ -1443,6 +1486,7 @@ package androidx.core.database.sqlite {
 package androidx.core.graphics {
 
   public final class BitmapCompat {
+    method public static android.graphics.Bitmap createScaledBitmap(android.graphics.Bitmap, int, int, android.graphics.Rect?, boolean);
     method public static int getAllocationByteCount(android.graphics.Bitmap);
     method public static boolean hasMipMap(android.graphics.Bitmap);
     method public static void setHasMipMap(android.graphics.Bitmap, boolean);
@@ -1516,7 +1560,7 @@ package androidx.core.graphics {
     method public static androidx.core.graphics.Insets of(android.graphics.Rect);
     method public static androidx.core.graphics.Insets subtract(androidx.core.graphics.Insets, androidx.core.graphics.Insets);
     method @RequiresApi(api=29) public static androidx.core.graphics.Insets toCompatInsets(android.graphics.Insets);
-    method @RequiresApi(api=29) public android.graphics.Insets toPlatformInsets();
+    method @RequiresApi(29) public android.graphics.Insets toPlatformInsets();
     method @Deprecated @RequiresApi(api=29) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.Insets wrap(android.graphics.Insets);
     field public static final androidx.core.graphics.Insets NONE;
     field public final int bottom;
@@ -1547,9 +1591,9 @@ package androidx.core.graphics {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @VisibleForTesting public static void clearCache();
     method public static android.graphics.Typeface create(android.content.Context, android.graphics.Typeface?, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? createFromFontInfo(android.content.Context, android.os.CancellationSignal?, androidx.core.provider.FontsContractCompat.FontInfo![], int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? createFromResourcesFamilyXml(android.content.Context, androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry, android.content.res.Resources, int, int, androidx.core.content.res.ResourcesCompat.FontCallback?, android.os.Handler?, boolean);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? createFromResourcesFontFile(android.content.Context, android.content.res.Resources, int, String!, int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? findFromCache(android.content.res.Resources, int, int);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? createFromResourcesFamilyXml(android.content.Context, androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry, android.content.res.Resources, int, int, androidx.core.content.res.ResourcesCompat.FontCallback?, android.os.Handler?, boolean);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? createFromResourcesFontFile(android.content.Context, android.content.res.Resources, int, String!, int);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static android.graphics.Typeface? findFromCache(android.content.res.Resources, int, int);
   }
 
   @RequiresApi(26) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypefaceCompatApi26Impl {
@@ -1588,12 +1632,12 @@ package androidx.core.graphics {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class TypefaceCompatUtil {
-    method public static void closeQuietly(java.io.Closeable!);
-    method @RequiresApi(19) public static java.nio.ByteBuffer? copyToDirectBuffer(android.content.Context!, android.content.res.Resources!, int);
-    method public static boolean copyToFile(java.io.File!, java.io.InputStream!);
-    method public static boolean copyToFile(java.io.File!, android.content.res.Resources!, int);
-    method public static java.io.File? getTempFile(android.content.Context!);
-    method @RequiresApi(19) public static java.nio.ByteBuffer? mmap(android.content.Context!, android.os.CancellationSignal!, android.net.Uri!);
+    method public static void closeQuietly(java.io.Closeable?);
+    method @RequiresApi(19) public static java.nio.ByteBuffer? copyToDirectBuffer(android.content.Context, android.content.res.Resources, int);
+    method public static boolean copyToFile(java.io.File, java.io.InputStream);
+    method public static boolean copyToFile(java.io.File, android.content.res.Resources, int);
+    method public static java.io.File? getTempFile(android.content.Context);
+    method @RequiresApi(19) public static java.nio.ByteBuffer? mmap(android.content.Context, android.os.CancellationSignal?, android.net.Uri);
   }
 
 }
@@ -1605,7 +1649,7 @@ package androidx.core.graphics.drawable {
     method public static boolean canApplyTheme(android.graphics.drawable.Drawable);
     method public static void clearColorFilter(android.graphics.drawable.Drawable);
     method public static int getAlpha(android.graphics.drawable.Drawable);
-    method public static android.graphics.ColorFilter! getColorFilter(android.graphics.drawable.Drawable);
+    method public static android.graphics.ColorFilter? getColorFilter(android.graphics.drawable.Drawable);
     method public static int getLayoutDirection(android.graphics.drawable.Drawable);
     method public static void inflate(android.graphics.drawable.Drawable, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
     method public static boolean isAutoMirrored(android.graphics.drawable.Drawable);
@@ -1618,7 +1662,7 @@ package androidx.core.graphics.drawable {
     method public static void setTintList(android.graphics.drawable.Drawable, android.content.res.ColorStateList?);
     method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode);
     method public static <T extends android.graphics.drawable.Drawable> T! unwrap(android.graphics.drawable.Drawable);
-    method public static android.graphics.drawable.Drawable! wrap(android.graphics.drawable.Drawable);
+    method public static android.graphics.drawable.Drawable wrap(android.graphics.drawable.Drawable);
   }
 
   @androidx.versionedparcelable.VersionedParcelize(allowSerialization=true, ignoreParcelables=true, isCustom=true, jetifyAs="android.support.v4.graphics.drawable.IconCompat") public class IconCompat extends androidx.versionedparcelable.CustomVersionedParcelable {
@@ -1628,25 +1672,25 @@ package androidx.core.graphics.drawable {
     method @RequiresApi(23) public static androidx.core.graphics.drawable.IconCompat? createFromIcon(android.content.Context, android.graphics.drawable.Icon);
     method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat? createFromIcon(android.graphics.drawable.Icon);
     method @RequiresApi(23) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat? createFromIconOrNullIfZeroResId(android.graphics.drawable.Icon);
-    method public static androidx.core.graphics.drawable.IconCompat! createWithAdaptiveBitmap(android.graphics.Bitmap!);
+    method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmap(android.graphics.Bitmap);
     method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmapContentUri(String);
     method public static androidx.core.graphics.drawable.IconCompat createWithAdaptiveBitmapContentUri(android.net.Uri);
-    method public static androidx.core.graphics.drawable.IconCompat! createWithBitmap(android.graphics.Bitmap!);
-    method public static androidx.core.graphics.drawable.IconCompat! createWithContentUri(String!);
-    method public static androidx.core.graphics.drawable.IconCompat! createWithContentUri(android.net.Uri!);
-    method public static androidx.core.graphics.drawable.IconCompat! createWithData(byte[]!, int, int);
-    method public static androidx.core.graphics.drawable.IconCompat! createWithResource(android.content.Context!, @DrawableRes int);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat! createWithResource(android.content.res.Resources!, String!, @DrawableRes int);
+    method public static androidx.core.graphics.drawable.IconCompat createWithBitmap(android.graphics.Bitmap);
+    method public static androidx.core.graphics.drawable.IconCompat createWithContentUri(String);
+    method public static androidx.core.graphics.drawable.IconCompat createWithContentUri(android.net.Uri);
+    method public static androidx.core.graphics.drawable.IconCompat createWithData(byte[], int, int);
+    method public static androidx.core.graphics.drawable.IconCompat createWithResource(android.content.Context, @DrawableRes int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.graphics.drawable.IconCompat createWithResource(android.content.res.Resources?, String, @DrawableRes int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.Bitmap? getBitmap();
-    method @IdRes public int getResId();
+    method @DrawableRes public int getResId();
     method public String getResPackage();
     method public int getType();
     method public android.net.Uri getUri();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public java.io.InputStream? getUriInputStream(android.content.Context);
     method public android.graphics.drawable.Drawable? loadDrawable(android.content.Context);
-    method public androidx.core.graphics.drawable.IconCompat! setTint(@ColorInt int);
-    method public androidx.core.graphics.drawable.IconCompat! setTintList(android.content.res.ColorStateList!);
-    method public androidx.core.graphics.drawable.IconCompat! setTintMode(android.graphics.PorterDuff.Mode!);
+    method public androidx.core.graphics.drawable.IconCompat setTint(@ColorInt int);
+    method public androidx.core.graphics.drawable.IconCompat setTintList(android.content.res.ColorStateList?);
+    method public androidx.core.graphics.drawable.IconCompat setTintMode(android.graphics.PorterDuff.Mode?);
     method public android.os.Bundle toBundle();
     method @Deprecated @RequiresApi(23) public android.graphics.drawable.Icon toIcon();
     method @RequiresApi(23) public android.graphics.drawable.Icon toIcon(android.content.Context?);
@@ -1761,22 +1805,22 @@ package androidx.core.internal.view {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface SupportMenuItem extends android.view.MenuItem {
     method public int getAlphabeticModifiers();
-    method public CharSequence! getContentDescription();
-    method public android.content.res.ColorStateList! getIconTintList();
-    method public android.graphics.PorterDuff.Mode! getIconTintMode();
+    method public CharSequence? getContentDescription();
+    method public android.content.res.ColorStateList? getIconTintList();
+    method public android.graphics.PorterDuff.Mode? getIconTintMode();
     method public int getNumericModifiers();
-    method public androidx.core.view.ActionProvider! getSupportActionProvider();
-    method public CharSequence! getTooltipText();
+    method public androidx.core.view.ActionProvider? getSupportActionProvider();
+    method public CharSequence? getTooltipText();
     method public boolean requiresActionButton();
     method public boolean requiresOverflow();
-    method public android.view.MenuItem! setAlphabeticShortcut(char, int);
-    method public androidx.core.internal.view.SupportMenuItem! setContentDescription(CharSequence!);
-    method public android.view.MenuItem! setIconTintList(android.content.res.ColorStateList!);
-    method public android.view.MenuItem! setIconTintMode(android.graphics.PorterDuff.Mode!);
-    method public android.view.MenuItem! setNumericShortcut(char, int);
-    method public android.view.MenuItem! setShortcut(char, char, int, int);
-    method public androidx.core.internal.view.SupportMenuItem! setSupportActionProvider(androidx.core.view.ActionProvider!);
-    method public androidx.core.internal.view.SupportMenuItem! setTooltipText(CharSequence!);
+    method public android.view.MenuItem setAlphabeticShortcut(char, int);
+    method public androidx.core.internal.view.SupportMenuItem setContentDescription(CharSequence?);
+    method public android.view.MenuItem setIconTintList(android.content.res.ColorStateList?);
+    method public android.view.MenuItem setIconTintMode(android.graphics.PorterDuff.Mode?);
+    method public android.view.MenuItem setNumericShortcut(char, int);
+    method public android.view.MenuItem setShortcut(char, char, int, int);
+    method public androidx.core.internal.view.SupportMenuItem setSupportActionProvider(androidx.core.view.ActionProvider?);
+    method public androidx.core.internal.view.SupportMenuItem setTooltipText(CharSequence?);
     field public static final int SHOW_AS_ACTION_ALWAYS = 2; // 0x2
     field public static final int SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW = 8; // 0x8
     field public static final int SHOW_AS_ACTION_IF_ROOM = 1; // 0x1
@@ -1829,18 +1873,28 @@ package androidx.core.location {
     method public static float getBearingAccuracyDegrees(android.location.Location);
     method public static long getElapsedRealtimeMillis(android.location.Location);
     method public static long getElapsedRealtimeNanos(android.location.Location);
+    method @FloatRange(from=0.0) public static float getMslAltitudeAccuracyMeters(android.location.Location);
+    method public static double getMslAltitudeMeters(android.location.Location);
     method public static float getSpeedAccuracyMetersPerSecond(android.location.Location);
     method public static float getVerticalAccuracyMeters(android.location.Location);
     method public static boolean hasBearingAccuracy(android.location.Location);
+    method public static boolean hasMslAltitude(android.location.Location);
+    method public static boolean hasMslAltitudeAccuracy(android.location.Location);
     method public static boolean hasSpeedAccuracy(android.location.Location);
     method public static boolean hasVerticalAccuracy(android.location.Location);
     method public static boolean isMock(android.location.Location);
+    method public static void removeMslAltitude(android.location.Location);
+    method public static void removeMslAltitudeAccuracy(android.location.Location);
     method public static void setBearingAccuracyDegrees(android.location.Location, float);
     method public static void setMock(android.location.Location, boolean);
+    method public static void setMslAltitudeAccuracyMeters(android.location.Location, @FloatRange(from=0.0) float);
+    method public static void setMslAltitudeMeters(android.location.Location, double);
     method public static void setSpeedAccuracyMetersPerSecond(android.location.Location, float);
     method public static void setVerticalAccuracyMeters(android.location.Location, float);
     field public static final String EXTRA_BEARING_ACCURACY = "bearingAccuracy";
     field public static final String EXTRA_IS_MOCK = "mockLocation";
+    field public static final String EXTRA_MSL_ALTITUDE = "androidx.core.location.extra.MSL_ALTITUDE";
+    field public static final String EXTRA_MSL_ALTITUDE_ACCURACY = "androidx.core.location.extra.MSL_ALTITUDE_ACCURACY";
     field public static final String EXTRA_SPEED_ACCURACY = "speedAccuracy";
     field public static final String EXTRA_VERTICAL_ACCURACY = "verticalAccuracy";
   }
@@ -2018,12 +2072,12 @@ package androidx.core.os {
   public final class LocaleListCompat {
     method public static androidx.core.os.LocaleListCompat create(java.util.Locale!...);
     method public static androidx.core.os.LocaleListCompat forLanguageTags(String?);
-    method public java.util.Locale! get(int);
+    method public java.util.Locale? get(int);
     method @Size(min=1) public static androidx.core.os.LocaleListCompat getAdjustedDefault();
     method @Size(min=1) public static androidx.core.os.LocaleListCompat getDefault();
     method public static androidx.core.os.LocaleListCompat getEmptyLocaleList();
     method public java.util.Locale? getFirstMatch(String![]);
-    method @IntRange(from=0xffffffff) public int indexOf(java.util.Locale!);
+    method @IntRange(from=0xffffffff) public int indexOf(java.util.Locale?);
     method public boolean isEmpty();
     method @IntRange(from=0) public int size();
     method public String toLanguageTags();
@@ -2253,7 +2307,7 @@ package androidx.core.text {
   }
 
   public final class ICUCompat {
-    method public static String? maximizeAndGetScript(java.util.Locale!);
+    method public static String? maximizeAndGetScript(java.util.Locale);
   }
 
   public class PrecomputedTextCompat implements android.text.Spannable {
@@ -2461,7 +2515,7 @@ package androidx.core.view {
     method public void onInitializeAccessibilityNodeInfo(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat);
     method public void onPopulateAccessibilityEvent(android.view.View, android.view.accessibility.AccessibilityEvent);
     method public boolean onRequestSendAccessibilityEvent(android.view.ViewGroup, android.view.View, android.view.accessibility.AccessibilityEvent);
-    method public boolean performAccessibilityAction(android.view.View, int, android.os.Bundle);
+    method public boolean performAccessibilityAction(android.view.View, int, android.os.Bundle?);
     method public void sendAccessibilityEvent(android.view.View, int);
     method public void sendAccessibilityEventUnchecked(android.view.View, android.view.accessibility.AccessibilityEvent);
   }
@@ -2661,7 +2715,9 @@ package androidx.core.view {
     method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner);
     method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State);
     method public void onCreateMenu(android.view.Menu, android.view.MenuInflater);
+    method public void onMenuClosed(android.view.Menu);
     method public boolean onMenuItemSelected(android.view.MenuItem);
+    method public void onPrepareMenu(android.view.Menu);
     method public void removeMenuProvider(androidx.core.view.MenuProvider);
   }
 
@@ -2703,7 +2759,9 @@ package androidx.core.view {
 
   public interface MenuProvider {
     method public void onCreateMenu(android.view.Menu, android.view.MenuInflater);
+    method public default void onMenuClosed(android.view.Menu);
     method public boolean onMenuItemSelected(android.view.MenuItem);
+    method public default void onPrepareMenu(android.view.Menu);
   }
 
   public final class MotionEventCompat {
@@ -2997,7 +3055,7 @@ package androidx.core.view {
     method @Deprecated public static float getTranslationX(android.view.View!);
     method @Deprecated public static float getTranslationY(android.view.View!);
     method public static float getTranslationZ(android.view.View);
-    method public static androidx.core.view.WindowInsetsControllerCompat? getWindowInsetsController(android.view.View);
+    method @Deprecated public static androidx.core.view.WindowInsetsControllerCompat? getWindowInsetsController(android.view.View);
     method @Deprecated public static int getWindowSystemUiVisibility(android.view.View);
     method @Deprecated public static float getX(android.view.View!);
     method @Deprecated public static float getY(android.view.View!);
@@ -3255,7 +3313,7 @@ package androidx.core.view {
   }
 
   public final class WindowCompat {
-    method public static androidx.core.view.WindowInsetsControllerCompat? getInsetsController(android.view.Window, android.view.View);
+    method public static androidx.core.view.WindowInsetsControllerCompat getInsetsController(android.view.Window, android.view.View);
     method public static <T extends android.view.View> T requireViewById(android.view.Window, @IdRes int);
     method public static void setDecorFitsSystemWindows(android.view.Window, boolean);
     field public static final int FEATURE_ACTION_BAR = 8; // 0x8
@@ -3398,7 +3456,7 @@ package androidx.core.view {
     method public void setAppearanceLightStatusBars(boolean);
     method public void setSystemBarsBehavior(int);
     method public void show(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
-    method @RequiresApi(30) public static androidx.core.view.WindowInsetsControllerCompat toWindowInsetsControllerCompat(android.view.WindowInsetsController);
+    method @Deprecated @RequiresApi(30) public static androidx.core.view.WindowInsetsControllerCompat toWindowInsetsControllerCompat(android.view.WindowInsetsController);
     field public static final int BEHAVIOR_SHOW_BARS_BY_SWIPE = 1; // 0x1
     field public static final int BEHAVIOR_SHOW_BARS_BY_TOUCH = 0; // 0x0
     field public static final int BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE = 2; // 0x2
@@ -3497,6 +3555,7 @@ package androidx.core.view.accessibility {
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! focusSearch(int);
     method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat!>! getActionList();
     method public int getActions();
+    method public java.util.List<java.lang.String!> getAvailableExtraData();
     method @Deprecated public void getBoundsInParent(android.graphics.Rect!);
     method public void getBoundsInScreen(android.graphics.Rect!);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getChild(int);
@@ -3567,6 +3626,7 @@ package androidx.core.view.accessibility {
     method public boolean removeChild(android.view.View!);
     method public boolean removeChild(android.view.View!, int);
     method public void setAccessibilityFocused(boolean);
+    method public void setAvailableExtraData(java.util.List<java.lang.String!>);
     method @Deprecated public void setBoundsInParent(android.graphics.Rect!);
     method public void setBoundsInScreen(android.graphics.Rect!);
     method public void setCanOpenPopup(boolean);

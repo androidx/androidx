@@ -1,13 +1,18 @@
 // Signature format: 4.0
 package androidx.activity {
 
-  public class ComponentActivity extends android.app.Activity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+  public class ComponentActivity extends android.app.Activity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.core.content.OnConfigurationChangedProvider androidx.core.app.OnMultiWindowModeChangedProvider androidx.core.app.OnNewIntentProvider androidx.core.app.OnPictureInPictureModeChangedProvider androidx.core.content.OnTrimMemoryProvider androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
     ctor @ContentView public ComponentActivity(@LayoutRes int);
     method public void addMenuProvider(androidx.core.view.MenuProvider);
     method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner);
     method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State);
+    method public final void addOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration!>);
     method public final void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public final void addOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo!>);
+    method public final void addOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
+    method public final void addOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo!>);
+    method public final void addOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
     method public final androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method @Deprecated public Object? getLastCustomNonConfigurationInstance();
@@ -17,6 +22,8 @@ package androidx.activity {
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     method public void invalidateMenu();
     method @Deprecated @CallSuper protected void onActivityResult(int, int, android.content.Intent?);
+    method @CallSuper public void onMultiWindowModeChanged(boolean);
+    method @CallSuper public void onPictureInPictureModeChanged(boolean);
     method @Deprecated @CallSuper public void onRequestPermissionsResult(int, String![], int[]);
     method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
     method public final Object? onRetainNonConfigurationInstance();
@@ -24,7 +31,12 @@ package androidx.activity {
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
     method public void removeMenuProvider(androidx.core.view.MenuProvider);
+    method public final void removeOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration!>);
     method public final void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public final void removeOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo!>);
+    method public final void removeOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
+    method public final void removeOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo!>);
+    method public final void removeOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
     method @Deprecated public void startActivityForResult(android.content.Intent!, int);
     method @Deprecated public void startActivityForResult(android.content.Intent!, int, android.os.Bundle?);
     method @Deprecated public void startIntentSenderForResult(android.content.IntentSender!, int, android.content.Intent?, int, int, int) throws android.content.IntentSender.SendIntentException;
@@ -179,7 +191,8 @@ package androidx.activity.result.contract {
   }
 
   @RequiresApi(19) public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
-    ctor public ActivityResultContracts.CreateDocument();
+    ctor public ActivityResultContracts.CreateDocument(String mimeType);
+    ctor @Deprecated public ActivityResultContracts.CreateDocument();
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, String input);
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);

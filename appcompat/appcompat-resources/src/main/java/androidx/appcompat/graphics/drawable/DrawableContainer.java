@@ -35,6 +35,7 @@ import android.os.SystemClock;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -176,6 +177,11 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
     }
 
     @Override
+    public void setTint(@ColorInt int tintColor) {
+        setTintList(ColorStateList.valueOf(tintColor));
+    }
+
+    @Override
     public void setTintList(ColorStateList tint) {
         mDrawableContainerState.mHasTintList = true;
         if (mDrawableContainerState.mTintList != tint) {
@@ -300,7 +306,7 @@ class DrawableContainer extends Drawable implements Drawable.Callback {
     }
 
     @Override
-    protected boolean onStateChange(int[] state) {
+    protected boolean onStateChange(@NonNull int[] state) {
         if (mLastDrawable != null) {
             return mLastDrawable.setState(state);
         }

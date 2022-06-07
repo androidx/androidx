@@ -108,8 +108,8 @@ public class ForceStopRunnableTest {
     @Test
     public void testReschedulesOnForceStop() {
         ForceStopRunnable runnable = spy(mRunnable);
-        when(runnable.shouldRescheduleWorkers()).thenReturn(false);
-        when(runnable.isForceStopped()).thenReturn(true);
+        doReturn(false).when(runnable).shouldRescheduleWorkers();
+        doReturn(true).when(runnable).isForceStopped();
         runnable.run();
         verify(mWorkManager, times(1)).rescheduleEligibleWork();
         verify(mWorkManager, times(1)).onForceStopRunnableCompleted();
@@ -118,8 +118,8 @@ public class ForceStopRunnableTest {
     @Test
     public void test_doNothingWhenNotForceStopped() {
         ForceStopRunnable runnable = spy(mRunnable);
-        when(runnable.shouldRescheduleWorkers()).thenReturn(false);
-        when(runnable.isForceStopped()).thenReturn(false);
+        doReturn(false).when(runnable).shouldRescheduleWorkers();
+        doReturn(false).when(runnable).isForceStopped();
         runnable.run();
         verify(mWorkManager, times(0)).rescheduleEligibleWork();
         verify(mWorkManager, times(1)).onForceStopRunnableCompleted();
@@ -136,8 +136,8 @@ public class ForceStopRunnableTest {
     @Test
     public void test_UnfinishedWork_getsScheduled() {
         ForceStopRunnable runnable = spy(mRunnable);
-        when(runnable.shouldRescheduleWorkers()).thenReturn(false);
-        when(runnable.isForceStopped()).thenReturn(false);
+        doReturn(false).when(runnable).shouldRescheduleWorkers();
+        doReturn(false).when(runnable).isForceStopped();
         OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(WorkInfo.State.RUNNING)
                 .build();
@@ -155,8 +155,8 @@ public class ForceStopRunnableTest {
     @SdkSuppress(minSdkVersion = 23)
     public void testReconcileJobs() {
         ForceStopRunnable runnable = spy(mRunnable);
-        when(runnable.shouldRescheduleWorkers()).thenReturn(false);
-        when(runnable.isForceStopped()).thenReturn(false);
+        doReturn(false).when(runnable).shouldRescheduleWorkers();
+        doReturn(false).when(runnable).isForceStopped();
         OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(WorkInfo.State.ENQUEUED)
                 .build();

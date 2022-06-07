@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -38,13 +37,16 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation("org.robolectric:robolectric:4.6.1") // TODO(b/205731854): fix tests to work with SDK 31 and robolectric 4.7
+    testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation("androidx.annotation:annotation-experimental:1.1.0")
+    testImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
+    testImplementation(project(":camera:camera-video"))
     testImplementation(project(":camera:camera-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
+    testImplementation(libs.junit) // Needed for Assert.assertThrows
     testImplementation("org.apache.maven:maven-ant-tasks:2.1.3")
 
     androidTestImplementation(libs.multidex)
@@ -76,8 +78,13 @@ android {
         consumerProguardFiles "proguard-rules.pro"
     }
 
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
+
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.camera.camera2"
 }
 
 androidx {

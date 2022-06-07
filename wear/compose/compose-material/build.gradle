@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 import androidx.build.AndroidXComposePlugin
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -42,6 +41,7 @@ dependencies {
         implementation(project(":compose:material:material-ripple"))
         implementation(project(":compose:ui:ui-util"))
         implementation(project(":wear:compose:compose-foundation"))
+        implementation(project(":profileinstaller:profileinstaller"))
 
         androidTestImplementation(project(":compose:ui:ui-test"))
         androidTestImplementation(project(":compose:ui:ui-test-junit4"))
@@ -51,15 +51,21 @@ dependencies {
         androidTestImplementation(libs.testRunner)
         androidTestImplementation(libs.truth)
 
+        testImplementation(libs.testRules)
+        testImplementation(libs.testRunner)
+        testImplementation(libs.junit)
+
         samples(project(":wear:compose:compose-material-samples"))
     }
 }
 
 if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    kotlin {
+    androidXComposeMultiplatform {
         android()
-        jvm("desktop")
+        desktop()
+    }
 
+    kotlin {
         /*
          * When updating dependencies, make sure to make the an an analogous update in the
          * corresponding block above
@@ -82,12 +88,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
             jvmMain.dependencies {
                 implementation(libs.kotlinStdlib)
-            }
-            androidMain {
-                dependsOn(jvmMain)
-            }
-            desktopMain {
-                dependsOn(jvmMain)
             }
 
             commonTest.dependencies {
@@ -122,6 +122,7 @@ android {
     testOptions.unitTests.includeAndroidResources = true
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/../../golden/wear/compose/material"
+    namespace "androidx.wear.compose.material"
 }
 
 androidx {
@@ -136,4 +137,10 @@ androidx {
     targetsJavaConsumers = false
 }
 
-
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xjvm-default=all",
+        ]
+    }
+}

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="BanUncheckedReflection"
@@ -7,9 +7,7 @@
         errorLine1="            durationSetter.invoke(null, 1.0f)"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/AnimationActivityTestRule.kt"
-            line="82"
-            column="13"/>
+            file="src/main/java/androidx/testutils/AnimationActivityTestRule.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="    private val originalDurationScale = durationGetter.invoke(null) as Float"
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/AnimationDurationScaleRule.kt"
-            line="101"
-            column="41"/>
+            file="src/main/java/androidx/testutils/AnimationDurationScaleRule.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        durationSetter.invoke(null, animationDurationScale)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/AnimationDurationScaleRule.kt"
-            line="104"
-            column="9"/>
+            file="src/main/java/androidx/testutils/AnimationDurationScaleRule.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        durationSetter.invoke(null, originalDurationScale)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/AnimationDurationScaleRule.kt"
-            line="108"
-            column="9"/>
+            file="src/main/java/androidx/testutils/AnimationDurationScaleRule.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                newConfig.setLocales(locales.unwrap() as LocaleList)"
         errorLine2="                          ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/LocaleTestUtils.kt"
-            line="202"
-            column="27"/>
+            file="src/main/java/androidx/testutils/LocaleTestUtils.kt"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                newConfig.setLocale(locales.get(0))"
         errorLine2="                          ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/LocaleTestUtils.kt"
-            line="204"
-            column="27"/>
+            file="src/main/java/androidx/testutils/LocaleTestUtils.kt"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="            check(!requireActivity().isDestroyed)"
         errorLine2="                                     ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/fragment/app/StrictFragment.kt"
-            line="57"
-            column="38"/>
+            file="src/main/java/androidx/fragment/app/StrictFragment.kt"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="            final @NonNull Lifecycle.State state) throws Throwable {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"
-            line="53"
-            column="13"/>
+            file="src/main/java/androidx/testutils/LifecycleOwnerUtils.java"/>
     </issue>
 
 </issues>

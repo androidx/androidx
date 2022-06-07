@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_APP_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.IMAGE_INFO_PROCESSOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
@@ -25,6 +26,7 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_DEFAULT_RESOLUTION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_PREVIEW_CAPTURE_PROCESSOR;
+import static androidx.camera.core.impl.PreviewConfig.OPTION_RGBA8888_SURFACE_REQUIRED;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SESSION_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
@@ -35,6 +37,7 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
@@ -203,8 +206,9 @@ public final class Preview extends UseCase {
             mSessionDeferrableSurface.close();
         }
 
+        boolean isRGBA8888SurfaceRequired = config.isRgba8888SurfaceRequired(false);
         final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution, getCamera(),
-                captureProcessor != null);
+                isRGBA8888SurfaceRequired);
         mCurrentSurfaceRequest = surfaceRequest;
 
         if (sendSurfaceRequestIfReady()) {
@@ -314,7 +318,7 @@ public final class Preview extends UseCase {
         SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
         if (cameraInternal != null && surfaceProvider != null && cropRect != null) {
             surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
-                    getRelativeRotation(cameraInternal), getTargetRotation()));
+                    getRelativeRotation(cameraInternal), getAppTargetRotation()));
         }
     }
 
@@ -468,7 +472,9 @@ public final class Preview extends UseCase {
     @Nullable
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
-        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.PREVIEW);
+        Config captureConfig = factory.getConfig(
+                UseCaseConfigFactory.CaptureType.PREVIEW,
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
 
         if (applyDefaultConfig) {
             captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
@@ -854,6 +860,9 @@ public final class Preview extends UseCase {
         @Override
         public Builder setTargetRotation(@ImageOutputConfig.RotationValue int rotation) {
             getMutableConfig().insertOption(OPTION_TARGET_ROTATION, rotation);
+            // This app specific target rotation will be sent to PreviewView (or other
+            // SurfaceProvider) to transform the preview accordingly.
+            getMutableConfig().insertOption(OPTION_APP_TARGET_ROTATION, rotation);
             return this;
         }
 
@@ -883,7 +892,9 @@ public final class Preview extends UseCase {
          * output stream under 1080p.
          *
          * <p>If not set, the default selected resolution will be the best size match to the
-         * device's screen resolution, or to 1080p (1920x1080), whichever is smaller.
+         * device's screen resolution, or to 1080p (1920x1080), whichever is smaller. Note that
+         * due to compatibility reasons, CameraX may select a resolution that is larger than the
+         * default screen resolution on certain devices.
          *
          * <p>When using the <code>camera-camera2</code> CameraX implementation, which resolution
          * will be finally selected will depend on the camera device's hardware level and the
@@ -1023,6 +1034,18 @@ public final class Preview extends UseCase {
             return this;
         }
 
+        /**
+         * Sets if the surface requires RGBA8888 format.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setIsRgba8888SurfaceRequired(boolean isRgba8888SurfaceRequired) {
+            getMutableConfig().insertOption(
+                    OPTION_RGBA8888_SURFACE_REQUIRED, isRgba8888SurfaceRequired);
+            return this;
+        }
+
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1042,6 +1065,15 @@ public final class Preview extends UseCase {
         @NonNull
         public Builder setCaptureProcessor(@NonNull CaptureProcessor captureProcessor) {
             getMutableConfig().insertOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, captureProcessor);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setZslDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_ZSL_DISABLED, disabled);
             return this;
         }
     }

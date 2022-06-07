@@ -78,16 +78,6 @@ public class MessageTemplateTest {
     }
 
     @Test
-    public void noHeaderTitleOrAction_throws() {
-        assertThrows(IllegalStateException.class,
-                () -> new MessageTemplate.Builder(mMessage).build());
-
-        // Positive cases.
-        new MessageTemplate.Builder(mMessage).setTitle(mTitle).build();
-        new MessageTemplate.Builder(mMessage).setHeaderAction(mAction).build();
-    }
-
-    @Test
     public void header_unsupportedSpans_throws() {
         CharSequence title = TestUtils.getCharSequenceWithColorSpan("Title");
         assertThrows(
@@ -150,6 +140,15 @@ public class MessageTemplateTest {
         assertThat(template.getActions()).isEmpty();
         assertThat(template.getActionStrip()).isNull();
         assertThat(template.getDebugMessage()).isNull();
+    }
+
+    @Test
+    public void createInstance_emptyHeader() {
+        MessageTemplate template = new MessageTemplate.Builder(mMessage).build();
+
+        assertThat(template.getHeaderAction()).isNull();
+        assertThat(template.getTitle()).isNull();
+        assertThat(template.getActionStrip()).isNull();
     }
 
     @Test

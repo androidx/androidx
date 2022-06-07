@@ -1,3 +1,9 @@
 // Baseline format: 1.0
-MissingJvmstatic: androidx.benchmark.macro.junit4.MacrobenchmarkRule#measureRepeated(String, java.util.List<? extends androidx.benchmark.macro.Metric>, androidx.benchmark.macro.CompilationMode, androidx.benchmark.macro.StartupMode, int, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,? extends kotlin.Unit>, kotlin.jvm.functions.Function1<? super androidx.benchmark.macro.MacrobenchmarkScope,? extends kotlin.Unit>):
-    A Kotlin method with default parameter values should be annotated with @JvmOverloads for better Java interoperability; see https://android.github.io/kotlin-guides/interop.html#function-overloads-for-defaults
+InvalidNullabilityOverride: androidx.benchmark.macro.junit4.BaselineProfileRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #0:
+    Invalid nullability on parameter `base` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.benchmark.macro.junit4.BaselineProfileRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #1:
+    Invalid nullability on parameter `description` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.benchmark.macro.junit4.MacrobenchmarkRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #0:
+    Invalid nullability on parameter `base` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+InvalidNullabilityOverride: androidx.benchmark.macro.junit4.MacrobenchmarkRule#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #1:
+    Invalid nullability on parameter `description` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.

@@ -17,6 +17,7 @@
 package androidx.health.services.client.data
 
 import android.os.Parcelable
+import androidx.annotation.RestrictTo
 import androidx.health.services.client.data.DataType.TimeType
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TYPE_INTERVAL
@@ -27,8 +28,8 @@ import androidx.health.services.client.proto.DataProto.DataType.TimeType.TIME_TY
  * A data type is a representation of health data managed by Health Services.
  *
  * A [DataType] specifies the format of the values inside a [DataPoint]. Health Services defines
- * data types for instantaneous observations [TimeType.SAMPLE](e.g. heart rate) and data types for
- * change between readings [TimeType.INTERVAL](e.g. distance).
+ * data types for instantaneous observations [TimeType.SAMPLE] (e.g. heart rate) and data types for
+ * change between readings [TimeType.INTERVAL] (e.g. distance).
  *
  * Note: the data type defines only the representation and format of the data, and not how it's
  * being collected, the sensor being used, or the parameters of the collection.
@@ -43,6 +44,7 @@ public class DataType(
     public val format: Int,
 ) : ProtoParcelable<DataProto.DataType>() {
     /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public constructor(
         proto: DataProto.DataType
     ) : this(
@@ -56,19 +58,47 @@ public class DataType(
      * Whether the `DataType` corresponds to a measurement spanning an interval, or a sample at a
      * single point in time.
      */
-    public enum class TimeType {
-        INTERVAL,
-        SAMPLE;
+    public class TimeType private constructor(public val id: Int, public val name: String) {
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is TimeType) return false
+            if (id != other.id) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int = id
+
+        override fun toString(): String = name
 
         /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal fun toProto(): DataProto.DataType.TimeType =
             when (this) {
                 INTERVAL -> TIME_TYPE_INTERVAL
                 SAMPLE -> TIME_TYPE_SAMPLE
+                else -> TIME_TYPE_UNKNOWN
             }
 
-        internal companion object {
+        public companion object {
+
+            /**
+             * TimeType that indicates the DataType has a value that represents an interval of time
+             * with a beginning and end. For example, number of steps taken over a span of time.
+             */
+            @JvmField
+            public val INTERVAL: TimeType = TimeType(1, "INTERVAL")
+
+            /**
+             * TimeType that indicates the DataType has a value that represents a single point in
+             * time. For example, heart rate reading at a specific time.
+             */
+            @JvmField
+            public val SAMPLE: TimeType = TimeType(2, "SAMPLE")
+
             /** @hide */
+            @RestrictTo(RestrictTo.Scope.LIBRARY)
             internal fun fromProto(proto: DataProto.DataType.TimeType): TimeType? =
                 when (proto) {
                     TIME_TYPE_INTERVAL -> INTERVAL
@@ -103,6 +133,15 @@ public class DataType(
         @JvmField
         public val ELEVATION_GAIN: DataType =
             DataType("Elevation Gain", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
+
+        /**
+         * A measure of the loss in elevation expressed in meters in `double` format. This is a
+         * positive value representing elevation loss (a value of 10 will indicate 10m of elevation
+         * loss).
+         */
+        @JvmField
+        public val ELEVATION_LOSS: DataType =
+            DataType("Elevation Loss", TimeType.INTERVAL, Value.FORMAT_DOUBLE)
 
         /** Absolute elevation between each reading expressed in meters in `double` format. */
         @JvmField
@@ -169,7 +208,7 @@ public class DataType(
          * Current heart rate, in beats per minute in `double` format.
          *
          * Accuracy for a [DataPoint] of type [DataType.HEART_RATE_BPM] is represented by
-         * [HrAccuracy].
+         * [HeartRateAccuracy].
          */
         @JvmField
         public val HEART_RATE_BPM: DataType =
@@ -228,6 +267,11 @@ public class DataType(
         @JvmField
         public val SWIMMING_STROKES: DataType =
             DataType("Swimming Strokes", TimeType.INTERVAL, Value.FORMAT_LONG)
+
+        /** Count of golf shots in `long` format. */
+        @JvmField
+        public val GOLF_SHOT_COUNT: DataType =
+            DataType("Golf Shot Count", TimeType.INTERVAL, Value.FORMAT_LONG)
 
         /**
          * Delta of total calories (including basal rate and activity) between each reading in

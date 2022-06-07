@@ -20,6 +20,10 @@ import android.os.Bundle
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.navigation.testing.TestNavigatorState
 import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.setMain
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,8 +35,10 @@ class TestNavigatorTest {
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun backStack() {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
         val testNavigator = TestNavigator()
         val state = TestNavigatorState()
         testNavigator.onAttach(state)

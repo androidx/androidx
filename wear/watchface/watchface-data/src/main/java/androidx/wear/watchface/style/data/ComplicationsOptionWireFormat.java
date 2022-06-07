@@ -41,6 +41,8 @@ public class ComplicationsOptionWireFormat extends OptionWireFormat {
     @Nullable
     public Icon mIcon;
 
+    // WARNING: This class is held in a list and can't change due to flaws in VersionedParcelable.
+
     /**
      * Great care should be taken to ensure backwards compatibility of the versioned parcelable
      * if {@link ComplicationOverlayWireFormat} is ever

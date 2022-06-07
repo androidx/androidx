@@ -15,9 +15,7 @@
  */
 
 import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -54,10 +52,12 @@ dependencies {
 }
 
 if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    kotlin {
+    androidXComposeMultiplatform {
         android()
-        jvm("desktop")
+        desktop()
+    }
 
+    kotlin {
         /*
          * When updating dependencies, make sure to make the an an analogous update in the
          * corresponding block above
@@ -92,11 +92,15 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     }
 }
 
+android {
+    namespace "<PACKAGE>"
+}
+
 androidx {
     name = "<NAME>"
     type = LibraryType.<LIBRARY_TYPE>
     mavenVersion = LibraryVersions.<GROUPID>
-    mavenGroup = LibraryGroups.Compose.<GROUPID>
+    mavenGroup = LibraryGroups.COMPOSE_<GROUPID>
     inceptionYear = "<YEAR>"
     description = "<DESCRIPTION>"
 }

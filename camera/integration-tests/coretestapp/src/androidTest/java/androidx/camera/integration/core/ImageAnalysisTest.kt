@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.ExperimentalUseCaseApi
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageAnalysis.BackpressureStrategy
 import androidx.camera.core.ImageCapture
@@ -34,23 +35,24 @@ import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Semaphore
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
 
 private val DEFAULT_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 
@@ -62,10 +64,15 @@ internal class ImageAnalysisTest(
 ) {
 
     @get:Rule
-    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
+        PreTestCameraIdList(cameraConfig)
+    )
+
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
 
     companion object {
-        private val GUARANTEED_RESOLUTION = Size(640, 480)
+        private val DEFAULT_RESOLUTION = Size(640, 480)
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -96,6 +103,7 @@ internal class ImageAnalysisTest(
     @Before
     fun setUp(): Unit = runBlocking {
         ProcessCameraProvider.configureInstance(cameraConfig)
+
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
         handlerThread = HandlerThread("AnalysisThread")
         handlerThread.start()
@@ -117,7 +125,9 @@ internal class ImageAnalysisTest(
             }
         }
 
-        handlerThread.quitSafely()
+        if (::handler.isInitialized) {
+            handlerThread.quitSafely()
+        }
     }
 
     @Test
@@ -157,80 +167,6 @@ internal class ImageAnalysisTest(
         }
     }
 
-    @Ignore("TODO(b/183224022): Remove when resolution selection logic is ported to CameraPipe")
-    @Test
-    fun canSupportGuaranteedSizeFront() = runBlocking {
-        // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
-        // Using for-loop to check both front and back device cameras can support the guaranteed
-        // 640x480 size.
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
-        assumeTrue(!CameraUtil.requiresCorrectedAspectRatio(CameraSelector.LENS_FACING_FRONT))
-
-        // Checks camera device sensor degrees to set correct target rotation value to make sure
-        // the exactly matching result size 640x480 can be selected if the device supports it.
-        val sensorOrientation = CameraUtil.getSensorOrientation(CameraSelector.LENS_FACING_FRONT)
-        val isRotateNeeded = sensorOrientation!! % 180 != 0
-        val useCase = ImageAnalysis.Builder()
-            .setTargetResolution(GUARANTEED_RESOLUTION)
-            .setTargetRotation(if (isRotateNeeded) Surface.ROTATION_90 else Surface.ROTATION_0)
-            .build()
-        withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                CameraSelector.DEFAULT_FRONT_CAMERA,
-                useCase
-            )
-        }
-        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), analyzer)
-
-        assertThat(analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
-        synchronized(analysisResultLock) {
-            // Check the analyzed image exactly matches 640x480 size. This test can also check
-            // whether the guaranteed resolution 640x480 is really supported for YUV_420_888
-            // format on the devices when running the test.
-            assertThat(GUARANTEED_RESOLUTION).isEqualTo(
-                analysisResults.iterator().next().resolution
-            )
-        }
-    }
-
-    @Ignore("TODO(b/183224022): Remove when resolution selection logic is ported to CameraPipe")
-    @Test
-    fun canSupportGuaranteedSizeBack() = runBlocking {
-        // CameraSelector.LENS_FACING_FRONT/LENS_FACING_BACK are defined as constant int 0 and 1.
-        // Using for-loop to check both front and back device cameras can support the guaranteed
-        // 640x480 size.
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
-        assumeTrue(!CameraUtil.requiresCorrectedAspectRatio(CameraSelector.LENS_FACING_BACK))
-
-        // Checks camera device sensor degrees to set correct target rotation value to make sure
-        // the exactly matching result size 640x480 can be selected if the device supports it.
-        val sensorOrientation = CameraUtil.getSensorOrientation(CameraSelector.LENS_FACING_BACK)
-        val isRotateNeeded = sensorOrientation!! % 180 != 0
-        val useCase = ImageAnalysis.Builder()
-            .setTargetResolution(GUARANTEED_RESOLUTION)
-            .setTargetRotation(if (isRotateNeeded) Surface.ROTATION_90 else Surface.ROTATION_0)
-            .build()
-        withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                CameraSelector.DEFAULT_FRONT_CAMERA,
-                useCase
-            )
-        }
-        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(handler), analyzer)
-
-        assertThat(analysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
-        synchronized(analysisResultLock) {
-            // Check the analyzed image exactly matches 640x480 size. This test can also check
-            // whether the guaranteed resolution 640x480 is really supported for YUV_420_888
-            // format on the devices when running the test.
-            assertThat(GUARANTEED_RESOLUTION).isEqualTo(
-                analysisResults.iterator().next().resolution
-            )
-        }
-    }
-
     @Test
     fun analyzesImages_withKEEP_ONLY_LATEST_whenCameraIsOpen() {
         analyzerAnalyzesImagesWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -254,6 +190,8 @@ internal class ImageAnalysisTest(
             synchronized(analysisResultLock) { assertThat(analysisResults).isNotEmpty() }
         }
 
+    @LabTestRule.LabTestOnly
+    // TODO(b/221321202): flaky on AndroidX test, @LabTestOnly should be removed after resolved.
     @Test
     fun analyzerDoesNotAnalyzeImages_whenCameraIsNotOpen() = runBlocking {
         val useCase = ImageAnalysis.Builder().build()
@@ -279,6 +217,21 @@ internal class ImageAnalysisTest(
     }
 
     @Test
+    @ExperimentalUseCaseApi
+    fun canObtainBackgroundExecutor() {
+        val ioExecutor = CameraXExecutors.ioExecutor()
+        val imageAnalysis = ImageAnalysis.Builder()
+            .setBackgroundExecutor(ioExecutor).build()
+        val imageAnalysis2 = ImageAnalysis.Builder().build()
+
+        // check return when provided an Executor
+        assertThat(imageAnalysis.backgroundExecutor).isSameInstanceAs(ioExecutor)
+
+        // check default return
+        assertThat(imageAnalysis2.backgroundExecutor).isNull()
+    }
+
+    @Test
     fun canObtainDefaultImageQueueDepth() {
         val imageAnalysis = ImageAnalysis.Builder().build()
 
@@ -300,7 +253,7 @@ internal class ImageAnalysisTest(
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() = runBlocking {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
         val useCase = ImageAnalysis.Builder()
-            .setTargetResolution(GUARANTEED_RESOLUTION)
+            .setTargetResolution(DEFAULT_RESOLUTION)
             .build()
         assertThat(
             useCase.currentConfig.containsOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)
@@ -328,7 +281,7 @@ internal class ImageAnalysisTest(
     @Test
     fun targetResolutionIsUpdatedAfterTargetRotationIsUpdated() = runBlocking {
         val imageAnalysis = ImageAnalysis.Builder()
-            .setTargetResolution(GUARANTEED_RESOLUTION)
+            .setTargetResolution(DEFAULT_RESOLUTION)
             .setTargetRotation(Surface.ROTATION_0)
             .build()
         withContext(Dispatchers.Main) {
@@ -343,8 +296,8 @@ internal class ImageAnalysisTest(
         imageAnalysis.targetRotation = Surface.ROTATION_90
         val newConfig = imageAnalysis.currentConfig as ImageOutputConfig
         val expectedTargetResolution = Size(
-            GUARANTEED_RESOLUTION.height,
-            GUARANTEED_RESOLUTION.width
+            DEFAULT_RESOLUTION.height,
+            DEFAULT_RESOLUTION.width
         )
 
         // Expected targetResolution will be reversed from original target resolution.

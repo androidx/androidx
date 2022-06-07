@@ -62,7 +62,6 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
             Option.create("camerax.core.imageCapture.flashType", int.class);
     public static final Option<Integer> OPTION_JPEG_COMPRESSION_QUALITY =
             Option.create("camerax.core.imageCapture.jpegCompressionQuality", int.class);
-
     // *********************************************************************************************
 
     private final OptionsBundle mConfig;

@@ -25,18 +25,15 @@ import android.view.View
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue
 import androidx.camera.view.TransformUtils.sizeToVertices
-import androidx.camera.view.internal.compat.quirk.PreviewOneThirdWiderQuirk
-import androidx.camera.view.internal.compat.quirk.QuirkInjector
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.util.ReflectionHelpers
-import kotlin.math.roundToInt
 
 // Size of the PreviewView. Aspect ratio 2:1.
 private val PREVIEW_VIEW_SIZE = Size(400, 200)
@@ -84,23 +81,6 @@ class PreviewTransformationTest {
     }
 
     @Test
-    fun withPreviewStretchedQuirk_cropRectIsAdjusted() {
-        // Arrange.
-        QuirkInjector.inject(PreviewOneThirdWiderQuirk())
-
-        // Act.
-        mPreviewTransform.setTransformationInfo(
-            SurfaceRequest.TransformationInfo.of(FULL_CROP_RECT, 0, 0),
-            Size(FULL_CROP_RECT.width(), FULL_CROP_RECT.height()),
-            /*isFrontCamera=*/false
-        )
-
-        // Assert: the crop rect is corrected.
-        assertThat(mPreviewTransform.surfaceCropRect).isEqualTo(Rect(8, 0, 53, 40))
-        QuirkInjector.clear()
-    }
-
-    @Test
     fun cropRectWidthOffByOnePixel_match() {
         assertThat(
             isCropRectAspectRatioMatchPreviewView(
@@ -136,42 +116,6 @@ class PreviewTransformationTest {
             BACK_CAMERA
         )
         return mPreviewTransform.isViewportAspectRatioMatchPreviewView(PREVIEW_VIEW_SIZE)
-    }
-
-    @Test
-    fun fairphone2BackCamera_noCorrection() {
-        ReflectionHelpers.setStaticField(Build::class.java, "MANUFACTURER", "Fairphone")
-        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "FP2")
-        assertThat(getTextureViewCorrection(Surface.ROTATION_0, BACK_CAMERA)).isEqualTo(
-            intArrayOf(
-                0,
-                0,
-                SURFACE_SIZE.width,
-                0,
-                SURFACE_SIZE.width,
-                SURFACE_SIZE.height,
-                0,
-                SURFACE_SIZE.height
-            )
-        )
-    }
-
-    @Test
-    fun fairphone2BackCamera_corrected() {
-        ReflectionHelpers.setStaticField(Build::class.java, "MANUFACTURER", "Fairphone")
-        ReflectionHelpers.setStaticField(Build::class.java, "MODEL", "FP2")
-        assertThat(getTextureViewCorrection(Surface.ROTATION_0, FRONT_CAMERA)).isEqualTo(
-            intArrayOf(
-                SURFACE_SIZE.width,
-                SURFACE_SIZE.height,
-                0,
-                SURFACE_SIZE.height,
-                0,
-                0,
-                SURFACE_SIZE.width,
-                0
-            )
-        )
     }
 
     @Test

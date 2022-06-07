@@ -25,6 +25,7 @@ import android.webkit.WebViewClient;
 import android.widget.CheckBox;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.text.HtmlCompat;
 import androidx.webkit.WebViewCompat;
@@ -47,7 +48,7 @@ public class PopupInterstitialActivity extends AppCompatActivity {
     public static final String SHOULD_SEND_REPORT = "report";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_popup_interstitial);
         setTitle(R.string.custom_interstitial_title);

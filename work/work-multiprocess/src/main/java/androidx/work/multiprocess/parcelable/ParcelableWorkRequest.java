@@ -55,6 +55,7 @@ public class ParcelableWorkRequest implements Parcelable {
         mWorkRequest = workRequest;
     }
 
+    @SuppressWarnings("deprecation")
     protected ParcelableWorkRequest(@NonNull Parcel in) {
         // id
         String id = in.readString();

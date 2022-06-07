@@ -10,7 +10,7 @@ package androidx.navigation.dynamicfeatures {
     ctor public DynamicActivityNavigator.Destination(androidx.navigation.NavigatorProvider navigatorProvider);
     ctor public DynamicActivityNavigator.Destination(androidx.navigation.Navigator<? extends androidx.navigation.ActivityNavigator.Destination> activityNavigator);
     method public String? getModuleName();
-    method public void setModuleName(String? moduleName);
+    method public void setModuleName(String?);
     property public final String? moduleName;
   }
 
@@ -24,12 +24,12 @@ package androidx.navigation.dynamicfeatures {
     method public String? getDataPattern();
     method public String? getModuleName();
     method public String? getTargetPackage();
-    method public void setAction(String? action);
-    method public void setActivityClassName(String? activityClassName);
-    method public void setData(android.net.Uri? data);
-    method public void setDataPattern(String? dataPattern);
-    method public void setModuleName(String? moduleName);
-    method public void setTargetPackage(String? targetPackage);
+    method public void setAction(String?);
+    method public void setActivityClassName(String?);
+    method public void setData(android.net.Uri?);
+    method public void setDataPattern(String?);
+    method public void setModuleName(String?);
+    method public void setTargetPackage(String?);
     property public final String? action;
     property public final String? activityClassName;
     property public final android.net.Uri? data;
@@ -63,8 +63,8 @@ package androidx.navigation.dynamicfeatures {
     ctor public DynamicGraphNavigator.DynamicNavGraph(androidx.navigation.dynamicfeatures.DynamicGraphNavigator navGraphNavigator, androidx.navigation.NavigatorProvider navigatorProvider);
     method public String? getModuleName();
     method public int getProgressDestination();
-    method public void setModuleName(String? moduleName);
-    method public void setProgressDestination(int progressDestination);
+    method public void setModuleName(String?);
+    method public void setProgressDestination(int);
     property public final String? moduleName;
     property public final int progressDestination;
   }
@@ -78,9 +78,9 @@ package androidx.navigation.dynamicfeatures {
     method public String? getGraphPackage();
     method public String? getGraphResourceName();
     method public String? getModuleName();
-    method public void setGraphPackage(String? graphPackage);
-    method public void setGraphResourceName(String? graphResourceName);
-    method public void setModuleName(String? moduleName);
+    method public void setGraphPackage(String?);
+    method public void setGraphResourceName(String?);
+    method public void setModuleName(String?);
     property public final String? graphPackage;
     property public final String? graphResourceName;
     property public final String? moduleName;
@@ -91,7 +91,7 @@ package androidx.navigation.dynamicfeatures {
     ctor public DynamicIncludeNavGraphBuilder(androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator dynamicIncludeGraphNavigator, String route, String moduleName, String graphResourceName);
     method public androidx.navigation.dynamicfeatures.DynamicIncludeGraphNavigator.DynamicIncludeNavGraph build();
     method public String? getGraphPackage();
-    method public void setGraphPackage(String? graphPackage);
+    method public void setGraphPackage(String?);
     property public final String? graphPackage;
   }
 
@@ -125,9 +125,9 @@ package androidx.navigation.dynamicfeatures {
     method public String? getModuleName();
     method public int getProgressDestination();
     method public String? getProgressDestinationRoute();
-    method public void setModuleName(String? moduleName);
-    method public void setProgressDestination(int p);
-    method public void setProgressDestinationRoute(String? progDestRoute);
+    method public void setModuleName(String?);
+    method public void setProgressDestination(int);
+    method public void setProgressDestinationRoute(String?);
     property public final String? moduleName;
     property public final int progressDestination;
     property public final String? progressDestinationRoute;

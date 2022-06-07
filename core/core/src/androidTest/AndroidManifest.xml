@@ -14,8 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="android.support.compat.test">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:name="androidx.multidex.MultiDexApplication"
@@ -81,6 +80,9 @@
 
         <activity
             android:name="androidx.core.app.TestActivityWithLifecycle"
+            android:exported="true" />
+        <activity
+            android:name="androidx.core.app.TestActivityRecreate"
             android:exported="true" />
         <activity
             android:name="androidx.core.app.ActivityCompatRecreateLifecycleTestActivity"

@@ -18,14 +18,12 @@ package androidx.playground
 
 import org.gradle.api.GradleException
 import org.gradle.api.initialization.Settings
-import org.gradle.api.model.ObjectFactory
 import java.io.File
 import java.util.Properties
 import javax.inject.Inject
 
 open class PlaygroundExtension @Inject constructor(
-    private val settings: Settings,
-    private val objectFactory: ObjectFactory
+    private val settings: Settings
 ) {
     private var supportRootDir: File? = null
 
@@ -87,6 +85,17 @@ open class PlaygroundExtension @Inject constructor(
      * @param relativePathToRoot The relative path of the project to the root AndroidX project
      */
     fun setupPlayground(relativePathToRoot: String) {
+        // gradlePluginPortal has a variety of unsigned binaries that have proper signatures
+        // in mavenCentral, so don't use gradlePluginPortal() if you can avoid it
+        settings.pluginManagement.repositories {
+            it.mavenCentral()
+            it.gradlePluginPortal().content {
+                it.includeModule(
+                    "org.jetbrains.kotlin.plugin.serialization",
+                    "org.jetbrains.kotlin.plugin.serialization.gradle.plugin"
+                )
+            }
+        }
         val projectDir = settings.rootProject.projectDir
         val supportRoot = File(projectDir, relativePathToRoot).canonicalFile
         this.supportRootDir = supportRoot
@@ -105,13 +114,6 @@ open class PlaygroundExtension @Inject constructor(
         }
 
         settings.rootProject.buildFileName = relativePathToBuild
-        settings.enableFeaturePreview("VERSION_CATALOGS")
-
-        val catalogFiles =
-            objectFactory.fileCollection().from("$supportRoot/gradle/libs.versions.toml")
-        settings.dependencyResolutionManagement {
-            it.versionCatalogs.create("libs").from(catalogFiles)
-        }
 
         includeProject(":lint-checks", "lint-checks")
         includeProject(":lint-checks:integration-tests", "lint-checks/integration-tests")
@@ -136,26 +138,11 @@ open class PlaygroundExtension @Inject constructor(
         if (supportRootDir == null) {
             throw RuntimeException("Must call setupPlayground() first.")
         }
-
-        // Multiline matcher for anything of the form:
-        //  includeProject(name, path, ...)
-        // where '...' is anything except the ')' character.
-        /* ktlint-disable max-line-length */
-        val includeProjectPattern = Regex(
-            """[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)",[\n\r\s]*"(?<path>[a-z0-9-\/]+)[^)]+\)$""",
-            setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE)
-        ).toPattern()
         val supportSettingsFile = File(supportRootDir, "settings.gradle")
-        val matcher = includeProjectPattern.matcher(supportSettingsFile.readText())
-
-        while (matcher.find()) {
-            // check if is an include project line, if so, extract project gradle path and
-            // file system path and call the filter
-            val projectGradlePath = matcher.group("name")
-            val projectFilePath = matcher.group("path")
-            if (filter(projectGradlePath)) {
-                includeProject(projectGradlePath, projectFilePath)
-            }
+        SettingsParser.findProjects(supportSettingsFile).filter {
+            filter(it.gradlePath)
+        }.forEach { (projectGradlePath, projectFilePath) ->
+            includeProject(projectGradlePath, projectFilePath)
         }
     }
 
@@ -168,6 +155,9 @@ open class PlaygroundExtension @Inject constructor(
         if (name == ":compose:test-utils") return true
         if (name == ":compose:lint:common-test") return true
         if (name == ":test:screenshot:screenshot") return true
+        if (name == ":test:screenshot:screenshot-proto") return true
+        if (name == ":lifecycle:lifecycle-common") return true
+        if (name == ":lifecycle:lifecycle-common-java8") return true
         return false
     }
 }

@@ -54,7 +54,7 @@ class KspTypeNamesGoldenTest {
             fun XExecutableElement.createNewUniqueKey(
                 owner: String
             ): String {
-                val prefix = this.enclosingElement.className.canonicalName()
+                val prefix = this.closestMemberContainer.className.canonicalName()
                 val jvmName = if (this is XMethodElement) {
                     jvmName
                 } else {
@@ -132,7 +132,11 @@ class KspTypeNamesGoldenTest {
         // turn them into string, provides better failure reports
         fun Map<String, List<TypeName>>.signatures(): List<Pair<String, String>> {
             return this.entries.map {
-                it.key to it.value.joinToString(" ")
+                it.key to it.value.joinToString(" ") {
+                    // javapoet doesn't always read enclosing class property from classpath
+                    // we don't care about it here.
+                    it.toString().replace('$', '.')
+                }
             }.sortedBy {
                 it.first
             }
@@ -155,6 +159,13 @@ class KspTypeNamesGoldenTest {
                     VAL1,
                     VAL2;
                 }
+                sealed class GrandParentSealed {
+                    class Parent1: GrandParentSealed()
+                    sealed class Parent2: GrandParentSealed() {
+                        class Child1: Parent2()
+                        class Child2: Parent2()
+                    }
+                }
                 """.trimIndent()
         )
         return listOf(
@@ -170,6 +181,7 @@ class KspTypeNamesGoldenTest {
                 suppressWildcards = true
             ),
             createOverrideSubjects(pkg),
+            createSelfReferencingType(pkg),
             createOverridesWithGenericArguments(pkg),
             createKotlinOverridesJavaSubjects(pkg),
             createKotlinOverridesJavaSubjectsWithGenerics(pkg),
@@ -214,6 +226,34 @@ class KspTypeNamesGoldenTest {
         )
     }
 
+    private fun createSelfReferencingType(pkg: String): TestInput {
+        return TestInput(
+            sources = listOf(
+                Source.java("$pkg.SelfReferencingJava", """
+                    package $pkg;
+                    public interface SelfReferencingJava<T extends SelfReferencingJava<T>> {
+                        void method1(SelfReferencingJava sr);
+                        void method2(SelfReferencingJava<?> sr);
+                    }
+                """.trimIndent()),
+                Source.java("$pkg.SubSelfReferencingJava", """
+                    package $pkg;
+                    public interface SubSelfReferencingJava extends SelfReferencingJava<SubSelfReferencingJava> {}
+                """.trimIndent()),
+                Source.kotlin("SelfReferencing.kt",
+                    """
+                    package $pkg
+                    interface SelfReferencingKotlin<T : SelfReferencingKotlin<T>> {
+                        fun method1(sr: SelfReferencingKotlin<*>)
+                    }
+                    interface SubSelfReferencingKotlin : SelfReferencingKotlin<SubSelfReferencingKotlin>
+                    """.trimIndent()),
+            ),
+            subjects = listOf("SubSelfReferencingJava", "SelfReferencingJava",
+                "SelfReferencingKotlin", "SubSelfReferencingKotlin")
+        )
+    }
+
     /**
      * Subjects with variance and star projections.
      */
@@ -239,6 +279,9 @@ class KspTypeNamesGoldenTest {
                     numberList: List<Number>,
                     stringList: List<String>,
                     enumList: List<MyEnum>,
+                    sealedListGrandParent: List<GrandParentSealed>,
+                    sealedListParent: List<GrandParentSealed.Parent1>,
+                    sealedListChild: List<GrandParentSealed.Parent2.Child1>,
                     jvmWildcard: List<@JvmWildcard String>,
                     suppressJvmWildcard: List<@JvmSuppressWildcards Number>
                 ) {
@@ -248,6 +291,9 @@ class KspTypeNamesGoldenTest {
                     var propWithOpenGeneric: List<Number> = TODO()
                     var propWithTypeArg: R = TODO()
                     var propWithTypeArgGeneric: List<R> = TODO()
+                    var propSealedListGrandParent: List<GrandParentSealed> = TODO()
+                    var propSealedListParent: List<GrandParentSealed.Parent1> = TODO()
+                    var propSealedListChild: List<GrandParentSealed.Parent2.Child1> = TODO()
                     @JvmSuppressWildcards
                     var propWithOpenTypeButSuppressAnnotation: Number = 3
                     fun list(list: List<*>): List<*> { TODO() }
@@ -255,6 +301,9 @@ class KspTypeNamesGoldenTest {
                     fun listTypeArgNumber(list: List<Number>): List<Number> { TODO() }
                     fun listTypeArgString(list: List<String>): List<String> { TODO() }
                     fun listTypeArgEnum(list: List<MyEnum>): List<MyEnum> { TODO() }
+                    fun listSealedListGrandParent(list: List<GrandParentSealed>): List<GrandParentSealed> { TODO() }
+                    fun listSealedListParent(list: List<GrandParentSealed.Parent1>): List<GrandParentSealed.Parent1> { TODO() }
+                    fun listSealedListChild(list: List<GrandParentSealed.Parent2.Child1>): List<GrandParentSealed.Parent2.Child1> { TODO() }
                     fun explicitJvmWildcard(
                         list: List<@JvmWildcard String>
                     ): List<@JvmWildcard String> { TODO() }
@@ -271,6 +320,9 @@ class KspTypeNamesGoldenTest {
                     fun suspendListTypeArgNumber(list: List<Number>): List<Number> { TODO() }
                     fun suspendListTypeArgString(list: List<String>): List<String> { TODO() }
                     fun suspendListTypeArgEnum(list: List<MyEnum>): List<MyEnum> { TODO() }
+                    fun suspendListSealedListGrandParent(list: List<GrandParentSealed>): List<GrandParentSealed> { TODO() }
+                    fun suspendListSealedListParent(list: List<GrandParentSealed.Parent1>): List<GrandParentSealed.Parent1> { TODO() }
+                    fun suspendListSealedListChild(list: List<GrandParentSealed.Parent2.Child1>): List<GrandParentSealed.Parent2.Child1> { TODO() }
                     fun suspendExplicitJvmWildcard(
                         list: List<@JvmWildcard String>
                     ): List<@JvmWildcard String> { TODO() }
@@ -354,6 +406,8 @@ class KspTypeNamesGoldenTest {
                 var tListProp: List<T>
                 var definedProp: Number
                 var definedPropList: List<Number>
+                var definedPropFinal: String
+                var definedPropListFinal: List<String>
                 fun receiveReturnT(t: T): T
                 suspend fun suspendReceiveReturnT(t:T):T
                 fun receiveReturnTList(t:List<T>): List<T>
@@ -362,6 +416,11 @@ class KspTypeNamesGoldenTest {
                 suspend fun suspendReceiveReturnTOverridden(t:T):T
                 fun receiveReturnTListOverridden(t:List<T>): List<T>
                 suspend fun suspendReceiveReturnTListOverridden(t:List<T>): List<T>
+                // b/217210973
+                suspend fun suspendDefinedTypesFinal(objList: List<Long>): List<Long>
+                suspend fun suspendDefinedTypesOpen(objList: List<Number>): List<Number>
+                suspend fun suspendDefinedTypesFinal2(objList: List<List<Long>>): List<List<Long>>
+                suspend fun suspendDefinedTypesOpen2(objList: List<List<Number>>): List<List<Number>>
             }
         """.trimIndent()
 

@@ -120,6 +120,9 @@ internal class ConfigView(
                         // default handler.
                         false
                     }
+                    entry.value.nameResourceId?.let {
+                        contentDescription = context.getString(it)
+                    }
                     addView(this)
                 }
             }

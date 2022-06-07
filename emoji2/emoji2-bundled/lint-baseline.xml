@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -7,9 +7,7 @@
         errorLine1="            mSpans = ((Spanned) charSequence).getSpans(0, charSequence.length(), EmojiSpan.class);"
         errorLine2="                                                                                 ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/bundled/util/EmojiMatcher.java"
-            line="104"
-            column="82"/>
+            file="src/androidTest/java/androidx/emoji2/bundled/util/EmojiMatcher.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="            mSpans = ((Spanned) charSequence).getSpans(0, charSequence.length(), EmojiSpan.class);"
         errorLine2="                                                                                 ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/bundled/util/EmojiMatcher.java"
-            line="140"
-            column="82"/>
+            file="src/androidTest/java/androidx/emoji2/bundled/util/EmojiMatcher.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="            final EmojiSpan[] spans = spanned.getSpans(0, charSequence.length(), EmojiSpan.class);"
         errorLine2="                                                                                 ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/bundled/util/EmojiMatcher.java"
-            line="224"
-            column="82"/>
+            file="src/androidTest/java/androidx/emoji2/bundled/util/EmojiMatcher.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                    if (mResId == spans[index].getId()) {"
         errorLine2="                                               ~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/bundled/util/EmojiMatcher.java"
-            line="233"
-            column="48"/>
+            file="src/androidTest/java/androidx/emoji2/bundled/util/EmojiMatcher.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                    if (mResId == -1 || mResId == spans[index].getId()) {"
         errorLine2="                                                               ~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/bundled/util/EmojiMatcher.java"
-            line="240"
-            column="64"/>
+            file="src/androidTest/java/androidx/emoji2/bundled/util/EmojiMatcher.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                            loaderCallback.onLoaded(MetadataRepo.create(mock(Typeface.class)));"
         errorLine2="                                                                 ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/bundled/TestConfigBuilder.java"
-            line="92"
-            column="66"/>
+            file="src/androidTest/java/androidx/emoji2/bundled/TestConfigBuilder.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                            sMetadataRepo = MetadataRepo.create(assetManager, FONT_FILE);"
         errorLine2="                                                         ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/bundled/TestConfigBuilder.java"
-            line="123"
-            column="58"/>
+            file="src/androidTest/java/androidx/emoji2/bundled/TestConfigBuilder.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                    mMetadataRepo = MetadataRepo.create(assetManager, FONT_FILE);"
         errorLine2="                                                 ~~~~~~">
         <location
-            file="src/androidTest/java/androidx/emoji2/bundled/TestConfigBuilder.java"
-            line="148"
-            column="50"/>
+            file="src/androidTest/java/androidx/emoji2/bundled/TestConfigBuilder.java"/>
     </issue>
 
 </issues>

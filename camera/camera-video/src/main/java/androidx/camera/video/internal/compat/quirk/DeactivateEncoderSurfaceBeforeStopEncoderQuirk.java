@@ -26,18 +26,19 @@ import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoOutput;
 
 /**
- * Quirk denotes that the encoder surface needs to be removed from repeating request before stop
- * the encoder.
- *
- * <p>As described in b/196039619, the camera fails if {@link MediaCodec} is stopped while frames
- * are still being provided.
- *
- * <p>In {@link Recorder}, {@link Recorder#getStreamState()} has to returns
- * {@link VideoOutput.StreamState#INACTIVE} when the active recording is being stopped.
- * {@link VideoCapture} monitors {@link VideoOutput#getStreamState()} and
- * detach the surface from camera if it becomes {@link VideoOutput.StreamState#INACTIVE inactive}.
- * So making the {@link Recorder} inactive in stopping state will stop the camera from producing
- * frames to the {@link MediaCodec} before actually stopping it.
+ * <p>QuirkSummary
+ *     Bug Id: b/196039619
+ *     Description: Quirk denotes that the encoder surface needs to be removed from repeating
+ *                  request before stop the encoder. Otherwise, the camera will fail if
+ *                  {@link MediaCodec} is stopped while frames are still being provided.
+ *                  In {@link Recorder}, {@link Recorder#getStreamState()} has to returns
+ *                  {@link VideoOutput.StreamState#INACTIVE} when the active recording is being
+ *                  stopped. {@link VideoCapture} monitors {@link VideoOutput#getStreamState()}
+ *                  and detach the surface from camera if it becomes
+ *                  {@link VideoOutput.StreamState#INACTIVE inactive}. So making the
+ *                  {@link Recorder} inactive in stopping state will stop the camera from
+ *                  producing frames to the {@link MediaCodec} before actually stopping it.
+ *     Device(s): All API 21 and 22 devices
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class DeactivateEncoderSurfaceBeforeStopEncoderQuirk implements Quirk {

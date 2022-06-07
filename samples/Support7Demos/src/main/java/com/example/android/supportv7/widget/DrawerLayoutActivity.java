@@ -215,6 +215,7 @@ public class DrawerLayoutActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
         boolean hadOpenDrawer = false;

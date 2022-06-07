@@ -216,7 +216,7 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
 
             // Not a huge deal but we might as well unlink the deathObserver.
             continuation.invokeOnCancellation {
-                service.asBinder().unlinkToDeath(deathObserver, 0)
+                safeUnlinkToDeath(service, deathObserver)
             }
 
             if (!service.requestPreviewComplicationData(
@@ -226,15 +226,27 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
                         override fun updateComplicationData(
                             data: android.support.wearable.complications.ComplicationData?
                         ) {
-                            service.asBinder().unlinkToDeath(deathObserver, 0)
+                            safeUnlinkToDeath(service, deathObserver)
                             continuation.resume(data?.toApiComplicationData())
                         }
                     }
                 )
             ) {
-                service.asBinder().unlinkToDeath(deathObserver, 0)
+                safeUnlinkToDeath(service, deathObserver)
                 continuation.resume(null)
             }
+        }
+    }
+
+    internal fun safeUnlinkToDeath(
+        service: IProviderInfoService,
+        deathObserver: IBinder.DeathRecipient
+    ) {
+        try {
+            service.asBinder().unlinkToDeath(deathObserver, 0)
+        } catch (e: NoSuchElementException) {
+            // This really shouldn't happen.
+            Log.w(TAG, "retrievePreviewComplicationData encountered", e)
         }
     }
 
@@ -375,6 +387,34 @@ public class ComplicationDataSourceInfo(
                 "ComponentName is required on Android R and above"
             }
         }
+    }
+
+    override fun toString(): String =
+        "ComplicationDataSourceInfo(appName=$appName, name=$name, type=$type" +
+            ", icon=$icon, componentName=$componentName)"
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComplicationDataSourceInfo
+
+        if (appName != other.appName) return false
+        if (name != other.name) return false
+        if (type != other.type) return false
+        if (icon != other.icon) return false
+        if (componentName != other.componentName) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = appName.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + type.hashCode()
+        result = 31 * result + icon.hashCode()
+        result = 31 * result + componentName.hashCode()
+        return result
     }
 
     /**

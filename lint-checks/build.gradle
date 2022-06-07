@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import androidx.build.ExportAtomicLibraryGroupsToTextTask
 import androidx.build.LibraryType
 
 plugins {
@@ -46,3 +47,17 @@ androidx {
     inceptionYear = "2018"
     description = "Internal lint checks"
 }
+
+def exportTaskProvider = tasks.register(
+        "exportAtomicLibraryGroupsToText",
+        ExportAtomicLibraryGroupsToTextTask
+) { task ->
+    task.libraryGroups = androidx.LibraryGroups
+
+    def generatedDirectory = new File(project.buildDir, "generated/resources")
+    task.outputDir.set(generatedDirectory)
+}
+
+def extension = project.extensions.getByType(JavaPluginExtension.class)
+def mainSources = extension.sourceSets.getByName("main")
+mainSources.getOutput().dir(exportTaskProvider.flatMap { it.outputDir })

@@ -45,52 +45,18 @@ import androidx.core.graphics.drawable.IconCompat;
 
 /** A screen that demonstrates the sign-in template. */
 public class SignInTemplateDemoScreen extends Screen {
-    private enum State {
-        USERNAME,
-        PASSWORD,
-        PIN,
-        PROVIDER,
-        QR_CODE,
-        SIGNED_IN,
-    }
-
     private static final String EMAIL_REGEXP = "^(.+)@(.+)$";
     private static final String EXPECTED_PASSWORD = "password";
     private static final int MIN_USERNAME_LENGTH = 5;
-
+    private final CharSequence mAdditionalText;
+    private final Action mProviderSignInAction;
+    private final Action mPinSignInAction;
+    private final Action mQRCodeSignInAction;
     // package private to avoid synthetic accessor
     State mState = State.USERNAME;
     String mLastErrorMessage = ""; // last displayed error message
     String mErrorMessage = "";
     String mUsername = null;
-
-    private final CharSequence mAdditionalText = Utils.clickable("Please review our terms of "
-                    + "service", 18, 16,
-            () -> getScreenManager().push(new LongMessageTemplateDemoScreen(getCarContext())));
-
-    private final Action mProviderSignInAction = new Action.Builder()
-            .setTitle("Google sign-in")
-            .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
-                mState = State.PROVIDER;
-                invalidate();
-            }))
-            .build();
-
-    private final Action mPinSignInAction = new Action.Builder()
-            .setTitle("Use PIN")
-            .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
-                mState = State.PIN;
-                invalidate();
-            }))
-            .build();
-
-    private final Action mQRCodeSignInAction = new Action.Builder()
-            .setTitle("QR Code")
-            .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
-                mState = State.QR_CODE;
-                invalidate();
-            }))
-            .build();
 
     public SignInTemplateDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
@@ -110,14 +76,44 @@ public class SignInTemplateDemoScreen extends Screen {
             }
         };
         carContext.getOnBackPressedDispatcher().addCallback(this, callback);
+
+        mAdditionalText = Utils.clickable(getCarContext().getString(R.string.additional_text), 18,
+                16,
+                () -> getScreenManager().push(new LongMessageTemplateDemoScreen(getCarContext())));
+
+        mProviderSignInAction = new Action.Builder()
+                .setTitle(getCarContext().getString(R.string.google_sign_in))
+                .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
+                    mState = State.PROVIDER;
+                    invalidate();
+                }))
+                .build();
+
+        mPinSignInAction = new Action.Builder()
+                .setTitle(getCarContext().getString(R.string.use_pin))
+                .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
+                    mState = State.PIN;
+                    invalidate();
+                }))
+                .build();
+
+        mQRCodeSignInAction = new Action.Builder()
+                .setTitle(getCarContext().getString(R.string.qr_code))
+                .setOnClickListener(ParkedOnlyOnClickListener.create(() -> {
+                    mState = State.QR_CODE;
+                    invalidate();
+                }))
+                .build();
     }
 
     @NonNull
     @Override
     public Template onGetTemplate() {
         if (getCarContext().getCarAppApiLevel() < CarAppApiLevels.LEVEL_2) {
-            return new MessageTemplate.Builder("Your host doesn't support Sign In template")
-                    .setTitle("Incompatible host")
+            return new MessageTemplate.Builder(
+                    getCarContext().getString(R.string.sign_in_template_not_supported_text))
+                    .setTitle(getCarContext().getString(
+                            R.string.sign_in_template_not_supported_title))
                     .setHeaderAction(Action.BACK)
                     .build();
         }
@@ -168,7 +164,7 @@ public class SignInTemplateDemoScreen extends Screen {
         };
 
         InputSignInMethod.Builder builder = new InputSignInMethod.Builder(listener)
-                .setHint("Email")
+                .setHint(getCarContext().getString(R.string.email_hint))
                 .setKeyboardType(InputSignInMethod.KEYBOARD_EMAIL);
         if (mErrorMessage != null) {
             builder.setErrorMessage(mErrorMessage);
@@ -183,8 +179,8 @@ public class SignInTemplateDemoScreen extends Screen {
                 .addAction(mProviderSignInAction)
                 .addAction(getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_3
                         ? mQRCodeSignInAction : mPinSignInAction)
-                .setTitle("Sign in")
-                .setInstructions("Enter your credentials")
+                .setTitle(getCarContext().getString(R.string.sign_in_title))
+                .setInstructions(getCarContext().getString(R.string.sign_in_instructions))
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
                 .build();
@@ -196,10 +192,10 @@ public class SignInTemplateDemoScreen extends Screen {
      */
     String validateUsername() {
         if (mUsername == null || mUsername.length() < MIN_USERNAME_LENGTH) {
-            return "User name must be at least " + MIN_USERNAME_LENGTH + " characters "
-                    + "long";
+            return getCarContext().getString(R.string.invalid_length_error_msg,
+                    Integer.toString(MIN_USERNAME_LENGTH));
         } else if (!mUsername.matches(EMAIL_REGEXP)) {
-            return "User name must be a valid email address";
+            return getCarContext().getString(R.string.invalid_email_error_msg);
         } else {
             return "";
         }
@@ -228,7 +224,7 @@ public class SignInTemplateDemoScreen extends Screen {
             public void onInputSubmitted(@NonNull String text) {
                 // Mocked password validation
                 if (!EXPECTED_PASSWORD.equals(text)) {
-                    mErrorMessage = "Invalid password";
+                    mErrorMessage = getCarContext().getString(R.string.invalid_password_error_msg);
                 } else {
                     mErrorMessage = "";
                     mState = State.SIGNED_IN;
@@ -237,7 +233,7 @@ public class SignInTemplateDemoScreen extends Screen {
             }
         };
         InputSignInMethod.Builder builder = new InputSignInMethod.Builder(callback)
-                .setHint("Password")
+                .setHint(getCarContext().getString(R.string.password_hint))
                 .setInputType(InputSignInMethod.INPUT_TYPE_PASSWORD);
         if (mErrorMessage != null) {
             builder.setErrorMessage(mErrorMessage);
@@ -248,8 +244,10 @@ public class SignInTemplateDemoScreen extends Screen {
                 .addAction(mProviderSignInAction)
                 .addAction(getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_3
                         ? mQRCodeSignInAction : mPinSignInAction)
-                .setTitle("Sign in")
-                .setInstructions("Username: " + mUsername)
+                .setTitle(getCarContext().getString(R.string.sign_in_title))
+                .setInstructions(
+                        getCarContext().getString(R.string.password_sign_in_instruction_prefix)
+                                + ": " + mUsername)
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
                 .build();
@@ -258,8 +256,8 @@ public class SignInTemplateDemoScreen extends Screen {
     private Template getPinSignInTemplate() {
         PinSignInMethod pinSignInMethod = new PinSignInMethod("123456789ABC");
         return new SignInTemplate.Builder(pinSignInMethod)
-                .setTitle("Sign in")
-                .setInstructions("Type this PIN in your phone")
+                .setTitle(getCarContext().getString(R.string.sign_in_title))
+                .setInstructions(getCarContext().getString(R.string.pin_sign_in_instruction))
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
                 .build();
@@ -269,7 +267,7 @@ public class SignInTemplateDemoScreen extends Screen {
         QRCodeSignInMethod qrCodeSignInMethod = new QRCodeSignInMethod(Uri.parse("https://www"
                 + ".youtube.com/watch?v=dQw4w9WgXcQ"));
         return new SignInTemplate.Builder(qrCodeSignInMethod)
-                .setTitle("Scan QR Code to sign in")
+                .setTitle(getCarContext().getString(R.string.qr_code_sign_in_title))
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
                 .addAction(mPinSignInAction)
@@ -284,7 +282,8 @@ public class SignInTemplateDemoScreen extends Screen {
 
         ProviderSignInMethod providerSignInMethod = new ProviderSignInMethod(
                 new Action.Builder()
-                        .setTitle(Utils.colorize("Sign in with Google",
+                        .setTitle(Utils.colorize(
+                                getCarContext().getString(R.string.sign_in_with_google_title),
                                 CarColor.createCustom(Color.BLACK, Color.BLACK), 0, 19))
                         .setBackgroundColor(CarColor.createCustom(Color.WHITE, Color.WHITE))
                         .setIcon(new CarIcon.Builder(providerIcon)
@@ -294,8 +293,8 @@ public class SignInTemplateDemoScreen extends Screen {
                                 this::performSignInWithGoogleFlow)).build());
 
         return new SignInTemplate.Builder(providerSignInMethod)
-                .setTitle("Sign in")
-                .setInstructions("Use this button to complete your Google sign-in")
+                .setTitle(getCarContext().getString(R.string.sign_in_title))
+                .setInstructions(getCarContext().getString(R.string.provider_sign_in_instruction))
                 .setHeaderAction(Action.BACK)
                 .setAdditionalText(mAdditionalText)
                 .build();
@@ -324,22 +323,34 @@ public class SignInTemplateDemoScreen extends Screen {
 //                        .setClass(getCarContext(), SignInWithGoogleActivity.class)
 //                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
 //                        .putExtras(extras));
-        CarToast.makeText(getCarContext(), "Sign-in with Google starts here", LENGTH_LONG)
+        CarToast.makeText(getCarContext(),
+                        getCarContext().getString(R.string.sign_in_with_google_toast_msg),
+                        LENGTH_LONG)
                 .show();
     }
 
     private MessageTemplate getSignInCompletedMessageTemplate() {
-        return new MessageTemplate.Builder("You are signed in!")
-                .setTitle("Sign in completed")
+        return new MessageTemplate.Builder(
+                getCarContext().getString(R.string.sign_in_complete_text))
+                .setTitle(getCarContext().getString(R.string.sign_in_complete_title))
                 .setHeaderAction(Action.BACK)
                 .addAction(new Action.Builder()
-                        .setTitle("Sign out")
+                        .setTitle(getCarContext().getString(R.string.sign_out_action_title))
                         .setOnClickListener(() -> {
                             mState = State.USERNAME;
                             invalidate();
                         })
                         .build())
                 .build();
+    }
+
+    private enum State {
+        USERNAME,
+        PASSWORD,
+        PIN,
+        PROVIDER,
+        QR_CODE,
+        SIGNED_IN,
     }
 
 }

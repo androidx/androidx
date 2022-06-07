@@ -41,8 +41,8 @@ import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.core.Log
-import kotlinx.atomicfu.atomic
 import javax.inject.Inject
+import kotlinx.atomicfu.atomic
 
 private val streamIds = atomic(0)
 internal fun nextStreamId(): StreamId = StreamId(streamIds.incrementAndGet())

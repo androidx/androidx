@@ -33,12 +33,12 @@ import kotlin.math.roundToInt
 internal object RangeIcons {
 
     /**
-     * An [Icon] with a minus sign.
+     * An [ImageVector] with a minus sign.
      */
-    val MinusIcon: ImageVector
-        get() = if (_minusIcon != null) _minusIcon!!
+    val Minus: ImageVector
+        get() = if (_minus != null) _minus!!
         else {
-            _minusIcon = materialIcon(name = "MinusIcon") {
+            _minus = materialIcon(name = "MinusIcon") {
                 materialPath {
                     moveTo(19.0f, 13.0f)
                     horizontalLineTo(5.0f)
@@ -48,10 +48,10 @@ internal object RangeIcons {
                     close()
                 }
             }
-            _minusIcon!!
+            _minus!!
         }
 
-    private var _minusIcon: ImageVector? = null
+    private var _minus: ImageVector? = null
 }
 
 /**
@@ -105,3 +105,5 @@ internal fun Modifier.rangeSemantics(
     RangeDefaults.calculateCurrentStepValue(step, steps, valueRange),
     valueRange, steps
 )
+
+internal fun IntProgression.stepsNumber(): Int = (last - first) / step - 1

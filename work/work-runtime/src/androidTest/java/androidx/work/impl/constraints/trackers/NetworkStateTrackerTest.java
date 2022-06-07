@@ -15,6 +15,9 @@
  */
 package androidx.work.impl.constraints.trackers;
 
+import static androidx.work.impl.constraints.trackers.NetworkStateTrackerKt.NetworkStateTracker;
+import static androidx.work.impl.constraints.trackers.NetworkStateTrackerKt.isActiveNetworkValidated;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,7 +47,7 @@ import org.mockito.ArgumentCaptor;
 @RunWith(AndroidJUnit4.class)
 public class NetworkStateTrackerTest {
 
-    private NetworkStateTracker mTracker;
+    private ConstraintTracker<NetworkState> mTracker;
 
     private Context mMockContext;
     private ConnectivityManager mMockConnectivityManager;
@@ -57,8 +60,7 @@ public class NetworkStateTrackerTest {
         when(mMockContext.getApplicationContext()).thenReturn(mMockContext);
         when(mMockContext.getSystemService(eq(Context.CONNECTIVITY_SERVICE)))
                 .thenReturn(mMockConnectivityManager);
-
-        mTracker = new NetworkStateTracker(mMockContext, new InstantWorkTaskExecutor());
+        mTracker = NetworkStateTracker(mMockContext, new InstantWorkTaskExecutor());
     }
 
     @Test
@@ -125,6 +127,6 @@ public class NetworkStateTrackerTest {
         when(mMockConnectivityManager.getActiveNetwork()).thenReturn(activeNetwork);
         when(mMockConnectivityManager.getNetworkCapabilities(activeNetwork))
                 .thenThrow(new SecurityException("Exception"));
-        assertThat(mTracker.isActiveNetworkValidated(), is(false));
+        assertThat(isActiveNetworkValidated(mMockConnectivityManager), is(false));
     }
 }

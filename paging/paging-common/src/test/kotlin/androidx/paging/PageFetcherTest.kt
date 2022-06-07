@@ -20,11 +20,16 @@ import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
 import androidx.paging.PagingSource.LoadResult.Page
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,27 +37,28 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.TestCoroutineScope
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runCurrent
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertNotEquals
-import kotlin.test.assertTrue
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
 @RunWith(JUnit4::class)
 class PageFetcherTest {
-    private val testScope = TestCoroutineScope()
+    private val testScope = TestScope(UnconfinedTestDispatcher())
     private val pagingSourceFactory = suspend { TestPagingSource() }
     private val config = PagingConfig(
         pageSize = 1,
@@ -63,7 +69,7 @@ class PageFetcherTest {
     )
 
     @Test
-    fun initialize() = testScope.runBlockingTest {
+    fun initialize() = testScope.runTest {
         val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
@@ -75,7 +81,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun refresh() = testScope.runBlockingTest {
+    fun refresh() = testScope.runTest {
         val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
 
@@ -93,8 +99,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun refresh_sourceEndOfPaginationReached() = testScope.runBlockingTest {
-        @OptIn(ExperimentalPagingApi::class)
+    fun refresh_sourceEndOfPaginationReached() = testScope.runTest {
         val pageFetcher = PageFetcher(
             pagingSourceFactory = { TestPagingSource(items = emptyList()) },
             initialKey = 0,
@@ -116,8 +121,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun refresh_remoteEndOfPaginationReached() = testScope.runBlockingTest {
-        @OptIn(ExperimentalPagingApi::class)
+    fun refresh_remoteEndOfPaginationReached() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock().apply {
             initializeResult = LAUNCH_INITIAL_REFRESH
             loadCallback = { _, _ ->
@@ -148,7 +152,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun refresh_fromPagingSource() = testScope.runBlockingTest {
+    fun refresh_fromPagingSource() = testScope.runTest {
         var pagingSource: PagingSource<Int, Int>? = null
         val pagingSourceFactory = suspend {
             TestPagingSource().also { pagingSource = it }
@@ -173,7 +177,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun refresh_callsInvalidate() = testScope.runBlockingTest {
+    fun refresh_callsInvalidate() = testScope.runTest {
         var pagingSource: PagingSource<Int, Int>? = null
         val pagingSourceFactory = suspend {
             TestPagingSource().also { pagingSource = it }
@@ -199,50 +203,50 @@ class PageFetcherTest {
     }
 
     @Test
-    fun refresh_invalidatePropagatesThroughLoadResultInvalid() =
-        testScope.runBlockingTest {
-            val pagingSources = mutableListOf<TestPagingSource>()
-            val pageFetcher = PageFetcher(
-                pagingSourceFactory = {
-                    TestPagingSource().also {
-                        // make this initial load return LoadResult.Invalid to see if new paging
-                        // source is generated
-                        if (pagingSources.size == 0) it.nextLoadResult = LoadResult.Invalid()
-                        pagingSources.add(it)
-                    }
-                },
-                initialKey = 50,
-                config = config,
-            )
+    fun refresh_invalidatePropagatesThroughLoadResultInvalid() = testScope.runTest {
+        val pagingSources = mutableListOf<TestPagingSource>()
+        val pageFetcher = PageFetcher(
+            pagingSourceFactory = {
+                TestPagingSource().also {
+                    // make this initial load return LoadResult.Invalid to see if new paging
+                    // source is generated
+                    if (pagingSources.size == 0) it.nextLoadResult = LoadResult.Invalid()
+                    it.getRefreshKeyResult = 30
+                    pagingSources.add(it)
+                }
+            },
+            initialKey = 50,
+            config = config,
+        )
 
-            val fetcherState = collectFetcherState(pageFetcher)
-            advanceUntilIdle()
+        val fetcherState = collectFetcherState(pageFetcher)
+        advanceUntilIdle()
 
-            // should have two PagingData returned, one for each paging source
-            assertThat(fetcherState.pagingDataList.size).isEqualTo(2)
+        // should have two PagingData returned, one for each paging source
+        assertThat(fetcherState.pagingDataList.size).isEqualTo(2)
 
-            // First PagingData only returns a loading state because invalidation prevents load
-            // completion
-            assertTrue(pagingSources[0].invalid)
-            assertThat(fetcherState.pageEventLists[0]).containsExactly(
-                localLoadStateUpdate<Int>(refreshLocal = Loading)
-            )
-            // previous load() returning LoadResult.Invalid should trigger a new paging source
-            // retrying with the same load params, this should return a refresh starting
-            // from key = 50
-            assertTrue(!pagingSources[1].invalid)
-            assertThat(fetcherState.pageEventLists[1]).containsExactly(
-                localLoadStateUpdate<Int>(refreshLocal = Loading),
-                createRefresh(50..51)
-            )
+        // First PagingData only returns a loading state because invalidation prevents load
+        // completion
+        assertTrue(pagingSources[0].invalid)
+        assertThat(fetcherState.pageEventLists[0]).containsExactly(
+            localLoadStateUpdate<Int>(refreshLocal = Loading)
+        )
+        // previous load() returning LoadResult.Invalid should trigger a new paging source
+        // retrying with the same load params, this should return a refresh starting
+        // from getRefreshKey() = 30
+        assertTrue(!pagingSources[1].invalid)
+        assertThat(fetcherState.pageEventLists[1]).containsExactly(
+            localLoadStateUpdate<Int>(refreshLocal = Loading),
+            createRefresh(30..31)
+        )
 
-            assertThat(pagingSources[0]).isNotEqualTo(pagingSources[1])
-            fetcherState.job.cancel()
-        }
+        assertThat(pagingSources[0]).isNotEqualTo(pagingSources[1])
+        fetcherState.job.cancel()
+    }
 
     @Test
     fun append_invalidatePropagatesThroughLoadResultInvalid() =
-        testScope.runBlockingTest {
+        testScope.runTest {
             val pagingSources = mutableListOf<TestPagingSource>()
             val pageFetcher = PageFetcher(
                 pagingSourceFactory = { TestPagingSource().also { pagingSources.add(it) } },
@@ -295,7 +299,7 @@ class PageFetcherTest {
 
     @Test
     fun prepend_invalidatePropagatesThroughLoadResultInvalid() =
-        testScope.runBlockingTest {
+        testScope.runTest {
             val pagingSources = mutableListOf<TestPagingSource>()
             val pageFetcher = PageFetcher(
                 pagingSourceFactory = { TestPagingSource().also { pagingSources.add(it) } },
@@ -346,7 +350,7 @@ class PageFetcherTest {
         }
 
     @Test
-    fun refresh_closesCollection() = testScope.runBlockingTest {
+    fun refresh_closesCollection() = testScope.runTest {
         val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
 
         var pagingDataCount = 0
@@ -376,7 +380,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun refresh_closesUncollectedPageEventCh() = testScope.runBlockingTest {
+    fun refresh_closesUncollectedPageEventCh() = testScope.runTest {
         val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
 
         val pagingDatas = mutableListOf<PagingData<Int>>()
@@ -407,7 +411,7 @@ class PageFetcherTest {
         advanceUntilIdle()
 
         assertEquals(3, pagingDatas.size)
-        pauseDispatcher {
+        withContext(coroutineContext) {
             // This should complete immediately without advanceUntilIdle().
             val deferred = async { pagingDatas[1].flow.collect { } }
             deferred.await()
@@ -418,7 +422,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun invalidate_unregistersListener() = testScope.runBlockingTest {
+    fun invalidate_unregistersListener() = testScope.runTest {
         var i = 0
         val pagingSources = mutableListOf<PagingSource<Int, Int>>()
         val pageFetcher = PageFetcher(
@@ -463,7 +467,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun collectTwice() = testScope.runBlockingTest {
+    fun collectTwice() = testScope.runTest {
         val pageFetcher = PageFetcher(pagingSourceFactory, 50, config)
         val fetcherState = collectFetcherState(pageFetcher)
         val fetcherState2 = collectFetcherState(pageFetcher)
@@ -478,8 +482,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun remoteMediator_initializeSkip() = testScope.runBlockingTest {
-        @OptIn(ExperimentalPagingApi::class)
+    fun remoteMediator_initializeSkip() = testScope.runTest {
         val remoteMediatorMock = RemoteMediatorMock().apply {
             initializeResult = SKIP_INITIAL_REFRESH
         }
@@ -501,8 +504,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun remoteMediator_initializeLaunch() = testScope.runBlockingTest {
-        @OptIn(ExperimentalPagingApi::class)
+    fun remoteMediator_initializeLaunch() = testScope.runTest {
         val remoteMediatorMock = RemoteMediatorMock().apply {
             initializeResult = LAUNCH_INITIAL_REFRESH
         }
@@ -524,7 +526,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun remoteMediator_load() = testScope.runBlockingTest {
+    fun remoteMediator_load() = testScope.runTest {
         val remoteMediatorMock = RemoteMediatorMock()
         val pageFetcher = PageFetcher(pagingSourceFactory, 97, config, remoteMediatorMock)
         val fetcherState = collectFetcherState(pageFetcher)
@@ -555,8 +557,8 @@ class PageFetcherTest {
     }
 
     @Test
-    fun jump() = testScope.runBlockingTest {
-        pauseDispatcher {
+    fun jump() = testScope.runTest {
+        withContext(coroutineContext) {
             val pagingSources = mutableListOf<PagingSource<Int, Int>>()
             val pagingSourceFactory = suspend {
                 TestPagingSource().also { pagingSources.add(it) }
@@ -574,8 +576,8 @@ class PageFetcherTest {
 
             advanceUntilIdle()
             assertThat(fetcherState.newEvents()).isEqualTo(
-                listOf<PageEvent<Int>>(
-                    localLoadStateUpdate<Int>(refreshLocal = Loading),
+                listOf(
+                    localLoadStateUpdate(refreshLocal = Loading),
                     createRefresh(range = 50..51)
                 )
             )
@@ -597,8 +599,8 @@ class PageFetcherTest {
             // Assert no new events added to current generation
             assertEquals(2, fetcherState.pageEventLists[0].size)
             assertThat(fetcherState.newEvents()).isEqualTo(
-                listOf<PageEvent<Int>>(
-                    localLoadStateUpdate<Int>(refreshLocal = Loading),
+                listOf(
+                    localLoadStateUpdate(refreshLocal = Loading),
                     createRefresh(range = 50..51)
                 )
             )
@@ -620,8 +622,8 @@ class PageFetcherTest {
             // Assert no new events added to current generation
             assertEquals(2, fetcherState.pageEventLists[1].size)
             assertThat(fetcherState.newEvents()).isEqualTo(
-                listOf<PageEvent<Int>>(
-                    localLoadStateUpdate<Int>(refreshLocal = Loading),
+                listOf(
+                    localLoadStateUpdate(refreshLocal = Loading),
                     createRefresh(range = 50..51)
                 )
             )
@@ -631,8 +633,8 @@ class PageFetcherTest {
     }
 
     @Test
-    fun checksFactoryForNewInstance() = testScope.runBlockingTest {
-        pauseDispatcher {
+    fun checksFactoryForNewInstance() = testScope.runTest {
+        withContext(coroutineContext) {
             val pagingSource = TestPagingSource()
             val config = PagingConfig(
                 pageSize = 1,
@@ -660,7 +662,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun pagingSourceInvalidBeforeCallbackAdded() = testScope.runBlockingTest {
+    fun pagingSourceInvalidBeforeCallbackAdded() = testScope.runTest {
         var invalidatesFromAdapter = 0
         var i = 0
         var pagingSource: TestPagingSource? = null
@@ -696,7 +698,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun pagingSourceInvalidBeforeCallbackAddedCancelsInitialLoad() = testScope.runBlockingTest {
+    fun pagingSourceInvalidBeforeCallbackAddedCancelsInitialLoad() = testScope.runTest {
         val pagingSources = mutableListOf<PagingSource<Int, Int>>()
         val loadedPages = mutableListOf<Page<Int, Int>>()
 
@@ -731,6 +733,7 @@ class PageFetcherTest {
 
         // First PagingSource starts immediately invalid and creates a new PagingSource, but does
         // not finish initial page load.
+        runCurrent()
         assertThat(pagingSources).hasSize(2)
         assertThat(pagingSources[0].invalid).isTrue()
         assertThat(loadedPages).hasSize(0)
@@ -745,9 +748,8 @@ class PageFetcherTest {
         job.cancel()
     }
 
-    @OptIn(ExperimentalPagingApi::class)
     @Test
-    fun cachesPreviousPagingStateOnEmptyPages() = testScope.runBlockingTest {
+    fun cachesPreviousPagingStateOnEmptyPages() = testScope.runTest {
         val config = PagingConfig(
             pageSize = 1,
             prefetchDistance = 1,
@@ -760,7 +762,9 @@ class PageFetcherTest {
         }
         val pageFetcher = PageFetcher(
             pagingSourceFactory = suspend {
-                TestPagingSource(loadDelay = 1000)
+                TestPagingSource(loadDelay = 1000).also {
+                    it.getRefreshKeyResult = 30
+                }
             },
             initialKey = 50,
             config = config,
@@ -768,7 +772,7 @@ class PageFetcherTest {
         )
 
         var receiver: UiReceiver? = null
-        val job = launch() {
+        val job = launch {
             pageFetcher.flow.collectLatest {
                 receiver = it.receiver
                 it.flow.collect { }
@@ -847,9 +851,8 @@ class PageFetcherTest {
         job.cancel()
     }
 
-    @OptIn(ExperimentalPagingApi::class)
     @Test
-    fun cachesPreviousPagingStateOnNullHint() = testScope.runBlockingTest {
+    fun cachesPreviousPagingStateOnNullHint() = testScope.runTest {
         val config = PagingConfig(
             pageSize = 1,
             prefetchDistance = 1,
@@ -862,7 +865,9 @@ class PageFetcherTest {
         }
         val pageFetcher = PageFetcher(
             pagingSourceFactory = suspend {
-                TestPagingSource(loadDelay = 1000)
+                TestPagingSource(loadDelay = 1000).also {
+                    it.getRefreshKeyResult = 30
+                }
             },
             initialKey = 50,
             config = config,
@@ -870,7 +875,7 @@ class PageFetcherTest {
         )
 
         var receiver: UiReceiver? = null
-        val job = launch() {
+        val job = launch {
             pageFetcher.flow.collectLatest {
                 receiver = it.receiver
                 it.flow.collect { }
@@ -948,8 +953,47 @@ class PageFetcherTest {
     }
 
     @Test
-    fun invalidateBeforeAccessPreservesPagingState() = testScope.runBlockingTest {
-        pauseDispatcher {
+    fun invalidate_prioritizesGetRefreshKeyReturningNull() = testScope.runTest {
+        val loadRequests = mutableListOf<LoadParams<Int>>()
+        val pageFetcher = PageFetcher(
+            config = PagingConfig(pageSize = 1),
+            initialKey = 0,
+            pagingSourceFactory = {
+                object : PagingSource<Int, Int>() {
+                    override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Int> {
+                        loadRequests.add(params)
+                        return LoadResult.Error(Exception("ignored"))
+                    }
+
+                    override fun getRefreshKey(state: PagingState<Int, Int>): Int? {
+                        // Should prioritize `null` returned here on invalidation.
+                        return null
+                    }
+                }
+            }
+        )
+
+        val job = launch {
+            pageFetcher.flow.collectLatest {
+                it.flow.collect { }
+            }
+        }
+
+        advanceUntilIdle()
+        assertThat(loadRequests).hasSize(1)
+        assertThat(loadRequests[0].key).isEqualTo(0)
+
+        pageFetcher.refresh()
+        advanceUntilIdle()
+        assertThat(loadRequests).hasSize(2)
+        assertThat(loadRequests[1].key).isEqualTo(null)
+
+        job.cancel()
+    }
+
+    @Test
+    fun invalidateBeforeAccessPreservesPagingState() = testScope.runTest {
+        withContext(coroutineContext) {
             val config = PagingConfig(
                 pageSize = 1,
                 prefetchDistance = 1,
@@ -968,7 +1012,7 @@ class PageFetcherTest {
             )
 
             lateinit var pagingData: PagingData<Int>
-            val job = launch() {
+            val job = launch {
                 pageFetcher.flow.collectLatest {
                     pagingData = it
                     it.flow.collect { }
@@ -1070,8 +1114,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun refresh_sourceEndOfPaginationReached_loadStates() = testScope.runBlockingTest {
-        @OptIn(ExperimentalPagingApi::class)
+    fun refresh_sourceEndOfPaginationReached_loadStates() = testScope.runTest {
         val pageFetcher = PageFetcher(
             pagingSourceFactory = { TestPagingSource(items = emptyList()) },
             initialKey = 0,
@@ -1103,8 +1146,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun refresh_remoteEndOfPaginationReached_loadStates() = testScope.runBlockingTest {
-        @OptIn(ExperimentalPagingApi::class)
+    fun refresh_remoteEndOfPaginationReached_loadStates() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock().apply {
             initializeResult = LAUNCH_INITIAL_REFRESH
             loadCallback = { _, _ ->
@@ -1174,8 +1216,7 @@ class PageFetcherTest {
      * Check that rapid remote events are not dropped and don't cause redundant events.
      */
     @Test
-    fun injectRemoteEvents_fastRemoteEvents() = testScope.runBlockingTest {
-        @OptIn(ExperimentalPagingApi::class)
+    fun injectRemoteEvents_fastRemoteEvents() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock().apply {
             initializeResult = LAUNCH_INITIAL_REFRESH
             loadCallback = { _, _ ->
@@ -1222,12 +1263,12 @@ class PageFetcherTest {
         fetcherState.job.cancel()
     }
 
+    @Suppress("DEPRECATION") // b/220884819
     @Test
-    fun injectRemoteEvents_remoteLoadAcrossGenerations() = testScope.runBlockingTest {
+    fun injectRemoteEvents_remoteLoadAcrossGenerations() = runBlockingTest {
         val neverEmitCh = Channel<Int>()
         var generation = 0
 
-        @OptIn(ExperimentalPagingApi::class)
         val pageFetcher = PageFetcher(
             pagingSourceFactory = {
                 generation++
@@ -1409,8 +1450,7 @@ class PageFetcherTest {
     }
 
     @Test
-    fun injectRemoteEvents_doesNotKeepOldGenerationActive() = testScope.runBlockingTest {
-        @OptIn(ExperimentalPagingApi::class)
+    fun injectRemoteEvents_doesNotKeepOldGenerationActive() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock().apply {
             initializeResult = LAUNCH_INITIAL_REFRESH
             loadCallback = { _, _ ->
@@ -1442,8 +1482,7 @@ class PageFetcherTest {
      * See b/183345509
      */
     @Test
-    fun remoteRefreshTriggeredDespiteImmediateInvalidation() = testScope.runBlockingTest {
-        @OptIn(ExperimentalPagingApi::class)
+    fun remoteRefreshTriggeredDespiteImmediateInvalidation() = testScope.runTest {
         val remoteMediator = RemoteMediatorMock().apply {
             initializeResult = LAUNCH_INITIAL_REFRESH
             loadCallback = { _, _ ->

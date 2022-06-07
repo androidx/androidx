@@ -1,0 +1,15 @@
+// Signature format: 4.0
+package androidx.lifecycle.compose {
+
+  @kotlin.RequiresOptIn(message="This is an experimental Lifecycle Compose API.") @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface ExperimentalLifecycleComposeApi {
+  }
+
+  public final class FlowExtKt {
+    method @androidx.compose.runtime.Composable @androidx.lifecycle.compose.ExperimentalLifecycleComposeApi public static <T> androidx.compose.runtime.State<T> collectAsStateWithLifecycle(kotlinx.coroutines.flow.StateFlow<? extends T>, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, optional androidx.lifecycle.Lifecycle.State minActiveState, optional kotlin.coroutines.CoroutineContext context);
+    method @androidx.compose.runtime.Composable @androidx.lifecycle.compose.ExperimentalLifecycleComposeApi public static <T> androidx.compose.runtime.State<T> collectAsStateWithLifecycle(kotlinx.coroutines.flow.StateFlow<? extends T>, androidx.lifecycle.Lifecycle lifecycle, optional androidx.lifecycle.Lifecycle.State minActiveState, optional kotlin.coroutines.CoroutineContext context);
+    method @androidx.compose.runtime.Composable @androidx.lifecycle.compose.ExperimentalLifecycleComposeApi public static <T> androidx.compose.runtime.State<T> collectAsStateWithLifecycle(kotlinx.coroutines.flow.Flow<? extends T>, T? initialValue, optional androidx.lifecycle.LifecycleOwner lifecycleOwner, optional androidx.lifecycle.Lifecycle.State minActiveState, optional kotlin.coroutines.CoroutineContext context);
+    method @androidx.compose.runtime.Composable @androidx.lifecycle.compose.ExperimentalLifecycleComposeApi public static <T> androidx.compose.runtime.State<T> collectAsStateWithLifecycle(kotlinx.coroutines.flow.Flow<? extends T>, T? initialValue, androidx.lifecycle.Lifecycle lifecycle, optional androidx.lifecycle.Lifecycle.State minActiveState, optional kotlin.coroutines.CoroutineContext context);
+  }
+
+}
+

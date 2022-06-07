@@ -25,23 +25,30 @@ import android.view.Display;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.camera2.internal.compat.workaround.MaxPreviewSize;
 
 /**
  * A singleton class to retrieve display related information.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class DisplayInfoManager {
+public class DisplayInfoManager {
     private static final Size MAX_PREVIEW_SIZE = new Size(1920, 1080);
     private static final Object INSTANCE_LOCK = new Object();
     private static volatile DisplayInfoManager sInstance;
     @NonNull
     private final DisplayManager mDisplayManager;
     private volatile Size mPreviewSize = null;
+    private final MaxPreviewSize mMaxPreviewSize = new MaxPreviewSize();
+
     private DisplayInfoManager(@NonNull Context context) {
         mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
     }
 
-    static DisplayInfoManager getInstance(Context context) {
+    /**
+     * Gets the singleton instance of DisplayInfoManager.
+     */
+    @NonNull
+    public static DisplayInfoManager getInstance(@NonNull Context context) {
         if (sInstance == null) {
             synchronized (INSTANCE_LOCK) {
                 if (sInstance == null) {
@@ -72,7 +79,7 @@ class DisplayInfoManager {
      */
     @SuppressWarnings("deprecation") /* getRealSize */
     @NonNull
-    Display getMaxSizeDisplay() {
+    public Display getMaxSizeDisplay() {
         Display[] displays = mDisplayManager.getDisplays();
         if (displays.length == 1) {
             return displays[0];
@@ -81,11 +88,13 @@ class DisplayInfoManager {
         Display maxDisplay = null;
         int maxDisplaySize = -1;
         for (Display display : displays) {
-            Point displaySize = new Point();
-            display.getRealSize(displaySize);
-            if (displaySize.x * displaySize.y > maxDisplaySize) {
-                maxDisplaySize = displaySize.x * displaySize.y;
-                maxDisplay = display;
+            if (display.getState() != Display.STATE_OFF) {
+                Point displaySize = new Point();
+                display.getRealSize(displaySize);
+                if (displaySize.x * displaySize.y > maxDisplaySize) {
+                    maxDisplaySize = displaySize.x * displaySize.y;
+                    maxDisplay = display;
+                }
             }
         }
 
@@ -125,9 +134,8 @@ class DisplayInfoManager {
 
         if (displayViewSize.getWidth() * displayViewSize.getHeight()
                 > MAX_PREVIEW_SIZE.getWidth() * MAX_PREVIEW_SIZE.getHeight()) {
-            return MAX_PREVIEW_SIZE;
-        } else {
-            return displayViewSize;
+            displayViewSize = MAX_PREVIEW_SIZE;
         }
+        return mMaxPreviewSize.getMaxPreviewResolution(displayViewSize);
     }
 }

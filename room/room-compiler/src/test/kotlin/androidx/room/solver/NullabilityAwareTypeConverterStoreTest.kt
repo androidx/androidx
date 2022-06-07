@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.Context.BooleanProcessorOptions.USE_NULL_AWARE_CONVERTER
 import androidx.room.processor.CustomConverterProcessor
@@ -123,7 +124,8 @@ class NullabilityAwareTypeConverterStoreTest {
             MyClass? to String!: nullableMyClassToNullableString / checkNotNull(String?)
             String! to MyClass!: (String! as String?) / nullableStringToNullableMyClass / checkNotNull(MyClass?)
             MyClass! to String!: (MyClass! as MyClass?) / nullableMyClassToNullableString / checkNotNull(String?)
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -144,7 +146,8 @@ class NullabilityAwareTypeConverterStoreTest {
             MyClass? to Cursor: nullableMyClassToNullableString
             Cursor to MyClass!: nullableStringToNullableMyClass / checkNotNull(MyClass?)
             MyClass! to Cursor: (MyClass! as MyClass?) / nullableMyClassToNullableString
-            """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     @Test
@@ -667,6 +670,118 @@ class NullabilityAwareTypeConverterStoreTest {
                 assertThat(fromCursor?.to).isEqualTo(byteArray.makeNonNullable())
                 assertThat(fromCursor?.from).isEqualTo(string.makeNonNullable())
             }
+        }
+    }
+
+    /**
+     * Repro for b/206961709
+     * Often times, user will provide type converters that convert user type to database type.
+     * This does not mean that two types that can be converted into db types can be converted into
+     * each-other. e.g. if you can serialize TypeA and TypeB to String, it doesn't mean you can
+     * convert TypeA to TypeB.
+     */
+    @Test
+    fun dontAssumeUserTypesCanBeConvertedIntoEachOther() {
+        val converters = Source.kotlin(
+            "Converters.kt",
+            """
+            import androidx.room.*
+            class TypeA
+            class TypeB
+            object MyConverters {
+                @TypeConverter
+                fun nullableStringToTypeA(input: String?): TypeA { TODO() }
+                @TypeConverter
+                fun nullableTypeAToString(input: TypeA): String { TODO() }
+                @TypeConverter
+                fun nullableTypeBToNullableString(input: TypeB?): String? { TODO() }
+                @TypeConverter
+                fun nullableStringToNullableTypeB(input: String?): TypeB? { TODO() }
+            }
+        """.trimIndent()
+        )
+        runKspTest(
+            sources = listOf(converters),
+            options = mapOf(
+                USE_NULL_AWARE_CONVERTER.argName to "true"
+            )
+        ) { invocation ->
+            val store = invocation.createStore("MyConverters")
+            val aType = invocation.processingEnv.requireType("TypeA")
+            val bType = invocation.processingEnv.requireType("TypeB")
+            val stringType = invocation.processingEnv.requireType("java.lang.String")
+            assertThat(
+                store.findTypeConverter(
+                    aType,
+                    bType
+                )?.toSignature()
+            ).isNull()
+            assertThat(
+                store.findTypeConverter(
+                    bType,
+                    aType
+                )?.toSignature()
+            ).isNull()
+            assertThat(
+                store.findTypeConverter(
+                    input = bType.makeNonNullable(),
+                    output = stringType
+                )?.toSignature()
+            ).isEqualTo(
+                """
+                (TypeB! as TypeB?) / nullableTypeBToNullableString / checkNotNull(String?)
+                """.trimIndent()
+            )
+        }
+    }
+
+    @Test // 3P provided test case from https://issuetracker.google.com/issues/206961709#comment4
+    fun dontAssumeTypesCanBeConvertedUserCase() {
+        val source = Source.kotlin(
+            "Foo.kt", """
+            import androidx.room.*
+            import java.time.Instant
+            enum class Awesomeness {
+                AWESOME,
+                SUPER_DUPER_AWESOME,
+            }
+            @TypeConverters(
+                TimeConverter::class,
+                AwesomenessConverter::class,
+            )
+            class TimeConverter {
+                @TypeConverter
+                fun instantToValue(value: Instant?): String? { TODO() }
+
+                @TypeConverter
+                fun valueToInstant(value: String?): Instant? { TODO() }
+            }
+
+            class AwesomenessConverter {
+                @TypeConverter
+                fun awesomenessToValue(value: Awesomeness): String { TODO() }
+
+                @TypeConverter
+                fun valueToAwesomeness(value: String?): Awesomeness { TODO() }
+            }
+        """.trimIndent()
+        )
+        runKspTest(
+            sources = listOf(source)
+        ) { invocation ->
+            val store = invocation.createStore(
+                "TimeConverter", "AwesomenessConverter"
+            )
+            val instantType = invocation.processingEnv.requireType("java.time.Instant")
+            val stringType = invocation.processingEnv.requireType("java.lang.String")
+            assertThat(
+                store.findTypeConverter(
+                    input = instantType,
+                    output = stringType
+                )?.toSignature()
+            ).isEqualTo(
+                "(Instant! as Instant?) / instantToValue / checkNotNull(String?)"
+            )
         }
     }
 

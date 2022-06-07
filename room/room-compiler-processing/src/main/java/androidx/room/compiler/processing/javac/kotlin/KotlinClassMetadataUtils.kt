@@ -41,7 +41,6 @@ import kotlinx.metadata.jvm.JvmMethodSignature
 import kotlinx.metadata.jvm.JvmPropertyExtensionVisitor
 import kotlinx.metadata.jvm.JvmTypeExtensionVisitor
 import kotlinx.metadata.jvm.KotlinClassMetadata
-import java.util.Locale
 
 // represents a function or constructor
 internal interface KmExecutable {
@@ -300,7 +299,7 @@ private class PropertyReader(
                             )
                             KmFunction(
                                 jvmName = setterSignature.name,
-                                name = computeSetterName(name),
+                                name = JvmAbi.computeSetterName(name),
                                 descriptor = setterSignature.asString(),
                                 flags = 0,
                                 parameters = listOf(param),
@@ -311,7 +310,7 @@ private class PropertyReader(
                         getter = getter?.let { getterSignature ->
                             KmFunction(
                                 jvmName = getterSignature.name,
-                                name = computeGetterName(name),
+                                name = JvmAbi.computeGetterName(name),
                                 descriptor = getterSignature.asString(),
                                 flags = flags,
                                 parameters = emptyList(),
@@ -502,44 +501,6 @@ private class TypeParameterReader(
         return TypeReader(flags) {
             upperBound = it
         }
-    }
-}
-
-/**
- * Computes the getter name based on the property. Note that this might be different than the
- * JVM name for internal properties.
- * See: https://kotlinlang.org/docs/java-to-kotlin-interop.html#properties
- */
-internal fun computeGetterName(
-    propName: String
-): String {
-    return if (propName.startsWith("is")) {
-        propName
-    } else {
-        val capitalizedName = propName.replaceFirstChar {
-            if (it.isLowerCase()) it.titlecase(
-                Locale.US
-            ) else it.toString()
-        }
-        "get$capitalizedName"
-    }
-}
-
-/**
- * Computes the getter name based on the property. Note that this might be different than the
- * JVM name for internal properties.
- * See: https://kotlinlang.org/docs/java-to-kotlin-interop.html#properties
- */
-internal fun computeSetterName(propName: String): String {
-    return if (propName.startsWith("is")) {
-        "set${propName.substring(2)}"
-    } else {
-        val capitalizedName = propName.replaceFirstChar {
-            if (it.isLowerCase()) it.titlecase(
-                Locale.US
-            ) else it.toString()
-        }
-        "set$capitalizedName"
     }
 }
 

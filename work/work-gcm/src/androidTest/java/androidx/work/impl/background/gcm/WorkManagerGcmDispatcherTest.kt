@@ -26,9 +26,10 @@ import androidx.test.filters.MediumTest
 import androidx.work.Configuration
 import androidx.work.OneTimeWorkRequest
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.WorkTimer
+import androidx.work.impl.utils.taskexecutor.SerialExecutor
 import com.google.android.gms.gcm.GcmNetworkManager
 import com.google.android.gms.gcm.TaskParams
 import org.junit.Before
@@ -74,10 +75,7 @@ class WorkManagerGcmDispatcherTest {
 
         val workTaskExecutor: androidx.work.impl.utils.taskexecutor.TaskExecutor =
             object : androidx.work.impl.utils.taskexecutor.TaskExecutor {
-                private val mSerialExecutor = SerialExecutor(mExecutor)
-                override fun postToMainThread(runnable: Runnable) {
-                    mExecutor.execute(runnable)
-                }
+                private val mSerialExecutor = SerialExecutorImpl(mExecutor)
 
                 override fun getMainThreadExecutor(): Executor {
                     return mExecutor
@@ -95,8 +93,8 @@ class WorkManagerGcmDispatcherTest {
 
         mWorkManager = WorkManagerImpl(mContext, configuration, workTaskExecutor, true)
         WorkManagerImpl.setDelegate(mWorkManager)
-        mWorkTimer = spy(WorkTimer())
-        mDispatcher = WorkManagerGcmDispatcher(mContext, mWorkTimer)
+        mWorkTimer = spy(WorkTimer(configuration.runnableScheduler))
+        mDispatcher = WorkManagerGcmDispatcher(mWorkManager, mWorkTimer)
     }
 
     @Test

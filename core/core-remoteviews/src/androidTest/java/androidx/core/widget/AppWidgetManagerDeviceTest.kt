@@ -171,6 +171,7 @@ class AppWidgetManagerDeviceTest {
         }
     }
 
+    @Suppress("DEPRECATION")
     private fun getSingleWidgetSize(): SizeFCompat {
         val options = mAppWidgetManager.getAppWidgetOptions(mAppWidgetId)
         return if (Build.VERSION.SDK_INT >= 31) {

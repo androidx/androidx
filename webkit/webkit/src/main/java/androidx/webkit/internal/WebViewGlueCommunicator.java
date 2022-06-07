@@ -100,9 +100,10 @@ public class WebViewGlueCommunicator {
     /**
      * Load the WebView code from the WebView APK and return the classloader containing that code.
      */
+    @NonNull
     public static ClassLoader getWebViewClassLoader() {
-        if (Build.VERSION.SDK_INT >= 28) {
-            return WebView.getWebViewClassLoader();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            return ApiHelperForP.getWebViewClassLoader();
         } else {
             return getWebViewProviderFactory().getClass().getClassLoader();
         }

@@ -24,13 +24,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.SystemIdInfoDao;
+import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.IdGenerator;
 
 /**
@@ -48,7 +51,7 @@ class Alarms {
      *
      * @param context         The application {@link Context}.
      * @param workManager     The instance of {@link WorkManagerImpl}.
-     * @param workSpecId      The {@link androidx.work.impl.model.WorkSpec} identifier.
+     * @param workSpecId      The {@link WorkSpec} identifier.
      * @param triggerAtMillis Determines when to trigger the Alarm.
      */
     public static void setAlarm(
@@ -77,7 +80,7 @@ class Alarms {
      *
      * @param context     The application {@link Context}.
      * @param workManager The instance of {@link WorkManagerImpl}.
-     * @param workSpecId  The {@link androidx.work.impl.model.WorkSpec} identifier.
+     * @param workSpecId  The {@link WorkSpec} identifier.
      */
     public static void cancelAlarm(
             @NonNull Context context,
@@ -128,7 +131,7 @@ class Alarms {
         PendingIntent pendingIntent = PendingIntent.getService(context, alarmId, delayMet, flags);
         if (alarmManager != null) {
             if (Build.VERSION.SDK_INT >= 19) {
-                alarmManager.setExact(RTC_WAKEUP, triggerAtMillis, pendingIntent);
+                Api19Impl.setExact(alarmManager, RTC_WAKEUP, triggerAtMillis, pendingIntent);
             } else {
                 alarmManager.set(RTC_WAKEUP, triggerAtMillis, pendingIntent);
             }
@@ -136,5 +139,18 @@ class Alarms {
     }
 
     private Alarms() {
+    }
+
+    @RequiresApi(19)
+    static class Api19Impl {
+        private Api19Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setExact(AlarmManager alarmManager, int type, long triggerAtMillis,
+                PendingIntent operation) {
+            alarmManager.setExact(type, triggerAtMillis, operation);
+        }
     }
 }

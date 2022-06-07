@@ -23,6 +23,7 @@ import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -234,6 +235,16 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
         if (!enabled) {
             reset();
         }
+    }
+
+    @Override
+    public boolean dispatchKeyEvent(@Nullable KeyEvent event) {
+        if (event != null && event.getAction() == KeyEvent.ACTION_UP
+                && event.getKeyCode() == KeyEvent.KEYCODE_REFRESH) {
+            setRefreshingWithoutSwipeGesture(true /* refreshing */, true /* notify */);
+            return true;
+        }
+        return super.dispatchKeyEvent(event);
     }
 
     static class SavedState extends View.BaseSavedState {
@@ -481,21 +492,8 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
      * @param refreshing Whether or not the view should show refresh progress.
      */
     public void setRefreshing(boolean refreshing) {
-        if (refreshing && mRefreshing != refreshing) {
-            // scale and show
-            mRefreshing = refreshing;
-            int endTarget = 0;
-            if (!mUsingCustomStart) {
-                endTarget = mSpinnerOffsetEnd + mOriginalOffsetTop;
-            } else {
-                endTarget = mSpinnerOffsetEnd;
-            }
-            setTargetOffsetTopAndBottom(endTarget - mCurrentTargetOffsetTop);
-            mNotify = false;
-            startScaleUpAnimation(mRefreshListener);
-        } else {
-            setRefreshing(refreshing, false /* notify */);
-        }
+        // Caller doesn't need to be notified as it's already aware of the refresh.
+        setRefreshingWithoutSwipeGesture(refreshing, false /* notify */);
     }
 
     private void startScaleUpAnimation(AnimationListener listener) {
@@ -522,6 +520,24 @@ public class SwipeRefreshLayout extends ViewGroup implements NestedScrollingPare
     void setAnimationProgress(float progress) {
         mCircleView.setScaleX(progress);
         mCircleView.setScaleY(progress);
+    }
+
+    private void setRefreshingWithoutSwipeGesture(boolean refreshing, final boolean notify) {
+        if (refreshing && mRefreshing != refreshing) {
+            // scale and show
+            mRefreshing = refreshing;
+            int endTarget = 0;
+            if (!mUsingCustomStart) {
+                endTarget = mSpinnerOffsetEnd + mOriginalOffsetTop;
+            } else {
+                endTarget = mSpinnerOffsetEnd;
+            }
+            setTargetOffsetTopAndBottom(endTarget - mCurrentTargetOffsetTop);
+            mNotify = notify;
+            startScaleUpAnimation(mRefreshListener);
+        } else {
+            setRefreshing(refreshing, false /* notify */);
+        }
     }
 
     private void setRefreshing(boolean refreshing, final boolean notify) {

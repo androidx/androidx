@@ -32,24 +32,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.LocalContext
 import androidx.glance.action.ActionParameters
-import androidx.glance.action.actionLaunchActivity
 import androidx.glance.action.actionParametersOf
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.action.toParametersKey
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.action.actionLaunchActivity
-import androidx.glance.appwidget.action.actionLaunchBroadcastReceiver
-import androidx.glance.appwidget.action.actionLaunchService
 import androidx.glance.appwidget.action.actionRunCallback
+import androidx.glance.appwidget.action.actionSendBroadcast
+import androidx.glance.appwidget.action.actionStartActivity
+import androidx.glance.appwidget.action.actionStartService
 import androidx.glance.appwidget.appWidgetBackground
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.state.updateAppWidgetState
@@ -61,15 +60,12 @@ import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
-import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 
 class ActionAppWidget : GlanceAppWidget() {
-
-    override val stateDefinition = PreferencesGlanceStateDefinition
 
     @Composable
     override fun Content() {
@@ -85,22 +81,22 @@ class ActionAppWidget : GlanceAppWidget() {
                 SelectableActionItem(label = "Broadcasts", index = 2)
             }
 
-            when (currentState<Preferences>()[selectedItemKey] ?: 0) {
-                0 -> LaunchActivityActions()
-                1 -> LaunchServiceActions()
-                2 -> LaunchBroadcastReceiverActions()
+            when (currentState(SelectedItemKey) ?: 0) {
+                0 -> StartActivityActions()
+                1 -> StartServiceActions()
+                2 -> SendBroadcastActions()
                 else -> throw IllegalArgumentException("Wrong index selected")
             }
         }
     }
 }
 
-private val selectedItemKey = intPreferencesKey("selectedItemKey")
-private val launchMessageKey = ActionParameters.Key<String>("launchMessageKey")
+private val SelectedItemKey = intPreferencesKey("selectedItemKey")
+private val StartMessageKey = ActionParameters.Key<String>("launchMessageKey")
 
 @Composable
 private fun SelectableActionItem(label: String, index: Int) {
-    val style = if (index == currentState<Preferences>()[selectedItemKey] ?: 0) {
+    val style = if (index == (currentState(SelectedItemKey) ?: 0)) {
         TextStyle(
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
@@ -125,7 +121,7 @@ private fun SelectableActionItem(label: String, index: Int) {
             .clickable(
                 actionRunCallback<UpdateAction>(
                     actionParametersOf(
-                        selectedItemKey.toParametersKey() to index
+                        SelectedItemKey.toParametersKey() to index
                     )
                 )
             )
@@ -133,109 +129,110 @@ private fun SelectableActionItem(label: String, index: Int) {
 }
 
 @Composable
-private fun LaunchActivityActions() {
+private fun StartActivityActions() {
     Button(
         text = "Intent",
-        onClick = actionLaunchActivity(
+        onClick = actionStartActivity(
             Intent(LocalContext.current, ActionDemoActivity::class.java)
         )
     )
     Button(
         text = "Target class",
-        onClick = actionLaunchActivity<ActionDemoActivity>(),
+        onClick = actionStartActivity<ActionDemoActivity>(),
     )
     Button(
         text = "Target class with params",
-        onClick = actionLaunchActivity<ActionDemoActivity>(
+        onClick = actionStartActivity<ActionDemoActivity>(
             actionParametersOf(
-                launchMessageKey to "Launch activity by target class"
+                StartMessageKey to "Start activity by target class"
             )
         )
     )
     Button(
         text = "Component name",
-        onClick = actionLaunchActivity(
+        onClick = actionStartActivity(
             ComponentName(LocalContext.current, ActionDemoActivity::class.java)
         )
     )
     Button(
         text = "Component name with params",
-        onClick = actionLaunchActivity(
+        onClick = actionStartActivity(
             ComponentName(LocalContext.current, ActionDemoActivity::class.java),
             actionParametersOf(
-                launchMessageKey to "Launch activity by component name"
+                StartMessageKey to "Start activity by component name"
             )
         )
     )
 }
 
 @Composable
-private fun LaunchServiceActions() {
+private fun StartServiceActions() {
     Button(
         text = "Intent",
-        onClick = actionLaunchService(
+        onClick = actionStartService(
             Intent(LocalContext.current, ActionDemoService::class.java)
         )
     )
     Button(
         text = "Target class",
-        onClick = actionLaunchService<ActionDemoService>()
+        onClick = actionStartService<ActionDemoService>()
     )
     Button(
         text = "In foreground",
-        onClick = actionLaunchService<ActionDemoService>(isForegroundService = true)
+        onClick = actionStartService<ActionDemoService>(isForegroundService = true)
     )
     Button(
         text = "Component name",
-        onClick = actionLaunchService(
+        onClick = actionStartService(
             ComponentName(LocalContext.current, ActionDemoService::class.java)
         )
     )
 }
 
 @Composable
-private fun LaunchBroadcastReceiverActions() {
+private fun SendBroadcastActions() {
     Button(
         text = "Intent",
-        onClick = actionLaunchBroadcastReceiver(
+        onClick = actionSendBroadcast(
             Intent(LocalContext.current, ActionAppWidgetReceiver::class.java)
         )
     )
     Button(
         text = "Action",
-        onClick = actionLaunchBroadcastReceiver(
+        onClick = actionSendBroadcast(
             AppWidgetManager.ACTION_APPWIDGET_UPDATE
         )
     )
     Button(
         text = "Target class",
-        onClick = actionLaunchBroadcastReceiver<ActionAppWidgetReceiver>()
+        onClick = actionSendBroadcast<ActionAppWidgetReceiver>()
     )
     Button(
         text = "Component name",
-        onClick = actionLaunchBroadcastReceiver(
+        onClick = actionSendBroadcast(
             ComponentName(LocalContext.current, ActionAppWidgetReceiver::class.java)
         )
     )
 }
 
 /**
- * Action to update the [selectedItemKey] value whenever users clicks on text
+ * Action to update the [SelectedItemKey] value whenever users clicks on text
  */
 class UpdateAction : ActionCallback {
-    override suspend fun onRun(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        val actionAppWidget = ActionAppWidget()
-        actionAppWidget.updateAppWidgetState<Preferences>(context, glanceId) { prefs ->
-            prefs.toMutablePreferences().apply {
-                this[selectedItemKey] = parameters[selectedItemKey.toParametersKey()] ?: 0
-            }
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId,
+        parameters: ActionParameters
+    ) {
+        updateAppWidgetState(context, glanceId) { state ->
+            state[SelectedItemKey] = parameters[SelectedItemKey.toParametersKey()] ?: 0
         }
-        actionAppWidget.update(context, glanceId)
+        ActionAppWidget().update(context, glanceId)
     }
 }
 
 /**
- * Placeholder activity to launch via [actionLaunchActivity]
+ * Placeholder activity to launch via [actionStartActivity]
  */
 class ActionDemoActivity : ComponentActivity() {
 
@@ -246,7 +243,7 @@ class ActionDemoActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = androidx.compose.ui.Alignment.Center
             ) {
-                val message = intent.getStringExtra(launchMessageKey.name) ?: "Not found"
+                val message = intent.getStringExtra(StartMessageKey.name) ?: "Not found"
                 androidx.compose.material.Text(message)
             }
         }
@@ -255,7 +252,7 @@ class ActionDemoActivity : ComponentActivity() {
 }
 
 /**
- * Placeholder service to launch via [actionLaunchService]
+ * Placeholder service to launch via [actionStartService]
  */
 class ActionDemoService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null

@@ -42,6 +42,11 @@ name `:core:core-role` and directory `/core/core-role`.
 New modules in androidx can be created using the
 [project creator script](#module-creator).
 
+NOTE Modules for OEM-implemented shared libraries (also known as extensions or
+sidecars) that ship on-device and are referenced via the `<uses-library>` tag
+should follow the naming convention `com.android.extensions.<feature-name>` to
+avoid placing `androidx`-packaged code in the platform's boot classpath.
+
 #### Project directory structure {#module-structure}
 
 Libraries developed in AndroidX follow a consistent project naming and directory
@@ -91,6 +96,22 @@ cd ~/androidx-main/frameworks/support && \
 cd development/project-creator && \
 ./create_project.py androidx.foo foo-bar
 ```
+
+If you see an error message `No module named 'toml'` try the following steps.
+
+*   Install necessary tools if they are not already installed
+    *   (Linux) `sudo apt-get install virtualenv python3-venv`
+    *   (Mac) `pip3 install virtualenv`
+*   Create a virtual environment with `virtualenv androidx_project_creator` (you
+    can choose another name for your virtualenv if you wish).
+*   Install the `toml` library in your virtual env with
+    `androidx_project_creator/bin/pip3 install toml`
+*   Run the project creator script from your virtual env with
+    `androidx_project_creator/bin/python3
+    ./development/project-creator/create_project.py androidx.foo foo-bar`
+*   Delete your virtual env with `rm -rf ./androidx-project_creator`
+    *   virtualenv will automatically .gitignore itself, but you may want to to
+        remove it anyway.
 
 #### Common sub-feature names {#module-naming-subfeature}
 
@@ -153,13 +174,13 @@ on libraries within the group. Such groups must increment the version of every
 library at the same time and release all libraries at the same time.
 
 Atomic groups are specified in
-[`LibraryGroups.kt`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:buildSrc/public/src/main/kotlin/androidx/build/LibraryGroups.kt):
+[libraryversions.toml](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:libraryversions.toml):
 
-```kotlin
+```
 // Non-atomic library group
-val APPCOMPAT = LibraryGroup("androidx.appcompat", null)
+APPCOMPAT = { group = "androidx.appcompat" }
 // Atomic library group
-val APPSEARCH = LibraryGroup("androidx.appsearch", LibraryVersions.APPSEARCH)
+APPSEARCH = { group = "androidx.appsearch", atomicGroupVersion = "versions.APPSEARCH" }
 ```
 
 Libraries within an atomic group should not specify a version in their
@@ -780,8 +801,8 @@ different versions of libraries and should be treated similarly to public API.
 
 #### Data structures
 
-**Do not** use Parcelable for any class that may be used for IPC or otherwise
-exposed as public API. The data format used by Parcelable does not provide any
+**Do not** use `Parcelable` for any class that may be used for IPC or otherwise
+exposed as public API. The wire format used by `Parcelable` does not provide any
 compatibility guarantees and will result in crashes if fields are added or
 removed between library versions.
 
@@ -791,10 +812,15 @@ is difficult and error-prone.
 
 Developers **should** use protocol buffers for most cases. See
 [Protobuf](#dependencies-protobuf) for more information on using protocol
-buffers in your library.
+buffers in your library. **Do** use protocol buffers if your data structure is
+complex and likely to change over time. If your data includes `FileDescriptor`s,
+`Binder`s, or other platform-defined `Parcelable` data structures, they will
+need to be stored alongside the protobuf bytes in a `Bundle`.
 
-Developers **may** use `Bundle` in simple cases that require sending `Binder`s
-or `FileDescriptor`s across IPC. Note that `Bundle` has several caveats:
+Developers **may** use `Bundle` in simple cases that require sending `Binder`s,
+`FileDescriptor`s, or platform `Parcelable`s across IPC
+([example](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:core/core/src/main/java/androidx/core/graphics/drawable/IconCompat.java;l=820)).
+Note that `Bundle` has several caveats:
 
 -   When running on Android S and below, accessing *any* entry in a `Bundle`
     will result in the platform attempting to deserialize *every* entry. This
@@ -812,6 +838,18 @@ or `FileDescriptor`s across IPC. Note that `Bundle` has several caveats:
     tracking the keys or value types associated with a `Bundle`. Library owners
     are responsible for providing their own system for guaranteeing wire format
     compatibility between versions.
+
+Developers **may** use `VersionedParcelable` in cases where they are already
+using the library and understand its limitations.
+
+In all cases, **do not** expose your serialization mechanism in your API
+surface.
+
+NOTE We are currently investigating the suitability of Square's
+[`wire` library](https://github.com/square/wire) for handling protocol buffers
+in Android libraries. If adopted, it will replace `proto` library dependencies.
+Libraries that expose their serialization mechanism in their API surface *will
+not be able to migrate*.
 
 #### Communication protocols
 
@@ -887,8 +925,17 @@ encourages them -- through Lint warnings -- to migrate elsewhere. This is
 accomplished by adding a `@Deprecated` and `@deprecated` (with migration
 comment) annotation pair to *every* class and interface in the artifact.
 
-Entire packages (including Kotlin) can be deprecated by using a
-`package-info.java` file and applying the `@Deprecated` annotation there.
+To deprecate an entire artifact:
+
+1.  Mark every top-level API (class, interface, extension function, etc.) in the
+    artifact as `@Deprecated` and update the API files
+    ([example CL](https://android-review.googlesource.com/c/platform/frameworks/support/+/1938773))
+1.  Schedule a release of the artifact as a new minor version. When you populate
+    the release notes, explain that the entire artifact has been deprecated.
+    Include the reason for deprecation and the migration strategy.
+1.  After the artifact has been released, remove the artifact from the source
+    tree, versions file, and tip-of-tree docs configuration
+    ([example CL](https://android-review.googlesource.com/c/platform/frameworks/support/+/2061731/))
 
 The fully-deprecated artifact will be released as a deprecation release -- it
 will ship normally with accompanying release notes indicating the reason for
@@ -1301,8 +1348,9 @@ classes, e.g. the Java `Builder` pattern.
 
 ### Open-source compatibility {#dependencies-aosp}
 
-[Jetpack Principles](principles.md) require that libraries consider the
-open-source compatibility implications of their dependencies, including:
+Jetpack's [open-source](open_source.md) principle requires that libraries
+consider the open-source compatibility implications of their dependencies,
+including:
 
 -   Closed-source or proprietary libraries or services that may not be available
     on AOSP devices
@@ -1311,7 +1359,7 @@ open-source compatibility implications of their dependencies, including:
 
 Primary artifacts, e.g. `workmanager`, **must not** depend on closed-source
 components including libraries and hard-coded references to packages,
-permissions, or IPC mechanisms that may only be fulfulled by closed-source
+permissions, or IPC mechanisms that may only be fulfilled by closed-source
 components.
 
 Optional artifacts, e.g. `workmanager-gcm`, *may* depend on closed-source
@@ -1321,7 +1369,7 @@ component via service discovery or initialization.
 Some examples of safely depending on closed-source components include:
 
 -   WorkManager's GCM Network Manager integration, which uses
-    [manifest metadata](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:work/workmanager-gcm/src/main/AndroidManifest.xml)
+    [manifest metadata](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:work/workmanager-gcm/src/main/AndroidManifest.xml)
     for service discovery and provides an optional artifact exposing the
     service.
 -   Ads Identifier's Play Services integration, which provides a default backend
@@ -1329,7 +1377,7 @@ Some examples of safely depending on closed-source components include:
     [`Intent` handling](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:ads/ads-identifier-provider/src/main/java/androidx/ads/identifier/provider/AdvertisingIdProviderManager.java;l=108)
     as a service discovery mechanism for Play Services.
 -   Downloadable Fonts integration with Play Services, which plugs in via a
-    [`ContentProvider`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:core/core/src/androidTest/java/androidx/core/provider/MockFontProvider.java)
+    [`ContentProvider`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:core/core/src/androidTest/java/androidx/core/provider/MockFontProvider.java)
     as a service discovery mechanism with developer-specified
     [signature verification](https://developer.android.com/guide/topics/ui/look-and-feel/downloadable-fonts#adding-certificates)
     for additional security.
@@ -1604,14 +1652,47 @@ Views *may* implement a four-arg constructor in one of the following ways:
 
 #### With return values {#async-return}
 
+###### Kotlin
+
 Traditionally, asynchronous work on Android that results in an output value
 would use a callback; however, better alternatives exist for libraries.
 
-Kotlin libraries should prefer
+Kotlin libraries should consider
 [coroutines](https://kotlinlang.org/docs/reference/coroutines-overview.html) and
-`suspend` functions, but please refer to the guidance on
-[allowable dependencies](#dependencies-coroutines) before adding a new
-dependency on coroutines.
+`suspend` functions for APIs according to the following rules, but please refer
+to the guidance on [allowable dependencies](#dependencies-coroutines) before
+adding a new dependency on coroutines.
+
+Kotlin suspend fun vs blocking       | Behavior
+------------------------------------ | --------------------------
+blocking function with @WorkerThread | API is blocking
+suspend                              | API is async (e.g. Future)
+
+In general, do not introduce a suspend function entirely to switch threads for
+blocking calls. To do so correctly requires that we allow the developer to
+configure the Dispatcher. As there is already a coroutines-based API for
+changing dispatchers (withContext) that the caller may use to switch threads, it
+is unecessary API overhead to provide a duplicate mechanism. In addition, it
+unecessary limits callers to coroutine contexts.
+
+```kotlin
+// DO expose blocking calls as blocking calls
+@WorkerThread
+fun blockingCall()
+
+// DON'T wrap in suspend functions (only to switch threads)
+suspend fun blockingCallWrappedInSuspend(
+  dispatcher: CoroutineDispatcher = Dispatchers.Default
+) = withContext(dispatcher) { /* ... */ }
+
+// DO expose async calls as suspend funs
+suspend fun asyncCall(): ReturnValue
+
+// DON'T expose async calls as a callback-based API (for the main API)
+fun asyncCall(executor: Executor, callback: (ReturnValue) -> Unit)
+```
+
+###### Java
 
 Java libraries should prefer `ListenableFuture` and the
 [`CallbackToFutureAdapter`](https://developer.android.com/reference/androidx/concurrent/futures/CallbackToFutureAdapter)
@@ -1691,7 +1772,7 @@ that are more lightweight, depending on your use case:
 *   Update a value from multiple threads atomically
 *   Maintain granular control of your concurrency invariants
 
-### Kotlin {#kotlin}
+### Kotlin-specific guidelines {#kotlin}
 
 #### Nullability from Java (new APIs)
 
@@ -1993,14 +2074,11 @@ if you are in a Java library without Android dependencies, or when enabling a
 new lint check, and it is prohibitively expensive / not possible to fix the
 errors generated by enabling this lint check.
 
-To update a lint baseline (`lint-baseline.xml`) after you have fixed issues,
-first **manually delete the `lint-baseline.xml` file** for your project and then
-run the `lintDebug` task for your project with the argument
-`-PupdateLintBaseline`.
+To update a lint baseline (`lint-baseline.xml`) after you have fixed issues, run
+the `updateLintBaseline` task.
 
 ```shell
-rm core/core/lint-baseline.xml
-./gradlew :core:core:lintDebug -PupdateLintBaseline
+./gradlew :core:core:updateLintBaseline
 ```
 
 ## Metalava API Lint

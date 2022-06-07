@@ -19,8 +19,11 @@ package androidx.camera.camera2.internal;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.TotalCaptureResult;
+import android.os.Build;
 import android.view.Surface;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
@@ -28,6 +31,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -44,7 +48,7 @@ class Camera2CaptureRequestBuilder {
     private Camera2CaptureRequestBuilder() {
     }
 
-    private static final String TAG = "CaptureRequestBuilder";
+    private static final String TAG = "Camera2CaptureRequestBuilder";
 
     /**
      * Get the configured Surface from DeferrableSurface list using the Surface map which should be
@@ -115,8 +119,19 @@ class Camera2CaptureRequestBuilder {
             return null;
         }
 
-        CaptureRequest.Builder builder = device.createCaptureRequest(
-                captureConfig.getTemplateType());
+        CaptureRequest.Builder builder;
+        CameraCaptureResult cameraCaptureResult = captureConfig.getCameraCaptureResult();
+        if (Build.VERSION.SDK_INT >= 23
+                && captureConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+                && cameraCaptureResult != null
+                && cameraCaptureResult.getCaptureResult() instanceof TotalCaptureResult) {
+            Logger.d(TAG, "createReprocessCaptureRequest");
+            builder = Api23Impl.createReprocessCaptureRequest(
+                    device, (TotalCaptureResult) cameraCaptureResult.getCaptureResult());
+        } else {
+            Logger.d(TAG, "createCaptureRequest");
+            builder = device.createCaptureRequest(captureConfig.getTemplateType());
+        }
 
         applyImplementationOptionToCaptureBuilder(builder,
                 captureConfig.getImplementationOptions());
@@ -164,5 +179,24 @@ class Camera2CaptureRequestBuilder {
                 captureConfig.getImplementationOptions());
 
         return builder.build();
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 6.0 (API 23).
+     */
+    @RequiresApi(23)
+    static class Api23Impl {
+        private Api23Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static CaptureRequest.Builder createReprocessCaptureRequest(
+                @NonNull CameraDevice cameraDevice,
+                @NonNull TotalCaptureResult totalCaptureResult)
+                throws CameraAccessException {
+            return cameraDevice.createReprocessCaptureRequest(totalCaptureResult);
+        }
+
     }
 }

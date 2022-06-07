@@ -34,13 +34,22 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.EmptyComplicationData
 import androidx.wear.watchface.complications.data.NoDataComplicationData
 import androidx.wear.watchface.RenderParameters.HighlightedElement
+import androidx.wear.watchface.complications.data.ComplicationExperimental
+import androidx.wear.watchface.complications.data.toApiComplicationData
+import androidx.wear.watchface.data.BoundingArcWireFormat
 import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay
+import java.lang.Integer.min
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlin.math.abs
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 import java.time.Instant
 import java.time.ZonedDateTime
+import java.util.Objects
 
 /**
  * Interface for rendering complicationSlots onto a [Canvas]. These should be created by
@@ -96,6 +105,7 @@ public interface CanvasComplication {
      * @param zonedDateTime The [ZonedDateTime] to render the highlight with
      * @param color The color to render the highlight with
      */
+    // TODO(b/230364881): Deprecate this when BoundingArc is no longer experimental.
     public fun drawHighlight(
         canvas: Canvas,
         bounds: Rect,
@@ -103,6 +113,29 @@ public interface CanvasComplication {
         zonedDateTime: ZonedDateTime,
         @ColorInt color: Int
     )
+
+    /**
+     * Draws a highlight for a [ComplicationSlotBoundsType.ROUND_RECT] complication. The default
+     * implementation does this by drawing a dashed line around the complication, other visual effects
+     * may be used if desired.
+     *
+     * @param canvas The [Canvas] to render into
+     * @param bounds A [Rect] describing the bounds of the complication
+     * @param boundsType The [ComplicationSlotBoundsType] of the complication
+     * @param zonedDateTime The [ZonedDateTime] to render the highlight with
+     * @param color The color to render the highlight with
+     */
+    @ComplicationExperimental
+    public fun drawHighlight(
+        canvas: Canvas,
+        bounds: Rect,
+        @ComplicationSlotBoundsType boundsType: Int,
+        zonedDateTime: ZonedDateTime,
+        @ColorInt color: Int,
+        boundingArc: BoundingArc?
+    ) {
+        drawHighlight(canvas, bounds, boundsType, zonedDateTime, color)
+    }
 
     /** Returns the [ComplicationData] to render with. */
     public fun getData(): ComplicationData
@@ -184,6 +217,85 @@ public annotation class ComplicationSlotBoundsType {
 }
 
 /**
+ * In combination with a bounding [Rect], BoundingArc describes the geometry of an edge
+ * complication.
+ *
+ * @property startAngle The staring angle of the arc in degrees (0 degrees = 12 o'clock position).
+ * @property totalAngle The total angle of the arc on degrees.
+ * @property thickness The thickness of the arc as a fraction of
+ * min(boundingRect.width, boundingRect.height).
+ */
+@ComplicationExperimental
+public class BoundingArc(var startAngle: Float, var totalAngle: Float, @Px var thickness: Float) {
+    /**
+     * Detects whether the supplied point falls within the edge complication's arc.
+     *
+     * @param rect The bounding [Rect] of the edge complication
+     * @param x The x-coordinate of the point to test in pixels
+     * @param y The y-coordinate of the point to test in pixels
+     * @return Whether or not the point is within the arc
+     */
+    fun hitTest(rect: Rect, @Px x: Float, @Px y: Float): Boolean {
+        val width = rect.width()
+        val height = rect.height()
+        val thicknessPx = min(width, height).toDouble() * thickness
+
+        val halfWidth = width.toDouble() * 0.5
+        val halfHeight = height.toDouble() * 0.5
+
+        // Rotate to a local coordinate space where the y axis is in the middle of the arc
+        var x0 = (x - rect.left).toDouble() - halfWidth
+        var y0 = (y - rect.top).toDouble() - halfHeight
+        val angle = startAngle + 0.5f * totalAngle
+        val rotAngle = -Math.toRadians(angle.toDouble())
+        x0 = x0 * cos(rotAngle) - y0 * sin(rotAngle) + halfWidth
+        y0 = x0 * sin(rotAngle) + y0 * cos(rotAngle) + halfHeight
+
+        // Copied from WearCurvedTextView...
+        val radius2 = min(width, height).toDouble() / 2.0
+        val radius1 = radius2 - thicknessPx
+        val dx = x0 - (width.toDouble() / 2.0)
+        val dy = y0 - (height.toDouble() / 2.0)
+        val r2 = dx * dx + dy * dy
+        if (r2 < radius1 * radius1 || r2 > radius2 * radius2) {
+            return false
+        }
+
+        // Since we are symmetrical on the Y-axis, we can constrain the angle to the x>=0 quadrants.
+        return Math.toDegrees(atan2(abs(dx), -dy)) < (totalAngle / 2.0)
+    }
+
+    override fun toString(): String {
+        return "ArcParams(startAngle=$startAngle, totalArcAngle=$totalAngle, " +
+            "thickness=$thickness)"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as BoundingArc
+
+        if (startAngle != other.startAngle) return false
+        if (totalAngle != other.totalAngle) return false
+        if (thickness != other.thickness) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = startAngle.hashCode()
+        result = 31 * result + totalAngle.hashCode()
+        result = 31 * result + thickness.hashCode()
+        return result
+    }
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun toWireFormat() = BoundingArcWireFormat(startAngle, totalAngle, thickness)
+}
+
+/**
  * Represents the slot an individual complication on the screen may go in. The number of
  * ComplicationSlots is fixed (see [ComplicationSlotsManager]) but ComplicationSlots can be
  * enabled or disabled via [UserStyleSetting.ComplicationSlotsUserStyleSetting].
@@ -215,8 +327,17 @@ public annotation class ComplicationSlotBoundsType {
  * complications.
  * @param tapFilter The [ComplicationTapFilter] used to determine whether or not a tap hit the
  * complication slot.
+ * @param nameResourceId The ID of string resource (or `null` if absent) to identify the
+ * complication slot on screen in an editor. These strings should be short (perhaps 10 characters
+ * max) E.g. complication slots named 'left' and 'right' might be shown by the editor in a list from
+ * which the user selects a complication slot for editing.
+ * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) for use by a
+ * watch face editor to identify the complication slot in a screen reader. While similar to
+ * [nameResourceId] this string can be longer and should be more descriptive. E.g. saying
+ * 'left complication' rather than just 'left'.
  */
-public class ComplicationSlot internal constructor(
+public class ComplicationSlot
+@ComplicationExperimental internal constructor(
     public val id: Int,
     accessibilityTraversalIndex: Int,
     @ComplicationSlotBoundsType public val boundsType: Int,
@@ -230,7 +351,16 @@ public class ComplicationSlot internal constructor(
     configExtras: Bundle,
     @get:JvmName("isFixedComplicationDataSource")
     public val fixedComplicationDataSource: Boolean,
-    public val tapFilter: ComplicationTapFilter
+    public val tapFilter: ComplicationTapFilter,
+    @get:Suppress("AutoBoxing")
+    public val nameResourceId: Int?,
+    @get:Suppress("AutoBoxing")
+    public val screenReaderNameResourceId: Int?,
+    // TODO(b/230364881): This should really be public but some metalava bug is preventing
+    // @ComplicationExperimental from working on the getter so it's currently hidden.
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public val boundingArc: BoundingArc?
 ) {
     /**
      * The [ComplicationSlotsManager] this is attached to. Only set after the
@@ -306,7 +436,8 @@ public class ComplicationSlot internal constructor(
             defaultDataSourcePolicy,
             ComplicationSlotBoundsType.ROUND_RECT,
             bounds,
-            RoundRectComplicationTapFilter()
+            RoundRectComplicationTapFilter(),
+            null
         )
 
         /**
@@ -339,7 +470,8 @@ public class ComplicationSlot internal constructor(
             defaultDataSourcePolicy,
             ComplicationSlotBoundsType.BACKGROUND,
             ComplicationSlotBounds(RectF(0f, 0f, 1f, 1f)),
-            BackgroundComplicationTapFilter()
+            BackgroundComplicationTapFilter(),
+            null
         )
 
         /**
@@ -351,7 +483,8 @@ public class ComplicationSlot internal constructor(
          * dispatched. Edge complicationSlots should have a custom [renderer] with
          * [CanvasComplication.drawHighlight] overridden.
          *
-         * Note we don't support edge complication hit testing from an editor.
+         * Note hit detection in an editor for [ComplicationSlot]s created with this method is not
+         * supported.
          *
          * @param id The watch face's ID for this complication. Can be any integer but should be
          * unique within the watch face.
@@ -367,6 +500,7 @@ public class ComplicationSlot internal constructor(
          * @param complicationTapFilter The [ComplicationTapFilter] used to determine whether or
          * not a tap hit the complication.
          */
+        // TODO(b/230364881): Deprecate when BoundingArc is no longer experimental.
         @JvmStatic
         public fun createEdgeComplicationSlotBuilder(
             id: Int,
@@ -382,7 +516,57 @@ public class ComplicationSlot internal constructor(
             defaultDataSourcePolicy,
             ComplicationSlotBoundsType.EDGE,
             bounds,
-            complicationTapFilter
+            complicationTapFilter,
+            null
+        )
+
+        /**
+         * Constructs a [Builder] for a complication with bounds type
+         * [ComplicationSlotBoundsType.EDGE], whose contents are contained within [boundingArc].
+         *
+         * @param id The watch face's ID for this complication. Can be any integer but should be
+         * unique within the watch face.
+         * @param canvasComplicationFactory The [CanvasComplicationFactory] to supply the
+         * [CanvasComplication] to use for rendering. Note renderers should not be shared between
+         * complicationSlots.
+         * @param supportedTypes The types of complication supported by this ComplicationSlot. Used
+         * during complication, this list should be non-empty.
+         * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] used to select
+         * the initial complication data source when the watch is first installed.
+         * @param bounds The complication's [ComplicationSlotBounds]. Its likely the bounding rect
+         * will be much larger than the complication and shouldn't directly be used for hit testing.
+         */
+        @JvmStatic
+        @JvmOverloads
+        @ComplicationExperimental
+        public fun createEdgeComplicationSlotBuilder(
+            id: Int,
+            canvasComplicationFactory: CanvasComplicationFactory,
+            supportedTypes: List<ComplicationType>,
+            defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
+            bounds: ComplicationSlotBounds,
+            boundingArc: BoundingArc,
+            complicationTapFilter: ComplicationTapFilter = object : ComplicationTapFilter {
+                override fun hitTest(
+                    complicationSlot: ComplicationSlot,
+                    screenBounds: Rect,
+                    x: Int,
+                    y: Int
+                ) = boundingArc.hitTest(
+                    complicationSlot.computeBounds(screenBounds),
+                    x.toFloat(),
+                    y.toFloat()
+                )
+            }
+        ): Builder = Builder(
+            id,
+            canvasComplicationFactory,
+            supportedTypes,
+            defaultDataSourcePolicy,
+            ComplicationSlotBoundsType.EDGE,
+            bounds,
+            complicationTapFilter,
+            boundingArc
         )
     }
 
@@ -403,6 +587,7 @@ public class ComplicationSlot internal constructor(
      * @param complicationTapFilter The [ComplicationTapFilter] used to perform hit testing for this
      * complication.
      */
+    @OptIn(ComplicationExperimental::class)
     public class Builder internal constructor(
         private val id: Int,
         private val canvasComplicationFactory: CanvasComplicationFactory,
@@ -410,13 +595,16 @@ public class ComplicationSlot internal constructor(
         private var defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
         @ComplicationSlotBoundsType private val boundsType: Int,
         private val bounds: ComplicationSlotBounds,
-        private val complicationTapFilter: ComplicationTapFilter
+        private val complicationTapFilter: ComplicationTapFilter,
+        private val boundingArc: BoundingArc?
     ) {
         private var accessibilityTraversalIndex = id
         private var defaultDataSourceType = ComplicationType.NOT_CONFIGURED
         private var initiallyEnabled = true
         private var configExtras: Bundle = Bundle.EMPTY
         private var fixedComplicationDataSource = false
+        private var nameResourceId: Int? = null
+        private var screenReaderNameResourceId: Int? = null
 
         init {
             require(id >= 0) { "id must be >= 0" }
@@ -439,8 +627,10 @@ public class ComplicationSlot internal constructor(
          * Note care should be taken to ensure [defaultDataSourceType] is compatible with the
          * [DefaultComplicationDataSourcePolicy].
          */
-        @Deprecated("Instead set DefaultComplicationDataSourcePolicy" +
-            ".systemDataSourceFallbackDefaultType.")
+        @Deprecated(
+            "Instead set DefaultComplicationDataSourcePolicy" +
+                ".systemDataSourceFallbackDefaultType."
+        )
         public fun setDefaultDataSourceType(
             defaultDataSourceType: ComplicationType
         ): Builder {
@@ -502,6 +692,30 @@ public class ComplicationSlot internal constructor(
             return this
         }
 
+        /**
+         * If non-null sets the ID of a string resource containing the name of this complication
+         * slot, for use visually in an editor. This resource should be short and should not contain
+         * the word "Complication".  E.g. "Left" for the left complication.
+         */
+        public fun setNameResourceId(
+            @Suppress("AutoBoxing") nameResourceId: Int?
+        ): Builder {
+            this.nameResourceId = nameResourceId
+            return this
+        }
+
+        /**
+         * If non-null sets the ID of a string resource containing the name of this complication
+         * slot, for use by a screen reader. This resource should be a short sentence. E.g.
+         * "Left complication" for the left complication.
+         */
+        public fun setScreenReaderNameResourceId(
+            @Suppress("AutoBoxing") screenReaderNameResourceId: Int?
+        ): Builder {
+            this.screenReaderNameResourceId = screenReaderNameResourceId
+            return this
+        }
+
         /** Constructs the [ComplicationSlot]. */
         public fun build(): ComplicationSlot = ComplicationSlot(
             id,
@@ -515,7 +729,10 @@ public class ComplicationSlot internal constructor(
             initiallyEnabled,
             configExtras,
             fixedComplicationDataSource,
-            complicationTapFilter
+            complicationTapFilter,
+            nameResourceId,
+            screenReaderNameResourceId,
+            boundingArc
         )
     }
 
@@ -563,21 +780,11 @@ public class ComplicationSlot internal constructor(
             enabledDirty = true
         }
 
-    internal var supportedTypesDirty = true
-
     /** The types of complicationSlots the complication supports. Must be non-empty. */
-    public var supportedTypes: List<ComplicationType> = supportedTypes
-        @UiThread
+
+    public val supportedTypes: List<ComplicationType> = supportedTypes
+        @UiThread // TODO(b/229727216): Remove this annotation.
         get
-        @UiThread
-        internal set(value) {
-            if (field == value) {
-                return
-            }
-            require(value.isNotEmpty())
-            field = value
-            supportedTypesDirty = true
-        }
 
     internal var defaultDataSourcePolicyDirty = true
 
@@ -648,6 +855,63 @@ public class ComplicationSlot internal constructor(
         MutableStateFlow(NoDataComplicationData())
 
     /**
+     * The complication data sent by the system. This may contain a timeline out of which
+     * [complicationData] is selected.
+     */
+    private var timelineComplicationData: ComplicationData = NoDataComplicationData()
+    private var timelineEntries: List<WireComplicationData>? = null
+
+    /**
+     * Sets the current [ComplicationData] and if it's a timeline, the correct override for
+     * [instant] is chosen.
+     */
+    internal fun setComplicationData(
+        complicationData: ComplicationData,
+        loadDrawablesAsynchronous: Boolean,
+        instant: Instant
+    ) {
+        timelineComplicationData = complicationData
+        timelineEntries = complicationData.asWireComplicationData().timelineEntries?.map {
+            it
+        }
+        selectComplicationDataForInstant(instant, loadDrawablesAsynchronous, true)
+    }
+
+    /**
+     * If the current [ComplicationData] is a timeline, the correct override for [instant] is
+     * chosen.
+     */
+    internal fun selectComplicationDataForInstant(
+        instant: Instant,
+        loadDrawablesAsynchronous: Boolean,
+        forceUpdate: Boolean
+    ) {
+        var previousShortest = Long.MAX_VALUE
+        val time = instant.epochSecond
+        var best = timelineComplicationData
+
+        // Select the shortest valid timeline entry.
+        timelineEntries?.let {
+            for (wireEntry in it) {
+                val start = wireEntry.timelineStartEpochSecond
+                val end = wireEntry.timelineEndEpochSecond
+                if (start != null && end != null && time >= start && time < end) {
+                    val duration = end - start
+                    if (duration < previousShortest) {
+                        previousShortest = duration
+                        best = wireEntry.toApiComplicationData()
+                    }
+                }
+            }
+        }
+
+        if (forceUpdate || complicationData.value != best) {
+            (complicationData as MutableStateFlow).value = best
+            renderer.loadData(best, loadDrawablesAsynchronous)
+        }
+    }
+
+    /**
      * Whether or not the complication should be considered active and should be rendered at the
      * specified time.
      */
@@ -686,6 +950,7 @@ public class ComplicationSlot internal constructor(
      * @param renderParameters The current [RenderParameters]
      */
     @UiThread
+    @OptIn(ComplicationExperimental::class)
     public fun renderHighlightLayer(
         canvas: Canvas,
         zonedDateTime: ZonedDateTime,
@@ -705,7 +970,8 @@ public class ComplicationSlot internal constructor(
                     bounds,
                     boundsType,
                     zonedDateTime,
-                    renderParameters.highlightLayer.highlightTint
+                    renderParameters.highlightLayer.highlightTint,
+                    boundingArc
                 )
             }
 
@@ -716,7 +982,8 @@ public class ComplicationSlot internal constructor(
                         bounds,
                         boundsType,
                         zonedDateTime,
-                        renderParameters.highlightLayer.highlightTint
+                        renderParameters.highlightLayer.highlightTint,
+                        boundingArc
                     )
                 }
             }
@@ -735,6 +1002,7 @@ public class ComplicationSlot internal constructor(
         this.invalidateListener = invalidateListener
 
         if (isHeadless) {
+            timelineComplicationData = EmptyComplicationData()
             (complicationData as MutableStateFlow).value = EmptyComplicationData()
         }
     }
@@ -797,11 +1065,45 @@ public class ComplicationSlot internal constructor(
         )
         writer.println("defaultDataSourcePolicy.systemDataSourceFallbackDefaultType=" +
             defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
+        writer.println("timelineComplicationData=$timelineComplicationData")
         writer.println("data=${renderer.getData()}")
         val bounds = complicationSlotBounds.perComplicationTypeBounds.map {
             "${it.key} -> ${it.value}"
         }
+        @OptIn(ComplicationExperimental::class)
+        writer.println("boundingArc=$boundingArc")
         writer.println("bounds=[$bounds]")
         writer.decreaseIndent()
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ComplicationSlot
+
+        if (id != other.id) return false
+        if (accessibilityTraversalIndex != other.accessibilityTraversalIndex) return false
+        if (boundsType != other.boundsType) return false
+        if (complicationSlotBounds != other.complicationSlotBounds) return false
+        if (supportedTypes.size != other.supportedTypes.size ||
+            !supportedTypes.containsAll(other.supportedTypes)) return false
+        if (defaultDataSourcePolicy != other.defaultDataSourcePolicy) return false
+        if (initiallyEnabled != other.initiallyEnabled) return false
+        if (fixedComplicationDataSource != other.fixedComplicationDataSource) return false
+        if (nameResourceId != other.nameResourceId) return false
+        if (screenReaderNameResourceId != other.screenReaderNameResourceId) return false
+        @OptIn(ComplicationExperimental::class)
+        if (boundingArc != other.boundingArc) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        @OptIn(ComplicationExperimental::class)
+        return Objects.hash(id, accessibilityTraversalIndex, boundsType, complicationSlotBounds,
+            supportedTypes.sorted(),
+            defaultDataSourcePolicy, initiallyEnabled, fixedComplicationDataSource,
+            nameResourceId, screenReaderNameResourceId, boundingArc)
     }
 }

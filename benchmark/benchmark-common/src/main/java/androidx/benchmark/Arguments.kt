@@ -30,6 +30,12 @@ import androidx.test.platform.app.InstrumentationRegistry
 public var argumentSource: Bundle? = null
 
 /**
+ * Allows tests to override profiler
+ */
+@RestrictTo(RestrictTo.Scope.TESTS)
+internal var profilerOverride: Profiler? = null
+
+/**
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -38,12 +44,24 @@ public object Arguments {
     // public properties are shared by micro + macro benchmarks
     public val suppressedErrors: Set<String>
 
+    val enabledRules: Set<RuleType>
+    enum class RuleType {
+        Microbenchmark,
+        Macrobenchmark,
+        BaselineProfile
+    }
+
+    val enableCompilation: Boolean
+    val enablePackageReset: Boolean
+
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
     internal val startupMode: Boolean
     internal val dryRunMode: Boolean
     internal val iterations: Int?
+    private val _profiler: Profiler?
     internal val profiler: Profiler?
+        get() = if (profilerOverride != null) profilerOverride else _profiler
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
 
@@ -98,7 +116,26 @@ public object Arguments {
             .filter { it.isNotEmpty() }
             .toSet()
 
-        profiler = arguments.getProfiler(outputEnable)
+        enabledRules = arguments.getBenchmarkArgument(
+            key = "enabledRules",
+            defaultValue = RuleType.values().joinToString(separator = ",") { it.toString() }
+        )
+            .split(',')
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .map { arg ->
+                RuleType.values().find { arg.lowercase() == it.toString().lowercase() }
+                    ?: throw IllegalArgumentException("Unable to parse enabledRules arg: $arg")
+            }
+            .toSet()
+
+        enableCompilation =
+            arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: true
+
+        enablePackageReset =
+            arguments.getBenchmarkArgument("packageReset.enabled")?.toBoolean() ?: false
+
+        _profiler = arguments.getProfiler(outputEnable)
         profilerSampleFrequency =
             arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }
             ?.toInt()
@@ -107,11 +144,10 @@ public object Arguments {
             arguments.getBenchmarkArgument("profiling.sampleDurationSeconds")?.ifBlank { null }
             ?.toLong()
             ?: 5
-
-        if (profiler != null) {
+        if (_profiler != null) {
             Log.d(
                 BenchmarkState.TAG,
-                "Profiler ${profiler.javaClass.simpleName}, freq " +
+                "Profiler ${_profiler.javaClass.simpleName}, freq " +
                     "$profilerSampleFrequency, duration $profilerSampleDurationSeconds"
             )
         }

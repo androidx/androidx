@@ -23,10 +23,14 @@ plugins {
 
 dependencies {
     androidTestImplementation(project(":appcompat:appcompat"))
-    androidTestImplementation(project(":benchmark:benchmark-junit4"))
+    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.kotlinStdlib)
+}
+
+android {
+    namespace "androidx.appcompat.benchmark"
 }

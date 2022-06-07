@@ -15,7 +15,7 @@
  */
 
 
-import androidx.build.LibraryGroups
+import androidx.build.LibraryType
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -59,26 +59,32 @@ android {
         }
     }
 
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
+    }
+
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
 
     externalNativeBuild {
         cmake {
             path "src/main/cpp/CMakeLists.txt"
-            version "3.18.1"
+            version libs.versions.cmake.get()
         }
     }
+    namespace "androidx.camera.testing"
 }
 
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }
 
 androidx {
     name = "Jetpack Camera Testing Library"
+    type = LibraryType.INTERNAL_TEST_LIBRARY
     publish = Publish.NONE
     mavenGroup = LibraryGroups.CAMERA
     inceptionYear = "2019"

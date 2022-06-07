@@ -67,6 +67,8 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     // camera-core:1.0.0
     private CamcorderProfileProvider mCamcorderProfileProvider;
 
+    private boolean mIsPrivateReprocessingSupported = false;
+
     @NonNull
     private final List<Quirk> mCameraQuirks = new ArrayList<>();
 
@@ -189,6 +191,16 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return false;
     }
 
+    @Override
+    public boolean isZslSupported() {
+        return false;
+    }
+
+    @Override
+    public boolean isPrivateReprocessingSupported() {
+        return mIsPrivateReprocessingSupported;
+    }
+
     /** Adds a quirk to the list of this camera's quirks. */
     public void addCameraQuirk(@NonNull final Quirk quirk) {
         mCameraQuirks.add(quirk);
@@ -205,6 +217,11 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     public void setCamcorderProfileProvider(
             @NonNull CamcorderProfileProvider camcorderProfileProvider) {
         mCamcorderProfileProvider = Preconditions.checkNotNull(camcorderProfileProvider);
+    }
+
+    /** Set the isPrivateReprocessingSupported flag for testing */
+    public void setPrivateReprocessingSupported(boolean supported) {
+        mIsPrivateReprocessingSupported = supported;
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java

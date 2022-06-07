@@ -978,9 +978,14 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     }
 
     /**
-     * Called by the SuggestionsAdapter
+     * Called when a query refinement has been proposed, e.g. when the user clicks on a suggestion
+     * provided by a {@link SuggestionsAdapter}.
+     * <p>
+     * By default, this method sets the text in the query box without updating the suggestions.
+     *
+     * @param queryText the proposed query refinement
      */
-    void onQueryRefine(CharSequence queryText) {
+    protected void onQueryRefine(@Nullable CharSequence queryText) {
         setQuery(queryText);
     }
 
@@ -2034,7 +2039,7 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
 
         void ensureImeVisible() {
             if (Build.VERSION.SDK_INT >= 29) {
-                setInputMethodMode(INPUT_METHOD_NEEDED);
+                Api29Impl.setInputMethodMode(this, INPUT_METHOD_NEEDED);
                 if (enoughToFilter()) {
                     showDropDown();
                 }
@@ -2119,6 +2124,11 @@ public class SearchView extends LinearLayoutCompat implements CollapsibleActionV
     static class Api29Impl {
         private Api29Impl() {
             // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void setInputMethodMode(SearchAutoComplete searchAutoComplete, int mode) {
+            searchAutoComplete.setInputMethodMode(mode);
         }
 
         @DoNotInline

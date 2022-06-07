@@ -357,7 +357,7 @@ public class PerfettoHelper(
         private const val PERFETTO_KILL_WAIT_COUNT = 30
 
         // Check if perfetto is stopped every 100 millis.
-        private const val PERFETTO_KILL_WAIT_TIME_MS: Long = 500
+        private const val PERFETTO_KILL_WAIT_TIME_MS: Long = 100
 
         // Path where unbundled tracebox is copied to
         private const val UNBUNDLED_PERFETTO_ROOT_DIR = "/data/local/tmp"
@@ -373,11 +373,10 @@ public class PerfettoHelper(
         private const val TRACING_ON_PATH = "/sys/kernel/tracing/tracing_on"
         private const val TRACING_ON_FALLBACK_PATH = "/sys/kernel/debug/tracing/tracing_on"
 
-        @TestOnly
         fun isAbiSupported(): Boolean {
             Log.d(LOG_TAG, "Supported ABIs: ${Build.SUPPORTED_ABIS.joinToString()}")
             // Cuttlefish is x86 but claims support for x86_64
-            return !Build.MODEL.contains("Cuttlefish") && ( // b/180022458
+            return !Build.MODEL.contains("Cuttlefish") && ( // b/204892353
                 Build.SUPPORTED_64_BIT_ABIS.any { SUPPORTED_64_ABIS.contains(it) } ||
                     Build.SUPPORTED_32_BIT_ABIS.any { SUPPORTED_32_ABIS.contains(it) }
                 )

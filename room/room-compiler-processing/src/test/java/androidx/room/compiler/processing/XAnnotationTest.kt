@@ -603,14 +603,14 @@ class XAnnotationTest(
                     val enumValueEntry = annotation.getAsEnum("enumVal")
                     assertThat(enumValueEntry.name).isEqualTo("DEFAULT")
                     val javaEnumType = invocation.processingEnv.requireTypeElement(JavaEnum::class)
-                    assertThat(enumValueEntry.enumTypeElement)
+                    assertThat(enumValueEntry.enclosingElement)
                         .isEqualTo(javaEnumType)
 
                     val enumList = annotation.getAsEnumList("enumArrayVal")
                     assertThat(enumList[0].name).isEqualTo("VAL1")
                     assertThat(enumList[1].name).isEqualTo("VAL2")
-                    assertThat(enumList[0].enumTypeElement).isEqualTo(javaEnumType)
-                    assertThat(enumList[1].enumTypeElement).isEqualTo(javaEnumType)
+                    assertThat(enumList[0].enclosingElement).isEqualTo(javaEnumType)
+                    assertThat(enumList[1].enclosingElement).isEqualTo(javaEnumType)
 
                     // TODO: KSP mistakenly sees null for the value in a default annotation in
                     //  sources. https://github.com/google/ksp/issues/53

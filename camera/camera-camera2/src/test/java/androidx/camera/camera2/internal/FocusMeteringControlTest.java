@@ -52,6 +52,7 @@ import android.util.Size;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.Camera2CameraControlImpl.CaptureResultListener;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.quirk.AfRegionFlipHorizontallyQuirk;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -61,6 +62,7 @@ import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.core.app.ApplicationProvider;
@@ -81,6 +83,7 @@ import org.robolectric.shadows.ShadowCameraManager;
 import org.robolectric.shadows.ShadowLooper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -156,8 +159,11 @@ public class FocusMeteringControlTest {
         mFocusMeteringControl.setActive(true);
         mFocusMeteringControl.setTemplate(mTemplate);
     }
-
     private FocusMeteringControl initFocusMeteringControl(String cameraID) {
+        return initFocusMeteringControl(cameraID, new Quirks(new ArrayList<>()));
+    }
+
+    private FocusMeteringControl initFocusMeteringControl(String cameraID, Quirks cameraQuirks) {
         CameraManager cameraManager =
                 (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
                         Context.CAMERA_SERVICE);
@@ -177,7 +183,8 @@ public class FocusMeteringControlTest {
 
             FocusMeteringControl focusMeteringControl = new FocusMeteringControl(
                     mCamera2CameraControlImpl,
-                    CameraXExecutors.mainThreadExecutor(), CameraXExecutors.directExecutor());
+                    CameraXExecutors.mainThreadExecutor(), CameraXExecutors.directExecutor(),
+                    cameraQuirks);
             focusMeteringControl.setActive(true);
             focusMeteringControl.setPreviewAspectRatio(PREVIEW_ASPECT_RATIO_4_X_3);
             return focusMeteringControl;
@@ -398,6 +405,43 @@ public class FocusMeteringControlTest {
         assertThat(afRects[0].getRect()).isEqualTo(M_RECT_1);
         assertThat(afRects[1].getRect()).isEqualTo(M_RECT_2);
         assertThat(afRects[2].getRect()).isEqualTo(M_RECT_3);
+
+        assertThat(aeRects.length).isEqualTo(3);
+        assertThat(aeRects[0].getRect()).isEqualTo(M_RECT_1);
+        assertThat(aeRects[1].getRect()).isEqualTo(M_RECT_2);
+        assertThat(aeRects[2].getRect()).isEqualTo(M_RECT_3);
+
+        assertThat(awbRects.length).isEqualTo(1);
+        assertThat(awbRects[0].getRect()).isEqualTo(M_RECT_1);
+    }
+
+    @Test
+    public void startFocusAndMetering_AfRegionCorrectedByQuirk() {
+        mFocusMeteringControl = initFocusMeteringControl(CAMERA0_ID,
+                new Quirks(Arrays.asList(new AfRegionFlipHorizontallyQuirk())));
+
+        mFocusMeteringControl.startFocusAndMetering(
+                new FocusMeteringAction.Builder(mPoint1)
+                        .addPoint(mPoint2)
+                        .addPoint(mPoint3)
+                        .build());
+
+        MeteringRectangle[] afRects = getAfRects(mFocusMeteringControl);
+        MeteringRectangle[] aeRects = getAeRects(mFocusMeteringControl);
+        MeteringRectangle[] awbRects = getAwbRects(mFocusMeteringControl);
+
+        // after flipping horizontally, left / right will be swapped.
+        Rect flippedRect1 = new Rect(SENSOR_WIDTH - M_RECT_1.right, M_RECT_1.top,
+                SENSOR_WIDTH - M_RECT_1.left, M_RECT_1.bottom);
+        Rect flippedRect2 = new Rect(SENSOR_WIDTH - M_RECT_2.right, M_RECT_2.top,
+                SENSOR_WIDTH - M_RECT_2.left, M_RECT_2.bottom);
+        Rect flippedRect3 = new Rect(SENSOR_WIDTH - M_RECT_3.right, M_RECT_3.top,
+                SENSOR_WIDTH - M_RECT_3.left, M_RECT_3.bottom);
+
+        assertThat(afRects.length).isEqualTo(3);
+        assertThat(afRects[0].getRect()).isEqualTo(flippedRect1);
+        assertThat(afRects[1].getRect()).isEqualTo(flippedRect2);
+        assertThat(afRects[2].getRect()).isEqualTo(flippedRect3);
 
         assertThat(aeRects.length).isEqualTo(3);
         assertThat(aeRects[0].getRect()).isEqualTo(M_RECT_1);

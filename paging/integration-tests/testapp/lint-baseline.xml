@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.3.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha08)" variant="all" version="7.3.0-alpha08">
+
+    <issue
+        id="MissingInflatedId"
+        message="`@layout/activity_recycler_view` does not contain a declaration with id `addButton`"
+        errorLine1="        final Button addButton = findViewById(R.id.addButton);"
+        errorLine2="                                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListRxActivity.java"/>
+    </issue>
+
+    <issue
+        id="MissingInflatedId"
+        message="`@layout/activity_recycler_view` does not contain a declaration with id `clearButton`"
+        errorLine1="        final Button clearButton = findViewById(R.id.clearButton);"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListRxActivity.java"/>
+    </issue>
 
     <issue
         id="SyntheticAccessor"
@@ -7,240 +25,187 @@
         errorLine1="                return new LastNameAscCustomerDataSource(db);"
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/LastNameAscCustomerDataSource.java"
-            line="42"
-            column="24"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/LastNameAscCustomerDataSource.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public String getName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"
-            line="45"
-            column="12"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setName(String name) {"
         errorLine2="                        ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"
-            line="49"
-            column="25"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public String getLastName() {"
         errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"
-            line="53"
-            column="12"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setLastName(String lastName) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"
-            line="57"
-            column="29"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/Customer.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    void insert(Customer customer);"
         errorLine2="                ~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
-            line="39"
-            column="17"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    void insertAll(Customer[] customers);"
         errorLine2="                   ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
-            line="46"
-            column="20"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    DataSource.Factory&lt;Integer, Customer> loadPagedAgeOrder();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
-            line="59"
-            column="5"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    PagingSource&lt;Integer, Customer> loadPagedAgeOrderPagingSource();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
-            line="65"
-            column="5"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    LiveData&lt;List&lt;Customer>> all();"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
-            line="77"
-            column="5"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    List&lt;Customer> customerNameInitial(int limit);"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
-            line="82"
-            column="5"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    List&lt;Customer> customerNameLoadAfter(String key, int limit);"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
-            line="85"
-            column="5"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    List&lt;Customer> customerNameLoadAfter(String key, int limit);"
         errorLine2="                                         ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
-            line="85"
-            column="42"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    int customerNameCountAfter(String key);"
         errorLine2="                               ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
-            line="88"
-            column="32"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    List&lt;Customer> customerNameLoadBefore(String key, int limit);"
         errorLine2="    ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
-            line="91"
-            column="5"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    List&lt;Customer> customerNameLoadBefore(String key, int limit);"
         errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
-            line="91"
-            column="43"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    int customerNameCountBefore(String key);"
         errorLine2="                                ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"
-            line="94"
-            column="33"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerDao.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public CustomerViewModel(Application application) {"
         errorLine2="                             ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"
-            line="44"
-            column="30"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/CustomerViewModel.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(final Bundle savedInstanceState) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListActivity.java"
-            line="42"
-            column="35"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListActivity.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onSaveInstanceState(Bundle outState) {"
         errorLine2="                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListActivity.java"
-            line="79"
-            column="40"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListActivity.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(final Bundle savedInstanceState) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListRxActivity.java"
-            line="40"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract CustomerDao getCustomerDao();"
-        errorLine2="                    ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/paging/integration/testapp/room/SampleDatabase.java"
-            line="30"
-            column="21"/>
+            file="src/main/java/androidx/paging/integration/testapp/room/RoomPagedListRxActivity.java"/>
     </issue>
 
 </issues>

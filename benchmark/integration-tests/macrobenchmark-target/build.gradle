@@ -28,6 +28,7 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
         }
     }
+    namespace "androidx.benchmark.integration.macrobenchmark.target"
 }
 
 dependencies {
@@ -38,5 +39,10 @@ dependencies {
     implementation(project(":profileinstaller:profileinstaller"))
     implementation(project(":recyclerview:recyclerview"))
     implementation(project(":tracing:tracing-ktx"))
+    implementation(project(":tracing:tracing-perfetto"))
     implementation(libs.material)
+
+    implementation(project(":work:work-runtime"))
+    implementation(project(":work:work-runtime-ktx"))
+    implementation(project(":room:room-runtime"))
 }

@@ -20,13 +20,12 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.os.Handler
 import android.os.IBinder
-import android.os.Looper
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.control.IWatchFaceInstanceServiceStub
 import androidx.wear.watchface.control.WatchFaceControlService
+import kotlinx.coroutines.MainScope
 
 /**
  * Test shim to allow us to connect to WatchFaceControlService from
@@ -42,7 +41,7 @@ public class WatchFaceControlTestService : Service() {
 
     private val realService = object : WatchFaceControlService() {
         override fun createServiceStub(): IWatchFaceInstanceServiceStub =
-            object : IWatchFaceInstanceServiceStub(this, Handler(Looper.getMainLooper())) {
+            object : IWatchFaceInstanceServiceStub(this@WatchFaceControlTestService, MainScope()) {
                 @RequiresApi(Build.VERSION_CODES.O_MR1)
                 override fun getApiVersion(): Int = apiVersionOverride ?: super.getApiVersion()
             }

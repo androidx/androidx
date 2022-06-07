@@ -31,7 +31,7 @@ import java.util.Properties
 class ProjectSetupRule : ExternalResource() {
     val testProjectDir = TemporaryFolder()
 
-    lateinit var props: ProjectProps
+    val props: ProjectProps by lazy { ProjectProps.load() }
 
     val rootDir: File
         get() = testProjectDir.root
@@ -47,10 +47,14 @@ class ProjectSetupRule : ExternalResource() {
      * Local build repo is the first in line to ensure it is prioritized.
      */
     val allRepositoryPaths: List<String> by lazy {
-        listOf(props.localSupportRepo) + props.repositoryUrls
+        listOf(props.tipOfTreeMavenRepoPath) + props.repositoryUrls
     }
 
-    private val repositories: String
+    /**
+     * A `repositories {}` gradle block that contains all default repositories, for inclusion
+     * in gradle configurations.
+     */
+    val repositories: String
         get() = buildString {
             appendLine("repositories {")
             append(defaultRepoLines)
@@ -96,9 +100,9 @@ class ProjectSetupRule : ExternalResource() {
     }
 
     override fun before() {
-        props = ProjectProps.load()
         buildFile.createNewFile()
         copyLocalProperties()
+        copyLibsVersionsToml()
         writeGradleProperties()
     }
 
@@ -151,6 +155,11 @@ class ProjectSetupRule : ExternalResource() {
         }
     }
 
+    private fun copyLibsVersionsToml() {
+        val toml = File(props.rootProjectPath, "gradle/libs.versions.toml")
+        toml.copyTo(File(rootDir, "gradle/libs.versions.toml"), overwrite = true)
+    }
+
     private fun writeGradleProperties() {
         gradlePropertiesFile.writer().use {
             val props = Properties()
@@ -160,8 +169,12 @@ class ProjectSetupRule : ExternalResource() {
     }
 }
 
+// TODO(b/233600239): document the rest of the parameters
+/**
+ * @param buildSrcOutPath: absolute path to folder where outputs from buildSrc builds can be found
+ *                         (perhaps something like $HOME/src/androidx-main/out/buildSrc)
+ */
 data class ProjectProps(
-    val prebuiltsRoot: String,
     val compileSdkVersion: String,
     val buildToolsVersion: String,
     val minSdkVersion: String,
@@ -171,29 +184,49 @@ data class ProjectProps(
     val kotlinVersion: String,
     val kspVersion: String,
     val rootProjectPath: String,
-    val localSupportRepo: String,
+    val tipOfTreeMavenRepoPath: String,
     val agpDependency: String,
-    val repositoryUrls: List<String>
+    val repositoryUrls: List<String>,
+    val buildSrcOutPath: String
 ) {
     companion object {
+        private fun Properties.getCanonicalPath(key: String): String {
+            return File(getProperty(key)).canonicalPath
+        }
         fun load(): ProjectProps {
             val stream = ProjectSetupRule::class.java.classLoader.getResourceAsStream("sdk.prop")
+                ?: throw IllegalStateException("No sdk.prop file found. " +
+                    "(you probably need to call SdkResourceGenerator.generateForHostTest " +
+                    "in build.gradle)")
             val properties = Properties()
             properties.load(stream)
             return ProjectProps(
-                prebuiltsRoot = properties.getProperty("prebuiltsRoot"),
-                compileSdkVersion = properties.getProperty("compileSdkVersion"),
+                debugKeystore = properties.getCanonicalPath("debugKeystoreRelativePath"),
+                rootProjectPath = properties.getCanonicalPath("rootProjectRelativePath"),
+                tipOfTreeMavenRepoPath = properties.getCanonicalPath(
+                    "tipOfTreeMavenRepoRelativePath"
+                ),
+                repositoryUrls = properties.getProperty("repositoryUrls").split(",").map {
+                    if (it.startsWith("http")) {
+                        it
+                    } else {
+                        // Convert relative paths back to canonical paths
+                        File(it).canonicalPath
+                    }
+                },
+                compileSdkVersion = properties.getProperty("compileSdkVersion").let {
+                    // Add quotes around preview SDK string so that we call
+                    // compileSdkVersion(String) instead of compileSdkVersion(int)
+                    return@let if (it.startsWith("android-")) "\"$it\"" else it
+                },
                 buildToolsVersion = properties.getProperty("buildToolsVersion"),
                 minSdkVersion = properties.getProperty("minSdkVersion"),
-                debugKeystore = properties.getProperty("debugKeystore"),
                 navigationRuntime = properties.getProperty("navigationRuntime"),
                 kotlinStblib = properties.getProperty("kotlinStdlib"),
                 kotlinVersion = properties.getProperty("kotlinVersion"),
                 kspVersion = properties.getProperty("kspVersion"),
-                rootProjectPath = properties.getProperty("rootProjectPath"),
-                localSupportRepo = properties.getProperty("localSupportRepo"),
                 agpDependency = properties.getProperty("agpDependency"),
-                repositoryUrls = properties.getProperty("repositoryUrls").split(",")
+                buildSrcOutPath = properties.getCanonicalPath("buildSrcOutRelativePath")
             )
         }
     }

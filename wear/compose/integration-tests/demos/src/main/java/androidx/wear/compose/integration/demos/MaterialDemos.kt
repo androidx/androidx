@@ -16,41 +16,64 @@
 
 package androidx.wear.compose.integration.demos
 
+import android.annotation.SuppressLint
+import android.os.Build
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
-import androidx.wear.compose.material.samples.AlertDialogWithButtons
-import androidx.wear.compose.material.samples.AlertDialogWithChips
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material.samples.AlertDialogSample
+import androidx.wear.compose.material.samples.AlertWithButtons
+import androidx.wear.compose.material.samples.AlertWithChips
 import androidx.wear.compose.material.samples.AppCardWithIcon
 import androidx.wear.compose.material.samples.ButtonWithIcon
 import androidx.wear.compose.material.samples.ButtonWithText
+import androidx.wear.compose.material.samples.ChipWithIconAndLabel
 import androidx.wear.compose.material.samples.ChipWithIconAndLabels
+import androidx.wear.compose.material.samples.CircularProgressIndicatorFullscreenWithGap
+import androidx.wear.compose.material.samples.CircularProgressIndicatorWithAnimation
 import androidx.wear.compose.material.samples.CompactButtonWithIcon
+import androidx.wear.compose.material.samples.CompactChipWithIcon
 import androidx.wear.compose.material.samples.CompactChipWithIconAndLabel
-import androidx.wear.compose.material.samples.ConfirmationDialogWithAnimation
+import androidx.wear.compose.material.samples.CompactChipWithLabel
+import androidx.wear.compose.material.samples.ConfirmationDialogSample
+import androidx.wear.compose.material.samples.ConfirmationWithAnimation
 import androidx.wear.compose.material.samples.CurvedTextDemo
+import androidx.wear.compose.material.samples.EdgeSwipeForSwipeToDismiss
+import androidx.wear.compose.material.samples.FixedFontSize
+import androidx.wear.compose.material.samples.HorizontalPageIndicatorSample
+import androidx.wear.compose.material.samples.IndeterminateCircularProgressIndicator
 import androidx.wear.compose.material.samples.InlineSliderSample
 import androidx.wear.compose.material.samples.InlineSliderSegmentedSample
-import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeaders
-import androidx.wear.compose.material.samples.ScalingLazyColumnWithHeadersReversed
+import androidx.wear.compose.material.samples.InlineSliderWithIntegerSample
+import androidx.wear.compose.material.samples.LargeButtonWithIcon
+import androidx.wear.compose.material.samples.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo
 import androidx.wear.compose.material.samples.SimplePicker
 import androidx.wear.compose.material.samples.SimpleScaffoldWithScrollIndicator
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumn
 import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithContentPadding
+import androidx.wear.compose.material.samples.SimpleScalingLazyColumnWithSnap
 import androidx.wear.compose.material.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material.samples.SplitToggleChipWithCheckbox
 import androidx.wear.compose.material.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material.samples.StepperSample
-import androidx.wear.compose.material.samples.TimeTextWithCustomSeparator
+import androidx.wear.compose.material.samples.StepperWithIntegerSample
+import androidx.wear.compose.material.samples.TimeTextAnimation
 import androidx.wear.compose.material.samples.TimeTextWithFullDateAndTimeFormat
+import androidx.wear.compose.material.samples.TimeTextWithStatus
 import androidx.wear.compose.material.samples.TitleCardStandard
 import androidx.wear.compose.material.samples.TitleCardWithImage
 import androidx.wear.compose.material.samples.ToggleButtonWithIcon
 import androidx.wear.compose.material.samples.ToggleChipWithIcon
+import java.time.LocalDate
+import java.time.LocalTime
 
 // Declare the swipe to dismiss demos so that we can use this variable as the background composable
 // for the SwipeToDismissDemo itself.
-@ExperimentalWearMaterialApi
 internal val SwipeToDismissDemos =
     DemoCategory(
         "Swipe to Dismiss",
@@ -58,40 +81,100 @@ internal val SwipeToDismissDemos =
             DemoCategory(
                 "Samples",
                 listOf(
-                    ComposableDemo("Simple") { navBack ->
-                        SimpleSwipeToDismissBox(navBack)
+                    ComposableDemo("Simple") { params ->
+                        SimpleSwipeToDismissBox(params.navigateBack)
                     },
                     ComposableDemo("Stateful") { StatefulSwipeToDismissBox() },
+                    ComposableDemo("Edge swipe") { params ->
+                        EdgeSwipeForSwipeToDismiss(params.navigateBack)
+                    },
                 )
             ),
             DemoCategory(
                 "Demos",
                 listOf(
-                    ComposableDemo("Demo") { navigateBack ->
+                    ComposableDemo("Demo") { params ->
                         val state = remember { mutableStateOf(SwipeDismissDemoState.List) }
-                        SwipeToDismissDemo(navigateBack = navigateBack, demoState = state)
+                        SwipeToDismissDemo(navigateBack = params.navigateBack, demoState = state)
                     },
-                    ComposableDemo("Stateful Demo") { navigateBack ->
-                        SwipeToDismissBoxWithState(navigateBack)
+                    ComposableDemo("Stateful Demo") { params ->
+                        SwipeToDismissBoxWithState(params.navigateBack)
+                    },
+                    ComposableDemo("EdgeSwipeToDismiss modifier") { params ->
+                        EdgeSwipeDemo(params.swipeToDismissBoxState)
                     },
                 )
             )
         )
     )
 
-@ExperimentalWearMaterialApi
+@SuppressLint("ClassVerificationFailure")
 val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
+        DemoCategory(
+            "Picker",
+            if (Build.VERSION.SDK_INT > 25) {
+                listOf(
+                    ComposableDemo("Time HH:MM:SS") { params ->
+                        var timePickerTime by remember { mutableStateOf(LocalTime.now()) }
+                        TimePicker(
+                            onTimeConfirm = {
+                                timePickerTime = it
+                                params.navigateBack()
+                            },
+                            time = timePickerTime,
+                        )
+                    },
+                    ComposableDemo("Time 12 Hour") { params ->
+                        var timePickerTime by remember { mutableStateOf(LocalTime.now()) }
+                        TimePickerWith12HourClock(
+                            onTimeConfirm = {
+                                timePickerTime = it
+                                params.navigateBack()
+                            },
+                            time = timePickerTime,
+                        )
+                    },
+                    ComposableDemo("Date Picker") { params ->
+                        var datePickerDate by remember { mutableStateOf(LocalDate.now()) }
+                        DatePicker(
+                            onDateConfirm = {
+                                datePickerDate = it
+                                params.navigateBack()
+                            },
+                            date = datePickerDate
+
+                        )
+                    },
+                    ComposableDemo("Simple Picker") { SimplePicker() },
+                )
+            } else {
+                listOf(
+                    ComposableDemo("Simple Picker") { SimplePicker() },
+                )
+            }
+        ),
         DemoCategory(
             "Slider",
             listOf(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("Inline slider") { Centralize { InlineSliderSample() } },
+                        ComposableDemo("Inline slider") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                InlineSliderSample()
+                            }
+                        },
                         ComposableDemo("Segmented inline slider") {
-                            Centralize { InlineSliderSegmentedSample() }
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                InlineSliderSegmentedSample()
+                            }
+                        },
+                        ComposableDemo("Integer inline slider") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                InlineSliderWithIntegerSample()
+                            }
                         },
                     )
                 ),
@@ -100,7 +183,11 @@ val WearMaterialDemos = DemoCategory(
                     listOf(
                         ComposableDemo("Inline slider") { InlineSliderDemo() },
                         ComposableDemo("RTL Inline slider") { InlineSliderRTLDemo() },
+                        ComposableDemo("With custom color") { InlineSliderCustomColorsDemo() },
                         ComposableDemo("Inline slider segmented") { InlineSliderSegmented() },
+                        ComposableDemo("Inline slider with integers") {
+                            InlineSliderWithIntegersDemo()
+                        },
                     )
                 )
             )
@@ -111,8 +198,9 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("Stepper") {
-                            Centralize({ StepperSample() })
+                        ComposableDemo("Stepper") { Centralize { StepperSample() } },
+                        ComposableDemo("Integer Stepper") {
+                            Centralize { StepperWithIntegerSample() }
                         },
                     )
                 ),
@@ -120,54 +208,37 @@ val WearMaterialDemos = DemoCategory(
                     "Demos",
                     listOf(
                         ComposableDemo("Simple stepper") { StepperDemo() },
-                        ComposableDemo("With scrollbar") {
-                            StepperWithScrollBarDemo()
-                        },
-                        ComposableDemo("With custom colors") {
-                            StepperWithCustomColors()
-                        },
+                        ComposableDemo("Stepper with integer") { StepperWithIntegerDemo() },
+                        ComposableDemo("With scrollbar") { StepperWithScrollBarDemo() },
+                        ComposableDemo("With custom color") { StepperWithCustomColors() },
                     )
                 )
             )
         ),
         DemoCategory(
-            "TimeText",
+            "Time Text",
             listOf(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("Clock with custom separator") {
-                            TimeTextWithCustomSeparator()
-                        },
-                        ComposableDemo("Clock with full date and time format") {
+                        ComposableDemo("Clock with Status") { TimeTextWithStatus() },
+                        ComposableDemo("Clock with custom time format") {
                             TimeTextWithFullDateAndTimeFormat()
+                        },
+                        ComposableDemo("Clock with animated status",
+                            "A TimeText with status that animates in/out when tapping " +
+                                "the central button."
+                        ) {
+                            TimeTextAnimation()
                         },
                     )
                 ),
                 DemoCategory(
                     "Demos",
                     listOf(
-                        ComposableDemo("Clock only") {
-                            TimeTextClockOnly()
-                        },
-                        ComposableDemo("Clock with leading text") {
-                            TimeTextWithLeadingText()
-                        },
-                        ComposableDemo("Clock with trailing text") {
-                            TimeTextWithTrailingText()
-                        },
-                        ComposableDemo("Clock with leading and trailing text") {
-                            TimeTextWithLeadingAndTrailingText()
-                        },
-                        ComposableDemo("Clock with padding") {
-                            TimeTextWithPadding()
-                        },
-                        ComposableDemo("Clock with yyyy.MM.dd HH:mm:ss format") {
-                            TimeTextWithLongDateTime()
-                        },
-                        ComposableDemo("Clock with custom format and color") {
-                            TimeTextWithCustomFormatAndColor()
-                        },
+                        ComposableDemo("Clock only") { TimeTextClockOnly() },
+                        ComposableDemo("Clock with leading text") { TimeTextWithLeadingText() },
+                        ComposableDemo("Clock with shadow") { TimeTextWithShadow() },
                         ComposableDemo("Clock with localised format") {
                             TimeTextWithLocalisedFormat()
                         },
@@ -178,9 +249,26 @@ val WearMaterialDemos = DemoCategory(
         DemoCategory(
             "Dialogs",
             listOf(
-                ComposableDemo("AlertDialog - Buttons") { AlertDialogWithButtons() },
-                ComposableDemo("AlertDialog - Chips") { AlertDialogWithChips() },
-                ComposableDemo("ConfirmationDialog") { ConfirmationDialogWithAnimation() },
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Alert Dialog") { AlertDialogSample() },
+                        ComposableDemo("Confirmation Dialog") { ConfirmationDialogSample() },
+                        ComposableDemo("Alert - Buttons") { AlertWithButtons() },
+                        ComposableDemo("Alert - Chips") { AlertWithChips() },
+                        ComposableDemo("Confirmation") { ConfirmationWithAnimation() },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Power Off") { DialogPowerOff() },
+                        ComposableDemo("Access Location") { DialogAccessLocation() },
+                        ComposableDemo("Grant Permission") { DialogGrantPermission() },
+                        ComposableDemo("Long Chips") { DialogLongChips() },
+                        ComposableDemo("Confirmation") { DialogSuccessConfirmation() },
+                    )
+                )
             )
         ),
         DemoCategory(
@@ -189,16 +277,20 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("ButtonWithIcon") { Centralize({ ButtonWithIcon() }) },
-                        ComposableDemo("ButtonWithText") { Centralize({ ButtonWithText() }) },
-                        ComposableDemo("CompactButtonWithIcon") {
-                            Centralize({ CompactButtonWithIcon() })
+                        ComposableDemo("Button With Icon") { Centralize { ButtonWithIcon() } },
+                        ComposableDemo("Button With Large Icon") {
+                            Centralize { LargeButtonWithIcon() }
+                        },
+                        ComposableDemo("Button With Text") { Centralize { ButtonWithText() } },
+                        ComposableDemo("Compact Button With Icon") {
+                            Centralize { CompactButtonWithIcon() }
                         },
                     )
                 ),
                 DemoCategory(
                     "Demos",
                     listOf(
+                        ComposableDemo("Button Gallery") { ButtonGallery() },
                         ComposableDemo("Button Sizes") { ButtonSizes() },
                         ComposableDemo("Button Styles") { ButtonStyles() },
                     )
@@ -206,9 +298,9 @@ val WearMaterialDemos = DemoCategory(
             )
         ),
         DemoCategory(
-            "ToggleButton",
+            "Toggle Button",
             listOf(
-                ComposableDemo("Sample") { Centralize({ ToggleButtonWithIcon() }) },
+                ComposableDemo("Sample") { Centralize { ToggleButtonWithIcon() } },
                 ComposableDemo("Demos") { ToggleButtons() },
             )
         ),
@@ -218,11 +310,30 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("ChipWithIconAndLabels") {
-                            Centralize({ ChipWithIconAndLabels() })
+                        ComposableDemo("Chip With Icon And long Label") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ChipWithIconAndLabel()
+                            }
                         },
-                        ComposableDemo("CompactChipWithIconAndLabel") {
-                            Centralize({ CompactChipWithIconAndLabel() })
+                        ComposableDemo("Chip With Icon And Labels") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ChipWithIconAndLabels()
+                            }
+                        },
+                        ComposableDemo("Compact Chip With Icon And Label") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                CompactChipWithIconAndLabel()
+                            }
+                        },
+                        ComposableDemo("Compact Chip With Label Only") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                CompactChipWithLabel()
+                            }
+                        },
+                        ComposableDemo("Compact Chip Icon Only") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                CompactChipWithIcon()
+                            }
                         },
                     )
                 ),
@@ -244,11 +355,15 @@ val WearMaterialDemos = DemoCategory(
             listOf(
                 DemoCategory("Samples",
                     listOf(
-                        ComposableDemo("ToggleChipWithIcon") {
-                            Centralize({ ToggleChipWithIcon() })
+                        ComposableDemo("ToggleChip With Icon") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                ToggleChipWithIcon()
+                            }
                         },
-                        ComposableDemo("SplitToggleChipWithCheckbox") {
-                            Centralize({ SplitToggleChipWithCheckbox() })
+                        ComposableDemo("SplitToggleChip With Checkbox") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                SplitToggleChipWithCheckbox()
+                            }
                         }
                     )
                 ),
@@ -256,7 +371,12 @@ val WearMaterialDemos = DemoCategory(
                     "Demos",
                     listOf(
                         ComposableDemo("Toggle chip") { ToggleChips() },
-                        ComposableDemo("RTL Toggle chip") { RtlToggleChips() },
+                        ComposableDemo("RTL Toggle chip") {
+                            ToggleChips(
+                                layoutDirection = LayoutDirection.Rtl,
+                                description = "RTL ToggleChips"
+                            )
+                        },
                     )
                 )
             )
@@ -267,26 +387,143 @@ val WearMaterialDemos = DemoCategory(
                 DemoCategory(
                     "Samples",
                     listOf(
-                        ComposableDemo("AppCard") { Centralize({ AppCardWithIcon() }) },
-                        ComposableDemo("TitleCard") { Centralize({ TitleCardStandard() }) },
-                        ComposableDemo("TitleCardWithImage") {
-                            Centralize({ TitleCardWithImage() })
+                        ComposableDemo("AppCard") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                AppCardWithIcon()
+                            }
+                        },
+                        ComposableDemo("TitleCard") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                TitleCardStandard()
+                            }
+                        },
+                        ComposableDemo("TitleCard With Image") {
+                            Centralize(Modifier.padding(horizontal = 10.dp)) {
+                                TitleCardWithImage()
+                            }
                         },
                     )
                 ),
                 ComposableDemo("Demos") { CardDemo() },
             )
         ),
+        DemoCategory(
+            "Page Indicator",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Sample with InlineSlider") {
+                            Centralize { HorizontalPageIndicatorSample() }
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Customized PageIndicator") {
+                            CustomizedHorizontalPageIndicator()
+                        },
+                    )
+                )
+            )
+        ),
+        DemoCategory(
+            "Progress Indicator",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Indeterminate") {
+                            Centralize { IndeterminateCircularProgressIndicator() }
+                        },
+                        ComposableDemo("Animation") {
+                            Centralize { CircularProgressIndicatorWithAnimation() }
+                        },
+                        ComposableDemo("Fullscreen with a gap") {
+                            Centralize { CircularProgressIndicatorFullscreenWithGap() }
+                        }
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Indeterminate progress") {
+                            Centralize { IndeterminateProgress() }
+                        },
+                        ComposableDemo("Custom angles") {
+                            Centralize { ProgressWithCustomAngles() }
+                        },
+                        ComposableDemo("Media controls") { Centralize { ProgressWithMedia() } },
+                        ComposableDemo("Transforming progress indicator") {
+                            Centralize { TransformingCustomProgressIndicator() }
+                        },
+                    )
+                )
+            )
+        ),
         SwipeToDismissDemos,
         DemoCategory(
-            "List",
+            "List (Scaling Lazy Column)",
             listOf(
-                ComposableDemo("Scaling Lazy Column") { SimpleScalingLazyColumn() },
-                ComposableDemo("SLC with Content Padding") {
+                ComposableDemo(
+                    "Defaults",
+                    "Basic ScalingLazyColumn using default values"
+                ) {
+                    SimpleScalingLazyColumn()
+                },
+                ComposableDemo(
+                    "With Content Padding",
+                    "Basic ScalingLazyColumn with autoCentering disabled and explicit " +
+                        "content padding of top = 20.dp, bottom = 20.dp"
+                ) {
                     SimpleScalingLazyColumnWithContentPadding()
                 },
-                ComposableDemo("List Headers") { ScalingLazyColumnWithHeaders() },
-                ComposableDemo("Reverse Layout") { ScalingLazyColumnWithHeadersReversed() },
+                ComposableDemo(
+                    "With Snap",
+                    "Basic ScalingLazyColumn, center aligned with snap enabled"
+                ) {
+                    SimpleScalingLazyColumnWithSnap()
+                },
+                ComposableDemo(
+                    "Edge Anchor",
+                    "A ScalingLazyColumn with Edge (rather than center) item anchoring. " +
+                        "If you click on an item there will be an animated scroll of the " +
+                        "items edge to the center"
+                ) {
+                    ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
+                },
+                ComposableDemo(
+                    "Edge Anchor (G)",
+                    "A ScalingLazyColumn with Edge (rather than center) item anchoring. " +
+                        "If you click on an item there will be an animated scroll of the " +
+                        "items edge to the center and guidelines drawn on top"
+                ) {
+                    ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo()
+                    GuideLines()
+                },
+                ComposableDemo(
+                    "Scaling Details (G)",
+                    "A ScalingLazyColumn with items that show their position and size as" +
+                        "well as guidelines"
+                ) {
+                    ScalingLazyColumnDetail()
+                    GuideLines()
+                },
+                ComposableDemo(
+                    "Stress Test",
+                    "A ScalingLazyColumn with a mixture of different types of items"
+                ) {
+                    ScalingLazyColumnMixedTypes()
+                },
+                ComposableDemo(
+                    "Stress Test [G]",
+                    "A ScalingLazyColumn with a mixture of different types of items with " +
+                        "guidelines"
+                ) {
+                    ScalingLazyColumnMixedTypes()
+                    GuideLines()
+                },
             )
         ),
         DemoCategory(
@@ -297,17 +534,29 @@ val WearMaterialDemos = DemoCategory(
                 },
             )
         ),
+        DemoCategory(
+            "Position Indicator",
+            listOf(
+                ComposableDemo("Hide when no scrollable") { HideWhenFullDemo() },
+                ComposableDemo("Hide when no scrollable on ScalingLazyColumn") {
+                    HideWhenFullSLCDemo()
+                },
+                ComposableDemo("Controllable PI") { ControllablePositionIndicator() },
+                ComposableDemo("Shared PI") { SharedPositionIndicator() }
+            )
+        ),
         ComposableDemo("Curved Text") { CurvedTextDemo() },
         DemoCategory(
-            "Picker",
+            "Theme",
             listOf(
-                ComposableDemo("Simple Picker") {
-                    SimplePicker()
-                },
-                ComposableDemo("Time Picker") {
-                    PickerTimeDemo()
-                }
+                ComposableDemo("Fonts") { ThemeFonts() },
+                ComposableDemo(
+                    title = "Fixed Font Size",
+                    description =
+                    "Display1 font size not impacted by changes to user font selection",
+                ) { Centralize { FixedFontSize() } },
+                ComposableDemo("Colors") { ThemeColors() },
             )
-        )
+        ),
     ),
 )

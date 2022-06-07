@@ -21,8 +21,8 @@ import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.ExerciseCapabilities.TypeToCapabilitiesEntry
 
 /**
- * A place holder class that represents the capabilities of the
- * [androidx.health.services.client.ExerciseClient] on the device.
+ * Contains the capabilities supported by [androidx.health.services.client.ExerciseClient] on this
+ * device.
  */
 @Suppress("ParcelCreator")
 public class ExerciseCapabilities(
@@ -75,7 +75,7 @@ public class ExerciseCapabilities(
             )
     }
 
-    /** Returns the set of [ExerciseType] s that support auto pause and resume on this device. */
+    /** Returns the set of [ExerciseType]s that support auto pause and resume on this device. */
     public val autoPauseAndResumeEnabledExercises: Set<ExerciseType>
         get() {
             return typeToCapabilities

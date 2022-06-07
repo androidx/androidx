@@ -58,6 +58,7 @@ public class MainActivity extends android.app.ListActivity {
     }
 
     @NonNull
+    @SuppressWarnings("deprecation")
     protected List<Map<String, Object>> getActivityList() {
         List<Map<String, Object>> activityList = new ArrayList<>();
 

@@ -78,6 +78,9 @@ fun XType.implementsEqualsAndHashcode(): Boolean {
         return false
     }
 
+    if (typeElement.isDataClass()) {
+        return true
+    }
     val hasEquals = typeElement.getDeclaredMethods().any {
         it.jvmName == "equals" &&
             it.returnType.typeName == TypeName.BOOLEAN &&
@@ -92,7 +95,7 @@ fun XType.implementsEqualsAndHashcode(): Boolean {
 
     if (hasEquals && hasHashCode) return true
 
-    return typeElement.superType?.let { it.implementsEqualsAndHashcode() } ?: false
+    return typeElement.superClass?.implementsEqualsAndHashcode() ?: false
 }
 
 /**

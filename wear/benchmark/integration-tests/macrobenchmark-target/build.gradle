@@ -32,6 +32,7 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
         }
     }
+    namespace "androidx.wear.benchmark.integration.macrobenchmark.target"
 }
 
 dependencies {

@@ -31,11 +31,14 @@ import java.util.Set;
 /**
  * Quirk which denotes JPEGs produced directly from the HAL may sometimes be corrupted.
  *
- * <p>Corrupt images generally manifest as completely monochrome JPEGs, sometimes solid green.
- * If possible, it is preferred that CameraX produce JPEGs from some other image format rather
- * than receiving JPEGs directly from the HAL.
- *
- * @see <a href="https://issuetracker.google.com/159831206">issuetracker.google.com/159831206</a>
+ * <p>QuirkSummary
+ *      Bug Id:      <a href="https://issuetracker.google.com/159831206">159831206</a>
+ *      Description: Corrupt images generally manifest as completely monochrome JPEGs, sometimes
+ *                   solid green. On the affected devices, this is easier to reproduce
+ *                   immediately after rebooting the device. If possible, it is preferred
+ *                   that CameraX produce JPEGs from some other image format rather than
+ *                   receiving JPEGs directly from the HAL.
+ *      Device(s):   Samsung Galaxy S7 (SM-G930T and SM-G930V variants)
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class JpegHalCorruptImageQuirk implements SoftwareJpegEncodingPreferredQuirk {

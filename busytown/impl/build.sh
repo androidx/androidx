@@ -18,9 +18,11 @@ if [ "$DIST_DIR" == "" ]; then
 fi
 mkdir -p "$DIST_DIR"
 export DIST_DIR="$DIST_DIR"
-
 if [ "$CHANGE_INFO" != "" ]; then
   cp "$CHANGE_INFO" "$DIST_DIR/"
+fi
+if [ "$MANIFEST" == "" ]; then
+  export MANIFEST="$DIST_DIR/manifest_${BUILD_NUMBER}.xml"
 fi
 
 # parse arguments
@@ -58,11 +60,14 @@ function run() {
   fi
 }
 
-# Confirm the existence of .git dirs. TODO(b/170634430) remove this
-(echo "top commit:" && git --no-pager log -1)
-
 # export some variables
 ANDROID_HOME=../../prebuilts/fullsdk-linux
+
+BUILD_STATUS=0
+# enable remote build cache unless explicitly disabled
+if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
+  export USE_ANDROIDX_REMOTE_BUILD_CACHE=gcp
+fi
 
 # run the build
 if run ./gradlew --ci saveSystemStats "$@"; then
@@ -86,8 +91,10 @@ else
       cd -
     fi
   fi
-  exit 1
+  BUILD_STATUS=1 # failure
 fi
 
 # check that no unexpected modifications were made to the source repository, such as new cache directories
 DIST_DIR=$DIST_DIR $SCRIPT_DIR/verify_no_caches_in_source_repo.sh $BUILD_START_MARKER
+
+exit "$BUILD_STATUS"

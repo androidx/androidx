@@ -31,9 +31,11 @@ import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.impl.CameraEventCallbacks;
+import androidx.camera.camera2.internal.compat.params.InputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
 import androidx.camera.camera2.internal.compat.workaround.StillCaptureFlow;
+import androidx.camera.camera2.internal.compat.workaround.TorchStateReset;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -54,15 +56,14 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CancellationException;
 
 /**
- *  A basic implementation of {@link CaptureSessionInterface} for capturing images from the camera
- *  which is tied to a specific {@link CameraDevice}.
+ * A basic implementation of {@link CaptureSessionInterface} for capturing images from the camera
+ * which is tied to a specific {@link CameraDevice}.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class CaptureSession implements CaptureSessionInterface {
@@ -129,6 +130,7 @@ final class CaptureSession implements CaptureSessionInterface {
     @GuardedBy("mSessionLock")
     CallbackToFutureAdapter.Completer<Void> mReleaseCompleter;
     final StillCaptureFlow mStillCaptureFlow = new StillCaptureFlow();
+    final TorchStateReset mTorchStateReset = new TorchStateReset();
 
     /**
      * Constructor for CaptureSession.
@@ -204,8 +206,9 @@ final class CaptureSession implements CaptureSessionInterface {
                     mConfiguredDeferrableSurfaces = new ArrayList<>(surfaces);
                     mSynchronizedCaptureSessionOpener = opener;
                     ListenableFuture<Void> openFuture = FutureChain.from(
-                            mSynchronizedCaptureSessionOpener.startWithDeferrableSurface(
-                                    mConfiguredDeferrableSurfaces, TIMEOUT_GET_SURFACE_IN_MS))
+                                    mSynchronizedCaptureSessionOpener.startWithDeferrableSurface(
+                                            mConfiguredDeferrableSurfaces,
+                                            TIMEOUT_GET_SURFACE_IN_MS))
                             .transformAsync(
                                     surfaceList -> openCaptureSession(surfaceList, sessionConfig,
                                             cameraDevice),
@@ -273,11 +276,6 @@ final class CaptureSession implements CaptureSessionInterface {
                                 configuredSurfaces.get(i));
                     }
 
-                    // Some DeferrableSurfaces might actually point to the same Surface. And we
-                    // need to pass the unique Surface list to createCaptureSession.
-                    List<Surface> uniqueConfiguredSurface = new ArrayList<>(
-                            new LinkedHashSet<>(configuredSurfaces));
-
                     mState = State.OPENING;
                     Logger.d(TAG, "Opening capture session.");
                     SynchronizedCaptureSession.StateCallback callbacks =
@@ -287,9 +285,10 @@ final class CaptureSession implements CaptureSessionInterface {
                                             sessionConfig.getSessionStateCallbacks())
                             );
 
+                    Camera2ImplConfig camera2Config =
+                            new Camera2ImplConfig(sessionConfig.getImplementationOptions());
                     // Start check preset CaptureStage information.
-                    Config options = sessionConfig.getImplementationOptions();
-                    mCameraEventCallbacks = new Camera2ImplConfig(options)
+                    mCameraEventCallbacks = camera2Config
                             .getCameraEventCallback(CameraEventCallbacks.createEmptyCallback());
                     List<CaptureConfig> presetList =
                             mCameraEventCallbacks.createComboCallback().onPresetSession();
@@ -306,14 +305,36 @@ final class CaptureSession implements CaptureSessionInterface {
                     }
 
                     List<OutputConfigurationCompat> outputConfigList = new ArrayList<>();
-                    for (Surface surface : uniqueConfiguredSurface) {
-                        outputConfigList.add(new OutputConfigurationCompat(surface));
+                    String physicalCameraIdForAllStreams =
+                            camera2Config.getPhysicalCameraId(null);
+                    for (SessionConfig.OutputConfig outputConfig :
+                            sessionConfig.getOutputConfigs()) {
+                        OutputConfigurationCompat outputConfiguration =
+                                getOutputConfigurationCompat(
+                                        outputConfig,
+                                        mConfiguredSurfaceMap,
+                                        physicalCameraIdForAllStreams);
+                        outputConfigList.add(outputConfiguration);
                     }
+
+                    // Some DeferrableSurfaces might actually point to the same Surface. For
+                    // example, a Surface(ImageReader) could be shared between use cases.
+                    // Therefore, there might be duplicate surfaces that need to be removed.
+                    // We might consider removing this logic if this is no longer necessary.
+                    outputConfigList = getUniqueOutputConfigurations(outputConfigList);
 
                     SessionConfigurationCompat sessionConfigCompat =
                             mSynchronizedCaptureSessionOpener.createSessionConfigurationCompat(
                                     SessionConfigurationCompat.SESSION_REGULAR, outputConfigList,
                                     callbacks);
+
+                    if (sessionConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+                            && sessionConfig.getInputConfiguration() != null) {
+                        sessionConfigCompat.setInputConfiguration(
+                                InputConfigurationCompat.wrap(
+                                        sessionConfig.getInputConfiguration()));
+                    }
+
                     try {
                         CaptureRequest captureRequest =
                                 Camera2CaptureRequestBuilder.buildWithoutTarget(
@@ -332,6 +353,56 @@ final class CaptureSession implements CaptureSessionInterface {
                             "openCaptureSession() not execute in state: " + mState));
             }
         }
+    }
+
+    @NonNull
+    private List<OutputConfigurationCompat> getUniqueOutputConfigurations(
+            @NonNull List<OutputConfigurationCompat> outputConfigurations) {
+        List<Surface> addedSurfaces = new ArrayList<>();
+        List<OutputConfigurationCompat> results = new ArrayList<>();
+        for (OutputConfigurationCompat outputConfiguration : outputConfigurations) {
+            if (addedSurfaces.contains(outputConfiguration.getSurface())) {
+                // Surface already added,  ignore this outputConfiguration.
+                continue;
+            }
+            addedSurfaces.add(outputConfiguration.getSurface());
+            results.add(outputConfiguration);
+        }
+        return results;
+    }
+
+    @NonNull
+    private OutputConfigurationCompat getOutputConfigurationCompat(
+            @NonNull SessionConfig.OutputConfig outputConfig,
+            @NonNull Map<DeferrableSurface, Surface> configuredSurfaceMap,
+            @Nullable String physicalCameraIdForAllStreams) {
+        Surface surface = configuredSurfaceMap.get(outputConfig.getSurface());
+        Preconditions.checkNotNull(surface,
+                "Surface in OutputConfig not found in configuredSurfaceMap.");
+
+        OutputConfigurationCompat outputConfiguration =
+                new OutputConfigurationCompat(outputConfig.getSurfaceGroupId(),
+                        surface);
+        // Set the desired physical camera ID, or null to use the logical stream.
+        // TODO(b/219414502): Configure different streams with different physical
+        //  camera IDs.
+        if (physicalCameraIdForAllStreams != null) {
+            outputConfiguration.setPhysicalCameraId(physicalCameraIdForAllStreams);
+        } else {
+            outputConfiguration.setPhysicalCameraId(
+                    outputConfig.getPhysicalCameraId());
+        }
+
+        if (!outputConfig.getSharedSurfaces().isEmpty()) {
+            outputConfiguration.enableSurfaceSharing();
+            for (DeferrableSurface sharedDeferSurface : outputConfig.getSharedSurfaces()) {
+                Surface sharedSurface = configuredSurfaceMap.get(sharedDeferSurface);
+                Preconditions.checkNotNull(sharedSurface,
+                        "Surface in OutputConfig not found in configuredSurfaceMap.");
+                outputConfiguration.addSurface(sharedSurface);
+            }
+        }
+        return outputConfiguration;
     }
 
     /**
@@ -643,6 +714,12 @@ final class CaptureSession implements CaptureSessionInterface {
                     CaptureConfig.Builder captureConfigBuilder = CaptureConfig.Builder.from(
                             captureConfig);
 
+                    if (captureConfig.getTemplateType() == CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
+                            && captureConfig.getCameraCaptureResult() != null) {
+                        captureConfigBuilder.setCameraCaptureResult(
+                                captureConfig.getCameraCaptureResult());
+                    }
+
                     // The override priority for implementation options
                     // P1 Single capture options
                     // P2 CameraEventCallback onRepeating options
@@ -689,6 +766,30 @@ final class CaptureSession implements CaptureSessionInterface {
                                     }
                                 });
                     }
+                    if (mTorchStateReset.isTorchResetRequired(captureRequests, isStillCapture)) {
+                        callbackAggregator.addCamera2Callbacks(
+                                captureRequests.get(captureRequests.size() - 1),
+                                Collections.singletonList(new CaptureCallback() {
+
+                                    @Override
+                                    public void onCaptureCompleted(
+                                            @NonNull CameraCaptureSession session,
+                                            @NonNull CaptureRequest request,
+                                            @NonNull TotalCaptureResult result) {
+                                        synchronized (mSessionLock) {
+                                            if (mSessionConfig == null) {
+                                                return;
+                                            }
+                                            CaptureConfig repeatingConfig =
+                                                    mSessionConfig.getRepeatingCaptureConfig();
+                                            Logger.d(TAG, "Submit FLASH_MODE_OFF request");
+                                            issueCaptureRequests(Collections.singletonList(
+                                                    mTorchStateReset.createTorchResetRequest(
+                                                            repeatingConfig)));
+                                        }
+                                    }
+                                }));
+                    }
                     return mSynchronizedCaptureSession.captureBurstRequests(captureRequests,
                             callbackAggregator);
                 } else {
@@ -705,7 +806,7 @@ final class CaptureSession implements CaptureSessionInterface {
     }
 
     /**
-     *  Discards all captures currently pending and in-progress as fast as possible.
+     * Discards all captures currently pending and in-progress as fast as possible.
      */
     void abortCaptures() {
         synchronized (mSessionLock) {

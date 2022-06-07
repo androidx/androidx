@@ -18,6 +18,7 @@ package androidx.room.ext
 
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -99,6 +100,8 @@ object RoomTypeNames {
     )
     val UUID_UTIL: ClassName =
         ClassName.get("$ROOM_PACKAGE.util", "UUIDUtil")
+    val AMBIGUOUS_COLUMN_RESOLVER: ClassName =
+        ClassName.get(ROOM_PACKAGE, "AmbiguousColumnResolver")
 }
 
 object PagingTypeNames {
@@ -110,6 +113,12 @@ object PagingTypeNames {
         ClassName.get(PAGING_PACKAGE, "DataSource", "Factory")
     val PAGING_SOURCE: ClassName =
         ClassName.get(PAGING_PACKAGE, "PagingSource")
+    val LISTENABLE_FUTURE_PAGING_SOURCE: ClassName =
+        ClassName.get(PAGING_PACKAGE, "ListenableFuturePagingSource")
+    val RX2_PAGING_SOURCE: ClassName =
+        ClassName.get("$PAGING_PACKAGE.rxjava2", "RxPagingSource")
+    val RX3_PAGING_SOURCE: ClassName =
+        ClassName.get("$PAGING_PACKAGE.rxjava3", "RxPagingSource")
 }
 
 object LifecyclesTypeNames {
@@ -198,6 +207,30 @@ object RoomPagingTypeNames {
         ClassName.get("$ROOM_PACKAGE.paging", "LimitOffsetPagingSource")
 }
 
+object RoomPagingGuavaTypeNames {
+    val LIMIT_OFFSET_LISTENABLE_FUTURE_PAGING_SOURCE: ClassName =
+        ClassName.get(
+            "$ROOM_PACKAGE.paging.guava",
+            "LimitOffsetListenableFuturePagingSource"
+        )
+}
+
+object RoomPagingRx2TypeNames {
+    val LIMIT_OFFSET_RX_PAGING_SOURCE: ClassName =
+        ClassName.get(
+            "$ROOM_PACKAGE.paging.rxjava2",
+            "LimitOffsetRxPagingSource"
+        )
+}
+
+object RoomPagingRx3TypeNames {
+    val LIMIT_OFFSET_RX_PAGING_SOURCE: ClassName =
+        ClassName.get(
+            "$ROOM_PACKAGE.paging.rxjava3",
+            "LimitOffsetRxPagingSource"
+        )
+}
+
 object RoomCoroutinesTypeNames {
     val COROUTINES_ROOM = ClassName.get(ROOM_PACKAGE, "CoroutinesRoom")
 }
@@ -211,6 +244,24 @@ object KotlinTypeNames {
     val SEND_CHANNEL = ClassName.get("kotlinx.coroutines.channels", "SendChannel")
     val FLOW = ClassName.get("kotlinx.coroutines.flow", "Flow")
 }
+
+val DEFERRED_TYPES = listOf(
+    LifecyclesTypeNames.LIVE_DATA,
+    LifecyclesTypeNames.COMPUTABLE_LIVE_DATA,
+    RxJava2TypeNames.FLOWABLE,
+    RxJava2TypeNames.OBSERVABLE,
+    RxJava2TypeNames.MAYBE,
+    RxJava2TypeNames.SINGLE,
+    RxJava2TypeNames.COMPLETABLE,
+    RxJava3TypeNames.FLOWABLE,
+    RxJava3TypeNames.OBSERVABLE,
+    RxJava3TypeNames.MAYBE,
+    RxJava3TypeNames.SINGLE,
+    RxJava3TypeNames.COMPLETABLE,
+    GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE,
+    KotlinTypeNames.FLOW,
+    ReactiveStreamsTypeNames.PUBLISHER
+)
 
 fun TypeName.defaultValue(): String {
     return if (!isPrimitive) {
@@ -261,3 +312,43 @@ fun Function1TypeSpecBuilder(
         }.build()
     )
 }
+
+/**
+ * Generates a 2D array literal where the value at `i`,`j` will be produced by `valueProducer.
+ * For example:
+ * ```
+ * DoubleArrayLiteral(TypeName.INT, 2, { _ -> 3 }, { i, j -> i + j })
+ * ```
+ * will produce:
+ * ```
+ * new int[][] {
+ *   { 0, 1, 2 },
+ *   { 1, 2, 3 }
+ * }
+ * ```
+ */
+fun DoubleArrayLiteral(
+    type: TypeName,
+    rowSize: Int,
+    columnSizeProducer: (Int) -> Int,
+    valueProducer: (Int, Int) -> Any
+): CodeBlock = CodeBlock.of(
+    "new $T[][] {$W$L$W}", type,
+    CodeBlock.join(
+        List(rowSize) { i ->
+            CodeBlock.of(
+                "{$W$L$W}",
+                CodeBlock.join(
+                    List(columnSizeProducer(i)) { j ->
+                        CodeBlock.of(
+                            if (type == CommonTypeNames.STRING) S else L,
+                            valueProducer(i, j)
+                        )
+                    },
+                    ",$W"
+                ),
+            )
+        },
+        ",$W"
+    )
+)

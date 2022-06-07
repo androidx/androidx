@@ -19,7 +19,6 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.util.Size
@@ -29,10 +28,11 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.OutputStream.OutputType
 import androidx.camera.camera2.pipe.UnsafeWrapper
+import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
+import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.checkNOrHigher
 import androidx.camera.camera2.pipe.core.checkOOrHigher
 import androidx.camera.camera2.pipe.core.checkPOrHigher
-import androidx.camera.camera2.pipe.compat.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import java.util.concurrent.Executor
 
 /**
@@ -48,7 +48,7 @@ internal data class SessionConfigData(
     val stateCallback: CameraCaptureSessionWrapper.StateCallback,
 
     val sessionTemplateId: Int,
-    val sessionParameters: Map<CaptureRequest.Key<*>, Any>
+    val sessionParameters: Map<*, Any?>
 ) {
     companion object {
         /* NOTE: These must keep in sync with their SessionConfiguration values. */
@@ -129,7 +129,8 @@ internal class AndroidOutputConfiguration(
     @RequiresApi(24)
     companion object {
         /**
-         * Create and validate an OutputConfiguration for Camera2.
+         * Create and validate an OutputConfiguration for Camera2. null is returned when a
+         * non-exceptional error is encountered when creating the OutputConfiguration.
          */
         fun create(
             surface: Surface?,
@@ -138,20 +139,29 @@ internal class AndroidOutputConfiguration(
             surfaceSharing: Boolean = false,
             surfaceGroupId: Int = SURFACE_GROUP_ID_NONE,
             physicalCameraId: CameraId? = null
-        ): OutputConfigurationWrapper {
+        ): OutputConfigurationWrapper? {
             check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
 
             // Create the OutputConfiguration using the groupId via the constructor (if set)
             val configuration: OutputConfiguration
             if (outputType == OutputType.SURFACE) {
                 check(surface != null) {
-                    "OutputConfigurations defined with ${OutputType.SURFACE} must provide a valid" +
-                        " surface!"
+                    "OutputConfigurations defined with ${OutputType.SURFACE} must provide a"
+                    "non-null surface!"
                 }
-                configuration = if (surfaceGroupId != SURFACE_GROUP_ID_NONE) {
-                    OutputConfiguration(surfaceGroupId, surface)
-                } else {
-                    OutputConfiguration(surface)
+                // OutputConfiguration will, on some OS versions, attempt to read the surface size
+                // from the Surface object. If the Surface has been destroyed, this check will fail.
+                // Because there's no way to cleanly synchronize and check the value, we catch the
+                // exception for these cases.
+                try {
+                    configuration = if (surfaceGroupId != SURFACE_GROUP_ID_NONE) {
+                        OutputConfiguration(surfaceGroupId, surface)
+                    } else {
+                        OutputConfiguration(surface)
+                    }
+                } catch (e: Throwable) {
+                    Log.warn(e) { "Failed to create an OutputConfiguration for $surface!" }
+                    return null
                 }
             } else {
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {

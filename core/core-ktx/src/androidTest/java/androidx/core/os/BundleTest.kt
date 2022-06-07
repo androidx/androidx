@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 @SmallTest
 class BundleTest {
+    @Suppress("DEPRECATION")
     @Test fun bundleOfValid() {
         val bundleValue = Bundle()
         val charSequenceValue = "hey"
@@ -113,6 +114,7 @@ class BundleTest {
     }
 
     @SdkSuppress(minSdkVersion = 18)
+    @Suppress("DEPRECATION")
     @Test fun bundleOfValidApi18() {
         val binderValue = object : IBinder by Binder() {}
         val bundle = bundleOf("binder" to binderValue)
@@ -120,6 +122,7 @@ class BundleTest {
     }
 
     @SdkSuppress(minSdkVersion = 21)
+    @Suppress("DEPRECATION")
     @Test fun bundleOfValidApi21() {
         val sizeValue = Size(1, 1)
         val sizeFValue = SizeF(1f, 1f)
@@ -143,5 +146,9 @@ class BundleTest {
                 "nopes" to arrayOf(View(ApplicationProvider.getApplicationContext() as Context))
             )
         }.hasMessageThat().isEqualTo("Illegal value array type android.view.View for key \"nopes\"")
+    }
+
+    @Test fun bundleOfEmpty() {
+        assertEquals(0, bundleOf().size())
     }
 }

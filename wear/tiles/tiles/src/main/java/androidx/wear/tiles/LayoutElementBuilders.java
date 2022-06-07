@@ -44,6 +44,7 @@ import androidx.wear.tiles.TypeBuilders.Int32Prop;
 import androidx.wear.tiles.TypeBuilders.StringProp;
 import androidx.wear.tiles.proto.LayoutElementProto;
 import androidx.wear.tiles.proto.TypesProto;
+import androidx.wear.tiles.protobuf.InvalidProtocolBufferException;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -1448,11 +1449,9 @@ public final class LayoutElementBuilders {
 
         /**
          * Gets filtering parameters for this image. If not specified, defaults to no filtering.
-         * Intended for testing purposes only.
          */
-        @TilesExperimental
         @Nullable
-        public ColorFilter getFilter() {
+        public ColorFilter getColorFilter() {
             if (mImpl.hasFilter()) {
                 return ColorFilter.fromProto(mImpl.getFilter());
             } else {
@@ -1555,9 +1554,8 @@ public final class LayoutElementBuilders {
             /**
              * Sets filtering parameters for this image. If not specified, defaults to no filtering.
              */
-            @TilesExperimental
             @NonNull
-            public Builder setFilter(@NonNull ColorFilter filter) {
+            public Builder setColorFilter(@NonNull ColorFilter filter) {
                 mImpl.setFilter(filter.toProto());
                 return this;
             }
@@ -3582,11 +3580,35 @@ public final class LayoutElementBuilders {
             return new Layout(proto);
         }
 
+        /** Returns the {@link Layout} object containing the given layout element. */
+        @NonNull
+        public static Layout fromLayoutElement(@NonNull LayoutElement layoutElement) {
+            return new Builder().setRoot(layoutElement).build();
+        }
+
         /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public LayoutElementProto.Layout toProto() {
             return mImpl;
+        }
+
+        /** Converts to byte array representation. */
+        @TilesExperimental
+        @NonNull
+        public byte[] toByteArray() {
+            return mImpl.toByteArray();
+        }
+
+        /** Converts from byte array representation. */
+        @TilesExperimental
+        @Nullable
+        public static Layout fromByteArray(@NonNull byte[] byteArray) {
+            try {
+                return fromProto(LayoutElementProto.Layout.parseFrom(byteArray));
+            } catch (InvalidProtocolBufferException e) {
+                return null;
+            }
         }
 
         /** Builder for {@link Layout} */

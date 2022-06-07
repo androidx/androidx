@@ -35,7 +35,10 @@ public class BroadcastsObserver(
     private var charging: Boolean? = null
 
     override fun onActionTimeTick() {
-        if (!watchState.isAmbient.value!!) {
+        // android.intent.action.TIME_TICK is sent by the system when the watch is ambient, usually
+        // once per minute at the time of the minute to trigger updates. When the watch is
+        // non-ambient the library is in charge of animation and this signal can be ignored.
+        if (watchState.isAmbient.value == false) {
             watchFaceHostApi.invalidate()
         }
     }

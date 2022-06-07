@@ -310,18 +310,57 @@ class FragmentManagerTest {
 
             val originalWho = fragment1.mWho
 
-            fm.beginTransaction()
-                .add(fragment1, "fragment1")
-                .setReorderingAllowed(true)
-                .addToBackStack("stack1")
-                .commit()
-            fm.popBackStack()
+            withActivity {
+                fm.beginTransaction()
+                    .add(fragment1, "fragment1")
+                    .setReorderingAllowed(true)
+                    .addToBackStack("stack1")
+                    .commit()
+                fm.popBackStack()
+            }
             executePendingTransactions()
 
             assertThat(fragment1.mWho).isNotEqualTo(originalWho)
             assertThat(fragment1.mFragmentManager).isNull()
             assertThat(fm.findFragmentByWho(originalWho)).isNull()
             assertThat(fm.findFragmentByWho(fragment1.mWho)).isNull()
+        }
+    }
+
+    @Test
+    fun reAddRemovedBeforeAttached() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val fm = withActivity {
+                supportFragmentManager
+            }
+            val fragment1 = StrictFragment()
+
+            val originalWho = fragment1.mWho
+
+            withActivity {
+                fm.beginTransaction()
+                    .add(fragment1, "fragment1")
+                    .setReorderingAllowed(true)
+                    .addToBackStack("stack1")
+                    .commit()
+                fm.popBackStack()
+            }
+            executePendingTransactions()
+
+            assertThat(fragment1.mWho).isNotEqualTo(originalWho)
+            assertThat(fragment1.mFragmentManager).isNull()
+            assertThat(fm.findFragmentByWho(originalWho)).isNull()
+            assertThat(fm.findFragmentByWho(fragment1.mWho)).isNull()
+
+            val afterRemovalWho = fragment1.mWho
+
+            fm.beginTransaction()
+                .add(fragment1, "fragment1")
+                .setReorderingAllowed(true)
+                .commit()
+            executePendingTransactions()
+
+            assertThat(fragment1.mWho).isEqualTo(afterRemovalWho)
         }
     }
 

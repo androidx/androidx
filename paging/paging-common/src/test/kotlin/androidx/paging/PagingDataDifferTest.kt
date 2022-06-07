@@ -25,6 +25,12 @@ import androidx.testutils.DirectDispatcher
 import androidx.testutils.MainDispatcherRule
 import androidx.testutils.TestDispatcher
 import com.google.common.truth.Truth.assertThat
+import kotlin.coroutines.ContinuationInterceptor
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,7 +38,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.first
@@ -40,23 +45,27 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-import kotlin.coroutines.ContinuationInterceptor
-import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertNull
-import kotlin.test.assertTrue
+import org.junit.runners.Parameterized
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
-@RunWith(JUnit4::class)
-class PagingDataDifferTest {
-    private val testScope = TestCoroutineScope()
+@RunWith(Parameterized::class)
+class PagingDataDifferTest(
+    /**
+     * run some tests with cached-in to ensure caching does not change behavior in the single
+     * consumer cases.
+     */
+    private val collectWithCachedIn: Boolean
+) {
+    private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @get:Rule
     val dispatcherRule = MainDispatcherRule(
@@ -64,8 +73,8 @@ class PagingDataDifferTest {
     )
 
     @Test
-    fun collectFrom_static() = testScope.runBlockingTest {
-        pauseDispatcher {
+    fun collectFrom_static() = testScope.runTest {
+        withContext(coroutineContext) {
             val differ = SimpleDiffer(dummyDifferCallback)
             val receiver = UiReceiverFake()
 
@@ -92,7 +101,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun collectFrom_twice() = testScope.runBlockingTest {
+    fun collectFrom_twice() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         launch { differ.collectFrom(infinitelySuspendingPagingData()) }
@@ -102,7 +111,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun collectFrom_twiceConcurrently() = testScope.runBlockingTest {
+    fun collectFrom_twiceConcurrently() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         val job1 = launch {
@@ -123,7 +132,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun retry() = testScope.runBlockingTest {
+    fun retry() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val receiver = UiReceiverFake()
 
@@ -139,7 +148,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun refresh() = testScope.runBlockingTest {
+    fun refresh() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val receiver = UiReceiverFake()
 
@@ -155,7 +164,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun fetch_loadHintResentWhenUnfulfilled() = testScope.runBlockingTest {
+    fun fetch_loadHintResentWhenUnfulfilled() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
@@ -294,7 +303,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun fetch_loadHintResentUnlessPageDropped() = testScope.runBlockingTest {
+    fun fetch_loadHintResentUnlessPageDropped() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
@@ -395,7 +404,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun peek() = testScope.runBlockingTest {
+    fun peek() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
         pageEventCh.trySend(
@@ -448,7 +457,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun initialHint_emptyRefresh() = testScope.runBlockingTest {
+    fun initialHint_emptyRefresh() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val pageEventCh = Channel<PageEvent<Int>>(Channel.UNLIMITED)
         val uiReceiver = UiReceiverFake()
@@ -468,7 +477,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun onPagingDataPresentedListener_empty() = testScope.runBlockingTest {
+    fun onPagingDataPresentedListener_empty() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val listenerEvents = mutableListOf<Unit>()
         differ.addOnPagesUpdatedListener {
@@ -497,7 +506,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun onPagingDataPresentedListener_insertDrop() = testScope.runBlockingTest {
+    fun onPagingDataPresentedListener_insertDrop() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val listenerEvents = mutableListOf<Unit>()
         differ.addOnPagesUpdatedListener {
@@ -533,7 +542,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun onPagingDataPresentedFlow_empty() = testScope.runBlockingTest {
+    fun onPagingDataPresentedFlow_empty() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val listenerEvents = mutableListOf<Unit>()
         val job1 = testScope.launch {
@@ -565,7 +574,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun onPagingDataPresentedFlow_insertDrop() = testScope.runBlockingTest {
+    fun onPagingDataPresentedFlow_insertDrop() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val listenerEvents = mutableListOf<Unit>()
         val job1 = testScope.launch {
@@ -604,7 +613,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun onPagingDataPresentedFlow_buffer() = testScope.runBlockingTest {
+    fun onPagingDataPresentedFlow_buffer() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val listenerEvents = mutableListOf<Unit>()
 
@@ -640,7 +649,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun loadStateFlow_synchronouslyUpdates() = testScope.runBlockingTest {
+    fun loadStateFlow_synchronouslyUpdates() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         var combinedLoadStates: CombinedLoadStates? = null
         var itemCount = -1
@@ -689,7 +698,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun loadStateFlow_hasNoInitialValue() = testScope.runBlockingTest {
+    fun loadStateFlow_hasNoInitialValue() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         // Should not immediately emit without a real value to a new collector.
@@ -736,7 +745,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun loadStateFlow_preservesLoadStatesOnEmptyList() = testScope.runBlockingTest {
+    fun loadStateFlow_preservesLoadStatesOnEmptyList() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         // Should not immediately emit without a real value to a new collector.
@@ -812,7 +821,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun loadStateFlow_preservesLoadStatesOnStaticList() = testScope.runBlockingTest {
+    fun loadStateFlow_preservesLoadStatesOnStaticList() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
         // Should not immediately emit without a real value to a new collector.
@@ -888,9 +897,9 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun addLoadStateListener_SynchronouslyUpdates() = testScope.runBlockingTest {
+    fun addLoadStateListener_SynchronouslyUpdates() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
-        pauseDispatcher {
+        withContext(coroutineContext) {
             var combinedLoadStates: CombinedLoadStates? = null
             var itemCount = -1
             differ.addLoadStateListener {
@@ -936,7 +945,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun addLoadStateListener_hasNoInitialValue() = testScope.runBlockingTest {
+    fun addLoadStateListener_hasNoInitialValue() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val combinedLoadStateCapture = CombinedLoadStatesCapture()
 
@@ -972,7 +981,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun uncaughtException() = testScope.runBlockingTest {
+    fun uncaughtException() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val pager = Pager(
             PagingConfig(1),
@@ -987,7 +996,7 @@ class PagingDataDifferTest {
         }
 
         val pagingData = pager.flow.first()
-        val deferred = testScope.async {
+        val deferred = testScope.async(Job()) {
             differ.collectFrom(pagingData)
         }
 
@@ -996,7 +1005,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun handledLoadResultInvalid() = testScope.runBlockingTest {
+    fun handledLoadResultInvalid() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         var generation = 0
         val pager = Pager(
@@ -1023,8 +1032,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun refresh_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher,
-        pagingSources ->
+    fun refresh_loadStates() = runTest(initialKey = 50) { differ, loadDispatcher, pagingSources ->
         val collectLoadStates = differ.collectLoadStates()
 
         // execute queued initial REFRESH
@@ -1043,12 +1051,59 @@ class PagingDataDifferTest {
 
         // second refresh still loads from initialKey = 50 because anchorPosition/refreshKey is null
         assertThat(pagingSources.size).isEqualTo(2)
-        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf(refreshLocal = Loading),
-            localLoadStatesOf()
+            localLoadStatesOf(prependLocal = NotLoading.Complete)
         )
 
+        collectLoadStates.cancel()
+    }
+
+    @Test
+    fun refresh_loadStates_afterEndOfPagination() = runTest { differ, loadDispatcher, _ ->
+        val loadStateCallbacks = mutableListOf<CombinedLoadStates>()
+        differ.addLoadStateListener {
+            loadStateCallbacks.add(it)
+        }
+        val collectLoadStates = differ.collectLoadStates()
+        // execute initial refresh
+        loadDispatcher.queue.poll()?.run()
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(
+                refreshLocal = Loading
+            ),
+            localLoadStatesOf(
+                refreshLocal = NotLoading(endOfPaginationReached = false),
+                prependLocal = NotLoading(endOfPaginationReached = true)
+            )
+        )
+        loadStateCallbacks.clear()
+        differ.refresh()
+        // after a refresh, make sure the loading event comes in 1 piece w/ the end of pagination
+        // reset
+        loadDispatcher.queue.poll()?.run()
+        assertThat(differ.newCombinedLoadStates()).containsExactly(
+            localLoadStatesOf(
+                refreshLocal = Loading,
+                prependLocal = NotLoading(endOfPaginationReached = false)
+            ),
+            localLoadStatesOf(
+                refreshLocal = NotLoading(endOfPaginationReached = false),
+                prependLocal = NotLoading(endOfPaginationReached = true)
+            ),
+        )
+        assertThat(loadStateCallbacks).containsExactly(
+            localLoadStatesOf(
+                refreshLocal = Loading,
+                prependLocal = NotLoading(endOfPaginationReached = false)
+            ),
+            localLoadStatesOf(
+                refreshLocal = NotLoading(endOfPaginationReached = false),
+                prependLocal = NotLoading(endOfPaginationReached = true)
+            ),
+        )
         collectLoadStates.cancel()
     }
 
@@ -1192,10 +1247,11 @@ class PagingDataDifferTest {
 
         // second refresh still loads from initialKey = 50 because anchorPosition/refreshKey is null
         assertThat(pagingSources.size).isEqualTo(2)
-        assertThat(differ.snapshot()).containsExactlyElementsIn(50 until 59)
+        assertThat(differ.snapshot()).containsExactlyElementsIn(0 until 9)
         assertThat(differ.newCombinedLoadStates()).containsExactly(
-            // all local states NotLoading.Incomplete
-            localLoadStatesOf()
+            localLoadStatesOf(
+                prependLocal = NotLoading.Complete,
+            )
         )
 
         collectLoadStates.cancel()
@@ -1402,7 +1458,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun remoteRefresh_refreshStatePersists() = testScope.runBlockingTest {
+    fun remoteRefresh_refreshStatePersists() = testScope.runTest {
         val differ = SimpleDiffer(dummyDifferCallback)
         val remoteMediator = RemoteMediatorMock(loadDelay = 1500).apply {
             initializeResult = RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
@@ -1524,7 +1580,13 @@ class PagingDataDifferTest {
         block: (SimpleDiffer, TestDispatcher, MutableList<TestPagingSource>) -> Unit
     ) {
         val collection = scope.launch {
-            pager.flow.collect {
+            pager.flow.let {
+                if (collectWithCachedIn) {
+                    it.cachedIn(this)
+                } else {
+                    it
+                }
+            }.collect {
                 differ.collectFrom(it)
             }
         }
@@ -1535,6 +1597,12 @@ class PagingDataDifferTest {
                 collection.cancel()
             }
         }
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "useCachedIn_{0}")
+        fun params() = arrayOf(true, false)
     }
 }
 
@@ -1572,7 +1640,7 @@ private class UiReceiverFake : UiReceiver {
 @OptIn(ExperimentalCoroutinesApi::class)
 private class SimpleDiffer(
     differCallback: DifferCallback,
-    val coroutineScope: CoroutineScope = TestCoroutineScope()
+    val coroutineScope: CoroutineScope = TestScope(UnconfinedTestDispatcher())
 ) : PagingDataDiffer<Int>(differCallback) {
     override suspend fun presentNewList(
         previousList: NullPaddedList<Int>,

@@ -39,6 +39,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowApplication;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -47,6 +48,8 @@ import java.util.concurrent.Executors;
 @DoNotInstrument
 public class PropertyManagerTest extends MockedCarTestBase {
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
+    private static final List<CarZone> CAR_ZONE_GLOBAL =
+            Collections.singletonList(CarZone.CAR_ZONE_GLOBAL);
     private PropertyManager mPropertyManager;
 
     @Before
@@ -78,6 +81,7 @@ public class PropertyManagerTest extends MockedCarTestBase {
         assertThat(infoYearResponse.getPropertyId()).isEqualTo(VehiclePropertyIds.INFO_MODEL_YEAR);
         assertThat(infoYearResponse.getValue()).isEqualTo(MODEL_YEAR);
         assertThat(infoYearResponse.getStatus()).isEqualTo(CarValue.STATUS_SUCCESS);
+        assertThat(infoYearResponse.getCarZones()).isEqualTo(CAR_ZONE_GLOBAL);
     }
 
     /**
@@ -100,12 +104,14 @@ public class PropertyManagerTest extends MockedCarTestBase {
                 responsesMap.get(VehiclePropertyIds.INFO_MODEL_YEAR);
 
         assertThat(responses.size()).isEqualTo(requests.size());
-        assertThat(infoMakerResponse.getValue()).isEqualTo(MODEL_MAKER);
+        assertThat(infoMakerResponse.getValue()).isNull();
         assertThat(infoMakerResponse.getStatus()).isEqualTo(CarValue.STATUS_UNAVAILABLE);
-        assertThat(infoModelResponse.getValue()).isEqualTo(MODEL_NAME);
+        assertThat(infoModelResponse.getValue()).isNull();
         assertThat(infoModelResponse.getStatus()).isEqualTo(CarValue.STATUS_UNKNOWN);
+        assertThat(infoModelResponse.getCarZones()).isEqualTo(CAR_ZONE_GLOBAL);
         assertThat(infoYearResponse.getValue()).isEqualTo(MODEL_YEAR);
         assertThat(infoYearResponse.getStatus()).isEqualTo(CarValue.STATUS_SUCCESS);
+        assertThat(infoYearResponse.getCarZones()).isEqualTo(CAR_ZONE_GLOBAL);
     }
 
     /**
@@ -137,6 +143,7 @@ public class PropertyManagerTest extends MockedCarTestBase {
         assertThat(responses.size()).isEqualTo(requests.size());
         assertThat(response.getValue()).isNull();
         assertThat(response.getStatus()).isEqualTo(CarValue.STATUS_UNIMPLEMENTED);
+        assertThat(response.getCarZones()).isEqualTo(CAR_ZONE_GLOBAL);
     }
 
     private static SparseArray<CarPropertyResponse<?>> getCarPropertyResponseMap(

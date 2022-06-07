@@ -31,8 +31,8 @@ import androidx.camera.camera2.pipe.config.ExternalCameraGraphComponent
 import androidx.camera.camera2.pipe.config.ExternalCameraGraphConfigModule
 import androidx.camera.camera2.pipe.config.ExternalCameraPipeComponent
 import androidx.camera.camera2.pipe.config.ThreadConfigModule
-import kotlinx.atomicfu.atomic
 import java.util.concurrent.Executor
+import kotlinx.atomicfu.atomic
 
 internal val cameraPipeIds = atomic(0)
 

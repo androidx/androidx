@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.fragment.lint
+package androidx.fragment.testing.lint
 
-import androidx.fragment.testing.lint.FragmentTestingIssueRegistry
 import com.android.tools.lint.client.api.LintClient
 import com.android.tools.lint.detector.api.CURRENT_API
 import com.google.common.truth.Truth.assertThat
@@ -36,6 +35,6 @@ class ApiLintVersionsTest {
         assertThat(registry.api).isEqualTo(CURRENT_API)
         // Intentionally fails in IDE, because we use different API version in
         // studio and command line
-        assertThat(registry.minApi).isEqualTo(8)
+        assertThat(registry.minApi).isEqualTo(10)
     }
 }

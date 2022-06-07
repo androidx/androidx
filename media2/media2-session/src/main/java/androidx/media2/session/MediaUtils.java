@@ -314,6 +314,7 @@ public class MediaUtils {
      * and rating type to a {@link MediaItem}.
      */
     @Nullable
+    @SuppressWarnings("deprecation")
     public static MediaItem convertToMediaItem(@Nullable MediaMetadataCompat metadataCompat,
             int ratingType) {
         if (metadataCompat == null) {
@@ -987,7 +988,7 @@ public class MediaUtils {
         return stream;
     }
 
-    @SuppressWarnings("ParcelClassLoader")
+    @SuppressWarnings({"ParcelClassLoader", "deprecation"})
     static boolean doesBundleHaveCustomParcelable(@NonNull Bundle bundle) {
         // Try writing the bundle to parcel, and read it with framework classloader.
         Parcel parcel = Parcel.obtain();
@@ -995,10 +996,9 @@ public class MediaUtils {
             parcel.writeBundle(bundle);
             parcel.setDataPosition(0);
             Bundle out = parcel.readBundle(null);
-
-            if (out != null) {
-                // Calling Bundle#isEmpty() will trigger Bundle#unparcel().
-                out.isEmpty();
+            for (String key : out.keySet()) {
+                // Attempt to retrieve all Bundle values with the framework class loader.
+                out.get(key);
             }
             return false;
         } catch (BadParcelableException e) {

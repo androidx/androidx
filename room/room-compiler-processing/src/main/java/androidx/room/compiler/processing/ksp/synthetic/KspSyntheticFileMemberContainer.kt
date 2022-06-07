@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.ksp.synthetic
 
 import androidx.room.compiler.processing.XAnnotation
 import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.ksp.KspMemberContainer
 import androidx.room.compiler.processing.ksp.KspType
@@ -71,6 +72,12 @@ internal class KspSyntheticFileMemberContainer(
 
     override val docComment: String?
         get() = null
+
+    override val enclosingElement: XElement?
+        get() = null
+
+    override val closestMemberContainer: KspSyntheticFileMemberContainer
+        get() = this
 
     override fun validate(): Boolean {
         return true

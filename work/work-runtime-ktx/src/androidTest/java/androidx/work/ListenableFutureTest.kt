@@ -20,7 +20,6 @@ package androidx.work
 
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -29,6 +28,7 @@ import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -82,7 +82,7 @@ class ListenableFutureTest {
         }
     }
 
-    @FlakyTest(bugId = 203776153)
+    @Ignore // b/203776153
     @OptIn(DelicateCoroutinesApi::class)
     @Test
     fun testCoroutineScopeCancellation() {

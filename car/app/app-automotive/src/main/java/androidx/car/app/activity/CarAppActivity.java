@@ -26,11 +26,16 @@ import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
 import android.graphics.Insets;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
+import android.view.PixelCopy;
 import android.view.View;
 import android.view.WindowInsets;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -54,6 +59,7 @@ import androidx.car.app.utils.ThreadUtils;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelProvider;
 
 import java.util.List;
@@ -69,8 +75,8 @@ import java.util.List;
  * <h4>Activity Declaration</h4>
  *
  * <p>The app must declare and export this {@link CarAppActivity} in their manifest. In order for
- * it to show up in the car's app launcher, it must include a {@link Intent#CATEGORY_LAUNCHER}
- * intent filter.
+ * it to show up in the car's app launcher. It must declare the {@code launchMode} to be
+ * {@code singleTask}, and it must include a {@link Intent#CATEGORY_LAUNCHER} intent filter.
  *
  * For example:
  *
@@ -78,6 +84,7 @@ import java.util.List;
  * <activity
  *   android:name="androidx.car.app.activity.CarAppActivity"
  *   android:exported="true"
+ *   android:launchMode="singleTask"
  *   android:label="@string/your_app_label">
  *
  *   <intent-filter>
@@ -111,6 +118,16 @@ public final class CarAppActivity extends FragmentActivity {
     LoadingView mLoadingView;
     View mActivityContainerView;
     View mLocalContentContainerView;
+
+    /** Displays the snapshot of the surface view to avoid a visual glitch when app comes
+     * to foreground. This view sits behind the surface view and will be visible only when surface
+     * is hidden (or not created yet).
+     */
+    ImageView mSurfaceSnapshotView;
+
+    // The handler used to take surface view snapshot.
+    private Handler mSnapshotHandler = new Handler(Looper.myLooper());
+
     @Nullable SurfaceHolderListener mSurfaceHolderListener;
     @Nullable ActivityLifecycleDelegate mActivityLifecycleDelegate;
     @Nullable CarAppViewModel mViewModel;
@@ -127,6 +144,16 @@ public final class CarAppActivity extends FragmentActivity {
                 @Override
                 public WindowInsets onApplyWindowInsets(@NonNull View view,
                         @NonNull WindowInsets windowInsets) {
+                    // Do not report inset changes if the activity is not in resumed state.
+                    // Reporting the inset changes when the app is going away results in visible
+                    // rescaling of certain UI elements such as maps right before app goes to the
+                    // background. These inset changes then need to be corrected again once the
+                    // app comes to the foreground resulting with another rescaling of the
+                    // screen which is not desired.
+                    if (getLifecycle().getCurrentState() != Lifecycle.State.RESUMED) {
+                        return WindowInsetsCompat.CONSUMED.toWindowInsets();
+                    }
+
                     // IMPORTANT: The insets calculated here must match the windowing settings in
                     // SystemUiVisibility set in CarAppActivity#onCreate(). Failing to do so would
                     // cause a mismatch between the insets applied to the content on the hosts side
@@ -135,19 +162,13 @@ public final class CarAppActivity extends FragmentActivity {
                             .getInsets(WindowInsetsCompat.Type.systemBars()
                                     | WindowInsetsCompat.Type.ime())
                             .toPlatformInsets();
-                    boolean insetsHandled = requireNonNull(mViewModel).updateWindowInsets(insets);
 
-                    if (insetsHandled) {
-                        // Insets are handled by the host. Only local content need padding.
-                        mActivityContainerView.setPadding(0, 0, 0, 0);
-                        mLocalContentContainerView.setPadding(insets.left, insets.top,
-                                insets.right, insets.bottom);
-                    } else {
-                        // Insets are handled locally, padding is applied at the top level.
-                        mActivityContainerView.setPadding(insets.left, insets.top,
-                                insets.right, insets.bottom);
-                        mLocalContentContainerView.setPadding(0, 0, 0, 0);
-                    }
+                    requireNonNull(mViewModel).updateWindowInsets(insets);
+
+                    // Insets are handled by the host. Only local content need padding.
+                    mActivityContainerView.setPadding(0, 0, 0, 0);
+                    mLocalContentContainerView.setPadding(insets.left, insets.top,
+                            insets.right, insets.bottom);
 
                     return WindowInsetsCompat.CONSUMED.toWindowInsets();
                 }
@@ -250,6 +271,7 @@ public final class CarAppActivity extends FragmentActivity {
         mSurfaceView = requireViewById(R.id.template_view_surface);
         mErrorMessageView = requireViewById(R.id.error_message_view);
         mLoadingView = requireViewById(R.id.loading_view);
+        mSurfaceSnapshotView = requireViewById(R.id.template_view_snapshot);
 
         mActivityContainerView.setOnApplyWindowInsetsListener(mWindowInsetsListener);
         // IMPORTANT: The SystemUiVisibility applied here must match the insets provided to the
@@ -291,6 +313,36 @@ public final class CarAppActivity extends FragmentActivity {
         mViewModel.bind(getIntent(), mCarActivity, getDisplayId());
     }
 
+    /** Takes a snapshot of the surface view and puts it in the surfaceSnapshotView if succeeded. */
+    private void takeSurfaceSnapshot() {
+        // Nothing to do if the surface is not ready yet.
+        if (mSurfaceView.getHolder().getSurface() == null
+                || mSurfaceView.getWidth() == 0 || mSurfaceView.getHeight() == 0) {
+            return;
+        }
+        try {
+            Bitmap bitmap = Bitmap.createBitmap(mSurfaceView.getWidth(), mSurfaceView.getHeight(),
+                    Bitmap.Config.ARGB_8888);
+            PixelCopy.request(mSurfaceView, bitmap, status -> {
+                if (status == PixelCopy.SUCCESS) {
+                    mSurfaceSnapshotView.setImageBitmap(bitmap);
+                } else {
+                    Log.w(LogTags.TAG, "Failed to take snapshot of the surface view");
+                    mSurfaceSnapshotView.setImageBitmap(null);
+                }
+            }, mSnapshotHandler);
+        } catch (Exception e) {
+            Log.e(LogTags.TAG, "Failed to take snapshot of the surface view", e);
+            mSurfaceSnapshotView.setImageBitmap(null);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        takeSurfaceSnapshot();
+    }
+
     // TODO(b/189862860): Address SOFT_INPUT_ADJUST_RESIZE deprecation
     @SuppressWarnings("deprecation")
     private void setSoftInputHandling() {
@@ -313,28 +365,33 @@ public final class CarAppActivity extends FragmentActivity {
     private void onStateChanged(@NonNull CarAppViewModel.State state) {
         ThreadUtils.runOnMain(() -> {
             requireNonNull(mSurfaceView);
+            requireNonNull(mSurfaceSnapshotView);
             requireNonNull(mSurfaceHolderListener);
 
             switch (state) {
                 case IDLE:
                     mSurfaceView.setVisibility(View.GONE);
+                    mSurfaceSnapshotView.setVisibility(View.VISIBLE);
                     mSurfaceHolderListener.setSurfaceListener(null);
                     mErrorMessageView.setVisibility(View.GONE);
                     mLoadingView.setVisibility(View.GONE);
                     break;
                 case ERROR:
                     mSurfaceView.setVisibility(View.GONE);
+                    mSurfaceSnapshotView.setVisibility(View.GONE);
                     mSurfaceHolderListener.setSurfaceListener(null);
                     mErrorMessageView.setVisibility(View.VISIBLE);
                     mLoadingView.setVisibility(View.GONE);
                     break;
                 case CONNECTING:
                     mSurfaceView.setVisibility(View.GONE);
+                    mSurfaceSnapshotView.setVisibility(View.VISIBLE);
                     mErrorMessageView.setVisibility(View.GONE);
                     mLoadingView.setVisibility(View.VISIBLE);
                     break;
                 case CONNECTED:
                     mSurfaceView.setVisibility(View.VISIBLE);
+                    mSurfaceSnapshotView.setVisibility(View.VISIBLE);
                     mErrorMessageView.setVisibility(View.GONE);
                     mLoadingView.setVisibility(View.GONE);
                     break;
@@ -367,11 +424,13 @@ public final class CarAppActivity extends FragmentActivity {
     @Override
     protected void onDestroy() {
         requireNonNull(mHostUpdateReceiver).unregister(this);
+        requireNonNull(mSurfaceHolderListener).setSurfaceListener(null);
         requireNonNull(mViewModel).setActivity(null);
         super.onDestroy();
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     private ComponentName retrieveServiceComponentName() {
         Intent intent = new Intent(SERVICE_INTERFACE);
         intent.setPackage(getPackageName());

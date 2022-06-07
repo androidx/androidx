@@ -82,6 +82,15 @@ message Background {
   Corner corner = 2;
 }
 
+// Metadata about an element. For use by libraries building higher-level
+// components only. This can be used to track component metadata.
+message ElementMetadata {
+  // Property describing the element with which it is associated. For use by
+  // libraries building higher-level components only. This can be used to track
+  // component metadata.
+  bytes tag_data = 1;
+}
+
 // Modifiers for an element. These may change the way they are drawn (e.g.
 // Padding or Background), or change their behaviour (e.g. Clickable, or
 // Semantics).
@@ -102,6 +111,10 @@ message Modifiers {
 
   // Adds a background (with corner radius) to the modified element.
   Background background = 5;
+
+  // Metadata about an element. For use by libraries building higher-level
+  // components only. This can be used to track component metadata
+  ElementMetadata metadata = 6;
 }
 
 // Modifiers that can be used with ArcLayoutElements. These may change the way

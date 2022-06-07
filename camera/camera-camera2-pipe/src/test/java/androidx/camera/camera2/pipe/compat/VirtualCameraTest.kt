@@ -19,25 +19,26 @@ package androidx.camera.camera2.pipe.compat
 import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.camera.camera2.pipe.core.Timestamps
+import androidx.camera.camera2.pipe.core.Token
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
-import androidx.camera.camera2.pipe.core.Token
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
-import java.util.concurrent.TimeUnit
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -54,7 +55,7 @@ internal class VirtualCameraStateTest {
     }
 
     @Test
-    fun virtualCameraStateCanBeDisconnected() = runBlockingTest {
+    fun virtualCameraStateCanBeDisconnected() = runTest(UnconfinedTestDispatcher()) {
         // This test asserts that the virtual camera starts in an unopened state and is changed to
         // "Closed" when disconnect is invoked on the VirtualCamera.
         val virtualCamera = VirtualCameraState(cameraId)
@@ -77,7 +78,7 @@ internal class VirtualCameraStateTest {
     }
 
     @Test
-    fun virtualCameraStateConnectsToFlow() = runBlockingTest {
+    fun virtualCameraStateConnectsToFlow() = runTest {
         // This test asserts that when a virtual camera is connected to a flow of CameraState
         // changes that it receives those changes and can be subsequently disconnected, which stops
         // additional events from being passed to the virtual camera instance.
@@ -111,6 +112,7 @@ internal class VirtualCameraStateTest {
         assertThat(closedState.cameraClosedReason).isEqualTo(ClosedReason.APP_DISCONNECTED)
     }
 
+    @Suppress("DEPRECATION") // fails with runTest {} api - b/220870228
     @Test
     fun virtualCameraStateRespondsToClose() = runBlockingTest {
         // This tests that a listener attached to the virtualCamera.state property will receive all

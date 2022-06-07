@@ -63,126 +63,126 @@ public final class WearableButtons {
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
-            LOC_UNKNOWN,
-            LOC_EAST,
-            LOC_ENE,
-            LOC_NE,
-            LOC_NNE,
-            LOC_NORTH,
-            LOC_NNW,
-            LOC_NW,
-            LOC_WNW,
-            LOC_WEST,
-            LOC_WSW,
-            LOC_SW,
-            LOC_SSW,
-            LOC_SOUTH,
-            LOC_SSE,
-            LOC_SE,
-            LOC_ESE,
-            LOC_TOP_RIGHT,
-            LOC_TOP_CENTER,
-            LOC_TOP_LEFT,
-            LOC_LEFT_TOP,
-            LOC_LEFT_CENTER,
-            LOC_LEFT_BOTTOM,
-            LOC_BOTTOM_LEFT,
-            LOC_BOTTOM_CENTER,
-            LOC_BOTTOM_RIGHT,
-            LOC_RIGHT_BOTTOM,
-            LOC_RIGHT_CENTER,
-            LOC_RIGHT_TOP
+            LOCATION_UNKNOWN,
+            LOCATION_EAST,
+            LOCATION_ENE,
+            LOCATION_NE,
+            LOCATION_NNE,
+            LOCATION_NORTH,
+            LOCATION_NNW,
+            LOCATION_NW,
+            LOCATION_WNW,
+            LOCATION_WEST,
+            LOCATION_WSW,
+            LOCATION_SW,
+            LOCATION_SSW,
+            LOCATION_SOUTH,
+            LOCATION_SSE,
+            LOCATION_SE,
+            LOCATION_ESE,
+            LOCATION_TOP_RIGHT,
+            LOCATION_TOP_CENTER,
+            LOCATION_TOP_LEFT,
+            LOCATION_LEFT_TOP,
+            LOCATION_LEFT_CENTER,
+            LOCATION_LEFT_BOTTOM,
+            LOCATION_BOTTOM_LEFT,
+            LOCATION_BOTTOM_CENTER,
+            LOCATION_BOTTOM_RIGHT,
+            LOCATION_RIGHT_BOTTOM,
+            LOCATION_RIGHT_CENTER,
+            LOCATION_RIGHT_TOP
     })
     public @interface ButtonLocation {}
 
     /** Represents that the location zone is unknown. */
-    public static final int LOC_UNKNOWN = -1;
+    public static final int LOCATION_UNKNOWN = -1;
 
     /** Represents the east position on a round device. */
-    public static final int LOC_EAST = 0;
+    public static final int LOCATION_EAST = 0;
 
     /** Represents the east-northeast position on a round device. */
-    public static final int LOC_ENE = 1;
+    public static final int LOCATION_ENE = 1;
 
     /** Represents the northeast position on a round device. */
-    public static final int LOC_NE = 2;
+    public static final int LOCATION_NE = 2;
 
     /** Represents the north-northeast position on a round device. */
-    public static final int LOC_NNE = 3;
+    public static final int LOCATION_NNE = 3;
 
     /** Represents the north position on a round device. */
-    public static final int LOC_NORTH = 4;
+    public static final int LOCATION_NORTH = 4;
 
     /** Represents the north-northwest position on a round device. */
-    public static final int LOC_NNW = 5;
+    public static final int LOCATION_NNW = 5;
 
     /** Represents the northwest position on a round device. */
-    public static final int LOC_NW = 6;
+    public static final int LOCATION_NW = 6;
 
     /** Represents the west-northwest position on a round device. */
-    public static final int LOC_WNW = 7;
+    public static final int LOCATION_WNW = 7;
 
     /** Represents the west position on a round device. */
-    public static final int LOC_WEST = 8;
+    public static final int LOCATION_WEST = 8;
 
     /** Represents the west-southwest position on a round device. */
-    public static final int LOC_WSW = 9;
+    public static final int LOCATION_WSW = 9;
 
     /** Represents the southwest position on a round device. */
-    public static final int LOC_SW = 10;
+    public static final int LOCATION_SW = 10;
 
     /** Represents the south-southwest position on a round device. */
-    public static final int LOC_SSW = 11;
+    public static final int LOCATION_SSW = 11;
 
     /** Represents the south position on a round device. */
-    public static final int LOC_SOUTH = 12;
+    public static final int LOCATION_SOUTH = 12;
 
     /** Represents the south-southeast position on a round device. */
-    public static final int LOC_SSE = 13;
+    public static final int LOCATION_SSE = 13;
 
     /** Represents the southeast position on a round device. */
-    public static final int LOC_SE = 14;
+    public static final int LOCATION_SE = 14;
 
     /** Represents the east-southeast position on a round device. */
-    public static final int LOC_ESE = 15;
+    public static final int LOCATION_ESE = 15;
 
-    private static final int LOC_ROUND_COUNT = 16;
+    private static final int LOCATION_ROUND_COUNT = 16;
 
     /** Represents the right third of the top side on a square device. */
-    public static final int LOC_TOP_RIGHT = 100;
+    public static final int LOCATION_TOP_RIGHT = 100;
 
     /** Represents the center third of the top side on a square device. */
-    public static final int LOC_TOP_CENTER = 101;
+    public static final int LOCATION_TOP_CENTER = 101;
 
     /** Represents the left third of the top side on a square device. */
-    public static final int LOC_TOP_LEFT = 102;
+    public static final int LOCATION_TOP_LEFT = 102;
 
     /** Represents the top third of the left side on a square device. */
-    public static final int LOC_LEFT_TOP = 103;
+    public static final int LOCATION_LEFT_TOP = 103;
 
     /** Represents the center third of the left side on a square device. */
-    public static final int LOC_LEFT_CENTER = 104;
+    public static final int LOCATION_LEFT_CENTER = 104;
 
     /** Represents the bottom third of the left side on a square device. */
-    public static final int LOC_LEFT_BOTTOM = 105;
+    public static final int LOCATION_LEFT_BOTTOM = 105;
 
     /** Represents the left third of the bottom side on a square device. */
-    public static final int LOC_BOTTOM_LEFT = 106;
+    public static final int LOCATION_BOTTOM_LEFT = 106;
 
     /** Represents the center third of the bottom side on a square device. */
-    public static final int LOC_BOTTOM_CENTER = 107;
+    public static final int LOCATION_BOTTOM_CENTER = 107;
 
     /** Represents the right third of the bottom side on a square device. */
-    public static final int LOC_BOTTOM_RIGHT = 108;
+    public static final int LOCATION_BOTTOM_RIGHT = 108;
 
     /** Represents the bottom third of the right side on a square device. */
-    public static final int LOC_RIGHT_BOTTOM = 109;
+    public static final int LOCATION_RIGHT_BOTTOM = 109;
 
     /** Represents the center third of the right side on a square device. */
-    public static final int LOC_RIGHT_CENTER = 110;
+    public static final int LOCATION_RIGHT_CENTER = 110;
 
     /** Represents the top third of the right side on a square device. */
-    public static final int LOC_RIGHT_TOP = 111;
+    public static final int LOCATION_RIGHT_TOP = 111;
 
     /**
      * Key used with the bundle returned by {@link #getButtonInfo}} to retrieve the x coordinate of
@@ -318,93 +318,93 @@ public final class WearableButtons {
 
         switch (locationZone) {
                 // Round constants
-            case LOC_EAST:
+            case LOCATION_EAST:
                 id = R.drawable.ic_cc_settings_button_e;
                 degrees = 0;
                 break;
-            case LOC_ENE:
-            case LOC_NE:
-            case LOC_NNE:
+            case LOCATION_ENE:
+            case LOCATION_NE:
+            case LOCATION_NNE:
                 id = R.drawable.ic_cc_settings_button_e;
                 degrees = -45;
                 break;
-            case LOC_NORTH:
+            case LOCATION_NORTH:
                 id = R.drawable.ic_cc_settings_button_e;
                 degrees = -90;
                 break;
-            case LOC_NNW:
-            case LOC_NW:
-            case LOC_WNW:
+            case LOCATION_NNW:
+            case LOCATION_NW:
+            case LOCATION_WNW:
                 id = R.drawable.ic_cc_settings_button_e;
                 degrees = -135;
                 break;
-            case LOC_WEST:
+            case LOCATION_WEST:
                 id = R.drawable.ic_cc_settings_button_e;
                 degrees = 180;
                 break;
-            case LOC_WSW:
-            case LOC_SW:
-            case LOC_SSW:
+            case LOCATION_WSW:
+            case LOCATION_SW:
+            case LOCATION_SSW:
                 id = R.drawable.ic_cc_settings_button_e;
                 degrees = 135;
                 break;
-            case LOC_SOUTH:
+            case LOCATION_SOUTH:
                 id = R.drawable.ic_cc_settings_button_e;
                 degrees = 90;
                 break;
-            case LOC_SSE:
-            case LOC_SE:
-            case LOC_ESE:
+            case LOCATION_SSE:
+            case LOCATION_SE:
+            case LOCATION_ESE:
                 id = R.drawable.ic_cc_settings_button_e;
                 degrees = 45;
                 break;
 
                 // Rectangular constants
-            case LOC_LEFT_TOP:
+            case LOCATION_LEFT_TOP:
                 id = R.drawable.ic_cc_settings_button_bottom;
                 degrees = 180;
                 break;
-            case LOC_LEFT_CENTER:
+            case LOCATION_LEFT_CENTER:
                 id = R.drawable.ic_cc_settings_button_center;
                 degrees = 180;
                 break;
-            case LOC_LEFT_BOTTOM:
+            case LOCATION_LEFT_BOTTOM:
                 id = R.drawable.ic_cc_settings_button_top;
                 degrees = 180;
                 break;
-            case LOC_RIGHT_TOP:
+            case LOCATION_RIGHT_TOP:
                 id = R.drawable.ic_cc_settings_button_top;
                 degrees = 0;
                 break;
-            case LOC_RIGHT_CENTER:
+            case LOCATION_RIGHT_CENTER:
                 id = R.drawable.ic_cc_settings_button_center;
                 degrees = 0;
                 break;
-            case LOC_RIGHT_BOTTOM:
+            case LOCATION_RIGHT_BOTTOM:
                 id = R.drawable.ic_cc_settings_button_bottom;
                 degrees = 0;
                 break;
-            case LOC_TOP_LEFT:
+            case LOCATION_TOP_LEFT:
                 id = R.drawable.ic_cc_settings_button_top;
                 degrees = -90;
                 break;
-            case LOC_TOP_CENTER:
+            case LOCATION_TOP_CENTER:
                 id = R.drawable.ic_cc_settings_button_center;
                 degrees = -90;
                 break;
-            case LOC_TOP_RIGHT:
+            case LOCATION_TOP_RIGHT:
                 id = R.drawable.ic_cc_settings_button_bottom;
                 degrees = -90;
                 break;
-            case LOC_BOTTOM_LEFT:
+            case LOCATION_BOTTOM_LEFT:
                 id = R.drawable.ic_cc_settings_button_bottom;
                 degrees = 90;
                 break;
-            case LOC_BOTTOM_CENTER:
+            case LOCATION_BOTTOM_CENTER:
                 id = R.drawable.ic_cc_settings_button_center;
                 degrees = 90;
                 break;
-            case LOC_BOTTOM_RIGHT:
+            case LOCATION_BOTTOM_RIGHT:
                 id = R.drawable.ic_cc_settings_button_top;
                 degrees = 90;
                 break;
@@ -474,21 +474,21 @@ public final class WearableButtons {
      */
     private static int getQuadrantIndex(@ButtonLocation int locationZone) {
         switch (locationZone) {
-            case LOC_ENE:
-            case LOC_NE:
-            case LOC_NNE:
+            case LOCATION_ENE:
+            case LOCATION_NE:
+            case LOCATION_NNE:
                 return 0;
-            case LOC_NNW:
-            case LOC_NW:
-            case LOC_WNW:
+            case LOCATION_NNW:
+            case LOCATION_NW:
+            case LOCATION_WNW:
                 return 1;
-            case LOC_WSW:
-            case LOC_SW:
-            case LOC_SSW:
+            case LOCATION_WSW:
+            case LOCATION_SW:
+            case LOCATION_SSW:
                 return 2;
-            case LOC_SSE:
-            case LOC_SE:
-            case LOC_ESE:
+            case LOCATION_SSE:
+            case LOCATION_SE:
+            case LOCATION_ESE:
                 return 3;
 
             default:
@@ -512,25 +512,25 @@ public final class WearableButtons {
             @ButtonLocation int locationZone, int buttonsInQuadrantCount) {
         if (buttonsInQuadrantCount == 2) {
             switch (locationZone) {
-                case LOC_ENE:
+                case LOCATION_ENE:
                     return R.string.buttons_round_top_right_lower;
-                case LOC_NE:
-                case LOC_NNE:
+                case LOCATION_NE:
+                case LOCATION_NNE:
                     return R.string.buttons_round_top_right_upper;
-                case LOC_NNW:
-                case LOC_NW:
+                case LOCATION_NNW:
+                case LOCATION_NW:
                     return R.string.buttons_round_top_left_upper;
-                case LOC_WNW:
+                case LOCATION_WNW:
                     return R.string.buttons_round_top_left_lower;
-                case LOC_ESE:
-                case LOC_SE:
+                case LOCATION_ESE:
+                case LOCATION_SE:
                     return R.string.buttons_round_bottom_left_upper;
-                case LOC_SSE:
+                case LOCATION_SSE:
                     return R.string.buttons_round_bottom_left_lower;
-                case LOC_SSW:
+                case LOCATION_SSW:
                     return R.string.buttons_round_bottom_right_lower;
-                case LOC_SW:
-                case LOC_WSW:
+                case LOCATION_SW:
+                case LOCATION_WSW:
                     return R.string.buttons_round_bottom_right_upper;
                 default: // fall out
             }
@@ -539,55 +539,55 @@ public final class WearableButtons {
         // If we couldn't find a detailed string, or we need a simple string
         switch (locationZone) {
                 // Round constants
-            case LOC_EAST:
+            case LOCATION_EAST:
                 return R.string.buttons_round_center_right;
-            case LOC_ENE:
-            case LOC_NE:
-            case LOC_NNE:
+            case LOCATION_ENE:
+            case LOCATION_NE:
+            case LOCATION_NNE:
                 return R.string.buttons_round_top_right;
-            case LOC_NORTH:
+            case LOCATION_NORTH:
                 return R.string.buttons_round_top_center;
-            case LOC_NNW:
-            case LOC_NW:
-            case LOC_WNW:
+            case LOCATION_NNW:
+            case LOCATION_NW:
+            case LOCATION_WNW:
                 return R.string.buttons_round_top_left;
-            case LOC_WEST:
+            case LOCATION_WEST:
                 return R.string.buttons_round_center_left;
-            case LOC_WSW:
-            case LOC_SW:
-            case LOC_SSW:
+            case LOCATION_WSW:
+            case LOCATION_SW:
+            case LOCATION_SSW:
                 return R.string.buttons_round_bottom_left;
-            case LOC_SOUTH:
+            case LOCATION_SOUTH:
                 return R.string.buttons_round_bottom_center;
-            case LOC_SSE:
-            case LOC_SE:
-            case LOC_ESE:
+            case LOCATION_SSE:
+            case LOCATION_SE:
+            case LOCATION_ESE:
                 return R.string.buttons_round_bottom_right;
 
                 // Rectangular constants
-            case LOC_LEFT_TOP:
+            case LOCATION_LEFT_TOP:
                 return R.string.buttons_rect_left_top;
-            case LOC_LEFT_CENTER:
+            case LOCATION_LEFT_CENTER:
                 return R.string.buttons_rect_left_center;
-            case LOC_LEFT_BOTTOM:
+            case LOCATION_LEFT_BOTTOM:
                 return R.string.buttons_rect_left_bottom;
-            case LOC_RIGHT_TOP:
+            case LOCATION_RIGHT_TOP:
                 return R.string.buttons_rect_right_top;
-            case LOC_RIGHT_CENTER:
+            case LOCATION_RIGHT_CENTER:
                 return R.string.buttons_rect_right_center;
-            case LOC_RIGHT_BOTTOM:
+            case LOCATION_RIGHT_BOTTOM:
                 return R.string.buttons_rect_right_bottom;
-            case LOC_TOP_LEFT:
+            case LOCATION_TOP_LEFT:
                 return R.string.buttons_rect_top_left;
-            case LOC_TOP_CENTER:
+            case LOCATION_TOP_CENTER:
                 return R.string.buttons_rect_top_center;
-            case LOC_TOP_RIGHT:
+            case LOCATION_TOP_RIGHT:
                 return R.string.buttons_rect_top_right;
-            case LOC_BOTTOM_LEFT:
+            case LOCATION_BOTTOM_LEFT:
                 return R.string.buttons_rect_bottom_left;
-            case LOC_BOTTOM_CENTER:
+            case LOCATION_BOTTOM_CENTER:
                 return R.string.buttons_rect_bottom_center;
-            case LOC_BOTTOM_RIGHT:
+            case LOCATION_BOTTOM_RIGHT:
                 return R.string.buttons_rect_bottom_right;
             default:
                 throw new IllegalArgumentException("Unexpected location zone");
@@ -600,14 +600,14 @@ public final class WearableButtons {
      *
      * <p>For rectangular devices, the location zone is defined by splitting each side into thirds.
      * If a button falls anywhere within a zone, the method will return that zone. The constants for
-     * these zones are named LOC_[side in question]_[which third is affected]. E.g. LOC_TOP_RIGHT
-     * would refer to the right third of the top side of the device.
+     * these zones are named LOCATION_[side in question]_[which third is affected]. E.g.
+     * LOCATION_TOP_RIGHT would refer to the right third of the top side of the device.
      */
     @VisibleForTesting
     /* package */ static int getLocationZone(
             boolean isRound, Point screenSize, float screenLocationX, float screenLocationY) {
         if (screenLocationX == Float.MAX_VALUE || screenLocationY == Float.MAX_VALUE) {
-            return LOC_UNKNOWN;
+            return LOCATION_UNKNOWN;
         }
 
         return isRound
@@ -632,7 +632,7 @@ public final class WearableButtons {
         // Return the associated section rounded to the nearest anchor.
         // Using some clever math tricks and enum declaration, we can reduce this calculation
         // down to a single formula that converts angle to enum value.
-        return Math.round((float) (angle / (Math.PI / 8))) % LOC_ROUND_COUNT;
+        return Math.round((float) (angle / (Math.PI / 8))) % LOCATION_ROUND_COUNT;
     }
 
     private static int getLocationZoneRectangular(
@@ -653,41 +653,41 @@ public final class WearableButtons {
             // Left is the primary side
             switch (whichThird(screenSize.y, screenLocationY)) {
                 case 0:
-                    return LOC_LEFT_TOP;
+                    return LOCATION_LEFT_TOP;
                 case 1:
-                    return LOC_LEFT_CENTER;
+                    return LOCATION_LEFT_CENTER;
                 default:
-                    return LOC_LEFT_BOTTOM;
+                    return LOCATION_LEFT_BOTTOM;
             }
         } else if (minDelta == deltaFromRight) {
             // Right is primary side
             switch (whichThird(screenSize.y, screenLocationY)) {
                 case 0:
-                    return LOC_RIGHT_TOP;
+                    return LOCATION_RIGHT_TOP;
                 case 1:
-                    return LOC_RIGHT_CENTER;
+                    return LOCATION_RIGHT_CENTER;
                 default:
-                    return LOC_RIGHT_BOTTOM;
+                    return LOCATION_RIGHT_BOTTOM;
             }
         } else if (minDelta == deltaFromTop) {
             // Top is primary side
             switch (whichThird(screenSize.x, screenLocationX)) {
                 case 0:
-                    return LOC_TOP_LEFT;
+                    return LOCATION_TOP_LEFT;
                 case 1:
-                    return LOC_TOP_CENTER;
+                    return LOCATION_TOP_CENTER;
                 default:
-                    return LOC_TOP_RIGHT;
+                    return LOCATION_TOP_RIGHT;
             }
         } else /* if (minDelta == deltaFromBottom) */ {
             // Bottom is primary side
             switch (whichThird(screenSize.x, screenLocationX)) {
                 case 0:
-                    return LOC_BOTTOM_LEFT;
+                    return LOCATION_BOTTOM_LEFT;
                 case 1:
-                    return LOC_BOTTOM_CENTER;
+                    return LOCATION_BOTTOM_CENTER;
                 default:
-                    return LOC_BOTTOM_RIGHT;
+                    return LOCATION_BOTTOM_RIGHT;
             }
         }
     }
@@ -721,7 +721,7 @@ public final class WearableButtons {
         /**
          * The location zone of the button as defined in the {@link #getButtonInfo(Context, int)}
          * method. The intended use is to help developers attach a friendly String to the button
-         * location. This value is LOC_UNKNOWN if the information is not available.
+         * location. This value is LOCATION_UNKNOWN if the information is not available.
          */
         @ButtonLocation private final int mLocationZone;
 
@@ -744,7 +744,7 @@ public final class WearableButtons {
             return mY;
         }
 
-        /** The location zone of the button (e.g. LOC_EAST) */
+        /** The location zone of the button (e.g. LOCATION_EAST) */
         @ButtonLocation public int getLocationZone() {
             return mLocationZone;
         }

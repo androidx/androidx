@@ -38,6 +38,7 @@ import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.Entity
 import androidx.room.vo.FtsEntity
+import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
 import com.squareup.javapoet.TypeName
@@ -105,6 +106,13 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 )
                 null
             } else {
+                if (executable.hasAnnotation(JvmName::class)) {
+                    context.logger.w(
+                        Warning.JVM_NAME_ON_OVERRIDDEN_METHOD,
+                        executable,
+                        ProcessorErrors.JVM_NAME_ON_OVERRIDDEN_METHOD
+                    )
+                }
                 val dao = DaoProcessor(context, daoElement, declaredType, dbVerifier)
                     .process()
                 DaoMethod(executable, dao)

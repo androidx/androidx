@@ -16,6 +16,8 @@
 
 package androidx.camera.lifecycle;
 
+import android.os.Build;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -104,6 +106,23 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
             mCameraUseCaseAdapter.removeUseCases(mCameraUseCaseAdapter.getUseCases());
         }
     }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    public void onResume(LifecycleOwner lifecycleOwner) {
+        // ActiveResumingMode is required for Multi-window which is supported since Android 7(N).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            mCameraUseCaseAdapter.setActiveResumingMode(true);
+        }
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    public void onPause(LifecycleOwner lifecycleOwner) {
+        // ActiveResumingMode is required for Multi-window which is supported since Android 7(N).
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            mCameraUseCaseAdapter.setActiveResumingMode(false);
+        }
+    }
+
 
     /**
      * Suspend the camera so that it ignore lifecycle events.

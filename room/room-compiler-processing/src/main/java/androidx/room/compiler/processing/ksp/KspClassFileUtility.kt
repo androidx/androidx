@@ -140,26 +140,29 @@ internal object KspClassFileUtility {
             // this is needed only for compiled kotlin classes
             // https://github.com/google/ksp/issues/250#issuecomment-761108924
             if (ksClassDeclaration.origin != Origin.KOTLIN_LIB) return null
-            val typeReferences = ReflectionReferences.getInstance(ksClassDeclaration) ?: return null
-            val descriptor = typeReferences.getDescriptorMethod.invoke(ksClassDeclaration)
-                ?: return null
-            if (!typeReferences.deserializedClassDescriptor.isInstance(descriptor)) {
-                return null
+
+            // A companion object's `declarations` contains fields declared in the object in KSP,
+            // while KotlinJvmBinaryClass.visitMembers() does not. This leads to unsorted fields.
+            // As a workaround we register all the fields of an enclosing type in hope that we
+            // cover every field in a companion object's KSDeclarationContainer.declarations.
+            val classDeclaration = if (
+                    ksClassDeclaration.isCompanionObject &&
+                    type == Type.FIELD &&
+                    ksClassDeclaration.parentDeclaration is KSClassDeclaration) {
+                ksClassDeclaration.parentDeclaration as KSClassDeclaration
+            } else {
+                ksClassDeclaration
             }
-            val descriptorSrc = typeReferences.descriptorSourceMethod.invoke(descriptor)
-                ?: return null
-            if (!typeReferences.kotlinJvmBinarySourceElement.isInstance(descriptorSrc)) {
-                return null
-            }
-            val binarySource = typeReferences.binaryClassMethod.invoke(descriptorSrc)
-                ?: return null
+
+            val typeReferences = ReflectionReferences.getInstance(classDeclaration) ?: return null
+            val binarySource = getBinarySource(typeReferences, classDeclaration) ?: return null
 
             val fieldNameComparator = MemberNameComparator(
                 getName = getName,
                 // we can do strict mode only in classes. For Interfaces, private methods won't
                 // show up in the binary.
                 strictMode = XProcessingConfig.STRICT_MODE &&
-                    ksClassDeclaration.classKind != ClassKind.INTERFACE
+                    classDeclaration.classKind != ClassKind.INTERFACE
             )
             val invocationHandler = InvocationHandler { _, method, args ->
                 if (method.name == type.visitorName) {
@@ -172,10 +175,11 @@ internal object KspClassFileUtility {
             }
 
             val proxy = Proxy.newProxyInstance(
-                ksClassDeclaration.javaClass.classLoader,
+                classDeclaration.javaClass.classLoader,
                 arrayOf(typeReferences.memberVisitor),
                 invocationHandler
             )
+
             typeReferences.visitMembersMethod.invoke(binarySource, proxy, null)
             fieldNameComparator.seal()
             fieldNameComparator
@@ -186,6 +190,24 @@ internal object KspClassFileUtility {
             }
             null
         }
+    }
+
+    private fun getBinarySource(
+        typeReferences: ReflectionReferences,
+        ksClassDeclaration: KSClassDeclaration
+    ): Any? {
+        val descriptor = typeReferences.getDescriptorMethod.invoke(ksClassDeclaration)
+            ?: return null
+        if (!typeReferences.deserializedClassDescriptor.isInstance(descriptor)) {
+            return null
+        }
+        val descriptorSrc = typeReferences.descriptorSourceMethod.invoke(descriptor)
+            ?: return null
+        if (!typeReferences.kotlinJvmBinarySourceElement.isInstance(descriptorSrc)) {
+            return null
+        }
+        return typeReferences.binaryClassMethod.invoke(descriptorSrc)
+            ?: return null
     }
 
     /**

@@ -17,7 +17,6 @@
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.car.app.sample.showcase"
     android:versionCode="1"
     android:versionName="1.0">
 
@@ -42,7 +41,8 @@
   <application
       android:label="@string/app_name"
       android:icon="@drawable/ic_launcher"
-      android:extractNativeLibs="false">
+      android:extractNativeLibs="false"
+      android:supportsRtl="true">
 
     <meta-data
         android:name="com.google.android.gms.car.application"

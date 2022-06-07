@@ -90,7 +90,6 @@ internal suspend fun Context.runAndTranslate(
     return translateComposition(
         this,
         appWidgetId,
-        TestWidget::class.java,
         root,
         LayoutConfiguration.create(this, appWidgetId),
         rootViewIndex = 0,

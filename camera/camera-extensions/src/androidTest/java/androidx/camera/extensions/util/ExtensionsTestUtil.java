@@ -25,6 +25,7 @@ import static androidx.camera.extensions.ExtensionMode.NIGHT;
 import static junit.framework.TestCase.assertNotNull;
 
 import android.hardware.camera2.CameraCharacteristics;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -42,6 +43,8 @@ import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
+import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
+import androidx.camera.testing.CameraUtil;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -143,5 +146,71 @@ public class ExtensionsTestUtil {
         impl.init(cameraId, cameraCharacteristics);
 
         return impl;
+    }
+
+    /**
+     * Returns whether the target camera device can support the test for a specific extension mode.
+     */
+    public static boolean isTargetDeviceAvailableForExtensions(
+            @CameraSelector.LensFacing int lensFacing, @ExtensionMode.Mode int mode) {
+        return CameraUtil.hasCameraWithLensFacing(lensFacing) && isLimitedAboveDevice(lensFacing)
+                && !isSpecificSkippedDevice() && !isSpecificSkippedDeviceWithExtensionMode(mode);
+    }
+
+    /**
+     * Returns whether the device is LIMITED hardware level above.
+     *
+     * <p>The test cases bind both ImageCapture and Preview. In the test lib implementation for
+     * HDR mode, both use cases will occupy YUV_420_888 format of stream. Therefore, the testing
+     * target devices need to be LIMITED hardware level at least to support two YUV_420_888
+     * streams at the same time.
+     *
+     * @return true if the testing target camera device is LIMITED hardware level at least.
+     * @throws IllegalArgumentException if unable to retrieve {@link CameraCharacteristics} for
+     * given lens facing.
+     */
+    private static boolean isLimitedAboveDevice(@CameraSelector.LensFacing int lensFacing) {
+        CameraCharacteristics cameraCharacteristics = CameraUtil.getCameraCharacteristics(
+                lensFacing);
+
+        if (cameraCharacteristics != null) {
+            Integer keyValue = cameraCharacteristics.get(
+                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+
+            if (keyValue != null) {
+                return keyValue != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
+            }
+        } else {
+            throw new IllegalArgumentException(
+                    "Unable to retrieve info for " + lensFacing + " camera.");
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns that whether the device should be skipped for the test.
+     */
+    private static boolean isSpecificSkippedDevice() {
+        return (Build.BRAND.equalsIgnoreCase("SONY") && (Build.MODEL.equalsIgnoreCase("G8142")
+                || Build.MODEL.equalsIgnoreCase("G8342"))) || Build.MODEL.contains("Cuttlefish");
+    }
+
+    /**
+     * Returns that whether the device with specific extension mode should be skipped for the test.
+     */
+    private static boolean isSpecificSkippedDeviceWithExtensionMode(@ExtensionMode.Mode int mode) {
+        return "tecno".equalsIgnoreCase(Build.BRAND) && "tecno-ke5".equalsIgnoreCase(Build.DEVICE)
+                && (mode == ExtensionMode.HDR || mode == ExtensionMode.NIGHT);
+    }
+
+    /**
+     * Returns whether extensions is disabled by quirk.
+     */
+    public static boolean extensionsDisabledByQuirk(@CameraSelector.LensFacing int lensFacing,
+            @ExtensionMode.Mode int extensionMode) {
+
+        return new ExtensionDisabledValidator().shouldDisableExtension(
+                CameraUtil.getCameraIdWithLensFacing(lensFacing), extensionMode);
     }
 }

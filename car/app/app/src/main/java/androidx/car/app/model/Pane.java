@@ -182,8 +182,8 @@ public final class Pane {
          * <h4>Image Sizing Guidance</h4>
          *
          * To minimize scaling artifacts across a wide range of car screens, apps should provide
-         * images targeting a 480 x 854 (9:16) dp bounding box. If the image exceeds this maximum
-         * size in either one of the dimensions, it will be scaled down to be centered inside the
+         * images targeting a 480 x 480 dp bounding box. If the image exceeds this maximum size
+         * in either one of the dimensions, it will be scaled down to be centered inside the
          * bounding box while preserving its aspect ratio.
          *
          * @throws NullPointerException if {@code image} is {@code null}

@@ -53,6 +53,7 @@ public final class AssetLoaderAjaxActivityTestAppTest {
 
     @Test
     public void testAssetLoaderAjaxActivity() {
+        mRule.getScenario().onActivity(activity -> activity.loadUrl());
         WebkitTestHelpers.assertHtmlElementContainsText(R.id.webview_asset_loader_webview,
                 "title", "Loaded HTML should appear below on success");
         WebkitTestHelpers.assertHtmlElementContainsText(R.id.webview_asset_loader_webview,

@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -26,8 +24,8 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    implementation project(path: ':core:core-performance')
-    implementation project(path: ':annotation:annotation-sampled')
+    implementation(project(":core:core-performance"))
+    compileOnly(project(":annotation:annotation-sampled"))
 }
 
 androidx {
@@ -37,4 +35,8 @@ androidx {
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "Samples for AndroidX Core Performance Library"
+}
+
+android {
+    namespace "androidx.core.performance.samples"
 }
