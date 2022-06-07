@@ -620,7 +620,7 @@ public abstract class WatchFaceService : WallpaperService() {
      * Whether or not the pre R style init flow (SET_BINDER wallpaper command) is expected.
      * This is open for use by tests.
      */
-    internal open fun expectPreRInitFlow() = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
+    internal open fun isPreAndroidR() = Build.VERSION.SDK_INT < Build.VERSION_CODES.R
 
     /** [Choreographer] isn't supposed to be mocked, so we use a thin wrapper. */
     internal interface ChoreographerWrapper {
@@ -1168,6 +1168,7 @@ public abstract class WatchFaceService : WallpaperService() {
         internal var firstSetWatchUiState = true
         internal var immutableSystemStateDone = false
         internal var immutableChinHeightDone = false
+        internal var systemHasSentWatchUiState = false
 
         private var asyncWatchFaceConstructionPending = false
 
@@ -1221,7 +1222,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 InteractiveInstanceManager.takePendingWallpaperInteractiveWatchFaceInstance()
 
             // In a direct boot scenario attempt to load the previously serialized parameters.
-            if (pendingWallpaperInstance == null && !expectPreRInitFlow()) {
+            if (pendingWallpaperInstance == null && !isPreAndroidR()) {
                 val params = readDirectBootPrefs(_context, DIRECT_BOOT_PREFS)
                 directBootParams = params
                 // In tests a watchface may already have been created.
@@ -1584,7 +1585,7 @@ public abstract class WatchFaceService : WallpaperService() {
         ): Bundle? {
             // From android R onwards the integration changes and no wallpaper commands are allowed
             // or expected and can/should be ignored.
-            if (!expectPreRInitFlow()) {
+            if (!isPreAndroidR()) {
                 TraceEvent("onCommand Ignored").close()
                 return null
             }
@@ -1987,7 +1988,9 @@ public abstract class WatchFaceService : WallpaperService() {
                 watchState,
                 this,
                 deferredWatchFaceImpl,
-                uiThreadCoroutineScope
+                uiThreadCoroutineScope,
+                _context.contentResolver,
+                !isPreAndroidR()
             )
 
             // There's no point creating BroadcastsReceiver for headless instances.
@@ -2206,6 +2209,16 @@ public abstract class WatchFaceService : WallpaperService() {
             )
         }
 
+        override fun onActionTimeTick() {
+            // In interactive mode we don't need to do anything with onActionTimeTick() since the
+            // watchface should be updating anyway. In ambient mode if the system hasn't sent us
+            // UiState then we assume it's not going to send ambient ticks either and we treat this
+            // as an ambient tick.
+            if (mutableWatchState.isAmbient.value == true && !systemHasSentWatchUiState) {
+                ambientTickUpdate()
+            }
+        }
+
         internal fun draw() {
             try {
                 if (TRACE_DRAW) {
@@ -2373,7 +2386,7 @@ public abstract class WatchFaceService : WallpaperService() {
             when {
                 wslFlow.iWatchFaceServiceInitialized() -> writer.println("WSL style init flow")
                 this.watchFaceCreatedOrPending() -> writer.println("Androidx style init flow")
-                expectPreRInitFlow() -> writer.println("Expecting WSL style init")
+                isPreAndroidR() -> writer.println("Expecting WSL style init")
                 else -> writer.println("Expecting androidx style style init")
             }
 
