@@ -41,8 +41,11 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 AndroidManifestServiceExportedDetector.ISSUE,
                 BanParcelableUsage.ISSUE,
                 BanConcurrentHashMap.ISSUE,
-                BanInappropriateExperimentalUsage.ISSUE,
-                BanInappropriateExperimentalUsage.NULL_ANNOTATION_GROUP_ISSUE,
+
+                // Reenable after b/235251897 is resolved
+//                BanInappropriateExperimentalUsage.ISSUE,
+//                BanInappropriateExperimentalUsage.NULL_ANNOTATION_GROUP_ISSUE,
+
                 BanInlineOptIn.ISSUE,
                 BanKeepAnnotation.ISSUE,
                 TargetApiAnnotationUsageDetector.ISSUE,
