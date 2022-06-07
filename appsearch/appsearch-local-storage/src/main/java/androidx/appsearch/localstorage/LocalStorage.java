@@ -381,7 +381,7 @@ public class LocalStorage {
         return new SearchSessionImpl(
                 mAppSearchImpl,
                 context.mExecutor,
-                new AlwaysSupportedCapabilities(),
+                new AlwaysSupportedFeatures(),
                 context.mContext.getPackageName(),
                 context.mDatabaseName,
                 context.mLogger);
@@ -391,6 +391,6 @@ public class LocalStorage {
     private GlobalSearchSession doCreateGlobalSearchSession(
             @NonNull GlobalSearchContext context) {
         return new GlobalSearchSessionImpl(mAppSearchImpl, context.mExecutor,
-                new AlwaysSupportedCapabilities(), context.mContext, context.mLogger);
+                new AlwaysSupportedFeatures(), context.mContext, context.mLogger);
     }
 }

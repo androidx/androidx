@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -27,6 +26,7 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.work.impl.background.gcm"
 }
 
 dependencies {
@@ -39,9 +39,9 @@ dependencies {
         implementation(projectOrArtifact(":room:room-runtime"))
         androidTestImplementation(projectOrArtifact(":room:room-testing"))
     } else {
-        annotationProcessor("androidx.room:room-compiler:2.2.5")
-        implementation("androidx.room:room-runtime:2.2.5")
-        androidTestImplementation("androidx.room:room-testing:2.2.5")
+        annotationProcessor("androidx.room:room-compiler:2.4.0-rc01")
+        implementation("androidx.room:room-runtime:2.4.0-rc01")
+        androidTestImplementation("androidx.room:room-testing:2.4.0-rc01")
     }
 
     androidTestImplementation(project(":work:work-runtime-ktx"))

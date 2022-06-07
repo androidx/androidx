@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.XTypeElementStore
@@ -41,8 +42,15 @@ internal class KspProcessingEnv(
     override val options: Map<String, String>,
     codeGenerator: CodeGenerator,
     logger: KSPLogger,
+    override val config: XProcessingEnvConfig,
 ) : XProcessingEnv {
     override val backend: XProcessingEnv.Backend = XProcessingEnv.Backend.KSP
+
+    // No API to get this but Kotlin's default is 8, so go with it for now.
+    // TODO: https://github.com/google/ksp/issues/810
+    override val jvmVersion: Int
+        get() = 8
+
     private val ksFileMemberContainers = mutableMapOf<KSFile, KspFileMemberContainer>()
 
     /**

@@ -1,4 +1,3 @@
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -11,14 +10,20 @@ android {
     buildTypes.all {
         consumerProguardFiles("proguard-rules.pro")
     }
+    namespace "androidx.savedstate"
 }
 
 dependencies {
+    // Atomic group
+    constraints {
+        implementation(project(":savedstate:savedstate-ktx"))
+    }
+
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.arch.core:core-common:2.1.0")
     implementation("androidx.lifecycle:lifecycle-common:2.4.0")
+    api(libs.kotlinStdlib)
 
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.4.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -28,9 +33,9 @@ dependencies {
 }
 
 androidx {
-    name = "Activity"
+    name = "Saved State"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.SAVEDSTATE
     inceptionYear = "2018"
-    description = "Provides the base Activity subclass and the relevant hooks to build a composable structure on top."
+    description = "Android Lifecycle Saved State"
 }

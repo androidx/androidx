@@ -36,6 +36,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_P
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_USE_CASE_EVENT_CALLBACK;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 
 import android.graphics.ImageFormat;
@@ -53,6 +54,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -237,6 +239,7 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override
+    @OptIn(markerClass = ExperimentalAnalyzer.class)
     protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
 
@@ -250,7 +253,18 @@ public final class ImageAnalysis extends UseCase {
         mImageAnalysisAbstractAnalyzer.setOnePixelShiftEnabled(
                 isOnePixelShiftEnabled == null ? isOnePixelShiftIssueDevice
                         : isOnePixelShiftEnabled);
-        return super.onMergeConfig(cameraInfo, builder);
+
+        // Override the target resolution with the value provided by the analyzer.
+        Size analyzerResolution;
+        synchronized (mAnalysisLock) {
+            analyzerResolution = mSubscribedAnalyzer != null
+                    ? mSubscribedAnalyzer.getTargetResolutionOverride() : null;
+        }
+        if (analyzerResolution != null) {
+            builder.getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION, analyzerResolution);
+        }
+
+        return builder.getUseCaseConfig();
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -297,11 +311,11 @@ public final class ImageAnalysis extends UseCase {
         final SafeCloseImageReaderProxy processedImageReaderProxy =
                 (isYuv2Rgb || isYuvRotationOrPixelShift)
                         ? new SafeCloseImageReaderProxy(
-                                ImageReaderProxys.createIsolatedReader(
-                                        width,
-                                        height,
-                                        format,
-                                        imageReaderProxy.getMaxImages())) : null;
+                        ImageReaderProxys.createIsolatedReader(
+                                width,
+                                height,
+                                format,
+                                imageReaderProxy.getMaxImages())) : null;
         if (processedImageReaderProxy != null) {
             mImageAnalysisAbstractAnalyzer.setProcessedImageReaderProxy(processedImageReaderProxy);
         }
@@ -516,6 +530,20 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /**
+     * Returns the executor that will be used for background tasks.
+     *
+     * @return The {@link Executor} provided to
+     * {@link ImageAnalysis.Builder#setBackgroundExecutor(Executor)}.
+     * If no Executor has been provided, then returns {@code null}
+     */
+    @Nullable
+    @ExperimentalUseCaseApi
+    public Executor getBackgroundExecutor() {
+        return ((ImageAnalysisConfig) getCurrentConfig())
+                .getBackgroundExecutor(null);
+    }
+
+    /**
      * Returns the number of images available to the camera pipeline, including the image being
      * analyzed, for the {@link #STRATEGY_BLOCK_PRODUCER} backpressure mode.
      *
@@ -584,8 +612,8 @@ public final class ImageAnalysis extends UseCase {
      * {@link ResolutionInfo} for the changes.
      *
      * @return the resolution information if the use case has been bound by the
-     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner
-     * , CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
+     * {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle(LifecycleOwner,
+     * CameraSelector, UseCase...)} API, or null if the use case is not bound yet.
      */
     @Nullable
     @Override
@@ -621,7 +649,9 @@ public final class ImageAnalysis extends UseCase {
     @Nullable
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
-        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS);
+        Config captureConfig = factory.getConfig(
+                UseCaseConfigFactory.CaptureType.IMAGE_ANALYSIS,
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
 
         if (applyDefaultConfig) {
             captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
@@ -764,7 +794,83 @@ public final class ImageAnalysis extends UseCase {
          * @see android.hardware.camera2.CaptureResult#SENSOR_TIMESTAMP
          */
         void analyze(@NonNull ImageProxy image);
+
+        /**
+         * Implement this method to override the target resolution of {@link ImageAnalysis}.
+         *
+         * <p> Implement this method if the {@link Analyzer} requires a specific resolution to
+         * work. The return value will be used to override the target resolution of the
+         * {@link ImageAnalysis}. Return {@code null} if no overriding is needed. By default,
+         * this method returns {@code null}.
+         *
+         * <p> Note that this method is invoked by CameraX at the time of binding to lifecycle. In
+         * order for this value to be effective, the {@link Analyzer} has to be set before
+         * {@link ImageAnalysis} is bound to a lifecycle. Otherwise, the value will be ignored.
+         *
+         * @return the resolution to override the target resolution of {@link ImageAnalysis}, or
+         * {@code null} if no overriding is needed.
+         */
+        @ExperimentalAnalyzer
+        @Nullable
+        default Size getTargetResolutionOverride() {
+            return null;
+        }
+
+        /**
+         * Implement this method to return the target coordinate system.
+         *
+         * <p>The coordinates detected by analyzing camera frame usually needs to be transformed.
+         * For example, in order to highlight a detected face, the app needs to transform the
+         * bounding box from the {@link ImageAnalysis}'s coordinate system to the View's coordinate
+         * system. This method allows the implementer to set a target coordinate system.
+         *
+         * <p>The value will be used by CameraX to calculate the transformation {@link Matrix} and
+         * forward it to the {@link Analyzer} via {@link #updateTransform}. By default, this
+         * method returns {@link ImageAnalysis#COORDINATE_SYSTEM_ORIGINAL}.
+         *
+         * <p>For now, camera-core only supports {@link ImageAnalysis#COORDINATE_SYSTEM_ORIGINAL},
+         * please see libraries derived from camera-core, for example, camera-view.
+         *
+         * @see #updateTransform(Matrix)
+         */
+        @ExperimentalAnalyzer
+        default int getTargetCoordinateSystem() {
+            return COORDINATE_SYSTEM_ORIGINAL;
+        }
+
+        /**
+         * Implement this method to receive the {@link Matrix} for coordinate transformation.
+         *
+         * <p>The value represents the transformation from the camera sensor to the target
+         * coordinate system defined in {@link #getTargetCoordinateSystem()}. It should be used
+         * by the implementation to transform the coordinates detected in the camera frame. For
+         * example, the coordinates of the detected face.
+         *
+         * <p>If the value is {@code null}, it could either mean value of the target coordinate
+         * system is {@link #COORDINATE_SYSTEM_ORIGINAL}, or currently there is no valid
+         * transformation for the target coordinate system, for example, if currently the view
+         * finder is not visible in UI.
+         *
+         * <p>This method is invoked whenever a new transformation is ready. For example, when
+         * the view finder is first a launched as well as when it's resized.
+         *
+         * @see #getTargetCoordinateSystem()
+         */
+        @ExperimentalAnalyzer
+        default void updateTransform(@Nullable Matrix matrix) {
+            // no-op
+        }
     }
+
+    /**
+     * {@link ImageAnalysis.Analyzer} option for returning the original coordinates.
+     *
+     * <p> Use this option if no additional transformation is needed by the {@link Analyzer}
+     * implementation. By using this option, CameraX will pass {@code null} to
+     * {@link Analyzer#updateTransform(Matrix)}.
+     */
+    @ExperimentalAnalyzer
+    public static final int COORDINATE_SYSTEM_ORIGINAL = 0;
 
     /**
      * Provides a base static default configuration for the ImageAnalysis.
@@ -1285,6 +1391,15 @@ public final class ImageAnalysis extends UseCase {
                 @NonNull ImageReaderProxyProvider imageReaderProxyProvider) {
             getMutableConfig().insertOption(OPTION_IMAGE_READER_PROXY_PROVIDER,
                     imageReaderProxyProvider);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setZslDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_ZSL_DISABLED, disabled);
             return this;
         }
     }

@@ -63,7 +63,7 @@ public class ProcessorTest extends DatabaseTest {
     @SmallTest
     public void testStopWork_invalidWorkId() {
         String id = "INVALID_WORK_ID";
-        assertThat(mProcessor.stopWork(id), is(false));
+        assertThat(mProcessor.stopWork(new WorkRunId(id)), is(false));
     }
 
     @Test
@@ -72,8 +72,8 @@ public class ProcessorTest extends DatabaseTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
         String id = work.getStringId();
         insertWork(work);
-        assertThat(mProcessor.startWork(id), is(true));
-        assertThat(mProcessor.startWork(id), is(false));
+        assertThat(mProcessor.startWork(new WorkRunId(id)), is(true));
+        assertThat(mProcessor.startWork(new WorkRunId(id)), is(false));
     }
 
     @Test
@@ -83,7 +83,7 @@ public class ProcessorTest extends DatabaseTest {
         insertWork(work);
 
         assertThat(mProcessor.hasWork(), is(false));
-        mProcessor.startWork(work.getStringId());
+        mProcessor.startWork(new WorkRunId(work.getStringId()));
         assertThat(mProcessor.hasWork(), is(true));
     }
 

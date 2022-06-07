@@ -147,25 +147,23 @@ object ProcessorErrors {
         " @Delete but does not have any parameters to delete."
 
     fun cannotMapInfoSpecifiedColumn(column: String, columnsInQuery: List<String>) =
-        "Column(s) specified in the provided @MapInfo annotation must be present in the query. " +
-            "Provided: $column. Columns Found: ${columnsInQuery.joinToString(", ")}"
+        "Column specified in the provided @MapInfo annotation must be present in the query. " +
+            "Provided: $column. Columns found: ${columnsInQuery.joinToString(", ")}"
 
     val MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED = "To use the @MapInfo annotation, you " +
         "must provide either the key column name, value column name, or both."
 
     fun keyMayNeedMapInfo(keyArg: TypeName): String {
         return """
-            Looks like you may need to use @MapInfo to clarify the 'keyColumnName' needed for
-            the return type of a method. Type argument that needs
-            @MapInfo: $keyArg
+            Looks like you may need to use @MapInfo to clarify the 'keyColumn' needed for
+            the return type of a method. Type argument that needs @MapInfo: $keyArg
             """.trim()
     }
 
     fun valueMayNeedMapInfo(valueArg: TypeName): String {
         return """
-            Looks like you may need to use @MapInfo to clarify the 'valueColumnName' needed for
-            the return type of a method. Type argument that needs
-            @MapInfo: $valueArg
+            Looks like you may need to use @MapInfo to clarify the 'valueColumn' needed for
+            the return type of a method. Type argument that needs @MapInfo: $valueArg
             """.trim()
     }
 
@@ -174,6 +172,10 @@ object ProcessorErrors {
 
     val CANNOT_FIND_UPDATE_RESULT_ADAPTER = "Not sure how to handle update method's " +
         "return type. Currently the supported return types are void, int or Int."
+
+    fun suspendReturnsDeferredType(returnTypeName: String) = "Dao functions that have a suspend " +
+        "modifier must not return a deferred/async type ($returnTypeName). Most probably this " +
+        "is an error. Consider changing the return type or removing the suspend modifier."
 
     val CANNOT_FIND_INSERT_RESULT_ADAPTER = "Not sure how to handle insert method's return type."
 
@@ -615,6 +617,18 @@ object ProcessorErrors {
     val MISSING_ROOM_PAGING_ARTIFACT = "To use PagingSource, you must add `room-paging`" +
         " artifact from Room as a dependency. androidx.room:room-paging:<version>"
 
+    val MISSING_ROOM_PAGING_GUAVA_ARTIFACT = "To use ListenableFuturePagingSource, you must " +
+        "add `room-paging-guava` artifact from Room as a dependency. " +
+        "androidx.room:room-paging-guava:<version>"
+
+    val MISSING_ROOM_PAGING_RXJAVA2_ARTIFACT = "To use RxPagingSource, you must " +
+        "add `room-paging-rxjava2` artifact from Room as a dependency. " +
+        "androidx.room:room-paging-rxjava2:<version>"
+
+    val MISSING_ROOM_PAGING_RXJAVA3_ARTIFACT = "To use RxPagingSource, you must " +
+        "add `room-paging-rxjava3` artifact from Room as a dependency. " +
+        "androidx.room:room-paging-rxjava3:<version>"
+
     val MISSING_ROOM_COROUTINE_ARTIFACT = "To use Coroutine features, you must add `ktx`" +
         " artifact from Room as a dependency. androidx.room:room-ktx:<version>"
 
@@ -1021,4 +1035,38 @@ object ProcessorErrors {
     val AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR = "Classes that are used as " +
         "AutoMigrationSpec " +
         "implementations must have no-argument public constructors."
+
+    val JVM_NAME_ON_OVERRIDDEN_METHOD = "Using @JvmName annotation on a function or accessor " +
+        "that will be overridden by Room is not supported. If this is important for your use " +
+        "case, please file a bug at $ISSUE_TRACKER_LINK with details."
+
+    fun ambiguousColumn(
+        columnName: String,
+        location: AmbiguousColumnLocation,
+        typeName: TypeName?
+    ): String {
+        val (locationDesc, recommendation) = when (location) {
+            AmbiguousColumnLocation.MAP_INFO -> {
+                "in the @MapInfo" to "update @MapInfo"
+            }
+            AmbiguousColumnLocation.POJO -> {
+                checkNotNull(typeName)
+                "in the object '$typeName'" to "use @ColumnInfo"
+            }
+            AmbiguousColumnLocation.ENTITY -> {
+                checkNotNull(typeName)
+                "in the entity '$typeName'" to "use a new data class / POJO with @ColumnInfo'"
+            }
+        }
+        return "The column '$columnName' $locationDesc is ambiguous and cannot be properly " +
+            "resolved. Please alias the column and $recommendation. Otherwise there is a risk of " +
+            "the query returning invalid values. You can suppress this warning by annotating " +
+            "the method with @SuppressWarnings(RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT)."
+    }
+
+    enum class AmbiguousColumnLocation {
+        MAP_INFO,
+        POJO,
+        ENTITY,
+    }
 }

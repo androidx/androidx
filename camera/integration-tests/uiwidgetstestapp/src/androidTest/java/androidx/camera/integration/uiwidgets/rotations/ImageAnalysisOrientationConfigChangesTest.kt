@@ -16,6 +16,7 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
+import android.os.Build
 import android.view.Surface
 import android.view.View
 import androidx.camera.core.CameraSelector
@@ -24,12 +25,14 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import java.util.Locale
+import java.util.concurrent.TimeUnit
 import org.junit.After
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.TimeUnit
 
 @RunWith(Parameterized::class)
 @LargeTest
@@ -55,6 +58,13 @@ class ImageAnalysisOrientationConfigChangesTest(
 
     @Before
     fun before() {
+        Assume.assumeFalse(
+            "Known issue on this device. Please see b/198744779",
+            listOf(
+                "redmi note 9s",
+                "redmi note 8"
+            ).contains(Build.MODEL.lowercase(Locale.US)) && rotation == Surface.ROTATION_180
+        )
         setUp(lensFacing)
     }
 

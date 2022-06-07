@@ -512,7 +512,8 @@ class MediaRoute2Provider extends MediaRouteProvider {
         }
 
         @Override
-        public boolean onControlRequest(Intent intent, @Nullable ControlRequestCallback callback) {
+        public boolean onControlRequest(@NonNull Intent intent,
+                @Nullable ControlRequestCallback callback) {
             if (mRoutingController == null || mRoutingController.isReleased()
                     || mServiceMessenger == null) {
                 return false;
@@ -579,7 +580,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
         }
 
         @Override
-        public void onRemoveMemberRoute(String routeId) {
+        public void onRemoveMemberRoute(@NonNull String routeId) {
             if (routeId == null || routeId.isEmpty()) {
                 Log.w(TAG, "onRemoveMemberRoute: Ignoring null or empty routeId.");
                 return;

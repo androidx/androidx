@@ -77,6 +77,7 @@ public final class IdAndComplicationDataWireFormat implements VersionedParcelabl
 
     public static final Parcelable.Creator<IdAndComplicationDataWireFormat> CREATOR =
             new Parcelable.Creator<IdAndComplicationDataWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public IdAndComplicationDataWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

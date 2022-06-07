@@ -26,6 +26,7 @@ class DexProfileData {
     @NonNull
     final String dexName;
     final long dexChecksum;
+    long mTypeIdCount;
     int classSetSize;
     final int hotMethodRegionSize;
     final int numMethodIds;
@@ -37,6 +38,7 @@ class DexProfileData {
             @NonNull String apkName,
             @NonNull String dexName,
             long dexChecksum,
+            long typeIdCount,
             int classSetSize,
             int hotMethodRegionSize,
             int numMethodIds,
@@ -46,6 +48,7 @@ class DexProfileData {
         this.apkName = apkName;
         this.dexName = dexName;
         this.dexChecksum = dexChecksum;
+        this.mTypeIdCount = typeIdCount;
         this.classSetSize = classSetSize;
         this.hotMethodRegionSize = hotMethodRegionSize;
         this.numMethodIds = numMethodIds;

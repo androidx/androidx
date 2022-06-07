@@ -1,26 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.2.0-dev" type="baseline" client="gradle" dependencies="false" name="AGP (7.2.0-dev)" variant="all" version="7.2.0-dev">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="    internal fun getReport() = checkState().run { getReport(&quot;&quot;, &quot;&quot;) }"
-        errorLine2="                 ~~~~~~~~~">
+        id="NewApi"
+        message="Field requires API level 23 (current min is 14): `getBACKGROUND_SPINNING_PROCESS_NAME`"
+        errorLine1="                BACKGROUND_SPINNING_PROCESS_NAME"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/benchmark/BenchmarkState.kt"
-            line="461"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Should explicitly declare type here since implicit type does not specify nullness"
-        errorLine1="internal fun String.toOutputMetricName() = this"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/MetricNameUtils.kt"
-            line="32"
-            column="21"/>
+            file="src/androidTest/java/androidx/benchmark/ShellTest.kt"/>
     </issue>
 
 </issues>

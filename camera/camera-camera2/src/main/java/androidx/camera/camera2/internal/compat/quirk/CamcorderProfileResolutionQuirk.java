@@ -26,6 +26,7 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.workaround.CamcorderProfileResolutionValidator;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.Quirk;
@@ -36,23 +37,23 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Quirk that should validate the video resolution of {@link CamcorderProfile} on legacy camera.
- *
- * <p>
- * When using the Camera 2 API in {@code LEGACY} mode (i.e. when
- * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL} is set
- * to
- * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}),
- * {@link CamcorderProfile#hasProfile} may return {@code true} for unsupported resolutions. To
- * ensure a given resolution is supported in LEGACY mode, the configuration given in
- * {@link android.hardware.camera2.CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP}
- * must contain the resolution in the supported output sizes. The recommended way to check this
- * is with {@link android.hardware.camera2.params.StreamConfigurationMap#getOutputSizes(Class)}
- * with the class of the desired recording endpoint, and check that the desired resolution is
- * contained in the list returned.
- * </p>
- *
- * @see CamcorderProfile#hasProfile
+ * <p>QuirkSummary
+ *     Bug Id: 180819729
+ *     Description: Quirk that should validate the video resolution of {@link CamcorderProfile}
+ *                  on legacy camera. When using the Camera 2 API in {@code LEGACY} mode (i.e.
+ *                  when {@link CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL} is set to
+ *                  {@link CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}),
+ *                  {@link CamcorderProfile#hasProfile} may return {@code true} for unsupported
+ *                  resolutions. To ensure a given resolution is supported in LEGACY mode, the
+ *                  configuration given in
+ *                  {@link CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP} must contain
+ *                  the resolution in the supported output sizes. The recommended way to check
+ *                  this is with {@link StreamConfigurationMap#getOutputSizes(Class)} with the
+ *                  class of the desired recording endpoint, and check that the desired
+ *                  resolution is contained in the list returned.
+ *     Device(s): All legacy devices
+ *     @see CamcorderProfile#hasProfile
+ *     @see CamcorderProfileResolutionValidator
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class CamcorderProfileResolutionQuirk implements Quirk {

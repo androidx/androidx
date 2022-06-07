@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.SupportConfigKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -39,6 +38,8 @@ android {
                 "androidx/traceprocessor/testdata"
         )
     }
+
+    namespace "androidx.benchmark.macro"
 }
 
 dependencies {
@@ -48,16 +49,18 @@ dependencies {
 
     implementation(project(":benchmark:benchmark-common"))
     implementation("androidx.profileinstaller:profileinstaller:1.0.3")
-    implementation(project(":tracing:tracing-ktx"))
+    implementation("androidx.tracing:tracing-ktx:1.1.0-rc01")
     implementation(libs.testCore)
     implementation(libs.testUiautomator)
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation("androidx.activity:activity-ktx:1.3.1")
+    androidTestImplementation(project(":tracing:tracing-perfetto"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.truth)
 }
 
 androidx {
@@ -71,6 +74,6 @@ androidx {
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += [ '-Xopt-in=kotlin.RequiresOptIn' ]
+        freeCompilerArgs += [ '-opt-in=kotlin.RequiresOptIn' ]
     }
 }

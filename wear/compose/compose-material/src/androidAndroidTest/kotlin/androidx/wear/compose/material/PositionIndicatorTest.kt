@@ -22,6 +22,7 @@ import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
@@ -44,7 +45,6 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -88,10 +88,12 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             assertThat(
                 positionIndicatorState.positionFraction
@@ -115,7 +117,8 @@ public class PositionIndicatorTest {
                 verticalArrangement = Arrangement.spacedBy(itemSpacingDp),
                 modifier = Modifier
                     .onSizeChanged { viewPortHeight = it.height }
-                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
+                    .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f),
+                autoCentering = null
             ) {
                 items(3) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -125,10 +128,12 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             assertThat(
                 positionIndicatorState.positionFraction
@@ -140,7 +145,6 @@ public class PositionIndicatorTest {
     }
 
     @Test
-    @Ignore("Offsets not being handled correctly due to b/198751807")
     fun scalingLazyColumnNotLargeEnoughToScrollSwapVerticalAlignmentGivesCorrectPositionAndSize() {
         lateinit var state: ScalingLazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
@@ -166,10 +170,12 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             assertThat(
                 positionIndicatorState.positionFraction
@@ -182,11 +188,37 @@ public class PositionIndicatorTest {
 
     @Test
     fun scrollableScalingLazyColumnGivesCorrectPositionAndSize() {
+        scrollableScalingLazyColumnPositionAndSize(
+            enableAutoCentering = true,
+            contentPadding = PaddingValues(0.dp)
+        )
+    }
+
+    @Test
+    fun scrollableScalingLazyColumnGivesCorrectPositionAndSizeWithContentPadding() {
+        scrollableScalingLazyColumnPositionAndSize(
+            enableAutoCentering = true,
+            contentPadding = PaddingValues(50.dp)
+        )
+    }
+
+    @Test
+    fun scrollableScalingLazyColumnGivesCorrectPositionAndSizeWithContentPaddingNoAutoCenter() {
+        scrollableScalingLazyColumnPositionAndSize(
+            enableAutoCentering = false,
+            contentPadding = PaddingValues(50.dp)
+        )
+    }
+
+    private fun scrollableScalingLazyColumnPositionAndSize(
+        enableAutoCentering: Boolean,
+        contentPadding: PaddingValues
+    ) {
         lateinit var state: ScalingLazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
         var viewPortHeight = 0
         rule.setContent {
-            state = rememberScalingLazyListState()
+            state = rememberScalingLazyListState(initialCenterItemIndex = 0)
             positionIndicatorState = ScalingLazyColumnStateAdapter(state)
             ScalingLazyColumn(
                 state = state,
@@ -198,6 +230,9 @@ public class PositionIndicatorTest {
                         itemSizeDp * 3f + itemSpacingDp * 2f
                     ),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
+                autoCentering = if (enableAutoCentering)
+                    AutoCenteringParams(itemIndex = 0) else null,
+                contentPadding = contentPadding
             ) {
                 items(5) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -207,14 +242,16 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
-            // Scroll forwards
+            // Scroll forwards so that item with index 2 is in the center of the viewport
             runBlocking {
-                state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
+                state.scrollBy((itemSizePx.toFloat() + itemSpacingPx.toFloat()) * 2f)
             }
 
             state.layoutInfo.assertWhollyVisibleItems(
@@ -253,10 +290,12 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             assertThat(
                 positionIndicatorState.positionFraction
@@ -287,6 +326,7 @@ public class PositionIndicatorTest {
                     .fillMaxWidth()
                     .requiredSize(itemSizeDp * 3.5f + itemSpacingDp * 2.5f)
                     .background(Color.DarkGray),
+                autoCentering = null
             ) {
                 items(3) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -296,10 +336,12 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             assertThat(
                 positionIndicatorState.positionFraction
@@ -330,6 +372,7 @@ public class PositionIndicatorTest {
                     )
                     .background(Color.DarkGray),
                 scalingParams = ScalingLazyColumnDefaults.scalingParams(edgeScale = 1.0f),
+                autoCentering = null
             ) {
                 items(5) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -339,10 +382,12 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
+        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
+        rule.waitUntil { state.initialized.value }
         rule.runOnIdle {
             runBlocking {
                 state.scrollBy(itemSizePx.toFloat() + itemSpacingPx.toFloat())
@@ -383,7 +428,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -420,7 +465,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -435,7 +480,6 @@ public class PositionIndicatorTest {
     }
 
     @Test
-    @Ignore("Offsets not being handled correctly due to b/198751807")
     fun lazyColumnNotLargeEnoughToScrollSwapVerticalAlignmentGivesCorrectPositionAndSize() {
         lateinit var state: LazyListState
         lateinit var positionIndicatorState: PositionIndicatorState
@@ -461,7 +505,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -501,7 +545,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -542,7 +586,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -585,7 +629,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -626,7 +670,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -665,7 +709,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -698,7 +742,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
                 reverseDirection = true,
             )
         }
@@ -736,7 +780,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -773,7 +817,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
                 reverseDirection = true,
             )
         }
@@ -816,7 +860,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -862,7 +906,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
                 reverseDirection = true,
             )
         }
@@ -892,7 +936,7 @@ public class PositionIndicatorTest {
                 state = positionIndicatorState,
                 indicatorHeight = 50.dp,
                 indicatorWidth = 4.dp,
-                paddingRight = 5.dp,
+                paddingHorizontal = 5.dp,
             )
         }
 
@@ -929,16 +973,12 @@ public class PositionIndicatorTest {
 
     private fun ScalingLazyListLayoutInfo.assertWhollyVisibleItems(
         firstItemIndex: Int,
-        firstItemNotVisible: Int = 0,
         lastItemIndex: Int,
-        lastItemNotVisible: Int = 0,
         viewPortHeight: Int
     ) {
         assertThat(visibleItemsInfo.first().index).isEqualTo(firstItemIndex)
-        assertThat(visibleItemsInfo.first().offset).isEqualTo(firstItemNotVisible)
         assertThat(visibleItemsInfo.last().index).isEqualTo(lastItemIndex)
-        assertThat(
-            viewPortHeight - (visibleItemsInfo.last().offset + visibleItemsInfo.last().size)
-        ).isEqualTo(lastItemNotVisible)
+        assertThat((viewPortHeight / 2f) >=
+            (visibleItemsInfo.last().offset + (visibleItemsInfo.last().size / 2)))
     }
 }

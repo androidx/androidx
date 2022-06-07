@@ -41,6 +41,7 @@ import androidx.glance.Visibility
 import androidx.glance.VisibilityModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.appwidget.action.applyAction
+import androidx.glance.appwidget.action.unsetAction
 import androidx.glance.appwidget.unit.DayNightColorProvider
 import androidx.glance.layout.HeightModifier
 import androidx.glance.layout.PaddingModifier
@@ -61,10 +62,18 @@ internal fun applyModifiers(
     var paddingModifiers: PaddingModifier? = null
     var cornerRadius: Dimension? = null
     var visibility = Visibility.Visible
+    var actionModifier: ActionModifier? = null
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
             is ActionModifier -> {
-                applyAction(translationContext, rv, modifier.action, viewDef.mainViewId)
+                if (actionModifier != null) {
+                    Log.w(
+                        GlanceAppWidgetTag,
+                        "More than one clickable defined on the same GlanceModifier, " +
+                            "only the last one will be used."
+                    )
+                }
+                actionModifier = modifier
             }
             is WidthModifier -> widthModifier = modifier
             is HeightModifier -> heightModifier = modifier
@@ -77,12 +86,22 @@ internal fun applyModifiers(
             is AppWidgetBackgroundModifier -> {
                 // This modifier is handled somewhere else.
             }
+            is SelectableGroupModifier -> {
+                if (!translationContext.canUseSelectableGroup) {
+                    error(
+                        "GlanceModifier.selectableGroup() can only be used on Row or Column " +
+                        "composables."
+                    )
+                }
+            }
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }
         }
     }
     applySizeModifiers(translationContext, rv, widthModifier, heightModifier, viewDef)
+    actionModifier?.let { applyAction(translationContext, rv, it.action, viewDef.mainViewId) }
+        ?: unsetAction(translationContext, rv, viewDef.mainViewId)
     cornerRadius?.let { applyRoundedCorners(rv, viewDef.mainViewId, it) }
     paddingModifiers?.let { padding ->
         val absolutePadding = padding.toDp(context.resources).toAbsolute(translationContext.isRtl)

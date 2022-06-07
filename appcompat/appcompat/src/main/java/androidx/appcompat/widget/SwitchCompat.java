@@ -49,6 +49,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.DoNotInline;
+import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -195,6 +196,8 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
 
     /** Bottom bound for drawing the switch track and thumb. */
     private int mSwitchBottom;
+
+    private boolean mEnforceSwitchWidth = true;
 
     private final TextPaint mTextPaint;
     private ColorStateList mTextColors;
@@ -955,8 +958,10 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
             paddingRight = Math.max(paddingRight, inset.right);
         }
 
-        final int switchWidth = Math.max(mSwitchMinWidth,
-                2 * mThumbWidth + paddingLeft + paddingRight);
+        final int switchWidth =
+                mEnforceSwitchWidth
+                        ? Math.max(mSwitchMinWidth, 2 * mThumbWidth + paddingLeft + paddingRight)
+                        : mSwitchMinWidth;
         final int switchHeight = Math.max(trackHeight, thumbHeight);
         mSwitchWidth = switchWidth;
         mSwitchHeight = switchHeight;
@@ -1143,6 +1148,14 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
 
     private boolean getTargetCheckedState() {
         return mThumbPosition > 0.5f;
+    }
+
+    /**
+     * @return the current thumb position as a decimal value between 0 (off) and 1 (on).
+     */
+    @FloatRange(from = 0.0, to = 1.0)
+    protected final float getThumbPosition() {
+        return mThumbPosition;
     }
 
     /**
@@ -1538,6 +1551,17 @@ public class SwitchCompat extends CompoundButton implements EmojiCompatConfigura
     public ActionMode.Callback getCustomSelectionActionModeCallback() {
         return TextViewCompat.unwrapCustomSelectionActionModeCallback(
                 super.getCustomSelectionActionModeCallback());
+    }
+
+    /**
+     * Sets {@code true} to enforce the switch width being at least twice of the thumb width.
+     * Otherwise the switch width will be the value set by {@link #setSwitchMinWidth(int)}.
+     *
+     * The default value is {@code true}.
+     */
+    protected final void setEnforceSwitchWidth(boolean enforceSwitchWidth) {
+        mEnforceSwitchWidth = enforceSwitchWidth;
+        invalidate();
     }
 
     /**

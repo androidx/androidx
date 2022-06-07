@@ -16,7 +16,6 @@
 
 package androidx.glance.appwidget.lazy
 
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceModifier
@@ -36,7 +35,7 @@ import androidx.glance.layout.wrapContentHeight
  */
 // TODO(b/198618359): interaction handling
 @Composable
-public fun LazyColumn(
+fun LazyColumn(
     modifier: GlanceModifier = GlanceModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: LazyListScope.() -> Unit
@@ -113,7 +112,6 @@ private fun LazyListItem(
  * Values between -2^63 and -2^62 are reserved for list items whose id has not been explicitly
  * defined.
  */
-@VisibleForTesting
 internal const val ReservedItemIdRangeEnd = -0x4_000_000_000_000_000L
 
 @DslMarker
@@ -237,7 +235,7 @@ inline fun <T> LazyListScope.itemsIndexed(
 
 internal abstract class EmittableLazyList : EmittableWithChildren(resetsDepthForChildren = true) {
     override var modifier: GlanceModifier = GlanceModifier
-    public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+    var horizontalAlignment: Alignment.Horizontal = Alignment.Start
 
     override fun toString() =
         "EmittableLazyList(modifier=$modifier, horizontalAlignment=$horizontalAlignment, " +

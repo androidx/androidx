@@ -19,23 +19,19 @@ package androidx.wear.compose.integration.demos.test
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteractionCollection
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.test.performScrollToNode
 import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.wear.compose.integration.demos.Demo
 import androidx.wear.compose.integration.demos.DemoActivity
 import androidx.wear.compose.integration.demos.DemoCategory
-import androidx.wear.compose.integration.demos.DemoListTag
 import androidx.wear.compose.integration.demos.WearComposeDemos
-import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -48,7 +44,6 @@ private val ignoredDemos = listOf<String>(
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class)
-@ExperimentalWearMaterialApi
 class DemoTest {
     // We need to provide the recompose factory first to use new clock.
     @get:Rule
@@ -105,35 +100,14 @@ class DemoTest {
         path: List<DemoCategory>,
         fastForwardClock: Boolean
     ) {
-        val navigationTitle = path.navigationTitle
-
         if (fastForwardClock) {
             // Skip through the enter animation of the list screen
             fastForwardClock()
         }
 
-        var errors = 0
-        while (true) {
-            try {
-                rule.onNode(hasText(title) and hasClickAction())
-                    .assertExists("Couldn't find \"$title\" in \"$navigationTitle\"")
-                    .performScrollTo()
-                    .performClick()
-                break
-            } catch (ex: AssertionError) {
-                // We can fit about 4 list items on the screen at once,
-                // so allow up to itemCount/4 screens to scroll down before giving up.
-                if (++errors <= path.last().demos.size / 4) {
-                    rule.onNodeWithTag(DemoListTag).performTouchInput {
-                        swipeUp()
-                    }
-                } else {
-                    // We've scrolled down to see all the items,
-                    // so rethrow the exception, it's not present.
-                    throw ex
-                }
-            }
-        }
+        rule.onNode(hasScrollToNodeAction())
+            .performScrollToNode(hasText(title) and hasClickAction())
+        rule.onNode(hasText(title) and hasClickAction()).performClick()
 
         if (this is DemoCategory) {
             visitDemos(visitedDemos, path + this, fastForwardClock)
@@ -189,7 +163,6 @@ class DemoTest {
     }
 }
 
-@ExperimentalWearMaterialApi
 private val AllButIgnoredDemos =
     WearComposeDemos.filter { path, demo ->
         demo.navigationTitle(path) !in ignoredDemos

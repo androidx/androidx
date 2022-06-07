@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
@@ -23,6 +22,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -47,15 +47,21 @@ android {
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/src/schemas".toString())
     }
+    namespace "androidx.work"
+    lintOptions {
+        // Too many Kotlin features require synthetic accessors - we want to rely on R8 to
+        // remove these accessors
+        disable("SyntheticAccessor")
+    }
 }
 
 dependencies {
     implementation("androidx.core:core:1.6.0")
-    annotationProcessor("androidx.room:room-compiler:2.2.5")
-    implementation("androidx.room:room-runtime:2.2.5")
-    androidTestImplementation("androidx.room:room-testing:2.2.5")
-    implementation("androidx.sqlite:sqlite:2.1.0")
-    implementation("androidx.sqlite:sqlite-framework:2.1.0")
+    ksp("androidx.room:room-compiler:2.4.0-rc01")
+    implementation("androidx.room:room-runtime:2.4.0-rc01")
+    androidTestImplementation("androidx.room:room-testing:2.4.0-rc01")
+    implementation(projectOrArtifact(":sqlite:sqlite"))
+    implementation(projectOrArtifact(":sqlite:sqlite-framework"))
     api("androidx.annotation:annotation-experimental:1.0.0")
     api(libs.guavaListenableFuture)
     api("androidx.lifecycle:lifecycle-livedata:2.1.0")
@@ -78,7 +84,12 @@ dependencies {
     lintPublish(project(":work:work-runtime-lint"))
 }
 
-packageInspector(project, project(":work:work-inspection"))
+packageInspector(project, ":work:work-inspection")
+
+// KSP does not support argument per flavor so we set it to global instead.
+ksp {
+    arg("room.schemaLocation","$projectDir/src/schemas".toString())
+}
 
 androidx {
     name = "Android WorkManager Runtime"

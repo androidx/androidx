@@ -18,16 +18,18 @@ package androidx.window.sample.embedding
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.window.sample.R
+import androidx.window.sample.databinding.ActivitySplitActivityPlaceholderLayoutBinding
 
 open class SplitActivityPlaceholder : AppCompatActivity() {
+
+    lateinit var viewBinding: ActivitySplitActivityPlaceholderLayoutBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_split_activity_list_placeholder_layout)
+        viewBinding = ActivitySplitActivityPlaceholderLayoutBinding.inflate(layoutInflater)
+        setContentView(viewBinding.root)
 
-        findViewById<View>(R.id.root_split_activity_layout)
-            .setBackgroundColor(Color.parseColor("#eeeeee"))
+        viewBinding.rootSplitActivityLayout.setBackgroundColor(Color.parseColor("#eeeeee"))
     }
 }

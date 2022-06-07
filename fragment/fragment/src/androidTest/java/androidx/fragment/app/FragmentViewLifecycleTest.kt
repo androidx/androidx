@@ -30,7 +30,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
+import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -285,7 +285,7 @@ class FragmentViewLifecycleTest {
                     ViewTreeViewModelStoreOwner.get(it)
                 }
                 observedTreeViewSavedStateRegistryOwner = fragment.view?.let {
-                    ViewTreeSavedStateRegistryOwner.get(it)
+                    it.findViewTreeSavedStateRegistryOwner()
                 }
             }
 
@@ -314,10 +314,8 @@ class FragmentViewLifecycleTest {
                 " after commitNow"
         )
             .that(
-                ViewTreeSavedStateRegistryOwner.get(
-                    fragment.view
-                        ?: error("no fragment view created")
-                )
+                (fragment.view ?: error("no fragment view created"))
+                    .findViewTreeSavedStateRegistryOwner()
             )
             .isSameInstanceAs(fragment.viewLifecycleOwner)
 
@@ -406,7 +404,7 @@ class FragmentViewLifecycleTest {
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
             onViewCreatedLifecycleOwner = ViewTreeLifecycleOwner.get(view)
             onViewCreatedViewModelStoreOwner = ViewTreeViewModelStoreOwner.get(view)
-            onViewCreatedSavedStateRegistryOwner = ViewTreeSavedStateRegistryOwner.get(view)
+            onViewCreatedSavedStateRegistryOwner = view.findViewTreeSavedStateRegistryOwner()
         }
     }
 
@@ -464,7 +462,7 @@ class FragmentViewLifecycleTest {
         var restoredState: String? = null
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            val savedStateRegistryOwner = ViewTreeSavedStateRegistryOwner.get(view)!!
+            val savedStateRegistryOwner = view.findViewTreeSavedStateRegistryOwner()!!
             val savedStateLifecycle = savedStateRegistryOwner.lifecycle
             val savedStateRegistry = savedStateRegistryOwner.savedStateRegistry
             savedStateLifecycle.addObserver(

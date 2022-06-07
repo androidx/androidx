@@ -16,20 +16,25 @@
 
 package androidx.glance.wear.tiles
 
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import androidx.annotation.CallSuper
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Composition
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Recomposer
-import androidx.glance.Applier
-import androidx.glance.layout.EmittableBox
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.glance.GlanceComposable
+import androidx.glance.GlanceId
+import androidx.glance.state.GlanceState
+import androidx.glance.state.GlanceStateDefinition
+import androidx.glance.wear.tiles.action.RunCallbackAction
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ServiceLifecycleDispatcher
 import androidx.lifecycle.lifecycleScope
+import androidx.wear.tiles.EventBuilders.TileRemoveEvent
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourceBuilders
@@ -38,12 +43,11 @@ import androidx.wear.tiles.TileService
 import androidx.wear.tiles.TimelineBuilders
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.Arrays
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.guava.future
 import kotlinx.coroutines.launch
-import java.util.Arrays
 
 /**
  * [TileService] which can consume a Glance composition, convert it to a Wear Tile, and
@@ -53,6 +57,7 @@ import java.util.Arrays
  * ```
  * class MyTile: GlanceTileService() {
  *   @Composable
+ *   @GlanceComposable
  *   override fun Content {
  *     Text("Hello World!")
  *   }
@@ -63,9 +68,14 @@ import java.util.Arrays
  * discover them. Your service must include an intent filter for the action
  * `androidx.wear.tiles.action.BIND_TILE_PROVIDER`, and require the permission
  * `com.google.android.wearable.permission.BIND_TILE_PROVIDER`.
+ *
+ * @param errorUiLayout If not null and an error occurs within this glance wear tile, the tile is
+ * updated with an error UI using the provided layout.
  */
 
-public abstract class GlanceTileService : TileService() {
+public abstract class GlanceTileService(
+    private val errorUiLayout: LayoutElementBuilders.LayoutElement? = errorUiLayout()
+) : TileService() {
     private val lifecycleOwner = object : LifecycleOwner {
         val localLifecycle = LifecycleRegistry(this)
         override fun getLifecycle(): Lifecycle = localLifecycle
@@ -101,33 +111,68 @@ public abstract class GlanceTileService : TileService() {
         super.onStart(intent, startId)
     }
 
+    private fun getStateIdentifier(): String = javaClass.name
+
+    private fun getGlanceId(): GlanceId = WearTileId(javaClass)
+
+    /**
+     * Retrieve the state of the wear tile provided by this service
+     */
+    @Suppress("UNCHECKED_CAST")
+    public suspend fun <T> getTileState(): T =
+        GlanceState.getValue(
+            this,
+            checkNotNull(stateDefinition) { "No state defined in this service" },
+            getStateIdentifier()
+        ) as T
+
+    /**
+     * Update the state of the wear tile provided by this service
+     */
+    @Suppress("UNCHECKED_CAST")
+    public suspend fun <T> updateTileState(updateState: suspend (T) -> T): T =
+        GlanceState.updateValue(
+            this,
+            checkNotNull(stateDefinition as GlanceStateDefinition<T>?) {
+                "No state defined in this service"
+            },
+            getStateIdentifier(),
+            updateState
+        )
+
+    private suspend fun findCurrentState(
+        state: Any?,
+        lastClickableId: String
+    ): Any? = coroutineScope {
+        var currentState = state
+        if (lastClickableId.isNotEmpty()) {
+            RunCallbackAction.run(
+                this@GlanceTileService,
+                lastClickableId,
+                getGlanceId()
+            )
+            currentState = if (stateDefinition != null) getTileState<Any>() else null
+        }
+        currentState
+    }
     /**
      * Run the composition on the given time interval
      * When the timeline mode is singleEntry, pass in null argument
      */
     private suspend fun runComposition(
+        screenSize: DpSize,
+        state: Any?,
+        lastClickableId: String,
         timeInterval: TimeInterval? = null
     ): CompositionResult =
         coroutineScope {
-            val root = EmittableBox()
-            val applier = Applier(root)
-            val recomposer = Recomposer(currentCoroutineContext())
-            val composition = Composition(applier, recomposer)
-
-            composition.setContent {
-                CompositionLocalProvider(
-                    LocalTimeInterval provides timeInterval
-                ) { Content() }
-            }
-
-            launch { recomposer.runRecomposeAndApplyChanges() }
-
-            recomposer.close()
-            recomposer.join()
-
-            normalizeCompositionTree(this@GlanceTileService, root)
-
-            translateTopLevelComposition(this@GlanceTileService, root)
+            composeTileHelper(screenSize,
+                { findCurrentState(state, lastClickableId) },
+                timeInterval,
+                getGlanceId(),
+                this@GlanceTileService,
+                errorUiLayout,
+                { Content() })
         }
 
     internal class GlanceTile(
@@ -138,12 +183,17 @@ public abstract class GlanceTileService : TileService() {
     /**
      * Run the composition to build the resources, and, if required, tile as well
      */
-    private suspend fun runComposition(resourcesOnly: Boolean): GlanceTile = coroutineScope {
+    private suspend fun runComposition(
+        screenSize: DpSize,
+        resourcesOnly: Boolean,
+        lastClickableId: String
+    ): GlanceTile = coroutineScope {
         val timelineBuilders = if (resourcesOnly) null else TimelineBuilders.Timeline.Builder()
         var resourcesBuilder: ResourceBuilders.Resources.Builder
 
+        val state = if (stateDefinition != null) getTileState<Any>() else null
         if (timelineMode === TimelineMode.SingleEntry) {
-            val content = runComposition()
+            val content = runComposition(screenSize, state, lastClickableId)
 
             timelineBuilders?.let {
                 timelineBuilders.addTimelineEntry(
@@ -162,7 +212,7 @@ public abstract class GlanceTileService : TileService() {
             resourcesBuilder = ResourceBuilders.Resources.Builder()
 
             timeIntervals.forEach { interval ->
-                val content = runComposition(interval)
+                val content = runComposition(screenSize, state, lastClickableId, interval)
                 timelineBuilders?.let {
                     timelineBuilders
                         .addTimelineEntry(
@@ -205,12 +255,18 @@ public abstract class GlanceTileService : TileService() {
     }
 
     /**
+     * Data store for tile data specific to this service
+     */
+    public open val stateDefinition: GlanceStateDefinition<*>? = null
+
+    /**
      * Defines the handling of timeline
      */
     public open val timelineMode: TimelineMode = TimelineMode.SingleEntry
 
     /** Override this method to set the layout to use in your Tile. */
     @Composable
+    @GlanceComposable
     public abstract fun Content()
 
     /**
@@ -222,7 +278,15 @@ public abstract class GlanceTileService : TileService() {
     final override fun onTileRequest(
         requestParams: RequestBuilders.TileRequest
     ): ListenableFuture<TileBuilders.Tile> = coroutineScope.future {
-        runComposition(false).tile!!
+        runComposition(
+            if (requestParams.deviceParameters != null)
+                DpSize(
+                    requestParams.deviceParameters!!.screenWidthDp.dp,
+                    requestParams.deviceParameters!!.screenHeightDp.dp
+                ) else DpSize(0.dp, 0.dp),
+            false,
+            requestParams.state?.lastClickableId ?: ""
+        ).tile!!
     }
 
     /**
@@ -247,7 +311,27 @@ public abstract class GlanceTileService : TileService() {
             return Futures.immediateFuture(resources)
         }
         return coroutineScope.future {
-            runComposition(true).resources!!
+            runComposition(
+                if (requestParams.deviceParameters != null)
+                    DpSize(
+                        requestParams.deviceParameters!!.screenWidthDp.dp,
+                        requestParams.deviceParameters!!.screenHeightDp.dp
+                    )
+                else DpSize(0.dp, 0.dp),
+                true,
+                ""
+            ).resources!!
+        }
+    }
+
+    @CallSuper
+    override fun onTileRemoveEvent(requestParams: TileRemoveEvent) {
+        coroutineScope.launch {
+            stateDefinition?.let {
+                GlanceState.deleteStore(this as Context, it, getStateIdentifier())
+            }
         }
     }
 }
+
+internal data class WearTileId(val tileServiceClass: Class<out GlanceTileService>) : GlanceId

@@ -68,6 +68,7 @@ import java.util.List;
 public class ServiceBroadcastReceiver extends BroadcastReceiver {
 
     @Override
+    @SuppressWarnings("deprecation")
     public void onReceive(Context context, Intent intent) {
         Bundle extras = intent.getExtras();
         if (ACTION_CALL_MEDIA_BROWSER_SERVICE_METHOD.equals(intent.getAction()) && extras != null) {

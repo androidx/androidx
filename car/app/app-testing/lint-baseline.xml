@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -7,9 +7,7 @@
         errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofMinutes(1)).build();"
         errorLine2="                                                                         ~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
-            line="73"
-            column="74"/>
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofMinutes(1)).build();"
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
-            line="73"
-            column="48"/>
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofHours(1)).build();"
         errorLine2="                                                                         ~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
-            line="78"
-            column="74"/>
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofHours(1)).build();"
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
-            line="78"
-            column="48"/>
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofMinutes(2)).build();"
         errorLine2="                                                                         ~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
-            line="105"
-            column="74"/>
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofMinutes(2)).build();"
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
-            line="105"
-            column="48"/>
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofHours(2)).build();"
         errorLine2="                                                                         ~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
-            line="110"
-            column="74"/>
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofHours(2)).build();"
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
-            line="110"
-            column="48"/>
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofMinutes(3)).build();"
         errorLine2="                                                                         ~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
-            line="126"
-            column="74"/>
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofMinutes(3)).build();"
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
-            line="126"
-            column="48"/>
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofHours(3)).build();"
         errorLine2="                                                                         ~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
-            line="131"
-            column="74"/>
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="                                &quot;US/Pacific&quot;)).setRemainingTime(Duration.ofHours(3)).build();"
         errorLine2="                                               ~~~~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"
-            line="131"
-            column="48"/>
+            file="src/test/java/androidx/car/app/testing/navigation/TestNavigationManagerTest.java"/>
     </issue>
 
 </issues>

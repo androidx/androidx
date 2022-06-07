@@ -16,6 +16,7 @@
 
 package androidx.inspection.gradle
 
+import com.android.build.api.variant.Variant
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -34,6 +35,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
 /**
@@ -41,6 +43,7 @@ import java.io.File
  * during complication. Android Studio checks compatibility of its version with version required
  * by inspector.
  */
+@DisableCachingByDefault(because = "Simply generates a small file and doesn't benefit from caching")
 abstract class GenerateInspectionPlatformVersionTask : DefaultTask() {
     // ArtCollection can't be exposed as input as it is, so below there is "getCompileInputs"
     // that adds it properly as input.
@@ -86,13 +89,12 @@ abstract class GenerateInspectionPlatformVersionTask : DefaultTask() {
     }
 }
 
-@ExperimentalStdlibApi
-@Suppress("DEPRECATION") // BaseVariant
 fun Project.registerGenerateInspectionPlatformVersionTask(
-    variant: com.android.build.gradle.api.BaseVariant
+    variant: Variant
 ): TaskProvider<GenerateInspectionPlatformVersionTask> {
     val name = variant.taskName("generateInspectionPlatformVersion")
     return tasks.register(name, GenerateInspectionPlatformVersionTask::class.java) { task ->
+        @Suppress("UnstableApiUsage")
         task.compileClasspath = variant.compileConfiguration.incoming.artifactView { artifact ->
             artifact.attributes {
                 it.attribute(Attribute.of("artifactType", String::class.java), "android-classes")

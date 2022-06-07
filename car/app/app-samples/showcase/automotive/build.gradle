@@ -24,11 +24,16 @@ android {
         applicationId "androidx.car.app.sample.showcase"
         minSdkVersion 29
         targetSdkVersion 31
-        versionCode 105     // Increment this to generate signed builds for uploading to Playstore
-        versionName "105"
+        // Increment this to generate signed builds for uploading to Playstore
+        // Make sure this is different from the showcase-mobile version
+        versionCode 107
+        versionName "107"
     }
 
     buildTypes {
+        debug {
+            pseudoLocalesEnabled true
+        }
         release {
             // Enables code shrinking, obfuscation, and optimization.
             minifyEnabled true
@@ -37,6 +42,7 @@ android {
                     'proguard-rules.pro'
         }
     }
+    namespace "androidx.car.app.sample.showcase"
 }
 
 dependencies {

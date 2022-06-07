@@ -68,6 +68,7 @@ public class GetComplicationSlotMetadataParams implements VersionedParcelable, P
 
     public static final Parcelable.Creator<GetComplicationSlotMetadataParams> CREATOR =
             new Parcelable.Creator<GetComplicationSlotMetadataParams>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public GetComplicationSlotMetadataParams createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

@@ -20,7 +20,9 @@ import static android.os.Build.VERSION.SDK_INT;
 
 import android.content.res.Configuration;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 
 /**
  * Helper class which allows access to properties of {@link Configuration} in
@@ -39,9 +41,21 @@ public final class ConfigurationCompat {
     @NonNull
     public static LocaleListCompat getLocales(@NonNull Configuration configuration) {
         if (SDK_INT >= 24) {
-            return LocaleListCompat.wrap(configuration.getLocales());
+            return LocaleListCompat.wrap(Api24Impl.getLocales(configuration));
         } else {
             return LocaleListCompat.create(configuration.locale);
+        }
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static android.os.LocaleList getLocales(Configuration configuration) {
+            return configuration.getLocales();
         }
     }
 }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -29,9 +28,12 @@ dependencies {
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation(libs.robolectric)
     implementation("androidx.annotation:annotation-experimental:1.1.0")
-    compileOnly libs.kotlinStdlib // Due to :annotation-experimental
+    // There is an implicit compile-only dep due to :annotation-experimental
+    // Build will complain without this manual declaration.
+    compileOnly libs.kotlinStdlib
 
-    testImplementation("junit:junit:4.13")
+    testImplementation(project(":car:app:app-projected"))
+    testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
@@ -50,11 +52,12 @@ android {
     lintOptions {
         disable("InvalidPackage")
     }
+    namespace "androidx.car.app.testing"
 }
 
 androidx {
     name = "androidx.car.app:app-testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_TEST_LIBRARY
     mavenGroup = LibraryGroups.CAR_APP
     inceptionYear = "2021"
     description = "androidx.car.app:app-testing"

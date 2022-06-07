@@ -31,7 +31,7 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 
 /** Set of colors to apply to a Switch depending on the checked state. */
-public sealed class SwitchColors {
+sealed class SwitchColors {
     internal abstract val thumb: CheckableColorProvider
     internal abstract val track: CheckableColorProvider
 }
@@ -56,7 +56,7 @@ internal data class SwitchColorsImpl(
  * @param uncheckedTrackColor the tint to apply to the track of the switch when it is not checked,
  * or null to use the default tint
  */
-public fun SwitchColors(
+fun SwitchColors(
     checkedThumbColor: ColorProvider? = null,
     uncheckedThumbColor: ColorProvider? = null,
     checkedTrackColor: ColorProvider? = null,
@@ -89,7 +89,7 @@ public fun SwitchColors(
  * @param trackColor the resource to use to tint the track. If an invalid resource id is provided,
  * the default switch colors will be used.
  */
-public fun SwitchColors(
+fun SwitchColors(
     @ColorRes thumbColor: Int,
     @ColorRes trackColor: Int = R.color.glance_default_switch_track
 ): SwitchColors =
@@ -122,6 +122,8 @@ object SwitchDefaults {
  * @param text the text to display to the end of the switch
  * @param style the style to apply to [text]
  * @param colors the tint colors for the thumb and track of the switch
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
 fun Switch(
@@ -130,7 +132,8 @@ fun Switch(
     modifier: GlanceModifier = GlanceModifier,
     text: String = "",
     style: TextStyle? = null,
-    colors: SwitchColors = SwitchDefaults.colors
+    colors: SwitchColors = SwitchDefaults.colors,
+    maxLines: Int = Int.MAX_VALUE,
 ) {
     val finalModifier = if (onCheckedChange != null) {
         modifier.then(ActionModifier(CompoundButtonAction(onCheckedChange, checked)))
@@ -145,6 +148,7 @@ fun Switch(
             this.set(finalModifier) { this.modifier = it }
             this.set(style) { this.style = it }
             this.set(colors) { this.colors = it }
+            this.set(maxLines) { this.maxLines = it }
         }
     )
 }
@@ -155,12 +159,14 @@ internal class EmittableSwitch : Emittable {
     var text: String = ""
     var style: TextStyle? = null
     var colors: SwitchColors = SwitchDefaults.colors
+    var maxLines: Int = Int.MAX_VALUE
 
     override fun toString(): String = "EmittableSwitch(" +
         "$text, " +
+        "modifier=$modifier, " +
         "checked=$checked, " +
         "style=$style, " +
-        "modifier=$modifier" +
-        "colors=$colors" +
+        "colors=$colors, " +
+        "maxLines=$maxLines" +
         ")"
 }

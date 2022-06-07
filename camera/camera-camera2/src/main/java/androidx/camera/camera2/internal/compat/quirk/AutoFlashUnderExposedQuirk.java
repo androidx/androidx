@@ -16,35 +16,27 @@
 
 package androidx.camera.camera2.internal.compat.quirk;
 
-import static android.hardware.camera2.CameraMetadata.LENS_FACING_BACK;
-
-import android.hardware.camera2.CameraCharacteristics;
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.impl.Quirk;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
-
 /**
  * This denotes a quirk that when flash is auto, the device fails to get bright still photos with
  * good exposure.
  *
- * see b/205373142
+ * <p>QuirkSummary
+ *     Bug Id: 205373142
+ *     Description: When capturing still photos in auto flash mode, it fails to get bright photos
+ *     with good exposure.
+ *     Device(s): Pixel 3a / Pixel 3a XL
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class AutoFlashUnderExposedQuirk implements Quirk {
-    private static final List<String> AFFECTED_MODELS = Arrays.asList(
-            "PIXEL 3A",
-            "PIXEL 3A XL"
-    );
-
     static boolean load(@NonNull CameraCharacteristicsCompat cameraCharacteristics) {
-        return AFFECTED_MODELS.contains(Build.MODEL.toUpperCase(Locale.US))
-                && cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == LENS_FACING_BACK;
+        // Currently disable this quirk on Pixel 3a / Pixel 3a XL as using torch can achieve
+        // better result. But the quirk is kept so that we can keep maintaining the current
+        // workaround in case it is still needed in the future.
+        return false;
     }
 }

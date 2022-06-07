@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.config.CameraScope
+import androidx.camera.core.impl.TagBundle
 import java.util.concurrent.Executor
 import javax.inject.Inject
 
@@ -168,3 +169,12 @@ class ComboRequestListener @Inject constructor() : Request.Listener {
         }
     }
 }
+
+@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+fun RequestMetadata.containsTag(tagKey: String, tagValue: Any): Boolean =
+    getOrDefault(
+        CAMERAX_TAG_BUNDLE,
+        TagBundle.emptyBundle()
+    ).getTag(tagKey).let {
+        return it == tagValue
+    }

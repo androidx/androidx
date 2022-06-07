@@ -18,7 +18,7 @@ package androidx.testutils
 
 import android.content.Intent
 import android.os.Build
-import androidx.annotation.RequiresApi
+import androidx.benchmark.macro.BaselineProfileMode
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.StartupTimingLegacyMetric
@@ -34,12 +34,16 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
  */
 val BASIC_COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
     // other modes aren't supported
-    listOf(CompilationMode.None)
+    listOf(CompilationMode.Full())
 } else {
     listOf(
-        CompilationMode.None,
+        CompilationMode.None(),
         CompilationMode.Interpreted,
-        CompilationMode.SpeedProfile()
+        CompilationMode.Partial(
+            baselineProfileMode = BaselineProfileMode.Disable,
+            warmupIterations = 3
+        ),
+        CompilationMode.Full()
     )
 }
 
@@ -47,10 +51,11 @@ val BASIC_COMPILATION_MODES = if (Build.VERSION.SDK_INT < 24) {
  * Default compilation modes to test for all AndroidX macrobenchmarks.
  *
  * Baseline profiles are only supported from Nougat (API 24),
- * currently through Android 11 (API 30)
+ * currently through Android 12 (API 31)
  */
-val COMPILATION_MODES = if (Build.VERSION.SDK_INT in 24..30) {
-    listOf(CompilationMode.BaselineProfile)
+@Suppress("ConvertTwoComparisonsToRangeCheck") // lint doesn't understand range checks
+val COMPILATION_MODES = if (Build.VERSION.SDK_INT >= 24 && Build.VERSION.SDK_INT <= 31) {
+    listOf(CompilationMode.Partial())
 } else {
     emptyList()
 } + BASIC_COMPILATION_MODES
@@ -58,14 +63,12 @@ val COMPILATION_MODES = if (Build.VERSION.SDK_INT in 24..30) {
 /**
  * Temporary, while transitioning to new metrics
  */
-@RequiresApi(23)
 fun getStartupMetrics() = if (Build.VERSION.SDK_INT >= 29) {
     listOf(StartupTimingMetric(), StartupTimingLegacyMetric())
 } else {
     listOf(StartupTimingMetric())
 }
 
-@RequiresApi(23)
 fun MacrobenchmarkRule.measureStartup(
     compilationMode: CompilationMode,
     startupMode: StartupMode,
@@ -77,16 +80,17 @@ fun MacrobenchmarkRule.measureStartup(
     metrics = getStartupMetrics(),
     compilationMode = compilationMode,
     iterations = iterations,
-    startupMode = startupMode
+    startupMode = startupMode,
+    setupBlock = {
+        pressHome()
+    }
 ) {
-    pressHome()
     val intent = Intent()
     intent.setPackage(packageName)
     setupIntent(intent)
     startActivityAndWait(intent)
 }
 
-@RequiresApi(21)
 fun createStartupCompilationParams(
     startupModes: List<StartupMode> = listOf(
         StartupMode.HOT,
@@ -110,7 +114,6 @@ fun createStartupCompilationParams(
     }
 }
 
-@RequiresApi(21)
 fun createCompilationParams(
     compilationModes: List<CompilationMode> = COMPILATION_MODES
 ): List<Array<Any>> = mutableListOf<Array<Any>>().apply {

@@ -240,8 +240,8 @@ class AppCompatTextHelper {
             if (Build.VERSION.SDK_INT >= 24) {
                 Api24Impl.setTextLocales(mView, Api24Impl.forLanguageTags(localeListString));
             } else if (Build.VERSION.SDK_INT >= 21) {
-                final String firstLanTag =
-                        localeListString.substring(0, localeListString.indexOf(','));
+                @SuppressWarnings("StringSplitter")
+                final String firstLanTag = localeListString.split(",")[0];
                 Api17Impl.setTextLocale(mView, Api21Impl.forLanguageTag(firstLanTag));
             }
         }

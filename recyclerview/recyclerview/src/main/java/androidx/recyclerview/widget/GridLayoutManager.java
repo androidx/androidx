@@ -22,7 +22,9 @@ import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridView;
 
+import androidx.annotation.NonNull;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 
 import java.util.Arrays;
@@ -160,6 +162,16 @@ public class GridLayoutManager extends LinearLayoutManager {
                     spanGroupIndex , 1,
                     glp.getSpanIndex(), glp.getSpanSize(), false, false));
         }
+    }
+
+    @Override
+    public void onInitializeAccessibilityNodeInfo(@NonNull RecyclerView.Recycler recycler,
+            @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
+        super.onInitializeAccessibilityNodeInfo(recycler, state, info);
+        // Set the class name so this is treated as a grid. A11y services should identify grids
+        // and list via CollectionInfos, but an almost empty grid may be incorrectly identified
+        // as a list.
+        info.setClassName(GridView.class.getName());
     }
 
     @Override

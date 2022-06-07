@@ -18,6 +18,7 @@ package androidx.core.text;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.text.Layout;
 import android.text.PrecomputedText;
@@ -425,6 +426,7 @@ public class PrecomputedTextCompat implements Spannable {
      * @param params parameters that define how text will be precomputed
      * @return A {@link PrecomputedText}
      */
+    @SuppressLint("WrongConstant")
     public static PrecomputedTextCompat create(@NonNull CharSequence text, @NonNull Params params) {
         Preconditions.checkNotNull(text);
         Preconditions.checkNotNull(params);

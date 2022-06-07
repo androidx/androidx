@@ -38,10 +38,10 @@ import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
 import javax.inject.Qualifier
 import javax.inject.Scope
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 
 @Scope
 internal annotation class CameraGraphScope

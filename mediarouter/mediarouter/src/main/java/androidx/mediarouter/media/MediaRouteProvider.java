@@ -286,7 +286,7 @@ public abstract class MediaRouteProvider {
 
     /**
      * Called by the media router to obtain a route controller for a particular route which is a
-     * member of {@link MediaRouter.RouteGroup}.
+     * member of a route group.
      * <p>
      * The media router will invoke the {@link RouteController#onRelease} method of the route
      * controller when it is no longer needed to allow it to free its resources.
@@ -363,6 +363,7 @@ public abstract class MediaRouteProvider {
             return mComponentName;
         }
 
+        @NonNull
         @Override
         public String toString() {
             return "ProviderMetadata{ componentName="
@@ -767,8 +768,7 @@ public abstract class MediaRouteProvider {
              * Returns true if the route can be grouped into the dynamic group route.
              * <p>
              * Only applicable to unselected/unselecting routes.
-             * Note that {@link #isGroupable()} and {@link #isTransferable()} are NOT mutually
-             * exclusive.
+             * Note that this is NOT mutually exclusive with {@link #isTransferable()}.
              * </p>
              */
             public boolean isGroupable() {
@@ -779,8 +779,7 @@ public abstract class MediaRouteProvider {
              * Returns true if the current dynamic group route can be transferred to this route.
              * <p>
              * Only applicable to unselected/unselecting routes.
-             * Note that {@link #isGroupable()} and {@link #isTransferable()} are NOT mutually
-             * exclusive.
+             * Note that this is NOT mutually exclusive with {@link #isGroupable()}.
              * </p>
              */
             public boolean isTransferable() {

@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
-    api("androidx.core:core:1.0.1")
+    api("androidx.core:core:1.6.0")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.vectordrawable:vectordrawable:1.1.0")
     api("androidx.vectordrawable:vectordrawable-animated:1.1.0")
 
+    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -41,18 +41,21 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.appcompat", module: "appcompat-resources"
     })
+    androidTestImplementation(libs.multidex)
 }
 
 android {
     defaultConfig {
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
+        multiDexEnabled = true
     }
 
     aaptOptions {
         additionalParameters "--no-version-vectors"
         noCompress "ttf"
     }
+    namespace "androidx.appcompat.resources"
 }
 
 androidx {

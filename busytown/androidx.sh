@@ -5,6 +5,12 @@ echo "Starting $0 at $(date)"
 
 cd "$(dirname $0)"
 
+# This target is for testing that clean builds work correctly
+# We disable the remote cache for this target unless it was already enabled
+if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
+  export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
+fi
+
 EXIT_VALUE=0
 
 # Validate translation exports, if present
@@ -12,7 +18,7 @@ if ! impl/check_translations.sh; then
   EXIT_VALUE=1
 else
   # Run Gradle
-  if ! impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs validateAllProperties \
+  if ! impl/build.sh buildOnServer checkExternalLicenses listTaskOutputs validateProperties \
       -Pandroidx.enableComposeCompilerMetrics=true \
       -Pandroidx.enableComposeCompilerReports=true \
       --profile "$@"; then

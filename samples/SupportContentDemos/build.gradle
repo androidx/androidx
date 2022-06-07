@@ -29,3 +29,7 @@ dependencies {
     implementation(project(":coordinatorlayout:coordinatorlayout"))
     implementation(project(":core:core"))
 }
+
+android {
+    namespace "com.example.android.support.content.demos"
+}

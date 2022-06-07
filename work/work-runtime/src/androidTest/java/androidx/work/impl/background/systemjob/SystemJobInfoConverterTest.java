@@ -133,6 +133,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     public void testConvert_periodicWithNoFlex() {
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setPeriodic(TEST_INTERVAL_DURATION);
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         assertThat(jobInfo.getMinLatencyMillis(), is(0L));
     }
@@ -142,6 +143,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     public void testConvert_periodicWithFlex() {
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setPeriodic(TEST_INTERVAL_DURATION, TEST_FLEX_DURATION);
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         assertCloseValues(jobInfo.getMinLatencyMillis(),
                 TEST_INTERVAL_DURATION - TEST_FLEX_DURATION);
@@ -237,6 +239,7 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     public void testConvert_setImportantWhileForeground_withTimingConstraints() {
         WorkSpec workSpec = new WorkSpec("id", TestWorker.class.getName());
         workSpec.setPeriodic(TEST_INTERVAL_DURATION, TEST_FLEX_DURATION);
+        workSpec.lastEnqueueTime = System.currentTimeMillis();
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
         assertThat(jobInfo.isImportantWhileForeground(), is(false));
     }
@@ -283,8 +286,8 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
     }
 
     private void convertWithRequiredNetworkType(NetworkType networkType,
-                                                int jobInfoNetworkType,
-                                                int minSdkVersion) {
+            int jobInfoNetworkType,
+            int minSdkVersion) {
         WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder()
                 .setRequiredNetworkType(networkType).build());
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);

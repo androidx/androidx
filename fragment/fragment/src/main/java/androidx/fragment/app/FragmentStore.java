@@ -16,6 +16,7 @@
 
 package androidx.fragment.app;
 
+import android.os.Bundle;
 import android.util.Log;
 import android.view.ViewGroup;
 
@@ -36,7 +37,7 @@ class FragmentStore {
 
     private final ArrayList<Fragment> mAdded = new ArrayList<>();
     private final HashMap<String, FragmentStateManager> mActive = new HashMap<>();
-    private final HashMap<String, FragmentState> mSavedState = new HashMap<>();
+    private final HashMap<String, Bundle> mSavedState = new HashMap<>();
 
     private FragmentManagerViewModel mNonConfig;
 
@@ -128,7 +129,7 @@ class FragmentStore {
                         // (i.e., add transaction + saveBackStack())
                         // we still want to save the bare minimum of state
                         // relating to this Fragment
-                        fragmentStateManager.saveState();
+                        setSavedState(f.mWho, fragmentStateManager.saveState());
                     }
                     makeInactive(fragmentStateManager);
                 }
@@ -176,32 +177,30 @@ class FragmentStore {
     }
 
     @Nullable
-    FragmentState getSavedState(@NonNull String who) {
+    Bundle getSavedState(@NonNull String who) {
         return mSavedState.get(who);
     }
 
     /**
-     * Sets the saved state, returning the previously set FragmentState, if any.
+     * Sets the saved state, returning the previously set state bundle, if any.
      */
     @Nullable
-    FragmentState setSavedState(@NonNull String who, @Nullable FragmentState fragmentState) {
-        if (fragmentState != null) {
-            return mSavedState.put(who, fragmentState);
+    Bundle setSavedState(@NonNull String who, @Nullable Bundle bundle) {
+        if (bundle != null) {
+            return mSavedState.put(who, bundle);
         } else {
             return mSavedState.remove(who);
         }
     }
 
-    void restoreSaveState(@NonNull ArrayList<FragmentState> savedState) {
+    void restoreSaveState(@NonNull HashMap<String, Bundle> allSavedStates) {
         mSavedState.clear();
-        for (FragmentState fs : savedState) {
-            mSavedState.put(fs.mWho, fs);
-        }
+        mSavedState.putAll(allSavedStates);
     }
 
     @NonNull
-    ArrayList<FragmentState> getAllSavedState() {
-        return new ArrayList<>(mSavedState.values());
+    HashMap<String, Bundle> getAllSavedState() {
+        return mSavedState;
     }
 
     @NonNull
@@ -211,7 +210,7 @@ class FragmentStore {
             if (fragmentStateManager != null) {
                 Fragment f = fragmentStateManager.getFragment();
 
-                fragmentStateManager.saveState();
+                setSavedState(f.mWho, fragmentStateManager.saveState());
                 active.add(f.mWho);
 
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {

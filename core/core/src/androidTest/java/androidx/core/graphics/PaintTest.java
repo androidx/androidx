@@ -17,17 +17,16 @@
 package androidx.core.graphics;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import android.graphics.BlendMode;
+import android.annotation.SuppressLint;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Xfermode;
-import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -37,45 +36,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
+@SdkSuppress(maxSdkVersion = 28)
 @SmallTest
 public class PaintTest {
 
+    @SuppressLint("NewApi") // due to BlendModeCompat's RequiresApi annotations
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    public void testBlendModeCompatMatchesPlatform() {
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.CLEAR, BlendMode.CLEAR);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.SRC, BlendMode.SRC);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.DST, BlendMode.DST);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.SRC_OVER, BlendMode.SRC_OVER);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.DST_OVER, BlendMode.DST_OVER);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.SRC_IN, BlendMode.SRC_IN);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.DST_IN, BlendMode.DST_IN);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.SRC_OUT, BlendMode.SRC_OUT);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.DST_OUT, BlendMode.DST_OUT);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.SRC_ATOP, BlendMode.SRC_ATOP);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.DST_ATOP, BlendMode.DST_ATOP);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.XOR, BlendMode.XOR);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.PLUS, BlendMode.PLUS);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.MODULATE, BlendMode.MODULATE);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.SCREEN, BlendMode.SCREEN);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.OVERLAY, BlendMode.OVERLAY);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.DARKEN, BlendMode.DARKEN);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.LIGHTEN, BlendMode.LIGHTEN);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.COLOR_DODGE, BlendMode.COLOR_DODGE);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.COLOR_BURN, BlendMode.COLOR_BURN);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.HARD_LIGHT, BlendMode.HARD_LIGHT);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.SOFT_LIGHT, BlendMode.SOFT_LIGHT);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.DIFFERENCE, BlendMode.DIFFERENCE);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.EXCLUSION, BlendMode.EXCLUSION);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.MULTIPLY, BlendMode.MULTIPLY);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.HUE, BlendMode.HUE);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.SATURATION, BlendMode.SATURATION);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.COLOR, BlendMode.COLOR);
-        TestHelper.verifyBlendModeMatchesCompat(BlendModeCompat.LUMINOSITY, BlendMode.LUMINOSITY);
-    }
-
-    @Test
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.P)
     public void testBlendModeCompatMatchesPorterDuff() {
         verifyPorterDuffMatchesCompat(BlendModeCompat.CLEAR, PorterDuff.Mode.CLEAR);
         verifyPorterDuffMatchesCompat(BlendModeCompat.SRC, PorterDuff.Mode.SRC);
@@ -113,38 +79,12 @@ public class PaintTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
-    public void testNullBlendModeRemovesBlendMode() {
-        Paint p = new Paint();
-        assertTrue(PaintCompat.setBlendMode(p, BlendModeCompat.CLEAR));
-        assertEquals(BlendMode.CLEAR, p.getBlendMode());
-
-        assertTrue(PaintCompat.setBlendMode(p, null));
-        assertNull(p.getBlendMode());
-    }
-
-
-    @Test
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.P)
     public void testNullBlendModeRemovesXfermode() {
         Paint p = new Paint();
         assertTrue(PaintCompat.setBlendMode(p, BlendModeCompat.CLEAR));
         verifyPorterDuffMatchesCompat(BlendModeCompat.CLEAR, PorterDuff.Mode.CLEAR);
 
         verifyPorterDuffMatchesCompat(null, null);
-    }
-
-    /**
-     * Helper test class to hide usages of new APIs and avoid ClassNotFoundExceptions
-     * in tests
-     */
-    private static class TestHelper {
-        private static void verifyBlendModeMatchesCompat(@NonNull BlendModeCompat compat,
-                                                         @NonNull BlendMode blendMode) {
-            Paint p = new Paint();
-            PaintCompat.setBlendMode(p, compat);
-            assertEquals(blendMode, p.getBlendMode());
-        }
     }
 
     /**
@@ -159,7 +99,7 @@ public class PaintTest {
         if (compat != null && mode == null) {
             // If there is not a compatible PorterDuff mode for this BlendMode, configuration
             // of the blend mode should return false
-            assertTrue(!result);
+            assertFalse(result);
         } else if (compat != null) {
             // .. otherwise if there is a corresponding PorterDuff mode with the given BlendMode
             // then the assignment should complete successfully

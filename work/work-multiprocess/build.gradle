@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -27,6 +26,7 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.work.multiprocess"
 }
 
 dependencies {
@@ -35,7 +35,7 @@ dependencies {
     api(libs.kotlinCoroutinesAndroid)
     api(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.1.0")
-    implementation("androidx.room:room-runtime:2.2.5")
+    implementation("androidx.room:room-runtime:2.4.0-rc01")
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

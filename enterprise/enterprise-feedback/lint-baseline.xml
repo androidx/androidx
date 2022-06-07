@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -7,9 +7,7 @@
         errorLine1="        getServiceConnection().onBindingDied(mTestComponentName);"
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/enterprise/feedback/BufferedServiceConnectionTest.java"
-            line="453"
-            column="32"/>
+            file="src/test/java/androidx/enterprise/feedback/BufferedServiceConnectionTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        getServiceConnection().onBindingDied(mTestComponentName);"
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
-            file="src/test/java/androidx/enterprise/feedback/DefaultKeyedAppStatesReporterTest.java"
-            line="601"
-            column="32"/>
+            file="src/test/java/androidx/enterprise/feedback/DefaultKeyedAppStatesReporterTest.java"/>
     </issue>
 
 </issues>

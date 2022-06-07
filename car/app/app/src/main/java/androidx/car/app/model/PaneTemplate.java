@@ -233,21 +233,17 @@ public final class PaneTemplate implements Template {
          * can be customized with {@link ForegroundCarColorSpan} instances. Any other span is not
          * supported.
          *
-         * <p>Either a header {@link Action} or title must be set on the template.
+         * <p>If none of the header {@link Action}, the header title or the action strip have been
+         * set on the template, the header is hidden.
          *
          * @throws IllegalArgumentException if the {@link Pane} does not meet the requirements
-         * @throws IllegalStateException    if the template does not have either a title or header
-         *                                  {@link Action} set
+         *
          * @see androidx.car.app.constraints.ConstraintManager#getContentLimit(int)
          */
         @NonNull
         public PaneTemplate build() {
             ROW_LIST_CONSTRAINTS_PANE.validateOrThrow(mPane);
             ACTIONS_CONSTRAINTS_BODY_WITH_PRIMARY_ACTION.validateOrThrow(mPane.getActions());
-
-            if (CarText.isNullOrEmpty(mTitle) && mHeaderAction == null) {
-                throw new IllegalStateException("Either the title or header action must be set");
-            }
 
             return new PaneTemplate(this);
         }
@@ -258,7 +254,7 @@ public final class PaneTemplate implements Template {
          * @throws NullPointerException if {@code pane} is {@code null}
          */
         public Builder(@NonNull Pane pane) {
-            mPane = pane;
+            mPane = requireNonNull(pane);
         }
     }
 }

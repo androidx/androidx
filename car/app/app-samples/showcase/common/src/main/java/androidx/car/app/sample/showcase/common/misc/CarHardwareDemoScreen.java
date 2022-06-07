@@ -81,7 +81,8 @@ public final class CarHardwareDemoScreen extends Screen {
                                 .build())
                         .addAction(
                                 new Action.Builder()
-                                        .setTitle("BACK")
+                                        .setTitle(getCarContext()
+                                                .getString(R.string.back_caps_action_title))
                                         .setOnClickListener(this::finish)
                                         .build())
                         .build();

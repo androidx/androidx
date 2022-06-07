@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -27,6 +25,7 @@ android {
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
     }
+    namespace "androidx.appsearch"
 }
 
 dependencies {
@@ -35,6 +34,7 @@ dependencies {
 
     implementation('androidx.concurrent:concurrent-futures:1.0.0')
     implementation('androidx.core:core:1.2.0')
+    implementation('androidx.collection:collection:1.0.0')
 
     androidTestAnnotationProcessor project(':appsearch:appsearch-compiler')
     androidTestImplementation project(':appsearch:appsearch-local-storage')
@@ -44,7 +44,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     //TODO(b/149787478) upgrade and link to Dependencies.kt
-    androidTestImplementation("junit:junit:4.13")
+    androidTestImplementation(libs.junit)
     // This dependency is unused by the test implementation, but it's here to validate that
     // icing's jarjar'ing of the Protobuf_lite doesn't conflict with external dependencies.
     androidTestImplementation(libs.protobufLite)

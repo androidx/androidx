@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -7,9 +7,7 @@
         errorLine1="        mShortcutSaver = mock(ShortcutInfoCompatSaverImpl.class);"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest.java"
-            line="62"
-            column="31"/>
+            file="src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        when(mShortcutSaver.getShortcutIcon(any())).thenReturn(mTestIcon);"
         errorLine2="                            ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest.java"
-            line="63"
-            column="29"/>
+            file="src/androidTest/java/androidx/sharetarget/ChooserTargetServiceCompatTest.java"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        mCacheUpdateService = ShortcutInfoCompatSaverImpl.createExecutorService();"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="80"
-            column="59"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        mDiskIoService = ShortcutInfoCompatSaverImpl.createExecutorService();"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="81"
-            column="54"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        mShortcutInfoSaver = new ShortcutInfoCompatSaverImpl(mContext, mCacheUpdateService,"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="82"
-            column="30"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.removeAllShortcuts());"
         errorLine2="                                                ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="84"
-            column="49"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="            mShortcutInfoSaver.removeAllShortcuts().get();"
         errorLine2="                               ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="156"
-            column="32"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="                ShortcutInfoCompatSaverImpl.getInstance(mContext);"
         errorLine2="                                            ~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="239"
-            column="45"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="        assertEquals(saver, ShortcutInfoCompatSaverImpl.getInstance(mContext));"
         errorLine2="                                                        ~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="241"
-            column="57"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        List&lt;ShortcutInfoCompat> shortcuts = mShortcutInfoSaver.getShortcuts();"
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="246"
-            column="65"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.addShortcuts(mTestShortcuts));"
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="254"
-            column="49"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -128,9 +106,7 @@
         errorLine1="        assertShortcutsListEquals(testShortcutsWithCategories(), mShortcutInfoSaver.getShortcuts());"
         errorLine2="                                                                                    ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="255"
-            column="85"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -139,9 +115,7 @@
         errorLine1="        ListenableFuture&lt;?> future = mShortcutInfoSaver.addShortcuts(mTestShortcuts);"
         errorLine2="                                                        ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="260"
-            column="57"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -150,9 +124,7 @@
         errorLine1="        assertShortcutsListEquals(testShortcutsWithCategories(), mShortcutInfoSaver.getShortcuts());"
         errorLine2="                                                                                    ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="264"
-            column="85"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -161,9 +133,7 @@
         errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.addShortcuts(firstBatch));"
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="280"
-            column="49"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -172,9 +142,7 @@
         errorLine1="        ListenableFuture&lt;Void> future = mShortcutInfoSaver.addShortcuts(secondBatch);"
         errorLine2="                                                           ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="281"
-            column="60"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -183,9 +151,7 @@
         errorLine1="        assertShortcutsListEquals(allShortcuts, mShortcutInfoSaver.getShortcuts());"
         errorLine2="                                                                   ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="283"
-            column="68"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -194,9 +160,7 @@
         errorLine1="        assertShortcutsListEquals(allShortcuts, mShortcutInfoSaver.getShortcuts());"
         errorLine2="                                                                   ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="286"
-            column="68"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -205,9 +169,7 @@
         errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.addShortcuts(mTestShortcuts));"
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="291"
-            column="49"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -216,9 +178,7 @@
         errorLine1="        ListenableFuture&lt;?> future = mShortcutInfoSaver.removeShortcuts(removeIds);"
         errorLine2="                                                        ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="296"
-            column="57"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -227,9 +187,7 @@
         errorLine1="        assertShortcutsListEquals(testShortcutsWithCategories(), mShortcutInfoSaver.getShortcuts());"
         errorLine2="                                                                                    ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="301"
-            column="85"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -238,9 +196,7 @@
         errorLine1="        assertShortcutsListEquals(testShortcutsWithCategories(), mShortcutInfoSaver.getShortcuts());"
         errorLine2="                                                                                    ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="304"
-            column="85"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -249,9 +205,7 @@
         errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.addShortcuts(mTestShortcuts));"
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="309"
-            column="49"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -260,9 +214,7 @@
         errorLine1="        assertShortcutsListEquals(testShortcutsWithCategories(), mShortcutInfoSaver.getShortcuts());"
         errorLine2="                                                                                    ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="310"
-            column="85"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -271,9 +223,7 @@
         errorLine1="        ListenableFuture&lt;?> future = mShortcutInfoSaver.removeAllShortcuts();"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="312"
-            column="57"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -282,9 +232,7 @@
         errorLine1="        assertTrue(mShortcutInfoSaver.getShortcuts().isEmpty());"
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="314"
-            column="39"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -293,9 +241,7 @@
         errorLine1="        assertTrue(mShortcutInfoSaver.getShortcuts().isEmpty());"
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="317"
-            column="39"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -304,9 +250,7 @@
         errorLine1="        ListenableFuture&lt;?> future = mShortcutInfoSaver.addShortcuts(mTestShortcuts);"
         errorLine2="                                                        ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="322"
-            column="57"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -315,9 +259,7 @@
         errorLine1="        List&lt;ShortcutInfoCompat> shortcuts = mShortcutInfoSaver.getShortcuts();"
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="326"
-            column="65"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -326,9 +268,7 @@
         errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.addShortcuts(mTestShortcuts));"
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="334"
-            column="49"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -337,9 +277,7 @@
         errorLine1="        List&lt;ShortcutInfoCompat> shortcuts = mShortcutInfoSaver.getShortcuts();"
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="336"
-            column="65"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -348,9 +286,7 @@
         errorLine1="            verifyCorrectIconLoaded(item.getId(), mShortcutInfoSaver.getShortcutIcon(item.getId()));"
         errorLine2="                                                                     ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="338"
-            column="70"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -359,9 +295,7 @@
         errorLine1="        ListenableFuture&lt;?> future = mShortcutInfoSaver.addShortcuts(mTestShortcuts);"
         errorLine2="                                                        ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="344"
-            column="57"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -370,9 +304,7 @@
         errorLine1="        List&lt;ShortcutInfoCompat> shortcuts = mShortcutInfoSaver.getShortcuts();"
         errorLine2="                                                                ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="348"
-            column="65"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -381,9 +313,7 @@
         errorLine1="            verifyCorrectIconLoaded(item.getId(), mShortcutInfoSaver.getShortcutIcon(item.getId()));"
         errorLine2="                                                                     ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="350"
-            column="70"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -392,9 +322,7 @@
         errorLine1="        catchAsyncExceptions(mShortcutInfoSaver.addShortcuts(mTestShortcuts));"
         errorLine2="                                                ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="356"
-            column="49"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -403,9 +331,7 @@
         errorLine1="        assertNull(mShortcutInfoSaver.getShortcutIcon(&quot;unknown-id&quot;));"
         errorLine2="                                      ~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="358"
-            column="39"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -414,9 +340,7 @@
         errorLine1="        mCacheUpdateService = ShortcutInfoCompatSaverImpl.createExecutorService();"
         errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="400"
-            column="59"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -425,9 +349,7 @@
         errorLine1="        mDiskIoService = ShortcutInfoCompatSaverImpl.createExecutorService();"
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="401"
-            column="54"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
@@ -436,152 +358,97 @@
         errorLine1="        mShortcutInfoSaver = new ShortcutInfoCompatSaverImpl(mContext, mCacheUpdateService,"
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"
-            line="402"
-            column="30"/>
+            file="src/androidTest/java/androidx/sharetarget/ShortcutInfoCompatSaverTest.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public List&lt;android.service.chooser.ChooserTarget> onGetChooserTargets("
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sharetarget/ChooserTargetServiceCompat.java"
-            line="55"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ComponentName targetActivityName, IntentFilter matchedFilter) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sharetarget/ChooserTargetServiceCompat.java"
-            line="56"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="            ComponentName targetActivityName, IntentFilter matchedFilter) {"
-        errorLine2="                                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sharetarget/ChooserTargetServiceCompat.java"
-            line="56"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static ShortcutInfoCompatSaverImpl getInstance(Context context) {"
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="96"
-            column="19"/>
+            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static ShortcutInfoCompatSaverImpl getInstance(Context context) {"
         errorLine2="                                                          ~~~~~~~">
         <location
-            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="96"
-            column="59"/>
+            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ListenableFuture&lt;Void> removeShortcuts(List&lt;String> shortcutIds) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="153"
-            column="12"/>
+            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ListenableFuture&lt;Void> removeShortcuts(List&lt;String> shortcutIds) {"
         errorLine2="                                                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="153"
-            column="51"/>
+            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ListenableFuture&lt;Void> removeAllShortcuts() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="175"
-            column="12"/>
+            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public List&lt;ShortcutInfoCompat> getShortcuts() throws Exception {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="195"
-            column="12"/>
+            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public IconCompat getShortcutIcon(final String shortcutId) throws Exception {"
         errorLine2="           ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="209"
-            column="12"/>
+            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public IconCompat getShortcutIcon(final String shortcutId) throws Exception {"
         errorLine2="                                            ~~~~~~">
         <location
-            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="209"
-            column="45"/>
+            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ListenableFuture&lt;Void> addShortcuts(List&lt;ShortcutInfoCompat> shortcuts) {"
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="267"
-            column="12"/>
+            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ListenableFuture&lt;Void> addShortcuts(List&lt;ShortcutInfoCompat> shortcuts) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"
-            line="267"
-            column="48"/>
+            file="src/main/java/androidx/sharetarget/ShortcutInfoCompatSaverImpl.java"/>
     </issue>
 
 </issues>

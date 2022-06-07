@@ -16,21 +16,24 @@
 
 package androidx.inspection.gradle
 
+import com.android.build.api.artifact.SingleArtifact
+import com.android.build.api.variant.Variant
 import com.android.build.gradle.BaseExtension
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.nio.charset.Charset
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.attributes.Attribute
-import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.ConfigurableFileCollection
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
+import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
-import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -39,9 +42,6 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.process.ExecOperations
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.nio.charset.Charset
 
 @CacheableTask
 abstract class DexInspectorTask : DefaultTask() {
@@ -120,52 +120,17 @@ abstract class DexInspectorTask : DefaultTask() {
     }
 }
 
-// variant.taskName relies on @ExperimentalStdlibApi api
-@ExperimentalStdlibApi
-@Suppress("DEPRECATION") // LibraryVariant
 fun Project.registerUnzipTask(
-    variant: com.android.build.gradle.api.LibraryVariant
-): TaskProvider<CopyFixed> {
-    return tasks.register(variant.taskName("unpackInspectorAAR"), CopyFixed::class.java) {
-        it.inputJar.set(variant.packageLibraryProvider!!.get().archiveFile)
-        it.outputDir.set(taskWorkingDir(variant, "unpackedInspectorAAR"))
-        it.dependsOn(variant.assembleProvider)
+    variant: Variant
+): TaskProvider<Copy> {
+    return tasks.register(variant.taskName("unpackInspectorAAR"), Copy::class.java) {
+        it.from(zipTree(variant.artifacts.get(SingleArtifact.AAR)))
+        it.destinationDir = taskWorkingDir(variant, "unpackedInspectorAAR")
     }
 }
 
-// Working around Gradle issue https://github.com/gradle/gradle/issues/17936
-abstract class CopyFixed : DefaultTask() {
-    @get:InputFile
-    abstract val inputJar: RegularFileProperty
-
-    @get:OutputDirectory
-    abstract val outputDir: DirectoryProperty
-
-    @get:javax.inject.Inject
-    abstract val archiveOps: ArchiveOperations
-
-    @TaskAction
-    fun runTask() {
-        val outputLocation = outputDir.get().asFile
-        outputLocation.deleteRecursively()
-        outputLocation.mkdirs()
-        archiveOps.zipTree(inputJar.get().asFile).visit {
-            val targetLocation = outputLocation.resolve(it.relativePath.toString())
-            if (it.isDirectory()) {
-                targetLocation.mkdirs()
-            } else {
-                targetLocation.parentFile.mkdirs()
-                it.copyTo(targetLocation)
-            }
-        }
-    }
-}
-
-// variant.taskName relies on @ExperimentalStdlibApi api
-@ExperimentalStdlibApi
-@Suppress("DEPRECATION") // BaseVariant
 fun Project.registerBundleInspectorTask(
-    variant: com.android.build.gradle.api.BaseVariant,
+    variant: Variant,
     extension: BaseExtension,
     jarName: String?,
     jar: TaskProvider<out Jar>
@@ -179,6 +144,7 @@ fun Project.registerBundleInspectorTask(
         it.setAndroidJar(extension.sdkDirectory, extension.compileSdkVersion!!)
         it.jars.from(jar.get().archiveFile)
         it.outputFile.set(out)
+        @Suppress("UnstableApiUsage")
         it.compileClasspath.from(
             variant.compileConfiguration.incoming.artifactView {
                 it.attributes {

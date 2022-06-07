@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("ViewModelProviderGetKt")
+
 package androidx.lifecycle
 
 import android.app.Application
@@ -22,9 +24,10 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.DE
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.defaultFactory
 import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.VIEW_MODEL_KEY
-import androidx.lifecycle.viewmodel.CombinedCreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.InitializerViewModelFactory
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.ViewModelInitializer
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
 import java.lang.reflect.InvocationTargetException
@@ -78,6 +81,18 @@ constructor(
          */
         public fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T =
             create(modelClass)
+
+        companion object {
+            /**
+             * Creates an [InitializerViewModelFactory] using the given initializers.
+             *
+             * @param initializers the class initializer pairs used for the factory to create
+             * simple view models
+             */
+            @JvmStatic
+            fun from(vararg initializers: ViewModelInitializer<*>): Factory =
+                InitializerViewModelFactory(*initializers)
+        }
     }
 
     /**
@@ -164,12 +179,15 @@ constructor(
                 // TODO: log a warning.
             }
         }
-        val extras = MutableCreationExtras()
+        val extras = MutableCreationExtras(defaultCreationExtras)
         extras[VIEW_MODEL_KEY] = key
-        return factory.create(
-            modelClass,
-            CombinedCreationExtras(extras, defaultCreationExtras)
-        ).also { store.put(key, it) }
+        // AGP has some desugaring issues associated with compileOnly dependencies so we need to
+        // fall back to the other create method to keep from crashing.
+        return try {
+            factory.create(modelClass, extras)
+        } catch (e: AbstractMethodError) {
+            factory.create(modelClass)
+        }.also { store.put(key, it) }
     }
 
     /**
@@ -259,10 +277,18 @@ constructor(
             return if (application != null) {
                 create(modelClass, application)
             } else {
-                val application = extras[APPLICATION_KEY] ?: throw IllegalArgumentException(
-                    "CreationExtras mush have an application by `APPLICATION_KEY`"
-                )
-                create(modelClass, application)
+                val application = extras[APPLICATION_KEY]
+                if (application != null) {
+                    create(modelClass, application)
+                } else {
+                    // For AndroidViewModels, CreationExtras must have an application set
+                    if (AndroidViewModel::class.java.isAssignableFrom(modelClass)) {
+                        throw IllegalArgumentException(
+                            "CreationExtras must have an application by `APPLICATION_KEY`"
+                        )
+                    }
+                    super.create(modelClass)
+                }
             }
         }
 

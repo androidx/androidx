@@ -57,6 +57,7 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -108,6 +109,15 @@ public class ImageCaptureTest {
 
         mSensorToBufferTransformMatrix = new Matrix();
         mSensorToBufferTransformMatrix.setScale(10, 10);
+    }
+
+    @After
+    public void tearDown() {
+        if (mCameraUseCaseAdapter != null) {
+            mInstrumentation.runOnMainSync(() -> {
+                mCameraUseCaseAdapter.removeUseCases(mCameraUseCaseAdapter.getUseCases());
+            });
+        }
     }
 
     @Test

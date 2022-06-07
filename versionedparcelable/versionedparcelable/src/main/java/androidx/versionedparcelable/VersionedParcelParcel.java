@@ -257,7 +257,7 @@ class VersionedParcelParcel extends VersionedParcel {
     }
 
     @Override
-    @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "deprecation"})
     @Nullable
     public <T extends Parcelable> T readParcelable() {
         return mParcel.readParcelable(getClass().getClassLoader());

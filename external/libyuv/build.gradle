@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+import androidx.build.Publish
+
 apply plugin: 'AndroidXPlugin'
 apply plugin: 'com.android.library'
 
@@ -34,7 +37,7 @@ android {
 
     externalNativeBuild {
         cmake {
-            version "3.18.1"
+            version libs.versions.cmake.get()
             path "${yuvSourceDir}/files/CMakeLists.txt"
         }
     }
@@ -52,17 +55,14 @@ android {
             name "yuv"
         }
     }
+    namespace "com.google.libyuv"
 }
 
-// Entire block is to workaround b/203448887
-afterEvaluate {
-    tasks.named("bundleDebugLocalLintAar").configure {
-        it.dependsOn("prefabDebugConfigurePackage")
-    }
-    tasks.named("bundleReleaseAar").configure {
-        it.dependsOn("prefabReleaseConfigurePackage")
-    }
-    tasks.named("reportLibraryMetrics").configure {
-        it.dependsOn("prefabReleaseConfigurePackage")
-    }
+androidx {
+    name = "libyuv"
+    // Only intended to be used as snapshots, do not change to PUBLISHED.
+    publish = Publish.SNAPSHOT_ONLY
+    mavenGroup = LibraryGroups.LIBYUV
+    inceptionYear = "2021"
+    description = "libyuv is an open source project that includes YUV scaling and conversion functionality."
 }

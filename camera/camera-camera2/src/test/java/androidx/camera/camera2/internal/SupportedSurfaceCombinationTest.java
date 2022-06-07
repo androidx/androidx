@@ -40,6 +40,7 @@ import android.util.Size;
 import android.view.Surface;
 import android.view.WindowManager;
 
+import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.AspectRatio;
@@ -51,10 +52,13 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.Preview;
+import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.VideoCapture;
+import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.ImageFormatConstants;
+import androidx.camera.core.impl.MutableStateObservable;
+import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SurfaceCombination;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize;
@@ -64,14 +68,24 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.testing.CamcorderProfileUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.Configs;
 import androidx.camera.testing.SurfaceTextureProvider;
+import androidx.camera.testing.fakes.FakeCamcorderProfileProvider;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.camera.video.FallbackStrategy;
+import androidx.camera.video.MediaSpec;
+import androidx.camera.video.Quality;
+import androidx.camera.video.QualitySelector;
+import androidx.camera.video.VideoCapture;
+import androidx.camera.video.VideoOutput;
+import androidx.camera.video.VideoSpec;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.apache.maven.artifact.ant.shaded.ReflectionUtils;
@@ -117,12 +131,29 @@ public final class SupportedSurfaceCombinationTest {
     private final Size mPreviewSize = new Size(1280, 720);
     private final Size mRecordSize = new Size(3840, 2160);
     private final Size mMaximumSize = new Size(4032, 3024);
-    private final Size mMaximumVideoSize = new Size(1920, 1080);
+    private final Size mLegacyVideoMaximumVideoSize = new Size(1920, 1080);
     private final Size mMod16Size = new Size(960, 544);
     private final CamcorderProfileHelper mMockCamcorderProfileHelper =
             Mockito.mock(CamcorderProfileHelper.class);
     private final CamcorderProfile mMockCamcorderProfile = Mockito.mock(CamcorderProfile.class);
     private CameraManagerCompat mCameraManagerCompat;
+    private final CamcorderProfileProxy mProfileUhd =
+            CamcorderProfileUtil.createCamcorderProfileProxy(
+                    CamcorderProfile.QUALITY_2160P, mRecordSize.getWidth(), mRecordSize.getHeight()
+            );
+    private final CamcorderProfileProxy mProfileFhd =
+            CamcorderProfileUtil.createCamcorderProfileProxy(
+                    CamcorderProfile.QUALITY_1080P, 1920, 1080
+            );
+    private final CamcorderProfileProxy mProfileHd =
+            CamcorderProfileUtil.createCamcorderProfileProxy(
+                    CamcorderProfile.QUALITY_720P, mPreviewSize.getWidth(), mPreviewSize.getHeight()
+            );
+    private final CamcorderProfileProxy mProfileSd =
+            CamcorderProfileUtil.createCamcorderProfileProxy(
+                    CamcorderProfile.QUALITY_480P, mAnalysisSize.getWidth(),
+                    mAnalysisSize.getHeight()
+            );
 
     /**
      * Except for ImageFormat.JPEG, ImageFormat.YUV, and ImageFormat.RAW_SENSOR, other image formats
@@ -148,19 +179,19 @@ public final class SupportedSurfaceCombinationTest {
 
     private final Size[] mSupportedSizes =
             new Size[]{
-                    new Size(4032, 3024),
-                    new Size(3840, 2160),
-                    new Size(1920, 1440),
-                    new Size(1920, 1080),
-                    new Size(1280, 960),
-                    new Size(1280, 720),
+                    new Size(4032, 3024), // 4:3
+                    new Size(3840, 2160), // 16:9
+                    new Size(1920, 1440), // 4:3
+                    new Size(1920, 1080), // 16:9
+                    new Size(1280, 960),  // 4:3
+                    new Size(1280, 720),  // 16:9
                     new Size(1280, 720), // duplicate the size since Nexus 5X emulator has the case.
                     new Size(960, 544), // a mod16 version of resolution with 16:9 aspect ratio.
-                    new Size(800, 450),
-                    new Size(640, 480),
-                    new Size(320, 240),
-                    new Size(320, 180),
-                    new Size(256, 144) // For checkSmallSizesAreFilteredOut test.
+                    new Size(800, 450), // 16:9
+                    new Size(640, 480), // 4:3
+                    new Size(320, 240), // 4:3
+                    new Size(320, 180), // 16:9
+                    new Size(256, 144) // 16:9 For checkSmallSizesAreFilteredOut test.
             };
 
     private final Context mContext = RuntimeEnvironment.application.getApplicationContext();
@@ -740,7 +771,7 @@ public final class SupportedSurfaceCombinationTest {
 
 
     @Test(expected = IllegalArgumentException.class)
-    public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice()
+    public void legacyVideo_suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice()
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
@@ -749,9 +780,10 @@ public final class SupportedSurfaceCombinationTest {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
-        VideoCapture videoCapture = new VideoCapture.Builder()
-                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
-                .build();
+        androidx.camera.core.VideoCapture videoCapture =
+                new androidx.camera.core.VideoCapture.Builder()
+                        .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                        .build();
         Preview preview = new Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
@@ -770,7 +802,35 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void suggestedResolutionsForCustomizeResolutionsNotSupportedInLegacyDevice()
+    public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
+
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        VideoCapture<TestVideoOutput> videoCapture = createVideoCapture();
+        Preview preview = new Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(imageCapture);
+        useCases.add(videoCapture);
+        useCases.add(preview);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
+                        mUseCaseConfigFactory);
+        supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                new ArrayList<>(useCaseToConfigMap.values()));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void legacyVideo_suggestedResolutionsForCustomizeResolutionsNotSupportedInLegacyDevice()
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
@@ -782,7 +842,8 @@ public final class SupportedSurfaceCombinationTest {
         List<Pair<Integer, Size[]>> previewResolutionsPairs = Arrays.asList(
                 Pair.create(ImageFormat.PRIVATE, new Size[]{mPreviewSize}));
 
-        VideoCapture videoCapture = new VideoCapture.Builder()
+        androidx.camera.core.VideoCapture videoCapture =
+                new androidx.camera.core.VideoCapture.Builder()
                 // Override the default max resolution in VideoCapture
                 .setMaxResolution(mRecordSize)
                 .setSupportedResolutions(videoResolutionsPairs)
@@ -803,8 +864,37 @@ public final class SupportedSurfaceCombinationTest {
                 new ArrayList<>(useCaseToConfigMap.values()));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void suggestedResolutionsForCustomizeResolutionsNotSupportedInLegacyDevice()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
+
+        // Legacy camera only support (PRIV, PREVIEW) + (PRIV, PREVIEW)
+        Quality quality = Quality.UHD;
+        List<Pair<Integer, Size[]>> previewResolutionsPairs = Arrays.asList(
+                Pair.create(ImageFormat.PRIVATE, new Size[]{mPreviewSize}));
+
+        VideoCapture<TestVideoOutput> videoCapture = createVideoCapture(quality);
+        Preview preview = new Preview.Builder()
+                .setSupportedResolutions(previewResolutionsPairs)
+                .build();
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(videoCapture);
+        useCases.add(preview);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
+                        mUseCaseConfigFactory);
+        supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                new ArrayList<>(useCaseToConfigMap.values()));
+    }
+
     @Test
-    public void getSuggestedResolutionsForMixedUseCaseInLimitedDevice()
+    public void legacyVideo_getSuggestedResolutionsForMixedUseCaseInLimitedDevice()
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
@@ -813,7 +903,8 @@ public final class SupportedSurfaceCombinationTest {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
-        VideoCapture videoCapture = new VideoCapture.Builder()
+        androidx.camera.core.VideoCapture videoCapture =
+                new androidx.camera.core.VideoCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
         Preview preview = new Preview.Builder()
@@ -838,7 +929,132 @@ public final class SupportedSurfaceCombinationTest {
         assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
                 mRecordSize);
         assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(videoCapture),
-                mMaximumVideoSize);
+                mLegacyVideoMaximumVideoSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mPreviewSize);
+    }
+
+    @Test
+    public void getSuggestedResolutionsForMixedUseCaseInLimitedDevice()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
+
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        VideoCapture<TestVideoOutput> videoCapture = createVideoCapture(Quality.HIGHEST);
+        Preview preview = new Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(imageCapture);
+        useCases.add(videoCapture);
+        useCases.add(preview);
+
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
+                        mUseCaseConfigFactory);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        new ArrayList<>(useCaseToConfigMap.values()));
+
+        // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
+                mRecordSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(videoCapture),
+                mRecordSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mPreviewSize);
+    }
+
+    // For the use case in b/230651237,
+    // QualitySelector.from(Quality.UHD, FallbackStrategy.lowerQualityOrHigherThan(Quality.UHD).
+    // VideoCapture should have higher priority to choose size than ImageCapture.
+    @Test
+    public void getSuggestedResolutionsInFullDevice_videoHasHigherPriorityThanImage()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
+
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+        VideoCapture<TestVideoOutput> videoCapture = createVideoCapture(
+                QualitySelector.from(Quality.UHD,
+                        FallbackStrategy.lowerQualityOrHigherThan(Quality.UHD)));
+        Preview preview = new Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(imageCapture);
+        useCases.add(videoCapture);
+        useCases.add(preview);
+
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
+                        mUseCaseConfigFactory);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        new ArrayList<>(useCaseToConfigMap.values()));
+
+        // There are two possible combinations in Full level device
+        // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD) => should be applied
+        // (PRIV, PREVIEW) + (PRIV, PREVIEW) + (JPEG, MAXIMUM)
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
+                mRecordSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(videoCapture),
+                mRecordSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mPreviewSize);
+    }
+
+    @Test
+    public void getSuggestedResolutionsInFullDevice_videoRecordSizeLowPriority_imageCanGetMaxSize()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
+
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3) // mMaximumSize(4032x3024) is 4:3
+                .build();
+        VideoCapture<TestVideoOutput> videoCapture = createVideoCapture(
+                QualitySelector.fromOrderedList(
+                        Arrays.asList(Quality.HD, Quality.FHD, Quality.UHD)));
+        Preview preview = new Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build();
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(imageCapture);
+        useCases.add(videoCapture);
+        useCases.add(preview);
+
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
+                        mUseCaseConfigFactory);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        new ArrayList<>(useCaseToConfigMap.values()));
+
+        // There are two possible combinations in Full level device
+        // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
+        // (PRIV, PREVIEW) + (PRIV, PREVIEW) + (JPEG, MAXIMUM) => should be applied
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
+                mMaximumSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(videoCapture),
+                mPreviewSize); // Quality.HD
         assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
                 mPreviewSize);
     }
@@ -926,8 +1142,7 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void throwsWhenSetBothTargetResolutionAndAspectRatioForDifferentUseCases()
-            throws CameraUnavailableException {
+    public void throwsWhenSetBothTargetResolutionAndAspectRatioForDifferentUseCases() {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
 
         boolean previewExceptionHappened = false;
@@ -965,6 +1180,53 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
+    public void legacyVideo_getSuggestedResolutionsForCustomizedSupportedResolutions()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
+
+        List<Pair<Integer, Size[]>> formatResolutionsPairList = new ArrayList<>();
+        formatResolutionsPairList.add(Pair.create(ImageFormat.JPEG, new Size[]{mAnalysisSize}));
+        formatResolutionsPairList.add(
+                Pair.create(ImageFormat.YUV_420_888, new Size[]{mAnalysisSize}));
+        formatResolutionsPairList.add(Pair.create(ImageFormat.PRIVATE, new Size[]{mAnalysisSize}));
+
+        // Sets use cases customized supported resolutions to 640x480 only.
+        ImageCapture imageCapture = new ImageCapture.Builder()
+                .setSupportedResolutions(formatResolutionsPairList)
+                .build();
+        androidx.camera.core.VideoCapture videoCapture =
+                new androidx.camera.core.VideoCapture.Builder()
+                .setSupportedResolutions(formatResolutionsPairList)
+                .build();
+        Preview preview = new Preview.Builder()
+                .setSupportedResolutions(formatResolutionsPairList)
+                .build();
+
+        List<UseCase> useCases = new ArrayList<>();
+        useCases.add(imageCapture);
+        useCases.add(videoCapture);
+        useCases.add(preview);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+                        mCameraFactory.getCamera(CAMERA_ID).getCameraInfoInternal(),
+                        useCases,
+                        mUseCaseConfigFactory);
+        Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
+                supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
+                        new ArrayList<>(useCaseToConfigMap.values()));
+
+        // Checks all suggested resolutions will become 640x480.
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
+                mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(videoCapture),
+                mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mAnalysisSize);
+    }
+
+    @Test
     public void getSuggestedResolutionsForCustomizedSupportedResolutions()
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
@@ -981,9 +1243,7 @@ public final class SupportedSurfaceCombinationTest {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setSupportedResolutions(formatResolutionsPairList)
                 .build();
-        VideoCapture videoCapture = new VideoCapture.Builder()
-                .setSupportedResolutions(formatResolutionsPairList)
-                .build();
+        VideoCapture<TestVideoOutput> videoCapture = createVideoCapture(Quality.SD);
         Preview preview = new Preview.Builder()
                 .setSupportedResolutions(formatResolutionsPairList)
                 .build();
@@ -2134,7 +2394,7 @@ public final class SupportedSurfaceCombinationTest {
         // Checks the determined RECORD size
         assertThat(
                 supportedSurfaceCombination.getSurfaceSizeDefinition().getRecordSize()).isEqualTo(
-                mMaximumVideoSize);
+                mLegacyVideoMaximumVideoSize);
     }
 
     @Test
@@ -2352,8 +2612,19 @@ public final class SupportedSurfaceCombinationTest {
 
         mCameraManagerCompat = CameraManagerCompat.from(mContext);
 
-        mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
-                new Camera2CameraInfoImpl(cameraId, mCameraManagerCompat)));
+        FakeCameraInfoInternal cameraInfo = new FakeCameraInfoInternal(cameraId);
+        cameraInfo.setCamcorderProfileProvider(new FakeCamcorderProfileProvider.Builder()
+                .addProfile(
+                        CamcorderProfileUtil.asHighQuality(mProfileUhd),
+                        mProfileUhd,
+                        mProfileFhd,
+                        mProfileHd,
+                        mProfileSd,
+                        CamcorderProfileUtil.asLowQuality(mProfileSd)
+                ).build());
+
+        mCameraFactory.insertCamera(lensFacingEnum, cameraId,
+                () -> new FakeCamera(cameraId, null, cameraInfo));
 
         initCameraX();
     }
@@ -2423,5 +2694,52 @@ public final class SupportedSurfaceCombinationTest {
         }
 
         return isSupported;
+    }
+
+    /** Creates a VideoCapture with a default QualitySelector */
+    @NonNull
+    VideoCapture<TestVideoOutput> createVideoCapture() {
+        return createVideoCapture(VideoSpec.QUALITY_SELECTOR_AUTO);
+    }
+
+    /** Creates a VideoCapture with a specific Quality */
+    @NonNull
+    VideoCapture<TestVideoOutput> createVideoCapture(@NonNull Quality quality) {
+        return createVideoCapture(QualitySelector.from(quality));
+    }
+
+    /** Creates a VideoCapture with a customized QualitySelector */
+    @NonNull
+    VideoCapture<TestVideoOutput> createVideoCapture(@NonNull QualitySelector qualitySelector) {
+        MediaSpec.Builder mediaSpecBuilder = MediaSpec.builder();
+        mediaSpecBuilder.configureVideo(builder -> builder.setQualitySelector(qualitySelector));
+        TestVideoOutput videoOutput = new TestVideoOutput();
+        videoOutput.mMediaSpecObservable.setState(mediaSpecBuilder.build());
+        return VideoCapture.withOutput(videoOutput);
+    }
+
+    /** A fake implementation of VideoOutput */
+    private static class TestVideoOutput implements VideoOutput {
+
+        MutableStateObservable<MediaSpec> mMediaSpecObservable =
+                MutableStateObservable.withInitialState(MediaSpec.builder().build());
+        SurfaceRequest mSurfaceRequest;
+        SourceState mSourceState;
+
+        @Override
+        public void onSurfaceRequested(@NonNull SurfaceRequest request) {
+            mSurfaceRequest = request;
+        }
+
+        @NonNull
+        @Override
+        public Observable<MediaSpec> getMediaSpec() {
+            return mMediaSpecObservable;
+        }
+
+        @Override
+        public void onSourceStateChanged(@NonNull SourceState sourceState) {
+            mSourceState = sourceState;
+        }
     }
 }

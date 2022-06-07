@@ -28,6 +28,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CON
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_BIT_RATE;
 import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_CHANNEL_COUNT;
 import static androidx.camera.core.impl.VideoCaptureConfig.OPTION_AUDIO_MIN_BUFFER_SIZE;
@@ -284,7 +285,9 @@ public final class VideoCapture extends UseCase {
     @Nullable
     public UseCaseConfig<?> getDefaultConfig(boolean applyDefaultConfig,
             @NonNull UseCaseConfigFactory factory) {
-        Config captureConfig = factory.getConfig(UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE);
+        Config captureConfig = factory.getConfig(
+                UseCaseConfigFactory.CaptureType.VIDEO_CAPTURE,
+                ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY);
 
         if (applyDefaultConfig) {
             captureConfig = Config.mergeConfigs(captureConfig, DEFAULT_CONFIG.getConfig());
@@ -1832,6 +1835,15 @@ public final class VideoCapture extends UseCase {
         public Builder setUseCaseEventCallback(
                 @NonNull UseCase.EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
+            return this;
+        }
+
+        /** @hide */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        @Override
+        public Builder setZslDisabled(boolean disabled) {
+            getMutableConfig().insertOption(OPTION_ZSL_DISABLED, disabled);
             return this;
         }
     }

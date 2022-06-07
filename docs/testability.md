@@ -80,14 +80,14 @@ you have a case like this, make sure it can be passed as a parameter to your
 library.
 
 NOTE Android API Guidelines require that methods accepting a callback
-[must also take an Executor](https://android.googlesource.com/platform/developers/docs/+/refs/heads/master/api-guidelines/index.md#callbacks-listener)
+[must also take an Executor](https://android.googlesource.com/platform/developers/docs/+/refs/heads/master/api-guidelines/index.md#provide-executor)
 
 For example, the Room library allows developers to
 [pass different executors](https://developer.android.com/reference/androidx/room/RoomDatabase.Builder#setQueryExecutor\(java.util.concurrent.Executor\))
 for background query operations. When writing a test, developers can invoke this
 with a custom executor where they can track work completion.
 
-*   [sample test](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:room/integration-tests/kotlintestapp/src/androidTest/java/androidx/room/integration/kotlintestapp/test/SuspendingQueryTest.kt;l=672)
+*   [sample test](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:room/integration-tests/kotlintestapp/src/androidTest/java/androidx/room/integration/kotlintestapp/test/SuspendingQueryTest.kt;l=672)
 
 If the external resource you require does not make sense as a public API, such
 as a main thread executor, then you can provide a testing artifact which will
@@ -95,7 +95,7 @@ allow setting it. For example, the Lifecycle package depends on the main thread
 executor to function but for an application, customizing it does not make sense
 (as there is only 1 "pre-defined" main thread for an app). For testing purposes,
 the Lifecycle library provides a testing artifact which includes
-[TestRules](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:arch/core-testing/src/main/java/androidx/arch/core/executor/testing/CountingTaskExecutorRule.java)
+[TestRules](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:arch/core-testing/src/main/java/androidx/arch/core/executor/testing/CountingTaskExecutorRule.java)
 to change them.
 
 #### Fakes for external dependencies
@@ -106,7 +106,7 @@ that might decide to toggle bluetooth, outside developer's direct control, it
 might be a good idea to have an interface for that functionality and also
 provide a fake that can record such calls. If you don't think that interface
 makes sense as a library configuration, you can
-[restrict](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:annotation/annotation/src/main/java/androidx/annotation/RestrictTo.java)
+[restrict](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:annotation/annotation/src/main/java/androidx/annotation/RestrictTo.java)
 that interface to your library group and provide a testing artifacts with the
 fake so that developer can observe side effects only in tests while you can
 avoid creating unnecessary APIs.
@@ -128,7 +128,7 @@ emulator). For such cases, you may create APIs that are testing only to allow
 developers to use them only in tests while giving them the confidence that it
 will behave as close as possible to a real implementation. For the case above,
 `LifecycleRegistry` provides an API to
-[create](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:lifecycle/lifecycle-runtime/src/main/java/androidx/lifecycle/LifecycleRegistry.java;l=334)
+[create](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:lifecycle/lifecycle-runtime/src/main/java/androidx/lifecycle/LifecycleRegistry.java;l=340)
 an instance of it that will not enforce thread restrictions.
 
 NOTE Even though the implementation referenced above is acceptable, it is always
@@ -147,7 +147,7 @@ difficult for developers to mock them.
 For such cases, it is a good practice to provide a fake implementation out of
 the box that can be controlled in tests. For example, the Lifecycle library
 provides a
-[fake implementation](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-master-dev:lifecycle/lifecycle-runtime-testing/src/main/java/androidx/lifecycle/testing/TestLifecycleOwner.kt)
+[fake implementation](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:lifecycle/lifecycle-runtime-testing/src/main/java/androidx/lifecycle/testing/TestLifecycleOwner.kt)
 for the `LifecycleOwner` class that can be manipulated in tests to create
 different use cases.
 

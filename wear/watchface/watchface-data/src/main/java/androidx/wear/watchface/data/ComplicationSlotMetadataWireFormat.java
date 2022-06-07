@@ -31,6 +31,7 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
+import androidx.wear.watchface.complications.data.ComplicationExperimental;
 
 import java.util.List;
 
@@ -90,10 +91,48 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
     @ComplicationData.ComplicationType
     int mSecondaryDataSourceDefaultType = ComplicationData.TYPE_NOT_CONFIGURED;
 
+    // Only valid for edge complications. Not supported in library v1.0.
+    @ParcelField(14)
+    @Nullable
+    BoundingArcWireFormat mBoundingArc;
+
     /** Used by VersionedParcelable. */
     ComplicationSlotMetadataWireFormat() {
     }
 
+    @ComplicationExperimental
+    public ComplicationSlotMetadataWireFormat(
+            int id,
+            @NonNull int[] complicationBoundsType,
+            @NonNull RectF[] complicationBounds,
+            int boundsType,
+            @NonNull @ComplicationData.ComplicationType int[] supportedTypes,
+            @Nullable List<ComponentName> defaultDataSourcesToTry,
+            int fallbackSystemDataSource,
+            @ComplicationData.ComplicationType int defaultDataSourceType,
+            @ComplicationData.ComplicationType int primaryDataSourceDefaultType,
+            @ComplicationData.ComplicationType int secondaryDataSourceDefaultType,
+            boolean isInitiallyEnabled,
+            boolean fixedComplicationDataSource,
+            @NonNull Bundle complicationConfigExtras,
+            @Nullable BoundingArcWireFormat boundingArc) {
+        mId = id;
+        mComplicationBoundsType = complicationBoundsType;
+        mComplicationBounds = complicationBounds;
+        mBoundsType = boundsType;
+        mSupportedTypes = supportedTypes;
+        mDefaultDataSourcesToTry = defaultDataSourcesToTry;
+        mPrimaryDataSourceDefaultType = primaryDataSourceDefaultType;
+        mSecondaryDataSourceDefaultType = secondaryDataSourceDefaultType;
+        mFallbackSystemDataSource = fallbackSystemDataSource;
+        mDefaultType = defaultDataSourceType;
+        mIsInitiallyEnabled = isInitiallyEnabled;
+        mFixedComplicationDataSource = fixedComplicationDataSource;
+        mComplicationConfigExtras = complicationConfigExtras;
+        mBoundingArc = boundingArc;
+    }
+
+    // TODO(b/230364881): Deprecate when BoundingArc is no longer experimental.
     public ComplicationSlotMetadataWireFormat(
             int id,
             @NonNull int[] complicationBoundsType,
@@ -240,6 +279,12 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
         return mComplicationConfigExtras;
     }
 
+    @Nullable
+    @ComplicationExperimental
+    public BoundingArcWireFormat getBoundingArc() {
+        return mBoundingArc;
+    }
+
     /** Serializes this ComplicationDetails to the specified {@link Parcel}. */
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
@@ -253,6 +298,7 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
 
     public static final Parcelable.Creator<ComplicationSlotMetadataWireFormat> CREATOR =
             new Parcelable.Creator<ComplicationSlotMetadataWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public ComplicationSlotMetadataWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

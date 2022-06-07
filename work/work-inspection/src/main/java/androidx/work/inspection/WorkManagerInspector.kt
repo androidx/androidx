@@ -92,7 +92,7 @@ class WorkManagerInspector(
                 workManager
                     .workDatabase
                     .workSpecDao()
-                    .allWorkSpecIdsLiveData
+                    .getAllWorkSpecIdsLiveData()
                     .safeObserveWhileNotNull(this, executor) { oldList, newList ->
                         updateWorkIdList(oldList ?: listOf(), newList)
                     }

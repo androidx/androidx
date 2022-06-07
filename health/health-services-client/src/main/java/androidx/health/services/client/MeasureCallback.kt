@@ -22,9 +22,31 @@ import androidx.health.services.client.data.DataType
 
 /** Callback for [MeasureClient.registerCallback]. */
 public interface MeasureCallback {
-    /** Called when the availability of a [DataType] changes. */
+
+    /** Called when this callback has been successfully registered with Health Services. */
+    public fun onRegistered() {}
+
+    /**
+     * Called when Health Services reports a failure with the registration of this callback. Common
+     * causes include: the calling app lacks the necessary permission, or the device does not
+     * support the requested [DataType].
+     *
+     * @param throwable a throwable sent by Health Services with information about the failure
+     */
+    public fun onRegistrationFailed(throwable: Throwable) {}
+
+    /**
+     * Called when the availability of a [DataType] changes.
+     *
+     * @param dataType the [DataType] that experienced a change in availability
+     * @param availability the new [Availability] status for this [dataType]
+     */
     public fun onAvailabilityChanged(dataType: DataType, availability: Availability)
 
-    /** Called when new data is available. Data can be batched in a list of [DataPoint]. */
-    public fun onData(data: List<@JvmSuppressWildcards DataPoint>)
+    /**
+     * Called when new data is available. Data can be batched in a list of [DataPoint].
+     *
+     * @param data the (potentially batched) set of measured [DataPoint]s
+     */
+    public fun onDataReceived(data: List<@JvmSuppressWildcards DataPoint>)
 }

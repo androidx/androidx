@@ -262,10 +262,11 @@ public interface AppSearchSession extends Closeable {
     ListenableFuture<Void> requestFlush();
 
     /**
-     * Returns the {@link Capabilities} to check for the availability of certain features
+     * Returns the {@link Features} to check for the availability of certain features
      * for this session.
      */
-    @NonNull Capabilities getCapabilities();
+    @NonNull
+    Features getFeatures();
 
     /**
      * Closes the {@link AppSearchSession} to persist all schema and document updates, additions,

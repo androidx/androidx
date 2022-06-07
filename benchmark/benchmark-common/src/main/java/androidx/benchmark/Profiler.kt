@@ -20,7 +20,9 @@ import android.os.Build
 import android.os.Debug
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.benchmark.BenchmarkState.Companion.TAG
+import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.simpleperf.ProfileSession
 import androidx.benchmark.simpleperf.RecordOptions
 
@@ -38,7 +40,12 @@ import androidx.benchmark.simpleperf.RecordOptions
  * switching from warmup -> timing phase, when [start] would be called.
  */
 internal sealed class Profiler {
-    abstract fun start(traceUniqueName: String)
+    class ResultFile(
+        val label: String,
+        val outputRelativePath: String
+    )
+
+    abstract fun start(traceUniqueName: String): ResultFile?
     abstract fun stop()
 
     /**
@@ -89,10 +96,17 @@ internal sealed class Profiler {
             "ConnectedSampled" to ConnectedSampling
         )
             .mapKeys { it.key.lowercase() }[name.lowercase()]
+
+        fun traceName(traceUniqueName: String, traceTypeLabel: String): String {
+            return "$traceUniqueName-$traceTypeLabel-${dateToFileName()}.trace"
+        }
     }
 }
 
-internal fun startRuntimeMethodTracing(traceFileName: String, sampled: Boolean) {
+internal fun startRuntimeMethodTracing(
+    traceFileName: String,
+    sampled: Boolean
+): Profiler.ResultFile {
     val path = Outputs.testOutputFile(traceFileName).absolutePath
 
     Log.d(TAG, "Profiling output file: $path")
@@ -106,6 +120,11 @@ internal fun startRuntimeMethodTracing(traceFileName: String, sampled: Boolean) 
     } else {
         Debug.startMethodTracing(path, bufferSize, 0)
     }
+
+    return Profiler.ResultFile(
+        outputRelativePath = traceFileName,
+        label = if (sampled) "Stack Sampling (legacy) Trace" else "Method Trace"
+    )
 }
 
 internal fun stopRuntimeMethodTracing() {
@@ -113,24 +132,29 @@ internal fun stopRuntimeMethodTracing() {
 }
 
 internal object StackSamplingLegacy : Profiler() {
-    override fun start(traceUniqueName: String) {
-        startRuntimeMethodTracing(
-            traceFileName = "$traceUniqueName-stackSamplingLegacy.trace",
+    @get:RestrictTo(RestrictTo.Scope.TESTS)
+    var isRunning = false
+
+    override fun start(traceUniqueName: String): ResultFile {
+        isRunning = true
+        return startRuntimeMethodTracing(
+            traceFileName = traceName(traceUniqueName, "stackSamplingLegacy"),
             sampled = true
         )
     }
 
     override fun stop() {
         stopRuntimeMethodTracing()
+        isRunning = false
     }
 
     override val requiresExtraRuntime: Boolean = true
 }
 
 internal object MethodTracing : Profiler() {
-    override fun start(traceUniqueName: String) {
-        startRuntimeMethodTracing(
-            traceFileName = "$traceUniqueName-methodTracing.trace",
+    override fun start(traceUniqueName: String): ResultFile {
+        return startRuntimeMethodTracing(
+            traceFileName = traceName(traceUniqueName, "methodTracing"),
             sampled = false
         )
     }
@@ -143,8 +167,9 @@ internal object MethodTracing : Profiler() {
 }
 
 internal object ConnectedAllocation : Profiler() {
-    override fun start(traceUniqueName: String) {
+    override fun start(traceUniqueName: String): ResultFile? {
         Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
+        return null
     }
 
     override fun stop() {
@@ -157,8 +182,9 @@ internal object ConnectedAllocation : Profiler() {
 }
 
 internal object ConnectedSampling : Profiler() {
-    override fun start(traceUniqueName: String) {
+    override fun start(traceUniqueName: String): ResultFile? {
         Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
+        return null
     }
 
     override fun stop() {
@@ -184,10 +210,10 @@ internal object StackSamplingSimpleperf : Profiler() {
     @RequiresApi(29)
     private val securityPerfHarden = PropOverride("security.perf_harden", "0")
 
-    var traceUniqueName: String? = null
+    var outputRelativePath: String? = null
 
     @RequiresApi(29)
-    override fun start(traceUniqueName: String) {
+    override fun start(traceUniqueName: String): ResultFile? {
         session?.stopRecording() // stop previous
 
         // for security perf harden, enable temporarily
@@ -198,7 +224,7 @@ internal object StackSamplingSimpleperf : Profiler() {
         Shell.executeCommand("setprop debug.perf_cpu_time_max_percent 25")
         Shell.executeCommand("setprop debug.perf_event_mlock_kb 32800")
 
-        this.traceUniqueName = traceUniqueName
+        outputRelativePath = traceName(traceUniqueName, "stackSampling")
         session = ProfileSession().also {
             // prepare simpleperf must be done as shell user, so do this here with other shell setup
             // NOTE: this is sticky across reboots, so missing this will cause tests or profiling to
@@ -209,6 +235,7 @@ internal object StackSamplingSimpleperf : Profiler() {
                     .setSampleFrequency(Arguments.profilerSampleFrequency)
                     .recordDwarfCallGraph() // enable Java/Kotlin callstacks
                     .traceOffCpu() // track time sleeping
+                    .setSampleCurrentThread() // sample stacks from this thread only
                     .setOutputFilename("simpleperf.data")
                     .apply {
                         // some emulators don't support cpu-cycles, the default event, so instead we
@@ -227,13 +254,17 @@ internal object StackSamplingSimpleperf : Profiler() {
                     }
             )
         }
+        return ResultFile(
+            label = "Stack Sampling Trace",
+            outputRelativePath = outputRelativePath!!
+        )
     }
 
     @RequiresApi(29)
     override fun stop() {
         session!!.stopRecording()
         Outputs.writeFile(
-            fileName = "$traceUniqueName-stackSampling.trace",
+            fileName = outputRelativePath!!,
             reportKey = "simpleperf_trace"
         ) {
             session!!.convertSimpleperfOutputToProto("simpleperf.data", it.absolutePath)

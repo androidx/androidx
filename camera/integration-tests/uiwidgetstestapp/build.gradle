@@ -44,12 +44,28 @@ android {
 
     buildFeatures {
         viewBinding true
+        compose true
     }
+
+    // Compose
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion '1.2.0-beta02'
+    }
+
+    namespace "androidx.camera.integration.uiwidgets"
 }
 
 dependencies {
     // Internal library
     implementation(libs.kotlinStdlib)
+    implementation(project(":camera:camera-core"))
     implementation(project(":camera:camera-camera2"))
     implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-view"))
@@ -62,9 +78,20 @@ dependencies {
     implementation(project(":window:window"))
     implementation(project(":window:window-java"))
     implementation(libs.constraintLayout)
+    implementation(libs.material) {
+        exclude group: "androidx.viewpager2", module: "viewpager2"
+    }
 
     // Guava
     implementation(libs.guavaAndroid)
+
+    // Compose
+    implementation 'androidx.activity:activity-compose:1.4.0'
+    implementation 'androidx.compose.material:material:1.1.1'
+    implementation 'androidx.compose.animation:animation:1.1.1'
+    implementation 'androidx.compose.ui:ui-tooling:1.1.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
 
     // Testing framework
     androidTestImplementation(libs.testExtJunit)

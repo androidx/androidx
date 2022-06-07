@@ -16,6 +16,9 @@
 
 package androidx.room.testing;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptySet;
+
 import android.annotation.SuppressLint;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -57,7 +60,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -250,13 +252,13 @@ public class MigrationTestHelper extends TestWatcher {
                 null,
                 true,
                 false,
-                Collections.<Integer>emptySet(),
+                emptySet(),
                 null,
                 null,
                 null,
                 null,
-                null,
-                null);
+                emptyList(),
+                emptyList());
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new CreatingDelegate(schemaBundle.getDatabase()),
                 schemaBundle.getDatabase().getIdentityHash(),
@@ -315,13 +317,13 @@ public class MigrationTestHelper extends TestWatcher {
                 null,
                 true,
                 false,
-                Collections.<Integer>emptySet(),
+                emptySet(),
                 null,
                 null,
                 null,
                 null,
-                null,
-                null);
+                emptyList(),
+                emptyList());
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
                 // we pass the same hash twice since an old schema does not necessarily have
@@ -510,7 +512,7 @@ public class MigrationTestHelper extends TestWatcher {
 
     private static Set<TableInfo.Index> toIndices(List<IndexBundle> indices) {
         if (indices == null) {
-            return Collections.emptySet();
+            return emptySet();
         }
         Set<TableInfo.Index> result = new HashSet<>();
         for (IndexBundle bundle : indices) {
@@ -523,7 +525,7 @@ public class MigrationTestHelper extends TestWatcher {
     private static Set<TableInfo.ForeignKey> toForeignKeys(
             List<ForeignKeyBundle> bundles) {
         if (bundles == null) {
-            return Collections.emptySet();
+            return emptySet();
         }
         Set<TableInfo.ForeignKey> result = new HashSet<>(bundles.size());
         for (ForeignKeyBundle bundle : bundles) {
@@ -578,14 +580,14 @@ public class MigrationTestHelper extends TestWatcher {
         }
 
         @Override
-        protected void createAllTables(SupportSQLiteDatabase database) {
+        public void createAllTables(SupportSQLiteDatabase database) {
             throw new UnsupportedOperationException("Was expecting to migrate but received create."
                     + "Make sure you have created the database first.");
         }
 
         @NonNull
         @Override
-        protected RoomOpenHelper.ValidationResult onValidateSchema(
+        public RoomOpenHelper.ValidationResult onValidateSchema(
                 @NonNull SupportSQLiteDatabase db) {
             final Map<String, EntityBundle> tables = mDatabaseBundle.getEntitiesByTableName();
             for (EntityBundle entity : tables.values()) {
@@ -650,7 +652,7 @@ public class MigrationTestHelper extends TestWatcher {
         }
 
         @Override
-        protected void createAllTables(SupportSQLiteDatabase database) {
+        public void createAllTables(SupportSQLiteDatabase database) {
             for (String query : mDatabaseBundle.buildCreateQueries()) {
                 database.execSQL(query);
             }
@@ -658,7 +660,7 @@ public class MigrationTestHelper extends TestWatcher {
 
         @NonNull
         @Override
-        protected RoomOpenHelper.ValidationResult onValidateSchema(
+        public RoomOpenHelper.ValidationResult onValidateSchema(
                 @NonNull SupportSQLiteDatabase db) {
             throw new UnsupportedOperationException("This open helper just creates the database but"
                     + " it received a migration request.");
@@ -674,16 +676,16 @@ public class MigrationTestHelper extends TestWatcher {
         }
 
         @Override
-        protected void dropAllTables(SupportSQLiteDatabase database) {
+        public void dropAllTables(SupportSQLiteDatabase database) {
             throw new UnsupportedOperationException("cannot drop all tables in the test");
         }
 
         @Override
-        protected void onCreate(SupportSQLiteDatabase database) {
+        public void onCreate(SupportSQLiteDatabase database) {
         }
 
         @Override
-        protected void onOpen(SupportSQLiteDatabase database) {
+        public void onOpen(SupportSQLiteDatabase database) {
         }
     }
 }

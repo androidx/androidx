@@ -23,6 +23,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.integration.adapter.CameraControlAdapter
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraCaptureFailure
 import androidx.camera.core.impl.CameraCaptureResult
@@ -33,6 +34,7 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.fakes.FakeUseCase
 import androidx.camera.testing.fakes.FakeUseCaseConfig
 import androidx.test.core.app.ApplicationProvider
@@ -66,6 +68,10 @@ class CaptureConfigAdapterDeviceTest {
 
     @get:Rule
     val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    // TODO(b/187015621): Remove the rule after the surface can be safely closed.
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
 
     private var cameraControl: CameraControlAdapter? = null
     private var camera: CameraUseCaseAdapter? = null
@@ -112,6 +118,7 @@ class CaptureConfigAdapterDeviceTest {
     }
 
     @Test
+    @LabTestRule.LabTestOnly
     fun tagBundleTest() = runBlocking {
         // Arrange
         val deferred = CompletableDeferred<CameraCaptureResult>()
@@ -138,7 +145,11 @@ class CaptureConfigAdapterDeviceTest {
             }.build()
 
         // Act
-        cameraControl!!.submitStillCaptureRequests(listOf(captureConfig))
+        cameraControl!!.submitStillCaptureRequests(
+            listOf(captureConfig),
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        )
 
         // Assert
         Truth.assertThat(

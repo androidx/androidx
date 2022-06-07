@@ -15,17 +15,15 @@
  */
 
 plugins {
-    id "java-gradle-plugin"
+    id("java-gradle-plugin")
     alias(libs.plugins.kotlinJvm)
 }
 
-repositories {
-    gradlePluginPortal()
-}
-
 dependencies {
-    implementation "com.gradle:gradle-enterprise-gradle-plugin:3.7.1"
-    implementation "com.gradle:common-custom-user-data-gradle-plugin:1.5"
+    implementation("com.gradle:gradle-enterprise-gradle-plugin:3.10.1")
+    implementation("com.gradle:common-custom-user-data-gradle-plugin:1.6.5")
+    testImplementation(libs.junit)
+    testImplementation(libs.truth)
 }
 
 gradlePlugin {

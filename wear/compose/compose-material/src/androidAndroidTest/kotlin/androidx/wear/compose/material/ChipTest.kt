@@ -48,8 +48,6 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onChild
-import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
@@ -96,7 +94,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).assertHasClickAction()
+        rule.onNodeWithTag("test-item").assertHasClickAction()
     }
 
     @Test
@@ -112,7 +110,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).assertHasClickAction()
+        rule.onNodeWithTag("test-item").assertHasClickAction()
     }
 
     @Test
@@ -128,7 +126,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).assertIsEnabled()
+        rule.onNodeWithTag("test-item").assertIsEnabled()
     }
 
     @Test
@@ -144,7 +142,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).assertIsNotEnabled()
+        rule.onNodeWithTag("test-item").assertIsNotEnabled()
     }
 
     @Test
@@ -162,7 +160,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).performClick()
+        rule.onNodeWithTag("test-item").performClick()
 
         rule.runOnIdle {
             assertEquals(true, clicked)
@@ -184,7 +182,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0).performClick()
+        rule.onNodeWithTag("test-item").performClick()
 
         rule.runOnIdle {
             assertEquals(false, clicked)
@@ -204,7 +202,7 @@ class ChipBehaviourTest {
             }
         }
 
-        rule.onNodeWithTag("test-item").onChildAt(0)
+        rule.onNodeWithTag("test-item")
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
@@ -276,7 +274,8 @@ class ChipSizeTest {
                 )
             }
 
-        rule.onRoot().assertWidthIsEqualTo(52.dp).assertHeightIsEqualTo(32.dp)
+        rule.onRoot().assertWidthIsEqualTo(ChipDefaults.IconOnlyCompactChipWidth)
+            .assertHeightIsEqualTo(ChipDefaults.CompactChipHeight)
     }
 
     @Test
@@ -291,7 +290,7 @@ class ChipSizeTest {
                 )
             }
 
-        rule.onRoot().assertHeightIsEqualTo(32.dp)
+        rule.onRoot().assertHeightIsEqualTo(48.dp)
     }
 
     @Test
@@ -305,7 +304,8 @@ class ChipSizeTest {
                 )
             }
 
-        rule.onRoot().assertWidthIsEqualTo(52.dp).assertHeightIsEqualTo(32.dp)
+        rule.onRoot().assertWidthIsEqualTo(ChipDefaults.IconOnlyCompactChipWidth)
+            .assertHeightIsEqualTo(ChipDefaults.CompactChipHeight)
     }
 
     @Test
@@ -344,7 +344,10 @@ class ChipSizeTest {
             .getUnclippedBoundsInRoot()
 
         rule.onNodeWithContentDescription(iconTag, useUnmergedTree = true)
-            .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
+            .assertTopPositionInRootIsEqualTo(
+                (itemBounds.height - iconBounds.height) / 2 +
+                    ChipDefaults.CompactChipTapTargetPadding.calculateTopPadding()
+            )
     }
 
     @Test
@@ -364,7 +367,10 @@ class ChipSizeTest {
             .getUnclippedBoundsInRoot()
 
         rule.onNodeWithContentDescription(iconTag, useUnmergedTree = true)
-            .assertTopPositionInRootIsEqualTo((itemBounds.height - iconBounds.height) / 2)
+            .assertTopPositionInRootIsEqualTo(
+                (itemBounds.height - iconBounds.height) / 2 +
+                    ChipDefaults.CompactChipTapTargetPadding.calculateTopPadding()
+            )
     }
 
     private fun verifyHeight(expectedHeight: Dp) {
@@ -563,7 +569,6 @@ class ChipColorTest {
         }
 
         rule.onNodeWithTag("test-item")
-            .onChild() // skip the 'outer' surface
             .captureToImage()
             .assertContainsColor(overrideColor, 50.0f)
     }
@@ -585,7 +590,6 @@ class ChipColorTest {
         }
 
         rule.onNodeWithTag("test-item")
-            .onChild() // skip the 'outer' surface
             .captureToImage()
             .assertContainsColor(overrideColor, 50.0f)
     }
@@ -642,27 +646,27 @@ class ChipColorTest {
     fun allows_custom_primary_enabled_icon_tint_color_override() {
         val overrideColor = Color.Red
         var actualContentColor = Color.Transparent
-        var actualIconTintColor = Color.Transparent
+        var actualIconColor = Color.Transparent
         var expectedContent = Color.Transparent
         rule.setContentWithTheme {
             expectedContent = MaterialTheme.colors.onPrimary
             Chip(
                 onClick = {},
                 colors = ChipDefaults.chipColors(
-                    iconTintColor = overrideColor
+                    iconColor = overrideColor
                 ),
                 label = {
                     actualContentColor = LocalContentColor.current
                 },
                 icon = {
-                    actualIconTintColor = LocalContentColor.current
+                    actualIconColor = LocalContentColor.current
                 },
                 enabled = true,
                 modifier = Modifier.testTag("test-item")
             )
         }
         assertEquals(expectedContent, actualContentColor)
-        assertEquals(overrideColor, actualIconTintColor)
+        assertEquals(overrideColor, actualIconColor)
     }
 
     @Test

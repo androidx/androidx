@@ -32,7 +32,7 @@ import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.WorkerWrapper
 import androidx.work.impl.foreground.ForegroundProcessor
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -72,7 +72,7 @@ public class RemoteCoroutineWorkerTest {
             .setTaskExecutor(mExecutor)
             .build()
         mTaskExecutor = mock(TaskExecutor::class.java)
-        `when`(mTaskExecutor.serialTaskExecutor).thenReturn(SerialExecutor(mExecutor))
+        `when`(mTaskExecutor.serialTaskExecutor).thenReturn(SerialExecutorImpl(mExecutor))
         `when`(mTaskExecutor.mainThreadExecutor).thenReturn(mExecutor)
         mScheduler = mock(Scheduler::class.java)
         mForegroundProcessor = mock(ForegroundProcessor::class.java)
@@ -88,6 +88,7 @@ public class RemoteCoroutineWorkerTest {
         `when`(mWorkManager.schedulers).thenReturn(schedulers)
         `when`(mWorkManager.processor).thenReturn(mProcessor)
         WorkManagerImpl.setDelegate(mWorkManager)
+        RemoteWorkManagerInfo.clearInstance()
     }
 
     @Test
@@ -102,7 +103,7 @@ public class RemoteCoroutineWorkerTest {
         val wrapper = buildWrapper(request)
         wrapper.run()
         wrapper.future.get()
-        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)
+        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.SUCCEEDED)
     }
 
@@ -118,7 +119,7 @@ public class RemoteCoroutineWorkerTest {
         val wrapper = buildWrapper(request)
         wrapper.run()
         wrapper.future.get()
-        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)
+        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.FAILED)
     }
 
@@ -134,7 +135,7 @@ public class RemoteCoroutineWorkerTest {
         val wrapper = buildWrapper(request)
         wrapper.run()
         wrapper.future.get()
-        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)
+        val workSpec = mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         assertEquals(workSpec.state, WorkInfo.State.ENQUEUED)
     }
 

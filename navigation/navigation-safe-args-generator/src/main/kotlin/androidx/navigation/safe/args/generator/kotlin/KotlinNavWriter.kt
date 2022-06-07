@@ -303,7 +303,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = true) : NavWriter<Kotli
                     arg.type.typeName().copy(nullable = true)
                 )
                 beginControlFlow("if (%L.contains(%S))", savedStateParamName, arg.name)
-                addStatement("%L = %L[%S]", tempVal, savedStateParamName, arg.name)
+                arg.type.addSavedStateGetStatement(this, arg, tempVal, savedStateParamName)
                 if (!arg.isNullable) {
                     beginControlFlow("if (%L == null)", tempVal)
                     val errorMessage = if (arg.type.allowsNullable()) {

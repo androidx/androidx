@@ -52,6 +52,11 @@ import androidx.wear.watchface.control.data.WallpaperInteractiveWatchFaceInstanc
 import androidx.wear.watchface.data.DeviceConfig
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.CurrentUserStyleRepository
+import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.UserStyleSetting
+import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
+import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
+import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -66,6 +71,7 @@ import org.mockito.MockitoAnnotations
 import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import org.junit.After
 
 private const val BITMAP_WIDTH = 400
 private const val BITMAP_HEIGHT = 400
@@ -85,8 +91,9 @@ class TestXmlWatchFaceService(
 
     override fun getWallpaperSurfaceHolderOverride() = surfaceHolderOverride
 
-    override fun getComplicationSlotInflationFactory() =
-        object : ComplicationSlotInflationFactory() {
+    override fun getComplicationSlotInflationFactory(
+        currentUserStyleRepository: CurrentUserStyleRepository
+    ) = object : ComplicationSlotInflationFactory() {
             override fun getCanvasComplicationFactory(slotId: Int): CanvasComplicationFactory {
                 return CanvasComplicationFactory { _, _ ->
                     object : CanvasComplication {
@@ -127,6 +134,7 @@ class TestXmlWatchFaceService(
         currentUserStyleRepository: CurrentUserStyleRepository
     ) = WatchFace(
         WatchFaceType.DIGITAL,
+        @Suppress("deprecation")
         object : Renderer.CanvasRenderer(
             surfaceHolder,
             currentUserStyleRepository,
@@ -167,8 +175,15 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         MockitoAnnotations.initMocks(this)
     }
 
+    @After
+    public fun tearDown() {
+        if (this::interactiveWatchFaceInstance.isInitialized) {
+            interactiveWatchFaceInstance.release()
+        }
+    }
+
     private fun setPendingWallpaperInteractiveWatchFaceInstance() {
-        InteractiveInstanceManager
+        val existingInstance = InteractiveInstanceManager
             .getExistingInstanceOrSetPendingWallpaperInteractiveWatchFaceInstance(
                 InteractiveInstanceManager.PendingWallpaperInteractiveWatchFaceInstance(
                     WallpaperInteractiveWatchFaceInstanceParams(
@@ -200,6 +215,7 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
                     }
                 )
             )
+        assertThat(existingInstance).isNull()
     }
 
     @Test
@@ -223,12 +239,13 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
         runBlocking {
             val watchFaceImpl = wrapper.deferredWatchFaceImpl.await()
             val schema = watchFaceImpl.currentUserStyleRepository.schema
-            assertThat(schema.userStyleSettings.size).isEqualTo(1)
-            assertThat(schema.userStyleSettings[0].id.value).isEqualTo("TimeStyle")
+            assertThat(schema.userStyleSettings.map { it.id.value }).containsExactly(
+                "TimeStyle", "BooleanId", "DoubleId", "LongId"
+            )
 
             assertThat(
                 watchFaceImpl.complicationSlotsManager.complicationSlots.size
-            ).isEqualTo(2)
+            ).isEqualTo(3)
 
             val slotA = watchFaceImpl.complicationSlotsManager.complicationSlots[10]!!
             assertThat(slotA.boundsType).isEqualTo(ComplicationSlotBoundsType.ROUND_RECT)
@@ -255,6 +272,9 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             ).isEqualTo(
                 RectF(0.3f, 0.7f, 0.7f, 0.9f)
             )
+            assertThat(slotA.nameResourceId).isEqualTo(R.string.complication_name_one)
+            assertThat(slotA.screenReaderNameResourceId)
+                .isEqualTo(R.string.complication_screen_reader_name_one)
 
             val slotB = watchFaceImpl.complicationSlotsManager.complicationSlots[20]!!
             assertThat(slotB.boundsType).isEqualTo(ComplicationSlotBoundsType.BACKGROUND)
@@ -281,8 +301,72 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
             ).isEqualTo(
                 RectF(0.1f, 0.2f, 0.3f, 0.4f)
             )
-        }
+            assertThat(slotB.nameResourceId).isEqualTo(R.string.complication_name_two)
+            assertThat(slotB.screenReaderNameResourceId)
+                .isEqualTo(R.string.complication_screen_reader_name_two)
 
-        interactiveWatchFaceInstance.release()
+            val slotC = watchFaceImpl.complicationSlotsManager.complicationSlots[30]!!
+            assertThat(slotC.defaultDataSourcePolicy.primaryDataSource).isNull()
+            assertThat(slotC.defaultDataSourcePolicy.primaryDataSourceDefaultType).isNull()
+            assertThat(slotC.defaultDataSourcePolicy.secondaryDataSource).isNull()
+            assertThat(slotC.defaultDataSourcePolicy.secondaryDataSourceDefaultType).isNull()
+            assertThat(slotC.defaultDataSourcePolicy.systemDataSourceFallback).isEqualTo(
+                SystemDataSources.NO_DATA_SOURCE
+            )
+            assertThat(slotC.defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
+                .isEqualTo(ComplicationType.NOT_CONFIGURED)
+
+            val watchFaceInitDetails = wrapper.watchFaceInitDetails.await()
+            val flavors = watchFaceInitDetails.userStyleFlavors
+
+            assertThat(flavors.flavors.size).isEqualTo(1)
+            val flavor = flavors.flavors[0]
+            assertThat(flavor.id).isEqualTo("flavor1")
+
+            val style = UserStyle(flavor.style, schema)
+            assertThat(style.size).isEqualTo(4)
+            assertThat(style[UserStyleSetting.Id("TimeStyle")]!!.id)
+                .isEqualTo(UserStyleSetting.Option.Id("minimal"))
+            assertThat((style[UserStyleSetting.Id("BooleanId")]!! as BooleanOption).value)
+                .isEqualTo(true)
+            assertThat((style[UserStyleSetting.Id("DoubleId")]!! as DoubleRangeOption).value)
+                .isEqualTo(1.0)
+            assertThat((style[UserStyleSetting.Id("LongId")]!! as LongRangeOption).value)
+                .isEqualTo(2)
+
+            val complications = flavor.complications
+            assertThat(complications.size).isEqualTo(1)
+            val complicationPolicy = complications[10]!!
+            assertThat(complicationPolicy.primaryDataSource).isEqualTo(
+                ComponentName("com.package", "com.app"))
+            assertThat(complicationPolicy.primaryDataSourceDefaultType).isEqualTo(
+                ComplicationType.SHORT_TEXT)
+            assertThat(complicationPolicy.systemDataSourceFallback).isEqualTo(
+                SystemDataSources.DATA_SOURCE_DAY_AND_DATE)
+            assertThat(complicationPolicy.systemDataSourceFallbackDefaultType).isEqualTo(
+                ComplicationType.SHORT_TEXT)
+
+            var fixedString = flavor.toString()
+
+            // remove binary data from option values
+            val booleanIndex = fixedString.indexOf("BooleanId=") + "BooleanId=".length
+            fixedString = fixedString.removeRange(booleanIndex,
+                fixedString.indexOf(',', booleanIndex))
+
+            val doubleIndex = fixedString.indexOf("DoubleId=") + "DoubleId=".length
+            fixedString = fixedString.removeRange(doubleIndex,
+                fixedString.indexOf(',', doubleIndex))
+
+            val longIndex = fixedString.indexOf("LongId=") + "LongId=".length
+            fixedString = fixedString.removeRange(longIndex,
+                fixedString.indexOf('}', longIndex))
+
+            assertThat(fixedString).isEqualTo("UserStyleFlavor[flavor1: " +
+                "{BooleanId=, TimeStyle=minimal, DoubleId=, LongId=}, " +
+                "{10=DefaultComplicationDataSourcePolicy[" +
+                    "primary(ComponentInfo{com.package/com.app}, SHORT_TEXT), " +
+                    "secondary(null, null), " +
+                    "system(16, SHORT_TEXT)]}]")
+        }
     }
 }

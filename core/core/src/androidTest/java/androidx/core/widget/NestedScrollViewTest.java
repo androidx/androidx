@@ -27,6 +27,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
 import android.os.Parcelable;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -391,6 +392,70 @@ public class NestedScrollViewTest {
         }
     }
 
+    @Test
+    public void scrollFromRotaryStretchesTop() {
+        setup(200);
+        setChildMargins(0, 0);
+        measureAndLayout(100);
+        EdgeEffectSubstitute edgeEffect = new EdgeEffectSubstitute(mNestedScrollView.getContext());
+        mNestedScrollView.mEdgeGlowTop = edgeEffect;
+
+        sendScroll(2f, InputDevice.SOURCE_ROTARY_ENCODER);
+
+        // Should be pulled and retracting
+        assertTrue(edgeEffect.getDistance() > 0);
+        assertEquals(EdgeEffectSubstitute.State.Animating, edgeEffect.getState());
+    }
+
+    @Test
+    public void scrollFromRotaryStretchesBottom() {
+        setup(200);
+        setChildMargins(0, 0);
+        measureAndLayout(100);
+        EdgeEffectSubstitute edgeEffect = new EdgeEffectSubstitute(mNestedScrollView.getContext());
+        mNestedScrollView.mEdgeGlowBottom = edgeEffect;
+        int scrollRange = mNestedScrollView.getScrollRange();
+        mNestedScrollView.scrollTo(0, scrollRange);
+
+        sendScroll(-2f, InputDevice.SOURCE_ROTARY_ENCODER);
+
+        // Should be pulled and retracting
+        assertTrue(edgeEffect.getDistance() > 0);
+        assertEquals(EdgeEffectSubstitute.State.Animating, edgeEffect.getState());
+    }
+
+    @Test
+    public void scrollFromMouseDoesNotStretchTop() {
+        setup(200);
+        setChildMargins(0, 0);
+        measureAndLayout(100);
+        EdgeEffectSubstitute edgeEffect = new EdgeEffectSubstitute(mNestedScrollView.getContext());
+        mNestedScrollView.mEdgeGlowTop = edgeEffect;
+
+        sendScroll(2f, InputDevice.SOURCE_MOUSE);
+
+        // Should not be pulled. It should be Idle at 0
+        assertEquals(0f, edgeEffect.getDistance(), 0f);
+        assertEquals(EdgeEffectSubstitute.State.Idle, edgeEffect.getState());
+    }
+
+    @Test
+    public void scrollFromMouseDoesNotStretchBottom() {
+        setup(200);
+        setChildMargins(0, 0);
+        measureAndLayout(100);
+        EdgeEffectSubstitute edgeEffect = new EdgeEffectSubstitute(mNestedScrollView.getContext());
+        mNestedScrollView.mEdgeGlowBottom = edgeEffect;
+        int scrollRange = mNestedScrollView.getScrollRange();
+        mNestedScrollView.scrollTo(0, scrollRange);
+
+        sendScroll(-2f, InputDevice.SOURCE_MOUSE);
+
+        // Should not be pulled. It should be Idle at 0
+        assertEquals(0f, edgeEffect.getDistance(), 0f);
+        assertEquals(EdgeEffectSubstitute.State.Idle, edgeEffect.getState());
+    }
+
     private void swipeDown(boolean shortSwipe) {
         float endY = shortSwipe ? mNestedScrollView.getHeight() / 2f :
                 mNestedScrollView.getHeight() - 1;
@@ -428,6 +493,38 @@ public class NestedScrollViewTest {
         mNestedScrollView.dispatchTouchEvent(move);
         MotionEvent up = MotionEvent.obtain(0, 11, MotionEvent.ACTION_UP, x, endY, 0);
         mNestedScrollView.dispatchTouchEvent(up);
+    }
+
+    private void sendScroll(float scrollAmount, int source) {
+        float x = mNestedScrollView.getWidth() / 2f;
+        float y = mNestedScrollView.getHeight() / 2f;
+        MotionEvent.PointerProperties pointerProperties = new MotionEvent.PointerProperties();
+        pointerProperties.toolType = MotionEvent.TOOL_TYPE_MOUSE;
+        MotionEvent.PointerCoords pointerCoords = new MotionEvent.PointerCoords();
+        pointerCoords.x = x;
+        pointerCoords.y = y;
+        int axis = source == InputDevice.SOURCE_ROTARY_ENCODER ? MotionEvent.AXIS_SCROLL
+                : MotionEvent.AXIS_VSCROLL;
+        pointerCoords.setAxisValue(axis, scrollAmount);
+
+        MotionEvent scroll = MotionEvent.obtain(
+                0, /* downTime */
+                0, /* eventTime */
+                MotionEvent.ACTION_SCROLL, /* action */
+                1, /* pointerCount */
+                new MotionEvent.PointerProperties[] { pointerProperties },
+                new MotionEvent.PointerCoords[] { pointerCoords },
+                0, /* metaState */
+                0, /* buttonState */
+                0f, /* xPrecision */
+                0f, /* yPrecision */
+                0, /* deviceId */
+                0, /* edgeFlags */
+                source, /* source */
+                0 /* flags */
+        );
+
+        mNestedScrollView.dispatchGenericMotionEvent(scroll);
     }
 
     private void setup(int childHeight) {

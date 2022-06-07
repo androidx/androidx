@@ -394,6 +394,24 @@ public abstract class VideoRecordEvent {
         public Throwable getCause() {
             return mCause;
         }
+
+        @NonNull
+        static String errorToString(@VideoRecordError int error) {
+            switch (error) {
+                case ERROR_NONE: return "ERROR_NONE";
+                case ERROR_UNKNOWN: return "ERROR_UNKNOWN";
+                case ERROR_FILE_SIZE_LIMIT_REACHED: return "ERROR_FILE_SIZE_LIMIT_REACHED";
+                case ERROR_INSUFFICIENT_STORAGE: return "ERROR_INSUFFICIENT_STORAGE";
+                case ERROR_INVALID_OUTPUT_OPTIONS: return "ERROR_INVALID_OUTPUT_OPTIONS";
+                case ERROR_ENCODING_FAILED: return "ERROR_ENCODING_FAILED";
+                case ERROR_RECORDER_ERROR: return "ERROR_RECORDER_ERROR";
+                case ERROR_NO_VALID_DATA: return "ERROR_NO_VALID_DATA";
+                case ERROR_SOURCE_INACTIVE: return "ERROR_SOURCE_INACTIVE";
+            }
+
+            // Should never reach here, but just in case...
+            return "Unknown(" + error + ")";
+        }
     }
 
     @NonNull

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // b/220884818
+
 package androidx.paging
 
 import androidx.paging.ActiveFlowTracker.FlowType
@@ -29,7 +31,6 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -46,6 +47,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.atomic.AtomicInteger
+import kotlinx.coroutines.test.runCurrent
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
@@ -56,7 +58,26 @@ class CachingTest {
 
     @After
     fun checkResources() {
-        testScope.cleanupTestCoroutines()
+        try {
+            testScope.cleanupTestCoroutines()
+        } catch (e: AssertionError) {
+            if (e.message?.contains("Test finished with active jobs") != true) {
+                throw e
+            }
+        }
+    }
+
+    // It's a workaround for https://github.com/Kotlin/kotlinx.coroutines/issues/1531
+    private fun TestCoroutineScope.wrapRunTest(
+        testBody: suspend TestCoroutineScope.() -> Unit
+    ) {
+        try {
+            this.runBlockingTest(testBody)
+        } catch (e: AssertionError) {
+            if (e.message?.contains("Test finished with active jobs") != true) {
+                throw e
+            }
+        }
     }
 
     @Test
@@ -85,7 +106,7 @@ class CachingTest {
     }
 
     @Test
-    fun cached() = testScope.runBlockingTest {
+    fun cached() = testScope.wrapRunTest {
         val pageFlow = buildPageFlow().cachedIn(testScope, tracker)
         val firstCollect = pageFlow.collectItemsUntilSize(6)
         val secondCollect = pageFlow.collectItemsUntilSize(9)
@@ -110,7 +131,7 @@ class CachingTest {
     }
 
     @Test
-    fun cached_afterMapping() = testScope.runBlockingTest {
+    fun cached_afterMapping() = testScope.wrapRunTest {
         var mappingCnt = 0
         val pageFlow = buildPageFlow().map { pagingData ->
             val mappingIndex = mappingCnt++
@@ -145,7 +166,7 @@ class CachingTest {
     }
 
     @Test
-    fun cached_beforeMapping() = testScope.runBlockingTest {
+    fun cached_beforeMapping() = testScope.wrapRunTest {
         var mappingCnt = 0
         val pageFlow = buildPageFlow().cachedIn(testScope, tracker).map { pagingData ->
             val mappingIndex = mappingCnt++
@@ -180,7 +201,7 @@ class CachingTest {
     }
 
     @Test
-    fun cached_afterMapping_withMoreMappingAfterwards() = testScope.runBlockingTest {
+    fun cached_afterMapping_withMoreMappingAfterwards() = testScope.wrapRunTest {
         var mappingCnt = 0
         val pageFlow = buildPageFlow().map { pagingData ->
             val mappingIndex = mappingCnt++
@@ -264,7 +285,7 @@ class CachingTest {
     }
 
     @Test
-    fun cachedWithPassiveCollector() = testScope.runBlockingTest {
+    fun cachedWithPassiveCollector() = testScope.wrapRunTest {
         val flow = buildPageFlow().cachedIn(testScope, tracker)
         val passive = ItemCollector(flow)
         passive.collectPassivelyIn(testScope)
@@ -313,7 +334,7 @@ class CachingTest {
      * invalidations create new PagingData BUT a new collector only sees the latest one.
      */
     @Test
-    public fun unusedPagingDataIsNeverCollectedByNewDownstream(): Unit = testScope.runBlockingTest {
+    public fun unusedPagingDataIsNeverCollectedByNewDownstream(): Unit = testScope.wrapRunTest {
         val factory = StringPagingSource.VersionedFactory()
         val flow = buildPageFlow(factory).cachedIn(testScope, tracker)
         val collector = ItemCollector(flow)

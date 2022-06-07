@@ -96,16 +96,16 @@ public final class Model {
 
     /** Constructs an empty instance, used by serialization code. */
     private Model() {
-        mName = CarValue.UNIMPLEMENTED_STRING;
-        mManufacturer = CarValue.UNIMPLEMENTED_STRING;
-        mYear = CarValue.UNIMPLEMENTED_INTEGER;
+        mName = CarValue.UNKNOWN_STRING;
+        mManufacturer = CarValue.UNKNOWN_STRING;
+        mYear = CarValue.UNKNOWN_INTEGER;
     }
 
     /** A builder of {@link Model}. */
     public static final class Builder {
-        CarValue<String> mName = CarValue.UNIMPLEMENTED_STRING;
-        CarValue<Integer> mYear = CarValue.UNIMPLEMENTED_INTEGER;
-        CarValue<String> mManufacturer = CarValue.UNIMPLEMENTED_STRING;
+        CarValue<String> mName = CarValue.UNKNOWN_STRING;
+        CarValue<Integer> mYear = CarValue.UNKNOWN_INTEGER;
+        CarValue<String> mManufacturer = CarValue.UNKNOWN_STRING;
 
         /**
          * Sets the car model name.

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 
 plugins {
@@ -45,4 +43,8 @@ androidx {
     mavenGroup = LibraryGroups.DYNAMICANIMATION
     inceptionYear = "2018"
     description = "Kotlin extensions for 'dynamicanimation' artifact"
+}
+
+android {
+    namespace "androidx.dynamicanimation.ktx"
 }

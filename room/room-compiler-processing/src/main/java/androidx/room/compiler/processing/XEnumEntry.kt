@@ -30,7 +30,16 @@ interface XEnumEntry : XElement {
     /**
      * The parent enum type declaration that holds all entries for this enum type..
      */
+    override val enclosingElement: XEnumTypeElement
+
+    /**
+     * The parent enum type declaration that holds all entries for this enum type..
+     */
+    @Deprecated(message = "use XEnumEntry#enclosingElement() instead.",
+        replaceWith = ReplaceWith("enclosingElement")
+    )
     val enumTypeElement: XEnumTypeElement
+        get() = enclosingElement
 }
 
 fun XElement.isEnumEntry(): Boolean {

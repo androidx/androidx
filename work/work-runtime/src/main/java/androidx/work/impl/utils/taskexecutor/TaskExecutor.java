@@ -18,7 +18,6 @@ package androidx.work.impl.utils.taskexecutor;
 
 import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
-import androidx.work.impl.utils.SerialExecutor;
 
 import java.util.concurrent.Executor;
 
@@ -30,12 +29,6 @@ import java.util.concurrent.Executor;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface TaskExecutor {
-
-    /**
-     * @param runnable {@link Runnable} to post to the main thread
-     */
-    void postToMainThread(Runnable runnable);
-
     /**
      * @return The {@link Executor} for main thread task processing
      */
@@ -52,7 +45,9 @@ public interface TaskExecutor {
     /**
      * It wraps an executor passed in {@link Configuration#getTaskExecutor()}
      *
-     * @return The {@link SerialExecutor} for internal book-keeping
+     * Executor must guarantee a serial execution.
+     *
+     * @return The {@link Executor} for internal book-keeping
      */
     SerialExecutor getSerialTaskExecutor();
 }

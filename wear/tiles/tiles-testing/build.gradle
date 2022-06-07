@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -57,11 +55,12 @@ android {
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.wear.tiles.testing"
 }
 
 androidx {
     name = "Android Wear Tiles Testing Utilities"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_TEST_LIBRARY
     mavenGroup = LibraryGroups.WEAR_TILES
     inceptionYear = "2021"
     description = "Testing utilities for Android Wear Tiles."

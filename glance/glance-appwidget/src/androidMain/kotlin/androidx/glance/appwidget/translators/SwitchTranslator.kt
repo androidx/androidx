@@ -87,7 +87,8 @@ internal fun RemoteViews.translateEmittableSwitch(
         textViewId,
         element.text,
         element.style,
+        maxLines = element.maxLines,
         verticalTextGravity = Gravity.CENTER_VERTICAL,
     )
-    applyModifiers(translationContext, this, element.modifier, viewDef)
+    applyModifiers(translationContext.forCompoundButton(), this, element.modifier, viewDef)
 }

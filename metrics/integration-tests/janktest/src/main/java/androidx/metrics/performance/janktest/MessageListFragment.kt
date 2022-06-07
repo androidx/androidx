@@ -21,13 +21,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.metrics.performance.JankStats
+import androidx.metrics.performance.PerformanceMetricsState
 import androidx.recyclerview.widget.RecyclerView
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
  */
 class MessageListFragment : Fragment() {
+
+    private val metricsStateCache = MetricsStateCache()
 
     val messageList: Array<String> = Array<String>(100) {
         "Message #" + it
@@ -43,20 +45,33 @@ class MessageListFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val recyclerView = view.findViewById<RecyclerView>(R.id.MessageList)
+        recyclerView.addOnAttachStateChangeListener(metricsStateCache)
         recyclerView.adapter = MessageListAdapter(messageList)
         recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                val jankStats = activity?.let { JankStats.get(view) }
-                if (jankStats != null) {
-                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                        jankStats.addState("RecyclerView", "Dragging")
-                    } else if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
-                        jankStats.addState("RecyclerView", "Settling")
-                    } else {
-                        jankStats.removeState("RecyclerView")
-                    }
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    metricsStateCache.state?.addState("RecyclerView", "Dragging")
+                } else if (newState == RecyclerView.SCROLL_STATE_SETTLING) {
+                    metricsStateCache.state?.addState("RecyclerView", "Settling")
+                } else {
+                    metricsStateCache.state?.removeState("RecyclerView")
                 }
             }
         })
+    }
+
+    class MetricsStateCache : View.OnAttachStateChangeListener {
+        private var holder: PerformanceMetricsState.Holder? = null
+
+        val state: PerformanceMetricsState?
+            get() = holder?.state
+
+        override fun onViewAttachedToWindow(view: View) {
+            holder = PerformanceMetricsState.getForHierarchy(view)
+        }
+
+        override fun onViewDetachedFromWindow(view: View) {
+            holder = null
+        }
     }
 }

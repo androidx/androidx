@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -128,9 +129,11 @@ public final class DebugUtils {
      * Dumps {@link MediaCodecInfo} of input {@link MediaCodecList} and support for input
      * {@link MediaFormat}.
      */
-    public static void dumpMediaCodecListForFormat(@NonNull MediaCodecList mediaCodecList,
+    @NonNull
+    public static String dumpMediaCodecListForFormat(@NonNull MediaCodecList mediaCodecList,
             @NonNull MediaFormat mediaFormat) {
-        Logger.d(TAG, "[Start] Dump MediaCodecList for mediaFormat " + mediaFormat);
+        StringBuilder sb = new StringBuilder();
+        logToString(sb, "[Start] Dump MediaCodecList for mediaFormat " + mediaFormat);
 
         String mime = mediaFormat.getString(MediaFormat.KEY_MIME);
         for (MediaCodecInfo mediaCodecInfo : mediaCodecList.getCodecInfos()) {
@@ -142,21 +145,51 @@ public final class DebugUtils {
                 MediaCodecInfo.CodecCapabilities caps = mediaCodecInfo.getCapabilitiesForType(mime);
                 Preconditions.checkArgument(caps != null);
 
-                Logger.d(TAG, "[Start] [" + mediaCodecInfo.getName() + "]");
-                dumpCodecCapabilities(caps, mediaFormat);
-                Logger.d(TAG, "[End] [" + mediaCodecInfo.getName() + "]");
+                logToString(sb, "[Start] [" + mediaCodecInfo.getName() + "]");
+                dumpCodecCapabilities(sb, caps, mediaFormat);
+                logToString(sb, "[End] [" + mediaCodecInfo.getName() + "]");
             } catch (IllegalArgumentException e) {
-                Logger.w(TAG, "[" + mediaCodecInfo.getName() + "] does not support mime " + mime);
+                logToString(sb, "[" + mediaCodecInfo.getName() + "] does not support mime " + mime);
             }
         }
-        Logger.d(TAG, "[End] Dump MediaCodecList");
+        logToString(sb, "[End] Dump MediaCodecList");
+
+        String log = sb.toString();
+        stringToLog(log);
+        return log;
     }
 
-    private static void dumpCodecCapabilities(@NonNull MediaCodecInfo.CodecCapabilities caps,
+    /**
+     * Dumps {@link MediaCodecInfo.CodecCapabilities} and {@link MediaFormat}.
+     */
+    @NonNull
+    public static String dumpCodecCapabilities(@NonNull String mimeType, @NonNull MediaCodec codec,
             @NonNull MediaFormat mediaFormat) {
-        Logger.d(TAG,
-                CODEC_CAPS_PREFIX + "isFormatSupported = " + caps.isFormatSupported(mediaFormat));
-        Logger.d(TAG, CODEC_CAPS_PREFIX + "getDefaultFormat = " + caps.getDefaultFormat());
+        StringBuilder sb = new StringBuilder();
+        try {
+            MediaCodecInfo.CodecCapabilities caps = codec.getCodecInfo().getCapabilitiesForType(
+                    mimeType);
+            Preconditions.checkArgument(caps != null);
+            dumpCodecCapabilities(sb, caps, mediaFormat);
+        } catch (IllegalArgumentException e) {
+            logToString(sb, "[" + codec.getName() + "] does not support mime " + mimeType);
+        }
+
+        return sb.toString();
+    }
+
+    private static void dumpCodecCapabilities(@NonNull StringBuilder sb,
+            @NonNull MediaCodecInfo.CodecCapabilities caps,
+            @NonNull MediaFormat mediaFormat) {
+        try {
+            logToString(sb,
+                    CODEC_CAPS_PREFIX + "isFormatSupported = " + caps.isFormatSupported(
+                            mediaFormat));
+        } catch (ClassCastException e) {
+            logToString(sb, CODEC_CAPS_PREFIX + "isFormatSupported=false");
+        }
+
+        logToString(sb, CODEC_CAPS_PREFIX + "getDefaultFormat = " + caps.getDefaultFormat());
         if (caps.profileLevels != null) {
             StringBuilder stringBuilder = new StringBuilder("[");
             List<String> profileLevelsStr = new ArrayList<>();
@@ -164,38 +197,39 @@ public final class DebugUtils {
                 profileLevelsStr.add(toString(profileLevel));
             }
             stringBuilder.append(TextUtils.join(", ", profileLevelsStr)).append("]");
-            Logger.d(TAG, CODEC_CAPS_PREFIX + "profileLevels = " + stringBuilder);
+            logToString(sb, CODEC_CAPS_PREFIX + "profileLevels = " + stringBuilder);
         }
         if (caps.colorFormats != null) {
-            Logger.d(TAG,
+            logToString(sb,
                     CODEC_CAPS_PREFIX + "colorFormats = " + Arrays.toString(caps.colorFormats));
         }
 
         MediaCodecInfo.VideoCapabilities videoCaps = caps.getVideoCapabilities();
         if (videoCaps != null) {
-            dumpVideoCapabilities(videoCaps, mediaFormat);
+            dumpVideoCapabilities(sb, videoCaps, mediaFormat);
         }
 
         MediaCodecInfo.AudioCapabilities audioCaps = caps.getAudioCapabilities();
         if (audioCaps != null) {
-            dumpAudioCapabilities(audioCaps, mediaFormat);
+            dumpAudioCapabilities(sb, audioCaps, mediaFormat);
         }
 
         MediaCodecInfo.EncoderCapabilities encoderCaps = caps.getEncoderCapabilities();
         if (encoderCaps != null) {
-            dumpEncoderCapabilities(encoderCaps, mediaFormat);
+            dumpEncoderCapabilities(sb, encoderCaps, mediaFormat);
         }
     }
 
-    private static void dumpVideoCapabilities(@NonNull MediaCodecInfo.VideoCapabilities caps,
+    private static void dumpVideoCapabilities(@NonNull StringBuilder sb,
+            @NonNull MediaCodecInfo.VideoCapabilities caps,
             @NonNull MediaFormat mediaFormat) {
         // Bitrate
-        Logger.d(TAG, VIDEO_CAPS_PREFIX + "getBitrateRange = " + caps.getBitrateRange());
+        logToString(sb, VIDEO_CAPS_PREFIX + "getBitrateRange = " + caps.getBitrateRange());
 
         // Size
-        Logger.d(TAG, VIDEO_CAPS_PREFIX + "getSupportedWidths = " + caps.getSupportedWidths()
+        logToString(sb, VIDEO_CAPS_PREFIX + "getSupportedWidths = " + caps.getSupportedWidths()
                 + ", getWidthAlignment = " + caps.getWidthAlignment());
-        Logger.d(TAG, VIDEO_CAPS_PREFIX + "getSupportedHeights = " + caps.getSupportedHeights()
+        logToString(sb, VIDEO_CAPS_PREFIX + "getSupportedHeights = " + caps.getSupportedHeights()
                 + ", getHeightAlignment = " + caps.getHeightAlignment());
 
         boolean hasSize = true;
@@ -206,7 +240,7 @@ public final class DebugUtils {
             height = mediaFormat.getInteger(MediaFormat.KEY_HEIGHT);
             Preconditions.checkArgument(width > 0 && height > 0);
         } catch (NullPointerException | IllegalArgumentException e) {
-            Logger.w(TAG,
+            logToString(sb,
                     VIDEO_CAPS_PREFIX + "mediaFormat does not contain valid width and height");
             width = height = 0;
             hasSize = false;
@@ -214,92 +248,109 @@ public final class DebugUtils {
 
         if (hasSize) {
             try {
-                Logger.d(TAG, VIDEO_CAPS_PREFIX + "getSupportedHeightsFor " + width + " = "
+                logToString(sb, VIDEO_CAPS_PREFIX + "getSupportedHeightsFor " + width + " = "
                         + caps.getSupportedHeightsFor(width));
             } catch (IllegalArgumentException e) {
-                Logger.w(TAG, VIDEO_CAPS_PREFIX + "could not getSupportedHeightsFor " + width, e);
+                logToString(sb, VIDEO_CAPS_PREFIX + "could not getSupportedHeightsFor " + width);
             }
             try {
-                Logger.d(TAG, VIDEO_CAPS_PREFIX + "getSupportedWidthsFor " + height + " = "
+                logToString(sb, VIDEO_CAPS_PREFIX + "getSupportedWidthsFor " + height + " = "
                         + caps.getSupportedWidthsFor(height));
             } catch (IllegalArgumentException e) {
-                Logger.w(TAG, VIDEO_CAPS_PREFIX + "could not getSupportedWidthsFor " + height, e);
+                logToString(sb, VIDEO_CAPS_PREFIX + "could not getSupportedWidthsFor " + height);
             }
-            Logger.d(TAG, VIDEO_CAPS_PREFIX + "isSizeSupported for " + width + "x" + height
+            logToString(sb, VIDEO_CAPS_PREFIX + "isSizeSupported for " + width + "x" + height
                     + " = " + caps.isSizeSupported(width, height));
         }
 
         // Frame rate
-        Logger.d(TAG,
+        logToString(sb,
                 VIDEO_CAPS_PREFIX + "getSupportedFrameRates = " + caps.getSupportedFrameRates());
         int frameRate;
         try {
             frameRate = mediaFormat.getInteger(MediaFormat.KEY_FRAME_RATE);
             Preconditions.checkArgument(frameRate > 0);
         } catch (NullPointerException | IllegalArgumentException e) {
-            Logger.w(TAG, VIDEO_CAPS_PREFIX + "mediaFormat does not contain frame rate");
+            logToString(sb, VIDEO_CAPS_PREFIX + "mediaFormat does not contain frame rate");
             frameRate = 0;
         }
         if (hasSize) {
-            Logger.d(TAG,
+            logToString(sb,
                     VIDEO_CAPS_PREFIX + "getSupportedFrameRatesFor " + width + "x" + height + " = "
                             + caps.getSupportedFrameRatesFor(width, height));
         }
         if (hasSize && frameRate > 0) {
-            Logger.d(TAG, VIDEO_CAPS_PREFIX + "areSizeAndRateSupported for "
+            logToString(sb, VIDEO_CAPS_PREFIX + "areSizeAndRateSupported for "
                     + width + "x" + height + ", " + frameRate
                     + " = " + caps.areSizeAndRateSupported(width, height, frameRate));
         }
     }
 
-    private static void dumpAudioCapabilities(@NonNull MediaCodecInfo.AudioCapabilities caps,
+    private static void dumpAudioCapabilities(@NonNull StringBuilder sb,
+            @NonNull MediaCodecInfo.AudioCapabilities caps,
             @NonNull MediaFormat mediaFormat) {
         // Bitrate
-        Logger.d(TAG, AUDIO_CAPS_PREFIX + "getBitrateRange = " + caps.getBitrateRange());
+        logToString(sb, AUDIO_CAPS_PREFIX + "getBitrateRange = " + caps.getBitrateRange());
 
         // Channel count
-        Logger.d(TAG,
+        logToString(sb,
                 AUDIO_CAPS_PREFIX + "getMaxInputChannelCount = " + caps.getMaxInputChannelCount());
 
         if (Build.VERSION.SDK_INT >= 31) {
-            Logger.d(TAG, AUDIO_CAPS_PREFIX + "getMinInputChannelCount = "
+            logToString(sb, AUDIO_CAPS_PREFIX + "getMinInputChannelCount = "
                     + Api31Impl.getMinInputChannelCount(caps));
-            Logger.d(TAG, AUDIO_CAPS_PREFIX + "getInputChannelCountRanges = "
+            logToString(sb, AUDIO_CAPS_PREFIX + "getInputChannelCountRanges = "
                     + Arrays.toString(Api31Impl.getInputChannelCountRanges(caps)));
         }
 
         // Sample rate
-        Logger.d(TAG, AUDIO_CAPS_PREFIX + "getSupportedSampleRateRanges = "
+        logToString(sb, AUDIO_CAPS_PREFIX + "getSupportedSampleRateRanges = "
                 + Arrays.toString(caps.getSupportedSampleRateRanges()));
-        Logger.d(TAG, AUDIO_CAPS_PREFIX + "getSupportedSampleRates = "
+        logToString(sb, AUDIO_CAPS_PREFIX + "getSupportedSampleRates = "
                 + Arrays.toString(caps.getSupportedSampleRates()));
 
         try {
             int sampleRate = mediaFormat.getInteger(MediaFormat.KEY_SAMPLE_RATE);
-            Logger.d(TAG, AUDIO_CAPS_PREFIX + "isSampleRateSupported for " + sampleRate
+            logToString(sb, AUDIO_CAPS_PREFIX + "isSampleRateSupported for " + sampleRate
                     + " = " + caps.isSampleRateSupported(sampleRate));
         } catch (NullPointerException | IllegalArgumentException e) {
-            Logger.w(TAG, AUDIO_CAPS_PREFIX + "mediaFormat does not contain sample rate");
+            logToString(sb, AUDIO_CAPS_PREFIX + "mediaFormat does not contain sample rate");
         }
     }
 
-    private static void dumpEncoderCapabilities(@NonNull MediaCodecInfo.EncoderCapabilities caps,
+    private static void dumpEncoderCapabilities(@NonNull StringBuilder sb,
+            @NonNull MediaCodecInfo.EncoderCapabilities caps,
             @NonNull MediaFormat mediaFormat) {
 
-        Logger.d(TAG, ENCODER_CAPS_PREFIX + "getComplexityRange = " + caps.getComplexityRange());
+        logToString(sb, ENCODER_CAPS_PREFIX + "getComplexityRange = " + caps.getComplexityRange());
 
         if (Build.VERSION.SDK_INT >= 28) {
-            Logger.d(TAG,
+            logToString(sb,
                     ENCODER_CAPS_PREFIX + "getQualityRange = " + Api28Impl.getQualityRange(caps));
         }
 
         int bitrateMode;
         try {
             bitrateMode = mediaFormat.getInteger(MediaFormat.KEY_BITRATE_MODE);
-            Logger.d(TAG, ENCODER_CAPS_PREFIX + "isBitrateModeSupported = "
-                    + caps.isBitrateModeSupported(bitrateMode));
+            logToString(sb,
+                    ENCODER_CAPS_PREFIX + "isBitrateModeSupported = " + caps.isBitrateModeSupported(
+                            bitrateMode));
         } catch (NullPointerException | IllegalArgumentException e) {
-            Logger.w(TAG, ENCODER_CAPS_PREFIX + "mediaFormat does not contain bitrate mode");
+            logToString(sb, ENCODER_CAPS_PREFIX + "mediaFormat does not contain bitrate mode");
+        }
+    }
+
+    private static void logToString(@NonNull StringBuilder sb, @NonNull String message) {
+        sb.append(message);
+        sb.append("\n");
+    }
+
+    private static void stringToLog(@NonNull String log) {
+        if (Logger.isInfoEnabled(TAG)) {
+            Scanner scan = new Scanner(log);
+            while (scan.hasNextLine()) {
+                Logger.i(TAG, scan.nextLine());
+            }
         }
     }
 

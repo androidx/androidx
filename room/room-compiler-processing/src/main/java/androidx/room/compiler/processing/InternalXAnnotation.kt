@@ -19,8 +19,18 @@ package androidx.room.compiler.processing
 import java.lang.annotation.Repeatable
 
 @PublishedApi
-internal interface InternalXAnnotation : XAnnotation {
-    fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T>
+internal abstract class InternalXAnnotation : XAnnotation {
+    // A cache to quickly get annotation values by name.
+    private val valuesByName: Map<String, XAnnotationValue> by lazy {
+        annotationValues.associateBy { it.name }
+    }
+
+    override fun getAnnotationValue(methodName: String): XAnnotationValue {
+        return valuesByName[methodName]
+            ?: error("No property named $methodName was found in annotation $name")
+    }
+
+    abstract fun <T : Annotation> asAnnotationBox(annotationClass: Class<T>): XAnnotationBox<T>
 }
 
 /**
@@ -29,8 +39,14 @@ internal interface InternalXAnnotation : XAnnotation {
  */
 internal fun XAnnotation.unwrapRepeatedAnnotationsFromContainer(): List<XAnnotation>? {
     return try {
-        // The contract of a repeatable annotation requires that the container annotation have a single
-        // "default" method that returns an array typed with the repeatable annotation type.
+        // The contract of a repeatable annotation requires that the container annotation have a
+        // single "default" method that returns an array typed with the repeatable annotation type.
+        if (annotationValues.size != 1 ||
+            annotationValues[0].name != "value" ||
+            !annotationValues[0].hasAnnotationListValue()
+        ) {
+            return null
+        }
         val nestedAnnotations = getAsAnnotationList("value")
 
         // Ideally we would read the value of the Repeatable annotation to get the container class
@@ -43,11 +59,12 @@ internal fun XAnnotation.unwrapRepeatedAnnotationsFromContainer(): List<XAnnotat
             // https://github.com/google/ksp/issues/459 asks whether the built in type mapper
             // should convert them, but it may not be possible because there are differences
             // to how they work (eg different parameters).
-            it.type.typeElement?.hasAnnotation(Repeatable::class) == true ||
-                it.type.typeElement?.hasAnnotation(kotlin.annotation.Repeatable::class) == true
+            it.type.typeElement?.hasAnyAnnotation(
+                Repeatable::class, kotlin.annotation.Repeatable::class
+            ) == true
         }
 
-        if (isRepeatable) nestedAnnotations else null
+        return if (isRepeatable) nestedAnnotations else null
     } catch (e: Throwable) {
         // If the "value" type either doesn't exist or isn't an array of annotations then the
         // above code will throw.

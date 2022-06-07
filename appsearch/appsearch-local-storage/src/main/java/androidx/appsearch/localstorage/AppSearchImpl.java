@@ -21,7 +21,6 @@ import static androidx.appsearch.localstorage.util.PrefixUtil.createPrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getDatabaseName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPackageName;
 import static androidx.appsearch.localstorage.util.PrefixUtil.getPrefix;
-import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefix;
 import static androidx.appsearch.localstorage.util.PrefixUtil.removePrefixesFromDocument;
 
 import android.os.Bundle;
@@ -58,7 +57,10 @@ import androidx.appsearch.localstorage.stats.PutDocumentStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
 import androidx.appsearch.localstorage.stats.SearchStats;
 import androidx.appsearch.localstorage.stats.SetSchemaStats;
+import androidx.appsearch.localstorage.util.PrefixUtil;
 import androidx.appsearch.localstorage.visibilitystore.VisibilityStore;
+import androidx.appsearch.observer.AppSearchObserverCallback;
+import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.util.LogUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -103,10 +105,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -148,10 +150,22 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public final class AppSearchImpl implements Closeable {
     private static final String TAG = "AppSearchImpl";
 
-    /**  A value 0 means that there're no more pages in the search results. */
+    /** A value 0 means that there're no more pages in the search results. */
     private static final long EMPTY_PAGE_TOKEN = 0;
     @VisibleForTesting
     static final int CHECK_OPTIMIZE_INTERVAL = 100;
+
+    /** A GetResultSpec that uses projection to skip all properties. */
+    private static final GetResultSpecProto GET_RESULT_SPEC_NO_PROPERTIES =
+            GetResultSpecProto.newBuilder().addTypePropertyMasks(
+                    TypePropertyMask.newBuilder().setSchemaType(
+                            GetByDocumentIdRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)).build();
+
+    /** A ResultSpec that uses projection to skip all properties. */
+    private static final ResultSpecProto RESULT_SPEC_NO_PROPERTIES =
+            ResultSpecProto.newBuilder().addTypePropertyMasks(
+                    TypePropertyMask.newBuilder().setSchemaType(
+                            GetByDocumentIdRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)).build();
 
     private final ReadWriteLock mReadWriteLock = new ReentrantReadWriteLock();
     private final LogUtil mLogUtil = new LogUtil(TAG);
@@ -193,6 +207,8 @@ public final class AppSearchImpl implements Closeable {
     // to any functions that grab the lock.
     @GuardedBy("mNextPageTokensLocked")
     private final Map<String, Set<Long>> mNextPageTokensLocked = new ArrayMap<>();
+
+    private final ObserverManager mObserverManager = new ObserverManager();
 
     /**
      * The counter to check when to call {@link #checkForOptimize}. The
@@ -670,6 +686,10 @@ public final class AppSearchImpl implements Closeable {
             }
 
             checkSuccess(putResultProto.getStatus());
+
+            // Prepare notifications
+            mObserverManager.onDocumentChange(
+                    packageName, databaseName, document.getNamespace(), document.getSchemaType());
         } finally {
             mReadWriteLock.writeLock().unlock();
 
@@ -761,22 +781,22 @@ public final class AppSearchImpl implements Closeable {
         try {
             throwIfClosedLocked();
             String prefix = createPrefix(packageName, databaseName);
-            List<TypePropertyMask> nonPrefixedPropertyMasks =
-                    TypePropertyPathToProtoConverter.toTypePropertyMaskList(typePropertyPaths);
+            List<TypePropertyMask.Builder> nonPrefixedPropertyMaskBuilders =
+                    TypePropertyPathToProtoConverter
+                            .toTypePropertyMaskBuilderList(typePropertyPaths);
             List<TypePropertyMask> prefixedPropertyMasks =
-                    new ArrayList<>(nonPrefixedPropertyMasks.size());
-            for (int i = 0; i < nonPrefixedPropertyMasks.size(); ++i) {
-                TypePropertyMask typePropertyMask = nonPrefixedPropertyMasks.get(i);
-                String nonPrefixedType = typePropertyMask.getSchemaType();
+                    new ArrayList<>(nonPrefixedPropertyMaskBuilders.size());
+            for (int i = 0; i < nonPrefixedPropertyMaskBuilders.size(); ++i) {
+                String nonPrefixedType = nonPrefixedPropertyMaskBuilders.get(i).getSchemaType();
                 String prefixedType = nonPrefixedType.equals(
                         GetByDocumentIdRequest.PROJECTION_SCHEMA_TYPE_WILDCARD)
                         ? nonPrefixedType : prefix + nonPrefixedType;
                 prefixedPropertyMasks.add(
-                        typePropertyMask.toBuilder().setSchemaType(prefixedType).build());
+                        nonPrefixedPropertyMaskBuilders.get(i).setSchemaType(prefixedType).build());
             }
             GetResultSpecProto getResultSpec =
-                    GetResultSpecProto.newBuilder().addAllTypePropertyMasks(prefixedPropertyMasks
-                    ).build();
+                    GetResultSpecProto.newBuilder().addAllTypePropertyMasks(prefixedPropertyMasks)
+                            .build();
 
             String finalNamespace = createPrefix(packageName, databaseName) + namespace;
             if (mLogUtil.isPiiTraceEnabled()) {
@@ -845,13 +865,19 @@ public final class AppSearchImpl implements Closeable {
             }
 
             String prefix = createPrefix(packageName, databaseName);
-            Set<String> allowedPrefixedSchemas = getAllowedPrefixSchemasLocked(prefix, searchSpec);
+            SearchSpecToProtoConverter searchSpecToProtoConverter =
+                    new SearchSpecToProtoConverter(searchSpec, Collections.singleton(prefix),
+                            mNamespaceMapLocked, mSchemaMapLocked);
+            if (searchSpecToProtoConverter.isNothingToSearch()) {
+                // there is nothing to search over given their search filters, so we can return an
+                // empty SearchResult and skip sending request to Icing.
+                return new SearchResultPage(Bundle.EMPTY);
+            }
 
             SearchResultPage searchResultPage =
-                    doQueryLocked(Collections.singleton(createPrefix(packageName, databaseName)),
-                            allowedPrefixedSchemas,
+                    doQueryLocked(
                             queryExpression,
-                            searchSpec,
+                            searchSpecToProtoConverter,
                             sStatsBuilder);
             addNextPageToken(packageName, searchResultPage.getNextPageToken());
             return searchResultPage;
@@ -924,56 +950,22 @@ public final class AppSearchImpl implements Closeable {
                     }
                 }
             }
-
-            // Convert schema filters to prefixed schema filters
-            ArraySet<String> prefixedSchemaFilters = new ArraySet<>();
-            for (String prefix : prefixFilters) {
-                List<String> schemaFilters = searchSpec.getFilterSchemas();
-                if (schemaFilters.isEmpty()) {
-                    // Client didn't specify certain schemas to search over, check all schemas
-                    prefixedSchemaFilters.addAll(mSchemaMapLocked.get(prefix).keySet());
-                } else {
-                    // Client specified some schemas to search over, check each one
-                    for (int i = 0; i < schemaFilters.size(); i++) {
-                        prefixedSchemaFilters.add(prefix + schemaFilters.get(i));
-                    }
-                }
+            SearchSpecToProtoConverter searchSpecToProtoConverter =
+                    new SearchSpecToProtoConverter(searchSpec, prefixFilters, mNamespaceMapLocked,
+                    mSchemaMapLocked);
+            // Remove those inaccessible schemas.
+            searchSpecToProtoConverter.removeInaccessibleSchemaFilter(callerPackageName,
+                    visibilityStore, callerUid, callerHasSystemAccess);
+            if (searchSpecToProtoConverter.isNothingToSearch()) {
+                // there is nothing to search over given their search filters, so we can return an
+                // empty SearchResult and skip sending request to Icing.
+                return new SearchResultPage(Bundle.EMPTY);
             }
-
-            // Remove the schemas the client is not allowed to search over
-            Iterator<String> prefixedSchemaIt = prefixedSchemaFilters.iterator();
-            while (prefixedSchemaIt.hasNext()) {
-                String prefixedSchema = prefixedSchemaIt.next();
-                String packageName = getPackageName(prefixedSchema);
-
-                boolean allow;
-                if (packageName.equals(callerPackageName)) {
-                    // Callers can always retrieve their own data
-                    allow = true;
-                } else if (visibilityStore == null) {
-                    // If there's no visibility store, there's no extra access
-                    allow = false;
-                } else {
-                    String databaseName = getDatabaseName(prefixedSchema);
-                    allow = visibilityStore.isSchemaSearchableByCaller(
-                            packageName,
-                            databaseName,
-                            prefixedSchema,
-                            callerUid,
-                            callerHasSystemAccess);
-                }
-
-                if (!allow) {
-                    prefixedSchemaIt.remove();
-                }
-            }
-
-            SearchResultPage searchResultPage = doQueryLocked(
-                    prefixFilters,
-                    prefixedSchemaFilters,
-                    queryExpression,
-                    searchSpec,
-                    sStatsBuilder);
+            SearchResultPage searchResultPage =
+                    doQueryLocked(
+                            queryExpression,
+                            searchSpecToProtoConverter,
+                            sStatsBuilder);
             addNextPageToken(callerPackageName, searchResultPage.getNextPageToken());
             return searchResultPage;
         } finally {
@@ -985,6 +977,65 @@ public final class AppSearchImpl implements Closeable {
                 logger.logStats(sStatsBuilder.build());
             }
         }
+    }
+
+    @GuardedBy("mReadWriteLock")
+    private SearchResultPage doQueryLocked(
+            @NonNull String queryExpression,
+            @NonNull SearchSpecToProtoConverter searchSpecToProtoConverter,
+            @Nullable SearchStats.Builder sStatsBuilder)
+            throws AppSearchException {
+        // Rewrite the given SearchSpec into SearchSpecProto, ResultSpecProto and ScoringSpecProto.
+        // All processes are counted in rewriteSearchSpecLatencyMillis
+        long rewriteSearchSpecLatencyStartMillis = SystemClock.elapsedRealtime();
+        SearchSpecProto finalSearchSpec =
+                searchSpecToProtoConverter.toSearchSpecProto(queryExpression);
+        ResultSpecProto finalResultSpec = searchSpecToProtoConverter.toResultSpecProto(
+                mNamespaceMapLocked);
+        ScoringSpecProto scoringSpec = searchSpecToProtoConverter.toScoringSpecProto();
+        if (sStatsBuilder != null) {
+            sStatsBuilder.setRewriteSearchSpecLatencyMillis((int)
+                    (SystemClock.elapsedRealtime() - rewriteSearchSpecLatencyStartMillis));
+        }
+
+        // Send request to Icing.
+        SearchResultProto searchResultProto = searchInIcingLocked(
+                finalSearchSpec, finalResultSpec, scoringSpec, sStatsBuilder);
+
+        long rewriteSearchResultLatencyStartMillis = SystemClock.elapsedRealtime();
+        // Rewrite search result before we return.
+        SearchResultPage searchResultPage = SearchResultToProtoConverter
+                .toSearchResultPage(searchResultProto, mSchemaMapLocked);
+        if (sStatsBuilder != null) {
+            sStatsBuilder.setRewriteSearchResultLatencyMillis(
+                    (int) (SystemClock.elapsedRealtime()
+                            - rewriteSearchResultLatencyStartMillis));
+        }
+        return searchResultPage;
+    }
+
+    @GuardedBy("mReadWriteLock")
+    private SearchResultProto searchInIcingLocked(
+            @NonNull SearchSpecProto searchSpec,
+            @NonNull ResultSpecProto resultSpec,
+            @NonNull ScoringSpecProto scoringSpec,
+            @Nullable SearchStats.Builder sStatsBuilder) throws AppSearchException {
+        if (mLogUtil.isPiiTraceEnabled()) {
+            mLogUtil.piiTrace(
+                    "search, request",
+                    searchSpec.getQuery(),
+                    searchSpec + ", " + scoringSpec + ", " + resultSpec);
+        }
+        SearchResultProto searchResultProto = mIcingSearchEngineLocked.search(
+                searchSpec, scoringSpec, resultSpec);
+        mLogUtil.piiTrace(
+                "search, response", searchResultProto.getResultsCount(), searchResultProto);
+        if (sStatsBuilder != null) {
+            sStatsBuilder.setStatusCode(statusProtoToResultCode(searchResultProto.getStatus()));
+            AppSearchLoggerHelper.copyNativeStats(searchResultProto.getQueryStats(), sStatsBuilder);
+        }
+        checkSuccess(searchResultProto.getStatus());
+        return searchResultProto;
     }
 
     /**
@@ -1014,89 +1065,6 @@ public final class AppSearchImpl implements Closeable {
         } finally {
             mReadWriteLock.readLock().unlock();
         }
-    }
-
-    @GuardedBy("mReadWriteLock")
-    private SearchResultPage doQueryLocked(
-            @NonNull Set<String> prefixes,
-            @NonNull Set<String> allowedPrefixedSchemas,
-            @NonNull String queryExpression,
-            @NonNull SearchSpec searchSpec,
-            @Nullable SearchStats.Builder sStatsBuilder)
-            throws AppSearchException {
-        long rewriteSearchSpecLatencyStartMillis = SystemClock.elapsedRealtime();
-
-        SearchSpecProto.Builder searchSpecBuilder =
-                SearchSpecToProtoConverter.toSearchSpecProto(searchSpec).toBuilder().setQuery(
-                        queryExpression);
-        // rewriteSearchSpecForPrefixesLocked will return false if there is nothing to search
-        // over given their search filters, so we can return an empty SearchResult and skip
-        // sending request to Icing.
-        if (!rewriteSearchSpecForPrefixesLocked(searchSpecBuilder, prefixes,
-                allowedPrefixedSchemas)) {
-            if (sStatsBuilder != null) {
-                sStatsBuilder.setRewriteSearchSpecLatencyMillis(
-                        (int) (SystemClock.elapsedRealtime()
-                                - rewriteSearchSpecLatencyStartMillis));
-            }
-            return new SearchResultPage(Bundle.EMPTY);
-        }
-
-        // rewriteSearchSpec, rewriteResultSpec and convertScoringSpec are all counted in
-        // rewriteSearchSpecLatencyMillis
-        ResultSpecProto.Builder resultSpecBuilder =
-                SearchSpecToProtoConverter.toResultSpecProto(searchSpec).toBuilder();
-
-        int groupingType = searchSpec.getResultGroupingTypeFlags();
-        if ((groupingType & SearchSpec.GROUPING_TYPE_PER_PACKAGE) != 0
-                && (groupingType & SearchSpec.GROUPING_TYPE_PER_NAMESPACE) != 0) {
-            addPerPackagePerNamespaceResultGroupingsLocked(resultSpecBuilder, prefixes,
-                    searchSpec.getResultGroupingLimit());
-        } else if ((groupingType & SearchSpec.GROUPING_TYPE_PER_PACKAGE) != 0) {
-            addPerPackageResultGroupingsLocked(resultSpecBuilder, prefixes,
-                    searchSpec.getResultGroupingLimit());
-        } else if ((groupingType & SearchSpec.GROUPING_TYPE_PER_NAMESPACE) != 0) {
-            addPerNamespaceResultGroupingsLocked(resultSpecBuilder, prefixes,
-                    searchSpec.getResultGroupingLimit());
-        }
-
-        rewriteResultSpecForPrefixesLocked(resultSpecBuilder, prefixes, allowedPrefixedSchemas);
-        ScoringSpecProto scoringSpec = SearchSpecToProtoConverter.toScoringSpecProto(searchSpec);
-        SearchSpecProto finalSearchSpec = searchSpecBuilder.build();
-        ResultSpecProto finalResultSpec = resultSpecBuilder.build();
-
-        long rewriteSearchSpecLatencyEndMillis = SystemClock.elapsedRealtime();
-
-        if (mLogUtil.isPiiTraceEnabled()) {
-            mLogUtil.piiTrace(
-                    "search, request",
-                    finalSearchSpec.getQuery(),
-                    finalSearchSpec + ", " + scoringSpec + ", " + finalResultSpec);
-        }
-        SearchResultProto searchResultProto = mIcingSearchEngineLocked.search(
-                finalSearchSpec, scoringSpec, finalResultSpec);
-        mLogUtil.piiTrace(
-                "search, response", searchResultProto.getResultsCount(), searchResultProto);
-
-        if (sStatsBuilder != null) {
-            sStatsBuilder
-                    .setStatusCode(statusProtoToResultCode(searchResultProto.getStatus()))
-                    .setRewriteSearchSpecLatencyMillis((int) (rewriteSearchSpecLatencyEndMillis
-                            - rewriteSearchSpecLatencyStartMillis));
-            AppSearchLoggerHelper.copyNativeStats(searchResultProto.getQueryStats(), sStatsBuilder);
-        }
-
-        checkSuccess(searchResultProto.getStatus());
-
-        long rewriteSearchResultLatencyStartMillis = SystemClock.elapsedRealtime();
-        SearchResultPage resultPage = rewriteSearchResultProto(searchResultProto, mSchemaMapLocked);
-        if (sStatsBuilder != null) {
-            sStatsBuilder.setRewriteSearchResultLatencyMillis(
-                    (int) (SystemClock.elapsedRealtime()
-                            - rewriteSearchResultLatencyStartMillis));
-        }
-
-        return resultPage;
     }
 
     /**
@@ -1147,14 +1115,15 @@ public final class AppSearchImpl implements Closeable {
                 }
             }
             long rewriteSearchResultLatencyStartMillis = SystemClock.elapsedRealtime();
-            SearchResultPage resultPage = rewriteSearchResultProto(searchResultProto,
-                    mSchemaMapLocked);
+            // Rewrite search result before we return.
+            SearchResultPage searchResultPage = SearchResultToProtoConverter
+                    .toSearchResultPage(searchResultProto, mSchemaMapLocked);
             if (statsBuilder != null) {
                 statsBuilder.setRewriteSearchResultLatencyMillis(
                         (int) (SystemClock.elapsedRealtime()
                                 - rewriteSearchResultLatencyStartMillis));
             }
-            return resultPage;
+            return searchResultPage;
         } finally {
             mReadWriteLock.readLock().unlock();
             if (statsBuilder != null) {
@@ -1176,6 +1145,12 @@ public final class AppSearchImpl implements Closeable {
      */
     public void invalidateNextPageToken(@NonNull String packageName, long nextPageToken)
             throws AppSearchException {
+        if (nextPageToken == EMPTY_PAGE_TOKEN) {
+            // (b/208305352) Directly return here since we are no longer caching EMPTY_PAGE_TOKEN
+            // in the cached token set. So no need to remove it anymore.
+            return;
+        }
+
         mReadWriteLock.readLock().lock();
         try {
             throwIfClosedLocked();
@@ -1185,9 +1160,13 @@ public final class AppSearchImpl implements Closeable {
             mIcingSearchEngineLocked.invalidateNextPageToken(nextPageToken);
 
             synchronized (mNextPageTokensLocked) {
-                // At this point, we're guaranteed that this nextPageToken exists for this package,
-                // otherwise checkNextPageToken would've thrown an exception.
-                mNextPageTokensLocked.get(packageName).remove(nextPageToken);
+                Set<Long> tokens = mNextPageTokensLocked.get(packageName);
+                if (tokens != null) {
+                    tokens.remove(nextPageToken);
+                } else {
+                    Log.wtf(TAG, "Failed to invalidate token " + nextPageToken + ": tokens are not "
+                            + "cached.");
+                }
             }
         } finally {
             mReadWriteLock.readLock().unlock();
@@ -1233,7 +1212,7 @@ public final class AppSearchImpl implements Closeable {
      * @param packageName        The package name that owns the document.
      * @param databaseName       The databaseName the document is in.
      * @param namespace          Namespace of the document to remove.
-     * @param id                 ID of the document to remove.
+     * @param documentId         ID of the document to remove.
      * @param removeStatsBuilder builder for {@link RemoveStats} to hold stats for remove
      * @throws AppSearchException on IcingSearchEngine error.
      */
@@ -1241,7 +1220,7 @@ public final class AppSearchImpl implements Closeable {
             @NonNull String packageName,
             @NonNull String databaseName,
             @NonNull String namespace,
-            @NonNull String id,
+            @NonNull String documentId,
             @Nullable RemoveStats.Builder removeStatsBuilder) throws AppSearchException {
         long totalLatencyStartTimeMillis = SystemClock.elapsedRealtime();
         mReadWriteLock.writeLock().lock();
@@ -1249,11 +1228,28 @@ public final class AppSearchImpl implements Closeable {
             throwIfClosedLocked();
 
             String prefixedNamespace = createPrefix(packageName, databaseName) + namespace;
+            String schemaType = null;
+            if (mObserverManager.isPackageObserved(packageName)) {
+                // Someone might be observing the type this document is under, but we have no way to
+                // know its type without retrieving it. Do so now.
+                // TODO(b/193494000): If Icing Lib can return information about the deleted
+                //  document's type we can remove this code.
+                if (mLogUtil.isPiiTraceEnabled()) {
+                    mLogUtil.piiTrace(
+                            "removeById, getRequest", prefixedNamespace + ", " + documentId);
+                }
+                GetResultProto getResult = mIcingSearchEngineLocked.get(
+                        prefixedNamespace, documentId, GET_RESULT_SPEC_NO_PROPERTIES);
+                mLogUtil.piiTrace("removeById, getResponse", getResult.getStatus(), getResult);
+                checkSuccess(getResult.getStatus());
+                schemaType = PrefixUtil.removePrefix(getResult.getDocument().getSchema());
+            }
+
             if (mLogUtil.isPiiTraceEnabled()) {
-                mLogUtil.piiTrace("removeById, request", prefixedNamespace + ", " + id);
+                mLogUtil.piiTrace("removeById, request", prefixedNamespace + ", " + documentId);
             }
             DeleteResultProto deleteResultProto =
-                    mIcingSearchEngineLocked.delete(prefixedNamespace, id);
+                    mIcingSearchEngineLocked.delete(prefixedNamespace, documentId);
             mLogUtil.piiTrace(
                     "removeById, response", deleteResultProto.getStatus(), deleteResultProto);
 
@@ -1267,6 +1263,11 @@ public final class AppSearchImpl implements Closeable {
 
             // Update derived maps
             updateDocumentCountAfterRemovalLocked(packageName, /*numDocumentsDeleted=*/ 1);
+
+            // Prepare notifications
+            if (schemaType != null) {
+                mObserverManager.onDocumentChange(packageName, databaseName, namespace, schemaType);
+            }
         } finally {
             mReadWriteLock.writeLock().unlock();
             if (removeStatsBuilder != null) {
@@ -1306,45 +1307,47 @@ public final class AppSearchImpl implements Closeable {
                 return;
             }
 
-            SearchSpecProto searchSpecProto =
-                    SearchSpecToProtoConverter.toSearchSpecProto(searchSpec);
-            SearchSpecProto.Builder searchSpecBuilder = searchSpecProto.toBuilder()
-                    .setQuery(queryExpression);
-
             String prefix = createPrefix(packageName, databaseName);
-            Set<String> allowedPrefixedSchemas = getAllowedPrefixSchemasLocked(prefix, searchSpec);
-
-            // rewriteSearchSpecForPrefixesLocked will return false if there is nothing to search
-            // over given their search filters, so we can return early and skip sending request
-            // to Icing.
-            if (!rewriteSearchSpecForPrefixesLocked(searchSpecBuilder,
-                    Collections.singleton(prefix), allowedPrefixedSchemas)) {
+            if (!mNamespaceMapLocked.containsKey(prefix)) {
+                // The target database is empty so we can return early and skip sending request to
+                // Icing.
                 return;
             }
-            SearchSpecProto finalSearchSpec = searchSpecBuilder.build();
-            mLogUtil.piiTrace("removeByQuery, request", finalSearchSpec);
-            DeleteByQueryResultProto deleteResultProto = mIcingSearchEngineLocked.deleteByQuery(
-                    finalSearchSpec);
-            mLogUtil.piiTrace(
-                    "removeByQuery, response", deleteResultProto.getStatus(), deleteResultProto);
 
-            if (removeStatsBuilder != null) {
-                removeStatsBuilder.setStatusCode(statusProtoToResultCode(
-                        deleteResultProto.getStatus()));
-                // TODO(b/187206766) also log query stats here once IcingLib returns it
-                AppSearchLoggerHelper.copyNativeStats(deleteResultProto.getDeleteByQueryStats(),
-                        removeStatsBuilder);
+            SearchSpecToProtoConverter searchSpecToProtoConverter =
+                    new SearchSpecToProtoConverter(searchSpec, Collections.singleton(prefix),
+                            mNamespaceMapLocked, mSchemaMapLocked);
+            if (searchSpecToProtoConverter.isNothingToSearch()) {
+                // there is nothing to search over given their search filters, so we can return
+                // early and skip sending request to Icing.
+                return;
             }
 
-            // It seems that the caller wants to get success if the data matching the query is
-            // not in the DB because it was not there or was successfully deleted.
-            checkCodeOneOf(deleteResultProto.getStatus(),
-                    StatusProto.Code.OK, StatusProto.Code.NOT_FOUND);
+            SearchSpecProto finalSearchSpec =
+                    searchSpecToProtoConverter.toSearchSpecProto(queryExpression);
 
-            // Update derived maps
-            int numDocumentsDeleted =
-                    deleteResultProto.getDeleteByQueryStats().getNumDocumentsDeleted();
-            updateDocumentCountAfterRemovalLocked(packageName, numDocumentsDeleted);
+            Set<String> prefixedObservedSchemas = null;
+            if (mObserverManager.isPackageObserved(packageName)) {
+                prefixedObservedSchemas = new ArraySet<>();
+                List<String> prefixedTargetSchemaTypes =
+                        finalSearchSpec.getSchemaTypeFiltersList();
+                for (int i = 0; i < prefixedTargetSchemaTypes.size(); i++) {
+                    String prefixedType = prefixedTargetSchemaTypes.get(i);
+                    String shortTypeName = PrefixUtil.removePrefix(prefixedType);
+                    if (mObserverManager.isSchemaTypeObserved(packageName, shortTypeName)) {
+                        prefixedObservedSchemas.add(prefixedType);
+                    }
+                }
+            }
+
+            if (prefixedObservedSchemas != null && !prefixedObservedSchemas.isEmpty()) {
+                doRemoveByQueryWithChangeNotificationLocked(
+                        packageName, finalSearchSpec, prefixedObservedSchemas, removeStatsBuilder);
+            } else {
+                doRemoveByQueryNoChangeNotificationLocked(
+                        packageName, finalSearchSpec, removeStatsBuilder);
+            }
+
         } finally {
             mReadWriteLock.writeLock().unlock();
             if (removeStatsBuilder != null) {
@@ -1352,6 +1355,142 @@ public final class AppSearchImpl implements Closeable {
                         (int) (SystemClock.elapsedRealtime() - totalLatencyStartTimeMillis));
             }
         }
+    }
+
+    /**
+     * Executes removeByQuery, creating change notifications for removal.
+     *
+     * @param packageName         The package name that owns the documents.
+     * @param finalSearchSpec     The final search spec that has been written through
+     *                            {@link SearchSpecToProtoConverter}.
+     * @param prefixedObservedSchemas The set of prefixed schemas that have valid registered
+     *                                observers. Only changes to schemas in this set will be queued.
+     */
+    // TODO(b/193494000): Have Icing Lib return the URIs and types that were actually
+    //  deleted instead of querying in two passes like this.
+    @GuardedBy("mReadWriteLock")
+    private void doRemoveByQueryWithChangeNotificationLocked(
+            @NonNull String packageName,
+            @NonNull SearchSpecProto finalSearchSpec,
+            @NonNull Set<String> prefixedObservedSchemas,
+            @Nullable RemoveStats.Builder removeStatsBuilder) throws AppSearchException {
+        mLogUtil.piiTrace(
+                "removeByQuery.withChangeNotification, query request", finalSearchSpec);
+        SearchResultProto searchResultProto = mIcingSearchEngineLocked.search(
+                finalSearchSpec,
+                ScoringSpecProto.getDefaultInstance(),
+                RESULT_SPEC_NO_PROPERTIES);
+        mLogUtil.piiTrace(
+                "removeByQuery.withChangeNotification, query response",
+                searchResultProto.getStatus(),
+                searchResultProto);
+
+        // TODO(b/187206766) also log query stats here once it's added to RemoveStats.Builder
+        checkSuccess(searchResultProto.getStatus());
+
+        long nextPageToken = searchResultProto.getNextPageToken();
+        int numDocumentsDeleted = 0;
+        while (true) {
+            for (int i = 0; i < searchResultProto.getResultsCount(); i++) {
+                DocumentProto document = searchResultProto.getResults(i).getDocument();
+
+                if (mLogUtil.isPiiTraceEnabled()) {
+                    mLogUtil.piiTrace(
+                            "removeByQuery.withChangeNotification, removeById request",
+                            document.getNamespace() + ", " + document.getUri());
+                }
+                DeleteResultProto deleteResultProto =
+                        mIcingSearchEngineLocked.delete(document.getNamespace(), document.getUri());
+                mLogUtil.piiTrace(
+                        "removeByQuery.withChangeNotification, removeById response",
+                        deleteResultProto.getStatus(),
+                        deleteResultProto);
+
+                if (removeStatsBuilder != null) {
+                    removeStatsBuilder.setStatusCode(statusProtoToResultCode(
+                            deleteResultProto.getStatus()));
+                    // TODO(b/187206766): This will keep overwriting the remove stats. This whole
+                    //  method should be replaced with native handling within icinglib for returning
+                    //  namespaces, types and URIs. That should populate the same proto as the
+                    //  non-observed case and remove the need for this hacky implementation and log.
+                    AppSearchLoggerHelper.copyNativeStats(
+                            deleteResultProto.getDeleteStats(), removeStatsBuilder);
+                }
+
+                // It shouldn't be possible for this to fail; we have the write lock!
+                checkSuccess(deleteResultProto.getStatus());
+                numDocumentsDeleted++;
+
+                // Prepare change notifications
+                if (prefixedObservedSchemas.contains(document.getSchema())) {
+                    mObserverManager.onDocumentChange(
+                            packageName,
+                            /*databaseName=*/ PrefixUtil.getDatabaseName(document.getNamespace()),
+                            /*namespace=*/ PrefixUtil.removePrefix(document.getNamespace()),
+                            /*schemaType=*/ PrefixUtil.removePrefix(document.getSchema()));
+                }
+            }
+
+            // Fetch next page
+            if (nextPageToken == EMPTY_PAGE_TOKEN) {
+                break;
+            }
+            mLogUtil.piiTrace(
+                    "removeByQuery.withChangeNotification, getNextPage request",
+                    nextPageToken);
+            searchResultProto = mIcingSearchEngineLocked.getNextPage(nextPageToken);
+            mLogUtil.piiTrace(
+                    "removeByQuery.withChangeNotification, getNextPage response",
+                    searchResultProto.getResultsCount(),
+                    searchResultProto);
+
+            // TODO(b/187206766) also log query stats here once it's added to RemoveStats.Builder
+            checkSuccess(searchResultProto.getStatus());
+
+            nextPageToken = searchResultProto.getNextPageToken();
+        }
+
+        // Update derived maps
+        updateDocumentCountAfterRemovalLocked(packageName, numDocumentsDeleted);
+    }
+
+    /**
+     * Executes removeByQuery without dispatching any change notifications.
+     *
+     * This is faster than {@link #doRemoveByQueryWithChangeNotificationLocked}.
+     *
+     * @param packageName         The package name that owns the documents.
+     * @param rewrittenSearchSpec A search spec that has been run through
+     *                            {@link #rewriteSearchSpecForPrefixesLocked}.
+     */
+    @GuardedBy("mReadWriteLock")
+    private void doRemoveByQueryNoChangeNotificationLocked(
+            @NonNull String packageName,
+            @NonNull SearchSpecProto rewrittenSearchSpec,
+            @Nullable RemoveStats.Builder removeStatsBuilder) throws AppSearchException {
+        mLogUtil.piiTrace("removeByQuery, request", rewrittenSearchSpec);
+        DeleteByQueryResultProto deleteResultProto =
+                mIcingSearchEngineLocked.deleteByQuery(rewrittenSearchSpec);
+        mLogUtil.piiTrace(
+                "removeByQuery, response", deleteResultProto.getStatus(), deleteResultProto);
+
+        if (removeStatsBuilder != null) {
+            removeStatsBuilder.setStatusCode(statusProtoToResultCode(
+                    deleteResultProto.getStatus()));
+            // TODO(b/187206766) also log query stats here once IcingLib returns it
+            AppSearchLoggerHelper.copyNativeStats(deleteResultProto.getDeleteByQueryStats(),
+                    removeStatsBuilder);
+        }
+
+        // It seems that the caller wants to get success if the data matching the query is
+        // not in the DB because it was not there or was successfully deleted.
+        checkCodeOneOf(deleteResultProto.getStatus(),
+                StatusProto.Code.OK, StatusProto.Code.NOT_FOUND);
+
+        // Update derived maps
+        int numDocumentsDeleted =
+                deleteResultProto.getDeleteByQueryStats().getNumDocumentsDeleted();
+        updateDocumentCountAfterRemovalLocked(packageName, numDocumentsDeleted);
     }
 
     @GuardedBy("mReadWriteLock")
@@ -1561,6 +1700,11 @@ public final class AppSearchImpl implements Closeable {
         mReadWriteLock.writeLock().lock();
         try {
             throwIfClosedLocked();
+            // TODO(b/193494000): We are calling getPackageToDatabases here and in several other
+            //  places within AppSearchImpl. This method is not efficient and does a lot of string
+            //  manipulation. We should find a way to cache the package to database map so it can
+            //  just be obtained from a local variable instead of being parsed out of the prefixed
+            //  map.
             Set<String> existingPackages = getPackageToDatabases().keySet();
             if (existingPackages.contains(packageName)) {
                 existingPackages.remove(packageName);
@@ -1770,302 +1914,6 @@ public final class AppSearchImpl implements Closeable {
         return rewrittenSchemaResults;
     }
 
-    /**
-     * Rewrites the search spec filters with {@code prefixes}.
-     *
-     * <p>This method should be only called in query methods and get the READ lock to keep thread
-     * safety.
-     *
-     * @param searchSpecBuilder      Client-provided SearchSpec
-     * @param prefixes               Prefixes that we should prepend to all our filters
-     * @param allowedPrefixedSchemas Prefixed schemas that the client is allowed to query over. This
-     *                               supersedes the schema filters that may exist on the {@code
-     *                               searchSpecBuilder}.
-     * @return false if none there would be nothing to search over.
-     */
-    @VisibleForTesting
-    @GuardedBy("mReadWriteLock")
-    boolean rewriteSearchSpecForPrefixesLocked(
-            @NonNull SearchSpecProto.Builder searchSpecBuilder,
-            @NonNull Set<String> prefixes,
-            @NonNull Set<String> allowedPrefixedSchemas) {
-        // Create a copy since retainAll() modifies the original set.
-        Set<String> existingPrefixes = new ArraySet<>(mNamespaceMapLocked.keySet());
-        existingPrefixes.retainAll(prefixes);
-
-        if (existingPrefixes.isEmpty()) {
-            // None of the prefixes exist, empty query.
-            return false;
-        }
-
-        if (allowedPrefixedSchemas.isEmpty()) {
-            // Not allowed to search over any schemas, empty query.
-            return false;
-        }
-
-        // Clear the schema type filters since we'll be rewriting them with the
-        // allowedPrefixedSchemas.
-        searchSpecBuilder.clearSchemaTypeFilters();
-        searchSpecBuilder.addAllSchemaTypeFilters(allowedPrefixedSchemas);
-
-        // Cache the namespaces before clearing everything.
-        List<String> namespaceFilters = searchSpecBuilder.getNamespaceFiltersList();
-        searchSpecBuilder.clearNamespaceFilters();
-
-        // Rewrite non-schema filters to include a prefix.
-        for (String prefix : existingPrefixes) {
-            // TODO(b/169883602): We currently grab every namespace for every prefix. We can
-            //  optimize this by checking if a prefix has any allowedSchemaTypes. If not, that
-            //  means we don't want to query over anything in that prefix anyways, so we don't
-            //  need to grab its namespaces either.
-
-            // Empty namespaces on the search spec means to query over all namespaces.
-            Set<String> existingNamespaces = mNamespaceMapLocked.get(prefix);
-            if (existingNamespaces != null) {
-                if (namespaceFilters.isEmpty()) {
-                    // Include all namespaces
-                    searchSpecBuilder.addAllNamespaceFilters(existingNamespaces);
-                } else {
-                    // Prefix the given namespaces.
-                    for (int i = 0; i < namespaceFilters.size(); i++) {
-                        String prefixedNamespace = prefix + namespaceFilters.get(i);
-                        if (existingNamespaces.contains(prefixedNamespace)) {
-                            searchSpecBuilder.addNamespaceFilters(prefixedNamespace);
-                        }
-                    }
-                }
-            }
-        }
-        if (searchSpecBuilder.getNamespaceFiltersCount() == 0) {
-            // None of the user wanted namespace exist, empty query.
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Returns the set of allowed prefixed schemas that the {@code prefix} can query while taking
-     * into account the {@code searchSpec} schema filters.
-     *
-     * <p>This only checks intersection of schema filters on the search spec with those that the
-     * prefix owns itself. This does not check global query permissions.
-     */
-    @GuardedBy("mReadWriteLock")
-    private Set<String> getAllowedPrefixSchemasLocked(@NonNull String prefix,
-            @NonNull SearchSpec searchSpec) {
-        Set<String> allowedPrefixedSchemas = new ArraySet<>();
-
-        List<String> schemaFilters = searchSpec.getFilterSchemas();
-        Map<String, SchemaTypeConfigProto> prefixedSchemaMap = mSchemaMapLocked.get(prefix);
-        if (prefixedSchemaMap == null) {
-            // The db is empty, return early;
-            return allowedPrefixedSchemas;
-        }
-        if (schemaFilters.isEmpty()) {
-            // If the client didn't specify any schema filters, search over all of their schemas
-            allowedPrefixedSchemas.addAll(prefixedSchemaMap.keySet());
-        } else {
-            // Check all client specified schemas, add them if they exist in AppSearch.
-            for (int i = 0; i < schemaFilters.size(); i++) {
-                String prefixedSchemaType = prefix + schemaFilters.get(i);
-                if (prefixedSchemaMap.containsKey(prefixedSchemaType)) {
-                    allowedPrefixedSchemas.add(prefixedSchemaType);
-                }
-            }
-        }
-        return allowedPrefixedSchemas;
-    }
-
-    /**
-     * Rewrites the typePropertyMasks that exist in {@code prefixes}.
-     *
-     * <p>This method should be only called in query methods and get the READ lock to keep thread
-     * safety.
-     *
-     * @param resultSpecBuilder      ResultSpecs as specified by client
-     * @param prefixes               Prefixes that we should prepend to all our filters
-     * @param allowedPrefixedSchemas Prefixed schemas that the client is allowed to query over.
-     */
-    @VisibleForTesting
-    @GuardedBy("mReadWriteLock")
-    void rewriteResultSpecForPrefixesLocked(
-            @NonNull ResultSpecProto.Builder resultSpecBuilder,
-            @NonNull Set<String> prefixes, @NonNull Set<String> allowedPrefixedSchemas) {
-        // Create a copy since retainAll() modifies the original set.
-        Set<String> existingPrefixes = new ArraySet<>(mNamespaceMapLocked.keySet());
-        existingPrefixes.retainAll(prefixes);
-
-        List<TypePropertyMask> prefixedTypePropertyMasks = new ArrayList<>();
-        // Rewrite filters to include a database prefix.
-        for (String prefix : existingPrefixes) {
-            // Qualify the given schema types
-            for (TypePropertyMask typePropertyMask :
-                    resultSpecBuilder.getTypePropertyMasksList()) {
-                String unprefixedType = typePropertyMask.getSchemaType();
-                boolean isWildcard =
-                        unprefixedType.equals(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD);
-                String prefixedType = isWildcard ? unprefixedType : prefix + unprefixedType;
-                if (isWildcard || allowedPrefixedSchemas.contains(prefixedType)) {
-                    prefixedTypePropertyMasks.add(
-                            typePropertyMask.toBuilder().setSchemaType(prefixedType).build());
-                }
-            }
-        }
-        resultSpecBuilder.clearTypePropertyMasks().addAllTypePropertyMasks(
-                prefixedTypePropertyMasks);
-    }
-
-    /**
-     * Adds result groupings for each namespace in each package being queried for.
-     *
-     * <p>This method should be only called in query methods and get the READ lock to keep thread
-     * safety.
-     *
-     * @param resultSpecBuilder ResultSpecs as specified by client
-     * @param prefixes          Prefixes that we should prepend to all our filters
-     * @param maxNumResults     The maximum number of results for each grouping to support.
-     */
-    @GuardedBy("mReadWriteLock")
-    private void addPerPackagePerNamespaceResultGroupingsLocked(
-            @NonNull ResultSpecProto.Builder resultSpecBuilder,
-            @NonNull Set<String> prefixes, int maxNumResults) {
-        Set<String> existingPrefixes = new ArraySet<>(mNamespaceMapLocked.keySet());
-        existingPrefixes.retainAll(prefixes);
-
-        // Create a map for package+namespace to prefixedNamespaces. This is NOT necessarily the
-        // same as the list of namespaces. If one package has multiple databases, each with the same
-        // namespace, then those should be grouped together.
-        Map<String, List<String>> packageAndNamespaceToNamespaces = new ArrayMap<>();
-        for (String prefix : existingPrefixes) {
-            Set<String> prefixedNamespaces = mNamespaceMapLocked.get(prefix);
-            if (prefixedNamespaces == null) {
-                continue;
-            }
-            String packageName = getPackageName(prefix);
-            // Create a new prefix without the database name. This will allow us to group namespaces
-            // that have the same name and package but a different database name together.
-            String emptyDatabasePrefix = createPrefix(packageName, /*databaseName*/"");
-            for (String prefixedNamespace : prefixedNamespaces) {
-                String namespace;
-                try {
-                    namespace = removePrefix(prefixedNamespace);
-                } catch (AppSearchException e) {
-                    // This should never happen. Skip this namespace if it does.
-                    Log.e(TAG, "Prefixed namespace " + prefixedNamespace + " is malformed.");
-                    continue;
-                }
-                String emptyDatabasePrefixedNamespace = emptyDatabasePrefix + namespace;
-                List<String> namespaceList =
-                        packageAndNamespaceToNamespaces.get(emptyDatabasePrefixedNamespace);
-                if (namespaceList == null) {
-                    namespaceList = new ArrayList<>();
-                    packageAndNamespaceToNamespaces.put(emptyDatabasePrefixedNamespace,
-                            namespaceList);
-                }
-                namespaceList.add(prefixedNamespace);
-            }
-        }
-
-        for (List<String> namespaces : packageAndNamespaceToNamespaces.values()) {
-            resultSpecBuilder.addResultGroupings(
-                    ResultSpecProto.ResultGrouping.newBuilder()
-                            .addAllNamespaces(namespaces).setMaxResults(maxNumResults));
-        }
-    }
-
-    /**
-     * Adds result groupings for each package being queried for.
-     *
-     * <p>This method should be only called in query methods and get the READ lock to keep thread
-     * safety.
-     *
-     * @param resultSpecBuilder ResultSpecs as specified by client
-     * @param prefixes          Prefixes that we should prepend to all our filters
-     * @param maxNumResults     The maximum number of results for each grouping to support.
-     */
-    @GuardedBy("mReadWriteLock")
-    private void addPerPackageResultGroupingsLocked(
-            @NonNull ResultSpecProto.Builder resultSpecBuilder,
-            @NonNull Set<String> prefixes, int maxNumResults) {
-        Set<String> existingPrefixes = new ArraySet<>(mNamespaceMapLocked.keySet());
-        existingPrefixes.retainAll(prefixes);
-
-        // Build up a map of package to namespaces.
-        Map<String, List<String>> packageToNamespacesMap = new ArrayMap<>();
-        for (String prefix : existingPrefixes) {
-            Set<String> prefixedNamespaces = mNamespaceMapLocked.get(prefix);
-            if (prefixedNamespaces == null) {
-                continue;
-            }
-            String packageName = getPackageName(prefix);
-            List<String> packageNamespaceList = packageToNamespacesMap.get(packageName);
-            if (packageNamespaceList == null) {
-                packageNamespaceList = new ArrayList<>();
-                packageToNamespacesMap.put(packageName, packageNamespaceList);
-            }
-            packageNamespaceList.addAll(prefixedNamespaces);
-        }
-
-        for (List<String> prefixedNamespaces : packageToNamespacesMap.values()) {
-            resultSpecBuilder.addResultGroupings(
-                    ResultSpecProto.ResultGrouping.newBuilder()
-                            .addAllNamespaces(prefixedNamespaces).setMaxResults(maxNumResults));
-        }
-    }
-
-    /**
-     * Adds result groupings for each namespace being queried for.
-     *
-     * <p>This method should be only called in query methods and get the READ lock to keep thread
-     * safety.
-     *
-     * @param resultSpecBuilder ResultSpecs as specified by client
-     * @param prefixes          Prefixes that we should prepend to all our filters
-     * @param maxNumResults     The maximum number of results for each grouping to support.
-     */
-    @GuardedBy("mReadWriteLock")
-    private void addPerNamespaceResultGroupingsLocked(
-            @NonNull ResultSpecProto.Builder resultSpecBuilder,
-            @NonNull Set<String> prefixes, int maxNumResults) {
-        Set<String> existingPrefixes = new ArraySet<>(mNamespaceMapLocked.keySet());
-        existingPrefixes.retainAll(prefixes);
-
-        // Create a map of namespace to prefixedNamespaces. This is NOT necessarily the
-        // same as the list of namespaces. If a namespace exists under different packages and/or
-        // different databases, they should still be grouped together.
-        Map<String, List<String>> namespaceToPrefixedNamespaces = new ArrayMap<>();
-        for (String prefix : existingPrefixes) {
-            Set<String> prefixedNamespaces = mNamespaceMapLocked.get(prefix);
-            if (prefixedNamespaces == null) {
-                continue;
-            }
-            for (String prefixedNamespace : prefixedNamespaces) {
-                String namespace;
-                try {
-                    namespace = removePrefix(prefixedNamespace);
-                } catch (AppSearchException e) {
-                    // This should never happen. Skip this namespace if it does.
-                    Log.e(TAG, "Prefixed namespace " + prefixedNamespace + " is malformed.");
-                    continue;
-                }
-                List<String> groupedPrefixedNamespaces =
-                        namespaceToPrefixedNamespaces.get(namespace);
-                if (groupedPrefixedNamespaces == null) {
-                    groupedPrefixedNamespaces = new ArrayList<>();
-                    namespaceToPrefixedNamespaces.put(namespace,
-                            groupedPrefixedNamespaces);
-                }
-                groupedPrefixedNamespaces.add(prefixedNamespace);
-            }
-        }
-
-        for (List<String> namespaces : namespaceToPrefixedNamespaces.values()) {
-            resultSpecBuilder.addResultGroupings(
-                    ResultSpecProto.ResultGrouping.newBuilder()
-                            .addAllNamespaces(namespaces).setMaxResults(maxNumResults));
-        }
-    }
-
     @VisibleForTesting
     @GuardedBy("mReadWriteLock")
     SchemaProto getSchemaProtoLocked() throws AppSearchException {
@@ -2108,6 +1956,64 @@ public final class AppSearchImpl implements Closeable {
                                 + nextPageToken);
             }
         }
+    }
+
+    /**
+     * Adds an {@link AppSearchObserverCallback} to monitor changes within the
+     * databases owned by {@code observedPackage} if they match the given
+     * {@link androidx.appsearch.observer.ObserverSpec}.
+     *
+     * <p>If the data owned by {@code observedPackage} is not visible to you, the registration call
+     * will succeed but no notifications will be dispatched. Notifications could start flowing later
+     * if {@code observedPackage} changes its schema visibility settings.
+     *
+     * <p>If no package matching {@code observedPackage} exists on the system, the registration call
+     * will succeed but no notifications will be dispatched. Notifications could start flowing later
+     * if {@code observedPackage} is installed and starts indexing data.
+     *
+     * <p>Note that this method does not take the standard read/write lock that guards I/O, so it
+     * will not queue behind I/O. Therefore it is safe to call from any thread including UI or
+     * binder threads.
+     */
+    public void addObserver(
+            @NonNull String observedPackage,
+            @NonNull ObserverSpec spec,
+            @NonNull Executor executor,
+            @NonNull AppSearchObserverCallback observer) {
+        // This method doesn't consult mSchemaMap or mNamespaceMap, and it will register
+        // observers for types that don't exist. This is intentional because we notify for types
+        // being created or removed. If we only registered observer for existing types, it would
+        // be impossible to ever dispatch a notification of a type being added.
+        mObserverManager.addObserver(observedPackage, spec, executor, observer);
+    }
+
+    /**
+     * Removes an {@link AppSearchObserverCallback} from watching the databases owned by
+     * {@code observedPackage}.
+     *
+     * <p>All observers which compare equal to the given observer via
+     * {@link AppSearchObserverCallback#equals} are removed. This may be 0, 1, or many observers.
+     *
+     * <p>Note that this method does not take the standard read/write lock that guards I/O, so it
+     * will not queue behind I/O. Therefore it is safe to call from any thread including UI or
+     * binder threads.
+     */
+    public void removeObserver(
+            @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer) {
+        mObserverManager.removeObserver(observedPackage, observer);
+    }
+
+    /**
+     * Dispatches the pending change notifications one at a time.
+     *
+     * <p>The notifications are dispatched on the respective executors that were provided at the
+     * time of observer registration. This method does not take the standard read/write lock that
+     * guards I/O, so it is safe to call from any thread including UI or binder threads.
+     *
+     * <p>Exceptions thrown from notification dispatch are logged but otherwise suppressed.
+     */
+    public void dispatchAndClearChangeNotifications() {
+        mObserverManager.dispatchAndClearPendingNotifications();
     }
 
     private static void addToMap(Map<String, Set<String>> map, String prefix,
@@ -2248,34 +2154,6 @@ public final class AppSearchImpl implements Closeable {
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
-    }
-
-    /** Remove the rewritten schema types from any result documents. */
-    @NonNull
-    @VisibleForTesting
-    static SearchResultPage rewriteSearchResultProto(
-            @NonNull SearchResultProto searchResultProto,
-            @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap)
-            throws AppSearchException {
-        // Parallel array of package names for each document search result.
-        List<String> packageNames = new ArrayList<>(searchResultProto.getResultsCount());
-
-        // Parallel array of database names for each document search result.
-        List<String> databaseNames = new ArrayList<>(searchResultProto.getResultsCount());
-
-        SearchResultProto.Builder resultsBuilder = searchResultProto.toBuilder();
-        for (int i = 0; i < searchResultProto.getResultsCount(); i++) {
-            SearchResultProto.ResultProto.Builder resultBuilder =
-                    searchResultProto.getResults(i).toBuilder();
-            DocumentProto.Builder documentBuilder = resultBuilder.getDocument().toBuilder();
-            String prefix = removePrefixesFromDocument(documentBuilder);
-            packageNames.add(getPackageName(prefix));
-            databaseNames.add(getDatabaseName(prefix));
-            resultBuilder.setDocument(documentBuilder);
-            resultsBuilder.setResults(i, resultBuilder);
-        }
-        return SearchResultToProtoConverter.toSearchResultPage(resultsBuilder, packageNames,
-                databaseNames, schemaMap);
     }
 
     @GuardedBy("mReadWriteLock")

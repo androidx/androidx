@@ -22,11 +22,15 @@ import android.os.Looper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.glance.currentState
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.size
+import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
 import androidx.glance.wear.tiles.test.R
 import androidx.wear.tiles.LayoutElementBuilders
@@ -35,35 +39,42 @@ import androidx.wear.tiles.TimelineBuilders
 import androidx.wear.tiles.testing.TestTileClient
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.guava.await
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.android.util.concurrent.InlineExecutorService
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.util.Arrays
 import kotlin.test.assertIs
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
 @RunWith(RobolectricTestRunner::class)
 class GlanceTileServiceTest {
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var executor: InlineExecutorService
+    private lateinit var fakeCoroutineScope: TestScope
     private lateinit var tileService: TestGlanceTileService
     private lateinit var tileServiceClient: TestTileClient<GlanceTileService>
     private lateinit var tileServiceWithTimeline: TestGlanceTileServiceWithTimeline
     private lateinit var tileServiceClientWithTimeline: TestTileClient<GlanceTileService>
+    private lateinit var tileServiceWithState: TestGlanceTileServiceWithState
+    private lateinit var tileServiceClientWithState: TestTileClient<GlanceTileService>
     private lateinit var ovalBitmap: Bitmap
     private var ovalBitmapHashCode: Int = 0
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope(UnconfinedTestDispatcher())
 
         tileService = TestGlanceTileService()
         tileServiceClient = TestTileClient(
@@ -79,18 +90,26 @@ class GlanceTileServiceTest {
             fakeCoroutineScope.coroutineContext[CoroutineDispatcher]!!
         )
 
+        executor = InlineExecutorService()
+        tileServiceWithState = TestGlanceTileServiceWithState()
+        tileServiceClientWithState = TestTileClient(
+            tileServiceWithState,
+            executor
+        )
+
         ovalBitmap =
             getApplicationContext<Context>()
                 .getDrawable(R.drawable.oval)!!
                 .toBitmap()
         val buffer = ByteArrayOutputStream().apply {
-            ovalBitmap.compress(Bitmap.CompressFormat.PNG, 100, this) }
+            ovalBitmap.compress(Bitmap.CompressFormat.PNG, 100, this)
+        }
             .toByteArray()
         ovalBitmapHashCode = Arrays.hashCode(buffer)
     }
 
     @Test
-    fun tileProviderReturnsTile() = fakeCoroutineScope.runBlockingTest {
+    fun tileProviderReturnsTile() = fakeCoroutineScope.runTest {
         // Request is currently un-used, provide an empty one.
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
 
@@ -120,7 +139,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
-    fun tileProviderReturnsTimelineTile() = fakeCoroutineScope.runBlockingTest {
+    fun tileProviderReturnsTimelineTile() = fakeCoroutineScope.runTest {
         // Request is currently un-used, provide an empty one.
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
 
@@ -134,9 +153,10 @@ class GlanceTileServiceTest {
             "android_" + ovalBitmapHashCode,
             "android_" + R.drawable.ic_launcher_background
         )
-        resourcesIds.sortDescending()
+
         val resourcesVersion = Arrays.hashCode(resourcesIds).toString()
-        assertThat(tile.resourcesVersion).isEqualTo(resourcesVersion)
+        assertWithMessage("tile.resourcesVersion")
+            .that(tile.resourcesVersion).isEqualTo(resourcesVersion)
 
         // No freshness interval (for now)
         assertThat(tile.freshnessIntervalMillis).isEqualTo(0)
@@ -173,7 +193,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
-    fun tileProviderReturnsResources() = fakeCoroutineScope.runBlockingTest {
+    fun tileProviderReturnsResources() = fakeCoroutineScope.runTest {
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
         val tileFuture = tileServiceClient.requestTile(tileRequest)
         shadowOf(Looper.getMainLooper()).idle()
@@ -193,7 +213,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
-    fun tileProviderReturnsTimelineResources() = fakeCoroutineScope.runBlockingTest {
+    fun tileProviderReturnsTimelineResources() = fakeCoroutineScope.runTest {
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
         val tileFuture = tileServiceClientWithTimeline.requestTile(tileRequest)
         shadowOf(Looper.getMainLooper()).idle()
@@ -214,6 +234,52 @@ class GlanceTileServiceTest {
         assertThat(
             resources.idToImageMapping.containsKey("android_" + R.drawable.ic_launcher_background)
         ).isTrue()
+    }
+
+    @Test
+    fun tileProviderReturnsTileWithState() = runBlocking {
+        tileServiceWithState.updateTileState<Preferences>() { prefs ->
+            prefs.toMutablePreferences().apply {
+                this[tileServiceWithState.prefsNameKey] = "AndroidX"
+            }.toPreferences()
+        }
+
+        val tileRequest = RequestBuilders.TileRequest.Builder().build()
+        val tileFuture = tileServiceClientWithState.requestTile(tileRequest)
+        shadowOf(Looper.getMainLooper()).idle()
+        val tile = tileFuture.await()
+
+        assertThat(tile.timeline!!.timelineEntries).hasSize(1)
+        val entry = tile.timeline!!.timelineEntries[0]
+        val box = assertIs<LayoutElementBuilders.Box>(entry.layout!!.root!!)
+        val text = assertIs<LayoutElementBuilders.Text>(box.contents[0])
+        assertThat(text.text!!.value).isEqualTo("Hello AndroidX")
+    }
+
+    @Test
+    fun tileStateDefinition() = runBlocking {
+        tileServiceWithState.updateTileState<Preferences> { prefs ->
+            prefs.toMutablePreferences().apply {
+                this[tileServiceWithState.prefsNameKey] = "AndroidX"
+            }.toPreferences()
+        }
+
+        var store = tileServiceWithState.getTileState<Preferences>()
+
+        assertThat(store).isNotNull()
+        assertThat(store[tileServiceWithState.prefsNameKey]).isEqualTo("AndroidX")
+
+        tileServiceWithState.updateTileState<Preferences> { prefs ->
+            prefs.toMutablePreferences().apply {
+                this[tileServiceWithState.prefsNameKey] =
+                    this[tileServiceWithState.prefsNameKey] + " Glance"
+            }.toPreferences()
+        }
+
+        store = tileServiceWithState.getTileState()
+
+        assertThat(store).isNotNull()
+        assertThat(store[tileServiceWithState.prefsNameKey]).isEqualTo("AndroidX Glance")
     }
 
     private fun checkTimelineEntry(
@@ -242,45 +308,63 @@ class GlanceTileServiceTest {
         }
     }
 
-     private inner class TestGlanceTileServiceWithTimeline : GlanceTileService() {
-         override val timelineMode = testTimelineMode
+    private inner class TestGlanceTileServiceWithTimeline : GlanceTileService() {
+        override val timelineMode = testTimelineMode
 
-         @Composable
-         override fun Content() {
-             when (LocalTimeInterval.current) {
-                 testTimelineMode.timeIntervals.elementAt(0) -> { Text("No event") }
-                 testTimelineMode.timeIntervals.elementAt(1) -> {
-                     Text("Coffee")
-                     Image(
-                         provider = ImageProvider(ovalBitmap),
-                         contentDescription = "Oval",
-                         modifier = GlanceModifier.size(40.dp),
-                         contentScale = ContentScale.FillBounds
-                     )
-                 }
-                 testTimelineMode.timeIntervals.elementAt(2) -> {
-                     Text("Work")
-                     Image(
-                         provider = ImageProvider(R.drawable.ic_launcher_background),
-                         contentDescription = "Icon",
-                         modifier = GlanceModifier.size(40.dp),
-                     )
-                 }
-                 testTimelineMode.timeIntervals.elementAt(3) -> { Text("Dinner") }
-             }
-         }
-     }
+        @Composable
+        override fun Content() {
+            when (LocalTimeInterval.current) {
+                testTimelineMode.timeIntervals.elementAt(0) -> {
+                    Text("No event")
+                }
+                testTimelineMode.timeIntervals.elementAt(1) -> {
+                    Text("Coffee")
+                    Image(
+                        provider = ImageProvider(ovalBitmap),
+                        contentDescription = "Oval",
+                        modifier = GlanceModifier.size(40.dp),
+                        contentScale = ContentScale.FillBounds
+                    )
+                }
+                testTimelineMode.timeIntervals.elementAt(2) -> {
+                    Text("Work")
+                    Image(
+                        provider = ImageProvider(R.drawable.ic_launcher_background),
+                        contentDescription = "Icon",
+                        modifier = GlanceModifier.size(40.dp),
+                    )
+                }
+                testTimelineMode.timeIntervals.elementAt(3) -> {
+                    Text("Dinner")
+                }
+            }
+        }
+    }
+
+    private inner class TestGlanceTileServiceWithState : GlanceTileService() {
+        override val stateDefinition = PreferencesGlanceStateDefinition
+        val prefsNameKey = stringPreferencesKey("user_name")
+
+        @Composable
+        override fun Content() {
+            val prefs = currentState<Preferences>()
+            val userName = prefs[prefsNameKey] ?: "World"
+            Text("Hello $userName")
+        }
+    }
 
     private companion object {
         private val time1 = Instant.parse("2021-11-12T13:15:30.00Z")
         private val time2 = Instant.parse("2021-11-12T13:45:30.00Z")
         private val time3 = Instant.parse("2021-11-12T17:45:30.00Z")
         private val time4 = Instant.parse("2021-11-12T18:30:30.00Z")
-        val testTimelineMode = TimelineMode.TimeBoundEntries(setOf(
-            TimeInterval(),
-            TimeInterval(time1, time2),
-            TimeInterval(time2, time3),
-            TimeInterval(time4)
-        ))
+        val testTimelineMode = TimelineMode.TimeBoundEntries(
+            setOf(
+                TimeInterval(),
+                TimeInterval(time1, time2),
+                TimeInterval(time2, time3),
+                TimeInterval(time4)
+            )
+        )
     }
 }

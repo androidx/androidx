@@ -26,8 +26,10 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 
 /**
  * NavUtils provides helper functionality for applications implementing
@@ -58,7 +60,7 @@ public final class NavUtils {
     public static boolean shouldUpRecreateTask(@NonNull Activity sourceActivity,
             @NonNull Intent targetIntent) {
         if (Build.VERSION.SDK_INT >= 16) {
-            return sourceActivity.shouldUpRecreateTask(targetIntent);
+            return Api16Impl.shouldUpRecreateTask(sourceActivity, targetIntent);
         } else {
             String action = sourceActivity.getIntent().getAction();
             return action != null && !action.equals(Intent.ACTION_MAIN);
@@ -106,7 +108,7 @@ public final class NavUtils {
      */
     public static void navigateUpTo(@NonNull Activity sourceActivity, @NonNull Intent upIntent) {
         if (Build.VERSION.SDK_INT >= 16) {
-            sourceActivity.navigateUpTo(upIntent);
+            Api16Impl.navigateUpTo(sourceActivity, upIntent);
         } else {
             upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             sourceActivity.startActivity(upIntent);
@@ -129,7 +131,7 @@ public final class NavUtils {
         if (Build.VERSION.SDK_INT >= 16) {
             // Prefer the "real" JB definition if available,
             // else fall back to the meta-data element.
-            Intent result = sourceActivity.getParentActivityIntent();
+            Intent result = Api16Impl.getParentActivityIntent(sourceActivity);
             if (result != null) {
                 return result;
             }
@@ -280,5 +282,27 @@ public final class NavUtils {
 
     /** No instances! */
     private NavUtils() {
+    }
+
+    @RequiresApi(16)
+    static class Api16Impl {
+        private Api16Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static boolean shouldUpRecreateTask(Activity activity, Intent targetIntent) {
+            return activity.shouldUpRecreateTask(targetIntent);
+        }
+
+        @DoNotInline
+        static boolean navigateUpTo(Activity activity, Intent upIntent) {
+            return activity.navigateUpTo(upIntent);
+        }
+
+        @DoNotInline
+        static Intent getParentActivityIntent(Activity activity) {
+            return activity.getParentActivityIntent();
+        }
     }
 }

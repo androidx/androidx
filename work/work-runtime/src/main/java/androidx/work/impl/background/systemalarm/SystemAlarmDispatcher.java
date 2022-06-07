@@ -18,7 +18,6 @@ package androidx.work.impl.background.systemalarm;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.text.TextUtils;
@@ -32,9 +31,10 @@ import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.utils.SerialExecutor;
+import androidx.work.impl.WorkRunIds;
 import androidx.work.impl.utils.WakeLocks;
 import androidx.work.impl.utils.WorkTimer;
+import androidx.work.impl.utils.taskexecutor.SerialExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.ArrayList;
@@ -58,19 +58,21 @@ public class SystemAlarmDispatcher implements ExecutionListener {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Context mContext;
-    private final TaskExecutor mTaskExecutor;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final TaskExecutor mTaskExecutor;
     private final WorkTimer mWorkTimer;
     private final Processor mProcessor;
     private final WorkManagerImpl mWorkManager;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final CommandHandler mCommandHandler;
-    private final Handler mMainHandler;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final List<Intent> mIntents;
     Intent mCurrentIntent;
 
     @Nullable
     private CommandsCompletedListener mCompletedListener;
+
+    private WorkRunIds mWorkRunIds;
 
     SystemAlarmDispatcher(@NonNull Context context) {
         this(context, null, null);
@@ -81,11 +83,11 @@ public class SystemAlarmDispatcher implements ExecutionListener {
             @NonNull Context context,
             @Nullable Processor processor,
             @Nullable WorkManagerImpl workManager) {
-
         mContext = context.getApplicationContext();
-        mCommandHandler = new CommandHandler(mContext);
-        mWorkTimer = new WorkTimer();
+        mWorkRunIds = new WorkRunIds();
+        mCommandHandler = new CommandHandler(mContext, mWorkRunIds);
         mWorkManager = workManager != null ? workManager : WorkManagerImpl.getInstance(context);
+        mWorkTimer = new WorkTimer(mWorkManager.getConfiguration().getRunnableScheduler());
         mProcessor = processor != null ? processor : mWorkManager.getProcessor();
         mTaskExecutor = mWorkManager.getWorkTaskExecutor();
         mProcessor.addExecutionListener(this);
@@ -93,7 +95,6 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         mIntents = new ArrayList<>();
         // the current intent (command) being processed.
         mCurrentIntent = null;
-        mMainHandler = new Handler(Looper.getMainLooper());
     }
 
     /**
@@ -103,7 +104,6 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     void onDestroy() {
         Logger.get().debug(TAG, "Destroying SystemAlarmDispatcher");
         mProcessor.removeExecutionListener(this);
-        mWorkTimer.onDestroy();
         mCompletedListener = null;
     }
 
@@ -114,7 +114,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
         // this creates lock contention for the DelayMetCommandHandlers inside the CommandHandler.
         // So move the actual execution of the post completion callbacks on the command executor
         // thread.
-        postOnMainThread(
+        mTaskExecutor.getMainThreadExecutor().execute(
                 new AddRunnable(
                         this,
                         CommandHandler.createExecutionCompletedIntent(
@@ -187,10 +187,6 @@ public class SystemAlarmDispatcher implements ExecutionListener {
 
     TaskExecutor getTaskExecutor() {
         return mTaskExecutor;
-    }
-
-    void postOnMainThread(@NonNull Runnable runnable) {
-        mMainHandler.post(runnable);
     }
 
     @MainThread
@@ -283,8 +279,9 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                                     "Releasing operation wake lock (" + action + ") " + wakeLock);
                             wakeLock.release();
                             // Check if we have processed all commands
-                            postOnMainThread(
-                                    new DequeueAndCheckForCompletion(SystemAlarmDispatcher.this));
+                            mTaskExecutor.getMainThreadExecutor().execute(
+                                    new DequeueAndCheckForCompletion(SystemAlarmDispatcher.this)
+                            );
                         }
                     }
                 }
@@ -308,7 +305,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     }
 
     private void assertMainThread() {
-        if (mMainHandler.getLooper().getThread() != Thread.currentThread()) {
+        if (Looper.getMainLooper().getThread() != Thread.currentThread()) {
             throw new IllegalStateException("Needs to be invoked on the main thread.");
         }
     }

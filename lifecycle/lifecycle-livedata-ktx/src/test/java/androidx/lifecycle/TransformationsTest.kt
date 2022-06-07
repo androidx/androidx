@@ -19,7 +19,7 @@ package androidx.lifecycle
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.testing.TestLifecycleOwner
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
@@ -31,7 +31,7 @@ class TransformationsTest {
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private val lifecycleOwner = TestLifecycleOwner(
-        coroutineDispatcher = TestCoroutineDispatcher()
+        coroutineDispatcher = UnconfinedTestDispatcher()
     )
 
     @Test fun map() {

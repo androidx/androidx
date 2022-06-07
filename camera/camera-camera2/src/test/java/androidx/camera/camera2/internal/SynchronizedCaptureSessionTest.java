@@ -29,8 +29,13 @@ import android.view.Surface;
 
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.camera2.internal.compat.quirk.CaptureSessionOnClosedNotCalledQuirk;
+import androidx.camera.camera2.internal.compat.quirk.ConfigureSurfaceToSecondarySessionFailQuirk;
+import androidx.camera.camera2.internal.compat.quirk.PreviewOrientationIncorrectQuirk;
+import androidx.camera.camera2.internal.compat.quirk.TextureViewIsClosedQuirk;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
+import androidx.camera.core.impl.Quirks;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,16 +46,14 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
-        instrumentedPackages = { "androidx.camera.camera2.internal.compat.params" })
+        instrumentedPackages = {"androidx.camera.camera2.internal.compat.params"})
 public class SynchronizedCaptureSessionTest {
     private static final int NUM_OUTPUTS = 3;
 
@@ -80,13 +83,13 @@ public class SynchronizedCaptureSessionTest {
         mFakeDeferrableSurfaces.add(mDeferrableSurface1);
         mFakeDeferrableSurfaces.add(mDeferrableSurface2);
 
-        Set<String> enabledFeature = new HashSet<>();
-        enabledFeature.add(SynchronizedCaptureSessionOpener.FEATURE_FORCE_CLOSE);
-        enabledFeature.add(SynchronizedCaptureSessionOpener.FEATURE_DEFERRABLE_SURFACE_CLOSE);
-
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSessionOpener.Builder(
                 android.os.AsyncTask.SERIAL_EXECUTOR, mScheduledExecutorService,
-                mock(Handler.class), mCaptureSessionRepository, -1);
+                mock(Handler.class), mCaptureSessionRepository,
+                new Quirks(Arrays.asList(new PreviewOrientationIncorrectQuirk(),
+                        new ConfigureSurfaceToSecondarySessionFailQuirk())),
+                new Quirks(Arrays.asList(new CaptureSessionOnClosedNotCalledQuirk(),
+                        new TextureViewIsClosedQuirk())));
         mSynchronizedCaptureSessionOpener = mCaptureSessionOpenerBuilder.build();
 
         mMockCaptureSession = mock(CameraCaptureSession.class);

@@ -28,7 +28,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.Uri;
 
-import androidx.car.app.IOnDoneCallback;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.TestUtils;
 import androidx.core.graphics.drawable.IconCompat;
@@ -37,7 +36,6 @@ import androidx.test.core.app.ApplicationProvider;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
@@ -49,9 +47,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 public class ActionTest {
     @Rule
     public final MockitoRule mockito = MockitoJUnit.rule();
-
-    @Mock
-    private IOnDoneCallback.Stub mMockOnDoneCallback;
 
     @Test
     public void create_throws_noTitleOrIcon() {
@@ -84,6 +79,18 @@ public class ActionTest {
                 .setOnClickListener(onClickListener)
                 .build();
         assertThat(action.getTitle()).isNull();
+    }
+
+    @Test
+    public void create_enabledStateDefault() {
+        OnClickListener onClickListener = mock(OnClickListener.class);
+        Action action = new Action.Builder()
+                .setIcon(TestUtils.getTestCarIcon(ApplicationProvider.getApplicationContext(),
+                        "ic_test_1"))
+                .setTitle("foo")
+                .setOnClickListener(onClickListener)
+                .build();
+        assertThat(action.isEnabled()).isTrue();
     }
 
     @Test
@@ -133,10 +140,12 @@ public class ActionTest {
                 .setIcon(new CarIcon.Builder(icon).build())
                 .setBackgroundColor(CarColor.BLUE)
                 .setOnClickListener(onClickListener)
+                .setEnabled(true)
                 .build();
         assertThat(icon).isEqualTo(action.getIcon().getIcon());
         assertThat(CarText.create(title)).isEqualTo(action.getTitle());
         assertThat(CarColor.BLUE).isEqualTo(action.getBackgroundColor());
+        assertThat(action.isEnabled()).isTrue();
         OnDoneCallback onDoneCallback = mock(OnDoneCallback.class);
         action.getOnClickDelegate().sendClick(onDoneCallback);
         verify(onClickListener).onClick();
@@ -171,10 +180,10 @@ public class ActionTest {
 
         Action action1 =
                 new Action.Builder().setOnClickListener(() -> {
-                }).setTitle(title).setIcon(icon).setFlags(FLAG_PRIMARY).build();
+                }).setTitle(title).setIcon(icon).setFlags(FLAG_PRIMARY).setEnabled(true).build();
         Action action2 =
                 new Action.Builder().setOnClickListener(() -> {
-                }).setTitle(title).setIcon(icon).setFlags(FLAG_PRIMARY).build();
+                }).setTitle(title).setIcon(icon).setFlags(FLAG_PRIMARY).setEnabled(true).build();
 
         assertThat(action2).isEqualTo(action1);
     }
@@ -215,6 +224,21 @@ public class ActionTest {
         Action action2 =
                 new Action.Builder().setOnClickListener(() -> {
                 }).setTitle(title).setIcon(icon).build();
+
+        assertThat(action2).isNotEqualTo(action1);
+    }
+
+    @Test
+    public void notEquals_nonMatchingEnabledState() {
+        String title = "foo";
+        CarIcon icon = CarIcon.ALERT;
+
+        Action action1 =
+                new Action.Builder().setOnClickListener(() -> {
+                }).setTitle(title).setIcon(icon).setEnabled(true).build();
+        Action action2 =
+                new Action.Builder().setOnClickListener(() -> {
+                }).setTitle(title).setIcon(icon).setEnabled(false).build();
 
         assertThat(action2).isNotEqualTo(action1);
     }

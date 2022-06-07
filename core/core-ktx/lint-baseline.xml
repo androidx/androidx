@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="NewApi"
@@ -7,9 +7,7 @@
         errorLine1="        assertFalse(1 in array)"
         errorLine2="                      ~~">
         <location
-            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
-            line="42"
-            column="23"/>
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="        assertTrue(1 in array)"
         errorLine2="                     ~~">
         <location
-            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
-            line="44"
-            column="22"/>
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="        assertFalse(2 in array)"
         errorLine2="                      ~~">
         <location
-            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
-            line="52"
-            column="23"/>
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="        assertTrue(2 in array)"
         errorLine2="                     ~~">
         <location
-            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"
-            line="55"
-            column="22"/>
+            file="src/androidTest/java/androidx/core/util/SparseArrayTest.kt"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="        view.updatePaddingRelative(start = 10, end = 20)"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="142"
-            column="14"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        assertEquals(10, view.paddingStart)"
         errorLine2="                              ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="143"
-            column="31"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        assertEquals(20, view.paddingEnd)"
         errorLine2="                              ~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="145"
-            column="31"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="        view.setPaddingRelative(10, 20, 30, 40)"
         errorLine2="             ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="151"
-            column="14"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="        view.updatePaddingRelative()"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="152"
-            column="14"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -106,9 +88,7 @@
         errorLine1="        assertEquals(10, view.paddingStart)"
         errorLine2="                              ~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="153"
-            column="31"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -117,9 +97,7 @@
         errorLine1="        assertEquals(30, view.paddingEnd)"
         errorLine2="                              ~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/core/view/ViewTest.kt"
-            line="155"
-            column="31"/>
+            file="src/androidTest/java/androidx/core/view/ViewTest.kt"/>
     </issue>
 
     <issue
@@ -128,1010 +106,7 @@
         errorLine1="    addPauseListener(listener)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/animation/Animator.kt"
-            line="124"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.util.AtomicFileKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    val stream = startWrite()"
-        errorLine2="                 ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/AtomicFile.kt"
-            line="32"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.util.AtomicFileKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            finishWrite(stream)"
-        errorLine2="            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/AtomicFile.kt"
-            line="39"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.util.AtomicFileKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            failWrite(stream)"
-        errorLine2="            ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/AtomicFile.kt"
-            line="41"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.util.AtomicFileKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun AtomicFile.readBytes(): ByteArray = readFully()"
-        errorLine2="                                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/AtomicFile.kt"
-            line="71"
-            column="55"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.util.AtomicFileKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    return readFully().toString(charset)"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/AtomicFile.kt"
-            line="80"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.BitmapKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    colorSpace: ColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)"
-        errorLine2="                                        ~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Bitmap.kt"
-            line="116"
-            column="41"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.BitmapKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    return Bitmap.createBitmap(width, height, config, hasAlpha, colorSpace)"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Bitmap.kt"
-            line="118"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.os.BundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    putBinder(key, value)"
-        errorLine2="                    ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/Bundle.kt"
-            line="93"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.BundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    putSize(key, value)"
-        errorLine2="                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/Bundle.kt"
-            line="95"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.os.BundleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    putSizeF(key, value)"
-        errorLine2="                    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/os/Bundle.kt"
-            line="97"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun Color.component1(): Float = getComponent(0)"
-        errorLine2="                                                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="39"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun Color.component2(): Float = getComponent(1)"
-        errorLine2="                                                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="53"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun Color.component3(): Float = getComponent(2)"
-        errorLine2="                                                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="67"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun Color.component4(): Float = getComponent(3)"
-        errorLine2="                                                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="81"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    get() = Color.luminance(this)"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="200"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun @receiver:ColorInt Int.toColor(): Color = Color.valueOf(this)"
-        errorLine2="                                                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="207"
-            column="67"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun @receiver:ColorInt Int.toColorLong(): Long = Color.pack(this)"
-        errorLine2="                                                                     ~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="215"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun @receiver:ColorLong Long.component1(): Float = Color.red(this)"
-        errorLine2="                                                                                ~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="229"
-            column="81"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun @receiver:ColorLong Long.component2(): Float = Color.green(this)"
-        errorLine2="                                                                                ~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="243"
-            column="81"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun @receiver:ColorLong Long.component3(): Float = Color.blue(this)"
-        errorLine2="                                                                                ~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="257"
-            column="81"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun @receiver:ColorLong Long.component4(): Float = Color.alpha(this)"
-        errorLine2="                                                                                ~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="271"
-            column="81"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    get() = Color.alpha(this)"
-        errorLine2="                  ~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="281"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    get() = Color.red(this)"
-        errorLine2="                  ~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="291"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    get() = Color.green(this)"
-        errorLine2="                  ~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="301"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    get() = Color.blue(this)"
-        errorLine2="                  ~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="311"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    get() = Color.luminance(this)"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="319"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun @receiver:ColorLong Long.toColor(): Color = Color.valueOf(this)"
-        errorLine2="                                                                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="325"
-            column="69"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun @receiver:ColorLong Long.toColorInt(): Int = Color.toArgb(this)"
-        errorLine2="                                                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="332"
-            column="70"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    get() = Color.isSrgb(this)"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="340"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    get() = Color.isWideGamut(this)"
-        errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="347"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline val @receiver:ColorLong Long.colorSpace: ColorSpace get() = Color.colorSpace(this)"
-        errorLine2="                                                                                ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="353"
-            column="81"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    Color.convert(this, ColorSpace.get(colorSpace))"
-        errorLine2="          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="365"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    Color.convert(this, ColorSpace.get(colorSpace))"
-        errorLine2="                                   ~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="365"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    Color.convert(this, colorSpace)"
-        errorLine2="          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="377"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    Color.convert(this, ColorSpace.get(colorSpace))"
-        errorLine2="          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="389"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    Color.convert(this, ColorSpace.get(colorSpace))"
-        errorLine2="                                   ~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="389"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    Color.convert(this, colorSpace)"
-        errorLine2="          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="401"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    convert(ColorSpace.get(colorSpace))"
-        errorLine2="    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="412"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    convert(ColorSpace.get(colorSpace))"
-        errorLine2="                       ~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="412"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.ColorKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline infix fun Color.convertTo(colorSpace: ColorSpace): Color = convert(colorSpace)"
-        errorLine2="                                                                         ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Color.kt"
-            line="422"
-            column="74"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.drawable.ColorDrawableKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun Color.toDrawable(): ColorDrawable = ColorDrawable(toArgb())"
-        errorLine2="                                                                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/ColorDrawable.kt"
-            line="31"
-            column="69"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.util.HalfKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun @receiver:HalfFloat Short.toHalf(): Half = Half.valueOf(this)"
-        errorLine2="                                                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Half.kt"
-            line="33"
-            column="67"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.util.HalfKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun Float.toHalf(): Half = Half.valueOf(this)"
-        errorLine2="                                              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Half.kt"
-            line="41"
-            column="47"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.util.HalfKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun String.toHalf(): Half = Half.valueOf(this)"
-        errorLine2="                                               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Half.kt"
-            line="57"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.graphics.drawable.IconKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun Bitmap.toAdaptiveIcon(): Icon = Icon.createWithAdaptiveBitmap(this)"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/Icon.kt"
-            line="32"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.graphics.drawable.IconKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun Bitmap.toIcon(): Icon = Icon.createWithBitmap(this)"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/Icon.kt"
-            line="40"
-            column="48"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.graphics.drawable.IconKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun Uri.toIcon(): Icon = Icon.createWithContentUri(this)"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/Icon.kt"
-            line="48"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class androidx.core.graphics.drawable.IconKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun ByteArray.toIcon(): Icon = Icon.createWithData(this, 0, size)"
-        errorLine2="                                                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/drawable/Icon.kt"
-            line="56"
-            column="51"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.core.graphics.ImageDecoderKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    return ImageDecoder.decodeBitmap(this) { decoder, info, source ->"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/ImageDecoder.kt"
-            line="35"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 28; however, the containing class androidx.core.graphics.ImageDecoderKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    return ImageDecoder.decodeDrawable(this) { decoder, info, source ->"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/graphics/ImageDecoder.kt"
-            line="49"
-            column="25"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.core.text.LocaleKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    get() = TextUtils.getLayoutDirectionFromLocale(this)"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/text/Locale.kt"
-            line="30"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.PathKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        op(p, Path.Op.UNION)"
-        errorLine2="        ~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Path.kt"
-            line="43"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.PathKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        op(p, Path.Op.DIFFERENCE)"
-        errorLine2="        ~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Path.kt"
-            line="53"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.PathKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        op(this@and, p, Path.Op.INTERSECT)"
-        errorLine2="        ~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Path.kt"
-            line="70"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.graphics.PathKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        op(p, Path.Op.XOR)"
-        errorLine2="        ~~">
-        <location
-            file="src/main/java/androidx/core/graphics/Path.kt"
-            line="80"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.util.RangeKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline infix fun &lt;T : Comparable&lt;T>> T.rangeTo(that: T): Range&lt;T> = Range(this, that)"
-        errorLine2="                                                                           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Range.kt"
-            line="30"
-            column="76"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.util.RangeKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun &lt;T : Comparable&lt;T>> Range&lt;T>.plus(value: T): Range&lt;T> = extend(value)"
-        errorLine2="                                                                                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Range.kt"
-            line="34"
-            column="84"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.util.RangeKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    extend(other)"
-        errorLine2="    ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Range.kt"
-            line="39"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.util.RangeKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    intersect(other)"
-        errorLine2="    ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Range.kt"
-            line="48"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    override val endInclusive get() = upper"
-        errorLine2="                                      ~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Range.kt"
-            line="53"
-            column="39"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    override val start get() = lower"
-        errorLine2="                               ~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Range.kt"
-            line="54"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.util.RangeKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public fun &lt;T : Comparable&lt;T>> ClosedRange&lt;T>.toRange(): Range&lt;T> = Range(start, endInclusive)"
-        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Range.kt"
-            line="59"
-            column="69"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.util.SizeKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun Size.component1(): Int = width"
-        errorLine2="                                                    ~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Size.kt"
-            line="35"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.util.SizeKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun Size.component2(): Int = height"
-        errorLine2="                                                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Size.kt"
-            line="47"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.util.SizeKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun SizeF.component1(): Float = width"
-        errorLine2="                                                       ~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Size.kt"
-            line="59"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class androidx.core.util.SizeKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun SizeF.component2(): Float = height"
-        errorLine2="                                                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/Size.kt"
-            line="71"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline val SparseLongArray.size: Int get() = size()"
-        errorLine2="                                                    ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="26"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun SparseLongArray.contains(key: Int): Boolean = indexOfKey(key) >= 0"
-        errorLine2="                                                                         ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="30"
-            column="74"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline operator fun SparseLongArray.set(key: Int, value: Long): Unit = put(key, value)"
-        errorLine2="                                                                              ~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="34"
-            column="79"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    val new = SparseLongArray(size() + other.size())"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="39"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    val new = SparseLongArray(size() + other.size())"
-        errorLine2="                              ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="39"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    val new = SparseLongArray(size() + other.size())"
-        errorLine2="                                             ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="39"
-            column="46"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun SparseLongArray.containsKey(key: Int): Boolean = indexOfKey(key) >= 0"
-        errorLine2="                                                                   ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="47"
-            column="68"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun SparseLongArray.containsValue(value: Long): Boolean = indexOfValue(value) >= 0"
-        errorLine2="                                                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="51"
-            column="73"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    get(key, defaultValue)"
-        errorLine2="    ~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="56"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }"
-        errorLine2="    ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="61"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }"
-        errorLine2="                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="61"
-            column="40"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun SparseLongArray.isEmpty(): Boolean = size() == 0"
-        errorLine2="                                                       ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="65"
-            column="56"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="public inline fun SparseLongArray.isNotEmpty(): Boolean = size() != 0"
-        errorLine2="                                                          ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="69"
-            column="59"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    val index = indexOfKey(key)"
-        errorLine2="                ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="74"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    if (index >= 0 &amp;&amp; value == valueAt(index)) {"
-        errorLine2="                               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="75"
-            column="32"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        removeAt(index)"
-        errorLine2="        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="76"
-            column="9"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    for (index in 0 until size()) {"
-        errorLine2="                          ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="89"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        action(keyAt(index), valueAt(index))"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="90"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class androidx.core.util.SparseLongArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        action(keyAt(index), valueAt(index))"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="90"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    override fun hasNext() = index &lt; size()"
-        errorLine2="                                     ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="98"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    override fun nextInt() = keyAt(index++)"
-        errorLine2="                             ~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="99"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    override fun hasNext() = index &lt; size()"
-        errorLine2="                                     ~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="106"
-            column="38"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 18; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    override fun nextLong() = valueAt(index++)"
-        errorLine2="                              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/util/SparseLongArray.kt"
-            line="107"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.core.transition.TransitionKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    addListener(listener)"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/transition/Transition.kt"
-            line="80"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.core.content.res.TypedArrayKt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="    return getFont(index)!!"
-        errorLine2="           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/core/content/res/TypedArray.kt"
-            line="146"
-            column="12"/>
+            file="src/main/java/androidx/core/animation/Animator.kt"/>
     </issue>
 
     <issue
@@ -1140,9 +115,7 @@
         errorLine1="    @Px start: Int = paddingStart,"
         errorLine2="                     ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/View.kt"
-            line="140"
-            column="22"/>
+            file="src/main/java/androidx/core/view/View.kt"/>
     </issue>
 
     <issue
@@ -1151,9 +124,7 @@
         errorLine1="    @Px end: Int = paddingEnd,"
         errorLine2="                   ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/View.kt"
-            line="142"
-            column="20"/>
+            file="src/main/java/androidx/core/view/View.kt"/>
     </issue>
 
     <issue
@@ -1162,9 +133,7 @@
         errorLine1="    setPaddingRelative(start, top, end, bottom)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/View.kt"
-            line="145"
-            column="5"/>
+            file="src/main/java/androidx/core/view/View.kt"/>
     </issue>
 
     <issue
@@ -1173,9 +142,7 @@
         errorLine1="    postOnAnimationDelayed(runnable, delayInMillis)"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/View.kt"
-            line="208"
-            column="5"/>
+            file="src/main/java/androidx/core/view/View.kt"/>
     </issue>
 
     <issue
@@ -1184,9 +151,7 @@
         errorLine1="    @Px start: Int = marginStart,"
         errorLine2="                     ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/ViewGroup.kt"
-            line="137"
-            column="22"/>
+            file="src/main/java/androidx/core/view/ViewGroup.kt"/>
     </issue>
 
     <issue
@@ -1195,9 +160,7 @@
         errorLine1="    @Px end: Int = marginEnd,"
         errorLine2="                   ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/ViewGroup.kt"
-            line="139"
-            column="20"/>
+            file="src/main/java/androidx/core/view/ViewGroup.kt"/>
     </issue>
 
     <issue
@@ -1206,9 +169,7 @@
         errorLine1="    marginStart = start"
         errorLine2="    ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/ViewGroup.kt"
-            line="142"
-            column="5"/>
+            file="src/main/java/androidx/core/view/ViewGroup.kt"/>
     </issue>
 
     <issue
@@ -1217,9 +178,7 @@
         errorLine1="    marginEnd = end"
         errorLine2="    ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/core/view/ViewGroup.kt"
-            line="144"
-            column="5"/>
+            file="src/main/java/androidx/core/view/ViewGroup.kt"/>
     </issue>
 
 </issues>

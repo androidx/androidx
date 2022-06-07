@@ -18,6 +18,7 @@ package androidx.room
 
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.log.RLog
@@ -34,36 +35,27 @@ import java.io.File
 import java.nio.file.Path
 
 class DatabaseProcessingStep : XProcessingStep {
-    override fun process(
-        env: XProcessingEnv,
-        elementsByAnnotation: Map<String, Set<XElement>>
-    ): Set<XTypeElement> {
-        return process(env, elementsByAnnotation, false)
-    }
-
-    override fun processOver(
-        env: XProcessingEnv,
-        elementsByAnnotation: Map<String, Set<XElement>>
-    ) {
-        process(env, elementsByAnnotation, true)
-    }
 
     override fun annotations(): Set<String> {
         return mutableSetOf(Database::class.qualifiedName!!)
     }
 
-    private fun process(
+    override fun process(
         env: XProcessingEnv,
         elementsByAnnotation: Map<String, Set<XElement>>,
-        isProcessingOver: Boolean
+        isLastRound: Boolean
     ): Set<XTypeElement> {
+        check(env.config == ENV_CONFIG) {
+            "Room Processor expected $ENV_CONFIG but was invoked with a different configuration:" +
+                "${env.config}"
+        }
         val context = Context(env)
 
         val rejectedElements = mutableSetOf<XTypeElement>()
         val databases = elementsByAnnotation[Database::class.qualifiedName]
             ?.filterIsInstance<XTypeElement>()
             ?.mapNotNull { annotatedElement ->
-                if (isProcessingOver && !annotatedElement.validate()) {
+                if (isLastRound && !annotatedElement.validate()) {
                     context.reportMissingTypeReference(annotatedElement.qualifiedName)
                     return@mapNotNull null
                 }
@@ -74,7 +66,7 @@ class DatabaseProcessingStep : XProcessingStep {
                     ).process()
                 }
                 if (logs.hasMissingTypeErrors()) {
-                    if (isProcessingOver) {
+                    if (isLastRound) {
                         // Processing is done yet there are still missing type errors, only report
                         // those and don't generate code for the database class since compilation
                         // will fail anyway.
@@ -172,5 +164,11 @@ class DatabaseProcessingStep : XProcessingStep {
                     }
                 }
             }
+    }
+
+    companion object {
+        internal val ENV_CONFIG = XProcessingEnvConfig.DEFAULT.copy(
+            excludeMethodsWithInvalidJvmSourceNames = true
+        )
     }
 }

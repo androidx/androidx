@@ -16,6 +16,8 @@
 
 package androidx.inspection.gradle
 
+import com.android.build.api.variant.AndroidComponentsExtension
+import com.android.build.api.variant.Variant
 import com.android.build.gradle.LibraryExtension
 import com.google.protobuf.gradle.GenerateProtoTask
 import com.google.protobuf.gradle.ProtobufConvention
@@ -32,6 +34,9 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getPlugin
 import java.io.File
+import org.gradle.api.GradleException
+import org.gradle.api.artifacts.MinimalExternalModuleDependency
+import org.gradle.api.artifacts.VersionCatalogsExtension
 
 /**
  * A plugin which, when present, ensures that intermediate inspector
@@ -39,9 +44,6 @@ import java.io.File
  */
 @Suppress("SyntheticAccessor")
 class InspectionPlugin : Plugin<Project> {
-    // project.register* are marked with @ExperimentalStdlibApi, because they use experimental
-    // string.capitalize call.
-    @OptIn(ExperimentalStdlibApi::class)
     override fun apply(project: Project) {
         var foundLibraryPlugin = false
         var foundReleaseVariant = false
@@ -63,7 +65,10 @@ class InspectionPlugin : Plugin<Project> {
             foundLibraryPlugin = true
             val libExtension = project.extensions.getByType(LibraryExtension::class.java)
             includeMetaInfServices(libExtension)
-            libExtension.libraryVariants.all { variant ->
+            val componentsExtension =
+                project.extensions.findByType(AndroidComponentsExtension::class.java)
+                    ?: throw GradleException("android plugin must be used")
+            componentsExtension.onVariants { variant: Variant ->
                 if (variant.name == "release") {
                     foundReleaseVariant = true
                     val unzip = project.registerUnzipTask(variant)
@@ -98,7 +103,7 @@ class InspectionPlugin : Plugin<Project> {
                 val protobufConvention = project.convention.getPlugin<ProtobufConvention>()
                 protobufConvention.protobuf.apply {
                     protoc {
-                        this.artifact = "com.google.protobuf:protoc:3.10.0"
+                        this.artifact = project.getLibraryByName("protobufCompiler").toString()
                     }
                     generateProtoTasks {
                         all().forEach { task: GenerateProtoTask ->
@@ -112,7 +117,7 @@ class InspectionPlugin : Plugin<Project> {
         }
 
         project.dependencies {
-            add("implementation", "com.google.protobuf:protobuf-javalite:3.10.0")
+            add("implementation", project.getLibraryByName("protobufLite"))
         }
 
         project.afterEvaluate {
@@ -135,6 +140,18 @@ class InspectionPlugin : Plugin<Project> {
     }
 }
 
+private fun Project.getLibraryByName(name: String): MinimalExternalModuleDependency {
+    val libs = project.extensions.getByType(
+        VersionCatalogsExtension::class.java
+    ).find("libs").get()
+    val library = libs.findLibrary(name)
+    return if (library.isPresent) {
+        library.get().get()
+    } else {
+        throw GradleException("Could not find a library for `$name`")
+    }
+}
+
 private fun includeMetaInfServices(library: LibraryExtension) {
     library.sourceSets.getByName("main").resources.include("META-INF/services/*")
     library.sourceSets.getByName("main").resources.include("**/*.proto")
@@ -144,13 +161,21 @@ private fun includeMetaInfServices(library: LibraryExtension) {
  * Use this function in [libraryProject] to include inspector that will be compiled into
  * inspector.jar and packaged in the library's aar.
  *
- * @param libraryProject project that is inspected and which aar will host inspector.jar . E.g
- * work-runtime
- * @param inspectorProject project of inspector, that will be compiled into inspector.jar. E.g
- * work-inspection
+ * @param libraryProject project that is inspected and which aar will host inspector.jar .
+ * E.g. work-runtime
+ * @param inspectorProjectPath project path of the inspector, that will be compiled into the
+ * inspector.jar. E.g. :work:work-inspection
  */
 @ExperimentalStdlibApi
-fun packageInspector(libraryProject: Project, inspectorProject: Project) {
+fun packageInspector(libraryProject: Project, inspectorProjectPath: String) {
+    val inspectorProject = libraryProject.rootProject.findProject(inspectorProjectPath)
+    if (inspectorProject == null) {
+        check(libraryProject.property("androidx.studio.type") == "playground") {
+            "Cannot find $inspectorProjectPath. This is optional only for playground builds."
+        }
+        // skip setting up inspector project
+        return
+    }
     val consumeInspector = libraryProject.createConsumeInspectionConfiguration()
 
     libraryProject.dependencies {

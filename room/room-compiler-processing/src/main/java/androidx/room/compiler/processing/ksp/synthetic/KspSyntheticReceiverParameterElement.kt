@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp.synthetic
 import androidx.room.compiler.processing.XAnnotated
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XExecutableParameterElement
+import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated
 import androidx.room.compiler.processing.ksp.KspJvmTypeResolutionScope
@@ -29,7 +30,7 @@ import com.google.devtools.ksp.symbol.KSTypeReference
 
 internal class KspSyntheticReceiverParameterElement(
     val env: KspProcessingEnv,
-    override val enclosingMethodElement: KspMethodElement,
+    override val enclosingElement: KspMethodElement,
     val receiverType: KSTypeReference,
 ) : XExecutableParameterElement,
     XEquality,
@@ -41,11 +42,11 @@ internal class KspSyntheticReceiverParameterElement(
 
     override val name: String by lazy {
         // KAPT uses `$this$<functionName>`
-        "$" + "this" + "$" + enclosingMethodElement.name
+        "$" + "this" + "$" + enclosingElement.name
     }
 
     override val equalityItems: Array<out Any?> by lazy {
-        arrayOf(enclosingMethodElement, receiverType)
+        arrayOf(enclosingElement, receiverType)
     }
 
     override val hasDefaultValue: Boolean
@@ -53,9 +54,9 @@ internal class KspSyntheticReceiverParameterElement(
 
     private val jvmTypeResolutionScope by lazy {
         KspJvmTypeResolutionScope.MethodParameter(
-            kspExecutableElement = enclosingMethodElement,
+            kspExecutableElement = enclosingElement,
             parameterIndex = 0, // Receiver param is the 1st one
-            annotated = enclosingMethodElement.declaration
+            annotated = enclosingElement.declaration
         )
     }
 
@@ -64,10 +65,14 @@ internal class KspSyntheticReceiverParameterElement(
     }
 
     override val fallbackLocationText: String
-        get() = "receiver parameter of ${enclosingMethodElement.fallbackLocationText}"
+        get() = "receiver parameter of ${enclosingElement.fallbackLocationText}"
 
     // Not applicable
     override val docComment: String? get() = null
+
+    override val closestMemberContainer: XMemberContainer by lazy {
+        enclosingElement.closestMemberContainer
+    }
 
     override fun asMemberOf(other: XType): KspType {
         check(other is KspType)
@@ -75,7 +80,7 @@ internal class KspSyntheticReceiverParameterElement(
             if (it.isError) {
                 return@let it
             }
-            val asMember = enclosingMethodElement.declaration.asMemberOf(other.ksType)
+            val asMember = enclosingElement.declaration.asMemberOf(other.ksType)
             checkNotNull(asMember.extensionReceiverType)
         }
         return env.wrap(

@@ -45,7 +45,7 @@ class TextLayoutIntrinsicWidthTest {
     private val letterSpacingEm = 0.4f / 12f
     private val fontSize = 12f.spToPx()
     private val letterSpacingPx = 0.4f.spToPx()
-    private val lineHeight = 16f.spToPx().toInt()
+    private val lineHeight = 16f.spToPx()
     private lateinit var defaultPaint: TextPaint
 
     @Before

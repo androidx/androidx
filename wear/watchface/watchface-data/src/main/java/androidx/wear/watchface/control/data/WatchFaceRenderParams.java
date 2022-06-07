@@ -114,6 +114,7 @@ public class WatchFaceRenderParams implements VersionedParcelable, Parcelable {
 
     public static final Parcelable.Creator<WatchFaceRenderParams> CREATOR =
             new Parcelable.Creator<WatchFaceRenderParams>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public WatchFaceRenderParams createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

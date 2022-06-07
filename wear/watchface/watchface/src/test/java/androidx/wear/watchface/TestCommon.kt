@@ -47,12 +47,11 @@ internal class TestWatchFaceService(
         surfaceHolder: SurfaceHolder,
         currentUserStyleRepository: CurrentUserStyleRepository,
         watchState: WatchState,
-    ) -> TestRenderer,
+    ) -> Renderer,
     private val userStyleSchema: UserStyleSchema,
-    private val watchState: MutableWatchState,
+    private val watchState: MutableWatchState?,
     private val handler: Handler,
     private val tapListener: WatchFace.TapListener?,
-    private val pendingIntentTapListener: WatchFace.PendingIntentTapListener?,
     private val preAndroidR: Boolean,
     private val directBootParams: WallpaperInteractiveWatchFaceInstanceParams?,
     private val choreographer: ChoreographerWrapper,
@@ -63,22 +62,27 @@ internal class TestWatchFaceService(
 
             override fun setInteractivePriority() {}
         },
-    private val complicationCache: MutableMap<String, ByteArray>? = null
+    private val complicationCache: MutableMap<String, ByteArray>? = null,
+    private val forceIsVisible: Boolean = false
 ) : WatchFaceService() {
     /** The ids of the [ComplicationSlot]s that have been tapped. */
     val tappedComplicationSlotIds: List<Int>
         get() = mutableTappedComplicationIds
     var complicationSelected: Int? = null
     var mockZoneId: ZoneId = ZoneId.of("UTC")
-    var renderer: TestRenderer? = null
+    var renderer: Renderer? = null
 
     /** A mutable list of the ids of the complicationSlots that have been tapped. */
     private val mutableTappedComplicationIds: MutableList<Int> = ArrayList()
 
+    override fun forceIsVisibleForTesting() = forceIsVisible
+
     fun reset() {
         clearTappedState()
         complicationSelected = null
-        renderer?.lastOnDrawZonedDateTime = null
+        if (renderer is TestRenderer) {
+            (renderer as TestRenderer).lastOnDrawZonedDateTime = null
+        }
         mockSystemTimeMillis = 0L
     }
 
@@ -125,9 +129,6 @@ internal class TestWatchFaceService(
         tapListener?.let {
             watchFace.setTapListener(it)
         }
-        pendingIntentTapListener?.let {
-            watchFace.setPendingIntentTapListener(it)
-        }
         return watchFace
     }
 
@@ -137,7 +138,7 @@ internal class TestWatchFaceService(
     // handler.
     override fun getBackgroundThreadHandlerImpl() = handler
 
-    override fun getMutableWatchState() = watchState
+    override fun getMutableWatchState() = watchState ?: MutableWatchState()
 
     override fun getChoreographer() = choreographer
 
@@ -228,6 +229,7 @@ public class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceServi
     }
 }
 
+@Suppress("deprecation")
 public open class TestRenderer(
     surfaceHolder: SurfaceHolder,
     currentUserStyleRepository: CurrentUserStyleRepository,
@@ -241,7 +243,7 @@ public open class TestRenderer(
     interactiveFrameRateMs
 ) {
     public var lastOnDrawZonedDateTime: ZonedDateTime? = null
-    public var lastRenderParameters: RenderParameters = RenderParameters.DEFAULT_INTERACTIVE
+    public var lastRenderWasForScreenshot: Boolean? = null
 
     override fun render(
         canvas: Canvas,
@@ -249,7 +251,7 @@ public open class TestRenderer(
         zonedDateTime: ZonedDateTime
     ) {
         lastOnDrawZonedDateTime = zonedDateTime
-        lastRenderParameters = renderParameters
+        lastRenderWasForScreenshot = renderParameters.isForScreenshot
     }
 
     override fun renderHighlightLayer(canvas: Canvas, bounds: Rect, zonedDateTime: ZonedDateTime) {

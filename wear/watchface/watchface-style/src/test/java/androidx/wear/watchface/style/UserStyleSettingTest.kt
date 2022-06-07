@@ -17,12 +17,15 @@
 package androidx.wear.watchface.style
 
 import android.graphics.Bitmap
+import android.graphics.RectF
 import android.graphics.drawable.Icon
+import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.LongRangeUserStyleSetting.LongRangeOption
 import androidx.wear.watchface.style.UserStyleSetting.Option
+import androidx.wear.watchface.style.data.ComplicationOverlayWireFormat
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
@@ -325,6 +328,37 @@ public class UserStyleSettingTest {
                 ),
                 WatchFaceLayer.ALL_WATCH_FACE_LAYERS
             )
+        }
+    }
+
+    @Test
+    public fun partial_ComplicationBounds_in_ComplicationOverlayWireFormat() {
+        val wireFormat = ComplicationOverlayWireFormat(
+            123,
+            true,
+            mapOf(
+                ComplicationType.SHORT_TEXT.toWireComplicationType() to
+                    RectF(0.1f, 0.2f, 0.3f, 0.4f),
+
+                ComplicationType.LONG_TEXT.toWireComplicationType() to
+                    RectF(0.5f, 0.6f, 0.7f, 0.8f)
+            ),
+            null
+        )
+
+        val overlay =
+            UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(wireFormat)
+        val bounds = overlay.complicationSlotBounds!!.perComplicationTypeBounds
+
+        // SHORT_TEXT and LONG_TEXT should match the input
+        assertThat(bounds[ComplicationType.SHORT_TEXT]).isEqualTo(RectF(0.1f, 0.2f, 0.3f, 0.4f))
+        assertThat(bounds[ComplicationType.LONG_TEXT]).isEqualTo(RectF(0.5f, 0.6f, 0.7f, 0.8f))
+
+        // All other types should have been backfilled with an empty rect.
+        for (type in ComplicationType.values()) {
+            if (type != ComplicationType.SHORT_TEXT && type != ComplicationType.LONG_TEXT) {
+                assertThat(bounds[type]).isEqualTo(RectF())
+            }
         }
     }
 }

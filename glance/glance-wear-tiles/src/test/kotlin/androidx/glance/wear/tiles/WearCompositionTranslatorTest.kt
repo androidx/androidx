@@ -26,10 +26,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.glance.Button
+import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
-import androidx.glance.action.actionLaunchActivity
+import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -44,16 +45,26 @@ import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
+import androidx.glance.semantics.contentDescription
+import androidx.glance.semantics.semantics
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
+import androidx.glance.text.TextAlign
 import androidx.glance.text.TextDecoration
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import androidx.glance.wear.tiles.action.ActionCallback
+import androidx.glance.wear.tiles.action.actionRunCallback
 import androidx.glance.wear.tiles.curved.AnchorType
 import androidx.glance.wear.tiles.curved.CurvedRow
 import androidx.glance.wear.tiles.curved.CurvedTextStyle
+import androidx.glance.wear.tiles.curved.GlanceCurvedModifier
 import androidx.glance.wear.tiles.curved.RadialAlignment
+import androidx.glance.wear.tiles.curved.clickable
+import androidx.glance.wear.tiles.curved.semantics
+import androidx.glance.wear.tiles.curved.sweepAngleDegrees
+import androidx.glance.wear.tiles.curved.thickness
 import androidx.glance.wear.tiles.test.R
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.wear.tiles.ActionBuilders
@@ -66,10 +77,11 @@ import androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_END
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_CENTER
 import androidx.wear.tiles.LayoutElementBuilders.VERTICAL_ALIGN_TOP
+import androidx.wear.tiles.ModifiersBuilders
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScope
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -81,15 +93,15 @@ import kotlin.test.assertIs
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class WearCompositionTranslatorTest {
-    private lateinit var fakeCoroutineScope: TestCoroutineScope
+    private lateinit var fakeCoroutineScope: TestScope
 
     @Before
     fun setUp() {
-        fakeCoroutineScope = TestCoroutineScope()
+        fakeCoroutineScope = TestScope()
     }
 
     @Test
-    fun canTranslateBox() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBox() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box {}
         }.layout
@@ -102,7 +114,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateBoxWithAlignment() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBoxWithAlignment() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box(contentAlignment = Alignment.Center) {}
         }.layout
@@ -115,7 +127,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateBoxWithChildren() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBoxWithChildren() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box {
                 Box(contentAlignment = Alignment.TopCenter) {}
@@ -136,7 +148,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslatePaddingModifier() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslatePaddingModifier() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box(
                 modifier =
@@ -155,7 +167,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateBorderModifier() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBorderModifier() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box(
                 modifier = GlanceModifier.border(
@@ -188,7 +200,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateBackgroundModifier() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBackgroundModifier() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box(modifier = GlanceModifier.background(Color(0x11223344))) {}
         }.layout
@@ -201,7 +213,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateBackgroundModifier_resId() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateBackgroundModifier_resId() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Box(modifier = GlanceModifier.background(R.color.color1)) {}
         }.layout
@@ -215,7 +227,38 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateRow() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSemanticsModifier() = fakeCoroutineScope.runTest {
+        val content = runAndTranslate {
+            Box(modifier = GlanceModifier.semantics({ contentDescription = "test_description" })) {}
+        }.layout
+
+        val innerBox =
+            (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Box
+        val semantics = requireNotNull(innerBox.modifiers!!.semantics)
+        assertThat(semantics.contentDescription).isEqualTo("test_description")
+    }
+
+    @Test
+    fun canTranslateSemanticsCurvedModifier() = fakeCoroutineScope.runTest {
+        val content = runAndTranslate {
+            CurvedRow {
+                curvedText(
+                    text = "Hello World",
+                    curvedModifier =
+                    GlanceCurvedModifier.semantics({ contentDescription = "test_description" })
+                )
+            }
+        }.layout
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+        val innerArcText = innerArc.contents[0] as LayoutElementBuilders.ArcText
+        val semantics = requireNotNull(innerArcText.modifiers!!.semantics)
+        assertThat(semantics.contentDescription).isEqualTo("test_description")
+    }
+
+    @Test
+    fun canTranslateRow() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Row(verticalAlignment = Alignment.Vertical.CenterVertically) {
                 Box(contentAlignment = Alignment.TopCenter) {}
@@ -239,7 +282,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun rowWithHorizontalAlignmentInflatesInColumn() = fakeCoroutineScope.runBlockingTest {
+    fun rowWithHorizontalAlignmentInflatesInColumn() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Row(
                 verticalAlignment = Alignment.Vertical.CenterVertically,
@@ -276,7 +319,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateColumn() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateColumn() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Column(horizontalAlignment = Alignment.Horizontal.CenterHorizontally) {
                 Box(contentAlignment = Alignment.TopCenter) {}
@@ -300,7 +343,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun columnWithVerticalAlignmentInflatesInRow() = fakeCoroutineScope.runBlockingTest {
+    fun columnWithVerticalAlignmentInflatesInRow() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Column(
                 verticalAlignment = Alignment.Vertical.CenterVertically,
@@ -337,14 +380,15 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canInflateText() = fakeCoroutineScope.runBlockingTest {
+    fun canInflateText() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             val style = TextStyle(
                 color = ColorProvider(Color.Gray),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
                 fontStyle = FontStyle.Italic,
-                textDecoration = TextDecoration.Underline
+                textDecoration = TextDecoration.Underline,
+                textAlign = TextAlign.End
             )
             Text("Hello World", modifier = GlanceModifier.padding(1.dp), style = style)
         }.layout
@@ -358,12 +402,17 @@ class WearCompositionTranslatorTest {
         assertThat(innerText.fontStyle!!.italic!!.value).isTrue()
         assertThat(innerText.fontStyle!!.weight!!.value).isEqualTo(FONT_WEIGHT_BOLD)
         assertThat(innerText.fontStyle!!.underline!!.value).isTrue()
+        assertThat(innerText.multilineAlignment!!.value)
+            .isEqualTo(LayoutElementBuilders.TEXT_ALIGN_END)
     }
 
     @Test
-    fun textWithSizeInflatesInBox() = fakeCoroutineScope.runBlockingTest {
+    fun textWithSizeInflatesInBox() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
-            Text("Hello World", modifier = GlanceModifier.size(100.dp).padding(10.dp))
+            Text(
+                "Hello World",
+                modifier = GlanceModifier.size(100.dp).padding(10.dp),
+                style = TextStyle(textAlign = TextAlign.End))
         }.layout
 
         val innerBox = (content as LayoutElementBuilders.Box).contents[0] as
@@ -374,16 +423,20 @@ class WearCompositionTranslatorTest {
         assertThat((innerBox.width as DimensionBuilders.DpProp).value).isEqualTo(100f)
         assertThat(innerBox.height is DimensionBuilders.DpProp)
         assertThat((innerBox.height as DimensionBuilders.DpProp).value).isEqualTo(100f)
+        assertThat(innerBox.horizontalAlignment!!.value)
+            .isEqualTo(LayoutElementBuilders.HORIZONTAL_ALIGN_END)
 
         // Modifiers should apply to the Box
         assertThat(innerBox.modifiers!!.padding).isNotNull()
 
         // ... and not to the Text
         assertThat(innerText.modifiers?.padding).isNull()
+        assertThat(innerText.multilineAlignment!!.value)
+            .isEqualTo(LayoutElementBuilders.TEXT_ALIGN_END)
     }
 
     @Test
-    fun canTranslateCurvedRow() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCurvedRow() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             CurvedRow(
                 anchorDegrees = 20f,
@@ -404,7 +457,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun curvedRowWithSizeInflatesInBox() = fakeCoroutineScope.runBlockingTest {
+    fun curvedRowWithSizeInflatesInBox() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             CurvedRow(
                 anchorDegrees = 20f,
@@ -431,7 +484,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateCurvedText() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCurvedText() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             val style = CurvedTextStyle(
                 color = ColorProvider(R.color.color1),
@@ -441,7 +494,7 @@ class WearCompositionTranslatorTest {
             )
 
             CurvedRow {
-                CurvedText(text = "Hello World", textStyle = style)
+                curvedText(text = "Hello World", style = style)
             }
         }.layout
 
@@ -458,7 +511,83 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateAndroidLayoutElement() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateCurvedLine() = fakeCoroutineScope.runTest {
+        val content = runAndTranslate {
+            CurvedRow {
+                curvedLine(
+                    color = ColorProvider(Color(0x11223344)),
+                    curvedModifier =
+                    GlanceCurvedModifier.sweepAngleDegrees(90f).thickness(10.dp)
+                )
+            }
+        }.layout
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+        val innerArcLine = innerArc.contents[0] as LayoutElementBuilders.ArcLine
+
+        assertThat(innerArcLine.color!!.argb).isEqualTo(0x11223344)
+        assertThat(innerArcLine.length!!.value).isEqualTo(90f)
+        assertThat(innerArcLine.thickness!!.value).isEqualTo(10f)
+    }
+
+    @Test
+    fun canTranslateCurvedSpacer() = fakeCoroutineScope.runTest {
+        val content = runAndTranslate {
+            CurvedRow {
+                curvedSpacer(
+                    curvedModifier =
+                    GlanceCurvedModifier.sweepAngleDegrees(60f).thickness(6.dp)
+                )
+            }
+        }.layout
+
+        val innerArc = (content as LayoutElementBuilders.Box).contents[0]
+            as LayoutElementBuilders.Arc
+        val innerArcSpacer = innerArc.contents[0] as LayoutElementBuilders.ArcSpacer
+
+        assertThat(innerArcSpacer.length!!.value).isEqualTo(60f)
+        assertThat(innerArcSpacer.thickness!!.value).isEqualTo(6f)
+    }
+
+    @Test
+    fun canTranslateActionOnCurvedElement() = fakeCoroutineScope.runTest {
+        val content = runAndTranslate {
+            CurvedRow {
+                curvedText(
+                    text = "hello",
+                    curvedModifier = GlanceCurvedModifier.clickable(
+                        actionStartActivity(TestActivity::class.java)
+                    )
+                )
+                curvedLine(
+                    color = ColorProvider(Color(0x11223344)),
+                    curvedModifier =
+                    GlanceCurvedModifier.sweepAngleDegrees(60f).thickness(10.dp)
+                        .clickable(actionRunCallback<TestCallback>())
+
+                )
+            }
+        }.layout
+
+        val arc = (content as LayoutElementBuilders.Box).contents[0] as LayoutElementBuilders.Arc
+        val arcText = arc.contents[0] as LayoutElementBuilders.ArcText
+        val arcLine = arc.contents[1] as LayoutElementBuilders.ArcLine
+
+        val launchAction = arcText.modifiers!!.clickable!!.onClick as ActionBuilders.LaunchAction
+        assertThat(launchAction.androidActivity).isNotNull()
+        assertThat(launchAction.androidActivity!!.packageName)
+            .isEqualTo(getApplicationContext<Context>().packageName)
+        assertThat(launchAction.androidActivity!!.className)
+            .isEqualTo(TestActivity::class.qualifiedName)
+
+        val arcLineClickable = arcLine.modifiers!!.clickable as ModifiersBuilders.Clickable
+        assertThat(arcLineClickable.onClick as ActionBuilders.LoadAction).isNotNull()
+        assertThat(arcLineClickable.id).isEqualTo(TestCallback::class.java.canonicalName)
+    }
+
+    @Test
+    fun canTranslateAndroidLayoutElement() = fakeCoroutineScope.runTest {
         val providedLayoutElement =
             LayoutElementBuilders.Text.Builder().setText("Android Layout Element").build()
 
@@ -472,10 +601,12 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun otherElementInArcInflatesInArcAdapter() = fakeCoroutineScope.runBlockingTest {
+    fun otherElementInArcInflatesInArcAdapter() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             CurvedRow {
-                Box {}
+                curvedComposable(false) {
+                    Box {}
+                }
             }
         }.layout
 
@@ -486,10 +617,10 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canInflateLaunchAction() = fakeCoroutineScope.runBlockingTest {
+    fun canInflateLaunchAction() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Text(
-                modifier = GlanceModifier.clickable(actionLaunchActivity(TestActivity::class.java)),
+                modifier = GlanceModifier.clickable(actionStartActivity(TestActivity::class.java)),
                 text = "Hello World"
             )
         }.layout
@@ -511,7 +642,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateButton() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateButton() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             val style = TextStyle(
                 color = ColorProvider(Color.Magenta),
@@ -522,7 +653,7 @@ class WearCompositionTranslatorTest {
             )
             Button(
                 "Hello World",
-                onClick = actionLaunchActivity(TestActivity::class.java),
+                onClick = actionStartActivity(TestActivity::class.java),
                 modifier = GlanceModifier.padding(1.dp),
                 style = style
             )
@@ -545,7 +676,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateSpacer() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateSpacer() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Spacer(GlanceModifier.width(10.dp))
             Spacer(GlanceModifier.height(15.dp))
@@ -565,7 +696,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun canTranslateImage() = fakeCoroutineScope.runBlockingTest {
+    fun canTranslateImage() = fakeCoroutineScope.runTest {
         val context = getApplicationContext<Context>()
         val bitmap = context.getDrawable(R.drawable.oval)!!.toBitmap()
         val compositionResult = runAndTranslate {
@@ -624,7 +755,7 @@ class WearCompositionTranslatorTest {
     }
 
     @Test
-    fun setSizeFromResource() = fakeCoroutineScope.runBlockingTest {
+    fun setSizeFromResource() = fakeCoroutineScope.runTest {
         val content = runAndTranslate {
             Column(
                 modifier = GlanceModifier.width(R.dimen.dimension1)
@@ -655,3 +786,12 @@ class WearCompositionTranslatorTest {
 }
 
 private class TestActivity : Activity()
+
+private class TestCallback : ActionCallback {
+    override suspend fun onAction(
+        context: Context,
+        glanceId: GlanceId
+    ) {
+        // Nothing
+    }
+}

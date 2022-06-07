@@ -15,8 +15,7 @@
   -->
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.benchmark.integration.macrobenchmark.target">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <application
         android:label="Jetpack Benchmark Macrobenchmark Target"
@@ -62,14 +61,49 @@
             </intent-filter>
         </activity>
 
-        <!--
-        Activities need to be exported so the macrobenchmark can discover them
-         -->
+        <activity
+            android:name=".AudioActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.benchmark.integration.macrobenchmark.target.AUDIO_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+
+        <activity
+            android:name=".BackgroundWorkActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.benchmark.integration.macrobenchmark.target.BACKGROUND_WORK_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".NotExportedActivity"
-            android:exported="false">
+            android:exported="false"> <!-- intentionally not exported -->
             <intent-filter>
                 <action android:name="androidx.benchmark.integration.macrobenchmark.target.NOT_EXPORTED_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".SeparateProcessActivity"
+            android:process=":ui"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.benchmark.integration.macrobenchmark.target.SEPARATE_PROCESS_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".GridRecyclerActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.benchmark.integration.macrobenchmark.target.GRID_RECYCLER_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

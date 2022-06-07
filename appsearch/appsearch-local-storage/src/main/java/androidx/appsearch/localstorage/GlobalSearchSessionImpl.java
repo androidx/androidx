@@ -21,13 +21,15 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.app.AppSearchResult;
-import androidx.appsearch.app.Capabilities;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.util.FutureUtil;
+import androidx.appsearch.observer.AppSearchObserverCallback;
+import androidx.appsearch.observer.ObserverSpec;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -44,7 +46,7 @@ import java.util.concurrent.Executor;
 class GlobalSearchSessionImpl implements GlobalSearchSession {
     private final AppSearchImpl mAppSearchImpl;
     private final Executor mExecutor;
-    private final Capabilities mCapabilities;
+    private final Features mFeatures;
     private final Context mContext;
 
     private boolean mIsClosed = false;
@@ -55,12 +57,12 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
     GlobalSearchSessionImpl(
             @NonNull AppSearchImpl appSearchImpl,
             @NonNull Executor executor,
-            @NonNull Capabilities capabilities,
+            @NonNull Features features,
             @NonNull Context context,
             @Nullable AppSearchLogger logger) {
         mAppSearchImpl = Preconditions.checkNotNull(appSearchImpl);
         mExecutor = Preconditions.checkNotNull(executor);
-        mCapabilities = Preconditions.checkNotNull(capabilities);
+        mFeatures = Preconditions.checkNotNull(features);
         mContext = Preconditions.checkNotNull(context);
         mLogger = logger;
     }
@@ -102,8 +104,41 @@ class GlobalSearchSessionImpl implements GlobalSearchSession {
 
     @NonNull
     @Override
-    public Capabilities getCapabilities() {
-        return mCapabilities;
+    public Features getFeatures() {
+        return mFeatures;
+    }
+
+    @Override
+    public void addObserver(
+            @NonNull String observedPackage,
+            @NonNull ObserverSpec spec,
+            @NonNull Executor executor,
+            @NonNull AppSearchObserverCallback observer) {
+        Preconditions.checkNotNull(observedPackage);
+        Preconditions.checkNotNull(spec);
+        Preconditions.checkNotNull(executor);
+        Preconditions.checkNotNull(observer);
+        // LocalStorage does not support observing data from other packages.
+        if (!observedPackage.equals(mContext.getPackageName())) {
+            throw new UnsupportedOperationException(
+                    "Local storage implementation does not support receiving change notifications "
+                            + "from other packages.");
+        }
+        mAppSearchImpl.addObserver(observedPackage, spec, executor, observer);
+    }
+
+    @Override
+    public void removeObserver(
+            @NonNull String observedPackage, @NonNull AppSearchObserverCallback observer) {
+        Preconditions.checkNotNull(observedPackage);
+        Preconditions.checkNotNull(observer);
+        // LocalStorage does not support observing data from other packages.
+        if (!observedPackage.equals(mContext.getPackageName())) {
+            throw new UnsupportedOperationException(
+                    "Local storage implementation does not support receiving change notifications "
+                            + "from other packages.");
+        }
+        mAppSearchImpl.removeObserver(observedPackage, observer);
     }
 
     @Override

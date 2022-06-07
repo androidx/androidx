@@ -27,11 +27,12 @@ import androidx.appcompat.widget.SwitchUsageXmlDetector
 import androidx.appcompat.widget.TextViewCompoundDrawablesApiDetector
 import androidx.appcompat.widget.TextViewCompoundDrawablesXmlDetector
 import com.android.tools.lint.client.api.IssueRegistry
+import com.android.tools.lint.client.api.Vendor
 
 @Suppress("UnstableApiUsage")
 class AppCompatIssueRegistry : IssueRegistry() {
     override val minApi = 10 // Only compatible with the latest lint
-    override val api = 11
+    override val api = 13
     override val issues get() = listOf(
         SetActionBarDetector.USING_CORE_ACTION_BAR,
         ColorStateListAlphaDetector.NOT_USING_ANDROID_ALPHA,
@@ -43,5 +44,10 @@ class AppCompatIssueRegistry : IssueRegistry() {
         TextViewCompoundDrawablesApiDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_APIS,
         TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS,
         OnClickXmlDetector.USING_ON_CLICK_IN_XML
+    )
+    override val vendor = Vendor(
+        feedbackUrl = "https://issuetracker.google.com/issues/new?component=460343",
+        identifier = "androidx.appcompat",
+        vendorName = "Android Open Source Project",
     )
 }

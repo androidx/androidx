@@ -48,7 +48,7 @@ class QueryInterceptorTest {
     @JvmField
     val countingTaskExecutorRule = CountingTaskExecutorRule()
     lateinit var mDatabase: QueryInterceptorTestDatabase
-    var queryAndArgs = CopyOnWriteArrayList<Pair<String, ArrayList<Any>>>()
+    var queryAndArgs = CopyOnWriteArrayList<Pair<String, ArrayList<Any?>>>()
 
     @Entity(tableName = "queryInterceptorTestDatabase")
     data class QueryInterceptorEntity(@PrimaryKey val id: String, val description: String)
@@ -82,10 +82,12 @@ class QueryInterceptorTest {
             ApplicationProvider.getApplicationContext(),
             QueryInterceptorTestDatabase::class.java
         ).setQueryCallback(
-            RoomDatabase.QueryCallback { sqlQuery, bindArgs ->
-                val argTrace = ArrayList<Any>()
-                argTrace.addAll(bindArgs)
-                queryAndArgs.add(Pair(sqlQuery, argTrace))
+            object : RoomDatabase.QueryCallback {
+                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                    val argTrace = ArrayList<Any?>()
+                    argTrace.addAll(bindArgs)
+                    queryAndArgs.add(Pair(sqlQuery, argTrace))
+                }
             },
             MoreExecutors.directExecutor()
         ).build()
@@ -188,10 +190,12 @@ class QueryInterceptorTest {
             ApplicationProvider.getApplicationContext(),
             QueryInterceptorTestDatabase::class.java
         ).setQueryCallback(
-            RoomDatabase.QueryCallback { sqlQuery, bindArgs ->
-                val argTrace = ArrayList<Any>()
-                argTrace.addAll(bindArgs)
-                queryAndArgs.add(Pair(sqlQuery, argTrace))
+            object : RoomDatabase.QueryCallback {
+                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
+                    val argTrace = ArrayList<Any?>()
+                    argTrace.addAll(bindArgs)
+                    queryAndArgs.add(Pair(sqlQuery, argTrace))
+                }
             },
             MoreExecutors.directExecutor()
         )

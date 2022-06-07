@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
-import androidx.build.LibraryVersions
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -41,6 +39,7 @@ android {
             java.srcDir testUtilDir
         }
     }
+    namespace "androidx.window"
 }
 
 dependencies {
@@ -74,9 +73,9 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.junit) // Needed for Assert.assertThrows
     androidTestImplementation(compileOnly(project(":window:extensions:extensions")))
     androidTestImplementation(compileOnly(project(":window:sidecar:sidecar")))
-
     samples(project(":window:window-samples"))
 }
 
@@ -95,6 +94,6 @@ androidx {
 // Allow usage of Kotlin's @OptIn.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.RequiresOptIn"]
+        freeCompilerArgs += ["-opt-in=kotlin.RequiresOptIn"]
     }
 }

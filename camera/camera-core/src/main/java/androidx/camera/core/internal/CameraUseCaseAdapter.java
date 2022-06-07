@@ -36,6 +36,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -170,7 +171,6 @@ public final class CameraUseCaseAdapter implements Camera {
     public void addUseCases(@NonNull Collection<UseCase> useCases) throws CameraException {
         synchronized (mLock) {
             List<UseCase> newUseCases = new ArrayList<>();
-
             for (UseCase useCase : useCases) {
                 if (mUseCases.contains(useCase)) {
                     Logger.d(TAG, "Attempting to attach already attached UseCase");
@@ -321,6 +321,18 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     /**
+     * When in active resuming mode, it will actively retry opening the camera periodically to
+     * resume regardless of the camera availability if the camera is interrupted in
+     * OPEN/OPENING/PENDING_OPEN state.
+     *
+     * When not in actively resuming mode, it will retry opening camera only when camera
+     * becomes available.
+     */
+    public void setActiveResumingMode(boolean enabled) {
+        mCameraInternal.setActiveResumingMode(enabled);
+    }
+
+    /**
      * Detach the UseCases from the {@link CameraInternal} so that the UseCases stop receiving data.
      *
      * <p> This will stop the underlying {@link CameraInternal} instance.
@@ -365,7 +377,7 @@ public final class CameraUseCaseAdapter implements Camera {
             @NonNull List<UseCase> newUseCases,
             @NonNull List<UseCase> currentUseCases,
             @NonNull Map<UseCase, ConfigPair> configPairMap) {
-        List<SurfaceConfig> existingSurfaces = new ArrayList<>();
+        List<AttachedSurfaceInfo> existingSurfaces = new ArrayList<>();
         String cameraId = cameraInfoInternal.getCameraId();
         Map<UseCase, Size> suggestedResolutions = new HashMap<>();
 
@@ -375,7 +387,9 @@ public final class CameraUseCaseAdapter implements Camera {
                     mCameraDeviceSurfaceManager.transformSurfaceConfig(cameraId,
                             useCase.getImageFormat(),
                             useCase.getAttachedSurfaceResolution());
-            existingSurfaces.add(surfaceConfig);
+            existingSurfaces.add(AttachedSurfaceInfo.create(surfaceConfig,
+                    useCase.getImageFormat(), useCase.getAttachedSurfaceResolution(),
+                    useCase.getCurrentConfig().getTargetFramerate(null)));
             suggestedResolutions.put(useCase, useCase.getAttachedSurfaceResolution());
         }
 

@@ -236,9 +236,9 @@ public final class MediaRouteDescriptor {
 
     void ensureControlFilters() {
         if (mControlFilters == null) {
-            mControlFilters = mBundle.<IntentFilter>getParcelableArrayList(KEY_CONTROL_FILTERS);
+            mControlFilters = mBundle.getParcelableArrayList(KEY_CONTROL_FILTERS);
             if (mControlFilters == null) {
-                mControlFilters = Collections.<IntentFilter>emptyList();
+                mControlFilters = Collections.emptyList();
             }
         }
     }
@@ -348,31 +348,30 @@ public final class MediaRouteDescriptor {
         return true;
     }
 
+    @NonNull
     @Override
     public String toString() {
-        StringBuilder result = new StringBuilder();
-        result.append("MediaRouteDescriptor{ ");
-        result.append("id=").append(getId());
-        result.append(", groupMemberIds=").append(getGroupMemberIds());
-        result.append(", name=").append(getName());
-        result.append(", description=").append(getDescription());
-        result.append(", iconUri=").append(getIconUri());
-        result.append(", isEnabled=").append(isEnabled());
-        result.append(", connectionState=").append(getConnectionState());
-        result.append(", controlFilters=").append(Arrays.toString(getControlFilters().toArray()));
-        result.append(", playbackType=").append(getPlaybackType());
-        result.append(", playbackStream=").append(getPlaybackStream());
-        result.append(", deviceType=").append(getDeviceType());
-        result.append(", volume=").append(getVolume());
-        result.append(", volumeMax=").append(getVolumeMax());
-        result.append(", volumeHandling=").append(getVolumeHandling());
-        result.append(", presentationDisplayId=").append(getPresentationDisplayId());
-        result.append(", extras=").append(getExtras());
-        result.append(", isValid=").append(isValid());
-        result.append(", minClientVersion=").append(getMinClientVersion());
-        result.append(", maxClientVersion=").append(getMaxClientVersion());
-        result.append(" }");
-        return result.toString();
+        return "MediaRouteDescriptor{ "
+                + "id=" + getId()
+                + ", groupMemberIds=" + getGroupMemberIds()
+                + ", name=" + getName()
+                + ", description=" + getDescription()
+                + ", iconUri=" + getIconUri()
+                + ", isEnabled=" + isEnabled()
+                + ", connectionState=" + getConnectionState()
+                + ", controlFilters=" + Arrays.toString(getControlFilters().toArray())
+                + ", playbackType=" + getPlaybackType()
+                + ", playbackStream=" + getPlaybackStream()
+                + ", deviceType=" + getDeviceType()
+                + ", volume=" + getVolume()
+                + ", volumeMax=" + getVolumeMax()
+                + ", volumeHandling=" + getVolumeHandling()
+                + ", presentationDisplayId=" + getPresentationDisplayId()
+                + ", extras=" + getExtras()
+                + ", isValid=" + isValid()
+                + ", minClientVersion=" + getMinClientVersion()
+                + ", maxClientVersion=" + getMaxClientVersion()
+                + " }";
     }
 
     /**

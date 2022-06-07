@@ -25,7 +25,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.utils.SerialExecutor
+import androidx.work.impl.utils.SerialExecutorImpl
 import androidx.work.impl.utils.WorkProgressUpdater
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
@@ -259,17 +259,13 @@ class CoroutineWorkerTest {
     class InstantWorkTaskExecutor : TaskExecutor {
 
         private val mSynchronousExecutor = SynchronousExecutor()
-        private val mSerialExecutor = SerialExecutor(mSynchronousExecutor)
-
-        override fun postToMainThread(runnable: Runnable) {
-            runnable.run()
-        }
+        private val mSerialExecutor = SerialExecutorImpl(mSynchronousExecutor)
 
         override fun getMainThreadExecutor(): Executor {
             return mSynchronousExecutor
         }
 
-        override fun getSerialTaskExecutor(): SerialExecutor {
+        override fun getSerialTaskExecutor(): SerialExecutorImpl {
             return mSerialExecutor
         }
     }
@@ -281,6 +277,7 @@ class CoroutineWorkerTest {
             return Result.success(workDataOf("output" to 999L))
         }
 
+        @Deprecated(message = "use withContext(...) inside doWork() instead.")
         override val coroutineContext = SynchronousExecutor().asCoroutineDispatcher()
     }
 }

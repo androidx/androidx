@@ -16,8 +16,7 @@
 -->
 <manifest
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="androidx.hilt.integration.workerapp">
+    xmlns:tools="http://schemas.android.com/tools">
     <application
         android:name=".App">
         <activity

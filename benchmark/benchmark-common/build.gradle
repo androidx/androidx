@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import androidx.build.SupportConfigKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -37,6 +36,7 @@ android {
                 "androidx/traceprocessor/testdata"
         )
     }
+    namespace "androidx.benchmark"
 }
 
 wire {
@@ -56,6 +56,8 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.annotation:annotation-experimental:1.0.0")
     implementation("androidx.tracing:tracing-ktx:1.0.0")
+    implementation(project(":tracing:tracing-perfetto"))
+    implementation(project(":tracing:tracing-perfetto-binary"))
     implementation(libs.testMonitor)
     implementation(libs.wireRuntime)
 
@@ -75,7 +77,7 @@ androidx {
 // Allow usage of Kotlin's @Experimental annotation, which is itself experimental.
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
-        freeCompilerArgs += ["-Xopt-in=kotlin.Experimental"]
+        freeCompilerArgs += ["-opt-in=kotlin.Experimental"]
     }
 }
 
@@ -89,4 +91,3 @@ afterEvaluate {
         it.dependsOn("generateReleaseProtos")
     }
 }
-

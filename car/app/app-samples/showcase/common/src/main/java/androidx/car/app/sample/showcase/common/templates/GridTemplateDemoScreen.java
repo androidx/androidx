@@ -16,7 +16,7 @@
 
 package androidx.car.app.sample.showcase.common.templates;
 
-import static androidx.car.app.CarToast.LENGTH_LONG;
+import static androidx.car.app.CarToast.LENGTH_SHORT;
 import static androidx.car.app.model.Action.BACK;
 
 import android.content.res.Resources;
@@ -46,6 +46,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 /** Creates a screen that demonstrates usage of the full screen {@link GridTemplate}. */
 public final class GridTemplateDemoScreen extends Screen implements DefaultLifecycleObserver {
+    private static final int MAX_GRID_ITEMS = 100;
     private static final int LOADING_TIME_MILLIS = 2000;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
@@ -84,145 +85,161 @@ public final class GridTemplateDemoScreen extends Screen implements DefaultLifec
         triggerFourthItemLoading();
     }
 
-    @NonNull
-    @Override
-    public Template onGetTemplate() {
-        ItemList.Builder gridItemListBuilder = new ItemList.Builder();
-
-        // Grid item with an icon and a title.
-        gridItemListBuilder.addItem(
-                new GridItem.Builder()
+    private GridItem createGridItem(int index) {
+        switch (index) {
+            case 0:
+                // Grid item with an icon and a title.
+                return new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mIcon).build(), GridItem.IMAGE_TYPE_ICON)
-                        .setTitle("Non-actionable")
-                        .build());
-
-        // Grid item with an icon, a title, onClickListener and no text.
-        gridItemListBuilder.addItem(
-                new GridItem.Builder()
+                        .setTitle(getCarContext().getString(R.string.non_actionable))
+                        .build();
+            case 1:
+                // Grid item with an icon, a title, onClickListener and no text.
+                return new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mIcon).build(), GridItem.IMAGE_TYPE_ICON)
-                        .setTitle("Second Item")
+                        .setTitle(getCarContext().getString(R.string.second_item))
                         .setOnClickListener(
-                                () ->
-                                        CarToast.makeText(
+                                () -> CarToast.makeText(
                                                 getCarContext(),
-                                                "Clicked second item",
-                                                LENGTH_LONG)
-                                                .show())
-                        .build());
-
-        // Grid item with an icon marked as icon, a title, a text and a toggle in unchecked state.
-        gridItemListBuilder.addItem(
-                new GridItem.Builder()
+                                                getCarContext()
+                                                        .getString(R.string.second_item_toast_msg),
+                                                LENGTH_SHORT)
+                                        .show())
+                        .build();
+            case 2:
+                // Grid item with an icon marked as icon, a title, a text and a toggle in
+                // unchecked state.
+                return new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mIcon).build(), GridItem.IMAGE_TYPE_ICON)
-                        .setTitle("Third Item")
-                        .setText(mThirdItemToggleState ? "Checked" : "Unchecked")
+                        .setTitle(getCarContext().getString(R.string.third_item))
+                        .setText(mThirdItemToggleState
+                                ? getCarContext().getString(R.string.checked_action_title)
+                                : getCarContext().getString(R.string.unchecked_action_title))
                         .setOnClickListener(
                                 () -> {
                                     mThirdItemToggleState = !mThirdItemToggleState;
                                     CarToast.makeText(
-                                            getCarContext(),
-                                            "Third item checked: " + mThirdItemToggleState,
-                                            LENGTH_LONG)
+                                                    getCarContext(),
+                                                    getCarContext().getString(
+                                                            R.string.third_item_checked_toast_msg)
+                                                            + ": " + mThirdItemToggleState,
+                                                    LENGTH_SHORT)
                                             .show();
                                     invalidate();
                                 })
-                        .build());
-
-        // Grid item with an image, a title, a long text and a toggle that takes some time to
-        // update.
-        if (mIsFourthItemLoading) {
-            gridItemListBuilder.addItem(
-                    new GridItem.Builder()
-                            .setTitle("Fourth")
-                            .setText(mFourthItemToggleState ? "On" : "Off")
+                        .build();
+            case 3:
+                // Grid item with an image, a title, a long text and a toggle that takes some
+                // time to
+                // update.
+                if (mIsFourthItemLoading) {
+                    return new GridItem.Builder()
+                            .setTitle(getCarContext().getString(R.string.fourth_item))
+                            .setText(mFourthItemToggleState
+                                    ? getCarContext().getString(R.string.on_action_title)
+                                    : getCarContext().getString(R.string.off_action_title))
                             .setLoading(true)
-                            .build());
-        } else {
-            gridItemListBuilder.addItem(
-                    new GridItem.Builder()
+                            .build();
+                } else {
+                    return new GridItem.Builder()
                             .setImage(new CarIcon.Builder(mImage).build())
-                            .setTitle("Fourth")
-                            .setText(mFourthItemToggleState ? "On" : "Off")
-                            .setOnClickListener(
-                                    this::triggerFourthItemLoading)
-                            .build());
-        }
-
-        // Grid item with a large image, a long title, no text and a toggle in unchecked state.
-        gridItemListBuilder.addItem(
-                new GridItem.Builder()
+                            .setTitle(getCarContext().getString(R.string.fourth_item))
+                            .setText(mFourthItemToggleState
+                                    ? getCarContext().getString(R.string.on_action_title)
+                                    : getCarContext().getString(R.string.off_action_title))
+                            .setOnClickListener(this::triggerFourthItemLoading)
+                            .build();
+                }
+            case 4:
+                // Grid item with a large image, a long title, no text and a toggle in unchecked
+                // state.
+                return new GridItem.Builder()
                         .setImage(new CarIcon.Builder(mImage).build(), GridItem.IMAGE_TYPE_LARGE)
-                        .setTitle("Fifth Item has a long title set")
+                        .setTitle(getCarContext().getString(R.string.fifth_item))
                         .setOnClickListener(
                                 () -> {
                                     mFifthItemToggleState = !mFifthItemToggleState;
                                     CarToast.makeText(
-                                            getCarContext(),
-                                            "Fifth item checked: " + mFifthItemToggleState,
-                                            LENGTH_LONG)
+                                                    getCarContext(),
+                                                    getCarContext().getString(
+                                                            R.string.fifth_item_checked_toast_msg)
+                                                            + ": "
+                                                            + mFifthItemToggleState,
+                                                    LENGTH_SHORT)
                                             .show();
                                     invalidate();
                                 })
-                        .build());
-
-        // Grid item with an image marked as an icon, a long title, a long text and onClickListener.
-        gridItemListBuilder.addItem(
-                new GridItem.Builder()
-                        .setImage(new CarIcon.Builder(mIcon).build(), GridItem.IMAGE_TYPE_ICON)
-                        .setTitle("Sixth Item has a long title set")
-                        .setText("Sixth Item has a long text set")
-                        .setOnClickListener(
-                                () ->
-                                        CarToast.makeText(
-                                                getCarContext(),
-                                                "Clicked sixth item",
-                                                LENGTH_LONG)
-                                                .show())
-                        .build());
-
-        // Some hosts may allow more items in the grid than others, so create more.
-        if (getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {
-            int itemLimit =
-                    7 + getCarContext().getCarService(ConstraintManager.class).getContentLimit(
-                            ConstraintManager.CONTENT_LIMIT_TYPE_GRID);
-
-            for (int i = 7; i <= itemLimit; i++) {
-                String titleText = "Item: " + i;
-                String toastText = "Clicked item " + i;
-
-                gridItemListBuilder.addItem(
+                        .build();
+            case 5:
+                // Grid item with an image marked as an icon, a long title, a long text and
+                // onClickListener.
+                return
                         new GridItem.Builder()
                                 .setImage(new CarIcon.Builder(mIcon).build(),
                                         GridItem.IMAGE_TYPE_ICON)
-                                .setTitle(titleText)
+                                .setTitle(getCarContext().getString(R.string.sixth_item))
+                                .setText(getCarContext().getString(R.string.sixth_item))
                                 .setOnClickListener(
-                                        () ->
-                                                CarToast.makeText(
+                                        () -> CarToast.makeText(
+                                                        getCarContext(),
+                                                        getCarContext().getString(
+                                                                R.string.sixth_item_toast_msg),
+                                                        LENGTH_SHORT)
+                                                .show())
+                                .build();
+            default:
+                String titleText = (index + 1) + "th item";
+                String toastText = "Clicked " + (index + 1) + "th item";
+
+                return new GridItem.Builder()
+                        .setImage(new CarIcon.Builder(mIcon).build(),
+                                GridItem.IMAGE_TYPE_ICON)
+                        .setTitle(titleText)
+                        .setOnClickListener(
+                                () ->
+                                        CarToast.makeText(
                                                         getCarContext(),
                                                         toastText,
-                                                        LENGTH_LONG)
-                                                        .show())
-                                .build());
-            }
+                                                        LENGTH_SHORT)
+                                                .show())
+                        .build();
+        }
+    }
+
+    @NonNull
+    @Override
+    public Template onGetTemplate() {
+        int itemLimit = 6;
+        // Adjust the item limit according to the car constrains.
+        if (getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {
+            itemLimit =
+                    Math.min(MAX_GRID_ITEMS,
+                            getCarContext().getCarService(ConstraintManager.class).getContentLimit(
+                                    ConstraintManager.CONTENT_LIMIT_TYPE_GRID));
         }
 
+        ItemList.Builder gridItemListBuilder = new ItemList.Builder();
+        for (int i = 0; i <= itemLimit; i++) {
+            gridItemListBuilder.addItem(createGridItem(i));
+        }
+
+        Action settings = new Action.Builder()
+                .setTitle(getCarContext().getString(
+                        R.string.settings_action_title))
+                .setOnClickListener(
+                        () -> CarToast.makeText(
+                                        getCarContext(),
+                                        getCarContext().getString(R.string.settings_toast_msg),
+                                        LENGTH_SHORT)
+                                .show())
+                .build();
         return new GridTemplate.Builder()
                 .setHeaderAction(Action.APP_ICON)
                 .setSingleList(gridItemListBuilder.build())
-                .setTitle("Grid Template Demo")
+                .setTitle(getCarContext().getString(R.string.grid_template_demo_title))
                 .setActionStrip(
                         new ActionStrip.Builder()
-                                .addAction(
-                                        new Action.Builder()
-                                                .setTitle("Settings")
-                                                .setOnClickListener(
-                                                        () ->
-                                                                CarToast.makeText(
-                                                                        getCarContext(),
-                                                                        "Clicked Settings",
-                                                                        LENGTH_LONG)
-                                                                        .show())
-                                                .build())
+                                .addAction(settings)
                                 .build())
                 .setHeaderAction(BACK)
                 .build();

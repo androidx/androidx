@@ -25,9 +25,11 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.lifecycle.LifecycleService;
 import androidx.work.Logger;
@@ -122,7 +124,8 @@ public class SystemForegroundService extends LifecycleService implements
             @Override
             public void run() {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    startForeground(notificationId, notification, notificationType);
+                    Api29Impl.startForeground(SystemForegroundService.this, notificationId,
+                            notification, notificationType);
                 } else {
                     startForeground(notificationId, notification);
                 }
@@ -156,5 +159,18 @@ public class SystemForegroundService extends LifecycleService implements
     @Nullable
     public static SystemForegroundService getInstance() {
         return sForegroundService;
+    }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void startForeground(Service service, int id, Notification notification,
+                int foregroundServiceType) {
+            service.startForeground(id, notification, foregroundServiceType);
+        }
     }
 }

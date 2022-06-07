@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XExecutableType
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XRoundEnv
 import androidx.room.compiler.processing.XType
@@ -120,6 +121,12 @@ object XConverters {
         JavacAnnotation(env as JavacProcessingEnv, this)
 
     @JvmStatic
+    fun AnnotationValue.toXProcessing(method: ExecutableElement, env: XProcessingEnv):
+        XAnnotationValue = JavacAnnotationValue(
+            env as JavacProcessingEnv, method.toXProcessing(env) as XMethodElement, this
+        )
+
+    @JvmStatic
     fun Filer.toXProcessing(env: XProcessingEnv): XFiler =
         JavacFiler(env as JavacProcessingEnv, this)
 
@@ -137,4 +144,24 @@ object XConverters {
     @JvmStatic
     fun TypeMirror.toXProcessing(env: XProcessingEnv): XType =
         (env as JavacProcessingEnv).wrap(this, null, null)
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XType.getProcessingEnv(): XProcessingEnv = (this as JavacType).env
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XElement.getProcessingEnv(): XProcessingEnv = (this as JavacElement).env
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XAnnotation.getProcessingEnv(): XProcessingEnv = (this as JavacAnnotation).env
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XAnnotationValue.getProcessingEnv(): XProcessingEnv = (this as JavacAnnotationValue).env
+
+    @Deprecated("This will be removed in a future version of XProcessing.")
+    @JvmStatic
+    fun XExecutableType.getProcessingEnv(): XProcessingEnv = (this as JavacExecutableType).env
 }

@@ -225,7 +225,7 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
                 }
                 endControlFlow()
 
-                collector.rowAdapter.onCursorReady(cursorVar, scope)
+                collector.rowAdapter.onCursorReady(cursorVarName = cursorVar, scope = scope)
                 val tmpVarName = scope.getTmpVar("_item")
                 beginControlFlow("while($L.moveToNext())", cursorVar).apply {
                     // read key from the cursor
@@ -255,7 +255,6 @@ class RelationCollectorMethodWriter(private val collector: RelationCollector) :
                     }
                 }
                 endControlFlow()
-                collector.rowAdapter.onCursorFinished()?.invoke(scope)
             }
             nextControlFlow("finally").apply {
                 addStatement("$L.close()", cursorVar)

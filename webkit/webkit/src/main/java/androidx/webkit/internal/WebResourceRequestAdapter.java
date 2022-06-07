@@ -18,6 +18,8 @@ package androidx.webkit.internal;
 
 import android.webkit.WebResourceRequest;
 
+import androidx.annotation.NonNull;
+
 import org.chromium.support_lib_boundary.WebResourceRequestBoundaryInterface;
 
 /**
@@ -27,7 +29,8 @@ import org.chromium.support_lib_boundary.WebResourceRequestBoundaryInterface;
 public class WebResourceRequestAdapter {
     private final WebResourceRequestBoundaryInterface mBoundaryInterface;
 
-    public WebResourceRequestAdapter(WebResourceRequestBoundaryInterface boundaryInterface) {
+    public WebResourceRequestAdapter(
+            @NonNull WebResourceRequestBoundaryInterface boundaryInterface) {
         mBoundaryInterface = boundaryInterface;
     }
 

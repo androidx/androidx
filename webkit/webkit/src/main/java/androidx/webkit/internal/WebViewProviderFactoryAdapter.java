@@ -35,9 +35,9 @@ import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
  */
 @SuppressWarnings("JavadocReference") // WebViewFactoryProvider and WebViewProvider are hidden.
 public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
-    WebViewProviderFactoryBoundaryInterface mImpl;
+    final WebViewProviderFactoryBoundaryInterface mImpl;
 
-    public WebViewProviderFactoryAdapter(WebViewProviderFactoryBoundaryInterface impl) {
+    public WebViewProviderFactoryAdapter(@NonNull WebViewProviderFactoryBoundaryInterface impl) {
         mImpl = impl;
     }
 
@@ -46,8 +46,9 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
      * {@link android.webkit.WebViewProvider} - the class used to implement
      * {@link androidx.webkit.WebViewCompat}.
      */
+    @NonNull
     @Override
-    public WebViewProviderBoundaryInterface createWebView(WebView webview) {
+    public WebViewProviderBoundaryInterface createWebView(@NonNull WebView webview) {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 WebViewProviderBoundaryInterface.class, mImpl.createWebView(webview));
     }
@@ -57,6 +58,7 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
      * {@link androidx.webkit.internal.WebkitToCompatConverter}, which converts android.webkit
      * classes into their corresponding support library classes.
      */
+    @NonNull
     @Override
     public WebkitToCompatConverterBoundaryInterface getWebkitToCompatConverter() {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
@@ -67,6 +69,7 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
      * Adapter method for fetching the support library class representing
      * {@link android.webkit.WebViewFactoryProvider#Statics}.
      */
+    @NonNull
     @Override
     public StaticsBoundaryInterface getStatics() {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
@@ -76,6 +79,7 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     /**
      * Adapter method for fetching the features supported by the current WebView APK.
      */
+    @NonNull
     @Override
     public String[] getWebViewFeatures() {
         return mImpl.getSupportedFeatures();
@@ -96,6 +100,7 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
      * Adapter method for fetching the support library class representing
      * {@link android.webkit.TracingController}.
      */
+    @NonNull
     @Override
     public TracingControllerBoundaryInterface getTracingController() {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
@@ -106,6 +111,7 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
      * Adapter method for fetching the support library class representing
      * {@link android.webkit.ProxyController}.
      */
+    @NonNull
     @Override
     public ProxyControllerBoundaryInterface getProxyController() {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(

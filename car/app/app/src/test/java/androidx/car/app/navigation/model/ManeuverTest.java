@@ -163,12 +163,26 @@ public class ManeuverTest {
     }
 
     @Test
+    public void createInstance_roundabout_with_angle_optionalExitNumber() {
+        int type = TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW_WITH_ANGLE;
+        int roundaboutExitAngle = 270;
+
+        Maneuver maneuver =
+                new Maneuver.Builder(type)
+                        .setRoundaboutExitAngle(roundaboutExitAngle)
+                        .setIcon(CarIcon.APP_ICON)
+                        .build();
+        assertThat(type).isEqualTo(maneuver.getType());
+        assertThat(roundaboutExitAngle).isEqualTo(maneuver.getRoundaboutExitAngle());
+        assertThat(CarIcon.APP_ICON).isEqualTo(maneuver.getIcon());
+    }
+
+    @Test
     public void createInstance_roundabout_with_angle_invalid_type() {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
-                        new Maneuver.Builder(TYPE_STRAIGHT)
-                                .setRoundaboutExitNumber(1)
+                        new Maneuver.Builder(TYPE_ROUNDABOUT_ENTER_AND_EXIT_CCW)
                                 .setRoundaboutExitAngle(1)
                                 .setIcon(CarIcon.APP_ICON)
                                 .build());

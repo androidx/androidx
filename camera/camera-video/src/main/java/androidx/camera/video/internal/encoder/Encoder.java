@@ -22,6 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.video.internal.BufferProvider;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.concurrent.Executor;
 
 /**
@@ -57,6 +59,19 @@ public interface Encoder {
     void stop();
 
     /**
+     * Stops the encoder with an expected stop time.
+     *
+     * <p>It will trigger {@link EncoderCallback#onEncodeStop} after the last encoded data. It can
+     * call {@link #start} to start again.
+     *
+     * <p>The encoder will try to provide the last {@link EncodedData} with a timestamp as close
+     * as to the given stop timestamp.
+     *
+     * @param expectedStopTimeUs The desired stop time.
+     */
+    void stop(long expectedStopTimeUs);
+
+    /**
      * Pauses the encoder.
      *
      * <p>{@link #pause} only work between {@link #start} and {@link #stop}.
@@ -77,6 +92,14 @@ public interface Encoder {
      * may be the current surface or one of the obsolete surfaces.
      */
     void release();
+
+    /**
+     * Returns a ListenableFuture to represent the release status.
+     *
+     * <p>Cancellation on the returned ListenableFuture takes no effect.
+     */
+    @NonNull
+    ListenableFuture<Void> getReleasedFuture();
 
     /**
      * Sets callback to encoder.

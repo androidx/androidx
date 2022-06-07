@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -26,7 +25,7 @@ plugins {
 
 dependencies {
     api(project(":fragment:fragment"))
-    api("androidx.activity:activity-ktx:1.2.3") {
+    api("androidx.activity:activity-ktx:1.5.0-rc01") {
         because "Mirror fragment dependency graph for -ktx artifacts"
     }
     api("androidx.core:core-ktx:1.2.0") {
@@ -35,11 +34,11 @@ dependencies {
     api("androidx.collection:collection-ktx:1.1.0") {
         because "Mirror fragment dependency graph for -ktx artifacts"
     }
-    api("androidx.lifecycle:lifecycle-livedata-core-ktx:2.3.1") {
+    api("androidx.lifecycle:lifecycle-livedata-core-ktx:2.5.0-rc01") {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
-    api(projectOrArtifact(":savedstate:savedstate-ktx")) {
+    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-rc01")
+    api("androidx.savedstate:savedstate-ktx:1.2.0-rc01") {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }
     api(libs.kotlinStdlib)
@@ -62,14 +61,6 @@ androidx {
     description = "Kotlin extensions for 'fragment' artifact"
 }
 
-// needed only while https://youtrack.jetbrains.com/issue/KT-47000 isn't resolved which is
-// targeted to 1.6
-if (project.hasProperty("androidx.useMaxDepVersions")){
-    tasks.withType(KotlinCompile).configureEach {
-        kotlinOptions {
-            freeCompilerArgs += [
-                    "-Xjvm-default=enable",
-            ]
-        }
-    }
+android {
+    namespace "androidx.fragment.ktx"
 }

@@ -23,7 +23,6 @@ import android.util.Log
 import android.view.View
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RestrictTo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -100,11 +99,8 @@ public abstract class AbstractProgressFragment : Fragment {
     }
     /**
      * Navigates to an installed dynamic feature module or kicks off installation.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    protected fun navigate() {
+    internal fun navigate() {
         Log.i(TAG, "navigate: ")
         val installMonitor = DynamicInstallMonitor()
         val extras = DynamicExtras(installMonitor)

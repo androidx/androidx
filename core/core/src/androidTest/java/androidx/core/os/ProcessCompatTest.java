@@ -16,6 +16,7 @@
 
 package androidx.core.os;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Process;
@@ -31,5 +32,7 @@ public class ProcessCompatTest {
     public void testIsApplicationUid() {
         assertTrue("Test process is an application",
                 ProcessCompat.isApplicationUid(Process.myUid()));
+        assertFalse("Test process is not an application",
+                ProcessCompat.isApplicationUid(1000));
     }
 }

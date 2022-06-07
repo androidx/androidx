@@ -17,6 +17,8 @@ package androidx.car.app.hardware.info;
 
 import static android.car.VehiclePropertyIds.DISTANCE_DISPLAY_UNITS;
 import static android.car.VehiclePropertyIds.EV_BATTERY_LEVEL;
+import static android.car.VehiclePropertyIds.EV_CHARGE_PORT_CONNECTED;
+import static android.car.VehiclePropertyIds.EV_CHARGE_PORT_OPEN;
 import static android.car.VehiclePropertyIds.FUEL_LEVEL;
 import static android.car.VehiclePropertyIds.FUEL_LEVEL_LOW;
 import static android.car.VehiclePropertyIds.FUEL_VOLUME_DISPLAY_UNITS;
@@ -28,19 +30,20 @@ import static android.car.VehiclePropertyIds.INFO_MAKE;
 import static android.car.VehiclePropertyIds.INFO_MODEL;
 import static android.car.VehiclePropertyIds.INFO_MODEL_YEAR;
 import static android.car.VehiclePropertyIds.PERF_ODOMETER;
+import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED;
+import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY;
 import static android.car.VehiclePropertyIds.RANGE_REMAINING;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.car.app.hardware.common.CarValueUtils.getCarValue;
 
 import static java.util.Objects.requireNonNull;
 
-import android.car.VehiclePropertyIds;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -48,6 +51,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.hardware.common.CarPropertyResponse;
 import androidx.car.app.hardware.common.CarValue;
+import androidx.car.app.hardware.common.CarZone;
 import androidx.car.app.hardware.common.GetPropertyRequest;
 import androidx.car.app.hardware.common.OnCarDataAvailableListener;
 import androidx.car.app.hardware.common.OnCarPropertyResponseListener;
@@ -55,11 +59,11 @@ import androidx.car.app.hardware.common.PropertyManager;
 import androidx.car.app.hardware.common.PropertyUtils;
 import androidx.car.app.utils.LogTags;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,13 +78,15 @@ import java.util.stream.Collectors;
  */
 @RestrictTo(LIBRARY)
 public class AutomotiveCarInfo implements CarInfo {
-    @VisibleForTesting
-    static final List<Integer> ENERGY_LEVEL_REQUEST =
-            Arrays.asList(EV_BATTERY_LEVEL, FUEL_LEVEL,
-                    FUEL_LEVEL_LOW, RANGE_REMAINING,
-                    DISTANCE_DISPLAY_UNITS);
+    static final List<CarZone> GLOBAL_CAR_ZONE = Arrays.asList(getGlobalCarZone());
+
     @VisibleForTesting
     static final float DEFAULT_SAMPLE_RATE = 5f;
+
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    private static CarZone getGlobalCarZone() {
+        return CarZone.CAR_ZONE_GLOBAL;
+    }
 
     /*
      * ELECTRONIC_TOLL_COLLECTION_CARD_STATUS in VehiclePropertyIds. The property is added after
@@ -92,13 +98,37 @@ public class AutomotiveCarInfo implements CarInfo {
     public static final int SPEED_DISPLAY_UNIT_ID = 289408516;
 
     private static final float UNKNOWN_CAPACITY = Float.NEGATIVE_INFINITY;
-    private static final List<Integer> MILEAGE_REQUEST =
-            Arrays.asList(PERF_ODOMETER, DISTANCE_DISPLAY_UNITS);
-    static final List<Integer> TOLL_REQUEST =
-            Collections.singletonList(TOLL_CARD_STATUS_ID);
-    private static final List<Integer> SPEED_REQUEST =
-            Arrays.asList(VehiclePropertyIds.PERF_VEHICLE_SPEED,
-                    VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY, SPEED_DISPLAY_UNIT_ID);
+    static final ImmutableMap<Integer, List<CarZone>> ENERGY_LEVEL_REQUEST = ImmutableMap.<Integer,
+                    List<CarZone>>builder()
+            .put(EV_BATTERY_LEVEL, GLOBAL_CAR_ZONE)
+            .put(FUEL_LEVEL, GLOBAL_CAR_ZONE)
+            .put(FUEL_LEVEL_LOW, GLOBAL_CAR_ZONE)
+            .put(RANGE_REMAINING, GLOBAL_CAR_ZONE)
+            .put(DISTANCE_DISPLAY_UNITS, GLOBAL_CAR_ZONE)
+            .put(FUEL_VOLUME_DISPLAY_UNITS, GLOBAL_CAR_ZONE)
+            .buildKeepingLast();
+    private static final ImmutableMap<Integer, List<CarZone>> MILEAGE_REQUEST =
+            ImmutableMap.<Integer,
+                            List<CarZone>>builder()
+                    .put(PERF_ODOMETER, GLOBAL_CAR_ZONE)
+                    .put(DISTANCE_DISPLAY_UNITS, GLOBAL_CAR_ZONE)
+                    .buildKeepingLast();
+    static final ImmutableMap<Integer, List<CarZone>> TOLL_REQUEST = ImmutableMap.<Integer,
+                    List<CarZone>>builder()
+            .put(TOLL_CARD_STATUS_ID, GLOBAL_CAR_ZONE)
+            .buildKeepingLast();
+    private static final ImmutableMap<Integer, List<CarZone>> SPEED_REQUEST = ImmutableMap.<Integer,
+                    List<CarZone>>builder()
+            .put(PERF_VEHICLE_SPEED, GLOBAL_CAR_ZONE)
+            .put(PERF_VEHICLE_SPEED_DISPLAY, GLOBAL_CAR_ZONE)
+            .put(SPEED_DISPLAY_UNIT_ID, GLOBAL_CAR_ZONE)
+            .buildKeepingLast();
+    private static final ImmutableMap<Integer, List<CarZone>> EV_STATUS_REQUEST =
+            ImmutableMap.<Integer,
+                            List<CarZone>>builder()
+                    .put(EV_CHARGE_PORT_OPEN, GLOBAL_CAR_ZONE)
+                    .put(EV_CHARGE_PORT_CONNECTED, GLOBAL_CAR_ZONE)
+                    .buildKeepingLast();
     private final Map<OnCarDataAvailableListener<?>, OnCarPropertyResponseListener> mListenerMap =
             new HashMap<>();
     private final PropertyManager mPropertyManager;
@@ -205,13 +235,24 @@ public class AutomotiveCarInfo implements CarInfo {
         removeListenerImpl(listener);
     }
 
-    static <T> CarValue<T> getCarValue(CarPropertyResponse<?> response, @Nullable T value) {
-        long timestampMillis = response.getTimestampMillis();
-        int status = response.getStatus();
-        return new CarValue<>(value, timestampMillis, status);
+    // TODO(b/216177515): Remove this annotation once EvStatus is ready.
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    @Override
+    public void addEvStatusListener(@NonNull Executor executor,
+            @NonNull OnCarDataAvailableListener<EvStatus> listener) {
+        EvStatusListener evStatusListener = new EvStatusListener(listener, executor);
+        mPropertyManager.submitRegisterListenerRequest(EV_STATUS_REQUEST, DEFAULT_SAMPLE_RATE,
+                evStatusListener, executor);
+        mListenerMap.put(listener, evStatusListener);
     }
 
-    @VisibleForTesting
+    // TODO(b/216177515): Remove this annotation once EvStatus is ready.
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    @Override
+    public void removeEvStatusListener(@NonNull OnCarDataAvailableListener<EvStatus> listener) {
+        removeListenerImpl(listener);
+    }
+
     void getCapacitiesThenEnergyLevel(@NonNull Executor executor,
             @NonNull OnCarDataAvailableListener<EnergyLevel> listener) {
         // Prepare request GetPropertyRequest for battery and fuel capacities.
@@ -234,19 +275,12 @@ public class AutomotiveCarInfo implements CarInfo {
                 float fuelCapacity = UNKNOWN_CAPACITY;
                 List<CarPropertyResponse<?>> result = capacityFuture.get();
                 for (CarPropertyResponse<?> value : result) {
-                    if (value.getValue() == null) {
-                        Log.w(LogTags.TAG_CAR_HARDWARE,
-                                "Failed to retrieve CarPropertyResponse value for property id "
-                                        + value.getPropertyId());
-                        continue;
-                    }
                     if (value.getPropertyId() == INFO_EV_BATTERY_CAPACITY
-                            && value.getStatus() == CarValue.STATUS_SUCCESS) {
+                            && value.getValue() != null) {
                         evBatteryCapacity = (Float) value.getValue();
                         energyLevelListener.updateEvBatteryCapacity(evBatteryCapacity);
                     }
-                    if (value.getPropertyId() == INFO_FUEL_CAPACITY
-                            && value.getStatus() == CarValue.STATUS_SUCCESS) {
+                    if (value.getPropertyId() == INFO_FUEL_CAPACITY && value.getValue() != null) {
                         fuelCapacity = (Float) value.getValue();
                         energyLevelListener.updateFuelCapacity(fuelCapacity);
                     }
@@ -271,16 +305,10 @@ public class AutomotiveCarInfo implements CarInfo {
         future.addListener(() -> {
             try {
                 List<CarPropertyResponse<?>> result = future.get();
-                CarValue<String> makeValue = CarValue.UNIMPLEMENTED_STRING;
-                CarValue<Integer> yearValue = CarValue.UNIMPLEMENTED_INTEGER;
-                CarValue<String> modelValue = CarValue.UNIMPLEMENTED_STRING;
+                CarValue<String> makeValue = CarValue.UNKNOWN_STRING;
+                CarValue<Integer> yearValue = CarValue.UNKNOWN_INTEGER;
+                CarValue<String> modelValue = CarValue.UNKNOWN_STRING;
                 for (CarPropertyResponse<?> value : result) {
-                    if (value.getValue() == null) {
-                        Log.w(LogTags.TAG_CAR_HARDWARE,
-                                "Failed to retrieve CarPropertyResponse value for property id "
-                                        + value.getPropertyId());
-                        continue;
-                    }
                     if (value.getPropertyId() == INFO_MAKE) {
                         makeValue = getCarValue(value, (String) value.getValue());
                     }
@@ -313,31 +341,40 @@ public class AutomotiveCarInfo implements CarInfo {
         future.addListener(() -> {
             try {
                 List<CarPropertyResponse<?>> result = future.get();
-                CarValue<List<Integer>> evConnector = CarValue.UNIMPLEMENTED_INTEGER_LIST;
-                CarValue<List<Integer>> fuel = CarValue.UNIMPLEMENTED_INTEGER_LIST;
+                CarValue<List<Integer>> evConnector = CarValue.UNKNOWN_INTEGER_LIST;
+                CarValue<List<Integer>> fuel = CarValue.UNKNOWN_INTEGER_LIST;
                 for (CarPropertyResponse<?> value : result) {
-                    if (value.getValue() == null) {
-                        Log.w(LogTags.TAG_CAR_HARDWARE,
-                                "Failed to retrieve CarPropertyResponse value for property id"
-                                        + value.getPropertyId());
-                        continue;
-                    }
-                    if (value.getPropertyId() == INFO_EV_CONNECTOR_TYPE) {
-                        Integer[] evConnectorsInVehicle = (Integer[]) value.getValue();
-                        List<Integer> evConnectorsInCarValue = new ArrayList<>();
-                        for (Integer connectorType : evConnectorsInVehicle) {
-                            evConnectorsInCarValue.add(
-                                    PropertyUtils.covertEvConnectorType(connectorType));
-                        }
-                        evConnector = getCarValue(value, evConnectorsInCarValue);
-                    }
-                    if (value.getPropertyId() == INFO_FUEL_TYPE) {
-                        fuel = getCarValue(value, Arrays.stream((Integer[]) requireNonNull(
-                                value.getValue())).collect(Collectors.toList()));
+                    switch (value.getPropertyId()) {
+                        case INFO_EV_CONNECTOR_TYPE:
+                            if (value.getValue() != null) {
+                                Integer[] evConnectorsInVehicle = (Integer[]) value.getValue();
+                                List<Integer> evConnectorsInCarValue = new ArrayList<>();
+                                for (Integer connectorType : evConnectorsInVehicle) {
+                                    evConnectorsInCarValue.add(
+                                            PropertyUtils.convertEvConnectorType(connectorType));
+                                }
+                                evConnector = getCarValue(value, evConnectorsInCarValue);
+                            } else {
+                                evConnector = getCarValue(value);
+                            }
+                            break;
+                        case INFO_FUEL_TYPE:
+                            if (value.getValue() != null) {
+                                fuel = getCarValue(value, Arrays.stream(
+                                        (Integer[]) requireNonNull(value.getValue())).collect(
+                                        Collectors.toList()));
+                            } else {
+                                fuel = getCarValue(value);
+                            }
+                            break;
+                        default:
+                            Log.e(LogTags.TAG_CAR_HARDWARE,
+                                    "Invalid response callback in populateEnergyProfileData.");
+                            break;
                     }
                 }
                 EnergyProfile energyProfile = new EnergyProfile.Builder().setEvConnectorTypes(
-                        evConnector)
+                                evConnector)
                         .setFuelTypes(fuel)
                         .build();
                 listener.onCarDataAvailable(energyProfile);
@@ -390,11 +427,6 @@ public class AutomotiveCarInfo implements CarInfo {
         @Override
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
-            if (carPropertyResponses.size() != 1
-                    || carPropertyResponses.get(0).getPropertyId() != TOLL_CARD_STATUS_ID) {
-                Log.e(LogTags.TAG_CAR_HARDWARE, "Invalid response callback in TollListener");
-                return;
-            }
             mExecutor.execute(() -> {
                 CarPropertyResponse<?> response = carPropertyResponses.get(0);
                 CarValue<Integer> tollValue = getCarValue(response, (Integer) response.getValue());
@@ -416,29 +448,26 @@ public class AutomotiveCarInfo implements CarInfo {
         @Override
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
-            if (carPropertyResponses.size() != 3) {
-                Log.e(LogTags.TAG_CAR_HARDWARE, "Invalid response callback in SpeedListener.");
-                return;
-            }
             mExecutor.execute(() -> {
-                CarValue<Float> rawSpeedValue = CarValue.UNIMPLEMENTED_FLOAT;
-                CarValue<Float> displaySpeedValue = CarValue.UNIMPLEMENTED_FLOAT;
-                CarValue<Integer> displayUnitValue = CarValue.UNIMPLEMENTED_INTEGER;
+                CarValue<Float> rawSpeedValue = CarValue.UNKNOWN_FLOAT;
+                CarValue<Float> displaySpeedValue = CarValue.UNKNOWN_FLOAT;
+                CarValue<Integer> displayUnitValue = CarValue.UNKNOWN_INTEGER;
                 for (CarPropertyResponse<?> response : carPropertyResponses) {
                     switch (response.getPropertyId()) {
-                        case VehiclePropertyIds.PERF_VEHICLE_SPEED:
-                            rawSpeedValue = getCarValue(response, (Float) response.getValue());
+                        case PERF_VEHICLE_SPEED:
+                            rawSpeedValue = getCarValue(response);
                             break;
-                        case VehiclePropertyIds.PERF_VEHICLE_SPEED_DISPLAY:
-                            displaySpeedValue = getCarValue(response, (Float) response.getValue());
+                        case PERF_VEHICLE_SPEED_DISPLAY:
+                            displaySpeedValue = getCarValue(response);
                             break;
                         case SPEED_DISPLAY_UNIT_ID:
-                            Integer speedUnit = null;
                             if (response.getValue() != null) {
-                                speedUnit = PropertyUtils.covertSpeedUnit(
-                                        (Integer) response.getValue());
+                                displayUnitValue = getCarValue(response,
+                                        PropertyUtils.convertSpeedUnit(
+                                                (Integer) response.getValue()));
+                            } else {
+                                displaySpeedValue = getCarValue(response);
                             }
-                            displayUnitValue = getCarValue(response, speedUnit);
                             break;
                         default:
                             Log.e(LogTags.TAG_CAR_HARDWARE,
@@ -454,10 +483,50 @@ public class AutomotiveCarInfo implements CarInfo {
     }
 
     /**
-     * Mileage listener to get distance display unit and odometer updates by
-     * {@link CarPropertyResponse}.
+     * EvStatus listener to get EV port status updates by {@link CarPropertyResponse}.
      */
-    @VisibleForTesting
+    static class EvStatusListener implements OnCarPropertyResponseListener {
+        private final OnCarDataAvailableListener<EvStatus> mEvStatusOnCarDataAvailableListener;
+        private final Executor mExecutor;
+
+        EvStatusListener(OnCarDataAvailableListener<EvStatus> listener, Executor executor) {
+            mEvStatusOnCarDataAvailableListener = listener;
+            mExecutor = executor;
+        }
+
+        @Override
+        // TODO(b/216177515): Remove this annotation once EvStatus is ready.
+        @OptIn(markerClass = ExperimentalCarApi.class)
+        public void onCarPropertyResponses(
+                @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
+            mExecutor.execute(() -> {
+                CarValue<Boolean> evChargePortOpenValue = CarValue.UNKNOWN_BOOLEAN;
+                CarValue<Boolean> evChargePortConnectedValue = CarValue.UNKNOWN_BOOLEAN;
+                for (CarPropertyResponse<?> response : carPropertyResponses) {
+                    switch (response.getPropertyId()) {
+                        case EV_CHARGE_PORT_OPEN:
+                            evChargePortOpenValue = getCarValue(response);
+                            break;
+                        case EV_CHARGE_PORT_CONNECTED:
+                            evChargePortConnectedValue = getCarValue(response);
+                            break;
+                        default:
+                            Log.e(LogTags.TAG_CAR_HARDWARE,
+                                    "Invalid response callback in EvStatusListener");
+                    }
+                }
+                EvStatus evStatus = new EvStatus.Builder().setEvChargePortOpen(
+                        evChargePortOpenValue).setEvChargePortConnected(
+                        evChargePortConnectedValue).build();
+                mEvStatusOnCarDataAvailableListener.onCarDataAvailable(evStatus);
+            });
+        }
+    }
+
+    /**
+     * Mileage listener to get distance display unit and odometer updates by {@link
+     * CarPropertyResponse}.
+     */
     static class MileageListener implements OnCarPropertyResponseListener {
         private final OnCarDataAvailableListener<Mileage> mMileageOnCarDataAvailableListener;
         private final Executor mExecutor;
@@ -470,51 +539,40 @@ public class AutomotiveCarInfo implements CarInfo {
         @Override
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
-            if (carPropertyResponses.size() == 2) {
-                mExecutor.execute(() -> {
-                    CarValue<Float> odometerValue = CarValue.UNIMPLEMENTED_FLOAT;
-                    CarValue<Integer> distanceDisplayUnitValue = CarValue.UNIMPLEMENTED_INTEGER;
-                    for (CarPropertyResponse<?> response : carPropertyResponses) {
-                        if (response.getValue() == null) {
-                            Log.w(LogTags.TAG_CAR_HARDWARE,
-                                    "Failed to retrieve CarPropertyResponse value for property id "
-                                            + response.getPropertyId());
-                            continue;
-                        }
-                        switch (response.getPropertyId()) {
-                            case PERF_ODOMETER:
-                                odometerValue = new CarValue<>(
-                                        (Float) response.getValue(),
-                                        response.getTimestampMillis(), response.getStatus());
-                                break;
-                            case DISTANCE_DISPLAY_UNITS:
-                                Integer displayUnit = null;
-                                if (response.getValue() != null) {
-                                    displayUnit = PropertyUtils.covertDistanceUnit(
-                                            (Integer) response.getValue());
-                                }
-                                distanceDisplayUnitValue = new CarValue<>(displayUnit,
-                                        response.getTimestampMillis(), response.getStatus());
-                                break;
-                            default:
-                                Log.e(LogTags.TAG_CAR_HARDWARE,
-                                        "Invalid response callback in MileageListener");
-                        }
+            mExecutor.execute(() -> {
+                CarValue<Float> odometerValue = CarValue.UNKNOWN_FLOAT;
+                CarValue<Integer> distanceDisplayUnitValue = CarValue.UNKNOWN_INTEGER;
+                for (CarPropertyResponse<?> response : carPropertyResponses) {
+                    switch (response.getPropertyId()) {
+                        case PERF_ODOMETER:
+                            odometerValue = getCarValue(response);
+                            break;
+                        case DISTANCE_DISPLAY_UNITS:
+                            if (response.getValue() != null) {
+                                distanceDisplayUnitValue = getCarValue(response,
+                                        PropertyUtils.convertDistanceUnit(
+                                                (Integer) response.getValue()));
+                            } else {
+                                distanceDisplayUnitValue = getCarValue(response);
+                            }
+                            break;
+                        default:
+                            Log.e(LogTags.TAG_CAR_HARDWARE,
+                                    "Invalid response callback in MileageListener");
                     }
-                    Mileage mileage =
-                            new Mileage.Builder().setOdometerMeters(
-                                    odometerValue).setDistanceDisplayUnit(
-                                    distanceDisplayUnitValue).build();
-                    mMileageOnCarDataAvailableListener.onCarDataAvailable(mileage);
-                });
-            }
+                }
+                Mileage mileage =
+                        new Mileage.Builder().setOdometerMeters(
+                                odometerValue).setDistanceDisplayUnit(
+                                distanceDisplayUnitValue).build();
+                mMileageOnCarDataAvailableListener.onCarDataAvailable(mileage);
+            });
         }
     }
 
     /**
      * EnergyLevel listener to get battery, energy updates by {@link CarPropertyResponse}.
      */
-    @VisibleForTesting
     static class EnergyLevelListener implements OnCarPropertyResponseListener {
         private final OnCarDataAvailableListener<EnergyLevel>
                 mEnergyLevelOnCarDataAvailableListener;
@@ -540,71 +598,66 @@ public class AutomotiveCarInfo implements CarInfo {
         @Override
         public void onCarPropertyResponses(
                 @NonNull List<CarPropertyResponse<?>> carPropertyResponses) {
-            if (carPropertyResponses.size() != 6) {
-                Log.e(LogTags.TAG_CAR_HARDWARE,
-                        "Invalid response callback in EnergyLevelListener.");
-                return;
-            }
             mExecutor.execute(() -> {
-                CarValue<Float> batteryPercentValue = CarValue.UNIMPLEMENTED_FLOAT;
-                CarValue<Float> fuelPercentValue = CarValue.UNIMPLEMENTED_FLOAT;
-                CarValue<Boolean> energyIsLowValue = CarValue.UNIMPLEMENTED_BOOLEAN;
-                CarValue<Float> rangeRemainingValue = CarValue.UNIMPLEMENTED_FLOAT;
+                CarValue<Float> batteryPercentValue = CarValue.UNKNOWN_FLOAT;
+                CarValue<Float> fuelPercentValue = CarValue.UNKNOWN_FLOAT;
+                CarValue<Boolean> energyIsLowValue = CarValue.UNKNOWN_BOOLEAN;
+                CarValue<Float> rangeRemainingValue = CarValue.UNKNOWN_FLOAT;
                 CarValue<Integer> distanceDisplayUnitValue =
-                        CarValue.UNIMPLEMENTED_INTEGER;
+                        CarValue.UNKNOWN_INTEGER;
                 CarValue<Integer> fuelVolumeDisplayUnitValue =
-                        CarValue.UNIMPLEMENTED_INTEGER;
+                        CarValue.UNKNOWN_INTEGER;
                 for (CarPropertyResponse<?> response : carPropertyResponses) {
-                    if (response.getValue() == null) {
-                        Log.w(LogTags.TAG_CAR_HARDWARE,
-                                "Failed to retrieve CarPropertyResponse value for property id "
-                                        + response.getPropertyId());
-                        continue;
-                    }
                     switch (response.getPropertyId()) {
                         case EV_BATTERY_LEVEL:
-                            if (mEvBatteryCapacity != Float.NEGATIVE_INFINITY) {
-                                batteryPercentValue = new CarValue<>(
-                                        (Float) response.getValue() / mEvBatteryCapacity * 100,
-                                        response.getTimestampMillis(), response.getStatus());
+                            if (mEvBatteryCapacity == UNKNOWN_CAPACITY) {
+                                Log.w(LogTags.TAG_CAR_HARDWARE, "EV battery capacity is still "
+                                        + "unknown, skipping EV_BATTERY_LEVEL update");
+                                continue;
+                            }
+                            if (response.getValue() != null) {
+                                batteryPercentValue = getCarValue(response,
+                                        (Float) response.getValue() / mEvBatteryCapacity * 100);
+                            } else {
+                                batteryPercentValue = getCarValue(response);
                             }
                             break;
                         case FUEL_LEVEL:
-                            if (mFuelCapacity != Float.NEGATIVE_INFINITY) {
-                                fuelPercentValue = new CarValue<>(
-                                        (Float) response.getValue() / mFuelCapacity * 100,
-                                        response.getTimestampMillis(), response.getStatus());
+                            if (mFuelCapacity == UNKNOWN_CAPACITY) {
+                                Log.w(LogTags.TAG_CAR_HARDWARE, "Fuel capacity is still unknown, "
+                                        + "skipping FUEL_LEVEL update");
+                                continue;
+                            }
+                            if (response.getValue() != null) {
+                                fuelPercentValue = getCarValue(response,
+                                        (Float) response.getValue() / mFuelCapacity * 100);
+                            } else {
+                                fuelPercentValue = getCarValue(response);
                             }
                             break;
                         case FUEL_LEVEL_LOW:
-                            energyIsLowValue = new CarValue<>(
-                                    (Boolean) response.getValue(),
-                                    response.getTimestampMillis(), response.getStatus());
+                            energyIsLowValue = getCarValue(response);
                             break;
                         case RANGE_REMAINING:
-                            rangeRemainingValue = new CarValue<>(
-                                    (Float) response.getValue(),
-                                    response.getTimestampMillis(), response.getStatus());
+                            rangeRemainingValue = getCarValue(response);
                             break;
                         case DISTANCE_DISPLAY_UNITS:
-                            Integer displayUnit = null;
                             if (response.getValue() != null) {
-                                displayUnit = PropertyUtils.covertDistanceUnit(
-                                        (Integer) response.getValue());
+                                distanceDisplayUnitValue = getCarValue(response,
+                                        PropertyUtils.convertDistanceUnit(
+                                                (Integer) response.getValue()));
+                            } else {
+                                distanceDisplayUnitValue = getCarValue(response);
                             }
-                            distanceDisplayUnitValue = new CarValue<>(displayUnit,
-                                    response.getTimestampMillis(), response.getStatus());
                             break;
                         case FUEL_VOLUME_DISPLAY_UNITS:
-                            Integer volumeUnit = null;
                             if (response.getValue() != null) {
-                                volumeUnit = PropertyUtils.covertVolumeUnit(
-                                        (Integer) response.getValue());
+                                fuelVolumeDisplayUnitValue = getCarValue(response,
+                                        PropertyUtils.convertVolumeUnit(
+                                                (Integer) response.getValue()));
+                            } else {
+                                fuelVolumeDisplayUnitValue = getCarValue(response);
                             }
-                            fuelVolumeDisplayUnitValue =
-                                    new CarValue<>(volumeUnit,
-                                            response.getTimestampMillis(),
-                                            response.getStatus());
                             break;
                         default:
                             Log.e(LogTags.TAG_CAR_HARDWARE,

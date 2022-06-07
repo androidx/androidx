@@ -45,6 +45,7 @@ import java.util.Arrays;
 @RunWith(JUnit4.class)
 public class ProfileTranscoderTests {
     private static final String APK_NAME = "base.apk";
+
     @Test
     public void testReadProfile() throws IOException {
         byte[] version = ProfileVersion.V010_P;
@@ -98,6 +99,17 @@ public class ProfileTranscoderTests {
     }
 
     @Test
+    public void testTranscodeForS() throws IOException {
+        assertGoldenTranscodeWithMeta(
+                testFile("jetcaster/baseline-multidex-p.prof"),
+                testFile("jetcaster/baseline-multidex-s.profm"),
+                testFile("jetcaster/baseline-multidex-s.prof"),
+                ProfileVersion.V015_S,
+                "" /* apkName */
+        );
+    }
+
+    @Test
     public void testMultidexTranscodeForO() throws IOException {
         assertGoldenTranscode(
                 testFile("baseline-multidex.prof"),
@@ -121,7 +133,53 @@ public class ProfileTranscoderTests {
                 testFile("baseline-multidex.prof"),
                 testFile("baseline-multidex.profm"),
                 testFile("baseline-multidex-n.prof"),
-                ProfileVersion.V001_N
+                ProfileVersion.V001_N,
+                APK_NAME
+        );
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testMultiDexTranscodeForS_withMetadata001() throws IOException {
+        assertGoldenTranscodeWithMeta(
+                testFile("baseline-multidex.prof"),
+                testFile("baseline-multidex.profm"),
+                testFile("baseline-multidex-n.prof"),
+                ProfileVersion.V015_S,
+                APK_NAME
+        );
+    }
+
+    @Test
+    public void testMultiDexTranscodeForN_withMetadata002() throws IOException {
+        File input = testFile("jetcaster/baseline-multidex-p.prof");
+        File inputMeta001 = testFile("jetcaster/baseline-multidex-n.profm");
+        File inputMeta002 = testFile("jetcaster/baseline-multidex-s.profm");
+        String apkName = "";
+        byte[] desiredVersion = ProfileVersion.V001_N;
+        byte[] merged001 = readProfileAndMetadata(input, inputMeta001, desiredVersion, apkName);
+        byte[] merged002 = readProfileAndMetadata(input, inputMeta002, desiredVersion, apkName);
+        Truth.assertThat(Arrays.equals(merged001, merged002)).isTrue();
+    }
+
+    @Test
+    public void testMultidexTranscodeForN_withMetadata002_WithGolden() throws IOException {
+        assertGoldenTranscodeWithMeta(
+                testFile("jetcaster/baseline-multidex-p.prof"),
+                testFile("jetcaster/baseline-multidex-s.profm"), // metadata002
+                testFile("jetcaster/baseline-multidex-n.prof"),
+                ProfileVersion.V001_N,
+                ""
+        );
+    }
+
+    @Test
+    public void testTranscodeForS_Finsky() throws IOException {
+        assertGoldenTranscodeWithMeta(
+                testFile("finsky/baseline-multidex-s.prof"),
+                testFile("finsky/baseline-multidex.profm"),
+                testFile("finsky/baseline-multidex-golden.prof"),
+                ProfileVersion.V015_S,
+                "" /* apkName */
         );
     }
 
@@ -156,28 +214,36 @@ public class ProfileTranscoderTests {
             @NonNull File input,
             @NonNull File inputMeta,
             @NonNull File golden,
-            @NonNull byte[] desiredVersion
+            @NonNull byte[] desiredVersion,
+            @NonNull String apkName
+    ) throws IOException {
+        byte[] actualBytes = readProfileAndMetadata(input, inputMeta, desiredVersion, apkName);
+        byte[] goldenBytes = Files.readAllBytes(golden.toPath());
+        Truth.assertThat(Arrays.equals(goldenBytes, actualBytes)).isTrue();
+    }
+
+    private static byte[] readProfileAndMetadata(
+            @NonNull File input,
+            @NonNull File inputMeta,
+            @NonNull byte[] desiredVersion,
+            @NonNull String apkName
     ) throws IOException {
         try (
                 InputStream isProf = new FileInputStream(input);
                 InputStream isProfM = new FileInputStream(inputMeta);
-                ByteArrayOutputStream os = new ByteArrayOutputStream();
+                ByteArrayOutputStream os = new ByteArrayOutputStream()
         ) {
             byte[] version = ProfileTranscoder.readHeader(isProf, MAGIC_PROF);
             DexProfileData[] data = ProfileTranscoder.readProfile(
                     isProf,
                     version,
-                    APK_NAME
+                    apkName
             );
-
             byte[] metaVersion = ProfileTranscoder.readHeader(isProfM, MAGIC_PROFM);
-            data = ProfileTranscoder.readMeta(isProfM, metaVersion, data);
-
+            data = ProfileTranscoder.readMeta(isProfM, metaVersion, desiredVersion, data);
             ProfileTranscoder.writeHeader(os, desiredVersion);
             ProfileTranscoder.transcodeAndWriteBody(os, desiredVersion, data);
-            byte[] goldenBytes = Files.readAllBytes(golden.toPath());
-            byte[] actualBytes = os.toByteArray();
-            Truth.assertThat(Arrays.equals(goldenBytes, actualBytes)).isTrue();
+            return os.toByteArray();
         }
     }
 

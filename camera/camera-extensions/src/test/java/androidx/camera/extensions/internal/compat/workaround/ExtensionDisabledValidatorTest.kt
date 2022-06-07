@@ -17,7 +17,13 @@
 package androidx.camera.extensions.internal.compat.workaround
 
 import android.os.Build
+import androidx.camera.extensions.ExtensionMode
+import androidx.camera.extensions.internal.ExtensionVersion
+import androidx.camera.extensions.internal.util.ExtensionsTestUtil.resetSingleton
+import androidx.camera.extensions.internal.util.ExtensionsTestUtil.setTestApiVersionAndAdvancedExtender
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
@@ -27,26 +33,43 @@ import org.robolectric.util.ReflectionHelpers
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@Config(
+    minSdk = Build.VERSION_CODES.LOLLIPOP,
+    instrumentedPackages = arrayOf("androidx.camera.extensions.internal")
+)
 class ExtensionDisabledValidatorTest(private val config: TestConfig) {
-    @Test
-    fun shouldUseDefaultVendorExtender() {
-        // Set up device properties
-        if (config.brand != null) {
-            ReflectionHelpers.setStaticField(Build::class.java, "BRAND", config.brand)
-            ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", config.device)
-        }
 
-        val validator =
-            ExtensionDisabledValidator()
-        assertThat(validator.shouldDisableExtension(config.isAdvancedExtenderSupported))
-            .isEqualTo(config.shouldDisableExtension)
+    @Before
+    fun setUp() {
+        setTestApiVersionAndAdvancedExtender("1.2.0", config.isAdvancedInterface)
+    }
+
+    @After
+    fun tearDown() {
+        resetSingleton(ExtensionVersion::class.java, "sExtensionVersion")
+    }
+
+    @Test
+    fun shouldDisableExtensionMode() {
+        // Set up device properties
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", config.brand)
+        ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", config.device)
+
+        val validator = ExtensionDisabledValidator()
+        assertThat(
+            validator.shouldDisableExtension(
+                config.cameraId,
+                config.extensionMode
+            )
+        ).isEqualTo(config.shouldDisableExtension)
     }
 
     class TestConfig(
-        val brand: String?,
-        val device: String?,
-        val isAdvancedExtenderSupported: Boolean,
+        val brand: String,
+        val device: String,
+        val cameraId: String,
+        val extensionMode: Int,
+        val isAdvancedInterface: Boolean,
         val shouldDisableExtension: Boolean
     )
 
@@ -55,10 +78,37 @@ class ExtensionDisabledValidatorTest(private val config: TestConfig) {
         @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
         fun createTestSet(): List<TestConfig> {
             return listOf(
-                TestConfig("Google", "Redfin", false, true),
-                TestConfig("Google", "Redfin", true, false),
-                TestConfig("", "", false, false),
-                TestConfig("", "", true, false)
+                // Pixel 5 extension capability is disabled on basic extender
+                TestConfig("Google", "Redfin", "0", ExtensionMode.BOKEH, false, true),
+                TestConfig("Google", "Redfin", "0", ExtensionMode.HDR, false, true),
+                TestConfig("Google", "Redfin", "0", ExtensionMode.NIGHT, false, true),
+                TestConfig("Google", "Redfin", "0", ExtensionMode.FACE_RETOUCH, false, true),
+                TestConfig("Google", "Redfin", "0", ExtensionMode.AUTO, false, true),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.BOKEH, false, true),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.HDR, false, true),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.NIGHT, false, true),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.FACE_RETOUCH, false, true),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.AUTO, false, true),
+
+                // Pixel 5 extension capability is disabled on advanced extender until it is well tested
+                TestConfig("Google", "Redfin", "0", ExtensionMode.NIGHT, true, true),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.NIGHT, true, true),
+
+                // Motorola Razr 5G bokeh mode is disabled. Other extension modes should still work.
+                TestConfig("Motorola", "Smith", "0", ExtensionMode.BOKEH, false, true),
+                TestConfig("Motorola", "Smith", "0", ExtensionMode.HDR, false, false),
+                TestConfig("Motorola", "Smith", "1", ExtensionMode.BOKEH, false, true),
+                TestConfig("Motorola", "Smith", "1", ExtensionMode.HDR, false, false),
+                TestConfig("Motorola", "Smith", "2", ExtensionMode.BOKEH, false, false),
+                TestConfig("Motorola", "Smith", "2", ExtensionMode.HDR, false, false),
+
+                // Other cases should be kept normal.
+                TestConfig("", "", "0", ExtensionMode.BOKEH, false, false),
+                TestConfig("", "", "1", ExtensionMode.BOKEH, false, false),
+
+                // Advanced extender is disabled for all devices until it is well tested
+                TestConfig("", "", "0", ExtensionMode.BOKEH, true, true),
+                TestConfig("", "", "1", ExtensionMode.BOKEH, true, true),
             )
         }
     }

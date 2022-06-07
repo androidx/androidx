@@ -48,7 +48,6 @@ public class ConfigLayout extends LinearLayout {
         init(context);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.HONEYCOMB)
     public ConfigLayout(Context context, AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);

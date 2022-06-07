@@ -5,10 +5,10 @@ echo "Starting $0 at $(date)"
 
 androidxArguments="$*"
 
-WORKING_DIR="$(pwd)"
 SCRIPTS_DIR="$(cd $(dirname $0)/.. && pwd)"
 cd "$SCRIPTS_DIR/../../.."
 echo "Script running from $(pwd)"
+ANDROIDX_DIR="$(pwd)"
 
 # Resolve JDK folders for host OS
 STUDIO_JDK="linux"
@@ -18,23 +18,37 @@ if [[ $OSTYPE == darwin* ]]; then
   PREBUILT_JDK="darwin-x86"
 fi
 
-# resolve DIST_DIR
+# resolve dirs
+export OUT_DIR=$(pwd)/out
+
 if [ -z "$DIST_DIR" ]; then
-  DIST_DIR="$WORKING_DIR/out/dist"
+  DIST_DIR="$OUT_DIR/dist"
 fi
 mkdir -p "$DIST_DIR"
 
-export OUT_DIR=$(pwd)/out
 export DIST_DIR="$DIST_DIR"
 
+# resolve GRADLE_USER_HOME
+export GRADLE_USER_HOME="$OUT_DIR/gradle"
+mkdir -p "$GRADLE_USER_HOME"
+
 if [ "$STUDIO_DIR" == "" ]; then
-  STUDIO_DIR="$WORKING_DIR"
+  STUDIO_DIR="$ANDROIDX_DIR"
 else
   STUDIO_DIR="$(cd $STUDIO_DIR && pwd)"
 fi
 
 TOOLS_DIR=$STUDIO_DIR/tools
 gw="$TOOLS_DIR/gradlew -Dorg.gradle.jvmargs=-Xmx24g"
+
+plat="linux"
+case "`uname`" in
+  Darwin* )
+    plat="darwin"
+    ;;
+esac
+
+export ANDROID_HOME="$ANDROIDX_DIR/prebuilts/fullsdk-$plat"
 
 function buildStudio() {
   STUDIO_BUILD_LOG="$OUT_DIR/studio.log"
@@ -83,10 +97,26 @@ export JAVA_TOOLS_JAR="$(pwd)/prebuilts/jdk/jdk8/$PREBUILT_JDK/lib/tools.jar"
 export LINT_PRINT_STACKTRACE=true
 
 function buildAndroidx() {
+  RETURN_CODE=0
   LOG_PROCESSOR="$SCRIPTS_DIR/../development/build_log_processor.sh"
   properties="-Pandroidx.summarizeStderr --no-daemon"
-  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    $androidxArguments --profile
+  # Remove -Pandroid.overrideVersionCheck=true once b/233766756 is fixed
+  if "$LOG_PROCESSOR" frameworks/support/gradlew $properties -p frameworks/support $androidxArguments --profile \
+    -Pandroid.overrideVersionCheck=true \
+    --dependency-verification=off; then # building against tip of tree of AGP that potentially pulls in new dependencies
+    echo build passed
+  else
+    RETURN_CODE=1
+  fi
   $SCRIPTS_DIR/impl/parse_profile_htmls.sh
+
+  # zip build scan
+  scanZip="$DIST_DIR/scan.zip"
+  rm -f "$scanZip"
+  cd "$OUT_DIR/.gradle/build-scan-data"
+  zip -q -r "$scanZip" .
+  cd -
+  return $RETURN_CODE
 }
 
 buildAndroidx

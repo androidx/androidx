@@ -27,6 +27,8 @@ import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 import static org.robolectric.Shadows.shadowOf;
 
+import static kotlinx.coroutines.test.TestCoroutineDispatchersKt.UnconfinedTestDispatcher;
+
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
@@ -63,8 +65,6 @@ import org.robolectric.shadows.ShadowCameraManager;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-
-import kotlinx.coroutines.test.TestCoroutineDispatcher;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -122,7 +122,7 @@ public class TorchControlTest {
 
         /* Prepare Lifecycle for test LiveData */
         mLifecycleOwner = new TestLifecycleOwner(Lifecycle.State.STARTED,
-                new TestCoroutineDispatcher());
+                UnconfinedTestDispatcher(null, null));
     }
 
     @Test

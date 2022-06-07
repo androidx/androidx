@@ -42,7 +42,7 @@ class MacrobenchmarkTest {
                 testName = "testName",
                 packageName = "com.ignored",
                 metrics = emptyList(), // invalid
-                compilationMode = CompilationMode.None,
+                compilationMode = CompilationMode.noop,
                 iterations = 1,
                 startupMode = null,
                 setupBlock = {},
@@ -61,7 +61,7 @@ class MacrobenchmarkTest {
                 testName = "testName",
                 packageName = "com.ignored",
                 metrics = listOf(FrameTimingMetric()),
-                compilationMode = CompilationMode.None,
+                compilationMode = CompilationMode.noop,
                 iterations = 0, // invalid
                 startupMode = null,
                 setupBlock = {},
@@ -87,7 +87,7 @@ class MacrobenchmarkTest {
             testName = "validateCallbackBehavior",
             packageName = Packages.TARGET,
             metrics = listOf(TraceSectionMetric(TRACE_LABEL)),
-            compilationMode = CompilationMode.None,
+            compilationMode = CompilationMode.DEFAULT,
             iterations = 2,
             startupMode = startupMode,
             setupBlock = {

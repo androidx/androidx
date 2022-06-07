@@ -70,8 +70,29 @@ public class CameraQuirks {
         if (YuvImageOnePixelShiftQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new YuvImageOnePixelShiftQuirk());
         }
-        if (AutoFlashUnderExposedQuirk.load(cameraCharacteristicsCompat)) {
-            quirks.add(new AutoFlashUnderExposedQuirk());
+        if (FlashTooSlowQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new FlashTooSlowQuirk());
+        }
+        if (AfRegionFlipHorizontallyQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new AfRegionFlipHorizontallyQuirk());
+        }
+        if (ConfigureSurfaceToSecondarySessionFailQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new ConfigureSurfaceToSecondarySessionFailQuirk());
+        }
+        if (PreviewOrientationIncorrectQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new PreviewOrientationIncorrectQuirk());
+        }
+        if (CaptureSessionStuckQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new CaptureSessionStuckQuirk());
+        }
+        if (ImageCaptureFlashNotFireQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new ImageCaptureFlashNotFireQuirk());
+        }
+        if (ImageCaptureWithFlashUnderexposureQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new ImageCaptureWithFlashUnderexposureQuirk());
+        }
+        if (ImageCaptureFailWithAutoFlashQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new ImageCaptureFailWithAutoFlashQuirk());
         }
 
         return new Quirks(quirks);

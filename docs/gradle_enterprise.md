@@ -1,9 +1,6 @@
 # Gradle Enterprise
 
-<!--*
-# Document freshness: For more information, see go/fresh-source.
-freshness: { owner: 'rahulrav' reviewed: '2021-11-03' }
-*-->
+<!--* freshness: { owner: 'rahulrav' reviewed: '2022-05-02' } *-->
 
 [TOC]
 

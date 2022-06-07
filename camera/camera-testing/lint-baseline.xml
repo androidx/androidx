@@ -1,268 +1,215 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="    public boolean isZslSupported() {"
+        errorLine2="                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraInfoInternal.java"
+            line="196"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="        return false;"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraInfoInternal.java"
+            line="197"
+            column="16"/>
+    </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setAfMode(CameraCaptureMetaData.AfMode mode) {"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"
-            line="44"
-            column="27"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setAfState(CameraCaptureMetaData.AfState state) {"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"
-            line="48"
-            column="28"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setAeState(CameraCaptureMetaData.AeState state) {"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"
-            line="52"
-            column="28"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setAwbState(CameraCaptureMetaData.AwbState state) {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"
-            line="56"
-            column="29"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setFlashState(CameraCaptureMetaData.FlashState state) {"
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"
-            line="60"
-            column="31"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setTag(TagBundle tag) {"
         errorLine2="                       ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"
-            line="68"
-            column="24"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraCaptureResult.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void notifyAllRequestsOnCaptureCompleted(CameraCaptureResult result) {"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraControl.java"
-            line="88"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setSuggestedResolution(String cameraId, Class&lt;? extends UseCaseConfig&lt;?>> type,"
         errorLine2="                                       ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="43"
-            column="40"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setSuggestedResolution(String cameraId, Class&lt;? extends UseCaseConfig&lt;?>> type,"
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="43"
-            column="57"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="            Size size) {"
         errorLine2="            ~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="44"
-            column="13"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean checkSupported(String cameraId, List&lt;SurfaceConfig> surfaceConfigList) {"
         errorLine2="                                  ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="56"
-            column="35"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public boolean checkSupported(String cameraId, List&lt;SurfaceConfig> surfaceConfigList) {"
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="56"
-            column="52"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="61"
-            column="12"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {"
         errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="61"
-            column="49"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size) {"
         errorLine2="                                                                                  ~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"
-            line="61"
-            column="83"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCameraDeviceSurfaceManager.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public FakeCaptureStage(int id, CaptureConfig captureConfig) {"
         errorLine2="                                    ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCaptureStage.java"
-            line="38"
-            column="37"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCaptureStage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public CaptureConfig getCaptureConfig() {"
         errorLine2="           ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeCaptureStage.java"
-            line="49"
-            column="12"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeCaptureStage.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setPlanes(PlaneProxy[] planeProxy) {"
         errorLine2="                          ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeImageProxy.java"
-            line="165"
-            column="27"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeImageProxy.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ImageProxy acquireLatestImage() {"
-        errorLine2="           ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeImageReaderProxy.java"
-            line="100"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ImageProxy acquireNextImage() {"
-        errorLine2="           ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeImageReaderProxy.java"
-            line="122"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setSurface(Surface surface) {"
         errorLine2="                           ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/fakes/FakeImageReaderProxy.java"
-            line="182"
-            column="28"/>
+            file="src/main/java/androidx/camera/testing/fakes/FakeImageReaderProxy.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static void waitForLooperToIdle(Handler handler) throws InterruptedException {"
         errorLine2="                                           ~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/HandlerUtil.java"
-            line="38"
-            column="44"/>
+            file="src/main/java/androidx/camera/testing/HandlerUtil.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static MessageQueue getQueue(Looper looper) {"
         errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/compat/LooperCompat.java"
-            line="34"
-            column="19"/>
+            file="src/main/java/androidx/camera/testing/compat/LooperCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static MessageQueue getQueue(Looper looper) {"
         errorLine2="                                        ~~~~~~">
         <location
-            file="src/main/java/androidx/camera/testing/compat/LooperCompat.java"
-            line="34"
-            column="41"/>
+            file="src/main/java/androidx/camera/testing/compat/LooperCompat.java"/>
     </issue>
 
 </issues>

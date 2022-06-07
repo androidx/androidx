@@ -18,32 +18,28 @@ package androidx.wear.compose.integration.demos
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.Card
 import androidx.wear.compose.material.CardDefaults
 import androidx.wear.compose.material.MaterialTheme
-import androidx.wear.compose.material.ScalingLazyColumn
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.TitleCard
 
 @Composable
 fun CardDemo() {
-    ScalingLazyColumn(
+    ScalingLazyColumnWithRSB(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(
             space = 4.dp,
             alignment = Alignment.CenterVertically
         ),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 30.dp),
         modifier = Modifier.fillMaxSize()
     ) {
         item {
@@ -75,7 +71,8 @@ fun CardDemo() {
             AppCard(
                 onClick = {},
                 appName = { Text("AppName") },
-                appImage = { DemoImage(resourceId = R.drawable.ic_maps_icon) },
+                appImage = { DemoImage(resourceId = R.drawable.ic_maps_icon,
+                    size = CardDefaults.AppImageSize) },
                 title = { Text("AppCard") },
                 time = { Text("now") },
             ) {
@@ -111,7 +108,7 @@ fun CardDemo() {
             TitleCard(
                 onClick = {},
                 title = { Text("Custom TitleCard") },
-                titleColor = Color.Yellow
+                titleColor = AlternatePrimaryColor2
             ) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text("This title card emphasises the title with custom color")

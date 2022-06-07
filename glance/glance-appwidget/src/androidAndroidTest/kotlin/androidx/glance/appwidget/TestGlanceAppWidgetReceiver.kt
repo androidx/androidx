@@ -16,17 +16,15 @@
 
 package androidx.glance.appwidget
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceId
-import androidx.glance.state.GlanceStateDefinition
 
 class TestGlanceAppWidgetReceiver : GlanceAppWidgetReceiver() {
     override val glanceAppWidget: GlanceAppWidget = TestGlanceAppWidget
 }
 
 object TestGlanceAppWidget : GlanceAppWidget(errorUiLayout = 0) {
-
-    override var stateDefinition: GlanceStateDefinition<*>? = null
 
     override var sizeMode: SizeMode = SizeMode.Single
 
@@ -45,7 +43,7 @@ object TestGlanceAppWidget : GlanceAppWidget(errorUiLayout = 0) {
         onDeleteBlock = null
     }
 
-    override suspend fun onDelete(glanceId: GlanceId) {
+    override suspend fun onDelete(context: Context, glanceId: GlanceId) {
         onDeleteBlock?.apply { this(glanceId) }
     }
 

@@ -17,18 +17,44 @@
 package androidx.wear.compose.material.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Chip
+import androidx.wear.compose.material.ChipDefaults
 import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.Text
+
+@Sampled
+@Composable
+fun ChipWithIconAndLabel() {
+    Chip(
+        onClick = { /* Do something */ },
+        enabled = true,
+        // When we have only primary label we can have up to 2 lines of text
+        label = {
+            Text(
+                text = "Main label can span over 2 lines",
+                maxLines = 2, overflow = TextOverflow.Ellipsis
+            )
+        },
+        icon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
+                contentDescription = "airplane",
+                modifier = Modifier.size(ChipDefaults.IconSize)
+                    .wrapContentSize(align = Alignment.Center),
+            )
+        }
+    )
+}
 
 @Sampled
 @Composable
@@ -36,13 +62,17 @@ fun ChipWithIconAndLabels() {
     Chip(
         onClick = { /* Do something */ },
         enabled = true,
-        label = { Text(text = "Main label") },
-        secondaryLabel = { Text(text = "secondary label") },
+        // When we have both label and secondary label present limit both to 1 line of text
+        label = { Text(text = "Main label", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+        secondaryLabel = {
+            Text(text = "secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
         icon = {
             Icon(
                 painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
                 contentDescription = "airplane",
-                modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
+                modifier = Modifier.size(ChipDefaults.IconSize)
+                    .wrapContentSize(align = Alignment.Center),
             )
         }
     )
@@ -54,6 +84,7 @@ fun CompactChipWithIconAndLabel() {
     CompactChip(
         onClick = { /* Do something */ },
         enabled = true,
+        // CompactChip label should be no more than 1 line of text
         label = {
             Text("Single line label", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
@@ -61,7 +92,42 @@ fun CompactChipWithIconAndLabel() {
             Icon(
                 painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
                 contentDescription = "airplane",
-                modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
+                modifier = Modifier.size(ChipDefaults.SmallIconSize),
+            )
+        },
+    )
+}
+
+@Sampled
+@Composable
+fun CompactChipWithLabel() {
+    CompactChip(
+        onClick = { /* Do something */ },
+        enabled = true,
+        // CompactChip label should be no more than 1 line of text
+        label = {
+            Text(
+                text = "Single line label",
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+    )
+}
+
+@Sampled
+@Composable
+fun CompactChipWithIcon() {
+    CompactChip(
+        onClick = { /* Do something */ },
+        enabled = true,
+        icon = {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_airplanemode_active_24px),
+                contentDescription = "airplane",
+                modifier = Modifier.size(ChipDefaults.IconSize)
             )
         },
     )

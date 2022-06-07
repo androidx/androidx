@@ -325,6 +325,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onBackPressed() {
         if (mSelectionTracker.clearSelection()) {

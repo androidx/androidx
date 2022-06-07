@@ -38,10 +38,12 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.workaround.ExcludedSupportedSizesContainer;
 import androidx.camera.camera2.internal.compat.workaround.ExtraSupportedSurfaceCombinationsContainer;
+import androidx.camera.camera2.internal.compat.workaround.ResolutionCorrector;
 import androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.SurfaceCombination;
@@ -100,6 +102,7 @@ final class SupportedSurfaceCombination {
     private Map<Integer, Size[]> mOutputSizesCache = new HashMap<>();
     @NonNull
     private final DisplayInfoManager mDisplayInfoManager;
+    private final ResolutionCorrector mResolutionCorrector = new ResolutionCorrector();
 
     SupportedSurfaceCombination(@NonNull Context context, @NonNull String cameraId,
             @NonNull CameraManagerCompat cameraManagerCompat,
@@ -168,24 +171,8 @@ final class SupportedSurfaceCombination {
      * @return new {@link SurfaceConfig} object
      */
     SurfaceConfig transformSurfaceConfig(int imageFormat, Size size) {
-        ConfigType configType;
+        ConfigType configType = getConfigType(imageFormat);
         ConfigSize configSize = ConfigSize.NOT_SUPPORT;
-
-        /*
-         * PRIV refers to any target whose available sizes are found using
-         * StreamConfigurationMap.getOutputSizes(Class) with no direct application-visible format,
-         * YUV refers to a target Surface using the ImageFormat.YUV_420_888 format, JPEG refers to
-         * the ImageFormat.JPEG format, and RAW refers to the ImageFormat.RAW_SENSOR format.
-         */
-        if (imageFormat == ImageFormat.YUV_420_888) {
-            configType = ConfigType.YUV;
-        } else if (imageFormat == ImageFormat.JPEG) {
-            configType = ConfigType.JPEG;
-        } else if (imageFormat == ImageFormat.RAW_SENSOR) {
-            configType = ConfigType.RAW;
-        } else {
-            configType = ConfigType.PRIV;
-        }
 
         Size maxSize = fetchMaxSize(imageFormat);
 
@@ -212,23 +199,27 @@ final class SupportedSurfaceCombination {
     /**
      * Finds the suggested resolutions of the newly added UseCaseConfig.
      *
-     * @param existingSurfaces the existing surfaces.
+     * @param existingSurfaces  the existing surfaces.
      * @param newUseCaseConfigs newly added UseCaseConfig.
      * @return the suggested resolutions, which is a mapping from UseCaseConfig to the suggested
      * resolution.
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
-     * found. This may be due to no available output size or no available surface combination.
+     *                                  found. This may be due to no available output size or no
+     *                                  available surface combination.
      */
     @NonNull
     Map<UseCaseConfig<?>, Size> getSuggestedResolutions(
-            @NonNull List<SurfaceConfig> existingSurfaces,
+            @NonNull List<AttachedSurfaceInfo> existingSurfaces,
             @NonNull List<UseCaseConfig<?>> newUseCaseConfigs) {
-       // Refresh Preview Size based on current display configurations.
+        // Refresh Preview Size based on current display configurations.
         refreshPreviewSize();
+        List<SurfaceConfig> surfaceConfigs = new ArrayList<>();
+        for (AttachedSurfaceInfo scc : existingSurfaces) {
+            surfaceConfigs.add(scc.getSurfaceConfig());
+        }
 
         // Use the small size (640x480) for new use cases to check whether there is any possible
         // supported combination first
-        List<SurfaceConfig> surfaceConfigs = new ArrayList<>(existingSurfaces);
         for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
             surfaceConfigs.add(
                     transformSurfaceConfig(useCaseConfig.getInputFormat(),
@@ -262,7 +253,10 @@ final class SupportedSurfaceCombination {
         // Transform use cases to SurfaceConfig list and find the first (best) workable combination
         for (List<Size> possibleSizeList : allPossibleSizeArrangements) {
             // Attach SurfaceConfig of original use cases since it will impact the new use cases
-            List<SurfaceConfig> surfaceConfigList = new ArrayList<>(existingSurfaces);
+            List<SurfaceConfig> surfaceConfigList = new ArrayList<>();
+            for (AttachedSurfaceInfo sc : existingSurfaces) {
+                surfaceConfigList.add(sc.getSurfaceConfig());
+            }
 
             // Attach SurfaceConfig of new use cases
             for (int i = 0; i < possibleSizeList.size(); i++) {
@@ -301,7 +295,7 @@ final class SupportedSurfaceCombination {
         // Gets the corrected aspect ratio due to device constraints or null if no correction is
         // needed.
         @TargetAspectRatio.Ratio int targetAspectRatio =
-                new TargetAspectRatio().get(imageOutputConfig, mCameraId, mCharacteristics);
+                new TargetAspectRatio().get(mCameraId, mCharacteristics);
         switch (targetAspectRatio) {
             case TargetAspectRatio.RATIO_4_3:
                 outputRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3 : ASPECT_RATIO_3_4;
@@ -492,7 +486,34 @@ final class SupportedSurfaceCombination {
             }
         }
 
+        supportedResolutions = mResolutionCorrector.insertOrPrioritize(
+                getConfigType(config.getInputFormat()),
+                supportedResolutions);
+
         return supportedResolutions;
+    }
+
+
+    /**
+     * Gets {@link ConfigType} from image format.
+     *
+     * <p> PRIV refers to any target whose available sizes are found using
+     * StreamConfigurationMap.getOutputSizes(Class) with no direct application-visible format,
+     * YUV refers to a target Surface using the ImageFormat.YUV_420_888 format, JPEG refers to
+     * the ImageFormat.JPEG format, and RAW refers to the ImageFormat.RAW_SENSOR format.
+     */
+    @NonNull
+    private SurfaceConfig.ConfigType getConfigType(int imageFormat) {
+
+        if (imageFormat == ImageFormat.YUV_420_888) {
+            return SurfaceConfig.ConfigType.YUV;
+        } else if (imageFormat == ImageFormat.JPEG) {
+            return SurfaceConfig.ConfigType.JPEG;
+        } else if (imageFormat == ImageFormat.RAW_SENSOR) {
+            return SurfaceConfig.ConfigType.RAW;
+        } else {
+            return SurfaceConfig.ConfigType.PRIV;
+        }
     }
 
     @Nullable

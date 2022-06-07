@@ -128,6 +128,7 @@ public class HeadlessWatchFaceInstanceParams implements VersionedParcelable, Par
 
     public static final Parcelable.Creator<HeadlessWatchFaceInstanceParams> CREATOR =
             new Parcelable.Creator<HeadlessWatchFaceInstanceParams>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public HeadlessWatchFaceInstanceParams createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

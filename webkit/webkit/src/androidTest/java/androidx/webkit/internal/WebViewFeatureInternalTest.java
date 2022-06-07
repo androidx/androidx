@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.webkit;
+package androidx.webkit.internal;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

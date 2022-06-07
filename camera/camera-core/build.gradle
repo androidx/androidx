@@ -15,7 +15,6 @@
  */
 
 
-import androidx.build.LibraryGroups
 import androidx.build.Publish
 
 plugins {
@@ -85,9 +84,13 @@ android {
 
     externalNativeBuild {
         cmake {
-            version "3.18.1"
+            version libs.versions.cmake.get()
             path "src/main/cpp/CMakeLists.txt"
         }
+    }
+
+    lintOptions {
+        enable 'CameraXQuirksClassDetector'
     }
 
     // Use Robolectric 4.+
@@ -96,6 +99,7 @@ android {
     packagingOptions {
         pickFirst "META-INF/support.camera_camera-core.version"
     }
+    namespace "androidx.camera.core"
 }
 
 androidx {

@@ -31,6 +31,8 @@ import androidx.glance.text.TextStyle
  * @param modifier The modifier to be applied to this button.
  * @param enabled If false, the button will not be clickable.
  * @param style The style to be applied to the text in this button.
+ * @param maxLines An optional maximum number of lines for the text to span, wrapping if
+ * necessary. If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
 fun Button(
@@ -38,7 +40,8 @@ fun Button(
     onClick: Action,
     modifier: GlanceModifier = GlanceModifier,
     enabled: Boolean = true,
-    style: TextStyle? = null
+    style: TextStyle? = null,
+    maxLines: Int = Int.MAX_VALUE,
 ) {
     val finalModifier = if (enabled) modifier.clickable(onClick) else modifier
     GlanceNode(
@@ -48,6 +51,7 @@ fun Button(
             this.set(finalModifier) { this.modifier = it }
             this.set(style) { this.style = it }
             this.set(enabled) { this.enabled = it }
+            this.set(maxLines) { this.maxLines = it }
         }
     )
 }
@@ -59,9 +63,10 @@ class EmittableButton : Emittable {
     var text: String = ""
     var style: TextStyle? = null
     var enabled: Boolean = true
+    var maxLines: Int = Int.MAX_VALUE
 
     override fun toString(): String = "EmittableButton('$text', enabled=$enabled, style=$style, " +
-        "modifier=$modifier)"
+        "modifier=$modifier, maxLines=$maxLines)"
 }
 
 /** @suppress */
@@ -70,4 +75,5 @@ fun EmittableButton.toEmittableText() = EmittableText().also {
     it.modifier = modifier
     it.text = text
     it.style = style
+    it.maxLines = maxLines
 }

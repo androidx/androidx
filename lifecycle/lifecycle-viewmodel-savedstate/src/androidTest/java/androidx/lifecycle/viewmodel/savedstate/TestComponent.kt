@@ -46,8 +46,8 @@ class TestComponent(
     }
 
     override fun getLifecycle(): Lifecycle = lifecycleRegistry
-    override fun getSavedStateRegistry(): SavedStateRegistry =
-        savedStateController.savedStateRegistry
+    override val savedStateRegistry: SavedStateRegistry
+        get() = savedStateController.savedStateRegistry
 
     override fun getViewModelStore(): ViewModelStore = vmStore
 

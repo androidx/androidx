@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
-import androidx.build.LibraryVersions
 
 plugins {
     id("AndroidXPlugin")
@@ -32,6 +30,8 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
+
+    samples(project(":core:core-performance:core-performance-samples"))
 }
 
 androidx {
@@ -41,4 +41,8 @@ androidx {
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2021"
     description = "This library makes it easy for developers to make UI and feature choices based on Android Performance Class level for GMS devices."
+}
+
+android {
+    namespace "androidx.core.performance"
 }

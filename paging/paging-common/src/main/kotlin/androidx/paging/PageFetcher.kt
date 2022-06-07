@@ -95,8 +95,10 @@ internal class PageFetcher<Key : Any, Value : Any>(
                     previousPagingState = previousGeneration.state
                 }
 
-                val initialKey: Key? = previousPagingState?.let { pagingSource.getRefreshKey(it) }
-                    ?: initialKey
+                val initialKey: Key? = when (previousPagingState) {
+                    null -> initialKey
+                    else -> pagingSource.getRefreshKey(previousPagingState)
+                }
 
                 previousGeneration?.snapshot?.close()
                 previousGeneration?.job?.cancel()

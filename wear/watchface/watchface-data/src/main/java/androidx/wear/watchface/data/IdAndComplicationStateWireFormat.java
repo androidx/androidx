@@ -77,6 +77,7 @@ public final class IdAndComplicationStateWireFormat implements VersionedParcelab
 
     public static final Parcelable.Creator<IdAndComplicationStateWireFormat> CREATOR =
             new Parcelable.Creator<IdAndComplicationStateWireFormat>() {
+                @SuppressWarnings("deprecation")
                 @Override
                 public IdAndComplicationStateWireFormat createFromParcel(Parcel source) {
                     return ParcelUtils.fromParcelable(

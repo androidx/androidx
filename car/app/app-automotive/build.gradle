@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryGroups
 import androidx.build.LibraryType
 
 plugins {
@@ -31,13 +30,16 @@ dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("androidx.core:core:1.7.0")
     implementation(libs.autoValueAnnotations)
-    implementation("androidx.annotation:annotation-experimental:1.1.0")
-    implementation libs.kotlinStdlib // Due to :annotation-experimental
+    api("androidx.annotation:annotation-experimental:1.1.0")
+    // There is an implicit compile-only dep due to :annotation-experimental
+    // Build will complain without this manual declaration.
+    api(libs.kotlinStdlib)
+    implementation project(path: ':annotation:annotation-experimental')
 
     annotationProcessor(libs.nullaway)
     annotationProcessor(libs.autoValue)
 
-    testImplementation("junit:junit:4.13")
+    testImplementation(libs.junit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
@@ -64,6 +66,7 @@ android {
     }
     useLibrary 'android.car'
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.car.app.automotive"
 }
 
 androidx {

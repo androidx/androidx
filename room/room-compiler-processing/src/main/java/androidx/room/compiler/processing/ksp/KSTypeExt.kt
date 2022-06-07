@@ -155,14 +155,7 @@ private fun KSTypeArgument.typeName(
         Variance.CONTRAVARIANT -> WildcardTypeName.supertypeOf(resolveTypeName())
         Variance.COVARIANT -> WildcardTypeName.subtypeOf(resolveTypeName())
         Variance.STAR -> {
-            // for star projected types, JavaPoet uses the name from the declaration if
-            // * is not given explicitly
-            if (type == null) {
-                // explicit *
-                WildcardTypeName.subtypeOf(TypeName.OBJECT)
-            } else {
-                WildcardTypeName.subtypeOf(type.typeName(resolver, typeArgumentTypeLookup))
-            }
+            WildcardTypeName.subtypeOf(TypeName.OBJECT)
         }
         else -> {
             if (hasJvmWildcardAnnotation()) {
@@ -187,7 +180,7 @@ private fun KSType.typeName(
     resolver: Resolver,
     typeArgumentTypeLookup: TypeArgumentTypeLookup
 ): TypeName {
-    return if (this.arguments.isNotEmpty()) {
+    return if (this.arguments.isNotEmpty() && !isRaw()) {
         val args: Array<TypeName> = this.arguments
             .map { typeArg ->
                 typeArg.typeName(
@@ -331,4 +324,11 @@ internal fun KSNode.hasSuppressWildcardsAnnotationInHierarchy(): Boolean {
     }
     val parent = parent ?: return false
     return parent.hasSuppressWildcardsAnnotationInHierarchy()
+}
+
+internal fun KSType.isRaw(): Boolean {
+    // yes this is gross but KSP itself seems to be doing it as well
+    // https://github.com/google/ksp/blob/main/compiler-plugin/
+    // src/main/kotlin/com/google/devtools/ksp/symbol/impl/kotlin/KSTypeImpl.kt#L85
+    return toString().startsWith("raw ")
 }

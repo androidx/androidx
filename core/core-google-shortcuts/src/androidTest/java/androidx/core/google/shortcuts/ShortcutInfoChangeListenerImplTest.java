@@ -26,6 +26,8 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.content.Intent;
 
+import androidx.appsearch.app.ShortcutAdapter;
+import androidx.appsearch.builtintypes.Timer;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.google.shortcuts.builders.CapabilityBuilder;
 import androidx.core.google.shortcuts.builders.ParameterBuilder;
@@ -207,6 +209,41 @@ public class ShortcutInfoChangeListenerImplTest {
                 .setShortcutLabel("short label")
                 .setUrl(ShortcutUtils.getIndexableUrl(mContext, "privateIntent"))
                 .setShortcutUrl(ShortcutUtils.getIndexableShortcutUrl(mContext, intent, null))
+                .build();
+        assertThat(allValues).containsExactly(expected);
+    }
+
+    @Test
+    @SmallTest
+    public void onShortcutUpdated_entityShortcut_savesToAppIndex() throws Exception {
+        ArgumentCaptor<Indexable> indexableCaptor = ArgumentCaptor.forClass(Indexable.class);
+
+        Timer timer = new Timer.Builder(ShortcutAdapter.DEFAULT_NAMESPACE, "timer_id")
+                .setCreationTimestampMillis(1000)
+                .build();
+        ShortcutInfoCompat timerShortcut =
+                ShortcutAdapter.createShortcutBuilderFromDocument(mContext, timer)
+                        .build();
+
+        mShortcutInfoChangeListener.onShortcutUpdated(Collections.singletonList(timerShortcut));
+
+        verify(mFirebaseAppIndex, only()).update(indexableCaptor.capture());
+        List<Indexable> allValues = indexableCaptor.getAllValues();
+
+        Indexable expected = new Indexable.Builder("Timer")
+                .setMetadata(new Indexable.Metadata.Builder().setScore(0))
+                .setUrl(ShortcutUtils.getIndexableUrl(mContext, "timer_id"))
+                .put("_namespace", ShortcutAdapter.DEFAULT_NAMESPACE)
+                .put("_ttlMillis", 0)
+                .put("_creationTimestampMillis", 1000)
+                .put("id", "timer_id")
+                .put("length", 0)
+                .put("name", ShortcutAdapter.DEFAULT_NAMESPACE)
+                .put("remainingTime", 0)
+                .put("timerStatus", "Unknown")
+                .put("vibrate", false)
+                .put("bootCount", 0)
+                .put("originalDurationMillis", 0)
                 .build();
         assertThat(allValues).containsExactly(expected);
     }

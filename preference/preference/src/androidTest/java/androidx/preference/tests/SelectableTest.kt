@@ -160,11 +160,9 @@ class SelectableTest {
      * A Drawable that will fail the test when its state changes.
      */
     private class TestDrawable : StateListDrawable() {
-        override fun onStateChange(stateSet: IntArray?): Boolean {
-            stateSet?.let {
-                if (stateSet.contains(android.R.attr.state_pressed)) {
-                    fail("Ripple should not have been activated!")
-                }
+        override fun onStateChange(stateSet: IntArray): Boolean {
+            if (stateSet.contains(android.R.attr.state_pressed)) {
+                fail("Ripple should not have been activated!")
             }
             return super.onStateChange(stateSet)
         }

@@ -20,8 +20,8 @@ package androidx.navigation.compose.lint
 
 import androidx.compose.lint.Name
 import androidx.compose.lint.Package
-import androidx.compose.lint.invokedInComposableBodyAndNotRemembered
 import androidx.compose.lint.isInPackageName
+import androidx.compose.lint.isNotRememberedWithKeys
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -31,12 +31,12 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
-import org.jetbrains.uast.UCallExpression
 import java.util.EnumSet
+import org.jetbrains.uast.UCallExpression
 
 /**
  * [Detector] that checks `getBackStackEntry` calls to make sure that if they are called inside a
- * Composable body, they are `remember`ed.
+ * Composable body, they are `remember`ed with a `NavBackStackEntry` as a key.
  */
 class UnrememberedGetBackStackEntryDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames(): List<String> = listOf(
@@ -46,12 +46,13 @@ class UnrememberedGetBackStackEntryDetector : Detector(), SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (!method.isInPackageName(PackageName)) return
 
-        if (node.invokedInComposableBodyAndNotRemembered()) {
+        if (node.isNotRememberedWithKeys(NavBackStackEntry)) {
             context.report(
                 UnrememberedGetBackStackEntry,
                 node,
                 context.getNameLocation(node),
-                "Calling getBackStackEntry during composition without using `remember`"
+                "Calling getBackStackEntry during composition without using `remember` " +
+                    "with a NavBackStackEntry key"
             )
         }
     }
@@ -59,11 +60,15 @@ class UnrememberedGetBackStackEntryDetector : Detector(), SourceCodeScanner {
     companion object {
         val UnrememberedGetBackStackEntry = Issue.create(
             "UnrememberedGetBackStackEntry",
-            "Calling getBackStackEntry during composition with using `remember`",
+            "Calling getBackStackEntry during composition without using `remember`" +
+                "with a NavBackStackEntry key",
             "Backstack entries retrieved during composition need to be `remember`ed, otherwise " +
-                "they will be retrieved from the navController again, and be changed. Either " +
-                "hoist the state to an object that is not created during composition, or wrap " +
-                "the state in a call to `remember`.",
+                "they will be retrieved from the navController again, and be changed. You also " +
+                "need to pass in a key of a NavBackStackEntry to the remember call or they will " +
+                "not be updated properly. If this is in a `NavGraphBuilder.composable` scope, " +
+                "you should pass in the lambda's given entry as the key. Either hoist the state " +
+                "to an object that is not created during composition, or wrap the state in a " +
+                "call to `remember` with a `NavBackStackEntry` as a key.",
             Category.CORRECTNESS, 3, Severity.ERROR,
             Implementation(
                 UnrememberedGetBackStackEntryDetector::class.java,
@@ -75,3 +80,4 @@ class UnrememberedGetBackStackEntryDetector : Detector(), SourceCodeScanner {
 
 private val PackageName = Package("androidx.navigation")
 private val GetBackStackEntry = Name(PackageName, "getBackStackEntry")
+private val NavBackStackEntry = Name(PackageName, "NavBackStackEntry")

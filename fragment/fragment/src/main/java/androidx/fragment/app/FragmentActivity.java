@@ -17,7 +17,6 @@
 package androidx.fragment.app;
 
 import static androidx.activity.result.contract.ActivityResultContracts.StartIntentSenderForResult;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -29,7 +28,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -47,9 +45,17 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.MultiWindowModeChangedInfo;
+import androidx.core.app.OnMultiWindowModeChangedProvider;
+import androidx.core.app.OnPictureInPictureModeChangedProvider;
+import androidx.core.app.PictureInPictureModeChangedInfo;
 import androidx.core.app.SharedElementCallback;
+import androidx.core.content.OnConfigurationChangedProvider;
+import androidx.core.content.OnTrimMemoryProvider;
+import androidx.core.util.Consumer;
+import androidx.core.view.MenuHost;
+import androidx.core.view.MenuProvider;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
@@ -125,6 +131,12 @@ public class FragmentActivity extends ComponentActivity implements
             mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
             return new Bundle();
         });
+        // Ensure that the first OnConfigurationChangedListener
+        // marks the FragmentManager's state as not saved
+        addOnConfigurationChangedListener(newConfig -> mFragments.noteStateNotSaved());
+        // Ensure that the first OnNewIntentListener
+        // marks the FragmentManager's state as not saved
+        addOnNewIntentListener(newConfig -> mFragments.noteStateNotSaved());
         addOnContextAvailableListener(context -> mFragments.attachHost(null /*parent*/));
     }
 
@@ -198,50 +210,6 @@ public class FragmentActivity extends ComponentActivity implements
     /**
      * {@inheritDoc}
      *
-     * <p><strong>Note:</strong> If you override this method you must call
-     * <code>super.onMultiWindowModeChanged</code> to correctly dispatch the event
-     * to support fragments attached to this activity.</p>
-     *
-     * @param isInMultiWindowMode True if the activity is in multi-window mode.
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    @CallSuper
-    public void onMultiWindowModeChanged(boolean isInMultiWindowMode) {
-        mFragments.dispatchMultiWindowModeChanged(isInMultiWindowMode);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p><strong>Note:</strong> If you override this method you must call
-     * <code>super.onPictureInPictureModeChanged</code> to correctly dispatch the event
-     * to support fragments attached to this activity.</p>
-     *
-     * @param isInPictureInPictureMode True if the activity is in picture-in-picture mode.
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    @CallSuper
-    public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode) {
-        mFragments.dispatchPictureInPictureModeChanged(isInPictureInPictureMode);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Dispatch configuration change to all fragments.
-     */
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        mFragments.noteStateNotSaved();
-        super.onConfigurationChanged(newConfig);
-        mFragments.dispatchConfigurationChanged(newConfig);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
      * Perform initialization of all fragments.
      */
     @Override
@@ -250,21 +218,6 @@ public class FragmentActivity extends ComponentActivity implements
 
         mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
         mFragments.dispatchCreate();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Dispatch to Fragment.onCreateOptionsMenu().
-     */
-    @Override
-    public boolean onCreatePanelMenu(int featureId, @NonNull Menu menu) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            boolean show = super.onCreatePanelMenu(featureId, menu);
-            show |= mFragments.dispatchCreateOptionsMenu(menu, getMenuInflater());
-            return show;
-        }
-        return super.onCreatePanelMenu(featureId, menu);
     }
 
     @Override
@@ -307,51 +260,17 @@ public class FragmentActivity extends ComponentActivity implements
         mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Dispatch onLowMemory() to all fragments.
-     */
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mFragments.dispatchLowMemory();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Dispatch context and options menu to fragments.
-     */
     @Override
     public boolean onMenuItemSelected(int featureId, @NonNull MenuItem item) {
         if (super.onMenuItemSelected(featureId, item)) {
             return true;
         }
 
-        switch (featureId) {
-            case Window.FEATURE_OPTIONS_PANEL:
-                return mFragments.dispatchOptionsItemSelected(item);
-
-            case Window.FEATURE_CONTEXT_MENU:
-                return mFragments.dispatchContextItemSelected(item);
-
-            default:
-                return false;
+        if (featureId == Window.FEATURE_CONTEXT_MENU) {
+            return mFragments.dispatchContextItemSelected(item);
         }
-    }
 
-    /**
-     * {@inheritDoc}
-     *
-     * Call onOptionsMenuClosed() on fragments.
-     */
-    @Override
-    public void onPanelClosed(int featureId, @NonNull Menu menu) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            mFragments.dispatchOptionsMenuClosed(menu);
-        }
-        super.onPanelClosed(featureId, menu);
+        return false;
     }
 
     /**
@@ -365,25 +284,6 @@ public class FragmentActivity extends ComponentActivity implements
         mResumed = false;
         mFragments.dispatchPause();
         mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_PAUSE);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Handle onNewIntent() to inform the fragment manager that the
-     * state is not saved.  If you are handling new intents and may be
-     * making changes to the fragment state, you want to be sure to call
-     * through to the super-class here first.  Otherwise, if your state
-     * is saved but the activity is not stopped, you could get an
-     * onNewIntent() call which happens before onResume() and trying to
-     * perform fragment operations at that point will throw IllegalStateException
-     * because the fragment manager thinks the state is still saved.
-     */
-    @Override
-    @CallSuper
-    protected void onNewIntent(@SuppressLint("UnknownNullness") Intent intent) {
-        mFragments.noteStateNotSaved();
-        super.onNewIntent(intent);
     }
 
     /**
@@ -432,33 +332,6 @@ public class FragmentActivity extends ComponentActivity implements
     protected void onResumeFragments() {
         mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
         mFragments.dispatchResume();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Dispatch onPrepareOptionsMenu() to fragments.
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    public boolean onPreparePanel(int featureId, @Nullable View view, @NonNull Menu menu) {
-        if (featureId == Window.FEATURE_OPTIONS_PANEL) {
-            boolean goforit = onPrepareOptionsPanel(view, menu);
-            goforit |= mFragments.dispatchPrepareOptionsMenu(menu);
-            return goforit;
-        }
-        return super.onPreparePanel(featureId, view, menu);
-    }
-
-    /**
-     * @hide
-     * @deprecated Override {@link #onPreparePanel(int, View, Menu)}.
-     */
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
-    @Deprecated
-    protected boolean onPrepareOptionsPanel(@Nullable View view, @NonNull Menu menu) {
-        return super.onPreparePanel(Window.FEATURE_OPTIONS_PANEL, view, menu);
     }
 
     /**
@@ -536,6 +409,11 @@ public class FragmentActivity extends ComponentActivity implements
     public void dump(@NonNull String prefix, @Nullable FileDescriptor fd,
             @NonNull PrintWriter writer, @Nullable String[] args) {
         super.dump(prefix, fd, writer, args);
+
+        if (!shouldDumpInternalState(args)) {
+            return;
+        }
+
         writer.print(prefix); writer.print("Local FragmentActivity ");
                 writer.print(Integer.toHexString(System.identityHashCode(this)));
                 writer.println(" State:");
@@ -693,11 +571,17 @@ public class FragmentActivity extends ComponentActivity implements
     }
 
     class HostCallbacks extends FragmentHostCallback<FragmentActivity> implements
+            OnConfigurationChangedProvider,
+            OnTrimMemoryProvider,
+            OnMultiWindowModeChangedProvider,
+            OnPictureInPictureModeChangedProvider,
             ViewModelStoreOwner,
             OnBackPressedDispatcherOwner,
             ActivityResultRegistryOwner,
             SavedStateRegistryOwner,
-            FragmentOnAttachListener {
+            FragmentOnAttachListener,
+            MenuHost {
+
         public HostCallbacks() {
             super(FragmentActivity.this /*fragmentActivity*/);
         }
@@ -748,7 +632,7 @@ public class FragmentActivity extends ComponentActivity implements
 
         @Override
         public void onSupportInvalidateOptionsMenu() {
-            FragmentActivity.this.supportInvalidateOptionsMenu();
+            invalidateMenu();
         }
 
         @Override
@@ -797,6 +681,80 @@ public class FragmentActivity extends ComponentActivity implements
         @Override
         public SavedStateRegistry getSavedStateRegistry() {
             return FragmentActivity.this.getSavedStateRegistry();
+        }
+
+        @Override
+        public void addOnConfigurationChangedListener(
+                @NonNull Consumer<Configuration> listener
+        ) {
+            FragmentActivity.this.addOnConfigurationChangedListener(listener);
+        }
+
+        @Override
+        public void removeOnConfigurationChangedListener(
+                @NonNull Consumer<Configuration> listener
+        ) {
+            FragmentActivity.this.removeOnConfigurationChangedListener(listener);
+        }
+
+        @Override
+        public void addOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
+            FragmentActivity.this.addOnTrimMemoryListener(listener);
+        }
+
+        @Override
+        public void removeOnTrimMemoryListener(@NonNull Consumer<Integer> listener) {
+            FragmentActivity.this.removeOnTrimMemoryListener(listener);
+        }
+
+        @Override
+        public void addOnMultiWindowModeChangedListener(
+                @NonNull Consumer<MultiWindowModeChangedInfo> listener) {
+            FragmentActivity.this.addOnMultiWindowModeChangedListener(listener);
+        }
+
+        @Override
+        public void removeOnMultiWindowModeChangedListener(
+                @NonNull Consumer<MultiWindowModeChangedInfo> listener) {
+            FragmentActivity.this.removeOnMultiWindowModeChangedListener(listener);
+        }
+
+        @Override
+        public void addOnPictureInPictureModeChangedListener(
+                @NonNull Consumer<PictureInPictureModeChangedInfo> listener) {
+            FragmentActivity.this.addOnPictureInPictureModeChangedListener(listener);
+        }
+
+        @Override
+        public void removeOnPictureInPictureModeChangedListener(
+                @NonNull Consumer<PictureInPictureModeChangedInfo> listener) {
+            FragmentActivity.this.removeOnPictureInPictureModeChangedListener(listener);
+        }
+
+        @Override
+        public void addMenuProvider(@NonNull MenuProvider provider) {
+            FragmentActivity.this.addMenuProvider(provider);
+        }
+
+        @Override
+        public void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner) {
+            FragmentActivity.this.addMenuProvider(provider, owner);
+        }
+
+        @Override
+        public void addMenuProvider(@NonNull MenuProvider provider, @NonNull LifecycleOwner owner,
+                @NonNull Lifecycle.State state) {
+            FragmentActivity.this.addMenuProvider(provider, owner, state);
+        }
+
+        @Override
+        public void removeMenuProvider(@NonNull MenuProvider provider) {
+            FragmentActivity.this.removeMenuProvider(provider);
+        }
+
+        @Override
+        public void invalidateMenu() {
+            FragmentActivity.this.invalidateOptionsMenu();
         }
     }
 

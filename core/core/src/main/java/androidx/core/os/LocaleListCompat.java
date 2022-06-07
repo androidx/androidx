@@ -19,6 +19,7 @@ package androidx.core.os;
 import android.os.Build;
 import android.os.LocaleList;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,7 +34,7 @@ import java.util.Locale;
 public final class LocaleListCompat {
     private static final LocaleListCompat sEmptyLocaleList = create();
 
-    private LocaleListInterface mImpl;
+    private final LocaleListInterface mImpl;
 
     private LocaleListCompat(LocaleListInterface impl) {
         mImpl = impl;
@@ -71,7 +72,7 @@ public final class LocaleListCompat {
     @NonNull
     public static LocaleListCompat create(@NonNull Locale... localeList) {
         if (Build.VERSION.SDK_INT >= 24) {
-            return wrap(new LocaleList(localeList));
+            return wrap(Api24Impl.createLocaleList(localeList));
         }
         return new LocaleListCompat(new LocaleListCompatWrapper(localeList));
     }
@@ -82,6 +83,7 @@ public final class LocaleListCompat {
      * @param index The position to retrieve.
      * @return The {@link Locale} in the given index
      */
+    @Nullable
     public Locale get(int index) {
         return mImpl.get(index);
     }
@@ -113,7 +115,7 @@ public final class LocaleListCompat {
      *         wasn't found
      */
     @IntRange(from = -1)
-    public int indexOf(Locale locale) {
+    public int indexOf(@Nullable Locale locale) {
         return mImpl.indexOf(locale);
     }
 
@@ -162,7 +164,7 @@ public final class LocaleListCompat {
             final Locale[] localeArray = new Locale[tags.length];
             for (int i = 0; i < localeArray.length; i++) {
                 localeArray[i] = Build.VERSION.SDK_INT >= 21
-                        ? Locale.forLanguageTag(tags[i])
+                        ? Api21Impl.forLanguageTag(tags[i])
                         : forLanguageTagCompat(tags[i]);
             }
             return create(localeArray);
@@ -203,7 +205,7 @@ public final class LocaleListCompat {
     @NonNull @Size(min = 1)
     public static LocaleListCompat getAdjustedDefault() {
         if (Build.VERSION.SDK_INT >= 24) {
-            return LocaleListCompat.wrap(LocaleList.getAdjustedDefault());
+            return LocaleListCompat.wrap(Api24Impl.getAdjustedDefault());
         } else {
             return LocaleListCompat.create(Locale.getDefault());
         }
@@ -223,7 +225,7 @@ public final class LocaleListCompat {
     @NonNull @Size(min = 1)
     public static LocaleListCompat getDefault() {
         if (Build.VERSION.SDK_INT >= 24) {
-            return LocaleListCompat.wrap(LocaleList.getDefault());
+            return LocaleListCompat.wrap(Api24Impl.getDefault());
         } else {
             return LocaleListCompat.create(Locale.getDefault());
         }
@@ -239,8 +241,43 @@ public final class LocaleListCompat {
         return mImpl.hashCode();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return mImpl.toString();
+    }
+
+    @RequiresApi(24)
+    static class Api24Impl {
+        private Api24Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static LocaleList createLocaleList(Locale... list) {
+            return new LocaleList(list);
+        }
+
+        @DoNotInline
+        static LocaleList getAdjustedDefault() {
+            return LocaleList.getAdjustedDefault();
+        }
+
+        @DoNotInline
+        static LocaleList getDefault() {
+            return LocaleList.getDefault();
+        }
+    }
+
+    @RequiresApi(21)
+    static class Api21Impl {
+        private Api21Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static Locale forLanguageTag(String languageTag) {
+            return Locale.forLanguageTag(languageTag);
+        }
     }
 }

@@ -27,11 +27,14 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Quirk that produces stretched preview on Nexus 4 devices running Android L(API levels 21 and 22).
- *
- * <p> There is a Camera1/HAL1 issue on the Nexus 4. The preview will be stretched when
- * configuring a JPEG that doesn't actually have the same aspect ratio as the maximum JPEG
- * resolution. See: b/19606058.
+ * <p>QuirkSummary
+ *     Bug Id: b/19606058
+ *     Description: Quirk that produces stretched preview on Nexus 4 devices running Android L
+ *     (API levels 21 and 22). There is a Camera1/HAL1 issue on the Nexus 4. The preview will be
+ *     stretched when configuring a JPEG that doesn't actually have the same aspect ratio as the
+ *     maximum JPEG resolution.
+ *     Device(s): Google Nexus 4
+ *     @see androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class Nexus4AndroidLTargetAspectRatioQuirk implements Quirk {

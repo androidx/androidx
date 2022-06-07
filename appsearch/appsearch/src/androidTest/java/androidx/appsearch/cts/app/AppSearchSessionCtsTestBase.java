@@ -36,6 +36,7 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.AppSearchSchema.StringPropertyConfig;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GetByDocumentIdRequest;
 import androidx.appsearch.app.GetSchemaResponse;
@@ -72,6 +73,8 @@ public abstract class AppSearchSessionCtsTestBase {
     static final String DB_NAME_1 = "";
     static final String DB_NAME_2 = "testDb2";
 
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+
     private AppSearchSession mDb1;
     private AppSearchSession mDb2;
 
@@ -83,8 +86,6 @@ public abstract class AppSearchSessionCtsTestBase {
 
     @Before
     public void setUp() throws Exception {
-        Context context = ApplicationProvider.getApplicationContext();
-
         mDb1 = createSearchSession(DB_NAME_1).get();
         mDb2 = createSearchSession(DB_NAME_2).get();
 
@@ -584,7 +585,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email2).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email2").getErrorMessage())
-                .isEqualTo("Schema type config 'androidx.appsearch.test$" + DB_NAME_1
+                .isEqualTo("Schema type config '" + mContext.getPackageName() + "$" + DB_NAME_1
                         + "/builtin:Email' not found");
     }
 
@@ -656,7 +657,7 @@ public abstract class AppSearchSessionCtsTestBase {
                 new PutDocumentsRequest.Builder().addGenericDocuments(email3).build()).get();
         assertThat(failResult2.isSuccess()).isFalse();
         assertThat(failResult2.getFailures().get("email3").getErrorMessage())
-                .isEqualTo("Schema type config 'androidx.appsearch.test$" + DB_NAME_1
+                .isEqualTo("Schema type config '" + mContext.getPackageName() + "$" + DB_NAME_1
                         + "/builtin:Email' not found");
 
         // Make sure email in database 2 still present.
@@ -1901,13 +1902,10 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SearchResult.MatchRange(/*lower=*/26,  /*upper=*/33));
         assertThat(matchInfo.getSnippet()).isEqualTo("is foo.");
 
-        if (!mDb1.getCapabilities().isSubmatchSupported()) {
-            assertThrows(
-                    UnsupportedOperationException.class,
-                    () -> matchInfo.getSubmatchRange());
-            assertThrows(
-                    UnsupportedOperationException.class,
-                    () -> matchInfo.getSubmatch());
+        if (!mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)) {
+            assertThrows(UnsupportedOperationException.class, matchInfo::getSubmatchRange);
+            assertThrows(UnsupportedOperationException.class, matchInfo::getSubmatch);
         } else {
             assertThat(matchInfo.getSubmatchRange()).isEqualTo(
                     new SearchResult.MatchRange(/*lower=*/29,  /*upper=*/31));
@@ -2005,9 +2003,9 @@ public abstract class AppSearchSessionCtsTestBase {
 
         String japanese =
                 "差し出されたのが今日ランドセルでした普通の子であれば満面の笑みで俺を言うでしょうしかし私は赤いランド"
-                + "セルを見て笑うことができませんでしたどうしたのと心配そうな仕事ガラスながら渋い顔する私書いたこと言"
-                + "うんじゃないのカードとなる声を聞きたい私は目から涙をこぼしながらおじいちゃんの近くにかけおり頭をポ"
-                + "ンポンと叩きピンクが良かったんだもん";
+                        + "セルを見て笑うことができませんでしたどうしたのと心配そうな仕事ガラスながら渋い顔する私書いたこと言"
+                        + "うんじゃないのカードとなる声を聞きたい私は目から涙をこぼしながらおじいちゃんの近くにかけおり頭をポ"
+                        + "ンポンと叩きピンクが良かったんだもん";
         // Index a document
         GenericDocument document =
                 new GenericDocument.Builder<>("namespace", "id", "Generic")
@@ -2036,13 +2034,10 @@ public abstract class AppSearchSessionCtsTestBase {
                 new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));
         assertThat(matchInfo.getExactMatch()).isEqualTo("は");
 
-        if (!mDb1.getCapabilities().isSubmatchSupported()) {
-            assertThrows(
-                    UnsupportedOperationException.class,
-                    () -> matchInfo.getSubmatchRange());
-            assertThrows(
-                    UnsupportedOperationException.class,
-                    () -> matchInfo.getSubmatch());
+        if (!mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH)) {
+            assertThrows(UnsupportedOperationException.class, matchInfo::getSubmatchRange);
+            assertThrows(UnsupportedOperationException.class, matchInfo::getSubmatch);
         } else {
             assertThat(matchInfo.getSubmatchRange()).isEqualTo(
                     new SearchResult.MatchRange(/*lower=*/44,  /*upper=*/45));

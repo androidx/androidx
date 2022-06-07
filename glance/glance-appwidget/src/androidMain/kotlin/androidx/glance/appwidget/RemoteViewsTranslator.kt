@@ -33,6 +33,8 @@ import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
 import androidx.glance.appwidget.lazy.EmittableLazyColumn
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
+import androidx.glance.appwidget.lazy.EmittableLazyVerticalGrid
+import androidx.glance.appwidget.lazy.EmittableLazyVerticalGridListItem
 import androidx.glance.appwidget.translators.setText
 import androidx.glance.appwidget.translators.translateEmittableCheckBox
 import androidx.glance.appwidget.translators.translateEmittableImage
@@ -40,6 +42,11 @@ import androidx.glance.appwidget.translators.translateEmittableLazyColumn
 import androidx.glance.appwidget.translators.translateEmittableLazyListItem
 import androidx.glance.appwidget.translators.translateEmittableSwitch
 import androidx.glance.appwidget.translators.translateEmittableText
+import androidx.glance.appwidget.translators.translateEmittableLinearProgressIndicator
+import androidx.glance.appwidget.translators.translateEmittableCircularProgressIndicator
+import androidx.glance.appwidget.translators.translateEmittableLazyVerticalGrid
+import androidx.glance.appwidget.translators.translateEmittableLazyVerticalGridListItem
+import androidx.glance.appwidget.translators.translateEmittableRadioButton
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.EmittableColumn
@@ -52,7 +59,6 @@ import java.util.concurrent.atomic.AtomicInteger
 internal fun translateComposition(
     context: Context,
     appWidgetId: Int,
-    appWidgetClass: Class<out GlanceAppWidget>,
     element: RemoteViewsRoot,
     layoutConfiguration: LayoutConfiguration,
     rootViewIndex: Int,
@@ -62,7 +68,6 @@ internal fun translateComposition(
         TranslationContext(
             context,
             appWidgetId,
-            appWidgetClass,
             context.isRtl,
             layoutConfiguration,
             itemPosition = -1,
@@ -98,7 +103,6 @@ internal fun translateComposition(
 internal data class TranslationContext(
     val context: Context,
     val appWidgetId: Int,
-    val appWidgetClass: Class<out GlanceAppWidget>,
     val isRtl: Boolean,
     val layoutConfiguration: LayoutConfiguration,
     val itemPosition: Int,
@@ -109,6 +113,10 @@ internal data class TranslationContext(
     val layoutSize: DpSize = DpSize.Zero,
     val layoutCollectionViewId: Int = View.NO_ID,
     val layoutCollectionItemId: Int = -1,
+    val canUseSelectableGroup: Boolean = false,
+    val actionTargetId: Int? = null,
+    val isAdapterView: Boolean = false,
+    val isCompoundButton: Boolean = false,
 ) {
     fun nextViewId() = lastViewId.incrementAndGet()
 
@@ -125,6 +133,14 @@ internal data class TranslationContext(
 
     fun forLazyViewItem(itemId: Int, newViewId: Int = 0) =
         copy(lastViewId = AtomicInteger(newViewId), layoutCollectionViewId = itemId)
+
+    fun canUseSelectableGroup() = copy(canUseSelectableGroup = true)
+
+    fun forActionTargetId(viewId: Int) = copy(actionTargetId = viewId)
+
+    fun forAdapterView() = copy(isAdapterView = true)
+
+    fun forCompoundButton() = copy(isCompoundButton = true)
 }
 
 internal fun RemoteViews.translateChild(
@@ -146,6 +162,19 @@ internal fun RemoteViews.translateChild(
         is EmittableSpacer -> translateEmittableSpacer(translationContext, element)
         is EmittableSwitch -> translateEmittableSwitch(translationContext, element)
         is EmittableImage -> translateEmittableImage(translationContext, element)
+        is EmittableLinearProgressIndicator -> {
+            translateEmittableLinearProgressIndicator(translationContext, element)
+        }
+        is EmittableCircularProgressIndicator -> {
+            translateEmittableCircularProgressIndicator(translationContext, element)
+        }
+        is EmittableLazyVerticalGrid -> {
+            translateEmittableLazyVerticalGrid(translationContext, element)
+        }
+        is EmittableLazyVerticalGridListItem -> {
+          translateEmittableLazyVerticalGridListItem(translationContext, element)
+        }
+        is EmittableRadioButton -> translateEmittableRadioButton(translationContext, element)
         else -> {
             throw IllegalArgumentException(
                 "Unknown element type ${element.javaClass.canonicalName}"
@@ -210,9 +239,16 @@ private fun RemoteViews.translateEmittableRow(
     translationContext: TranslationContext,
     element: EmittableRow
 ) {
+    val layoutType = if (
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && element.modifier.isSelectableGroup
+    ) {
+        LayoutType.RadioRow
+    } else {
+        LayoutType.Row
+    }
     val viewDef = insertContainerView(
         translationContext,
-        LayoutType.Row,
+        layoutType,
         element.children.size,
         element.modifier,
         horizontalAlignment = null,
@@ -223,7 +259,7 @@ private fun RemoteViews.translateEmittableRow(
         element.horizontalAlignment.toGravity()
     )
     applyModifiers(
-        translationContext,
+        translationContext.canUseSelectableGroup(),
         this,
         element.modifier,
         viewDef
@@ -233,15 +269,23 @@ private fun RemoteViews.translateEmittableRow(
         viewDef,
         element.children
     )
+    if (element.modifier.isSelectableGroup) checkSelectableGroupChildren(element.children)
 }
 
 private fun RemoteViews.translateEmittableColumn(
     translationContext: TranslationContext,
     element: EmittableColumn
 ) {
+    val layoutType = if (
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && element.modifier.isSelectableGroup
+    ) {
+        LayoutType.RadioColumn
+    } else {
+        LayoutType.Column
+    }
     val viewDef = insertContainerView(
         translationContext,
-        LayoutType.Column,
+        layoutType,
         element.children.size,
         element.modifier,
         horizontalAlignment = element.horizontalAlignment,
@@ -252,7 +296,7 @@ private fun RemoteViews.translateEmittableColumn(
         element.verticalAlignment.toGravity()
     )
     applyModifiers(
-        translationContext,
+        translationContext.canUseSelectableGroup(),
         this,
         element.modifier,
         viewDef
@@ -262,6 +306,14 @@ private fun RemoteViews.translateEmittableColumn(
         viewDef,
         element.children
     )
+    if (element.modifier.isSelectableGroup) checkSelectableGroupChildren(element.children)
+}
+
+private fun checkSelectableGroupChildren(children: List<Emittable>) {
+    check(children.count { it is EmittableRadioButton && it.checked } <= 1) {
+        "When using GlanceModifier.selectableGroup(), no more than one RadioButton " +
+        "may be checked at a time."
+    }
 }
 
 private fun RemoteViews.translateEmittableAndroidRemoteViews(
@@ -300,6 +352,7 @@ private fun RemoteViews.translateEmittableButton(
         viewDef.mainViewId,
         element.text,
         element.style,
+        maxLines = element.maxLines,
         verticalTextGravity = Gravity.CENTER_VERTICAL,
     )
     setBoolean(viewDef.mainViewId, "setEnabled", element.enabled)

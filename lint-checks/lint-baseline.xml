@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (7.1.0-beta02)" variant="all" version="7.1.0-beta02">
+<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
 
     <issue
         id="BanConcurrentHashMap"
@@ -7,9 +7,7 @@
         errorLine1="import java.util.concurrent.ConcurrentHashMap;"
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="integration-tests/src/main/java/androidx/ConcurrentHashMapUsageJava.java"
-            line="22"
-            column="1"/>
+            file="integration-tests/src/main/java/androidx/ConcurrentHashMapUsageJava.java"/>
     </issue>
 
     <issue
@@ -18,9 +16,7 @@
         errorLine1="import java.util.concurrent.ConcurrentHashMap"
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="integration-tests/src/main/java/androidx/ConcurrentHashMapUsageKotlin.kt"
-            line="19"
-            column="1"/>
+            file="integration-tests/src/main/java/androidx/ConcurrentHashMapUsageKotlin.kt"/>
     </issue>
 
     <issue
@@ -29,9 +25,7 @@
         errorLine1="import java.util.concurrent.ConcurrentHashMap;"
         errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="integration-tests/src/main/java/androidx/Sample.java"
-            line="19"
-            column="1"/>
+            file="integration-tests/src/main/java/androidx/Sample.java"/>
     </issue>
 
     <issue
@@ -40,9 +34,7 @@
         errorLine1="    public synchronized void someMethod() {"
         errorLine2="    ^">
         <location
-            file="integration-tests/src/main/java/androidx/SynchronizedMethodJava.java"
-            line="22"
-            column="5"/>
+            file="integration-tests/src/main/java/androidx/SynchronizedMethodJava.java"/>
     </issue>
 
     <issue
@@ -51,9 +43,7 @@
         errorLine1="    @Synchronized"
         errorLine2="    ^">
         <location
-            file="integration-tests/src/main/java/androidx/SynchronizedMethodKotlin.kt"
-            line="22"
-            column="5"/>
+            file="integration-tests/src/main/java/androidx/SynchronizedMethodKotlin.kt"/>
     </issue>
 
     <issue
@@ -62,9 +52,7 @@
         errorLine1="        //noinspection deprecation"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="integration-tests/src/main/java/androidx/IdeaSuppressionJava.java"
-            line="29"
-            column="9"/>
+            file="integration-tests/src/main/java/androidx/IdeaSuppressionJava.java"/>
     </issue>
 
     <issue
@@ -73,9 +61,7 @@
         errorLine1="        //noinspection deprecation"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="integration-tests/src/main/java/androidx/IdeaSuppressionKotlin.kt"
-            line="27"
-            column="9"/>
+            file="integration-tests/src/main/java/androidx/IdeaSuppressionKotlin.kt"/>
     </issue>
 
     <issue
@@ -84,9 +70,7 @@
         errorLine1="    static class DefaultInnerClass {"
         errorLine2="                 ~~~~~~~~~~~~~~~~~">
         <location
-            file="integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
-            line="37"
-            column="18"/>
+            file="integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"/>
     </issue>
 
     <issue
@@ -95,9 +79,7 @@
         errorLine1="    protected static class ProtectedInnerClass {"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
-            line="46"
-            column="28"/>
+            file="integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"/>
     </issue>
 
     <issue
@@ -106,9 +88,23 @@
         errorLine1="    public static class PublicInnerClass {"
         errorLine2="                        ~~~~~~~~~~~~~~~~">
         <location
-            file="integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"
-            line="55"
-            column="25"/>
+            file="integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use @androidx.annotation.NonNull instead of @org.jetbrains.annotations.NotNull"
+        errorLine1="    private void method1(@NotNull String arg) {"
+        errorLine2="                         ~~~~~~~~">
+        <location file="integration-tests/src/main/java/androidx/NullabilityAnnotationsJava.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use @androidx.annotation.Nullable instead of @org.jetbrains.annotations.Nullable"
+        errorLine1="    private void method2(@Nullable String arg) {"
+        errorLine2="                         ~~~~~~~~~">
+        <location file="integration-tests/src/main/java/androidx/NullabilityAnnotationsJava.java"/>
     </issue>
 
 </issues>

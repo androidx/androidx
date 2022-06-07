@@ -31,9 +31,19 @@ import androidx.annotation.RequiresApi
  */
 @RequiresApi(21)
 fun persistableBundleOf(vararg pairs: Pair<String, Any?>): PersistableBundle {
-    val persistableBundle = Api21Impl.createPersistableBundle(pairs.size)
-    pairs.forEach { (key, value) -> Api21Impl.putValue(persistableBundle, key, value) }
+    val persistableBundle = PersistableBundleApi21ImplKt.createPersistableBundle(pairs.size)
+    pairs.forEach { (key, value) ->
+        PersistableBundleApi21ImplKt.putValue(persistableBundle, key, value)
+    }
     return persistableBundle
+}
+
+/**
+ * Returns a new empty [PersistableBundle].
+ */
+@RequiresApi(21)
+fun persistableBundleOf(): PersistableBundle {
+    return PersistableBundleApi21ImplKt.createPersistableBundle(0)
 }
 
 /**
@@ -46,17 +56,20 @@ fun persistableBundleOf(vararg pairs: Pair<String, Any?>): PersistableBundle {
  */
 @RequiresApi(21)
 fun Map<String, Any?>.toPersistableBundle(): PersistableBundle {
-    val persistableBundle = Api21Impl.createPersistableBundle(this.size)
+    val persistableBundle = PersistableBundleApi21ImplKt.createPersistableBundle(this.size)
 
     for ((key, value) in this) {
-        Api21Impl.putValue(persistableBundle, key, value)
+        PersistableBundleApi21ImplKt.putValue(persistableBundle, key, value)
     }
 
     return persistableBundle
 }
 
+// These classes ends up being top-level even though they're private. The PersistableBundle prefix
+// helps prevent clashes with other ApiImpls in androidx.core.os. And the Kt suffix is used by
+// Jetifier to keep them grouped with other members of the core-ktx module.
 @RequiresApi(21)
-private object Api21Impl {
+private object PersistableBundleApi21ImplKt {
     @DoNotInline
     @JvmStatic
     fun createPersistableBundle(capacity: Int): PersistableBundle = PersistableBundle(capacity)
@@ -71,7 +84,7 @@ private object Api21Impl {
                 // Scalars
                 is Boolean -> {
                     if (Build.VERSION.SDK_INT >= 22) {
-                        Api22Impl.putBoolean(this, key, value)
+                        PersistableBundleApi22ImplKt.putBoolean(this, key, value)
                     } else {
                         throw IllegalArgumentException(
                             "Illegal value type boolean for key \"$key\""
@@ -88,7 +101,7 @@ private object Api21Impl {
                 // Scalar arrays
                 is BooleanArray -> {
                     if (Build.VERSION.SDK_INT >= 22) {
-                        Api22Impl.putBooleanArray(this, key, value)
+                        PersistableBundleApi22ImplKt.putBooleanArray(this, key, value)
                     } else {
                         throw IllegalArgumentException(
                             "Illegal value type boolean[] for key \"$key\""
@@ -126,7 +139,7 @@ private object Api21Impl {
 }
 
 @RequiresApi(22)
-private object Api22Impl {
+private object PersistableBundleApi22ImplKt {
     @DoNotInline
     @JvmStatic
     fun putBoolean(persistableBundle: PersistableBundle, key: String?, value: Boolean) {

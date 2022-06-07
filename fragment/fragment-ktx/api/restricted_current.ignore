@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+ChangedType: androidx.fragment.app.FragmentViewModelLazyKt#createViewModelLazy(androidx.fragment.app.Fragment, kotlin.reflect.KClass<VM>, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore>, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>):
+    Method androidx.fragment.app.FragmentViewModelLazyKt.createViewModelLazy has changed return type from kotlin.Lazy<VM> to kotlin.Lazy<? extends VM>
+
+
+InvalidNullConversion: androidx.fragment.app.FragmentViewModelLazyKt#createViewModelLazy(androidx.fragment.app.Fragment, kotlin.reflect.KClass<VM>, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore>, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>):
+    Attempted to remove @NonNull annotation from method androidx.fragment.app.FragmentViewModelLazyKt.createViewModelLazy(androidx.fragment.app.Fragment,kotlin.reflect.KClass<VM>,kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStore>,kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>)
