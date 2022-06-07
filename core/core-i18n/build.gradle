@@ -48,4 +48,7 @@ android {
     defaultConfig {
         minSdkVersion 19
     }
+    lintOptions {
+        lintConfig = file("lint.xml")
+    }
 }
