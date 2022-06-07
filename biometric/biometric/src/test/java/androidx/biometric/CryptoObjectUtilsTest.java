@@ -118,6 +118,25 @@ public class CryptoObjectUtilsTest {
         assertThat(unwrappedCrypto.getIdentityCredential()).isEqualTo(identityCredential);
     }
 
+    @SuppressWarnings("deprecation")
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    public void testUnwrapFromBiometricPrompt_WithPresentationSessionCryptoObject() {
+        final android.security.identity.PresentationSession presentationSession =
+                mock(android.security.identity.PresentationSession.class);
+        final android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCrypto =
+                new android.hardware.biometrics.BiometricPrompt.CryptoObject(presentationSession);
+
+        final BiometricPrompt.CryptoObject unwrappedCrypto =
+                CryptoObjectUtils.unwrapFromBiometricPrompt(wrappedCrypto);
+
+        assertThat(unwrappedCrypto).isNotNull();
+        assertThat(unwrappedCrypto.getCipher()).isNull();
+        assertThat(unwrappedCrypto.getSignature()).isNull();
+        assertThat(unwrappedCrypto.getMac()).isNull();
+        assertThat(unwrappedCrypto.getPresentationSession()).isEqualTo(presentationSession);
+    }
+
     @Test
     @Config(minSdk = Build.VERSION_CODES.P)
     public void testWrapForBiometricPrompt_WithNullCryptoObject() {
@@ -185,6 +204,25 @@ public class CryptoObjectUtilsTest {
         assertThat(wrappedCrypto.getSignature()).isNull();
         assertThat(wrappedCrypto.getMac()).isNull();
         assertThat(wrappedCrypto.getIdentityCredential()).isEqualTo(identityCredential);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    public void testWrapForBiometricPrompt_WithPresentationSessionCryptoObject() {
+        final android.security.identity.PresentationSession presentationSession =
+                mock(android.security.identity.PresentationSession.class);
+        final BiometricPrompt.CryptoObject unwrappedCrypto =
+                new BiometricPrompt.CryptoObject(presentationSession);
+
+        final android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCrypto =
+                CryptoObjectUtils.wrapForBiometricPrompt(unwrappedCrypto);
+
+        assertThat(wrappedCrypto).isNotNull();
+        assertThat(wrappedCrypto.getCipher()).isNull();
+        assertThat(wrappedCrypto.getSignature()).isNull();
+        assertThat(wrappedCrypto.getMac()).isNull();
+        assertThat(wrappedCrypto.getPresentationSession()).isEqualTo(presentationSession);
     }
 
     @Test
@@ -296,6 +334,17 @@ public class CryptoObjectUtilsTest {
                 mock(android.security.identity.IdentityCredential.class);
         final BiometricPrompt.CryptoObject unwrappedCrypto =
                 new BiometricPrompt.CryptoObject(identityCredential);
+
+        assertThat(CryptoObjectUtils.wrapForFingerprintManager(unwrappedCrypto)).isNull();
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    public void testWrapForFingerprintManager_WithPresentationSessionCryptoObject() {
+        final android.security.identity.PresentationSession presentationSession =
+                mock(android.security.identity.PresentationSession.class);
+        final BiometricPrompt.CryptoObject unwrappedCrypto =
+                new BiometricPrompt.CryptoObject(presentationSession);
 
         assertThat(CryptoObjectUtils.wrapForFingerprintManager(unwrappedCrypto)).isNull();
     }
