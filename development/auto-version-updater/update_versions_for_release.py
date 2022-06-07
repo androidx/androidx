@@ -176,7 +176,7 @@ def should_update_version_in_library_versions_toml(old_version, new_version, gro
         True if should update version, false otherwise.
     """
     # If we hit a group ID we should not update, just return.
-    group_ids_to_not_update = ["androidx.car"]
+    group_ids_to_not_update = ["androidx.car", "androidx.compose.compiler"]
     if group_id in group_ids_to_not_update: return False
     return new_version == get_higher_version(old_version, new_version)
 
