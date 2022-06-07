@@ -234,7 +234,7 @@ public class ComplicationSlotsManager(
 
                 labelsDirty =
                     labelsDirty || complication.dataDirty || complication.complicationBoundsDirty ||
-                    complication.accessibilityTraversalIndexDirty
+                        complication.accessibilityTraversalIndexDirty
 
                 if (complication.defaultDataSourcePolicyDirty ||
                     complication.defaultDataSourceTypeDirty
@@ -325,20 +325,49 @@ public class ComplicationSlotsManager(
 
     /**
      * Returns the id of the complication slot at coordinates x, y or `null` if there isn't one.
+     * Initially checks slots without margins (should be no overlaps) then then if there was no hit
+     * it tries again this time with margins (overlaps are possible) reporting the first hit if any.
      *
      * @param x The x coordinate of the point to perform a hit test
      * @param y The y coordinate of the point to perform a hit test
      * @return The [ComplicationSlot] at coordinates x, y or {@code null} if there isn't one
      */
     public fun getComplicationSlotAt(@Px x: Int, @Px y: Int): ComplicationSlot? =
-        complicationSlots.values.firstOrNull { complication ->
+        findLowestIdMatchingComplicationOrNull { complication ->
             complication.enabled && complication.tapFilter.hitTest(
                 complication,
                 renderer.screenBounds,
                 x,
-                y
+                y,
+                includeMargins = false
+            )
+        } ?: findLowestIdMatchingComplicationOrNull { complication ->
+            complication.enabled && complication.tapFilter.hitTest(
+                complication,
+                renderer.screenBounds,
+                x,
+                y,
+                includeMargins = true
             )
         }
+
+    /**
+     * Finds the [ComplicationSlot] with the lowest id for which [predicate] returns true, returns
+     * `null` otherwise.
+     */
+    private fun findLowestIdMatchingComplicationOrNull(
+        predicate: (complication: ComplicationSlot) -> Boolean
+    ): ComplicationSlot? {
+        var bestComplication: ComplicationSlot? = null
+        var bestId = 0
+        for ((id, complication) in complicationSlots) {
+            if (predicate.invoke(complication) && (bestComplication == null || bestId > id)) {
+                bestComplication = complication
+                bestId = id
+            }
+        }
+        return bestComplication
+    }
 
     /**
      * Returns the background [ComplicationSlot] if there is one or `null` otherwise.

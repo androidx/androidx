@@ -1712,6 +1712,8 @@ public abstract class WatchFaceService : WallpaperService() {
                     }.toIntArray(),
                     it.value.complicationSlotBounds.perComplicationTypeBounds
                         .values.toTypedArray(),
+                    it.value.complicationSlotBounds.perComplicationTypeMargins
+                        .values.toList(),
                     it.value.boundsType,
                     it.value.supportedTypes.toWireTypes(),
                     it.value.defaultDataSourcePolicy.dataSourcesAsList(),

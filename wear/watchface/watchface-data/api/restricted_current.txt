@@ -114,6 +114,7 @@ package androidx.wear.watchface.data {
     method public android.graphics.RectF![] getComplicationBounds();
     method public int[] getComplicationBoundsType();
     method public android.os.Bundle getComplicationConfigExtras();
+    method public java.util.List<android.graphics.RectF!>? getComplicationMargins();
     method public int getDefaultDataSourceType();
     method public java.util.List<android.content.ComponentName!>? getDefaultDataSourcesToTry();
     method public int getFallbackSystemDataSource();
@@ -133,6 +134,7 @@ package androidx.wear.watchface.data {
     method public int describeContents();
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();
+    method public android.graphics.Rect? getBoundsWithMargins();
     method public android.os.Bundle getComplicationConfigExtras();
     method public int getCurrentType();
     method public int getDefaultDataSourceType();
@@ -268,7 +270,8 @@ package androidx.wear.watchface.style.data {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class ComplicationOverlayWireFormat implements android.os.Parcelable androidx.versionedparcelable.VersionedParcelable {
-    ctor public ComplicationOverlayWireFormat(int, Boolean?, java.util.Map<java.lang.Integer!,android.graphics.RectF!>?, Integer?);
+    ctor public ComplicationOverlayWireFormat(int, Boolean?, java.util.Map<java.lang.Integer!,android.graphics.RectF!>?, Integer?, java.util.Map<java.lang.Integer!,android.graphics.RectF!>?);
+    ctor @Deprecated public ComplicationOverlayWireFormat(int, Boolean?, java.util.Map<java.lang.Integer!,android.graphics.RectF!>?, Integer?);
     method public int describeContents();
     method public Integer? getAccessibilityTraversalIndex();
     method public void writeToParcel(android.os.Parcel, int);
@@ -280,6 +283,7 @@ package androidx.wear.watchface.style.data {
     field @androidx.versionedparcelable.ParcelField(1) public int mComplicationSlotId;
     field @androidx.versionedparcelable.ParcelField(2) public int mEnabled;
     field @androidx.versionedparcelable.ParcelField(3) public java.util.Map<java.lang.Integer!,android.graphics.RectF!>? mPerComplicationTypeBounds;
+    field @androidx.versionedparcelable.ParcelField(5) public java.util.Map<java.lang.Integer!,android.graphics.RectF!>? mPerComplicationTypeMargins;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @androidx.versionedparcelable.VersionedParcelize public class ComplicationsOptionWireFormat extends androidx.wear.watchface.style.data.OptionWireFormat {

@@ -583,7 +583,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                         CIRCLE_COMPLICATION_DIAMETER_FRACTION
                     )
                 }
-            }
+            },
+            ComplicationType.values().associateWith { RectF() }
         )
     ).setNameResourceId(R.string.upper_complication_screen_name)
         .setScreenReaderNameResourceId(R.string.upper_complication_screen_reader_name).build()
@@ -609,7 +610,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                         CIRCLE_COMPLICATION_DIAMETER_FRACTION
                     )
                 }
-            }
+            },
+            ComplicationType.values().associateWith { RectF() }
         )
     ).setNameResourceId(R.string.lower_complication_screen_name)
         .setScreenReaderNameResourceId(R.string.lower_complication_screen_reader_name).build()
