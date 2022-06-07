@@ -21,8 +21,8 @@
          <trust group="info.picocli" name="picocli" version="4.6.3"/> <!-- b/234161459 -->
          <trust group="org.slf4j" name="slf4j-api" version="1.7.32"/> <!-- b/234161459 -->
          <trust group="org.slf4j" name="slf4j-parent" version="1.7.32"/> <!-- b/234161459 -->
-         <trust group="com.pinterest" name="ktlint" version="0.46.0-SNAPSHOT"/> <!-- b/234161459 -->
-         <trust group="com.pinterest.ktlint" version="0.46.0-SNAPSHOT"/> <!-- b/234161459 -->
+         <trust group="com.pinterest" name="ktlint" version="0.46.0-20220520.192227-74"/> <!-- b/234161459 -->
+         <trust group="com.pinterest.ktlint" version="0.46.0-20220520.192227-74"/> <!-- b/234161459 -->
       </trusted-artifacts>
       <trusted-keys>
          <trusted-key id="00089ee8c3afa95a854d0f1df800dd0933ecf7f7" group="com.google.guava" name="guava"/>
