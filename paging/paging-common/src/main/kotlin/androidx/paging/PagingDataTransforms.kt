@@ -29,7 +29,8 @@ private inline fun <T : Any, R : Any> PagingData<T>.transform(
     crossinline transform: suspend (PageEvent<T>) -> PageEvent<R>
 ) = PagingData(
     flow = flow.map { transform(it) },
-    receiver = receiver
+    uiReceiver = uiReceiver,
+    hintReceiver = hintReceiver,
 )
 
 /**
@@ -143,7 +144,8 @@ public fun <T : R, R : Any> PagingData<T>.insertSeparators(
     //     class SeparatorModel: UiModel
     return PagingData(
         flow = flow.insertEventSeparators(terminalSeparatorType, generator),
-        receiver = receiver
+        uiReceiver = uiReceiver,
+        hintReceiver = hintReceiver
     )
 }
 

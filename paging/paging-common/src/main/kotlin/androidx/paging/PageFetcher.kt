@@ -25,7 +25,6 @@ import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.internal.BUGANIZER_URL
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.onStart
 
@@ -126,7 +125,8 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
                 PagingData(
                     flow = downstreamFlow,
-                    receiver = PagerUiReceiver(generation.snapshot, retryEvents)
+                    uiReceiver = PagerUiReceiver(retryEvents),
+                    hintReceiver = PagerHintReceiver(generation.snapshot)
                 )
             }
             .collect(::send)
@@ -179,7 +179,6 @@ internal class PageFetcher<Key : Any, Value : Any>(
                                 )
                             }
                             is PageEvent.StaticList -> {
-
                                 throw IllegalStateException(
                                     """Paging generated an event to display a static list that
                                         | originated from a paginated source. If you see this
@@ -225,20 +224,22 @@ internal class PageFetcher<Key : Any, Value : Any>(
         return pagingSource
     }
 
-    inner class PagerUiReceiver<Key : Any, Value : Any> constructor(
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        internal val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>,
-        private val retryEventBus: ConflatedEventBus<Unit>
-    ) : UiReceiver {
-        override fun accessHint(viewportHint: ViewportHint) {
-            pageFetcherSnapshot.accessHint(viewportHint)
-        }
-
+    inner class PagerUiReceiver(private val retryEventBus: ConflatedEventBus<Unit>) : UiReceiver {
         override fun retry() {
             retryEventBus.send(Unit)
         }
 
         override fun refresh() = this@PageFetcher.refresh()
+    }
+
+    inner class PagerHintReceiver<Key : Any, Value : Any> constructor(
+        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+        internal val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>,
+    ) : HintReceiver {
+
+        override fun accessHint(viewportHint: ViewportHint) {
+            pageFetcherSnapshot.accessHint(viewportHint)
+        }
     }
 
     private class GenerationInfo<Key : Any, Value : Any>(
