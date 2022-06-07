@@ -115,6 +115,13 @@ class TestVersionUpdates(unittest.TestCase):
         self.assertFalse(should_update_version_in_library_versions_toml(
             "1.0.0-beta04", "1.0.0-alpha01", "androidx.car"))
 
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.1.0-alpha02", "androidx.compose.compiler"))
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.0.0-beta04", "1.3.0-alpha01", "androidx.compose.compiler"))
+        self.assertFalse(should_update_version_in_library_versions_toml(
+            "1.2.0", "1.3.0-alpha01", "androidx.compose.compiler"))
+
 
 class TestFileParsing(unittest.TestCase):
 
