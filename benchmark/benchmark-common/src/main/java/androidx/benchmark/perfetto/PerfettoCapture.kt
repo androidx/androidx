@@ -143,10 +143,10 @@ public class PerfettoCapture(
         val abiDirName = File(context.applicationInfo.nativeLibraryDir).name
         val baseApk = File(context.applicationInfo.publicSourceDir!!)
 
-        val shellWriteableAppReadableDir = File("/sdcard/Android/data/$targetPackage/files")
+        val shellWriteableAppReadableDir = File("/sdcard/Android/media/$targetPackage/files")
         val dstDir = shellWriteableAppReadableDir.resolve("lib/$abiDirName")
         val dstFile = dstDir.resolve(libFileName)
-        val tmpFile = context.cacheDir.resolve(".tmp_$libFileName")
+        val tmpFile = Outputs.dirUsableByAppAndShell.resolve(".tmp_$libFileName")
 
         val rxLibPathInsideZip = Regex(".*lib/[^/]*$abiDirName[^/]*/$libFileName")
 
