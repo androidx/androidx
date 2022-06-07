@@ -81,6 +81,18 @@ internal data class BoxChildSelector(
     val horizontalAlignment: Alignment.Horizontal,
     val verticalAlignment: Alignment.Vertical,
 )
+
+/**
+ * Selector for children of [Row] and [Column].
+ *
+ * This class is used to select a layout with layout_weight set / unset.
+ */
+internal data class RowColumnChildSelector(
+    val type: LayoutType,
+    val expandWidth: Boolean,
+    val expandHeight: Boolean,
+)
+
 /** Type of size needed for a layout. */
 internal enum class LayoutSize {
     Wrap,
@@ -239,28 +251,46 @@ internal fun createRootView(
     )
 }
 
+@IdRes
+private fun selectLayout33(
+    type: LayoutType,
+    modifier: GlanceModifier,
+): Int? {
+    if (Build.VERSION.SDK_INT < 33) return null
+    val align = modifier.findModifier<AlignmentModifier>()
+    val expandWidth =
+        modifier.findModifier<WidthModifier>()?.let { it.width == Dimension.Expand } ?: false
+    val expandHeight =
+        modifier.findModifier<HeightModifier>()?.let { it.height == Dimension.Expand } ?: false
+    if (align != null) {
+        return generatedBoxChildren[BoxChildSelector(
+            type,
+            align.alignment.horizontal,
+            align.alignment.vertical,
+        )]?.layoutId
+            ?: throw IllegalArgumentException(
+                "Cannot find $type with alignment ${align.alignment}"
+            )
+    } else if (expandWidth || expandHeight) {
+        return generatedRowColumnChildren[RowColumnChildSelector(
+            type,
+            expandWidth,
+            expandHeight,
+        )]?.layoutId
+            ?: throw IllegalArgumentException("Cannot find $type with defaultWeight set")
+    } else {
+        return null
+    }
+}
+
 internal fun RemoteViews.insertView(
     translationContext: TranslationContext,
     type: LayoutType,
     modifier: GlanceModifier
 ): InsertedViewInfo {
-    val align = modifier.findModifier<AlignmentModifier>()
-    val childLayout =
-        if (Build.VERSION.SDK_INT >= 33 && align != null) {
-            generatedBoxChildren[BoxChildSelector(
-                type,
-                align.alignment.horizontal,
-                align.alignment.vertical,
-            )]?.layoutId
-                ?: throw IllegalArgumentException(
-                    "Cannot find $type with alignment ${align.alignment}"
-                )
-        } else {
-            LayoutMap[type]
-                ?: throw IllegalArgumentException(
-                    "Cannot use `insertView` with a container like $type"
-                )
-        }
+    val childLayout = selectLayout33(type, modifier)
+        ?: LayoutMap[type]
+        ?: throw IllegalArgumentException("Cannot use `insertView` with a container like $type")
     return insertViewInternal(translationContext, childLayout, modifier)
 }
 
@@ -347,16 +377,17 @@ internal fun RemoteViews.insertContainerView(
     horizontalAlignment: Alignment.Horizontal?,
     verticalAlignment: Alignment.Vertical?,
 ): InsertedViewInfo {
-    val childLayout = generatedContainers[ContainerSelector(
-        type,
-        if (Build.VERSION.SDK_INT >= 33) 0 else numChildren,
-        horizontalAlignment,
-        verticalAlignment
-    )]
+    val childLayout = selectLayout33(type, modifier)
+        ?: generatedContainers[ContainerSelector(
+            type,
+            if (Build.VERSION.SDK_INT >= 33) 0 else numChildren,
+            horizontalAlignment,
+            verticalAlignment
+        )]?.layoutId
         ?: throw IllegalArgumentException("Cannot find container $type with $numChildren children")
     val childrenMapping = generatedChildren[type]
         ?: throw IllegalArgumentException("Cannot find generated children for $type")
-    return insertViewInternal(translationContext, childLayout.layoutId, modifier)
+    return insertViewInternal(translationContext, childLayout, modifier)
         .copy(children = childrenMapping)
 }
 
