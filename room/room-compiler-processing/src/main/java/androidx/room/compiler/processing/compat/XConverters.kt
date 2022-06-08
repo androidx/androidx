@@ -41,6 +41,11 @@ import androidx.room.compiler.processing.javac.JavacRoundEnv
 import androidx.room.compiler.processing.javac.JavacType
 import androidx.room.compiler.processing.javac.JavacTypeElement
 import androidx.room.compiler.processing.javac.JavacVariableElement
+import androidx.room.compiler.processing.ksp.KspAnnotation
+import androidx.room.compiler.processing.ksp.KspAnnotationValue
+import androidx.room.compiler.processing.ksp.KspElement
+import androidx.room.compiler.processing.ksp.KspExecutableType
+import androidx.room.compiler.processing.ksp.KspType
 import javax.annotation.processing.Filer
 import javax.annotation.processing.Messager
 import javax.annotation.processing.ProcessingEnvironment
@@ -147,21 +152,51 @@ object XConverters {
 
     @Deprecated("This will be removed in a future version of XProcessing.")
     @JvmStatic
-    fun XType.getProcessingEnv(): XProcessingEnv = (this as JavacType).env
+    fun XType.getProcessingEnv(): XProcessingEnv {
+        return when (this) {
+            is JavacType -> this.env
+            is KspType -> this.env
+            else -> error("Unexpected type: $this")
+        }
+    }
 
     @Deprecated("This will be removed in a future version of XProcessing.")
     @JvmStatic
-    fun XElement.getProcessingEnv(): XProcessingEnv = (this as JavacElement).env
+    fun XElement.getProcessingEnv(): XProcessingEnv {
+        return when (this) {
+            is JavacElement -> this.env
+            is KspElement -> this.env
+            else -> error("Unexpected element: $this")
+        }
+    }
 
     @Deprecated("This will be removed in a future version of XProcessing.")
     @JvmStatic
-    fun XAnnotation.getProcessingEnv(): XProcessingEnv = (this as JavacAnnotation).env
+    fun XAnnotation.getProcessingEnv(): XProcessingEnv {
+        return when (this) {
+            is JavacAnnotation -> this.env
+            is KspAnnotation -> this.env
+            else -> error("Unexpected annotation type: $this")
+        }
+    }
 
     @Deprecated("This will be removed in a future version of XProcessing.")
     @JvmStatic
-    fun XAnnotationValue.getProcessingEnv(): XProcessingEnv = (this as JavacAnnotationValue).env
+    fun XAnnotationValue.getProcessingEnv(): XProcessingEnv {
+        return when (this) {
+            is JavacAnnotationValue -> this.env
+            is KspAnnotationValue -> this.env
+            else -> error("Unexpected annotation value: $this")
+        }
+    }
 
     @Deprecated("This will be removed in a future version of XProcessing.")
     @JvmStatic
-    fun XExecutableType.getProcessingEnv(): XProcessingEnv = (this as JavacExecutableType).env
+    fun XExecutableType.getProcessingEnv(): XProcessingEnv {
+        return when (this) {
+            is JavacExecutableType -> this.env
+            is KspExecutableType -> this.env
+            else -> error("Unexpected executable type: $this")
+        }
+    }
 }
