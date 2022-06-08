@@ -27,7 +27,7 @@ import com.google.devtools.ksp.validate
 import java.util.Locale
 
 internal abstract class KspElement(
-    protected val env: KspProcessingEnv,
+    internal val env: KspProcessingEnv,
     open val declaration: KSAnnotated
 ) : XElement, XEquality {
     override fun kindName(): String {
