@@ -15,6 +15,7 @@
  */
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
     id("com.android.application")
     id("kotlin-android")
 }
@@ -44,7 +45,6 @@ android {
 
     buildFeatures {
         viewBinding true
-        compose true
     }
 
     // Compose
@@ -55,14 +55,13 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.2.0-beta02'
-    }
 
     namespace "androidx.camera.integration.uiwidgets"
 }
 
 dependencies {
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+
     // Internal library
     implementation(libs.kotlinStdlib)
     implementation(project(":camera:camera-core"))
