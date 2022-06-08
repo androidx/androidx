@@ -91,7 +91,7 @@ Fix for src/androidx/sample/core/widget/ListViewCompat.java line 39: Extract to 
 +     }
 +
 +     @androidx.annotation.DoNotInline
-+     static void scrollListBy(AbsListView absListView, int y) {
++     static void scrollListBy(android.widget.AbsListView absListView, int y) {
 +         absListView.scrollListBy(y);
 +     }
 @@ -93 +102
@@ -110,7 +110,7 @@ Fix for src/androidx/sample/core/widget/ListViewCompat.java line 69: Extract to 
 +     }
 +
 +     @androidx.annotation.DoNotInline
-+     static boolean canScrollList(AbsListView absListView, int direction) {
++     static boolean canScrollList(android.widget.AbsListView absListView, int direction) {
 +         return absListView.canScrollList(direction);
 +     }
 @@ -93 +102
@@ -414,5 +414,46 @@ Fix for src/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java li
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected).expectFixDiffs(expectedFix)
+    }
+
+    @Test
+    fun `Auto-fix includes fully qualified class name (issue 205035683)`() {
+        val input = arrayOf(
+            javaSample("androidx.AutofixUnsafeMethodWithQualifiedClass"),
+            RequiresApi
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/AutofixUnsafeMethodWithQualifiedClass.java:35: Error: This call references a method added in API level 23; however, the containing class androidx.AutofixUnsafeMethodWithQualifiedClass is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+        return callback.onSearchRequested(searchEvent);
+                        ~~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+        """
+
+        val expectedFixDiffs = """
+Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 35: Extract to static inner class:
+@@ -35 +35
+-         return callback.onSearchRequested(searchEvent);
++         return Api23Impl.onSearchRequested(callback, searchEvent);
+@@ -37 +37
+- }
++ @RequiresApi(23)
++ static class Api23Impl {
++     private Api23Impl() {
++         // This class is not instantiable.
++     }
++
++     @DoNotInline
++     static boolean onSearchRequested(Window.Callback callback, SearchEvent p) {
++         return callback.onSearchRequested(p);
++     }
+@@ -39 +48
++ }}
++
+        """
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
 }
