@@ -939,34 +939,42 @@ object ProcessorErrors {
             """
             AutoMigration Failure in ‘$className’: Column ‘$columnName’ in table ‘$tableName’ has
             been either removed or renamed. Please annotate ‘$className’ with the @RenameColumn
-            or @RemoveColumn annotation to specify the change to be performed:
+            or @DeleteColumn annotation to specify the change to be performed:
             1) RENAME:
-                @RenameColumn(
+                @RenameColumn.Entries(
+                    @RenameColumn(
                         tableName = "$tableName",
                         fromColumnName = "$columnName",
                         toColumnName = <NEW_COLUMN_NAME>
+                    )
                 )
             2) DELETE:
-                @DeleteColumn=(
+                @DeleteColumn.Entries(
+                    @DeleteColumn(
                         tableName = "$tableName",
                         columnName = "$columnName"
+                    )
                 )
             """
         } else {
             """
             AutoMigration Failure: Please declare an interface extending 'AutoMigrationSpec',
-            and annotate with the @RenameColumn or @RemoveColumn annotation to specify the
+            and annotate with the @RenameColumn or @DeleteColumn annotation to specify the
             change to be performed:
             1) RENAME:
-                @RenameColumn(
+                @RenameColumn.Entries(
+                    @RenameColumn(
                         tableName = "$tableName",
                         fromColumnName = "$columnName",
                         toColumnName = <NEW_COLUMN_NAME>
+                    )
                 )
             2) DELETE:
-                @DeleteColumn=(
+                @DeleteColumn.Entries(
+                    @DeleteColumn(
                         tableName = "$tableName",
                         columnName = "$columnName"
+                    )
                 )
             """
         }
@@ -979,20 +987,40 @@ object ProcessorErrors {
         return if (className != null) {
             """
             AutoMigration Failure in '$className': Table '$tableName' has been either removed or
-            renamed. Please annotate '$className' with the @RenameTable or @RemoveTable
+            renamed. Please annotate '$className' with the @RenameTable or @DeleteTable
             annotation to specify the change to be performed:
-            1) RENAME: @RenameTable.Entries(
-                @RenameTable(fromTableName = "$tableName", toTableName = <NEW_TABLE_NAME>))
-            2) DELETE: @DeleteTable.Entries(@DeleteTable(tableName = "$tableName"))
+            1) RENAME:
+                @RenameTable.Entries(
+                    @RenameTable(
+                        fromTableName = "$tableName",
+                        toTableName = <NEW_TABLE_NAME>
+                    )
+                )
+            2) DELETE:
+                @DeleteTable.Entries(
+                    @DeleteTable(
+                        tableName = "$tableName"
+                    )
+                )
             """
         } else {
             """
             AutoMigration Failure: Please declare an interface extending 'AutoMigrationSpec',
-            and annotate with the @RenameTable or @RemoveTable
-            annotation to specify the change to be performed:
-            1) RENAME: @RenameTable.Entries(
-                @RenameTable(fromTableName = "$tableName", toTableName = <NEW_TABLE_NAME>))
-            2) DELETE: @DeleteTable.Entries(@DeleteTable(tableName = "$tableName"))
+            and annotate with the @RenameTable or @DeleteTable annotation to specify the change
+            to be performed:
+            1) RENAME:
+                @RenameTable.Entries(
+                    @RenameTable(
+                        fromTableName = "$tableName",
+                        toTableName = <NEW_TABLE_NAME>
+                    )
+                )
+            2) DELETE:
+                @DeleteTable.Entries(
+                    @DeleteTable(
+                        tableName = "$tableName"
+                    )
+                )
             """
         }
     }
