@@ -34,6 +34,7 @@ The remote build cache was disabled during the build due to errors\.
 # Some messages that encode the number of a certain type of other error
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warning filtered by baseline lint\-baseline\.xml\)
+[0-9]+ problems were found reusing the configuration cache, [0-9]+ of which seems unique\.
 # > Task :webkit:integration-tests:testapp:compileReleaseJavaWithJavac
 \[ant\:jacocoReport\] Note\: Some input files use or override a deprecated API\.
 \[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:deprecation for details\.
