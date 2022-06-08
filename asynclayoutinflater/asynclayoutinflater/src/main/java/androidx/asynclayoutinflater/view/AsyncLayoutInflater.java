@@ -92,7 +92,7 @@ public final class AsyncLayoutInflater {
     }
 
     /**
-     * Triggers view inflation on bg thread.
+     * Triggers view inflation on background thread.
      *
      * @deprecated may initialize incorrect class for AppCompat library. Use
      * {@link #inflateWithOriginalFactory} instead.
@@ -105,7 +105,7 @@ public final class AsyncLayoutInflater {
     }
 
     /**
-     * Same as {@link #inflate(int, ViewGroup, OnInflateFinishedListener)} but uses an underlying
+     * Triggers inflation on a background thread. It uses an underlying
      * inflater with same {@link LayoutInflater.Factory2} as the inflater for
      * {@link AppCompatActivity}.
      */
