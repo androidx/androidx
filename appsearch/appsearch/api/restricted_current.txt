@@ -322,6 +322,22 @@ package androidx.appsearch.app {
     method public byte[] getSha256Certificate();
   }
 
+  public class PropertyPath implements java.lang.Iterable<androidx.appsearch.app.PropertyPath.PathSegment> {
+    ctor public PropertyPath(java.util.List<androidx.appsearch.app.PropertyPath.PathSegment!>);
+    ctor public PropertyPath(String);
+    method public androidx.appsearch.app.PropertyPath.PathSegment get(int);
+    method public java.util.Iterator<androidx.appsearch.app.PropertyPath.PathSegment!> iterator();
+    method public int size();
+  }
+
+  public static class PropertyPath.PathSegment {
+    method public static androidx.appsearch.app.PropertyPath.PathSegment create(String, int);
+    method public static androidx.appsearch.app.PropertyPath.PathSegment create(String);
+    method public int getPropertyIndex();
+    method public String getPropertyName();
+    field public static final int NON_REPEATED_CARDINALITY = -1; // 0xffffffff
+  }
+
   public final class PutDocumentsRequest {
     method public java.util.List<androidx.appsearch.app.GenericDocument!> getGenericDocuments();
   }
