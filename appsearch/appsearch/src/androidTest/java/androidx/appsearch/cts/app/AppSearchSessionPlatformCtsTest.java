@@ -153,4 +153,12 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
         assumeTrue(BuildCompat.isAtLeastT());
         super.testSetSchemaWithIncompatibleNestedSchema();
     }
+
+    @Override
+    @Test
+    public void testEmojiSnippet() throws Exception {
+        // b/229770338 was fixed in Android T, this test will fail on S_V2 devices and below.
+        assumeTrue(BuildCompat.isAtLeastT());
+        super.testEmojiSnippet();
+    }
 }
