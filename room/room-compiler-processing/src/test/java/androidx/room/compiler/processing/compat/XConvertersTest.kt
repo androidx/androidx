@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.compat
 
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.compat.XConverters.getProcessingEnv
 import androidx.room.compiler.processing.compat.XConverters.toJavac
 import androidx.room.compiler.processing.compat.XConverters.toXProcessing
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
@@ -26,6 +27,7 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.runKaptTest
+import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.truth.Truth.assertThat
@@ -368,6 +370,40 @@ class XConvertersTest {
                 hasWarningCount(0)
                 hasError("Custom: error msg")
             }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun getProcessingEnvTest() {
+        runProcessorTest(
+            sources = listOf(
+                Source.kotlin(
+                    "Foo.kt",
+                    """
+                    annotation class FooAnnotation(val value: String)
+                    @FooAnnotation("someValue")
+                    interface Foo {
+                        fun method()
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val foo = invocation.processingEnv.requireTypeElement("Foo")
+            assertThat(foo.getProcessingEnv()).isEqualTo(invocation.processingEnv)
+
+            val fooType = foo.type
+            assertThat(fooType.getProcessingEnv()).isEqualTo(invocation.processingEnv)
+
+            val fooAnnotation = foo.requireAnnotation(ClassName.get("", "FooAnnotation"))
+            assertThat(fooAnnotation.getProcessingEnv()).isEqualTo(invocation.processingEnv)
+
+            val fooAnnotationValue = fooAnnotation.getAnnotationValue("value")
+            assertThat(fooAnnotationValue.getProcessingEnv()).isEqualTo(invocation.processingEnv)
+
+            val fooMethodType = foo.getDeclaredMethodByJvmName("method").executableType
+            assertThat(fooMethodType.getProcessingEnv()).isEqualTo(invocation.processingEnv)
         }
     }
 
