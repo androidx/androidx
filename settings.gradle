@@ -653,6 +653,7 @@ includeProject(":glance:glance-appwidget:glance-layout-generator", [BuildType.GL
 includeProject(":glance:glance-wear-tiles:integration-tests:demos", [BuildType.GLANCE])
 includeProject(":glance:glance-wear-tiles:integration-tests:template-demos", [BuildType.GLANCE])
 includeProject(":glance:glance-wear-tiles", [BuildType.GLANCE])
+includeProject(":glance:glance-wear-tiles-preview", [BuildType.GLANCE])
 includeProject(":gridlayout:gridlayout", [BuildType.MAIN])
 includeProject(":health:health-connect-client", [BuildType.MAIN])
 includeProject(":health:health-connect-client-proto", [BuildType.MAIN])
