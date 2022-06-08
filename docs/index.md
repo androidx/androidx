@@ -2,18 +2,37 @@
 
 ![alt_text](androidx.gif "Androidx Gif")
 
-## Ethos
+## Team Purpose
 
-To create recommended components, tools, and guidance that makes it quick and
-easy to build great Android apps, including pieces both from Google and from
-trusted OSS sources.
+Enable high-quality libraries so that app developers can succeed.
 
 ## Team mission
 
-To improve the Android developer experience by providing architectural guidance,
-addressing common pain points, and simplifying the app development process
-through broad compatibility across Android versions and elimination of
-boilerplate code so developers can focus on what makes their app special.
+Define, enforce, and enable a high quality bar that provides best-in-class
+library development workflow for Jetpack libraries.
+
+## Team Values
+
+-   Communication (open, honest, constructive)
+    -   Discussing issues in public (e.g. chat)
+    -   Providing a safe space to give/receive feedback
+    -   Documenting and sharing knowledge
+-   User Focus (meeting/exceeding our customer's needs and desires)
+    -   Listening to users, seeking out feedback
+    -   Taking user feedback seriously
+    -   Showing empathy for users
+-   Quality (strive for excellence, continuous improvement)
+    -   Prioritizing quality over velocity
+    -   Building long-lasting solutions
+    -   Following consistent, codified principles
+-   Integrity (honesty, sincerity, standing up for one’s beliefs)
+    -   Owning mistakes
+    -   Respecting others
+    -   Raising concerns when you have them!
+-   Responsibility (accountability)
+    -   Monitoring and maintaining our products
+    -   Providing clear ownership and escalation paths
+    -   Following up to ensure resolution of issues
 
 ## What is `androidx`?
 
