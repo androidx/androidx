@@ -1195,6 +1195,7 @@ package androidx.core.content {
     method @ColorInt public static int getColor(android.content.Context, @ColorRes int);
     method public static android.content.res.ColorStateList? getColorStateList(android.content.Context, @ColorRes int);
     method public static java.io.File? getDataDir(android.content.Context);
+    method public static android.view.Display getDisplay(@DisplayContext android.content.Context);
     method public static android.graphics.drawable.Drawable? getDrawable(android.content.Context, @DrawableRes int);
     method public static java.io.File![] getExternalCacheDirs(android.content.Context);
     method public static java.io.File![] getExternalFilesDirs(android.content.Context, String?);

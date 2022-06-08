@@ -70,6 +70,7 @@ import static android.content.Context.WINDOW_SERVICE;
 
 import android.accounts.AccountManager;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlarmManager;
 import android.app.AppOpsManager;
@@ -131,6 +132,7 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityManager;
@@ -140,6 +142,7 @@ import android.view.textservice.TextServicesManager;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
+import androidx.annotation.DisplayContext;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
@@ -753,6 +756,28 @@ public class ContextCompat {
     }
 
     /**
+     * Get the display this context is associated with.
+     * <p>
+     * Applications must use this method with {@link Activity} or a context associated with a
+     * {@link Display} via {@link Context#createDisplayContext(Display)} or
+     * {@link Context#createWindowContext(Display, int, Bundle)}, or the reported {@link Display}
+     * instance is not reliable. </p>
+     *
+     * @param context Context to obtain the associated display
+     * @return The display associated with the Context.
+     */
+    @NonNull
+    public static Display getDisplay(@NonNull @DisplayContext Context context) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return Api30Impl.getDisplayNoCrash(context);
+        } else {
+            final WindowManager windowManager =
+                    (WindowManager) context.getSystemService(WINDOW_SERVICE);
+            return windowManager.getDefaultDisplay();
+        }
+    }
+
+    /**
      * Return the handle to a system-level service by class.
      *
      * @param context      Context to retrieve service from.
@@ -1112,6 +1137,19 @@ public class ContextCompat {
         @DoNotInline
         static String getAttributionTag(Context obj) {
             return obj.getAttributionTag();
+        }
+
+        @DoNotInline
+        static Display getDisplayNoCrash(Context obj) {
+            try {
+                return obj.getDisplay();
+            } catch (UnsupportedOperationException e) {
+                // Provide a fallback display if the context is not associated with any display.
+                Log.w(TAG, "The context:" + obj + " is not associated with any display. Return a "
+                        + "fallback display instead.");
+                return obj.getSystemService(DisplayManager.class)
+                        .getDisplay(Display.DEFAULT_DISPLAY);
+            }
         }
     }
 
