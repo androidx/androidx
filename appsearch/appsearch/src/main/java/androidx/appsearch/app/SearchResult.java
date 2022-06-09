@@ -342,6 +342,8 @@ public final class SearchResult {
         private static final String SNIPPET_RANGE_UPPER_FIELD = "snippetRangeUpper";
 
         private final String mPropertyPath;
+        @Nullable
+        private PropertyPath mPropertyPathObject = null;
         final Bundle mBundle;
 
         /**
@@ -390,6 +392,27 @@ public final class SearchResult {
         @NonNull
         public String getPropertyPath() {
             return mPropertyPath;
+        }
+
+        /**
+         * Gets a {@link PropertyPath} object representing the property path corresponding to the
+         * given entry.
+         *
+         * <p> Methods such as {@link GenericDocument#getPropertyDocument} accept a path as a
+         * string rather than a {@link PropertyPath} object. However, you may want to manipulate
+         * the path before getting a property document. This method returns a {@link PropertyPath}
+         * rather than a String for easier path manipulation, which can then be converted to a
+         * String.
+         *
+         * @see #getPropertyPath
+         * @see PropertyPath
+         */
+        @NonNull
+        public PropertyPath getPropertyPathObject() {
+            if (mPropertyPathObject == null) {
+                mPropertyPathObject = new PropertyPath(mPropertyPath);
+            }
+            return mPropertyPathObject;
         }
 
         /**
