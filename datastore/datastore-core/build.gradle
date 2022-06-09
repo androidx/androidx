@@ -112,5 +112,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
     legacyDisableKotlinStrictApiMode = true
-    publishPlatforms = ["jvm"]
+    publishPlatforms = kotlin.targets.asMap.keySet().collect { it.toLowerCase() }
 }

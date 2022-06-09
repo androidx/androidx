@@ -98,7 +98,7 @@ androidx {
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android DataStore Core Okio- contains APIs to use datastore-core in multiplatform via okio"
-    publishPlatforms = ["jvm"]
+    publishPlatforms = kotlin.targets.asMap.keySet().collect { it.toLowerCase() }
 }
 
 // Allow usage of Kotlin's @OptIn.
