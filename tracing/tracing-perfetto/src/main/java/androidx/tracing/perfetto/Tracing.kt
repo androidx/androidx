@@ -15,6 +15,7 @@
  */
 package androidx.tracing.perfetto
 
+import android.content.Context
 import android.os.Build
 import android.util.JsonWriter
 import androidx.annotation.RequiresApi
@@ -23,11 +24,16 @@ import androidx.tracing.perfetto.TracingReceiver.Companion.KEY_EXIT_CODE
 import androidx.tracing.perfetto.TracingReceiver.Companion.KEY_REQUIRED_VERSION
 import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ALREADY_ENABLED
 import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ERROR_BINARY_MISSING
+import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR
 import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH
 import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_ERROR_OTHER
 import androidx.tracing.perfetto.TracingReceiver.Companion.RESULT_CODE_SUCCESS
 import androidx.tracing.perfetto.TracingReceiver.EnableTracingResultCode
 import androidx.tracing.perfetto.jni.PerfettoNative
+import androidx.tracing.perfetto.security.IncorrectChecksumException
+import androidx.tracing.perfetto.security.SafeLibLoader
+import androidx.tracing.perfetto.security.UnapprovedLocationException
+import java.io.File
 import java.io.StringWriter
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import kotlin.concurrent.withLock
@@ -53,31 +59,54 @@ object Tracing {
     private val enableTracingLock = ReentrantReadWriteLock()
 
     @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
-    fun enable(path: String? = null): EnableTracingResponse {
+    fun enable() = enable(null)
+
+    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
+    internal fun enable(file: File, context: Context) = enable(file to context)
+
+    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
+    private fun enable(descriptor: Pair<File, Context>?): EnableTracingResponse {
         enableTracingLock.readLock().withLock {
             if (isEnabled) return EnableTracingResponse(RESULT_CODE_ALREADY_ENABLED)
         }
 
         enableTracingLock.writeLock().withLock {
-            return enableImpl(path)
+            return enableImpl(descriptor)
         }
     }
 
     /** Calling thread must obtain a write lock on [enableTracingLock] before calling this method */
-    private fun enableImpl(path: String?): EnableTracingResponse {
+    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
+    private fun enableImpl(descriptor: Pair<File, Context>?): EnableTracingResponse {
         if (!enableTracingLock.isWriteLockedByCurrentThread) throw RuntimeException()
 
         if (isEnabled) return EnableTracingResponse(RESULT_CODE_ALREADY_ENABLED)
 
         // Load library
         try {
-            PerfettoNative.loadLib(path)
+            when (descriptor) {
+                null -> PerfettoNative.loadLib()
+                else -> descriptor.let { (file, context) ->
+                    PerfettoNative.loadLib(file, SafeLibLoader(context))
+                }
+            }
         } catch (t: Throwable) {
-            when (t) {
-                is UnsatisfiedLinkError, is Exception -> return EnableTracingResponse(
-                    exitCode = RESULT_CODE_ERROR_BINARY_MISSING,
-                    errorMessage = t.toErrorMessage()
-                )
+            return when (t) {
+                is IncorrectChecksumException, is UnapprovedLocationException ->
+                    EnableTracingResponse(
+                        exitCode = RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR,
+                        errorMessage = t.toErrorMessage()
+                    )
+                is UnsatisfiedLinkError ->
+                    EnableTracingResponse(
+                        exitCode = RESULT_CODE_ERROR_BINARY_MISSING,
+                        errorMessage = t.toErrorMessage()
+                    )
+                is Exception ->
+                    EnableTracingResponse(
+                        exitCode = RESULT_CODE_ERROR_OTHER,
+                        errorMessage = t.toErrorMessage()
+                    )
                 else -> throw t
             }
         }
