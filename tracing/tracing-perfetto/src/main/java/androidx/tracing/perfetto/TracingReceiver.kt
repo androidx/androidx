@@ -97,7 +97,7 @@ class TracingReceiver : BroadcastReceiver() {
             srcPath != null && context != null -> {
                 try {
                     val dstFile = copyExternalLibraryFile(context, srcPath)
-                    Tracing.enable(dstFile.path)
+                    Tracing.enable(dstFile, context)
                 } catch (e: Exception) {
                     EnableTracingResponse(
                         exitCode = RESULT_CODE_ERROR_OTHER,
@@ -114,7 +114,7 @@ class TracingReceiver : BroadcastReceiver() {
             }
             else -> {
                 // Library path was not provided, trying to resolve using app's local library files.
-                Tracing.enable(null)
+                Tracing.enable()
             }
         }
 
