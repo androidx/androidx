@@ -267,8 +267,7 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
     fi
   fi
   if [ "$compact" == "--strict" ]; then
-    expanded="-Pandroidx.allWarningsAsErrors\
-     -Pandroidx.validateNoUnrecognizedMessages\
+    expanded="-Pandroidx.validateNoUnrecognizedMessages\
      -Pandroidx.verifyUpToDate\
      --no-watch-fs\
      --no-daemon"
