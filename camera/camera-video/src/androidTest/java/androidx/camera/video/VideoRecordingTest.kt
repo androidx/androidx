@@ -62,6 +62,7 @@ import org.junit.runners.Parameterized
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.atLeastOnce
+import org.mockito.Mockito.clearInvocations
 import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
@@ -650,6 +651,66 @@ class VideoRecordingTest(
             file1.delete()
             file2.delete()
             file3.delete()
+        }
+    }
+
+    @Test
+    fun canReuseRecorder() {
+        val recorder = Recorder.Builder().build()
+        @Suppress("UNCHECKED_CAST")
+        val mockListener = mock(Consumer::class.java) as Consumer<VideoRecordEvent>
+        val videoCapture1 = VideoCapture.withOutput(recorder)
+        val videoCapture2 = VideoCapture.withOutput(recorder)
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture1)
+        }
+
+        val file1 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        val inOrder = inOrder(mockListener)
+        try {
+            videoCapture1.output.prepareRecording(context, FileOutputOptions.Builder(file1).build())
+                .withAudioEnabled()
+                .start(CameraXExecutors.directExecutor(), mockListener).use {
+                    inOrder.verify(mockListener, timeout(5000L))
+                        .accept(any(VideoRecordEvent.Start::class.java))
+                    inOrder.verify(mockListener, timeout(15000L).atLeast(5))
+                        .accept(any(VideoRecordEvent.Status::class.java))
+                }
+
+            inOrder.verify(mockListener, timeout(5000L))
+                .accept(any(VideoRecordEvent.Finalize::class.java))
+
+            verifyRecordingResult(file1, true)
+        } finally {
+            file1.delete()
+        }
+
+        clearInvocations(mockListener)
+
+        instrumentation.runOnMainSync {
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture2)
+        }
+
+        try {
+            videoCapture2.output.prepareRecording(context, FileOutputOptions.Builder(file2).build())
+                .withAudioEnabled()
+                .start(CameraXExecutors.directExecutor(), mockListener).use {
+                    inOrder.verify(mockListener, timeout(5000L))
+                        .accept(any(VideoRecordEvent.Start::class.java))
+                    inOrder.verify(mockListener, timeout(15000L).atLeast(5))
+                        .accept(any(VideoRecordEvent.Status::class.java))
+                }
+
+            inOrder.verify(mockListener, timeout(5000L))
+                .accept(any(VideoRecordEvent.Finalize::class.java))
+
+            verifyRecordingResult(file2, true)
+        } finally {
+            file2.delete()
         }
     }
 
