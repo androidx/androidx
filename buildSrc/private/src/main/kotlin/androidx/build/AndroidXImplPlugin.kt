@@ -127,7 +127,6 @@ class AndroidXImplPlugin : Plugin<Project> {
         project.configureProjectStructureValidation(extension)
         project.configureProjectVersionValidation(extension)
         project.registerProjectOrArtifact()
-
         project.configurations.create("samples")
     }
 
