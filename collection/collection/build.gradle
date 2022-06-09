@@ -128,7 +128,7 @@ androidx {
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."
-    publishPlatforms = ["jvm"]
+    publishPlatforms = kotlin.targets.asMap.keySet().collect { it.toLowerCase() }
 }
 
 kotlin.targets.withType(KotlinNativeTarget.class) {
