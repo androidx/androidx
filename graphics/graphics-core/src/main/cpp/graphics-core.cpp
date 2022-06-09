@@ -226,7 +226,7 @@ void setupTransactionCompletedListenerClassInfo(JNIEnv *env) {
         //setup transactionCompleteListenerClassInfo for test usage
         jclass transactionCompletedListenerClazz =
                 env->FindClass(
-                    "androidx/graphics/surface/SurfaceControlCompat$TransactionCompletedListener");
+                    "androidx/graphics/surface/SurfaceControlWrapper$TransactionCompletedListener");
         gTransactionCompletedListenerClassInfo.clazz =
                 static_cast<jclass>(env->NewGlobalRef(transactionCompletedListenerClazz));
         gTransactionCompletedListenerClassInfo.onComplete =
@@ -244,7 +244,7 @@ void setupTransactionCommittedListenerClassInfo(JNIEnv *env) {
         //setup transactionCommittedListenerClassInfo for test usage
         jclass transactionCommittedListenerClazz =
                 env->FindClass(
-                    "androidx/graphics/surface/SurfaceControlCompat$TransactionCommittedListener");
+                    "androidx/graphics/surface/SurfaceControlWrapper$TransactionCommittedListener");
         gTransactionCommittedListenerClassInfo.clazz =
                 static_cast<jclass>(env->NewGlobalRef(transactionCommittedListenerClazz));
         gTransactionCommittedListenerClassInfo.onCommit =
