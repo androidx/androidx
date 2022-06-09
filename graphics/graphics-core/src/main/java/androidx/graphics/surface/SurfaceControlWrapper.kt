@@ -43,12 +43,12 @@ internal class JniBindings {
 
         external fun nTransactionSetOnComplete(
             surfaceTransaction: Long,
-            listener: SurfaceControlWrapper.TransactionCompletedListener
+            listener: SurfaceControlCompat.TransactionCompletedListener
         )
 
         external fun nTransactionSetOnCommit(
             surfaceTransaction: Long,
-            listener: SurfaceControlWrapper.TransactionCommittedListener
+            listener: SurfaceControlCompat.TransactionCommittedListener
         )
 
         external fun nExtractFenceFd(
@@ -113,61 +113,17 @@ internal class JniBindings {
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class SurfaceControlWrapper internal constructor(
-    surface: Surface? = null,
-    surfaceControl: SurfaceControlWrapper? = null,
+    surface: Surface,
     debugName: String
 ) {
     private var mNativeSurfaceControl: Long = 0
 
     init {
-        if (surface != null) {
-            mNativeSurfaceControl = JniBindings.nCreateFromSurface(surface, debugName)
-        } else if (surfaceControl != null) {
-            mNativeSurfaceControl =
-                JniBindings.nCreate(surfaceControl.mNativeSurfaceControl, debugName)
-        }
+        mNativeSurfaceControl = JniBindings.nCreateFromSurface(surface, debugName)
+
         if (mNativeSurfaceControl == 0L) {
             throw IllegalArgumentException()
         }
-    }
-
-    /**
-     * Callback interface for usage with [Transaction.addTransactionCompletedListener]
-     */
-    interface TransactionCompletedListener {
-        /**
-         * Invoked when a frame including the updates in a transaction was presented.
-         *
-         * Buffers which are replaced or removed from the scene in the transaction invoking
-         * this callback may be reused after this point.
-         *
-         * @param latchTimeNanos Timestamp in nanoseconds of when frame was latched by
-         * the framework.
-         *
-         * @param presentTimeNanos  System time in nanoseconds of when callback is called.
-         */
-        fun onComplete(latchTimeNanos: Long, presentTimeNanos: Long)
-    }
-
-    /**
-     * Callback interface for usage with [Transaction.addTransactionCommittedListener]
-     */
-    interface TransactionCommittedListener {
-        /**
-         * Invoked when the transaction has been committed in SurfaceFlinger. This is when
-         * the transaction is applied and the updates are ready to be presented.
-         * This will be invoked before the Transaction.onComplete callback.
-         *
-         * This callback does not mean buffers have been released! It simply means that any new
-         * transactions applied will not overwrite the transaction for which we are receiving
-         * a callback and instead will be included in the next frame.
-         *
-         * @param latchTimeNanos Timestamp in nano seconds of when frame was latched by
-         * the framework.
-         *
-         * @param presentTimeNanos System time in nano seconds of when callback is called.
-         */
-        fun onCommit(latchTimeNanos: Long, presentTimeNanos: Long)
     }
 
     /**
@@ -211,13 +167,13 @@ internal class SurfaceControlWrapper internal constructor(
          * been completed. This value cannot be null.
          */
         @Suppress("PairedRegistration")
-        fun addTransactionCompletedListener(
+        internal fun addTransactionCompletedListener(
             executor: Executor,
-            listener: TransactionCompletedListener
+            listener: SurfaceControlCompat.TransactionCompletedListener
         ): Transaction {
-            val listenerWrapper = object : TransactionCompletedListener {
-                override fun onComplete(latchTimeNanos: Long, presentTimeNanos: Long) {
-                    executor.execute { (listener::onComplete)(latchTimeNanos, presentTimeNanos) }
+            val listenerWrapper = object : SurfaceControlCompat.TransactionCompletedListener {
+                override fun onTransactionCompleted() {
+                    executor.execute { (listener::onTransactionCompleted)() }
                 }
             }
 
@@ -231,8 +187,9 @@ internal class SurfaceControlWrapper internal constructor(
          * setOnCompleteListener callback.
          *
          * @param executor The executor that the callback should be invoked on.
-         * This value cannot be null. Callback and listener events are dispatched
-         * through this Executor, providing an easy way to control which thread is used.
+         * This value can be null, where it will run on the default thread. Callback and
+         * listener events are dispatched through this Executor, providing an easy way
+         * to control which thread is used.
          *
          * @param listener The callback that will be invoked when the transaction has
          * been completed. This value cannot be null.
@@ -240,15 +197,17 @@ internal class SurfaceControlWrapper internal constructor(
         @RequiresApi(Build.VERSION_CODES.S)
         @Suppress("PairedRegistration")
         fun addTransactionCommittedListener(
-            executor: Executor,
-            listener: TransactionCommittedListener
+            executor: Executor?,
+            listener: SurfaceControlCompat.TransactionCommittedListener
         ): Transaction {
-            val listenerWrapper = object : TransactionCommittedListener {
-                override fun onCommit(latchTimeNanos: Long, presentTimeNanos: Long) {
-                    executor.execute { (listener::onCommit)(latchTimeNanos, presentTimeNanos) }
+            var listenerWrapper = listener
+            if (executor != null) {
+                listenerWrapper = object : SurfaceControlCompat.TransactionCommittedListener {
+                    override fun onTransactionCommitted() {
+                        executor.execute { (listener::onTransactionCommitted)() }
+                    }
                 }
             }
-
             JniBindings.nTransactionSetOnCommit(mNativeSurfaceTransaction, listenerWrapper)
             return this
         }
@@ -353,7 +312,8 @@ internal class SurfaceControlWrapper internal constructor(
             JniBindings.nSetDamageRegion(
                 mNativeSurfaceTransaction,
                 surfaceControl.mNativeSurfaceControl,
-                region?.bounds)
+                region?.bounds
+            )
             return this
         }
 
@@ -512,16 +472,16 @@ internal class SurfaceControlWrapper internal constructor(
     /**
      * Builder class for [SurfaceControlWrapper].
      *
-     * Requires a parent surface. Debug name is default empty string.
+     * Requires a debug name.
      */
-    class Builder private constructor(surface: Surface?, surfaceControl: SurfaceControlWrapper?) {
-        private var mSurface: Surface? = surface
-        private var mSurfaceControl: SurfaceControlWrapper? = surfaceControl
-        private var mDebugName: String = ""
+    class Builder {
+        private lateinit var mSurface: Surface
+        private lateinit var mDebugName: String
 
-        constructor(surface: Surface) : this(surface, null) {}
-
-        constructor(surfaceControl: SurfaceControlWrapper) : this(null, surfaceControl) {}
+        fun setParent(surface: Surface): Builder {
+            mSurface = surface
+            return this
+        }
 
         @Suppress("MissingGetterMatchingBuilder")
         fun setDebugName(debugName: String): Builder {
@@ -533,7 +493,7 @@ internal class SurfaceControlWrapper internal constructor(
          * Builds the [SurfaceControlWrapper] object
          */
         fun build(): SurfaceControlWrapper {
-            return SurfaceControlWrapper(mSurface, mSurfaceControl, mDebugName)
+            return SurfaceControlWrapper(mSurface, mDebugName)
         }
     }
 }

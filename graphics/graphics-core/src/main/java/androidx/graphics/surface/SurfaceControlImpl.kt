@@ -16,6 +16,7 @@
 
 package androidx.graphics.surface
 
+import android.graphics.Region
 import android.hardware.HardwareBuffer
 import android.os.Build
 import android.view.AttachedSurfaceControl
@@ -115,7 +116,7 @@ internal interface SurfaceControlImpl {
          * @param newParent Parent [SurfaceControlImpl] that the target [SurfaceControlCompat]
          * instance is added to. This can be null indicating that the target [SurfaceControlCompat]
          * should be removed from the scene.
-        */
+         */
         fun reparent(
             surfaceControl: SurfaceControlImpl,
             newParent: SurfaceControlImpl?
@@ -129,7 +130,7 @@ internal interface SurfaceControlImpl {
          * @param surfaceControl Target [SurfaceControlImpl] instance to reparent
          * @param surfaceView [SurfaceView] instance that acts as the new parent of the provided
          * [SurfaceControlImpl] instance.
-        */
+         */
         fun reparent(surfaceControl: SurfaceControlImpl, surfaceView: SurfaceView): Transaction
 
         /**
@@ -166,7 +167,7 @@ internal interface SurfaceControlImpl {
          * instance.
          * @param releaseCallback Optional callback invoked when the buffer is ready for re-use
          * after being presented to the display.
-        */
+         */
         // TODO update to consume Fence API from either SyncFence or SyncFenceCompat
         fun setBuffer(
             surfaceControl: SurfaceControlImpl,
@@ -203,9 +204,40 @@ internal interface SurfaceControlImpl {
         ): Transaction
 
         /**
+         * Updates the region for the content on this surface updated in this transaction. The
+         * damage region is the area of the buffer that has changed since the previously
+         * sent buffer. This can be used to reduce the amount of recomposition that needs to
+         * happen when only a small region of the buffer is being updated, such as for a small
+         * blinking cursor or a loading indicator.
+         * @param surfaceControl Target [SurfaceControlImpl] to set damage region of.
+         * @param region The region to be set. If null, the entire buffer is assumed dirty. This is
+         * equivalent to not setting a damage region at all.
+         */
+        fun setDamageRegion(
+            surfaceControl: SurfaceControlImpl,
+            region: Region?
+        ): Transaction
+
+        /**
+         * Set the alpha for a given surface. If the alpha is non-zero the SurfaceControl will
+         * be blended with the Surfaces under it according to the specified ratio.
+         * @param surfaceControl Target [SurfaceControlImpl] to set the alpha of.
+         * @param alpha The alpha to set. Value is between 0.0 and 1.0 inclusive.
+         */
+        fun setAlpha(
+            surfaceControl: SurfaceControlImpl,
+            alpha: Float
+        ): Transaction
+
+        /**
          * Commit the transaction, clearing it's state, and making it usable as a new transaction.
          */
         fun commit()
+
+        /**
+         * Release the native transaction object, without applying it.
+         */
+        fun close()
 
         /**
          * Consume the passed in transaction, and request the View hierarchy to apply it atomically

@@ -69,27 +69,8 @@ class SurfaceControlWrapperTest {
             .setName("SurfaceControlCompact_createFromWindow")
             .build()
         try {
-            SurfaceControlWrapper.Builder(Surface(surfaceControl))
-                .setDebugName("SurfaceControlWrapperTest")
-                .build()
-        } catch (e: IllegalArgumentException) {
-            fail()
-        }
-    }
-
-    @Test
-    fun testSurfaceControlWrapperBuilder_surfaceControlParent() {
-        val surfaceControl = SurfaceControl.Builder()
-            .setName("SurfaceControlCompact_createFromWindow")
-            .build()
-        try {
-            SurfaceControlWrapper.Builder(
-                SurfaceControlWrapper(
-                    Surface(surfaceControl),
-                    null,
-                    "SurfaceControlWrapperTest"
-                )
-            )
+            SurfaceControlWrapper.Builder()
+                .setParent(Surface(surfaceControl))
                 .setDebugName("SurfaceControlWrapperTest")
                 .build()
         } catch (e: IllegalArgumentException) {
@@ -103,7 +84,8 @@ class SurfaceControlWrapperTest {
             .setName("SurfaceControlCompact_createFromWindow")
             .build()
         try {
-            SurfaceControlWrapper.Builder(Surface(surfaceControl))
+            SurfaceControlWrapper.Builder()
+                .setParent(Surface(surfaceControl))
                 .setDebugName("SurfaceControlWrapperTest")
                 .build()
         } catch (e: IllegalArgumentException) {
@@ -120,30 +102,22 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    class TransactionOnCompleteListener : SurfaceControlWrapper.TransactionCompletedListener {
+    class TransactionOnCompleteListener : SurfaceControlCompat.TransactionCompletedListener {
         var mCallbackTime = -1L
-        var mLatchTime = -1L
-        var mPresentTime = -1L
         var mLatch = CountDownLatch(1)
 
-        override fun onComplete(latchTimeNanos: Long, presentTimeNanos: Long) {
+        override fun onTransactionCompleted() {
             mCallbackTime = SystemClock.elapsedRealtime()
-            mLatchTime = latchTimeNanos
-            mPresentTime = presentTimeNanos
             mLatch.countDown()
         }
     }
 
-    class TransactionOnCommitListener : SurfaceControlWrapper.TransactionCommittedListener {
+    class TransactionOnCommitListener : SurfaceControlCompat.TransactionCommittedListener {
         var mCallbackTime = -1L
-        var mLatchTime = -1L
-        var mPresentTime = -1L
         var mLatch = CountDownLatch(1)
 
-        override fun onCommit(latchTimeNanos: Long, presentTimeNanos: Long) {
+        override fun onTransactionCommitted() {
             mCallbackTime = SystemClock.elapsedRealtime()
-            mLatchTime = latchTimeNanos
-            mPresentTime = presentTimeNanos
             mLatch.countDown()
         }
     }
@@ -270,7 +244,8 @@ class SurfaceControlWrapperTest {
             .build()
         var scCompat: SurfaceControlWrapper? = null
         try {
-            scCompat = SurfaceControlWrapper.Builder(Surface(surfaceControl))
+            scCompat = SurfaceControlWrapper.Builder()
+                .setParent(Surface(surfaceControl))
                 .setDebugName("SurfaceControlWrapperTest")
                 .build()
         } catch (e: IllegalArgumentException) {
@@ -288,7 +263,8 @@ class SurfaceControlWrapperTest {
         var scCompat: SurfaceControlWrapper? = null
 
         try {
-            scCompat = SurfaceControlWrapper.Builder(Surface(surfaceControl))
+            scCompat = SurfaceControlWrapper.Builder()
+                .setParent(Surface(surfaceControl))
                 .setDebugName("SurfaceControlWrapperTest")
                 .build()
         } catch (e: IllegalArgumentException) {
@@ -310,7 +286,8 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 
@@ -361,11 +338,13 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
                         val scCompat2 = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapper")
                             .build()
 
@@ -425,7 +404,8 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 
@@ -471,7 +451,8 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 
@@ -517,11 +498,13 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat1 = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
                         val scCompat2 = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 
@@ -573,11 +556,13 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat1 = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
                         val scCompat2 = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 
@@ -629,11 +614,13 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat1 = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
                         val scCompat2 = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 
@@ -685,7 +672,8 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 
@@ -731,7 +719,8 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 
@@ -777,7 +766,8 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 
@@ -820,7 +810,8 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 
@@ -864,7 +855,8 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 
@@ -909,7 +901,8 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 
@@ -970,7 +963,8 @@ class SurfaceControlWrapperTest {
                 val callback = object : SurfaceHolderCallback() {
                     override fun surfaceCreated(sh: SurfaceHolder) {
                         val scCompat = SurfaceControlWrapper
-                            .Builder(it.getSurfaceView().holder.surface)
+                            .Builder()
+                            .setParent(it.getSurfaceView().holder.surface)
                             .setDebugName("SurfaceControlWrapperTest")
                             .build()
 

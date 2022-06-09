@@ -16,6 +16,7 @@
 
 package androidx.graphics.surface
 
+import android.graphics.Region
 import android.hardware.HardwareBuffer
 import android.os.Build
 import android.view.AttachedSurfaceControl
@@ -23,6 +24,7 @@ import android.view.Surface
 import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.graphics.surface.SurfaceControlWrapper.Transaction
 import java.util.concurrent.Executor
 
 /**
@@ -39,7 +41,7 @@ import java.util.concurrent.Executor
  * to Android R and above by delegating to the related APIs available in the NDK. For newer Android
  * versions, this leverages the equivalent [SurfaceControl] API available in the SDK
  */
-@RequiresApi(Build.VERSION_CODES.R)
+@RequiresApi(Build.VERSION_CODES.Q)
 class SurfaceControlCompat internal constructor(
     internal val scImpl: SurfaceControlImpl
 ) {
@@ -101,14 +103,28 @@ class SurfaceControlCompat internal constructor(
         fun build(): SurfaceControlCompat = SurfaceControlCompat(mBuilderImpl.build())
 
         internal companion object {
-            @RequiresApi(Build.VERSION_CODES.R)
+            @RequiresApi(Build.VERSION_CODES.Q)
             fun createImpl(): SurfaceControlImpl.Builder =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     SurfaceControlVerificationHelper.createBuilderV33()
                 } else {
-                    SurfaceControlVerificationHelper.createBuilderV31()
+                    SurfaceControlVerificationHelper.createBuilderV29()
                 }
         }
+    }
+
+    /**
+     * Interface to handle request to
+     * [SurfaceControlV29.Transaction.addTransactionCompletedListener]
+     */
+    internal interface TransactionCompletedListener {
+        /**
+         * Invoked when a frame including the updates in a transaction was presented.
+         *
+         * Buffers which are replaced or removed from the scene in the transaction invoking
+         * this callback may be reused after this point.
+         */
+        fun onTransactionCompleted()
     }
 
     /**
@@ -282,10 +298,49 @@ class SurfaceControlCompat internal constructor(
         }
 
         /**
+         * Updates the region for the content on this surface updated in this transaction. The
+         * damage region is the area of the buffer that has changed since the previously
+         * sent buffer. This can be used to reduce the amount of recomposition that needs to
+         * happen when only a small region of the buffer is being updated, such as for a small
+         * blinking cursor or a loading indicator.
+         * @param surfaceControl Target [SurfaceControlImpl] to set damage region of.
+         * @param region The region to be set. If null, the entire buffer is assumed dirty. This is
+         * equivalent to not setting a damage region at all.
+         */
+        fun setDamageRegion(
+            surfaceControl: SurfaceControlCompat,
+            region: Region?
+        ): Transaction {
+            mImpl.setDamageRegion(surfaceControl.scImpl, region)
+            return this
+        }
+
+        /**
+         * Set the alpha for a given surface. If the alpha is non-zero the SurfaceControl will
+         * be blended with the Surfaces under it according to the specified ratio.
+         * @param surfaceControl Target [SurfaceControlImpl] to set the alpha of.
+         * @param alpha The alpha to set. Value is between 0.0 and 1.0 inclusive.
+         */
+        fun setAlpha(
+            surfaceControl: SurfaceControlCompat,
+            alpha: Float
+        ): Transaction {
+            mImpl.setAlpha(surfaceControl.scImpl, alpha)
+            return this
+        }
+
+        /**
          * Commit the transaction, clearing it's state, and making it usable as a new transaction.
          */
         fun commit() {
             mImpl.commit()
+        }
+
+        /**
+         * Release the native transaction object, without applying it.
+         */
+        fun close() {
+            mImpl.close()
         }
 
         /**
@@ -303,12 +358,12 @@ class SurfaceControlCompat internal constructor(
         }
 
         internal companion object {
-            @RequiresApi(Build.VERSION_CODES.R)
+            @RequiresApi(Build.VERSION_CODES.Q)
             fun createImpl(): SurfaceControlImpl.Transaction =
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     SurfaceControlVerificationHelper.createTransactionV33()
                 } else {
-                    SurfaceControlVerificationHelper.createTransactionV31()
+                    SurfaceControlVerificationHelper.createTransactionV29()
                 }
         }
     }
@@ -324,16 +379,16 @@ internal class SurfaceControlVerificationHelper private constructor() {
         @androidx.annotation.DoNotInline
         fun createBuilderV33(): SurfaceControlImpl.Builder = SurfaceControlV33.Builder()
 
-        @RequiresApi(Build.VERSION_CODES.R)
+        @RequiresApi(Build.VERSION_CODES.Q)
         @androidx.annotation.DoNotInline
-        fun createBuilderV31(): SurfaceControlImpl.Builder = SurfaceControlV31.Builder()
+        fun createBuilderV29(): SurfaceControlImpl.Builder = SurfaceControlV29.Builder()
 
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         @androidx.annotation.DoNotInline
         fun createTransactionV33(): SurfaceControlImpl.Transaction = SurfaceControlV33.Transaction()
 
-        @RequiresApi(Build.VERSION_CODES.R)
+        @RequiresApi(Build.VERSION_CODES.Q)
         @androidx.annotation.DoNotInline
-        fun createTransactionV31(): SurfaceControlImpl.Transaction = SurfaceControlV31.Transaction()
+        fun createTransactionV29(): SurfaceControlImpl.Transaction = SurfaceControlV29.Transaction()
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.graphics.surface
 
+import android.graphics.Region
 import android.hardware.HardwareBuffer
 import android.os.Build
 import android.view.AttachedSurfaceControl
@@ -163,7 +164,7 @@ internal class SurfaceControlV33 internal constructor(
             attachedSurfaceControl: AttachedSurfaceControl
         ): SurfaceControlImpl.Transaction {
             val reparentTransaction = attachedSurfaceControl
-                    .buildReparentTransaction(surfaceControl.asFrameworkSurfaceControl())
+                .buildReparentTransaction(surfaceControl.asFrameworkSurfaceControl())
             if (reparentTransaction != null) {
                 mTransaction.merge(reparentTransaction)
             }
@@ -184,10 +185,39 @@ internal class SurfaceControlV33 internal constructor(
         }
 
         /**
+         * See [SurfaceControlImpl.Transaction.setDamageRegion]
+         */
+        override fun setDamageRegion(
+            surfaceControl: SurfaceControlImpl,
+            region: Region?
+        ): SurfaceControlImpl.Transaction {
+            mTransaction.setDamageRegion(surfaceControl.asFrameworkSurfaceControl(), region)
+            return this
+        }
+
+        /**
+         * See [SurfaceControlImpl.Transaction.setAlpha]
+         */
+        override fun setAlpha(
+            surfaceControl: SurfaceControlImpl,
+            alpha: Float
+        ): SurfaceControlImpl.Transaction {
+            mTransaction.setAlpha(surfaceControl.asFrameworkSurfaceControl(), alpha)
+            return this
+        }
+
+        /**
          * See [SurfaceControlImpl.Transaction.commit]
          */
         override fun commit() {
             mTransaction.apply()
+        }
+
+        /**
+         * See [SurfaceControlImpl.Transaction.close]
+         */
+        override fun close() {
+            mTransaction.close()
         }
 
         /**
