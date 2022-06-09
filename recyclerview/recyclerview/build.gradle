@@ -11,7 +11,7 @@ dependencies {
     api "androidx.core:core:1.7.0"
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.customview:customview:1.0.0")
-    implementation("androidx.customview:customview-poolingcontainer:1.0.0-alpha01")
+    implementation("androidx.customview:customview-poolingcontainer:1.0.0-beta02")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
