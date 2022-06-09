@@ -26,7 +26,7 @@ import androidx.annotation.RequiresApi;
 public class VersionName {
     // Current version of vendor library implementation that the CameraX extension supports. This
     // needs to be increased along with the version of vendor library interface.
-    private static final VersionName CURRENT = new VersionName("1.1.0");
+    private static final VersionName CURRENT = new VersionName("1.2.0");
 
     @NonNull
     public static VersionName getCurrentVersion() {
