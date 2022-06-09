@@ -25,6 +25,7 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.XTypeParameterElement
 import androidx.room.compiler.processing.javac.kotlin.JvmAbi
 import androidx.room.compiler.processing.ksp.KspAnnotated
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_GETTER
@@ -166,6 +167,9 @@ internal sealed class KspSyntheticPropertyMethodElement(
             field.type
         }
 
+        override val typeParameters: List<XTypeParameterElement>
+            get() = emptyList()
+
         override val parameters: List<XExecutableParameterElement>
             get() = emptyList()
 
@@ -195,6 +199,9 @@ internal sealed class KspSyntheticPropertyMethodElement(
         override val returnType: XType by lazy {
             env.voidType
         }
+
+        override val typeParameters: List<XTypeParameterElement>
+            get() = emptyList()
 
         override val parameters: List<XExecutableParameterElement> by lazy {
             listOf(

@@ -21,7 +21,7 @@ package androidx.room.compiler.processing
  *
  * @see [javax.lang.model.element.ExecutableElement]
  */
-interface XExecutableElement : XHasModifiers, XElement {
+interface XExecutableElement : XHasModifiers, XParameterizable, XElement {
     /**
      * The element that declared this executable.
      *
