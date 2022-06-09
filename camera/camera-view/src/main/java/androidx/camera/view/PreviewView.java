@@ -108,7 +108,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * There are some limitations of transition animations to {@link SurfaceView} and
  * {@link TextureView}, which applies to {@link PreviewView} as well.
  *
- * @see <a href="https://developer.android.com/training/transitions#Limitations</a>
+ * @see <a href="https://developer.android.com/training/transitions#Limitations">Limitations</a>
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class PreviewView extends FrameLayout {
