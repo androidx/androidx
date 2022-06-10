@@ -1723,6 +1723,50 @@ public class AccessibilityNodeInfoCompat {
      */
     public static final int MOVEMENT_GRANULARITY_PAGE = 0x00000010;
 
+    /**
+     * Key used to request and locate extra data for text character location. This key requests that
+     * an array of {@link android.graphics.RectF}s be added to the extras. This request is made with
+     * {@link #refreshWithExtraData(String, Bundle)}. The arguments taken by this request are two
+     * integers: {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX} and
+     * {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH}. The starting index must be valid
+     * inside the CharSequence returned by {@link #getText()}, and the length must be positive.
+     * <p>
+     * The data can be retrieved from the {@code Bundle} returned by {@link #getExtras()} using this
+     * string as a key for {@link Bundle#getParcelableArray(String)}. The
+     * {@link android.graphics.RectF} will be null for characters that either do not exist or are
+     * off the screen.
+     *
+     * {@see #refreshWithExtraData(String, Bundle)}
+     */
+    @SuppressWarnings("ActionValue")
+    public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY =
+            "android.core.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_KEY";
+
+    /**
+     * Integer argument specifying the start index of the requested text location data. Must be
+     * valid inside the CharSequence returned by {@link #getText()}.
+     *
+     * @see #EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
+     */
+    @SuppressWarnings("ActionValue")
+    public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX =
+            "android.core.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX";
+
+    /**
+     * Integer argument specifying the end index of the requested text location data. Must be
+     * positive and no larger than {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH}.
+     *
+     * @see #EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
+     */
+    @SuppressWarnings("ActionValue")
+    public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH =
+            "android.core.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH";
+
+    /**
+     * The maximum allowed length of the requested text location data.
+     */
+    public static final int EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_MAX_LENGTH = 20000;
+
     private static int sClickableSpanId = 0;
 
     /**
