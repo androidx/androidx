@@ -85,6 +85,7 @@ import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
+import androidx.health.connect.client.units.meters
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -733,7 +734,7 @@ class AllRecordsConverterTest {
     fun testDistance() {
         val data =
             DistanceRecord(
-                distanceMeters = 1.0,
+                distance = 1.meters,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,

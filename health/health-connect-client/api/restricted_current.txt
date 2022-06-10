@@ -551,21 +551,21 @@ package androidx.health.connect.client.records {
   }
 
   public final class DistanceRecord implements androidx.health.connect.client.records.IntervalRecord {
-    ctor public DistanceRecord(double distanceMeters, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
-    method public double getDistanceMeters();
+    ctor public DistanceRecord(androidx.health.connect.client.units.Length distance, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.Length getDistance();
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public androidx.health.connect.client.metadata.Metadata getMetadata();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
-    property public final double distanceMeters;
+    property public final androidx.health.connect.client.units.Length distance;
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
     property public androidx.health.connect.client.metadata.Metadata metadata;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
     field public static final androidx.health.connect.client.records.DistanceRecord.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> DISTANCE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Length> DISTANCE_TOTAL;
   }
 
   public static final class DistanceRecord.Companion {
@@ -1421,6 +1421,41 @@ package androidx.health.connect.client.time {
     method public androidx.health.connect.client.time.TimeRangeFilter before(java.time.LocalDateTime endTime);
     method public androidx.health.connect.client.time.TimeRangeFilter between(java.time.Instant startTime, java.time.Instant endTime);
     method public androidx.health.connect.client.time.TimeRangeFilter between(java.time.LocalDateTime startTime, java.time.LocalDateTime endTime);
+  }
+
+}
+
+package androidx.health.connect.client.units {
+
+  public final class Length implements java.lang.Comparable<androidx.health.connect.client.units.Length> {
+    method public int compareTo(androidx.health.connect.client.units.Length other);
+    method public static androidx.health.connect.client.units.Length feet(double value);
+    method public double getFeet();
+    method public double getInches();
+    method public double getKilometers();
+    method public double getMeters();
+    method public double getMiles();
+    method public static androidx.health.connect.client.units.Length inches(double value);
+    method public static androidx.health.connect.client.units.Length kilometers(double value);
+    method public static androidx.health.connect.client.units.Length meters(double value);
+    method public static androidx.health.connect.client.units.Length miles(double value);
+    property public final double inFeet;
+    property public final double inInches;
+    property public final double inKilometers;
+    property public final double inMeters;
+    property public final double inMiles;
+    field public static final androidx.health.connect.client.units.Length.Companion Companion;
+  }
+
+  public static final class Length.Companion {
+    method public androidx.health.connect.client.units.Length feet(double value);
+    method public androidx.health.connect.client.units.Length inches(double value);
+    method public androidx.health.connect.client.units.Length kilometers(double value);
+    method public androidx.health.connect.client.units.Length meters(double value);
+    method public androidx.health.connect.client.units.Length miles(double value);
+  }
+
+  public final class LengthKt {
   }
 
 }

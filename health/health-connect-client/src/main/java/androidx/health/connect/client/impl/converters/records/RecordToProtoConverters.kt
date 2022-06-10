@@ -321,7 +321,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is DistanceRecord ->
             intervalProto()
                 .setDataType(protoDataType("Distance"))
-                .apply { putValues("distance", doubleVal(distanceMeters)) }
+                .apply { putValues("distance", doubleVal(distance.inMeters)) }
                 .build()
         is ElevationGainedRecord ->
             intervalProto()

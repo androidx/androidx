@@ -20,6 +20,10 @@ package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
 
+internal fun <T : Comparable<T>> requireNotLess(value: T, other: T, name: String) {
+    require(value >= other) { "$name must not be less than $other, currently $value." }
+}
+
 internal fun requireNonNegative(value: Int, name: String) {
     require(value >= 0) { "$name must not be negative" }
 }
