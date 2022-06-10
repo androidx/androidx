@@ -26,6 +26,7 @@ import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.XTypeParameterElement
 import androidx.room.compiler.processing.collectAllMethods
 import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
 import androidx.room.compiler.processing.filterMethodsByConfig
@@ -68,6 +69,10 @@ internal sealed class KspTypeElement(
 
     override val enclosingElement: XMemberContainer?
         get() = enclosingTypeElement
+
+    override val typeParameters: List<XTypeParameterElement> by lazy {
+        declaration.typeParameters.map { KspTypeParameterElement(env, it) }
+    }
 
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(declaration)
