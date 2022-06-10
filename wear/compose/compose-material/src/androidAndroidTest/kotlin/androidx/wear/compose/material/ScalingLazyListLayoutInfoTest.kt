@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -68,6 +69,7 @@ public class ScalingLazyListLayoutInfoTest {
         }
     }
 
+    @FlakyTest // b/235531540
     @Test
     fun visibleItemsAreCorrect() {
         lateinit var state: ScalingLazyListState
