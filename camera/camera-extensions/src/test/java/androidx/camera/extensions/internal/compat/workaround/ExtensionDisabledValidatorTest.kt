@@ -90,9 +90,9 @@ class ExtensionDisabledValidatorTest(private val config: TestConfig) {
                 TestConfig("Google", "Redfin", "1", ExtensionMode.FACE_RETOUCH, false, true),
                 TestConfig("Google", "Redfin", "1", ExtensionMode.AUTO, false, true),
 
-                // Pixel 5 extension capability is disabled on advanced extender until it is well tested
-                TestConfig("Google", "Redfin", "0", ExtensionMode.NIGHT, true, true),
-                TestConfig("Google", "Redfin", "1", ExtensionMode.NIGHT, true, true),
+                // Pixel 5 extension capability is enabled on advanced extender
+                TestConfig("Google", "Redfin", "0", ExtensionMode.NIGHT, true, false),
+                TestConfig("Google", "Redfin", "1", ExtensionMode.NIGHT, true, false),
 
                 // Motorola Razr 5G bokeh mode is disabled. Other extension modes should still work.
                 TestConfig("Motorola", "Smith", "0", ExtensionMode.BOKEH, false, true),
@@ -106,9 +106,9 @@ class ExtensionDisabledValidatorTest(private val config: TestConfig) {
                 TestConfig("", "", "0", ExtensionMode.BOKEH, false, false),
                 TestConfig("", "", "1", ExtensionMode.BOKEH, false, false),
 
-                // Advanced extender is disabled for all devices until it is well tested
-                TestConfig("", "", "0", ExtensionMode.BOKEH, true, true),
-                TestConfig("", "", "1", ExtensionMode.BOKEH, true, true),
+                // Advanced extender is enabled for all devices
+                TestConfig("", "", "0", ExtensionMode.BOKEH, true, false),
+                TestConfig("", "", "1", ExtensionMode.BOKEH, true, false),
             )
         }
     }
