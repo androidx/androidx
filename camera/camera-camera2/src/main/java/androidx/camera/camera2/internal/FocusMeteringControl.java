@@ -525,6 +525,7 @@ class FocusMeteringControl {
 
     @ExecutedBy("mExecutor")
     void completeActionFuture(boolean isFocusSuccessful) {
+        clearAutoFocusTimeoutHandle();
         if (mRunningActionCompleter != null) {
             mRunningActionCompleter.set(FocusMeteringResult.create(isFocusSuccessful));
             mRunningActionCompleter = null;
@@ -636,7 +637,6 @@ class FocusMeteringControl {
         // duration.
         final Runnable autoFocusTimeoutRunnable = () -> mExecutor.execute(() -> {
             if (timeoutId == mFocusTimeoutCounter) {
-                clearAutoFocusTimeoutHandle();
                 mIsFocusSuccessful = false;
                 completeActionFuture(mIsFocusSuccessful);
             }
