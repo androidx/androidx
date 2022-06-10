@@ -26,38 +26,6 @@ Revision `28.0.0` of the Support Library, which launched as stable in September
 2018, was the last feature release in the `android.support` package. There will
 be no further releases under Support Library packaging.
 
-## Team Purpose
-
-Enable high-quality libraries so that app developers can succeed.
-
-## Team mission
-
-Define, enforce, and enable a high quality bar that provides best-in-class
-library development workflow for Jetpack libraries.
-
-## Team Values
-
--   Communication (open, honest, constructive)
-    -   Discussing issues in public (e.g. chat)
-    -   Providing a safe space to give/receive feedback
-    -   Documenting and sharing knowledge
--   User Focus (meeting/exceeding our customer's needs and desires)
-    -   Listening to users, seeking out feedback
-    -   Taking user feedback seriously
-    -   Showing empathy for users
--   Quality (strive for excellence, continuous improvement)
-    -   Prioritizing quality over velocity
-    -   Building long-lasting solutions
-    -   Following consistent, codified principles
--   Integrity (honesty, sincerity, standing up for one’s beliefs)
-    -   Owning mistakes
-    -   Respecting others
-    -   Raising concerns when you have them!
--   Responsibility (accountability)
-    -   Monitoring and maintaining our products
-    -   Providing clear ownership and escalation paths
-    -   Following up to ensure resolution of issues
-
 ## Quick links
 
 ### Filing an issue
