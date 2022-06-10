@@ -57,8 +57,7 @@ export JAVA_TOOLS_JAR="$(pwd)/prebuilts/jdk/jdk8/$PREBUILT_JDK/lib/tools.jar"
 
 function buildAndroidx() {
   LOG_PROCESSOR="$SCRIPTS_DIR/../development/build_log_processor.sh"
-  properties="-Pandroidx.summarizeStderr --no-daemon"
-  "$LOG_PROCESSOR" $gw $properties -p frameworks/support $androidxArguments \
+  "$LOG_PROCESSOR" $gw --ci -p frameworks/support $androidxArguments \
     --dependency-verification=off # building against tip of tree of metalava that potentially pulls in new dependencies
 
 }
