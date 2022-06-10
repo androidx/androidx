@@ -7,6 +7,8 @@ package androidx.work {
   }
 
   public enum BackoffPolicy {
+    method public static androidx.work.BackoffPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.BackoffPolicy[] values();
     enum_constant public static final androidx.work.BackoffPolicy EXPONENTIAL;
     enum_constant public static final androidx.work.BackoffPolicy LINEAR;
   }
@@ -138,11 +140,15 @@ package androidx.work {
   }
 
   public enum ExistingPeriodicWorkPolicy {
+    method public static androidx.work.ExistingPeriodicWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.ExistingPeriodicWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy KEEP;
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy REPLACE;
   }
 
   public enum ExistingWorkPolicy {
+    method public static androidx.work.ExistingWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.ExistingWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND;
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND_OR_REPLACE;
     enum_constant public static final androidx.work.ExistingWorkPolicy KEEP;
@@ -199,6 +205,8 @@ package androidx.work {
   }
 
   public enum NetworkType {
+    method public static androidx.work.NetworkType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.NetworkType[] values();
     enum_constant public static final androidx.work.NetworkType CONNECTED;
     enum_constant public static final androidx.work.NetworkType METERED;
     enum_constant public static final androidx.work.NetworkType NOT_REQUIRED;
@@ -248,6 +256,8 @@ package androidx.work {
   }
 
   public enum OutOfQuotaPolicy {
+    method public static androidx.work.OutOfQuotaPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.OutOfQuotaPolicy[] values();
     enum_constant public static final androidx.work.OutOfQuotaPolicy DROP_WORK_REQUEST;
     enum_constant public static final androidx.work.OutOfQuotaPolicy RUN_AS_NON_EXPEDITED_WORK_REQUEST;
   }

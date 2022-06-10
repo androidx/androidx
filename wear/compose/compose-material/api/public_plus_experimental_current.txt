@@ -561,11 +561,15 @@ package androidx.wear.compose.material {
   }
 
   public enum SwipeToDismissKeys {
+    method public static androidx.wear.compose.material.SwipeToDismissKeys valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.wear.compose.material.SwipeToDismissKeys[] values();
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissKeys Background;
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissKeys Content;
   }
 
   public enum SwipeToDismissValue {
+    method public static androidx.wear.compose.material.SwipeToDismissValue valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.wear.compose.material.SwipeToDismissValue[] values();
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissValue Default;
     enum_constant public static final androidx.wear.compose.material.SwipeToDismissValue Dismissed;
   }

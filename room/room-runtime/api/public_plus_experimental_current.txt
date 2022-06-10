@@ -131,6 +131,8 @@ package androidx.room {
   }
 
   public enum RoomDatabase.JournalMode {
+    method public static androidx.room.RoomDatabase.JournalMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.room.RoomDatabase.JournalMode[] values();
     enum_constant public static final androidx.room.RoomDatabase.JournalMode AUTOMATIC;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode TRUNCATE;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode WRITE_AHEAD_LOGGING;
