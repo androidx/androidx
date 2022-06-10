@@ -149,16 +149,16 @@ package androidx.health.connect.client.records {
   }
 
   public final class BasalMetabolicRateRecord implements androidx.health.connect.client.records.Record {
-    ctor public BasalMetabolicRateRecord(double kcalPerDay, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public double getKcalPerDay();
+    ctor public BasalMetabolicRateRecord(androidx.health.connect.client.units.Power basalMetabolicRate, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.Power getBasalMetabolicRate();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final double kcalPerDay;
+    property public final androidx.health.connect.client.units.Power basalMetabolicRate;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> BASAL_CALORIES_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Power> BASAL_CALORIES_TOTAL;
     field public static final androidx.health.connect.client.records.BasalMetabolicRateRecord.Companion Companion;
   }
 
@@ -921,35 +921,35 @@ package androidx.health.connect.client.records {
     property public java.time.ZoneOffset? zoneOffset;
   }
 
-  public final class Power {
-    ctor public Power(java.time.Instant time, @FloatRange(from=0.0, to=100000.0) double watts);
-    method public java.time.Instant getTime();
-    method public double getWatts();
-    property public final java.time.Instant time;
-    property public final double watts;
-  }
-
   public final class PowerRecord implements androidx.health.connect.client.records.Record {
-    ctor public PowerRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.Power> samples, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public PowerRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.PowerRecord.Sample> samples, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public java.util.List<androidx.health.connect.client.records.Power> getSamples();
+    method public java.util.List<androidx.health.connect.client.records.PowerRecord.Sample> getSamples();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public java.util.List<androidx.health.connect.client.records.Power> samples;
+    property public java.util.List<androidx.health.connect.client.records.PowerRecord.Sample> samples;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
     field public static final androidx.health.connect.client.records.PowerRecord.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> WATTS_AVG;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> WATTS_MAX;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> WATTS_MIN;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Power> POWER_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Power> POWER_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Power> POWER_MIN;
   }
 
   public static final class PowerRecord.Companion {
+  }
+
+  public static final class PowerRecord.Sample {
+    ctor public PowerRecord.Sample(java.time.Instant time, androidx.health.connect.client.units.Power power);
+    method public androidx.health.connect.client.units.Power getPower();
+    method public java.time.Instant getTime();
+    property public final androidx.health.connect.client.units.Power power;
+    property public final java.time.Instant time;
   }
 
   public interface Record {
@@ -1460,6 +1460,25 @@ package androidx.health.connect.client.units {
   }
 
   public final class LengthKt {
+  }
+
+  public final class Power implements java.lang.Comparable<androidx.health.connect.client.units.Power> {
+    method public int compareTo(androidx.health.connect.client.units.Power other);
+    method public double getKilocaloriesPerDay();
+    method public double getWatts();
+    method public static androidx.health.connect.client.units.Power kilocaloriesPerDay(double value);
+    method public static androidx.health.connect.client.units.Power watts(double value);
+    property public final double inKilocaloriesPerDay;
+    property public final double inWatts;
+    field public static final androidx.health.connect.client.units.Power.Companion Companion;
+  }
+
+  public static final class Power.Companion {
+    method public androidx.health.connect.client.units.Power kilocaloriesPerDay(double value);
+    method public androidx.health.connect.client.units.Power watts(double value);
+  }
+
+  public final class PowerKt {
   }
 
   public final class Temperature implements java.lang.Comparable<androidx.health.connect.client.units.Temperature> {

@@ -61,7 +61,6 @@ import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OvulationTestRecord.Result
 import androidx.health.connect.client.records.OxygenSaturationRecord
-import androidx.health.connect.client.records.Power
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.RespiratoryRateRecord
@@ -87,7 +86,9 @@ import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.celsius
 import androidx.health.connect.client.units.kilocalories
+import androidx.health.connect.client.units.kilocaloriesPerDay
 import androidx.health.connect.client.units.meters
+import androidx.health.connect.client.units.watts
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -145,7 +146,7 @@ class AllRecordsConverterTest {
     fun testBasalMetabolicRate() {
         val data =
             BasalMetabolicRateRecord(
-                kcalPerDay = 1.0,
+                basalMetabolicRate = 1.kilocaloriesPerDay,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -537,13 +538,13 @@ class AllRecordsConverterTest {
                 endZoneOffset = END_ZONE_OFFSET,
                 samples =
                     listOf(
-                        Power(
+                        PowerRecord.Sample(
                             time = START_TIME,
-                            watts = 1.0,
+                            power = 1.watts,
                         ),
-                        Power(
+                        PowerRecord.Sample(
                             time = START_TIME,
-                            watts = 2.0,
+                            power = 2.watts,
                         ),
                     ),
                 metadata = TEST_METADATA,

@@ -17,25 +17,31 @@ package androidx.health.connect.client.records
 
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.units.Power
 import java.time.Instant
 import java.time.ZoneOffset
 
 /**
- * Captures the BMR of a user, in kilocalories. Each record represents the number of kilocalories a
- * user would burn if at rest all day, based on their height and weight.
+ * Captures the BMR of a user. Each record represents the energy a user would burn if at rest all
+ * day, based on their height and weight.
  */
 public class BasalMetabolicRateRecord(
-    /** Basal metabolic rate, in kilocalories. Required field. Valid range: 0-10000. */
-    public val kcalPerDay: Double,
+    /** Basal metabolic rate, in [Power] unit. Required field. Valid range: 0-10000 kcal/day. */
+    public val basalMetabolicRate: Power,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : InstantaneousRecord {
+
+    init {
+        basalMetabolicRate.requireNotLess(other = basalMetabolicRate.zero(), name = "bmr")
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is BasalMetabolicRateRecord) return false
 
-        if (kcalPerDay != other.kcalPerDay) return false
+        if (basalMetabolicRate != other.basalMetabolicRate) return false
         if (time != other.time) return false
         if (zoneOffset != other.zoneOffset) return false
         if (metadata != other.metadata) return false
@@ -44,8 +50,7 @@ public class BasalMetabolicRateRecord(
     }
 
     override fun hashCode(): Int {
-        var result = 0
-        result = 31 * result + kcalPerDay.hashCode()
+        var result = basalMetabolicRate.hashCode()
         result = 31 * result + time.hashCode()
         result = 31 * result + (zoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
@@ -61,11 +66,12 @@ public class BasalMetabolicRateRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val BASAL_CALORIES_TOTAL: AggregateMetric<Double> =
+        val BASAL_CALORIES_TOTAL: AggregateMetric<Power> =
             AggregateMetric.doubleMetric(
-                BASAL_CALORIES_TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                ENERGY_FIELD_NAME
+                dataTypeName = BASAL_CALORIES_TYPE_NAME,
+                aggregationType = AggregateMetric.AggregationType.TOTAL,
+                fieldName = ENERGY_FIELD_NAME,
+                mapper = Power::kilocaloriesPerDay,
             )
     }
 }
