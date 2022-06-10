@@ -140,7 +140,7 @@ package androidx.room {
     ctor public RoomDatabase.MigrationContainer();
     method public void addMigrations(androidx.room.migration.Migration... migrations);
     method public void addMigrations(java.util.List<? extends androidx.room.migration.Migration> migrations);
-    method public final operator boolean contains(androidx.room.migration.Migration migration);
+    method public final boolean contains(int startVersion, int endVersion);
     method public java.util.List<androidx.room.migration.Migration>? findMigrationPath(int start, int end);
     method public java.util.Map<java.lang.Integer,java.util.Map<java.lang.Integer,androidx.room.migration.Migration>> getMigrations();
   }
