@@ -16,10 +16,10 @@
 
 package androidx.collection
 
-import androidx.annotation.Nullable
 import androidx.collection.internal.EMPTY_INTS
 import androidx.collection.internal.EMPTY_OBJECTS
 import androidx.collection.internal.binarySearch
+import kotlin.jvm.JvmOverloads
 
 /** Returns an empty new [ArraySet]. */
 @Suppress("NOTHING_TO_INLINE") // Alias to public API.
@@ -108,7 +108,7 @@ public class ArraySet<E> @JvmOverloads constructor(capacity: Int = 0) :
     private fun binarySearchInternal(hash: Int): Int =
         try {
             binarySearch(hashes, _size, hash)
-        } catch (e: ArrayIndexOutOfBoundsException) {
+        } catch (e: IndexOutOfBoundsException) {
             throw ConcurrentModificationException()
         }
 
@@ -214,7 +214,7 @@ public class ArraySet<E> @JvmOverloads constructor(capacity: Int = 0) :
      * @param element The value to search for.
      * @return Returns true if the value exists, else false.
      */
-    override operator fun contains(@Nullable element: E): Boolean =
+    override operator fun contains(element: E): Boolean =
         indexOf(element) >= 0
 
     /**
@@ -249,7 +249,7 @@ public class ArraySet<E> @JvmOverloads constructor(capacity: Int = 0) :
      * @return `true` if this set is modified, `false` otherwise.
      * @throws ConcurrentModificationException if concurrent modifications detected.
      */
-    override fun add(@Nullable element: E): Boolean {
+    override fun add(element: E): Boolean {
         val oSize = _size
         val hash: Int
         var index: Int
@@ -348,7 +348,7 @@ public class ArraySet<E> @JvmOverloads constructor(capacity: Int = 0) :
      * @param element the object to remove.
      * @return `true` if this set was modified, `false` otherwise.
      */
-    override fun remove(@Nullable element: E): Boolean {
+    override fun remove(element: E): Boolean {
         val index = indexOf(element)
         if (index >= 0) {
             removeAt(index)

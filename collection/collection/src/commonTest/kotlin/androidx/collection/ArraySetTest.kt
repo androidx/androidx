@@ -26,6 +26,7 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -46,7 +47,11 @@ internal class ArraySetTest {
      * catch this and throw ConcurrentModificationException instead of crashing somewhere in its
      * internals.
      */
-    @OptIn(DelicateCoroutinesApi::class)
+    @Suppress("UnnecessaryOptInAnnotation")
+    @OptIn(
+        ExperimentalCoroutinesApi::class, // newFixedThreadPoolContext is experimental in common
+        DelicateCoroutinesApi::class, // newFixedThreadPoolContext is delicate in jvm
+    )
     @Test
     fun testConcurrentModificationException() {
         var error: Throwable? = null
@@ -68,7 +73,7 @@ internal class ArraySetTest {
                         } else {
                             set.clear()
                         }
-                    } catch (e: ArrayIndexOutOfBoundsException) {
+                    } catch (e: IndexOutOfBoundsException) {
                         if (!add) {
                             error = e
                             throw e
