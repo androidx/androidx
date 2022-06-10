@@ -37,6 +37,8 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import androidx.annotation.NonNull;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -235,6 +237,16 @@ public class ReflectiveGenericLifecycleObserverTest {
         new ReflectiveGenericLifecycleObserver(observer);
     }
 
+    @Test
+    public void testLifecycleOwnerSubclassFirstParam() {
+        LifecycleObserver observer = new LifecycleObserver() {
+            @OnLifecycleEvent(ON_ANY)
+            private void started(DerivedLifecycleOwner dOwner, Lifecycle.Event e) {
+            }
+        };
+        new ReflectiveGenericLifecycleObserver(observer);
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testWrongSecondParam() {
         LifecycleObserver observer = new LifecycleObserver() {
@@ -364,6 +376,14 @@ public class ReflectiveGenericLifecycleObserverTest {
     static class DerivedClass5 implements InterfaceStart, InterfaceStop {
         @Override
         public void foo(LifecycleOwner owner) {
+        }
+    }
+
+    static class DerivedLifecycleOwner implements LifecycleOwner {
+        @NonNull
+        @Override
+        public Lifecycle getLifecycle() {
+            return null;
         }
     }
 
