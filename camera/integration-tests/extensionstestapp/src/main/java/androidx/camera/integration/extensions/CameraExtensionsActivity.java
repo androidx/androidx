@@ -149,7 +149,25 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mCameraProvider.unbindAll();
         mCurrentCameraSelector = (mCurrentCameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
                 ? CameraSelector.DEFAULT_FRONT_CAMERA : CameraSelector.DEFAULT_BACK_CAMERA;
+        if (!bindUseCasesWithCurrentExtensionMode()) {
+            bindUseCasesWithNextExtensionMode();
+        }
+    }
+
+    @VisibleForTesting
+    boolean switchToExtensionMode(@ExtensionMode.Mode int extensionMode) {
+        if (mCamera == null || mExtensionsManager == null) {
+            return false;
+        }
+
+        if (!mExtensionsManager.isExtensionAvailable(mCurrentCameraSelector, extensionMode)) {
+            return false;
+        }
+
+        mCurrentExtensionMode = extensionMode;
         bindUseCasesWithCurrentExtensionMode();
+
+        return true;
     }
 
     void bindUseCasesWithNextExtensionMode() {
@@ -571,6 +589,12 @@ public class CameraExtensionsActivity extends AppCompatActivity
     boolean isExtensionModeSupported(@NonNull String cameraId, @ExtensionMode.Mode int mode) {
         CameraSelector cameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId);
 
+        return mExtensionsManager.isExtensionAvailable(cameraSelector, mode);
+    }
+
+    @VisibleForTesting
+    boolean isExtensionModeSupported(@NonNull CameraSelector cameraSelector,
+            @ExtensionMode.Mode int mode) {
         return mExtensionsManager.isExtensionAvailable(cameraSelector, mode);
     }
 

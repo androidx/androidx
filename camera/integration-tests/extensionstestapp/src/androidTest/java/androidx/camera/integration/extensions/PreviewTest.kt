@@ -70,7 +70,7 @@ class PreviewTest(private val cameraId: String, private val extensionMode: Int) 
     fun setUp() {
         assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
+        // window before starting the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
     }
 

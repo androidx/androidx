@@ -20,20 +20,25 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.extensions.ExtensionMode
 import androidx.camera.integration.extensions.util.ExtensionsTestUtil
+import androidx.camera.integration.extensions.util.ExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.waitForIdle
+import androidx.lifecycle.Lifecycle.State.CREATED
+import androidx.lifecycle.Lifecycle.State.RESUMED
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
-import androidx.test.espresso.IdlingResource
 import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.idling.CountingIdlingResource
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import androidx.testutils.RepeatRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assume.assumeTrue
@@ -46,11 +51,15 @@ import org.junit.runners.Parameterized
 private const val BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.extensions"
 
 /**
- * The tests to verify that ImageCapture can work well when extension modes are enabled.
+ * Stress tests to verify that Preview and ImageCapture can work well when changing lifecycle
+ * status.
  */
 @LargeTest
 @RunWith(Parameterized::class)
-class ImageCaptureTest(private val cameraId: String, private val extensionMode: Int) {
+class LifecycleStatusChangeStressTest(
+    private val cameraId: String,
+    private val extensionMode: Int
+) {
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
@@ -58,20 +67,29 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
     )
 
     @get:Rule
+    val repeatRule = RepeatRule()
+
+    @get:Rule
     val storagePermissionRule =
         GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)!!
 
     private lateinit var activityScenario: ActivityScenario<CameraExtensionsActivity>
 
+    private lateinit var initializationIdlingResource: CountingIdlingResource
+    private lateinit var previewViewIdlingResource: CountingIdlingResource
+    private lateinit var takePictureIdlingResource: CountingIdlingResource
+
     companion object {
         @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         @JvmStatic
-        fun parameters() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
+        fun parameters() = ExtensionsTestUtil.getAllCameraIdModeCombinations()
     }
 
     @Before
     fun setUp() {
-        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        if (extensionMode != ExtensionMode.NONE) {
+            assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
+        }
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before starting the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
@@ -84,11 +102,46 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
         }
     }
 
-    /**
-     * Checks that ImageCapture can successfully take a picture when an extension mode is enabled.
-     */
     @Test
-    fun takePictureWithExtensionMode() {
+    @RepeatRule.Repeat(times = ExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
+    fun pauseResumeActivityTenTimes_canCaptureImageInEachTime() {
+        launchActivityAndRetrieveIdlingResources()
+
+        for (i in 1..STRESS_TEST_OPERATION_REPEAT_COUNT) {
+            // Issues take picture.
+            Espresso.onView(ViewMatchers.withId(R.id.Picture)).perform(ViewActions.click())
+
+            // Waits for the take picture success callback.
+            takePictureIdlingResource.waitForIdle()
+
+            previewViewIdlingResource.increment()
+
+            // Pauses and resumes activity
+            activityScenario.moveToState(CREATED)
+            activityScenario.moveToState(RESUMED)
+            previewViewIdlingResource.waitForIdle()
+        }
+    }
+
+    @Test
+    @RepeatRule.Repeat(times = ExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
+    fun canCaptureImage_afterPauseResumeActivityTenTimes() {
+        launchActivityAndRetrieveIdlingResources()
+
+        // Pauses and resumes activity 10 times
+        for (i in 1..STRESS_TEST_OPERATION_REPEAT_COUNT) {
+            activityScenario.moveToState(CREATED)
+            activityScenario.moveToState(RESUMED)
+        }
+
+        // Presses capture button
+        Espresso.onView(ViewMatchers.withId(R.id.Picture)).perform(ViewActions.click())
+
+        // Waits for the take picture success callback.
+        takePictureIdlingResource.waitForIdle()
+    }
+
+    private fun launchActivityAndRetrieveIdlingResources() {
         val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
             .getLaunchIntentForPackage(BASIC_SAMPLE_PACKAGE)?.apply {
                 putExtra(CameraExtensionsActivity.INTENT_EXTRA_CAMERA_ID, cameraId)
@@ -98,9 +151,6 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
             }
 
         activityScenario = ActivityScenario.launch(intent)
-        var initializationIdlingResource: IdlingResource? = null
-        var previewViewIdlingResource: IdlingResource? = null
-        var takePictureIdlingResource: IdlingResource? = null
 
         activityScenario.onActivity {
             initializationIdlingResource = it.mInitializationIdlingResource
@@ -108,7 +158,7 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
             takePictureIdlingResource = it.mTakePictureIdlingResource
         }
 
-        // Wait for CameraExtensionsActivity's initialization to be complete
+        // Waits for CameraExtensionsActivity's initialization to be complete
         initializationIdlingResource.waitForIdle()
 
         activityScenario.onActivity {
@@ -123,17 +173,6 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
         activityScenario.onActivity {
             // Checks that CameraExtensionsActivity's current extension mode is correct.
             assertThat(it.currentExtensionMode).isEqualTo(extensionMode)
-        }
-
-        // Issue take picture.
-        Espresso.onView(withId(R.id.Picture)).perform(ViewActions.click())
-
-        // Wait for the take picture success callback.
-        takePictureIdlingResource.waitForIdle()
-
-        activityScenario.onActivity {
-            assertThat(it.imageCapture).isNotNull()
-            assertThat(it.preview).isNotNull()
         }
     }
 }
