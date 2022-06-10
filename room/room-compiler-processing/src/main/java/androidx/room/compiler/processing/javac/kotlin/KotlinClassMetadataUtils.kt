@@ -61,6 +61,7 @@ internal data class KmFunction(
     val name: String,
     val descriptor: String,
     private val flags: Flags,
+    val typeArguments: List<KmType>,
     override val parameters: List<KmValueParameter>,
     val returnType: KmType,
     val receiverType: KmType?
@@ -140,9 +141,21 @@ private class FunctionReader(val result: MutableList<KmFunction>) : KmClassVisit
         return object : KmFunctionVisitor() {
 
             lateinit var methodSignature: JvmMethodSignature
+            private val typeParameters = mutableListOf<KmTypeParameter>()
             val parameters = mutableListOf<KmValueParameter>()
             lateinit var returnType: KmType
             var receiverType: KmType? = null
+
+            override fun visitTypeParameter(
+                flags: Flags,
+                name: String,
+                id: Int,
+                variance: KmVariance
+            ): KmTypeParameterVisitor {
+                return TypeParameterReader(name, flags) {
+                    typeParameters.add(it)
+                }
+            }
 
             override fun visitValueParameter(
                 flags: Flags,
@@ -183,6 +196,7 @@ private class FunctionReader(val result: MutableList<KmFunction>) : KmClassVisit
                         jvmName = methodSignature.name,
                         descriptor = methodSignature.asString(),
                         flags = flags,
+                        typeArguments = typeParameters.map { it.asKmType() },
                         parameters = parameters,
                         returnType = returnType,
                         receiverType = receiverType
@@ -302,6 +316,7 @@ private class PropertyReader(
                                 name = JvmAbi.computeSetterName(name),
                                 descriptor = setterSignature.asString(),
                                 flags = 0,
+                                typeArguments = emptyList(),
                                 parameters = listOf(param),
                                 returnType = KM_VOID_TYPE,
                                 receiverType = null
@@ -313,6 +328,7 @@ private class PropertyReader(
                                 name = JvmAbi.computeGetterName(name),
                                 descriptor = getterSignature.asString(),
                                 flags = flags,
+                                typeArguments = emptyList(),
                                 parameters = emptyList(),
                                 returnType = returnType,
                                 receiverType = null

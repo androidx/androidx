@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.XTypeParameterElement
 import androidx.room.compiler.processing.javac.kotlin.KmFunction
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -52,6 +53,13 @@ internal class JavacMethodElement(
 
     override val jvmName: String
         get() = element.simpleName.toString()
+
+    override val typeParameters: List<XTypeParameterElement> by lazy {
+        element.typeParameters.mapIndexed { index, typeParameter ->
+            val typeArgument = kotlinMetadata?.typeArguments?.get(index)
+            JavacTypeParameterElement(env, this, typeParameter, typeArgument)
+        }
+    }
 
     override val parameters: List<JavacMethodParameter> by lazy {
         element.parameters.mapIndexed { index, variable ->

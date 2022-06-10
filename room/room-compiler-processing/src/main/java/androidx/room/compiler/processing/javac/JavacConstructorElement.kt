@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XConstructorType
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeParameterElement
 import androidx.room.compiler.processing.javac.kotlin.KmConstructor
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.ElementKind
@@ -37,6 +38,14 @@ internal class JavacConstructorElement(
     init {
         check(element.kind == ElementKind.CONSTRUCTOR) {
             "Constructor element is constructed with invalid type: $element"
+        }
+    }
+
+    override val typeParameters: List<XTypeParameterElement> by lazy {
+        element.typeParameters.map {
+            // Type parameters are not allowed in Kotlin sources, so if type parameters exist they
+            // must have come from Java sources. Thus, there's no kotlin metadata so just use null.
+            JavacTypeParameterElement(env, this, it, null)
         }
     }
 
