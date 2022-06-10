@@ -67,7 +67,8 @@ import java.util.List;
 /**
  * Tiles layout that represents a suggested layout style for Material Tiles with the primary
  * (compact) chip at the bottom with the given content in the center and the recommended margin and
- * padding applied.
+ * padding applied. There is a fixed slot for an optional primary label above or optional secondary
+ * label below the main content area.
  *
  * <p>For additional examples and suggested layouts see <a
  * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
@@ -393,7 +394,7 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(PRIMARY_LABEL_PRESENT)) {
             return null;
         }
-        // By tag we know that primary label exists, it will always be at position 0.
+        // By tag we know that primary label exists. It will always be at position 0.
         return mInnerColumn.get(0);
     }
 
@@ -403,7 +404,7 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(SECONDARY_LABEL_PRESENT)) {
             return null;
         }
-        // By tag we know that secondary label exists, it will always be at last position.
+        // By tag we know that secondary label exists. It will always be at last position.
         return mInnerColumn.get(mInnerColumn.size() - 1);
     }
 
@@ -413,8 +414,8 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(CONTENT_PRESENT)) {
             return null;
         }
-        // By tag we know that content exists, it will at position 0 if there is no primary label,
-        // or at position 2 (primary label, spacer - content) otherwise.
+        // By tag we know that content exists. It will be at position 0 if there is no primary
+        // label, or at position 2 (primary label, spacer - content) otherwise.
         int contentPosition = areElementsPresent(PRIMARY_LABEL_PRESENT) ? 2 : 0;
         return ((Box) mInnerColumn.get(contentPosition)).getContents().get(0);
     }
