@@ -32,22 +32,21 @@ import org.gradle.api.Project
  * prevents transformations from executing too eagerly.
  *
  * This is necessary for Gradle 7.5-rc-1, but should be fixed in Gradle 7.5.1 or 7.6, at which
- * point this method can be removed.
+ * point this class can be removed.
  */
 object GradleTransformWorkaround {
     /**
-     * See class documentation for details.
+     * This function applies the [GradleTransformWorkaround] to the given root project, if
+     * necessary (if it includes lifecycle-common).
      *
      * @param rootProject The root project whose sub-projects will be updated with the
      *        workaround.
      */
-    fun maybeApply(
-        rootProject: Project
-    ) {
+    fun maybeApply(rootProject: Project) {
         check(rootProject.isRoot) {
             """
                 GradleTransformWorkaround must be invoked with the root project
-                because it needs to be applied to all projects.
+                because it needs to be applied to all sub-projects.
             """.trimIndent()
         }
         rootProject.subprojects { subProject ->
