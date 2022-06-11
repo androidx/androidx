@@ -56,7 +56,6 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
             )
         }
         rootProject = target
-
         config = PlaygroundProperties.load(rootProject)
         repos = PlaygroundRepositories(config)
         rootProject.repositories.addPlaygroundRepositories()
