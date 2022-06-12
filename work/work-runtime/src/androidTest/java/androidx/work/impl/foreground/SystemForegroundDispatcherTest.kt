@@ -346,7 +346,7 @@ class SystemForegroundDispatcherTest {
         val intent = createStartForegroundIntent(context, request.stringId, metadata)
         dispatcher.onStartCommand(intent)
         verify(tracker, times(1)).replace(setOf(request.workSpec))
-        dispatcher.onAllConstraintsNotMet(listOf(request.workSpec.id))
+        dispatcher.onAllConstraintsNotMet(listOf(request.workSpec))
         verify(workManager, times(1)).stopForegroundWork(eq(request.workSpec.id))
     }
 

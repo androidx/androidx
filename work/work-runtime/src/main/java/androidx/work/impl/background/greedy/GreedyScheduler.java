@@ -190,16 +190,18 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     }
 
     @Override
-    public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
-        for (String workSpecId : workSpecIds) {
+    public void onAllConstraintsMet(@NonNull List<WorkSpec> workSpecs) {
+        for (WorkSpec workSpec : workSpecs) {
+            String workSpecId = workSpec.id;
             Logger.get().debug(TAG, "Constraints met: Scheduling work ID " + workSpecId);
             mWorkManagerImpl.startWork(mWorkRunIds.workRunIdFor(workSpecId));
         }
     }
 
     @Override
-    public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
-        for (String workSpecId : workSpecIds) {
+    public void onAllConstraintsNotMet(@NonNull List<WorkSpec> workSpecs) {
+        for (WorkSpec workSpec : workSpecs) {
+            String workSpecId = workSpec.id;
             Logger.get().debug(TAG, "Constraints not met: Cancelling work ID " + workSpecId);
             WorkRunId runId = mWorkRunIds.remove(workSpecId);
             if (runId != null) {

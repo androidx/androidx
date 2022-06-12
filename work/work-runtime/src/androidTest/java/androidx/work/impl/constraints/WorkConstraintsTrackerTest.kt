@@ -155,12 +155,12 @@ private class CapturingWorkConstraintsCallback(
     var unconstrainedWorkSpecIds: List<String>? = null,
     var constrainedWorkSpecIds: List<String>? = null,
 ) : WorkConstraintsCallback {
-    override fun onAllConstraintsMet(workSpecIds: List<String>) {
-        unconstrainedWorkSpecIds = workSpecIds
+    override fun onAllConstraintsMet(workSpecs: List<WorkSpec>) {
+        unconstrainedWorkSpecIds = workSpecs.map { it.id }
     }
 
-    override fun onAllConstraintsNotMet(workSpecIds: List<String>) {
-        constrainedWorkSpecIds = workSpecIds
+    override fun onAllConstraintsNotMet(workSpecs: List<WorkSpec>) {
+        constrainedWorkSpecIds = workSpecs.map { it.id }
     }
 
     fun consumeCurrent(): Pair<List<String>?, List<String>?> {
