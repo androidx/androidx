@@ -107,6 +107,7 @@ STARTUP = "1.2.0-alpha02"
 SWIPEREFRESHLAYOUT = "1.2.0-alpha01"
 TESTEXT = "1.0.0-alpha01"
 TESTSCREENSHOT = "1.0.0-alpha01"
+TEST_UIAUTOMATOR = "2.3.0-alpha01"
 TEXT = "1.0.0-alpha01"
 TRACING = "1.2.0-alpha01"
 TRACING_PERFETTO = "1.0.0-alpha01"
@@ -217,6 +218,7 @@ STARTUP = { group = "androidx.startup", atomicGroupVersion = "versions.STARTUP" 
 SWIPEREFRESHLAYOUT = { group = "androidx.swiperefreshlayout", atomicGroupVersion = "versions.SWIPEREFRESHLAYOUT" }
 TESTEXT = { group = "androidx.test.ext", atomicGroupVersion = "versions.TESTEXT" }
 TESTSCREENSHOT = { group = "androidx.test.screenshot", atomicGroupVersion = "versions.TESTSCREENSHOT" }
+TEST_UIAUTOMATOR = { group = "androidx.test.uiautomator", atomicGroupVersion = "versions.TEST_UIAUTOMATOR" }
 TEXT = { group = "androidx.text", atomicGroupVersion = "versions.TEXT" }
 TRACING = { group = "androidx.tracing", atomicGroupVersion = "versions.TRACING" }
 TRANSITION = { group = "androidx.transition", atomicGroupVersion = "versions.TRANSITION" }

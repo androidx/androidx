@@ -266,6 +266,7 @@ dependencies {
     docs(project(":sqlite:sqlite-ktx"))
     docs(project(":startup:startup-runtime"))
     docs(project(":swiperefreshlayout:swiperefreshlayout"))
+    docs(project(":test:uiautomator:uiautomator"))
     docs(project(":tracing:tracing"))
     docs(project(":tracing:tracing-ktx"))
     docs(project(":transition:transition"))
