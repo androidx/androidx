@@ -129,9 +129,9 @@ class WorkConstraintsTrackerImpl @VisibleForTesting internal constructor(
         }
     }
 
-    override fun onConstraintMet(workSpecIds: List<String>) {
+    override fun onConstraintMet(workSpecs: List<WorkSpec>) {
         synchronized(lock) {
-            val unconstrainedWorkSpecIds = workSpecIds.filter { areAllConstraintsMet(it) }
+            val unconstrainedWorkSpecIds = workSpecs.filter { areAllConstraintsMet(it.id) }
             unconstrainedWorkSpecIds.forEach {
                 Logger.get().debug(TAG, "Constraints met for $it")
             }
@@ -139,8 +139,8 @@ class WorkConstraintsTrackerImpl @VisibleForTesting internal constructor(
         }
     }
 
-    override fun onConstraintNotMet(workSpecIds: List<String>) {
-        synchronized(lock) { callback?.onAllConstraintsNotMet(workSpecIds) }
+    override fun onConstraintNotMet(workSpecs: List<WorkSpec>) {
+        synchronized(lock) { callback?.onAllConstraintsNotMet(workSpecs) }
     }
 }
 

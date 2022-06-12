@@ -320,14 +320,15 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     }
 
     @Override
-    public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
+    public void onAllConstraintsMet(@NonNull List<WorkSpec> workSpecs) {
         // Do nothing
     }
 
     @Override
-    public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
-        if (!workSpecIds.isEmpty()) {
-            for (String workSpecId : workSpecIds) {
+    public void onAllConstraintsNotMet(@NonNull List<WorkSpec> workSpecs) {
+        if (!workSpecs.isEmpty()) {
+            for (WorkSpec workSpec : workSpecs) {
+                String workSpecId = workSpec.id;
                 Logger.get().debug(TAG,
                         "Constraints unmet for WorkSpec " + workSpecId);
                 mWorkManagerImpl.stopForegroundWork(workSpecId);
