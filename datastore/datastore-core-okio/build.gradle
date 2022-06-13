@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-
-import androidx.build.LibraryType
 import androidx.build.Multiplatform
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
@@ -97,18 +94,11 @@ kotlin {
 
 androidx {
     name = "Android DataStore Core Okio"
-    // temporarily disabled for parity with state prior to library type refactor b/235209373
     publish = Publish.NONE
-    runApiTasks = new RunApiTasks.No("Temporarily disabled, but should be re-enabled b/235209373")
-    type = LibraryType.kmpLibrary {
-        android = Publish.NONE
-        jvm = Publish.SNAPSHOT_AND_RELEASE
-        linux = Publish.SNAPSHOT_AND_RELEASE
-
-    }
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android DataStore Core Okio- contains APIs to use datastore-core in multiplatform via okio"
+    publishPlatforms = kotlin.targets.asMap.keySet().collect { it.toLowerCase() }
 }
 
 // Allow usage of Kotlin's @OptIn.
