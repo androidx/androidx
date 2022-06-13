@@ -477,6 +477,7 @@ if (isMultiplatformEnabled()) {
     includeProject(":compose:desktop:desktop:desktop-samples", "compose/desktop/desktop/samples", [BuildType.COMPOSE])
     includeProject(":compose:mpp", [BuildType.COMPOSE])
     includeProject(":compose:mpp:demo", [BuildType.COMPOSE])
+    includeProject(":compose:mpp:demo-uikit", [BuildType.COMPOSE])
 }
 includeProject(":compose:foundation", [BuildType.COMPOSE])
 includeProject(":compose:foundation:foundation", [BuildType.COMPOSE])
