@@ -23,7 +23,7 @@ class LibraryTypeTest {
     @Test
     fun publishedLibrary() {
         val libraryType = LibraryType.PUBLISHED_LIBRARY
-        assertThat(libraryType.publish).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.Yes::class.java)
         assertThat(libraryType.sourceJars).isTrue()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.DEVICE)
@@ -32,7 +32,7 @@ class LibraryTypeTest {
     @Test
     fun publishedTestLibrary() {
         val libraryType = LibraryType.PUBLISHED_TEST_LIBRARY
-        assertThat(libraryType.publish).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.Yes::class.java)
         assertThat(libraryType.sourceJars).isTrue()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.DEVICE)
@@ -41,7 +41,7 @@ class LibraryTypeTest {
     @Test
     fun publishedNativeLibrary() {
         val libraryType = LibraryType.PUBLISHED_NATIVE_LIBRARY
-        assertThat(libraryType.publish).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.Yes::class.java)
         assertThat(libraryType.sourceJars).isTrue()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.DEVICE)
@@ -50,7 +50,7 @@ class LibraryTypeTest {
     @Test
     fun internalTestLibrary() {
         val libraryType = LibraryType.INTERNAL_TEST_LIBRARY
-        assertThat(libraryType.publish).isEqualTo(Publish.NONE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.NONE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.No::class.java)
         assertThat(libraryType.sourceJars).isFalse()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.DEVICE)
@@ -59,7 +59,7 @@ class LibraryTypeTest {
     @Test
     fun samples() {
         val libraryType = LibraryType.SAMPLES
-        assertThat(libraryType.publish).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.No::class.java)
         assertThat(libraryType.sourceJars).isTrue()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.DEVICE)
@@ -68,7 +68,7 @@ class LibraryTypeTest {
     @Test
     fun lint() {
         val libraryType = LibraryType.LINT
-        assertThat(libraryType.publish).isEqualTo(Publish.NONE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.NONE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.No::class.java)
         assertThat(libraryType.sourceJars).isFalse()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.HOST)
@@ -77,7 +77,7 @@ class LibraryTypeTest {
     @Test
     fun compilerDaemon() {
         val libraryType = LibraryType.COMPILER_DAEMON
-        assertThat(libraryType.publish).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.No::class.java)
         assertThat(libraryType.sourceJars).isFalse()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.HOST)
@@ -86,7 +86,7 @@ class LibraryTypeTest {
     @Test
     fun compilerPlugin() {
         val libraryType = LibraryType.COMPILER_PLUGIN
-        assertThat(libraryType.publish).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.No::class.java)
         assertThat(libraryType.sourceJars).isFalse()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.HOST)
@@ -95,7 +95,7 @@ class LibraryTypeTest {
     @Test
     fun gradlePlugin() {
         val libraryType = LibraryType.GRADLE_PLUGIN
-        assertThat(libraryType.publish).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.No::class.java)
         assertThat(libraryType.sourceJars).isFalse()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.HOST)
@@ -104,7 +104,7 @@ class LibraryTypeTest {
     @Test
     fun annotationProcessor() {
         val libraryType = LibraryType.ANNOTATION_PROCESSOR
-        assertThat(libraryType.publish).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.No::class.java)
         assertThat(libraryType.sourceJars).isFalse()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.HOST)
@@ -113,7 +113,7 @@ class LibraryTypeTest {
     @Test
     fun annotationProcessorUtils() {
         val libraryType = LibraryType.ANNOTATION_PROCESSOR_UTILS
-        assertThat(libraryType.publish).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.No::class.java)
         assertThat(libraryType.sourceJars).isTrue()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.HOST)
@@ -122,7 +122,7 @@ class LibraryTypeTest {
     @Test
     fun otherCodeProcessor() {
         val libraryType = LibraryType.OTHER_CODE_PROCESSOR
-        assertThat(libraryType.publish).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.No::class.java)
         assertThat(libraryType.sourceJars).isFalse()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.HOST)
@@ -131,16 +131,44 @@ class LibraryTypeTest {
     @Test
     fun idePlugin() {
         val libraryType = LibraryType.IDE_PLUGIN
-        assertThat(libraryType.publish).isEqualTo(Publish.NONE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.NONE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.No::class.java)
         assertThat(libraryType.sourceJars).isFalse()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.DEVICE)
     }
 
     @Test
+    fun kmp() {
+        val libraryType = LibraryType.KmpLibrary {
+            jvm = Publish.SNAPSHOT_AND_RELEASE
+            android = Publish.SNAPSHOT_AND_RELEASE
+        }
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
+        assertThat(libraryType.publishExtension.jvm).isEqualTo(Publish.SNAPSHOT_AND_RELEASE)
+        assertThat(libraryType.publishExtension.shouldPublishAny()).isTrue()
+        assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.Yes::class.java)
+        assertThat(libraryType.sourceJars).isTrue()
+        assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.DEVICE)
+    }
+
+    @Test
+    fun kmpWhenNotPublishing() {
+        val libraryType = LibraryType.KmpLibrary {
+            jvm = Publish.NONE
+            android = Publish.NONE
+        }
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.NONE)
+        assertThat(libraryType.publishExtension.jvm).isEqualTo(Publish.NONE)
+        assertThat(libraryType.publishExtension.shouldPublishAny()).isFalse()
+        assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.Yes::class.java)
+        assertThat(libraryType.sourceJars).isTrue()
+        assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.DEVICE)
+    }
+
+    @Test
     fun unset() {
         val libraryType = LibraryType.UNSET
-        assertThat(libraryType.publish).isEqualTo(Publish.NONE)
+        assertThat(libraryType.publishExtension.android).isEqualTo(Publish.NONE)
         assertThat(libraryType.checkApi).isInstanceOf(RunApiTasks.No::class.java)
         assertThat(libraryType.sourceJars).isFalse()
         assertThat(libraryType.compilationTarget).isEqualTo(CompilationTarget.DEVICE)
