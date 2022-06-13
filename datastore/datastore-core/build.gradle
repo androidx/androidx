@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-import androidx.build.LibraryType
 import androidx.build.Multiplatform
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -109,13 +107,10 @@ kotlin {
 
 androidx {
     name = "Android DataStore Core"
-    type = LibraryType.kmpLibrary {
-        android = Publish.NONE
-        jvm = Publish.SNAPSHOT_AND_RELEASE
-        linux = Publish.SNAPSHOT_AND_RELEASE
-    }
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
     legacyDisableKotlinStrictApiMode = true
+    publishPlatforms = kotlin.targets.asMap.keySet().collect { it.toLowerCase() }
 }

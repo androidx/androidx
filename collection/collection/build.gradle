@@ -17,7 +17,6 @@
 
 import androidx.build.Multiplatform
 import androidx.build.Publish
-import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
@@ -125,14 +124,11 @@ dependencies {
 
 androidx {
     name = "Android Support Library collections"
-    type = LibraryType.kmpLibrary {
-        android = Publish.NONE
-        jvm = Publish.SNAPSHOT_AND_RELEASE
-        linux = Publish.SNAPSHOT_AND_RELEASE
-    }
+    publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."
+    publishPlatforms = kotlin.targets.asMap.keySet().collect { it.toLowerCase() }
 }
 
 kotlin.targets.withType(KotlinNativeTarget.class) {
