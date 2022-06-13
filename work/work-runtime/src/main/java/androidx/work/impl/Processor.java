@@ -31,6 +31,7 @@ import androidx.work.ForegroundInfo;
 import androidx.work.Logger;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.foreground.ForegroundProcessor;
+import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.WakeLocks;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
@@ -114,6 +115,14 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
             @NonNull StartStopToken startStopToken,
             @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
         String id = startStopToken.getWorkSpecId();
+        WorkSpec workSpec = mWorkDatabase.runInTransaction(
+                () -> mWorkDatabase.workSpecDao().getWorkSpec(id)
+        );
+        if (workSpec == null) {
+            Logger.get().error(TAG, "Didn't find WorkSpec for id " + id);
+            runOnExecuted(id, false);
+            return false;
+        }
         WorkerWrapper workWrapper;
         synchronized (mLock) {
             // Work may get triggered multiple times if they have passing constraints
@@ -132,7 +141,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                             mWorkTaskExecutor,
                             this,
                             mWorkDatabase,
-                            id)
+                            workSpec)
                             .withSchedulers(mSchedulers)
                             .withRuntimeExtras(runtimeExtras)
                             .build();
@@ -346,6 +355,12 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                 executionListener.onExecuted(workSpecId, needsReschedule);
             }
         }
+    }
+
+    private void runOnExecuted(@NonNull final String workSpecId, boolean needsReschedule) {
+        mWorkTaskExecutor.getMainThreadExecutor().execute(
+                () -> onExecuted(workSpecId, needsReschedule)
+        );
     }
 
     private void stopForegroundService() {

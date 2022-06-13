@@ -136,7 +136,7 @@ class ControlledWorkerWrapperTest {
             taskExecutor,
             NoOpForegroundProcessor,
             workDatabase,
-            id
+            workDatabase.workSpecDao().getWorkSpec(id)!!
         ).build()
     }
 }

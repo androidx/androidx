@@ -78,7 +78,7 @@ public class WorkerWrapper implements Runnable {
 
     // Avoid Synthetic accessor
     Context mAppContext;
-    private String mWorkSpecId;
+    private final String mWorkSpecId;
     private List<Scheduler> mSchedulers;
     private WorkerParameters.RuntimeExtras mRuntimeExtras;
     // Avoid Synthetic accessor
@@ -116,7 +116,8 @@ public class WorkerWrapper implements Runnable {
         mAppContext = builder.mAppContext;
         mWorkTaskExecutor = builder.mWorkTaskExecutor;
         mForegroundProcessor = builder.mForegroundProcessor;
-        mWorkSpecId = builder.mWorkSpecId;
+        mWorkSpec = builder.mWorkSpec;
+        mWorkSpecId = mWorkSpec.id;
         mSchedulers = builder.mSchedulers;
         mRuntimeExtras = builder.mRuntimeExtras;
         mWorker = builder.mWorker;
@@ -147,16 +148,6 @@ public class WorkerWrapper implements Runnable {
 
         mWorkDatabase.beginTransaction();
         try {
-            mWorkSpec = mWorkSpecDao.getWorkSpec(mWorkSpecId);
-            if (mWorkSpec == null) {
-                Logger.get().error(
-                        TAG,
-                        "Didn't find WorkSpec for id " + mWorkSpecId);
-                resolve(false);
-                mWorkDatabase.setTransactionSuccessful();
-                return;
-            }
-
             // Do a quick check to make sure we don't need to bail out in case this work is already
             // running, finished, or is blocked.
             if (mWorkSpec.state != ENQUEUED) {
@@ -639,7 +630,7 @@ public class WorkerWrapper implements Runnable {
         @NonNull TaskExecutor mWorkTaskExecutor;
         @NonNull Configuration mConfiguration;
         @NonNull WorkDatabase mWorkDatabase;
-        @NonNull String mWorkSpecId;
+        @NonNull WorkSpec mWorkSpec;
         List<Scheduler> mSchedulers;
         @NonNull
         WorkerParameters.RuntimeExtras mRuntimeExtras = new WorkerParameters.RuntimeExtras();
@@ -649,13 +640,13 @@ public class WorkerWrapper implements Runnable {
                 @NonNull TaskExecutor workTaskExecutor,
                 @NonNull ForegroundProcessor foregroundProcessor,
                 @NonNull WorkDatabase database,
-                @NonNull String workSpecId) {
+                @NonNull WorkSpec workSpec) {
             mAppContext = context.getApplicationContext();
             mWorkTaskExecutor = workTaskExecutor;
             mForegroundProcessor = foregroundProcessor;
             mConfiguration = configuration;
             mWorkDatabase = database;
-            mWorkSpecId = workSpecId;
+            mWorkSpec = workSpec;
         }
 
         /**
