@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.SystemClock;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.widget.EdgeEffect;
@@ -36,6 +37,7 @@ import androidx.core.view.InputDeviceCompat;
 import androidx.core.widget.EdgeEffectCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,6 +45,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -218,10 +222,8 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
         scrollToPosition(0);
         waitForIdleScroll(mRecyclerView);
 
-        Thread.sleep(1000);
         // test flinging down
         dragVertically(1000);
-        Thread.sleep(1000);
 
         if (Build.VERSION.SDK_INT >= 31) {
             mActivityRule.runOnUiThread(() -> {
@@ -373,6 +375,222 @@ public class StretchEdgeEffectTest extends BaseRecyclerViewInstrumentationTest {
                         < mRecyclerView.getAdapter().getItemCount() - 1);
             });
         }
+    }
+
+    /**
+     * On S and higher, a large fling back should remove the stretch as well as start flinging
+     * the content.
+     */
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    public void flingContentAfterStretchOnLeft() throws Throwable {
+        mActivityRule.runOnUiThread(
+                () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
+        scrollToPosition(0);
+        waitForIdleScroll(mRecyclerView);
+
+        dragHorizontally(1000);
+        float[] startPullDistance = new float[1];
+        mActivityRule.runOnUiThread(() -> {
+            mFactory.mLeft.mAbsorbVelocity = 0;
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mLeft);
+            startPullDistance[0] = pullDistance;
+            assertTrue(pullDistance > 0);
+            assertTrue(mRecyclerView.fling(10000, 0));
+            assertEquals(pullDistance, EdgeEffectCompat.getDistance(mFactory.mLeft), 0.01f);
+            assertEquals(0, mFactory.mLeft.mAbsorbVelocity);
+            assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+        });
+        // Wait for at least one animation frame
+        CountDownLatch animationLatch = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(() -> mRecyclerView.postOnAnimation(animationLatch::countDown));
+        assertTrue(animationLatch.await(1, TimeUnit.SECONDS));
+
+        // Now make sure the stretch is being released:
+        mActivityRule.runOnUiThread(() -> {
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mLeft);
+            assertTrue(pullDistance < startPullDistance[0]);
+        });
+
+        // Wait for the stretch to be fully released:
+        float[] currentPullDistance = new float[1];
+        long start = SystemClock.uptimeMillis();
+        do {
+            mActivityRule.runOnUiThread(() -> {
+                assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+                currentPullDistance[0] = EdgeEffectCompat.getDistance(mFactory.mLeft);
+            });
+        } while (currentPullDistance[0] > 0 && SystemClock.uptimeMillis() < start + 1000);
+
+        assertEquals(0f, currentPullDistance[0], 0f);
+
+        // Now wait for the fling to finish:
+        waitForIdleScroll(mRecyclerView);
+        mActivityRule.runOnUiThread(() -> {
+            assertTrue(mLayoutManager.findFirstVisibleItemPosition() > 0);
+        });
+    }
+
+    /**
+     * On S and higher, a large fling back should remove the stretch as well as start flinging
+     * the content.
+     */
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    public void flingContentAfterStretchOnTop() throws Throwable {
+        scrollToPosition(0);
+        waitForIdleScroll(mRecyclerView);
+
+        dragVertically(1000);
+        float[] startPullDistance = new float[1];
+        mActivityRule.runOnUiThread(() -> {
+            mFactory.mTop.mAbsorbVelocity = 0;
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mTop);
+            startPullDistance[0] = pullDistance;
+            assertTrue(pullDistance > 0);
+            assertTrue(mRecyclerView.fling(0, 10000));
+            assertEquals(pullDistance, EdgeEffectCompat.getDistance(mFactory.mTop), 0.01f);
+            assertEquals(0, mFactory.mTop.mAbsorbVelocity);
+            assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+        });
+        // Wait for at least one animation frame
+        CountDownLatch animationLatch = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(() -> mRecyclerView.postOnAnimation(animationLatch::countDown));
+        assertTrue(animationLatch.await(1, TimeUnit.SECONDS));
+
+        // Now make sure the stretch is being released:
+        mActivityRule.runOnUiThread(() -> {
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mTop);
+            assertTrue(pullDistance < startPullDistance[0]);
+        });
+
+        // Wait for the stretch to be fully released:
+        float[] currentPullDistance = new float[1];
+        long start = SystemClock.uptimeMillis();
+        do {
+            mActivityRule.runOnUiThread(() -> {
+                assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+                currentPullDistance[0] = EdgeEffectCompat.getDistance(mFactory.mTop);
+            });
+        } while (currentPullDistance[0] > 0 && SystemClock.uptimeMillis() < start + 1000);
+
+        assertEquals(0f, currentPullDistance[0], 0f);
+
+        // Now wait for the fling to finish:
+        waitForIdleScroll(mRecyclerView);
+        mActivityRule.runOnUiThread(() -> {
+            assertTrue(mLayoutManager.findFirstVisibleItemPosition() > 0);
+        });
+    }
+
+    /**
+     * On S and higher, a large fling back should remove the stretch as well as start flinging
+     * the content.
+     */
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    public void flingContentAfterStretchOnRight() throws Throwable {
+        mActivityRule.runOnUiThread(
+                () -> mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL));
+        scrollToPosition(NUM_ITEMS - 1);
+        waitForIdleScroll(mRecyclerView);
+
+        dragHorizontally(-1000);
+        float[] startPullDistance = new float[1];
+        int[] lastItemPosition = new int[1];
+        mActivityRule.runOnUiThread(() -> {
+            lastItemPosition[0] = mLayoutManager.findLastVisibleItemPosition();
+            mFactory.mRight.mAbsorbVelocity = 0;
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mRight);
+            startPullDistance[0] = pullDistance;
+            assertTrue(pullDistance > 0);
+            assertTrue(mRecyclerView.fling(-10000, 0));
+            assertEquals(pullDistance, EdgeEffectCompat.getDistance(mFactory.mRight), 0.01f);
+            assertEquals(0, mFactory.mRight.mAbsorbVelocity);
+            assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+        });
+        // Wait for at least one animation frame
+        CountDownLatch animationLatch = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(() -> mRecyclerView.postOnAnimation(animationLatch::countDown));
+        assertTrue(animationLatch.await(1, TimeUnit.SECONDS));
+
+        // Now make sure the stretch is being released:
+        mActivityRule.runOnUiThread(() -> {
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mRight);
+            assertTrue(pullDistance < startPullDistance[0]);
+        });
+
+        // Wait for the stretch to be fully released:
+        float[] currentPullDistance = new float[1];
+        long start = SystemClock.uptimeMillis();
+        do {
+            mActivityRule.runOnUiThread(() -> {
+                assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+                currentPullDistance[0] = EdgeEffectCompat.getDistance(mFactory.mRight);
+            });
+        } while (currentPullDistance[0] > 0 && SystemClock.uptimeMillis() < start + 1000);
+
+        assertEquals(0f, currentPullDistance[0], 0f);
+
+        // Now wait for the fling to finish:
+        waitForIdleScroll(mRecyclerView);
+        mActivityRule.runOnUiThread(() -> {
+            assertTrue(lastItemPosition[0] > mLayoutManager.findLastVisibleItemPosition());
+        });
+    }
+
+    /**
+     * On S and higher, a large fling back should remove the stretch as well as start flinging
+     * the content.
+     */
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    public void flingContentAfterStretchOnBottom() throws Throwable {
+        scrollToPosition(NUM_ITEMS - 1);
+        waitForIdleScroll(mRecyclerView);
+
+        dragVertically(-1000);
+        float[] startPullDistance = new float[1];
+        int[] lastItemPosition = new int[1];
+        mActivityRule.runOnUiThread(() -> {
+            lastItemPosition[0] = mLayoutManager.findLastVisibleItemPosition();
+            mFactory.mBottom.mAbsorbVelocity = 0;
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mBottom);
+            startPullDistance[0] = pullDistance;
+            assertTrue(pullDistance > 0);
+            assertTrue(mRecyclerView.fling(0, -10000));
+            assertEquals(pullDistance, EdgeEffectCompat.getDistance(mFactory.mBottom), 0.01f);
+            assertEquals(0, mFactory.mBottom.mAbsorbVelocity);
+            assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+        });
+        // Wait for at least one animation frame
+        CountDownLatch animationLatch = new CountDownLatch(1);
+        mActivityRule.runOnUiThread(() -> mRecyclerView.postOnAnimation(animationLatch::countDown));
+        assertTrue(animationLatch.await(1, TimeUnit.SECONDS));
+
+        // Now make sure the stretch is being released:
+        mActivityRule.runOnUiThread(() -> {
+            float pullDistance = EdgeEffectCompat.getDistance(mFactory.mBottom);
+            assertTrue(pullDistance < startPullDistance[0]);
+        });
+
+        // Wait for the stretch to be fully released:
+        float[] currentPullDistance = new float[1];
+        long start = SystemClock.uptimeMillis();
+        do {
+            mActivityRule.runOnUiThread(() -> {
+                assertEquals(RecyclerView.SCROLL_STATE_SETTLING, mRecyclerView.getScrollState());
+                currentPullDistance[0] = EdgeEffectCompat.getDistance(mFactory.mBottom);
+            });
+        } while (currentPullDistance[0] > 0 && SystemClock.uptimeMillis() < start + 1000);
+
+        assertEquals(0f, currentPullDistance[0], 0f);
+
+        // Now wait for the fling to finish:
+        waitForIdleScroll(mRecyclerView);
+        mActivityRule.runOnUiThread(() -> {
+            assertTrue(lastItemPosition[0] > mLayoutManager.findLastVisibleItemPosition());
+        });
     }
 
     @Test
