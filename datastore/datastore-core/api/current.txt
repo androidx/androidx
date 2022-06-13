@@ -56,6 +56,8 @@ package androidx.datastore.core {
   }
 
   public enum StorageConnection.ReadLockType {
+    method public static androidx.datastore.core.StorageConnection.ReadLockType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.datastore.core.StorageConnection.ReadLockType[] values();
     enum_constant public static final androidx.datastore.core.StorageConnection.ReadLockType LOCK;
     enum_constant public static final androidx.datastore.core.StorageConnection.ReadLockType NO_LOCK;
     enum_constant public static final androidx.datastore.core.StorageConnection.ReadLockType TRY_LOCK;
