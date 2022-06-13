@@ -26,6 +26,8 @@ import static androidx.wear.tiles.material.Helper.isRoundDevice;
 import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_PADDING;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.PROGRESS_INDICATOR_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -36,7 +38,9 @@ import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.DimensionBuilders.DpProp;
 import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
+import androidx.wear.tiles.LayoutElementBuilders.Column;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
+import androidx.wear.tiles.LayoutElementBuilders.Spacer;
 import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.ModifiersBuilders.Padding;
@@ -51,7 +55,8 @@ import java.util.List;
 /**
  * Tiles layout that represents the suggested layout style for Material Tiles with the progress
  * indicator around the edges of the screen and the given content inside of it and the recommended
- * margin and padding applied.
+ * margin and padding applied. Optional primary or secondary label can be added above and below the
+ * main content, respectively.
  *
  * <p>For additional examples and suggested layouts see <a
  * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
@@ -103,30 +108,53 @@ public class ProgressIndicatorLayout implements LayoutElement {
     static final int PROGRESS_INDICATOR_PRESENT = 0x1;
     /**
      * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
+     * the primary label is present or not.
+     */
+    static final int PRIMARY_LABEL_PRESENT = 0x2;
+    /**
+     * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
+     * the secondary label is present or not.
+     */
+    static final int SECONDARY_LABEL_PRESENT = 0x4;
+    /**
+     * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
      * the main content is present or not.
      */
-    static final int CONTENT_PRESENT = 0x2;
+    static final int CONTENT_PRESENT = 0x8;
 
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(
             flag = true,
-            value = {PROGRESS_INDICATOR_PRESENT, CONTENT_PRESENT})
+            value = {
+                PROGRESS_INDICATOR_PRESENT,
+                PRIMARY_LABEL_PRESENT,
+                CONTENT_PRESENT,
+                SECONDARY_LABEL_PRESENT
+            })
     @interface ContentBits {}
 
     @NonNull private final Box mImpl;
+
+    // This contains inner columns and progress indicator.
     @NonNull private final List<LayoutElement> mContents;
+
+    // This contains optional labels, spacers and main content.
+    @NonNull private final List<LayoutElement> mInnerColumn;
 
     ProgressIndicatorLayout(@NonNull Box layoutElement) {
         this.mImpl = layoutElement;
         this.mContents = mImpl.getContents();
+        this.mInnerColumn = ((Column) ((Box) mContents.get(0)).getContents().get(0)).getContents();
     }
 
     /** Builder class for {@link ProgressIndicatorLayout}. */
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private final DeviceParameters mDeviceParameters;
         @Nullable private LayoutElement mProgressIndicator = null;
+        @Nullable private LayoutElement mPrimaryLabelText = null;
+        @Nullable private LayoutElement mSecondaryLabelText = null;
         @Nullable private LayoutElement mContent = null;
         private byte mMetadataContentByte = 0;
 
@@ -143,6 +171,25 @@ public class ProgressIndicatorLayout implements LayoutElement {
         public Builder setProgressIndicatorContent(@NonNull LayoutElement progressIndicator) {
             this.mProgressIndicator = progressIndicator;
             mMetadataContentByte = (byte) (mMetadataContentByte | PROGRESS_INDICATOR_PRESENT);
+            return this;
+        }
+
+        /** Sets the content in the primary label slot which will be above the main content. */
+        @NonNull
+        public Builder setPrimaryLabelTextContent(@NonNull LayoutElement primaryLabelText) {
+            this.mPrimaryLabelText = primaryLabelText;
+            mMetadataContentByte = (byte) (mMetadataContentByte | PRIMARY_LABEL_PRESENT);
+            return this;
+        }
+
+        /**
+         * Sets the content in the secondary label slot which will be below the main content. It is
+         * highly recommended to have primary label set when having secondary label.
+         */
+        @NonNull
+        public Builder setSecondaryLabelTextContent(@NonNull LayoutElement secondaryLabelText) {
+            this.mSecondaryLabelText = secondaryLabelText;
+            mMetadataContentByte = (byte) (mMetadataContentByte | SECONDARY_LABEL_PRESENT);
             return this;
         }
 
@@ -189,7 +236,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
 
             byte[] metadata = METADATA_TAG_BASE.clone();
             metadata[FLAG_INDEX] = mMetadataContentByte;
-            Box.Builder boxBuilder =
+            Box.Builder mainBoxBuilder =
                     new Box.Builder()
                             .setWidth(expand())
                             .setHeight(expand())
@@ -203,24 +250,51 @@ public class ProgressIndicatorLayout implements LayoutElement {
                             .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
                             .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER);
 
+            Column.Builder innerContentBuilder =
+                    new Column.Builder()
+                            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
+
+            if (mPrimaryLabelText != null) {
+                innerContentBuilder.addContent(mPrimaryLabelText);
+                innerContentBuilder.addContent(
+                        new Spacer.Builder()
+                                .setHeight(
+                                        dp(PROGRESS_INDICATOR_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP))
+                                .build());
+            }
+
             if (mContent != null) {
-                boxBuilder.addContent(
+                innerContentBuilder.addContent(
                         new Box.Builder()
-                                .setModifiers(modifiers)
                                 .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
-                                .setHorizontalAlignment(
-                                        LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
-                                .setHeight(mainContentHeight)
-                                .setWidth(mainContentWidth)
                                 .addContent(mContent)
                                 .build());
             }
 
-            if (mProgressIndicator != null) {
-                boxBuilder.addContent(mProgressIndicator);
+            if (mSecondaryLabelText != null) {
+                innerContentBuilder.addContent(
+                        new Spacer.Builder()
+                                .setHeight(
+                                        dp(PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP))
+                                .build());
+                innerContentBuilder.addContent(mSecondaryLabelText);
             }
 
-            return new ProgressIndicatorLayout(boxBuilder.build());
+            mainBoxBuilder.addContent(
+                    new Box.Builder()
+                            .setModifiers(modifiers)
+                            .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
+                            .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER)
+                            .setHeight(mainContentHeight)
+                            .setWidth(mainContentWidth)
+                            .addContent(innerContentBuilder.build())
+                            .build());
+
+            if (mProgressIndicator != null) {
+                mainBoxBuilder.addContent(mProgressIndicator);
+            }
+
+            return new ProgressIndicatorLayout(mainBoxBuilder.build());
         }
     }
 
@@ -237,17 +311,40 @@ public class ProgressIndicatorLayout implements LayoutElement {
     /** Returns the inner content from this layout. */
     @Nullable
     public LayoutElement getContent() {
-        if (areElementsPresent(CONTENT_PRESENT)) {
-            return ((Box) mContents.get(0)).getContents().get(0);
+        if (!areElementsPresent(CONTENT_PRESENT)) {
+            return null;
         }
-        return null;
+        // By tag we know that content exists. It will be at position 0 if there is no primary
+        // label, or at position 2 (primary label, spacer - content) otherwise.
+        int contentPosition = areElementsPresent(PRIMARY_LABEL_PRESENT) ? 2 : 0;
+        return ((Box) mInnerColumn.get(contentPosition)).getContents().get(0);
+    }
+
+    /** Get the primary label content from this layout. */
+    @Nullable
+    public LayoutElement getPrimaryLabelTextContent() {
+        if (!areElementsPresent(PRIMARY_LABEL_PRESENT)) {
+            return null;
+        }
+        // By tag we know that primary label exists. It will always be at position 0.
+        return mInnerColumn.get(0);
+    }
+
+    /** Get the secondary label content from this layout. */
+    @Nullable
+    public LayoutElement getSecondaryLabelTextContent() {
+        if (!areElementsPresent(SECONDARY_LABEL_PRESENT)) {
+            return null;
+        }
+        // By tag we know that secondary label exists. It will always be at last position.
+        return mInnerColumn.get(mInnerColumn.size() - 1);
     }
 
     /** Returns the progress indicator content from this layout. */
     @Nullable
     public LayoutElement getProgressIndicatorContent() {
         if (areElementsPresent(PROGRESS_INDICATOR_PRESENT)) {
-            return mContents.get(areElementsPresent(CONTENT_PRESENT) ? 1 : 0);
+            return mContents.get(1);
         }
         return null;
     }

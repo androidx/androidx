@@ -17,6 +17,7 @@
 package androidx.wear.tiles.material.layouts;
 
 import static androidx.wear.tiles.ColorBuilders.argb;
+import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.DimensionBuilders.expand;
 
 import android.content.Context;
@@ -35,6 +36,7 @@ import androidx.wear.tiles.material.Button;
 import androidx.wear.tiles.material.ButtonDefaults;
 import androidx.wear.tiles.material.ChipColors;
 import androidx.wear.tiles.material.CircularProgressIndicator;
+import androidx.wear.tiles.material.Colors;
 import androidx.wear.tiles.material.CompactChip;
 import androidx.wear.tiles.material.ProgressIndicatorColors;
 import androidx.wear.tiles.material.ProgressIndicatorDefaults;
@@ -296,6 +298,22 @@ public class TestCasesGenerator {
                         .setTypography(Typography.TYPOGRAPHY_DISPLAY1)
                         .build();
         testCases.put(
+                "default_text_progressindicatorlayout_golden" + goldenSuffix,
+                new ProgressIndicatorLayout.Builder(deviceParameters)
+                        .setProgressIndicatorContent(progressIndicatorBuilder.build())
+                        .setPrimaryLabelTextContent(
+                                new Text.Builder(context, "Primary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.PRIMARY))
+                                        .build())
+                        .setContent(textContent)
+                        .setSecondaryLabelTextContent(
+                                new Text.Builder(context, "Secondary label")
+                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                        .setColor(argb(Colors.ON_SURFACE))
+                                        .build())
+                        .build());
+        testCases.put(
                 "default_empty_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
                 new ProgressIndicatorLayout.Builder(deviceParameters)
                         .setProgressIndicatorContent(progressIndicatorBuilder.build())
@@ -321,8 +339,8 @@ public class TestCasesGenerator {
                                         .build())
                         .setContent(
                                 new Box.Builder()
-                                        .setWidth(expand())
-                                        .setHeight(expand())
+                                        .setWidth(dp(500))
+                                        .setHeight(dp(500))
                                         .setModifiers(
                                                 new Modifiers.Builder()
                                                         .setBackground(
