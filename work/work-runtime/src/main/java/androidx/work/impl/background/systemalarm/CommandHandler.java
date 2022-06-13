@@ -26,10 +26,10 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
+import androidx.work.impl.StartStopToken;
+import androidx.work.impl.StartStopTokens;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.WorkRunId;
-import androidx.work.impl.WorkRunIds;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 
@@ -111,11 +111,11 @@ public class CommandHandler implements ExecutionListener {
     private final Context mContext;
     private final Map<String, ExecutionListener> mPendingDelayMet;
     private final Object mLock;
-    private final WorkRunIds mWorkRunIds;
+    private final StartStopTokens mStartStopTokens;
 
-    CommandHandler(@NonNull Context context, @NonNull WorkRunIds workRunIds) {
+    CommandHandler(@NonNull Context context, @NonNull StartStopTokens startStopTokens) {
         mContext = context;
-        mWorkRunIds = workRunIds;
+        mStartStopTokens = startStopTokens;
         mPendingDelayMet = new HashMap<>();
         mLock = new Object();
     }
@@ -269,7 +269,7 @@ public class CommandHandler implements ExecutionListener {
             if (!mPendingDelayMet.containsKey(workSpecId)) {
                 DelayMetCommandHandler delayMetCommandHandler =
                         new DelayMetCommandHandler(mContext, startId, workSpecId,
-                                dispatcher, mWorkRunIds);
+                                dispatcher, mStartStopTokens);
                 mPendingDelayMet.put(workSpecId, delayMetCommandHandler);
                 delayMetCommandHandler.handleProcessWork();
             } else {
@@ -287,7 +287,7 @@ public class CommandHandler implements ExecutionListener {
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);
         Logger.get().debug(TAG, "Handing stopWork work for " + workSpecId);
 
-        WorkRunId runId = mWorkRunIds.remove(workSpecId);
+        StartStopToken runId = mStartStopTokens.remove(workSpecId);
         if (runId != null) {
             dispatcher.getWorkManager().stopWork(runId);
         }

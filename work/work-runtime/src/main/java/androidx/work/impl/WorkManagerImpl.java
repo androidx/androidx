@@ -667,7 +667,7 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void startWork(@NonNull WorkRunId workSpecId) {
+    public void startWork(@NonNull StartStopToken workSpecId) {
         startWork(workSpecId, null);
     }
 
@@ -678,7 +678,7 @@ public class WorkManagerImpl extends WorkManager {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void startWork(
-            @NonNull WorkRunId workSpecId,
+            @NonNull StartStopToken workSpecId,
             @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
         mWorkTaskExecutor
                 .executeOnTaskThread(
@@ -690,7 +690,7 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void stopWork(@NonNull WorkRunId workSpecId) {
+    public void stopWork(@NonNull StartStopToken workSpecId) {
         mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(this, workSpecId, false));
     }
 
@@ -702,7 +702,7 @@ public class WorkManagerImpl extends WorkManager {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void stopForegroundWork(@NonNull String workSpecId) {
         mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(this,
-                new WorkRunId(workSpecId), true));
+                new StartStopToken(workSpecId), true));
     }
 
     /**
