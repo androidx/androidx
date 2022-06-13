@@ -44,8 +44,8 @@ import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
 import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
 import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
 import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
 import androidx.health.connect.client.records.HeightRecord
@@ -189,14 +189,14 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "Height" ->
                 HeightRecord(
-                    heightMeters = getDouble("height"),
+                    height = getDouble("height").meters,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HipCircumference" ->
                 HipCircumferenceRecord(
-                    circumferenceMeters = getDouble("circumference"),
+                    circumference = getDouble("circumference").meters,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -368,7 +368,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "WaistCircumference" ->
                 WaistCircumferenceRecord(
-                    circumferenceMeters = getDouble("circumference"),
+                    circumference = getDouble("circumference").meters,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -409,7 +409,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "ActivityLap" ->
                 ActivityLapRecord(
-                    lengthMeters = getDouble("length"),
+                    length = valuesMap["length"]?.doubleVal?.meters,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -438,7 +438,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "ElevationGained" ->
                 ElevationGainedRecord(
-                    elevationMeters = getDouble("elevation"),
+                    elevation = getDouble("elevation").meters,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,

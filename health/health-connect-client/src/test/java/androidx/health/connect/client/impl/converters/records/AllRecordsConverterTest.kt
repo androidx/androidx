@@ -308,7 +308,7 @@ class AllRecordsConverterTest {
     fun testHeight() {
         val data =
             HeightRecord(
-                heightMeters = 1.0,
+                height = 1.meters,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -321,7 +321,7 @@ class AllRecordsConverterTest {
     fun testHipCircumference() {
         val data =
             HipCircumferenceRecord(
-                circumferenceMeters = 1.0,
+                circumference = 1.meters,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -631,7 +631,7 @@ class AllRecordsConverterTest {
     fun testWaistCircumference() {
         val data =
             WaistCircumferenceRecord(
-                circumferenceMeters = 1.0,
+                circumference = 1.meters,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -702,7 +702,7 @@ class AllRecordsConverterTest {
     fun testActivityLap() {
         val data =
             ActivityLapRecord(
-                lengthMeters = 1.0,
+                length = 1.meters,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -749,7 +749,7 @@ class AllRecordsConverterTest {
     fun testElevationGained() {
         val data =
             ElevationGainedRecord(
-                elevationMeters = 1.0,
+                elevation = 1.meters,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
