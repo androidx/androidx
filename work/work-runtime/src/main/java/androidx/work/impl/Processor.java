@@ -64,7 +64,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     private Map<String, WorkerWrapper> mForegroundWorkMap;
     private Map<String, WorkerWrapper> mEnqueuedWorkMap;
     //  workSpecId  to a  Set<WorkRunId>
-    private Map<String, Set<WorkRunId>> mWorkRuns;
+    private Map<String, Set<StartStopToken>> mWorkRuns;
     private List<Scheduler> mSchedulers;
 
     private Set<String> mCancelledIds;
@@ -98,29 +98,29 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      * @param id The work id to execute.
      * @return {@code true} if the work was successfully enqueued for processing
      */
-    public boolean startWork(@NonNull WorkRunId id) {
+    public boolean startWork(@NonNull StartStopToken id) {
         return startWork(id, null);
     }
 
     /**
      * Starts a given unit of work in the background.
      *
-     * @param workRunId The work id to execute.
+     * @param startStopToken The work id to execute.
      * @param runtimeExtras The {@link WorkerParameters.RuntimeExtras} for this work, if any.
      * @return {@code true} if the work was successfully enqueued for processing
      */
     @SuppressWarnings("ConstantConditions")
     public boolean startWork(
-            @NonNull WorkRunId workRunId,
+            @NonNull StartStopToken startStopToken,
             @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
-        String id = workRunId.getWorkSpecId();
+        String id = startStopToken.getWorkSpecId();
         WorkerWrapper workWrapper;
         synchronized (mLock) {
             // Work may get triggered multiple times if they have passing constraints
             // and new work with those constraints are added.
             if (isEnqueued(id)) {
                 // there must be another run if it is enqueued.
-                mWorkRuns.get(id).add(workRunId);
+                mWorkRuns.get(id).add(startStopToken);
                 Logger.get().debug(TAG, "Work " + id + " is already enqueued for processing");
                 return false;
             }
@@ -141,8 +141,8 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                     new FutureListener(this, id, future),
                     mWorkTaskExecutor.getMainThreadExecutor());
             mEnqueuedWorkMap.put(id, workWrapper);
-            HashSet<WorkRunId> set = new HashSet<>();
-            set.add(workRunId);
+            HashSet<StartStopToken> set = new HashSet<>();
+            set.add(startStopToken);
             mWorkRuns.put(id, set);
         }
         mWorkTaskExecutor.getSerialTaskExecutor().execute(workWrapper);
@@ -197,7 +197,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      * @param runId The work id to stop
      * @return {@code true} if the work was stopped successfully
      */
-    public boolean stopWork(@NonNull WorkRunId runId) {
+    public boolean stopWork(@NonNull StartStopToken runId) {
         String id = runId.getWorkSpecId();
         WorkerWrapper wrapper = null;
         synchronized (mLock) {
@@ -210,7 +210,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                 Logger.get().debug(TAG, "WorkerWrapper could not be found for " + id);
                 return false;
             }
-            Set<WorkRunId> runs = mWorkRuns.get(id);
+            Set<StartStopToken> runs = mWorkRuns.get(id);
             if (runs == null || !runs.contains(runId)) {
                 return false;
             }

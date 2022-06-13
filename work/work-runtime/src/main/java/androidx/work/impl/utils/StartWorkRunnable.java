@@ -18,8 +18,8 @@ package androidx.work.impl.utils;
 
 import androidx.annotation.RestrictTo;
 import androidx.work.WorkerParameters;
+import androidx.work.impl.StartStopToken;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.WorkRunId;
 
 /**
  * A {@link Runnable} that can start work on the
@@ -30,12 +30,12 @@ import androidx.work.impl.WorkRunId;
 public class StartWorkRunnable implements Runnable {
 
     private WorkManagerImpl mWorkManagerImpl;
-    private WorkRunId mWorkSpecId;
+    private StartStopToken mWorkSpecId;
     private WorkerParameters.RuntimeExtras mRuntimeExtras;
 
     public StartWorkRunnable(
             WorkManagerImpl workManagerImpl,
-            WorkRunId workSpecId,
+            StartStopToken workSpecId,
             WorkerParameters.RuntimeExtras runtimeExtras) {
         mWorkManagerImpl = workManagerImpl;
         mWorkSpecId = workSpecId;
