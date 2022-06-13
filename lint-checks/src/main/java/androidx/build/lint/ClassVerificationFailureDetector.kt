@@ -688,10 +688,13 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             val isStatic = evaluator.isStatic(method)
             val isConstructor = method.isConstructor
 
-            // Neither of these should be null if we're looking at Java code.
+            // None of these should be null if we're looking at Java code.
             val containingClass = method.containingClass ?: return null
-            val hostType = containingClass.name ?: return null
-            val hostVar = hostType[0].lowercaseChar() + hostType.substring(1)
+            // When referencing the type, use the fully qualified type in case it isn't imported
+            // (shortenTypes will simplify if it is). For the variable name, use just the class name
+            val hostType = containingClass.qualifiedName ?: return null
+            val hostClassName = containingClass.name ?: return null
+            val hostVar = hostClassName[0].lowercaseChar() + hostClassName.substring(1)
 
             val hostParam = if (isStatic || isConstructor) { null } else { "$hostType $hostVar" }
 
