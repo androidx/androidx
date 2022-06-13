@@ -281,14 +281,18 @@ package androidx.wear.tiles.material.layouts {
   public class ProgressIndicatorLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
     method public static androidx.wear.tiles.material.layouts.ProgressIndicatorLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
     method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getProgressIndicatorContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
   }
 
   public static final class ProgressIndicatorLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
     ctor public ProgressIndicatorLayout.Builder(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
     method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout build();
     method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout.Builder setPrimaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout.Builder setProgressIndicatorContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout.Builder setSecondaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
   }
 
 }
