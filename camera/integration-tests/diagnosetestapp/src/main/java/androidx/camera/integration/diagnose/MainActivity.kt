@@ -16,11 +16,17 @@
 
 package androidx.camera.integration.diagnose
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,7 +36,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        // TODO: request CAMERA permission and fail gracefully if not granted.
+        // Request CAMERA permission and fail gracefully if not granted.
+        if (allPermissionsGranted()) {
+            startCamera()
+        } else {
+            ActivityCompat.requestPermissions(
+                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
+            )
+        }
 
         // Setup CameraX
         previewView = findViewById(R.id.preview_view)
@@ -39,9 +52,63 @@ class MainActivity : AppCompatActivity() {
         previewView.controller = cameraController
 
         // Setup UI events
-        findViewById<Button>(R.id.capture).setOnClickListener {
+        findViewById<Button>(R.id.image_capture).setOnClickListener {
             // TODO: handle capture button click event following examples
             //  in CameraControllerFragment.
+            takePhoto()
         }
+
+        findViewById<Button>(R.id.video_capture).setOnClickListener {
+            // TODO: handle capture button click event following examples
+            //  in CameraControllerFragment.
+            captureVideo()
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (allPermissionsGranted()) {
+                startCamera()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Permissions not granted by the user.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                // TODO: fail gracefully
+                finish()
+            }
+        }
+    }
+
+    private fun takePhoto() {}
+
+    private fun captureVideo() {}
+
+    private fun startCamera() {}
+
+    private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
+        ContextCompat.checkSelfPermission(
+            baseContext, it
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    companion object {
+        private const val TAG = "DiagnoseApp"
+        private const val REQUEST_CODE_PERMISSIONS = 10
+        private val REQUIRED_PERMISSIONS =
+            mutableListOf(
+                Manifest.permission.CAMERA,
+                Manifest.permission.RECORD_AUDIO
+            ).apply {
+                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                    add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                }
+            }.toTypedArray()
     }
 }

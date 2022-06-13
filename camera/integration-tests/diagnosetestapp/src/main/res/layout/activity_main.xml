@@ -33,10 +33,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <Button
-            android:id="@+id/capture"
+            android:id="@+id/image_capture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/capture"
-            android:checked="true"/>
+            android:text="@string/image_capture" />
+
+        <Button
+            android:id="@+id/video_capture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/video_capture" />
     </LinearLayout>
 </LinearLayout>

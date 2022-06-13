@@ -16,5 +16,6 @@
 
 <resources>
     <string name="app_name">diagnosetestapp</string>
-    <string name="capture">capture</string>
+    <string name="image_capture">Take Photo</string>
+    <string name="video_capture">Record Video</string>
 </resources>
