@@ -1863,6 +1863,7 @@ public abstract class WatchFaceService : WallpaperService() {
             overrideSurfaceHolder: SurfaceHolder?,
             _createdBy: String
         ) {
+            Log.d(TAG, "createInstance id ${watchState.watchFaceInstanceId.value} $_createdBy")
             asyncWatchFaceConstructionPending = true
             createdBy = _createdBy
 
@@ -2052,6 +2053,8 @@ public abstract class WatchFaceService : WallpaperService() {
                         }
                     }
                 }
+
+                Log.d(TAG, "init complete ${watchState.watchFaceInstanceId.value}")
             }
         }
 
