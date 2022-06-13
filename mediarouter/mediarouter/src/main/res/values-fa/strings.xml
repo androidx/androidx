@@ -18,14 +18,14 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="mr_system_route_name" msgid="7449553026175453403">"سیستم"</string>
     <string name="mr_user_route_category_name" msgid="4088331695424166162">"دستگاه‌ها"</string>
-    <string name="mr_button_content_description" msgid="2939063992730535343">"ارسال محتوا"</string>
-    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"ارسال محتوا. قطع اتصال"</string>
-    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"ارسال محتوا. درحال اتصال"</string>
-    <string name="mr_cast_button_connected" msgid="6073720094880410356">"ارسال محتوا. متصل"</string>
-    <string name="mr_chooser_title" msgid="1419936397646839840">"ارسال محتوا به"</string>
+    <string name="mr_button_content_description" msgid="2939063992730535343">"پخش محتوا"</string>
+    <string name="mr_cast_button_disconnected" msgid="8071109333469380363">"پخش محتوا. متصل نیست"</string>
+    <string name="mr_cast_button_connecting" msgid="6629927151350192407">"پخش محتوا. درحال متصل شدن"</string>
+    <string name="mr_cast_button_connected" msgid="6073720094880410356">"پخش محتوا. متصل است"</string>
+    <string name="mr_chooser_title" msgid="1419936397646839840">"پخش محتوا به"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"درحال پیدا کردن دستگاه‌ها"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"قطع اتصال"</string>
-    <string name="mr_controller_stop_casting" msgid="804210341192624074">"توقف ارسال محتوا"</string>
+    <string name="mr_controller_stop_casting" msgid="804210341192624074">"توقف پخش محتوا"</string>
     <string name="mr_controller_close_description" msgid="5684434439232634509">"بستن"</string>
     <string name="mr_controller_play" msgid="1253345086594430054">"پخش"</string>
     <string name="mr_controller_pause" msgid="747801650871398383">"مکث"</string>
@@ -36,7 +36,7 @@
     <string name="mr_controller_volume_slider" msgid="2955862765169128170">"لغزنده میزان صدا"</string>
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"رسانه‌ای انتخاب نشده است"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"اطلاعاتی در دسترس نیست"</string>
-    <string name="mr_controller_casting_screen" msgid="9171231064758955152">"صفحه ارسال محتوا"</string>
+    <string name="mr_controller_casting_screen" msgid="9171231064758955152">"درحال پخش محتوای صفحه‌نمایش"</string>
     <string name="mr_dialog_default_group_name" msgid="4115858704575247342">"گروه"</string>
     <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"افزودن دستگاه"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"بازی در گروه"</string>
