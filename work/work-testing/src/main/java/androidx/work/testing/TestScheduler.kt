@@ -24,7 +24,7 @@ import androidx.work.impl.ExecutionListener
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
-import androidx.work.impl.WorkRunIds
+import androidx.work.impl.StartStopTokens
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.model.WorkSpecDao
 import java.util.UUID
@@ -43,7 +43,7 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
     @GuardedBy("lock")
     private val terminatedWorkIds = mutableSetOf<String>()
     private val lock = Any()
-    private val workRunIds = WorkRunIds()
+    private val mStartStopTokens = StartStopTokens()
 
     override fun hasLimitedSchedulingSlots() = true
 
@@ -73,7 +73,7 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
         // to enqueue() will no-op because insertWorkSpec in WorkDatabase has a conflict
         // policy of @Ignore. So TestScheduler will _never_ be asked to schedule those
         // WorkSpecs.
-        val workRunId = workRunIds.remove(workSpecId)
+        val workRunId = mStartStopTokens.remove(workSpecId)
         if (workRunId != null) WorkManagerImpl.getInstance(context).stopWork(workRunId)
         synchronized(lock) {
             val internalWorkState = pendingWorkStates[workSpecId]
@@ -161,14 +161,14 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
                 pendingWorkStates.remove(workSpecId)
                 terminatedWorkIds.add(workSpecId)
             }
-            workRunIds.remove(workSpecId)
+            mStartStopTokens.remove(workSpecId)
         }
     }
 
     private fun scheduleInternal(workId: String, state: InternalWorkState) {
         if (state.isRunnable) {
             val wm = WorkManagerImpl.getInstance(context)
-            wm.startWork(workRunIds.workRunIdFor(workId))
+            wm.startWork(mStartStopTokens.tokenFor(workId))
         }
     }
 }

@@ -35,8 +35,8 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.Processor;
+import androidx.work.impl.StartStopToken;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.WorkRunId;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -87,7 +87,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         WorkSpec workSpec = work.getWorkSpec();
         mGreedyScheduler.schedule(workSpec);
-        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        ArgumentCaptor<StartStopToken> captor = ArgumentCaptor.forClass(StartStopToken.class);
         verify(mWorkManagerImpl).startWork(captor.capture());
         assertThat(captor.getValue().getWorkSpecId()).isEqualTo(workSpec.id);
     }
@@ -102,7 +102,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         // PeriodicWorkRequests are special because their periodStartTime is set to 0.
         // So the first invocation will always result in startWork(). Subsequent runs will
         // use `delayedStartWork()`.
-        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        ArgumentCaptor<StartStopToken> captor = ArgumentCaptor.forClass(StartStopToken.class);
         verify(mWorkManagerImpl).startWork(captor.capture());
         assertThat(captor.getValue().getWorkSpecId()).isEqualTo(periodicWork.getStringId());
     }
@@ -147,7 +147,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
     public void testGreedyScheduler_startsWorkWhenConstraintsMet() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         mGreedyScheduler.onAllConstraintsMet(Collections.singletonList(work.getWorkSpec()));
-        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        ArgumentCaptor<StartStopToken> captor = ArgumentCaptor.forClass(StartStopToken.class);
         verify(mWorkManagerImpl).startWork(captor.capture());
         assertThat(captor.getValue().getWorkSpecId()).isEqualTo(work.getWorkSpec().id);
     }
@@ -159,7 +159,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         mGreedyScheduler.onAllConstraintsMet(Collections.singletonList(work.getWorkSpec()));
         mGreedyScheduler.onAllConstraintsNotMet(Collections.singletonList(work.getWorkSpec()));
-        ArgumentCaptor<WorkRunId> captor = ArgumentCaptor.forClass(WorkRunId.class);
+        ArgumentCaptor<StartStopToken> captor = ArgumentCaptor.forClass(StartStopToken.class);
         verify(mWorkManagerImpl).stopWork(captor.capture());
         assertThat(captor.getValue().getWorkSpecId()).isEqualTo(work.getWorkSpec().id);
     }

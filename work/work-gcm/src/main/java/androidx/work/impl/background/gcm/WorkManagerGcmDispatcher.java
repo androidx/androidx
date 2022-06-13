@@ -26,10 +26,10 @@ import androidx.work.WorkInfo;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Schedulers;
+import androidx.work.impl.StartStopToken;
+import androidx.work.impl.StartStopTokens;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.WorkRunId;
-import androidx.work.impl.WorkRunIds;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.WakeLocks;
 import androidx.work.impl.utils.WorkTimer;
@@ -53,7 +53,7 @@ public class WorkManagerGcmDispatcher {
     private static final long AWAIT_TIME_IN_MILLISECONDS = AWAIT_TIME_IN_MINUTES * 60 * 1000;
 
     private final WorkTimer mWorkTimer;
-    private final WorkRunIds mWorkRunIds = new WorkRunIds();
+    private final StartStopTokens mStartStopTokens = new StartStopTokens();
 
     // Synthetic access
     WorkManagerImpl mWorkManagerImpl;
@@ -97,16 +97,17 @@ public class WorkManagerGcmDispatcher {
             return GcmNetworkManager.RESULT_FAILURE;
         }
 
-        WorkSpecExecutionListener listener = new WorkSpecExecutionListener(workSpecId, mWorkRunIds);
-        WorkRunId workRunId = mWorkRunIds.workRunIdFor(workSpecId);
+        WorkSpecExecutionListener listener = new WorkSpecExecutionListener(workSpecId,
+                mStartStopTokens);
+        StartStopToken startStopToken = mStartStopTokens.tokenFor(workSpecId);
         WorkSpecTimeLimitExceededListener timeLimitExceededListener =
-                new WorkSpecTimeLimitExceededListener(mWorkManagerImpl, workRunId);
+                new WorkSpecTimeLimitExceededListener(mWorkManagerImpl, startStopToken);
         Processor processor = mWorkManagerImpl.getProcessor();
         processor.addExecutionListener(listener);
         String wakeLockTag = "WorkGcm-onRunTask (" + workSpecId + ")";
         PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(
                 mWorkManagerImpl.getApplicationContext(), wakeLockTag);
-        mWorkManagerImpl.startWork(workRunId);
+        mWorkManagerImpl.startWork(startStopToken);
         mWorkTimer.startTimer(workSpecId, AWAIT_TIME_IN_MILLISECONDS, timeLimitExceededListener);
 
         try {
@@ -175,18 +176,18 @@ public class WorkManagerGcmDispatcher {
         private static final String TAG = Logger.tagWithPrefix("WrkTimeLimitExceededLstnr");
 
         private final WorkManagerImpl mWorkManager;
-        private final WorkRunId mWorkRunId;
+        private final StartStopToken mStartStopToken;
         WorkSpecTimeLimitExceededListener(
                 @NonNull WorkManagerImpl workManager,
-                @NonNull WorkRunId workRunId) {
+                @NonNull StartStopToken startStopToken) {
             mWorkManager = workManager;
-            mWorkRunId = workRunId;
+            mStartStopToken = startStopToken;
         }
 
         @Override
         public void onTimeLimitExceeded(@NonNull String workSpecId) {
             Logger.get().debug(TAG, "WorkSpec time limit exceeded " + workSpecId);
-            mWorkManager.stopWork(mWorkRunId);
+            mWorkManager.stopWork(mStartStopToken);
         }
     }
 
@@ -195,13 +196,13 @@ public class WorkManagerGcmDispatcher {
         private final String mWorkSpecId;
         private final CountDownLatch mLatch;
         private boolean mNeedsReschedule;
-        private final WorkRunIds mWorkRunIds;
+        private final StartStopTokens mStartStopTokens;
 
         WorkSpecExecutionListener(
                 @NonNull String workSpecId,
-                @NonNull WorkRunIds workRunIds) {
+                @NonNull StartStopTokens startStopTokens) {
             mWorkSpecId = workSpecId;
-            mWorkRunIds = workRunIds;
+            mStartStopTokens = startStopTokens;
             mLatch = new CountDownLatch(1);
             mNeedsReschedule = false;
         }
@@ -220,7 +221,7 @@ public class WorkManagerGcmDispatcher {
                 Logger.get().warning(TAG,
                         "Notified for " + workSpecId + ", but was looking for " + mWorkSpecId);
             } else {
-                mWorkRunIds.remove(workSpecId);
+                mStartStopTokens.remove(workSpecId);
                 mNeedsReschedule = needsReschedule;
                 mLatch.countDown();
             }

@@ -28,7 +28,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.WorkerThread;
 import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
-import androidx.work.impl.WorkRunIds;
+import androidx.work.impl.StartStopTokens;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTrackerImpl;
 import androidx.work.impl.constraints.trackers.Trackers;
@@ -97,19 +97,19 @@ public class DelayMetCommandHandler implements
 
     @Nullable private PowerManager.WakeLock mWakeLock;
     private boolean mHasConstraints;
-    private final WorkRunIds mWorkRunIds;
+    private final StartStopTokens mStartStopTokens;
 
     DelayMetCommandHandler(
             @NonNull Context context,
             int startId,
             @NonNull String workSpecId,
             @NonNull SystemAlarmDispatcher dispatcher,
-            @NonNull WorkRunIds workRunIds) {
+            @NonNull StartStopTokens startStopTokens) {
         mContext = context;
         mStartId = startId;
         mDispatcher = dispatcher;
         mWorkSpecId = workSpecId;
-        mWorkRunIds = workRunIds;
+        mStartStopTokens = startStopTokens;
         Trackers trackers = dispatcher.getWorkManager().getTrackers();
         mSerialExecutor = dispatcher.getTaskExecutor().getSerialTaskExecutor();
         mMainThreadExecutor = dispatcher.getTaskExecutor().getMainThreadExecutor();
@@ -141,7 +141,7 @@ public class DelayMetCommandHandler implements
             // Not using WorkManagerImpl#startWork() here because we need to know if the
             // processor actually enqueued the work here.
             boolean isEnqueued = mDispatcher.getProcessor().startWork(
-                    mWorkRunIds.workRunIdFor(mWorkSpecId)
+                    mStartStopTokens.tokenFor(mWorkSpecId)
             );
 
             if (isEnqueued) {
@@ -163,7 +163,7 @@ public class DelayMetCommandHandler implements
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
         Logger.get().debug(TAG, "onExecuted " + workSpecId + ", " + needsReschedule);
         cleanUp();
-        mWorkRunIds.remove(workSpecId);
+        mStartStopTokens.remove(workSpecId);
         if (needsReschedule) {
             // We need to reschedule the WorkSpec. WorkerWrapper may also call Scheduler.schedule()
             // but given that we will only consider WorkSpecs that are eligible that it safe.

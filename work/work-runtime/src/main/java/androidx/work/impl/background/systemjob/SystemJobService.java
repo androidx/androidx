@@ -36,9 +36,9 @@ import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.ExecutionListener;
+import androidx.work.impl.StartStopToken;
+import androidx.work.impl.StartStopTokens;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.WorkRunId;
-import androidx.work.impl.WorkRunIds;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,7 +55,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
     private static final String TAG = Logger.tagWithPrefix("SystemJobService");
     private WorkManagerImpl mWorkManagerImpl;
     private final Map<String, JobParameters> mJobParameters = new HashMap<>();
-    private final WorkRunIds mWorkRunIds = new WorkRunIds();
+    private final StartStopTokens mStartStopTokens = new StartStopTokens();
 
     @Override
     public void onCreate() {
@@ -148,7 +148,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
         // In such cases, we rely on SystemJobService to ask for a reschedule by calling
         // jobFinished(params, true) in onExecuted(...);
         // For more information look at b/123211993
-        mWorkManagerImpl.startWork(mWorkRunIds.workRunIdFor(workSpecId), runtimeExtras);
+        mWorkManagerImpl.startWork(mStartStopTokens.tokenFor(workSpecId), runtimeExtras);
         return true;
     }
 
@@ -170,7 +170,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
         synchronized (mJobParameters) {
             mJobParameters.remove(workSpecId);
         }
-        WorkRunId runId = mWorkRunIds.remove(workSpecId);
+        StartStopToken runId = mStartStopTokens.remove(workSpecId);
         if (runId != null) {
             mWorkManagerImpl.stopWork(runId);
         }
@@ -184,7 +184,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
         synchronized (mJobParameters) {
             parameters = mJobParameters.remove(workSpecId);
         }
-        mWorkRunIds.remove(workSpecId);
+        mStartStopTokens.remove(workSpecId);
         if (parameters != null) {
             jobFinished(parameters, needsReschedule);
         }

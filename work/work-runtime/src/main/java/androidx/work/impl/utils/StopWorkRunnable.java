@@ -19,8 +19,8 @@ package androidx.work.impl.utils;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
+import androidx.work.impl.StartStopToken;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.WorkRunId;
 
 /**
  * A {@link Runnable} that requests {@link androidx.work.impl.Processor} to stop the work
@@ -32,12 +32,12 @@ public class StopWorkRunnable implements Runnable {
     private static final String TAG = Logger.tagWithPrefix("StopWorkRunnable");
 
     private final WorkManagerImpl mWorkManagerImpl;
-    private final WorkRunId mWorkSpecId;
+    private final StartStopToken mWorkSpecId;
     private final boolean mStopInForeground;
 
     public StopWorkRunnable(
             @NonNull WorkManagerImpl workManagerImpl,
-            @NonNull WorkRunId workSpecId,
+            @NonNull StartStopToken workSpecId,
             boolean stopInForeground) {
         mWorkManagerImpl = workManagerImpl;
         mWorkSpecId = workSpecId;

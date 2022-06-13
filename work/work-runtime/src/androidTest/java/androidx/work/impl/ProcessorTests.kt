@@ -122,14 +122,14 @@ class ProcessorTests : DatabaseTest() {
             }
         }
         processor.addExecutionListener(listener)
-        val workRunId = WorkRunId(request1.workSpec.id)
-        processor.startWork(workRunId)
+        val startStopToken = StartStopToken(request1.workSpec.id)
+        processor.startWork(startStopToken)
 
         val firstWorker = runBlocking { lastCreatedWorker.filterNotNull().first() }
         val blockedThread = Executors.newSingleThreadExecutor()
         blockedThread.execute {
             // gonna stall for 10 seconds
-            processor.stopWork(workRunId)
+            processor.stopWork(startStopToken)
         }
         assertTrue((firstWorker as StopLatchWorker).awaitOnStopCall())
         // onStop call results in onExecuted. It happens on "main thread", which is instant
@@ -140,7 +140,7 @@ class ProcessorTests : DatabaseTest() {
         val executionFinished = CountDownLatch(1)
         processor.addExecutionListener { _, _ -> executionFinished.countDown() }
         // This would have previously failed trying to acquire a lock
-        processor.startWork(WorkRunId(request2.workSpec.id))
+        processor.startWork(StartStopToken(request2.workSpec.id))
         val secondWorker =
             runBlocking { lastCreatedWorker.filterNotNull().filter { it != firstWorker }.first() }
         (secondWorker as StopLatchWorker).countDown()
@@ -155,8 +155,8 @@ class ProcessorTests : DatabaseTest() {
     fun testStartForegroundStopWork() {
         val request = OneTimeWorkRequest.Builder(LatchWorker::class.java).build()
         insertWork(request)
-        val workRunId = WorkRunId(request.workSpec.id)
-        processor.startWork(workRunId)
+        val startStopToken = StartStopToken(request.workSpec.id)
+        processor.startWork(startStopToken)
 
         val channel = NotificationChannelCompat
             .Builder("test", NotificationManagerCompat.IMPORTANCE_DEFAULT)
@@ -170,11 +170,11 @@ class ProcessorTests : DatabaseTest() {
             .setSmallIcon(androidx.core.R.drawable.notification_bg)
             .build()
         val info = ForegroundInfo(1, notification)
-        processor.startForeground(workRunId.workSpecId, info)
+        processor.startForeground(startStopToken.workSpecId, info)
         // won't actually stopWork, because stopForeground should be used
-        processor.stopWork(workRunId)
-        processor.startWork(WorkRunId(request.workSpec.id))
-        assertTrue(processor.isEnqueued(workRunId.workSpecId))
+        processor.stopWork(startStopToken)
+        processor.startWork(StartStopToken(request.workSpec.id))
+        assertTrue(processor.isEnqueued(startStopToken.workSpecId))
         val firstWorker = runBlocking { lastCreatedWorker.filterNotNull().first() }
         (firstWorker as LatchWorker).mLatch.countDown()
     }
