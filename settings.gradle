@@ -550,6 +550,7 @@ includeProject(":core:core-splashscreen:core-splashscreen-samples", "core/core-s
 includeProject(":core:core-graphics-integration-tests:core-graphics-integration-tests", "core/core-graphics-integration-tests/testapp", [BuildType.MAIN])
 includeProject(":core:core-role", [BuildType.MAIN])
 includeProject(":core:uwb:uwb", [BuildType.MAIN])
+includeProject(":core:uwb:uwb-rxjava3", [BuildType.MAIN])
 includeProject(":cursoradapter:cursoradapter", [BuildType.MAIN])
 includeProject(":customview:customview", [BuildType.MAIN])
 includeProject(":customview:customview-poolingcontainer", [BuildType.MAIN, BuildType.COMPOSE])
