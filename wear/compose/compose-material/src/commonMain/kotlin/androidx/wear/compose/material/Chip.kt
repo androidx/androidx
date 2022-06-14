@@ -480,9 +480,9 @@ public object ChipDefaults {
     @Composable
     public fun gradientBackgroundChipColors(
         startBackgroundColor: Color = MaterialTheme.colors.primary.copy(alpha = 0.325f)
-            .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f)),
+            .compositeOver(MaterialTheme.colors.surface),
         endBackgroundColor: Color = MaterialTheme.colors.surface.copy(alpha = 0f)
-            .compositeOver(MaterialTheme.colors.surface.copy(alpha = 0.75f)),
+            .compositeOver(MaterialTheme.colors.surface),
         contentColor: Color = contentColorFor(endBackgroundColor),
         secondaryContentColor: Color = contentColor,
         iconColor: Color = contentColor,
