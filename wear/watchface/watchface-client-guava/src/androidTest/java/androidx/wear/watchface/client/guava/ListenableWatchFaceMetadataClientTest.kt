@@ -46,7 +46,7 @@ public class WatchFaceControlTestService : Service() {
     private val realService = object : WatchFaceControlService() {
         @SuppressLint("NewApi")
         override fun createServiceStub(): IWatchFaceInstanceServiceStub =
-            IWatchFaceInstanceServiceStub(this, MainScope())
+            IWatchFaceInstanceServiceStub(this@WatchFaceControlTestService, MainScope())
 
         init {
             setContext(ApplicationProvider.getApplicationContext<Context>())
