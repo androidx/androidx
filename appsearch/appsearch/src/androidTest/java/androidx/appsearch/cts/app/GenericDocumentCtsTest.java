@@ -558,6 +558,22 @@ public class GenericDocumentCtsTest {
     }
 
     @Test
+    public void testNestedProperties_buildBlankPaths() {
+        Exception e = assertThrows(IllegalArgumentException.class,
+                () -> new GenericDocument.Builder<>("namespace", "id1", "schema1")
+                        .setPropertyString("", "foo"));
+        assertThat(e.getMessage()).isEqualTo("Property name cannot be blank.");
+
+        e = assertThrows(IllegalArgumentException.class,
+                () -> new GenericDocument.Builder<>("namespace", "id1", "schema1")
+                        .setPropertyDocument("propDoc",
+                                new GenericDocument.Builder<>("namespace", "id2", "schema1")
+                                        .setPropertyString("", "Bat", "Hawk")
+                                        .build()));
+        assertThat(e.getMessage()).isEqualTo("Property name cannot be blank.");
+    }
+
+    @Test
     public void testNestedProperties_invalidPaths() {
         GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
                 .setScore(42)
@@ -566,64 +582,34 @@ public class GenericDocumentCtsTest {
                 .setPropertyDouble("propDoubles", 3.14, 0.42)
                 .setPropertyBoolean("propBools", false)
                 .setPropertyBytes("propBytes", new byte[][]{{3, 4}})
-                .setPropertyDocument("propDocs", new GenericDocument.Builder<>("", "", "schema1")
-                        .setPropertyString("", "Cat")
-                        .build())
+                .setPropertyDocument("propDocs",
+                        new GenericDocument.Builder<>("namespace", "id2", "schema1")
+                                .setPropertyString("propString", "Cat")
+                                .build())
                 .build();
 
-        // Some paths are invalid because they don't apply to the given document --- these should
+        // These paths are invalid because they don't apply to the given document --- these should
         // return null. It's not the querier's fault.
         assertThat(doc.getPropertyStringArray("propString.propInts")).isNull();
         assertThat(doc.getPropertyStringArray("propDocs.propFoo")).isNull();
         assertThat(doc.getPropertyStringArray("propDocs.propNestedString.propFoo")).isNull();
+    }
 
-        // Some paths are invalid because they are malformed. These throw an exception --- the
-        // querier shouldn't provide such paths.
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propDocs."));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propDocs1.[1]"));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propDocs1[0]."));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propDocs..propString"));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propDocs..propString[1]"));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propDocs2.."));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propDocs2..[1]"));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("[0]..propString[1]"));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("[0]..[1]"));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propDocs.[0]propInts"));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propString[0"));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propString[0.]"));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propString[banana]"));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propString[-1]"));
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> doc.getPropertyStringArray("propDocs[0]cat"));
+    @Test
+    public void testNestedProperties_arrayTypesInvalidPath() {
+        GenericDocument doc = new GenericDocument.Builder<>("namespace", "id1", "schema1").build();
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyString("."));
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyDocument("."));
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyBoolean("."));
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyDouble("."));
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyLong("."));
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyBytes("."));
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyStringArray("."));
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyDocumentArray("."));
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyBooleanArray("."));
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyDoubleArray("."));
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyLongArray("."));
+        assertThrows(IllegalArgumentException.class, () -> doc.getPropertyBytesArray("."));
     }
 
     @Test

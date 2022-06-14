@@ -30,24 +30,35 @@ import java.util.List;
 public class PropertyPathCtsTest {
     @Test
     public void testPropertyPathInvalid() {
+        // These paths are invalid because they are malformed. These throw an exception --- the
+        // querier shouldn't provide such paths.
         Throwable e;
         e = Assert.assertThrows(IllegalArgumentException.class, () -> new PropertyPath(""));
         assertThat(e.getMessage()).startsWith("Malformed path (blank property name)");
 
-        e = Assert.assertThrows(IllegalArgumentException.class, () -> new PropertyPath("a["));
-        assertThat(e.getMessage()).startsWith("Malformed path (no ending ']')");
-
         e = Assert.assertThrows(IllegalArgumentException.class, () -> new PropertyPath("]"));
         assertThat(e.getMessage()).startsWith("Malformed path (no starting '[')");
 
+        e = Assert.assertThrows(IllegalArgumentException.class, () -> new PropertyPath("a["));
+        assertThat(e.getMessage()).startsWith("Malformed path (no ending ']')");
+
         e = Assert.assertThrows(IllegalArgumentException.class, () -> new PropertyPath("a[]"));
-        assertThat(e.getMessage()).startsWith("For input string");
+        assertThat(e.getMessage()).startsWith("Malformed path (\"\" as path index)");
+
+        e = Assert.assertThrows(IllegalArgumentException.class, () -> new PropertyPath("a[b]"));
+        assertThat(e.getMessage()).startsWith("Malformed path (\"b\" as path index)");
+
+        e = Assert.assertThrows(IllegalArgumentException.class, () -> new PropertyPath("a[-1]"));
+        assertThat(e.getMessage()).startsWith("Malformed path (path index less than 0)");
+
+        e = Assert.assertThrows(IllegalArgumentException.class, () -> new PropertyPath("a[0.]"));
+        assertThat(e.getMessage()).startsWith("Malformed path (\"0.\" as path index)");
 
         e = Assert.assertThrows(IllegalArgumentException.class, () -> new PropertyPath("a[0][0]"));
         assertThat(e.getMessage()).startsWith("Malformed path (']' not followed by '.')");
 
-        e = Assert.assertThrows(IllegalArgumentException.class, () -> new PropertyPath("a[-1]"));
-        assertThat(e.getMessage()).startsWith("Path index less than 0");
+        e = Assert.assertThrows(IllegalArgumentException.class, () -> new PropertyPath("a[0]b"));
+        assertThat(e.getMessage()).startsWith("Malformed path (']' not followed by '.')");
     }
 
     @Test
