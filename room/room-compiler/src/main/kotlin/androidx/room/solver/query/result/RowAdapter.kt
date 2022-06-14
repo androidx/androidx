@@ -35,10 +35,10 @@ abstract class RowAdapter(val out: XType) {
      * @param cursorVarName the name of the cursor local variable
      */
     open fun onCursorReady(
+        cursorVarName: String,
+        scope: CodeGenScope,
         indices: List<ColumnIndexVar> =
             getDefaultIndexAdapter().apply { onCursorReady(cursorVarName, scope) }.getIndexVars(),
-        cursorVarName: String,
-        scope: CodeGenScope
     ) {
     }
 
