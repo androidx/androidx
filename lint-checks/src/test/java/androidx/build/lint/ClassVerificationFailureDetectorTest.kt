@@ -458,7 +458,13 @@ Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 35: Extract
 src/androidx/AutofixUnsafeCallToThis.java:39: Error: This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
             getClipToPadding();
             ~~~~~~~~~~~~~~~~
-1 errors, 0 warnings
+src/androidx/AutofixUnsafeCallToThis.java:48: Error: This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            this.getClipToPadding();
+                 ~~~~~~~~~~~~~~~~
+src/androidx/AutofixUnsafeCallToThis.java:57: Error: This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            super.getClipToPadding();
+                  ~~~~~~~~~~~~~~~~
+3 errors, 0 warnings
         """
 
         val expectedFix = """
@@ -466,7 +472,7 @@ Fix for src/androidx/AutofixUnsafeCallToThis.java line 39: Extract to static inn
 @@ -39 +39
 -             getClipToPadding();
 +             Api21Impl.getClipToPadding(this);
-@@ -42 +42
+@@ -60 +60
 + @annotation.RequiresApi(21)
 + static class Api21Impl {
 +     private Api21Impl() {
@@ -478,7 +484,82 @@ Fix for src/androidx/AutofixUnsafeCallToThis.java line 39: Extract to static inn
 +         return viewGroup.getClipToPadding();
 +     }
 +
-@@ -43 +54
+@@ -61 +72
++ }
+Fix for src/androidx/AutofixUnsafeCallToThis.java line 48: Extract to static inner class:
+@@ -48 +48
+-             this.getClipToPadding();
++             Api21Impl.getClipToPadding(this);
+@@ -60 +60
++ @annotation.RequiresApi(21)
++ static class Api21Impl {
++     private Api21Impl() {
++         // This class is not instantiable.
++     }
++
++     @annotation.DoNotInline
++     static boolean getClipToPadding(ViewGroup viewGroup) {
++         return viewGroup.getClipToPadding();
++     }
++
+@@ -61 +72
++ }
+Fix for src/androidx/AutofixUnsafeCallToThis.java line 57: Extract to static inner class:
+@@ -57 +57
+-             super.getClipToPadding();
++             Api21Impl.getClipToPadding(super);
+@@ -60 +60
++ @annotation.RequiresApi(21)
++ static class Api21Impl {
++     private Api21Impl() {
++         // This class is not instantiable.
++     }
++
++     @annotation.DoNotInline
++     static boolean getClipToPadding(ViewGroup viewGroup) {
++         return viewGroup.getClipToPadding();
++     }
++
+@@ -61 +72
++ }
+        """
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected).expectFixDiffs(expectedFix)
+    }
+
+    @Test
+    fun `Auto-fix for unsafe method call on cast object (issue 206111383)`() {
+        val input = arrayOf(
+            javaSample("androidx.AutofixUnsafeCallOnCast")
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/AutofixUnsafeCallOnCast.java:32: Error: This call references a method added in API level 28; however, the containing class androidx.AutofixUnsafeCallOnCast is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            ((DisplayCutout) secretDisplayCutout).getSafeInsetTop();
+                                                  ~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+        """
+
+        val expectedFix = """
+Fix for src/androidx/AutofixUnsafeCallOnCast.java line 32: Extract to static inner class:
+@@ -32 +32
+-             ((DisplayCutout) secretDisplayCutout).getSafeInsetTop();
++             Api28Impl.getSafeInsetTop((DisplayCutout) secretDisplayCutout);
+@@ -35 +35
++ @annotation.RequiresApi(28)
++ static class Api28Impl {
++     private Api28Impl() {
++         // This class is not instantiable.
++     }
++
++     @annotation.DoNotInline
++     static int getSafeInsetTop(DisplayCutout displayCutout) {
++         return displayCutout.getSafeInsetTop();
++     }
++
+@@ -36 +47
 + }
         """
         /* ktlint-enable max-line-length */
