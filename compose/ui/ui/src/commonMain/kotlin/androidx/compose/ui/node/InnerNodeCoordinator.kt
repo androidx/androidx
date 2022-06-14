@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.layout.AlignmentLine
-import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -39,14 +38,16 @@ internal class InnerNodeCoordinator(
             return "<tail>"
         }
     }
+
     init {
         @OptIn(ExperimentalComposeUiApi::class)
         tail.updateCoordinator(this)
     }
 
-    private inner class LookaheadDelegateImpl(
-        scope: LookaheadScope
-    ) : LookaheadDelegate(this, scope) {
+    override var lookaheadDelegate: LookaheadDelegate? =
+        if (layoutNode.lookaheadRoot != null) LookaheadDelegateImpl() else null
+
+    private inner class LookaheadDelegateImpl : LookaheadDelegate(this) {
 
         // Lookahead measure
         override fun measure(constraints: Constraints): Placeable =
@@ -89,8 +90,10 @@ internal class InnerNodeCoordinator(
             layoutNode.intrinsicsPolicy.maxLookaheadIntrinsicHeight(width)
     }
 
-    override fun createLookaheadDelegate(scope: LookaheadScope): LookaheadDelegate {
-        return LookaheadDelegateImpl(scope)
+    override fun ensureLookaheadDelegateCreated() {
+        if (lookaheadDelegate == null) {
+            lookaheadDelegate = LookaheadDelegateImpl()
+        }
     }
 
     override fun measure(constraints: Constraints): Placeable = performingMeasure(constraints) {

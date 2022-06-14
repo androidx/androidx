@@ -36,20 +36,18 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.movableContentWithReceiverOf
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.LookaheadLayout
-import androidx.compose.ui.layout.LookaheadLayoutScope
+import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.intermediateLayout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -59,89 +57,63 @@ import kotlinx.coroutines.launch
 
 @Sampled
 @Composable
-fun LookaheadLayoutSample() {
-    // Creates a custom modifier that animates the constraints and measure child/children with them.
-    // It is built on top of `Modifier.intermediateLayout`, which allows access to the target size
-    // of the layout. A resize animation will be created to animate to the target size. Fixed
-    // constraints created based on the animation value will be used to measure child/children, so
-    // that all the children gradually change their size to fit in the animated constraints.
-    fun Modifier.animateConstraints(lookaheadScope: LookaheadLayoutScope) = composed {
+fun IntermediateLayoutSample() {
+    // Creates a custom modifier that animates the constraints and measures child with the
+    // animated constraints. This modifier is built on top of `Modifier.intermediateLayout`, which
+    // allows access to the lookahead size of the layout. A resize animation will be kicked off
+    // whenever the lookahead size changes, to animate children from current size to lookahead size.
+    // Fixed constraints created based on the animation value will be used to measure
+    // child, so the child layout gradually changes its size and potentially its child's placement
+    // to fit within the animated constraints.
+    fun Modifier.animateConstraints() = composed {
+        // Creates a size animation
         var sizeAnimation: Animatable<IntSize, AnimationVector2D>? by remember {
             mutableStateOf(null)
         }
-        var targetSize: IntSize? by remember { mutableStateOf(null) }
-        // Create a `LaunchEffect` to handle target size change. This avoids creating side effects
-        // from measure/layout phase.
-        LaunchedEffect(Unit) {
-            snapshotFlow { targetSize }.collect { target ->
-                if (target != null && target != sizeAnimation?.targetValue) {
-                    sizeAnimation?.run {
-                        launch { animateTo(target) }
-                    } ?: Animatable(target, IntSize.VectorConverter).let {
-                        sizeAnimation = it
-                    }
+
+        this.intermediateLayout { measurable, _ ->
+            // When layout changes, the lookahead pass will calculate a new final size for the
+            // child layout. This lookahead size can be used to animate the size
+            // change, such that the animation starts from the current size and gradually
+            // change towards `lookaheadSize`.
+            if (lookaheadSize != sizeAnimation?.targetValue) {
+                sizeAnimation?.run {
+                    launch { animateTo(lookaheadSize) }
+                } ?: Animatable(lookaheadSize, IntSize.VectorConverter).let {
+                    sizeAnimation = it
                 }
             }
-        }
-        with(lookaheadScope) {
-            // The measure logic in `intermediateLayout` is skipped in the lookahead pass, as
-            // intermediateLayout is expected to produce intermediate stages of a layout transform.
-            // When the measure block is invoked after lookahead pass, the lookahead size of the
-            // child will be accessible as a parameter to the measure block.
-            this@composed.intermediateLayout { measurable, _, lookaheadSize ->
-                // When layout changes, the lookahead pass will calculate a new final size for the
-                // child modifier. This lookahead size can be used to animate the size
-                // change, such that the animation starts from the current size and gradually
-                // change towards `lookaheadSize`.
-                targetSize = lookaheadSize
-                // Reads the animation size if the animation is set up. Otherwise (i.e. first
-                // frame), use the lookahead size without animation.
-                val (width, height) = sizeAnimation?.value ?: lookaheadSize
-                // Creates a fixed set of constraints using the animated size
-                val animatedConstraints = Constraints.fixed(width, height)
-                // Measure child/children with animated constraints.
-                val placeable = measurable.measure(animatedConstraints)
-                layout(placeable.width, placeable.height) {
-                    placeable.place(0, 0)
-                }
+            val (width, height) = sizeAnimation!!.value
+            // Creates a fixed set of constraints using the animated size
+            val animatedConstraints = Constraints.fixed(width, height)
+            // Measure child with animated constraints.
+            val placeable = measurable.measure(animatedConstraints)
+            layout(placeable.width, placeable.height) {
+                placeable.place(0, 0)
             }
         }
     }
 
-    LookaheadLayout(
-        content = {
-            var fullWidth by remember { mutableStateOf(false) }
-            Row(
-                (if (fullWidth) Modifier.fillMaxWidth() else Modifier.width(100.dp))
-                    .height(200.dp)
-                    // Use the custom modifier created above to animate the constraints passed
-                    // to the child, and therefore resize children in an animation.
-                    .animateConstraints(this@LookaheadLayout)
-                    .clickable { fullWidth = !fullWidth }) {
-                Box(
-                    Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .background(Color.Red)
-                )
-                Box(
-                    Modifier
-                        .weight(2f)
-                        .fillMaxHeight()
-                        .background(Color.Yellow)
-                )
-            }
-        }
-    ) { measurables, constraints ->
-        val placeables = measurables.map { it.measure(constraints) }
-        val maxWidth: Int = placeables.maxOf { it.width }
-        val maxHeight = placeables.maxOf { it.height }
-        // Position the children.
-        layout(maxWidth, maxHeight) {
-            placeables.forEach {
-                it.place(0, 0)
-            }
-        }
+    var fullWidth by remember { mutableStateOf(false) }
+    Row(
+        (if (fullWidth) Modifier.fillMaxWidth() else Modifier.width(100.dp))
+            .height(200.dp)
+            // Use the custom modifier created above to animate the constraints passed
+            // to the child, and therefore resize children in an animation.
+            .animateConstraints()
+            .clickable { fullWidth = !fullWidth }) {
+        Box(
+            Modifier
+                .weight(1f)
+                .fillMaxHeight()
+                .background(Color.Red)
+        )
+        Box(
+            Modifier
+                .weight(2f)
+                .fillMaxHeight()
+                .background(Color.Yellow)
+        )
     }
 }
 
@@ -149,68 +121,50 @@ fun LookaheadLayoutSample() {
 @Composable
 fun LookaheadLayoutCoordinatesSample() {
     // Creates a custom modifier to animate the local position of the layout within the
-    // LookaheadLayout, whenever there's a change in the layout.
-    fun Modifier.animatePlacementInScope(lookaheadScope: LookaheadLayoutScope) = composed {
-        var offsetAnimation: Animatable<IntOffset, AnimationVector2D>? by remember {
-            mutableStateOf(
-                null
-            )
-        }
+    // given LookaheadScope, whenever the relative position changes.
+    fun Modifier.animatePlacementInScope(lookaheadScope: LookaheadScope) = composed {
+        // Creates an offset animation
+        var offsetAnimation: Animatable<IntOffset, AnimationVector2D>? by mutableStateOf(
+            null
+        )
+        var targetOffset: IntOffset? by mutableStateOf(null)
 
-        var placementOffset: IntOffset by remember { mutableStateOf(IntOffset.Zero) }
-        var targetOffset: IntOffset? by remember {
-            mutableStateOf(null)
-        }
-        // Create a `LaunchEffect` to handle target size change. This avoids creating side effects
-        // from measure/layout phase.
-        LaunchedEffect(Unit) {
-            snapshotFlow {
-                targetOffset
-            }.collect { target ->
-                if (target != null && target != offsetAnimation?.targetValue) {
-                    offsetAnimation?.run {
-                        launch { animateTo(target) }
-                    } ?: Animatable(target, IntOffset.VectorConverter).let {
-                        offsetAnimation = it
+        this.intermediateLayout { measurable, constraints ->
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) {
+                // Converts coordinates of the current layout to LookaheadCoordinates
+                val coordinates = coordinates
+                if (coordinates != null) {
+                    // Calculates the target offset within the lookaheadScope
+                    val target = with(lookaheadScope) {
+                        lookaheadScopeCoordinates
+                            .localLookaheadPositionOf(coordinates)
+                            .round().also { targetOffset = it }
                     }
+
+                    // Uses the target offset to start an offset animation
+                    if (target != offsetAnimation?.targetValue) {
+                        offsetAnimation?.run {
+                            launch { animateTo(target) }
+                        } ?: Animatable(target, IntOffset.VectorConverter).let {
+                            offsetAnimation = it
+                        }
+                    }
+                    // Calculates the *current* offset within the given LookaheadScope
+                    val placementOffset =
+                        lookaheadScopeCoordinates.localPositionOf(
+                            coordinates,
+                            Offset.Zero
+                        ).round()
+                    // Calculates the delta between animated position in scope and current
+                    // position in scope, and places the child at the delta offset. This puts
+                    // the child layout at the animated position.
+                    val (x, y) = requireNotNull(offsetAnimation).run { value - placementOffset }
+                    placeable.place(x, y)
+                } else {
+                    placeable.place(0, 0)
                 }
             }
-        }
-        with(lookaheadScope) {
-            this@composed
-                .onPlaced { lookaheadScopeCoordinates, layoutCoordinates ->
-                    // This block of code has the LookaheadCoordinates of the LookaheadLayout
-                    // as the first parameter, and the coordinates of this modifier as the second
-                    // parameter.
-
-                    // localLookaheadPositionOf returns the *target* position of this
-                    // modifier in the LookaheadLayout's local coordinates.
-                    targetOffset = lookaheadScopeCoordinates.localLookaheadPositionOf(
-                        layoutCoordinates
-                    ).round()
-                    // localPositionOf returns the *current* position of this
-                    // modifier in the LookaheadLayout's local coordinates.
-                    placementOffset = lookaheadScopeCoordinates.localPositionOf(
-                        layoutCoordinates, Offset.Zero
-                    ).round()
-                }
-                // The measure logic in `intermediateLayout` is skipped in the lookahead pass, as
-                // intermediateLayout is expected to produce intermediate stages of a layout
-                // transform. When the measure block is invoked after lookahead pass, the lookahead
-                // size of the child will be accessible as a parameter to the measure block.
-                .intermediateLayout { measurable, constraints, _ ->
-                    val placeable = measurable.measure(constraints)
-                    layout(placeable.width, placeable.height) {
-                        // offsetAnimation will animate the target position whenever it changes.
-                        // In order to place the child at the animated position, we need to offset
-                        // the child based on the target and current position in LookaheadLayout.
-                        val (x, y) = offsetAnimation?.run { value - placementOffset }
-                        // If offsetAnimation has not been set up yet (i.e. in the first frame),
-                        // skip the animation
-                            ?: (targetOffset!! - placementOffset)
-                        placeable.place(x, y)
-                    }
-                }
         }
     }
 
@@ -218,25 +172,29 @@ fun LookaheadLayoutCoordinatesSample() {
         Color(0xffff6f69), Color(0xffffcc5c), Color(0xff264653), Color(0xff2a9d84)
     )
 
-    // Creates movable content containing 4 boxes. They will be put either in a [Row] or in a
-    // [Column] depending on the state
-    val items = remember {
-        movableContentWithReceiverOf<LookaheadLayoutScope> {
-            colors.forEach { color ->
-                Box(
-                    Modifier
-                        .padding(15.dp)
-                        .size(100.dp, 80.dp)
-                        .animatePlacementInScope(this)
-                        .background(color, RoundedCornerShape(20))
-                )
+    var isInColumn by remember { mutableStateOf(true) }
+    LookaheadScope {
+        // Creates movable content containing 4 boxes. They will be put either in a [Row] or in a
+        // [Column] depending on the state
+        val items = remember {
+            movableContentOf {
+                colors.forEach { color ->
+                    Box(
+                        Modifier
+                            .padding(15.dp)
+                            .size(100.dp, 80.dp)
+                            .animatePlacementInScope(this)
+                            .background(color, RoundedCornerShape(20))
+                    )
+                }
             }
         }
-    }
 
-    var isInColumn by remember { mutableStateOf(true) }
-    LookaheadLayout(
-        content = {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable { isInColumn = !isInColumn }
+        ) {
             // As the items get moved between Column and Row, their positions in LookaheadLayout
             // will change. The `animatePlacementInScope` modifier created above will
             // observe that final position change via `localLookaheadPositionOf`, and create
@@ -247,19 +205,6 @@ fun LookaheadLayoutCoordinatesSample() {
                 }
             } else {
                 Row { items() }
-            }
-        },
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable { isInColumn = !isInColumn }
-    ) { measurables, constraints ->
-        val placeables = measurables.map { it.measure(constraints) }
-        val maxWidth: Int = placeables.maxOf { it.width }
-        val maxHeight = placeables.maxOf { it.height }
-        // Position the children.
-        layout(maxWidth, maxHeight) {
-            placeables.forEach {
-                it.place(0, 0)
             }
         }
     }

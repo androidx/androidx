@@ -2018,6 +2018,11 @@ package androidx.compose.ui.layout {
     ctor public HorizontalAlignmentLine(kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Integer,java.lang.Integer> merger);
   }
 
+  @androidx.compose.ui.ExperimentalComposeUiApi public sealed interface IntermediateMeasureScope extends androidx.compose.ui.layout.LookaheadScope kotlinx.coroutines.CoroutineScope androidx.compose.ui.layout.MeasureScope {
+    method public long getLookaheadSize();
+    property public abstract long lookaheadSize;
+  }
+
   public interface IntrinsicMeasurable {
     method public Object? getParentData();
     method public int maxIntrinsicHeight(int width);
@@ -2115,17 +2120,25 @@ package androidx.compose.ui.layout {
     method public static androidx.compose.ui.Modifier layout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.MeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> measure);
   }
 
-  @androidx.compose.ui.ExperimentalComposeUiApi public sealed interface LookaheadLayoutCoordinates extends androidx.compose.ui.layout.LayoutCoordinates {
-    method public long localLookaheadPositionOf(androidx.compose.ui.layout.LookaheadLayoutCoordinates sourceCoordinates, optional long relativeToSource);
+  @Deprecated @androidx.compose.ui.ExperimentalComposeUiApi public sealed interface LookaheadLayoutCoordinates extends androidx.compose.ui.layout.LayoutCoordinates {
   }
 
   public final class LookaheadLayoutKt {
-    method @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi @androidx.compose.ui.UiComposable public static void LookaheadLayout(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LookaheadLayoutScope,kotlin.Unit> content, optional androidx.compose.ui.Modifier modifier, androidx.compose.ui.layout.MeasurePolicy measurePolicy);
+    method @Deprecated @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi @androidx.compose.ui.UiComposable public static void LookaheadLayout(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LookaheadScope,kotlin.Unit> content, optional androidx.compose.ui.Modifier modifier, androidx.compose.ui.layout.MeasurePolicy measurePolicy);
+    method @androidx.compose.runtime.Composable @androidx.compose.ui.ExperimentalComposeUiApi @androidx.compose.ui.UiComposable public static void LookaheadScope(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LookaheadScope,kotlin.Unit> content);
+    method @androidx.compose.ui.ExperimentalComposeUiApi public static androidx.compose.ui.Modifier intermediateLayout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function3<? super androidx.compose.ui.layout.IntermediateMeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? extends androidx.compose.ui.layout.MeasureResult> measure);
   }
 
-  @androidx.compose.ui.ExperimentalComposeUiApi public interface LookaheadLayoutScope {
-    method public androidx.compose.ui.Modifier intermediateLayout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.MeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? super androidx.compose.ui.unit.IntSize,? extends androidx.compose.ui.layout.MeasureResult> measure);
-    method public androidx.compose.ui.Modifier onPlaced(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.LookaheadLayoutCoordinates,? super androidx.compose.ui.layout.LookaheadLayoutCoordinates,kotlin.Unit> onPlaced);
+  @Deprecated @androidx.compose.ui.ExperimentalComposeUiApi public interface LookaheadLayoutScope {
+    method @Deprecated public androidx.compose.ui.Modifier onPlaced(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.LookaheadLayoutCoordinates,? super androidx.compose.ui.layout.LookaheadLayoutCoordinates,kotlin.Unit> onPlaced);
+  }
+
+  @androidx.compose.ui.ExperimentalComposeUiApi public interface LookaheadScope {
+    method public androidx.compose.ui.layout.LayoutCoordinates getLookaheadScopeCoordinates(androidx.compose.ui.layout.Placeable.PlacementScope);
+    method @Deprecated public default androidx.compose.ui.Modifier intermediateLayout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.MeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? super androidx.compose.ui.unit.IntSize,? extends androidx.compose.ui.layout.MeasureResult> measure);
+    method public default long localLookaheadPositionOf(androidx.compose.ui.layout.LayoutCoordinates, androidx.compose.ui.layout.LayoutCoordinates coordinates);
+    method @Deprecated public androidx.compose.ui.Modifier onPlaced(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.ui.layout.LookaheadLayoutCoordinates,? super androidx.compose.ui.layout.LookaheadLayoutCoordinates,kotlin.Unit> onPlaced);
+    method public androidx.compose.ui.layout.LayoutCoordinates toLookaheadCoordinates(androidx.compose.ui.layout.LayoutCoordinates);
   }
 
   public interface Measurable extends androidx.compose.ui.layout.IntrinsicMeasurable {
@@ -2459,12 +2472,6 @@ package androidx.compose.ui.node {
     method public void onGloballyPositioned(androidx.compose.ui.layout.LayoutCoordinates coordinates);
   }
 
-  public interface IntermediateLayoutModifierNode extends androidx.compose.ui.node.LayoutModifierNode {
-    method public long getTargetSize();
-    method public void setTargetSize(long);
-    property public abstract long targetSize;
-  }
-
   @kotlin.RequiresOptIn(message="This API is internal to library.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER}) public @interface InternalCoreApi {
   }
 
@@ -2473,7 +2480,6 @@ package androidx.compose.ui.node {
   }
 
   public interface LayoutAwareModifierNode extends androidx.compose.ui.node.DelegatableNode {
-    method @androidx.compose.ui.ExperimentalComposeUiApi public default void onLookaheadPlaced(androidx.compose.ui.layout.LookaheadLayoutCoordinates coordinates);
     method public default void onPlaced(androidx.compose.ui.layout.LayoutCoordinates coordinates);
     method public default void onRemeasured(long size);
   }

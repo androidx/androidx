@@ -16,11 +16,8 @@
 
 package androidx.compose.ui.node
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LayoutModifier
-import androidx.compose.ui.layout.LookaheadLayout
-import androidx.compose.ui.layout.LookaheadLayoutCoordinates
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 
@@ -44,18 +41,6 @@ interface LayoutAwareModifierNode : DelegatableNode {
      * [LayoutModifier] to adjust its own placement based on where the parent is.
      */
     fun onPlaced(coordinates: LayoutCoordinates) {}
-
-    /**
-     * [onLookaheadPlaced] callback will be invoked with the [LookaheadLayoutCoordinates] of the
-     * LayoutNode emitted by [LookaheadLayout] as the first parameter, and the
-     * [LookaheadLayoutCoordinates] of this modifier as the second parameter. Given the
-     * [LookaheadLayoutCoordinates]s, both lookahead position and current position of this
-     * modifier in the [LookaheadLayout]'s coordinates system can be calculated using
-     * [LookaheadLayoutCoordinates.localLookaheadPositionOf] and
-     * [LookaheadLayoutCoordinates.localPositionOf], respectively.
-     */
-    @ExperimentalComposeUiApi
-    fun onLookaheadPlaced(coordinates: LookaheadLayoutCoordinates) {}
 
     /**
      * This method is called when the layout content is remeasured. The

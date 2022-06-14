@@ -117,7 +117,7 @@ class MeasureInPlacementTest {
     fun measureInModifierPlacementWithLookaheadLayout() {
         var childSize = IntSize.Zero
         rule.setContent {
-            LookaheadLayout(content = @Composable {
+            LookaheadScope {
                 val measureInPlaceModifier = Modifier.layout { measurable, constraints ->
                     layout(100, 100) {
                         val p = measurable.measure(constraints)
@@ -132,12 +132,7 @@ class MeasureInPlacementTest {
                 ) {
                     Box(Modifier.size(10.dp))
                 }
-            }, measurePolicy = { measurables, constraints ->
-                val p = measurables[0].measure(constraints)
-                layout(p.width, p.height) {
-                    p.place(0, 0)
-                }
-            })
+            }
         }
 
         rule.waitForIdle()
@@ -154,7 +149,7 @@ class MeasureInPlacementTest {
     fun measureInLayoutPlacementWithLookaheadLayout() {
         var childSize = IntSize.Zero
         rule.setContent {
-            LookaheadLayout(content = @Composable {
+            LookaheadScope {
                 Layout(modifier = Modifier.fillMaxSize(), content = @Composable {
                     Box(Modifier.size(10.dp))
                 }) { measurables, constraints ->
@@ -164,12 +159,7 @@ class MeasureInPlacementTest {
                         p.place(0, 0)
                     }
                 }
-            }, measurePolicy = { measurables, constraints ->
-                val p = measurables[0].measure(constraints)
-                layout(p.width, p.height) {
-                    p.place(0, 0)
-                }
-            })
+            }
         }
 
         rule.waitForIdle()
