@@ -103,8 +103,8 @@ fun Record.toProto(): DataProto.DataPoint =
             instantaneousProto()
                 .setDataType(protoDataType("BloodPressure"))
                 .apply {
-                    putValues("systolic", doubleVal(systolicMillimetersOfMercury))
-                    putValues("diastolic", doubleVal(diastolicMillimetersOfMercury))
+                    putValues("systolic", doubleVal(systolic.inMillimetersOfMercury))
+                    putValues("diastolic", doubleVal(diastolic.inMillimetersOfMercury))
                     bodyPosition?.let { putValues("bodyPosition", enumVal(it)) }
                     measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
                 }

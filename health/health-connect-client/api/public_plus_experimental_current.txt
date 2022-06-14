@@ -194,28 +194,28 @@ package androidx.health.connect.client.records {
   }
 
   public final class BloodPressureRecord implements androidx.health.connect.client.records.Record {
-    ctor public BloodPressureRecord(double systolicMillimetersOfMercury, double diastolicMillimetersOfMercury, optional String? bodyPosition, optional String? measurementLocation, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public BloodPressureRecord(androidx.health.connect.client.units.Pressure systolic, androidx.health.connect.client.units.Pressure diastolic, optional String? bodyPosition, optional String? measurementLocation, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public String? getBodyPosition();
-    method public double getDiastolicMillimetersOfMercury();
+    method public androidx.health.connect.client.units.Pressure getDiastolic();
     method public String? getMeasurementLocation();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public double getSystolicMillimetersOfMercury();
+    method public androidx.health.connect.client.units.Pressure getSystolic();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
     property public final String? bodyPosition;
-    property public final double diastolicMillimetersOfMercury;
+    property public final androidx.health.connect.client.units.Pressure diastolic;
     property public final String? measurementLocation;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public final double systolicMillimetersOfMercury;
+    property public final androidx.health.connect.client.units.Pressure systolic;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
     field public static final androidx.health.connect.client.records.BloodPressureRecord.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> DIASTOLIC_AVG;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> DIASTOLIC_MAX;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> DIASTOLIC_MIN;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SYSTOLIC_AVG;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SYSTOLIC_MAX;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SYSTOLIC_MIN;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Pressure> DIASTOLIC_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Pressure> DIASTOLIC_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Pressure> DIASTOLIC_MIN;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Pressure> SYSTOLIC_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Pressure> SYSTOLIC_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Pressure> SYSTOLIC_MIN;
   }
 
   public static final class BloodPressureRecord.Companion {
@@ -1510,6 +1510,21 @@ package androidx.health.connect.client.units {
   }
 
   public final class PowerKt {
+  }
+
+  public final class Pressure implements java.lang.Comparable<androidx.health.connect.client.units.Pressure> {
+    method public int compareTo(androidx.health.connect.client.units.Pressure other);
+    method public double getMillimetersOfMercury();
+    method public static androidx.health.connect.client.units.Pressure millimetersOfMercury(double value);
+    property public final double inMillimetersOfMercury;
+    field public static final androidx.health.connect.client.units.Pressure.Companion Companion;
+  }
+
+  public static final class Pressure.Companion {
+    method public androidx.health.connect.client.units.Pressure millimetersOfMercury(double value);
+  }
+
+  public final class PressureKt {
   }
 
   public final class Temperature implements java.lang.Comparable<androidx.health.connect.client.units.Temperature> {
