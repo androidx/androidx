@@ -106,9 +106,9 @@ class PojoRowAdapter(
     }
 
     override fun onCursorReady(
+        indices: List<ColumnIndexVar>,
         cursorVarName: String,
-        scope: CodeGenScope,
-        indices: List<ColumnIndexVar>
+        scope: CodeGenScope
     ) {
         fieldsWithIndices = indices.map { (column, indexVar) ->
             val field = mapping.matchedFields.first { it.columnName == column }
