@@ -51,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -148,6 +149,8 @@ public fun TimePicker(
                         state = hourState,
                         focusRequester = focusRequester1,
                         modifier = Modifier.size(40.dp, 100.dp),
+                        onSelected = { selectedColumn = 0 },
+                        contentDescription = { "$it hours" }
                     ) { hour: Int ->
                         TimePiece(
                             selected = selectedColumn == 0,
@@ -162,6 +165,8 @@ public fun TimePicker(
                         state = minuteState,
                         focusRequester = focusRequester2,
                         modifier = Modifier.size(40.dp, 100.dp),
+                        onSelected = { selectedColumn = 1 },
+                        contentDescription = { "$it minutes" }
                     ) { minute: Int ->
                         TimePiece(
                             selected = selectedColumn == 1,
@@ -176,6 +181,8 @@ public fun TimePicker(
                         state = secondsState,
                         focusRequester = focusRequester3,
                         modifier = Modifier.size(40.dp, 100.dp),
+                        onSelected = { selectedColumn = 2 },
+                        contentDescription = { "$it seconds" }
                     ) { second: Int ->
                         TimePiece(
                             selected = selectedColumn == 2,
@@ -304,7 +311,9 @@ public fun TimePickerWith12HourClock(
                     state = hourState,
                     focusRequester = focusRequester1,
                     modifier = Modifier.size(64.dp, 100.dp),
-                    readOnlyLabel = { LabelText("Hour") }
+                    readOnlyLabel = { LabelText("Hour") },
+                    onSelected = { selectedColumn = 0 },
+                    contentDescription = { "${it + 1} hours" }
                 ) { hour: Int ->
                     TimePiece(
                         selected = selectedColumn == 0,
@@ -320,7 +329,9 @@ public fun TimePickerWith12HourClock(
                     state = minuteState,
                     focusRequester = focusRequester2,
                     modifier = Modifier.size(64.dp, 100.dp),
-                    readOnlyLabel = { LabelText("Min") }
+                    readOnlyLabel = { LabelText("Min") },
+                    onSelected = { selectedColumn = 1 },
+                    contentDescription = { "$it minutes" }
                 ) { minute: Int ->
                     TimePiece(
                         selected = selectedColumn == 1,
@@ -545,6 +556,8 @@ private fun DatePickerImpl(
         state = state,
         focusRequester = focusRequester,
         modifier = Modifier.size(width, 100.dp),
+        onSelected = onSelected,
+        contentDescription = text,
     ) { option ->
         TimePiece(
             selected = !readOnly,
@@ -600,7 +613,8 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
     Text(
         text = ":",
         style = textStyle,
-        color = MaterialTheme.colors.onBackground
+        color = MaterialTheme.colors.onBackground,
+        modifier = Modifier.clearAndSetSemantics {}
     )
     Spacer(Modifier.width(width))
 }
@@ -610,8 +624,10 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
     readOnly: Boolean,
     modifier: Modifier,
     focusRequester: FocusRequester,
+    contentDescription: (optionIndex: Int) -> String?,
     readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state = state),
+    onSelected: () -> Unit = {},
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
     Picker(
@@ -624,6 +640,8 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
         flingBehavior = flingBehavior,
         readOnly = readOnly,
         readOnlyLabel = readOnlyLabel,
+        onSelected = onSelected,
+        contentDescription = contentDescription,
         option = option
     )
 }

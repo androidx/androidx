@@ -60,7 +60,8 @@ fun SimplePicker() {
         )
         Picker(
             modifier = Modifier.size(100.dp, 100.dp),
-            state = state
+            state = state,
+            contentDescription = { "${it + 1}" },
         ) {
             Text(items[it])
         }
@@ -72,7 +73,11 @@ fun SimplePicker() {
 fun OptionChangePicker() {
     val coroutineScope = rememberCoroutineScope()
     val state = rememberPickerState(initialNumberOfOptions = 10)
-    Picker(state = state, separation = 4.dp) {
+    Picker(
+        state = state,
+        separation = 4.dp,
+        contentDescription = { "${it + 1}" },
+    ) {
         Chip(
             onClick = {
                 coroutineScope.launch { state.scrollToOption(it) }
@@ -118,6 +123,9 @@ fun DualPicker() {
                 initiallySelectedOption = 5
             ),
             modifier = Modifier.size(64.dp, 100.dp),
+            contentDescription = {
+                "${it + 1} hours"
+            },
             option = { hour: Int -> Option(0, "%2d".format(hour + 1)) }
         )
         Spacer(Modifier.width(8.dp))
@@ -127,6 +135,9 @@ fun DualPicker() {
             readOnly = selectedColumn != 1,
             state = rememberPickerState(initialNumberOfOptions = 60, initiallySelectedOption = 0),
             modifier = Modifier.size(64.dp, 100.dp),
+            contentDescription = {
+                "$it minutes"
+            },
             option = { minute: Int -> Option(1, "%02d".format(minute)) }
         )
     }

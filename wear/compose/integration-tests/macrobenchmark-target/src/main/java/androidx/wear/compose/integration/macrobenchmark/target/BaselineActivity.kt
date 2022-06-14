@@ -321,6 +321,7 @@ fun Picker(scrollState: ScrollState) {
         Picker(
             state = rememberPickerState(items.size),
             option = { Text(items[it]) },
+            contentDescription = { (it + 1).toString() },
             modifier = Modifier.size(100.dp, 100.dp),
         )
     }
