@@ -231,7 +231,10 @@ class GLWetDryRenderer @JvmOverloads constructor(
                 width,
                 height,
                 format = HardwareBuffer.RGBA_8888,
-                usage = obtainHardwareBufferUsageFlags(),
+                usage = HardwareBuffer.USAGE_COMPOSER_OVERLAY or
+                    HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
+                    HardwareBuffer.USAGE_GPU_COLOR_OUTPUT or
+                    HardwareBuffer.USAGE_FRONT_BUFFER,
                 maxPoolSize = 5
             )
 
@@ -442,33 +445,6 @@ class GLWetDryRenderer @JvmOverloads constructor(
     companion object {
 
         internal const val TAG = "GLWetDryRenderer"
-
-        /**
-         * Flags that are expected to be supported on all [HardwareBuffer] instances
-         */
-        private const val BaseFlags = HardwareBuffer.USAGE_COMPOSER_OVERLAY or
-            HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE or
-            HardwareBuffer.USAGE_GPU_COLOR_OUTPUT
-
-        internal fun supportsFrontBufferUsage(): Boolean =
-        // Query to determine if the USAGE_FRONT_BUFFER flag is supported
-        // Even though it is introduced in Android T, not all devices may support
-        // this flag so we query a sample HardwareBuffer of 1 x 1 pixels with
-        // the RGBA_8888 format along with the USAGE_FRONT_BUFFER flag to see if it is
-            // compatible
-            HardwareBuffer.isSupported(
-                1, // width
-                1, // height
-                HardwareBuffer.RGBA_8888, // format
-                1, // layers,
-                BaseFlags or
-                    HardwareBuffer.USAGE_FRONT_BUFFER
-            )
-
-        internal fun obtainHardwareBufferUsageFlags(): Long =
-            BaseFlags or
-                // Conditionally introduce the front buffer usage flag if it is supported
-                if (supportsFrontBufferUsage()) HardwareBuffer.USAGE_FRONT_BUFFER else 0
     }
 
     /**

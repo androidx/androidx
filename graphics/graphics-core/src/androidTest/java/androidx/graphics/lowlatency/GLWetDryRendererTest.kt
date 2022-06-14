@@ -17,7 +17,6 @@
 package androidx.graphics.lowlatency
 
 import android.graphics.Color
-import android.hardware.HardwareBuffer
 import android.opengl.GLES20
 import android.os.Build
 import android.view.SurfaceControl
@@ -33,7 +32,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -169,17 +167,6 @@ class GLWetDryRendererTest {
             }
         } finally {
             renderer.blockingRelease()
-        }
-    }
-
-    @Test
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun testUsageFlagContainsFrontBufferUsage() {
-        val usageFlags = GLWetDryRenderer.obtainHardwareBufferUsageFlags()
-        if (GLWetDryRenderer.supportsFrontBufferUsage()) {
-            assertNotEquals(0, usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER)
-        } else {
-            assertEquals(0, usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER)
         }
     }
 
