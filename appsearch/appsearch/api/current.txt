@@ -412,6 +412,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchResult.MatchRange getExactMatchRange();
     method public String getFullText();
     method public String getPropertyPath();
+    method public androidx.appsearch.app.PropertyPath getPropertyPathObject();
     method public CharSequence getSnippet();
     method public androidx.appsearch.app.SearchResult.MatchRange getSnippetRange();
     method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH) public CharSequence getSubmatch();
