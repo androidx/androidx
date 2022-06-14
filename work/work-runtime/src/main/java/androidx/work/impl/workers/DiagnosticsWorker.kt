@@ -22,6 +22,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.model.generationalId
 import androidx.work.impl.model.SystemIdInfoDao
 import androidx.work.impl.model.WorkNameDao
 import androidx.work.impl.model.WorkSpec
@@ -73,7 +74,7 @@ private fun workSpecRows(
     val header = "\n Id \t Class Name\t ${systemIdHeader}\t State\t Unique Name\t Tags\t"
     append(header)
     workSpecs.forEach { workSpec ->
-        val systemId = systemIdInfoDao.getSystemIdInfo(workSpec.id)?.systemId
+        val systemId = systemIdInfoDao.getSystemIdInfo(workSpec.generationalId())?.systemId
         val names = workNameDao.getNamesForWorkSpecId(workSpec.id).joinToString(",")
         val tags = workTagDao.getTagsForWorkSpecId(workSpec.id).joinToString(",")
         append(workSpecRow(workSpec, names, systemId, tags))

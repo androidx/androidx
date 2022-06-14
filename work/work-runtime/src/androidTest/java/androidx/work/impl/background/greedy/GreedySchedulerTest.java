@@ -16,6 +16,8 @@
 
 package androidx.work.impl.background.greedy;
 
+import static androidx.work.impl.model.WorkSpecKt.generationalId;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
@@ -89,7 +91,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         mGreedyScheduler.schedule(workSpec);
         ArgumentCaptor<StartStopToken> captor = ArgumentCaptor.forClass(StartStopToken.class);
         verify(mWorkManagerImpl).startWork(captor.capture());
-        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(workSpec.id);
+        assertThat(captor.getValue().getId().getWorkSpecId()).isEqualTo(workSpec.id);
     }
 
     @Test
@@ -104,7 +106,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         // use `delayedStartWork()`.
         ArgumentCaptor<StartStopToken> captor = ArgumentCaptor.forClass(StartStopToken.class);
         verify(mWorkManagerImpl).startWork(captor.capture());
-        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(periodicWork.getStringId());
+        assertThat(captor.getValue().getId().getWorkSpecId()).isEqualTo(periodicWork.getStringId());
     }
 
     @Test
@@ -149,7 +151,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         mGreedyScheduler.onAllConstraintsMet(Collections.singletonList(work.getWorkSpec()));
         ArgumentCaptor<StartStopToken> captor = ArgumentCaptor.forClass(StartStopToken.class);
         verify(mWorkManagerImpl).startWork(captor.capture());
-        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(work.getWorkSpec().id);
+        assertThat(captor.getValue().getId().getWorkSpecId()).isEqualTo(work.getWorkSpec().id);
     }
 
     @Test
@@ -161,7 +163,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         mGreedyScheduler.onAllConstraintsNotMet(Collections.singletonList(work.getWorkSpec()));
         ArgumentCaptor<StartStopToken> captor = ArgumentCaptor.forClass(StartStopToken.class);
         verify(mWorkManagerImpl).stopWork(captor.capture());
-        assertThat(captor.getValue().getWorkSpecId()).isEqualTo(work.getWorkSpec().id);
+        assertThat(captor.getValue().getId().getWorkSpecId()).isEqualTo(work.getWorkSpec().id);
     }
 
     @Test
@@ -178,7 +180,7 @@ public class GreedySchedulerTest extends WorkManagerTest {
         verify(mMockWorkConstraintsTracker).replace(expected);
         reset(mMockWorkConstraintsTracker);
 
-        mGreedyScheduler.onExecuted(workSpec.id, false);
+        mGreedyScheduler.onExecuted(generationalId(workSpec), false);
         verify(mMockWorkConstraintsTracker).replace(Collections.<WorkSpec>emptySet());
     }
 

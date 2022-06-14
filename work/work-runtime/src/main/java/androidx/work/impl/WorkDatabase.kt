@@ -63,9 +63,10 @@ import java.util.concurrent.TimeUnit
         WorkName::class, WorkProgress::class, Preference::class],
     autoMigrations = [
         AutoMigration(from = 13, to = 14),
-        AutoMigration(from = 14, to = 15, spec = AutoMigration_14_15::class)
+        AutoMigration(from = 14, to = 15, spec = AutoMigration_14_15::class),
+        AutoMigration(from = 15, to = 16),
     ],
-    version = 15
+    version = 16
 )
 @TypeConverters(value = [Data::class, WorkTypeConverters::class])
 abstract class WorkDatabase : RoomDatabase() {

@@ -361,7 +361,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
                 mWorkTaskExecutor,
                 mForegroundProcessor,
                 mDatabase,
-                mWork.getStringId());
+                mDatabase.workSpecDao().getWorkSpec(mWork.getStringId())
+        );
     }
 
     static class SpyingWorkerFactory extends WorkerFactory {

@@ -23,8 +23,10 @@ import androidx.work.Worker
 import androidx.work.impl.ExecutionListener
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
+import androidx.work.impl.model.WorkGenerationalId
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.StartStopTokens
+import androidx.work.impl.model.generationalId
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.model.WorkSpecDao
 import java.util.UUID
@@ -54,7 +56,9 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
         val toSchedule = mutableMapOf<WorkSpec, InternalWorkState>()
         synchronized(lock) {
             workSpecs.forEach {
-                val state = pendingWorkStates.getOrPut(it.id) { InternalWorkState(it) }
+                val state = pendingWorkStates.getOrPut(it.generationalId().workSpecId) {
+                    InternalWorkState(it)
+                }
                 toSchedule[it] = state
             }
         }
@@ -64,7 +68,7 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
             if (spec.isPeriodic && state.periodDelayMet) {
                 WorkManagerImpl.getInstance(context).rewindLastEnqueueTime(spec.id)
             }
-            scheduleInternal(spec.id, state)
+            scheduleInternal(spec.generationalId(), state)
         }
     }
 
@@ -73,17 +77,19 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
         // to enqueue() will no-op because insertWorkSpec in WorkDatabase has a conflict
         // policy of @Ignore. So TestScheduler will _never_ be asked to schedule those
         // WorkSpecs.
-        val workRunId = mStartStopTokens.remove(workSpecId)
-        if (workRunId != null) WorkManagerImpl.getInstance(context).stopWork(workRunId)
+        val tokens = mStartStopTokens.remove(workSpecId)
+        tokens.forEach { WorkManagerImpl.getInstance(context).stopWork(it) }
         synchronized(lock) {
-            val internalWorkState = pendingWorkStates[workSpecId]
-            if (internalWorkState != null && !internalWorkState.isPeriodic) {
-                // Don't remove PeriodicWorkRequests from the list of pending work states.
-                // This is because we keep track of mPeriodDelayMet for PeriodicWorkRequests.
-                // `mPeriodDelayMet` is set to `false` when `onExecuted()` is called as a result of a
-                // successful run or a cancellation. That way subsequent calls to schedule() no-op
-                // until a developer explicitly calls setPeriodDelayMet().
-                pendingWorkStates.remove(workSpecId)
+            tokens.forEach { token ->
+                val internalWorkState = pendingWorkStates[token.id.workSpecId]
+                if (internalWorkState != null && !internalWorkState.isPeriodic) {
+                    // Don't remove PeriodicWorkRequests from the list of pending work states.
+                    // This is because we keep track of mPeriodDelayMet for PeriodicWorkRequests.
+                    // `mPeriodDelayMet` is set to `false` when `onExecuted()` is called as a result of a
+                    // successful run or a cancellation. That way subsequent calls to schedule() no-op
+                    // until a developer explicitly calls setPeriodDelayMet().
+                    pendingWorkStates.remove(token.id.workSpecId)
+                }
             }
         }
     }
@@ -105,7 +111,7 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
             state = oldState.copy(constraintsMet = true)
             pendingWorkStates[id] = state
         }
-        scheduleInternal(id, state)
+        scheduleInternal(WorkGenerationalId(id, state.generation), state)
     }
 
     /**
@@ -126,7 +132,7 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
             pendingWorkStates[id] = state
         }
         WorkManagerImpl.getInstance(context).rewindLastEnqueueTime(id)
-        scheduleInternal(id, state)
+        scheduleInternal(WorkGenerationalId(id, state.generation), state)
     }
 
     /**
@@ -146,11 +152,12 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
             pendingWorkStates[id] = state
         }
         WorkManagerImpl.getInstance(context).rewindLastEnqueueTime(id)
-        scheduleInternal(id, state)
+        scheduleInternal(WorkGenerationalId(id, state.generation), state)
     }
 
-    override fun onExecuted(workSpecId: String, needsReschedule: Boolean) {
+    override fun onExecuted(id: WorkGenerationalId, needsReschedule: Boolean) {
         synchronized(lock) {
+            val workSpecId = id.workSpecId
             val internalWorkState = pendingWorkStates[workSpecId] ?: return
             if (internalWorkState.isPeriodic) {
                 pendingWorkStates[workSpecId] = internalWorkState.copy(
@@ -165,15 +172,16 @@ class TestScheduler(private val context: Context) : Scheduler, ExecutionListener
         }
     }
 
-    private fun scheduleInternal(workId: String, state: InternalWorkState) {
+    private fun scheduleInternal(generationalId: WorkGenerationalId, state: InternalWorkState) {
         if (state.isRunnable) {
             val wm = WorkManagerImpl.getInstance(context)
-            wm.startWork(mStartStopTokens.tokenFor(workId))
+            wm.startWork(mStartStopTokens.tokenFor(generationalId))
         }
     }
 }
 
 internal data class InternalWorkState(
+    val generation: Int,
     val constraintsMet: Boolean,
     val initialDelayMet: Boolean,
     val periodDelayMet: Boolean,
@@ -186,6 +194,7 @@ internal val InternalWorkState.isRunnable: Boolean
 
 internal fun InternalWorkState(spec: WorkSpec): InternalWorkState =
     InternalWorkState(
+        generation = spec.generation,
         constraintsMet = !spec.hasConstraints(),
         initialDelayMet = spec.initialDelay == 0L,
         periodDelayMet = true,

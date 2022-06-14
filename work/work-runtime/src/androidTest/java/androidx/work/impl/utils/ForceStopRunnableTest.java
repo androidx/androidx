@@ -16,6 +16,8 @@
 
 package androidx.work.impl.utils;
 
+import static androidx.work.impl.model.SystemIdInfoKt.systemIdInfo;
+import static androidx.work.impl.model.WorkSpecKt.generationalId;
 import static androidx.work.impl.utils.ForceStopRunnable.MAX_ATTEMPTS;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -47,7 +49,6 @@ import androidx.work.WorkInfo;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.worker.TestWorker;
 
@@ -162,7 +163,8 @@ public class ForceStopRunnableTest {
                 .build();
         WorkSpec workSpec = request.getWorkSpec();
         mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
-        mWorkDatabase.systemIdInfoDao().insertSystemIdInfo(new SystemIdInfo(workSpec.id, 0));
+        mWorkDatabase.systemIdInfoDao().insertSystemIdInfo(
+                systemIdInfo(generationalId(workSpec), 0));
         runnable.run();
         ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
         verify(mScheduler, times(1)).schedule(captor.capture());

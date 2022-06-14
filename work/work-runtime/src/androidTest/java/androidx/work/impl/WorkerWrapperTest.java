@@ -187,16 +187,6 @@ public class WorkerWrapperTest extends DatabaseTest {
 
     @Test
     @SmallTest
-    public void testPermanentErrorWithInvalidWorkSpecId() {
-        final String invalidWorkSpecId = "INVALID_ID";
-        WorkerWrapper workerWrapper = createBuilder(invalidWorkSpecId).build();
-        FutureListener listener = createAndAddFutureListener(workerWrapper);
-        workerWrapper.run();
-        assertThat(listener.mResult, is(false));
-    }
-
-    @Test
-    @SmallTest
     public void testInvalidWorkerClassName() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         work.getWorkSpec().workerClassName = "dummy";
@@ -1237,7 +1227,8 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mWorkTaskExecutor,
                 mMockForegroundProcessor,
                 mDatabase,
-                work.getStringId()).build();
+                mWorkSpecDao.getWorkSpec(work.getStringId())
+        ).build();
 
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         workerWrapper.run();
@@ -1286,7 +1277,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mWorkTaskExecutor,
                 mMockForegroundProcessor,
                 mDatabase,
-                work.getStringId()).build();
+                mWorkSpecDao.getWorkSpec(work.getStringId())).build();
 
         workerWrapper.interrupt();
         workerWrapper.run();
@@ -1313,7 +1304,7 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mWorkTaskExecutor,
                 mMockForegroundProcessor,
                 mDatabase,
-                workSpecId);
+                mWorkSpecDao.getWorkSpec(workSpecId));
     }
 
     private FutureListener createAndAddFutureListener(WorkerWrapper workerWrapper) {

@@ -23,6 +23,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 import android.os.Build;
+import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
@@ -51,11 +52,16 @@ public class GcmTaskConverter {
     @VisibleForTesting
     public static final long EXECUTION_WINDOW_SIZE_IN_SECONDS = 5L;
 
+    static final String EXTRA_WORK_GENERATION = "androidx.work.impl.background.gcm.GENERATION";
+
     OneoffTask convert(@NonNull WorkSpec workSpec) {
+        Bundle extras = new Bundle();
+        extras.putInt(EXTRA_WORK_GENERATION, workSpec.getGeneration());
         OneoffTask.Builder builder = new OneoffTask.Builder();
         builder.setService(WorkManagerGcmService.class)
                 .setTag(workSpec.id)
                 .setUpdateCurrent(true)
+                .setExtras(extras)
                 .setPersisted(false);
 
         // Next run time is in seconds.

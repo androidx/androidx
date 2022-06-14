@@ -17,6 +17,7 @@
 package androidx.work.impl.utils;
 
 import static androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent;
+import static androidx.work.impl.model.WorkSpecKt.generationalId;
 
 import android.content.Context;
 import android.content.Intent;
@@ -26,9 +27,9 @@ import androidx.annotation.RestrictTo;
 import androidx.work.ForegroundInfo;
 import androidx.work.ForegroundUpdater;
 import androidx.work.Logger;
-import androidx.work.WorkInfo;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.foreground.ForegroundProcessor;
+import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
@@ -84,8 +85,8 @@ public class WorkForegroundUpdater implements ForegroundUpdater {
                 try {
                     if (!future.isCancelled()) {
                         String workSpecId = id.toString();
-                        WorkInfo.State state = mWorkSpecDao.getState(workSpecId);
-                        if (state == null || state.isFinished()) {
+                        WorkSpec workSpec = mWorkSpecDao.getWorkSpec(workSpecId);
+                        if (workSpec == null || workSpec.state.isFinished()) {
                             // state == null would mean that the WorkSpec was replaced.
                             String message =
                                     "Calls to setForegroundAsync() must complete before a "
@@ -93,12 +94,14 @@ public class WorkForegroundUpdater implements ForegroundUpdater {
                                             + "returning an instance of Result.";
                             throw new IllegalStateException(message);
                         }
-
                         // startForeground() is idempotent
                         // NOTE: This will fail when the process is subject to foreground service
                         // restrictions. Propagate the exception to the caller.
                         mForegroundProcessor.startForeground(workSpecId, foregroundInfo);
-                        Intent intent = createNotifyIntent(context, workSpecId, foregroundInfo);
+                        // it is safe to take generation from this workspec, because only
+                        // one generation of the same work can run at a time.
+                        Intent intent = createNotifyIntent(context, generationalId(workSpec),
+                                foregroundInfo);
                         context.startService(intent);
                     }
                     future.set(null);
