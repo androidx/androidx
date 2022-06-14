@@ -138,7 +138,17 @@ git config --global merge.renameLimit 999999
 git config --global diff.renameLimit 999999
 ```
 
-### To check out older source, use the superproject
+### Set up Git file exclusions {#source-exclude}
+
+Mac users should consider adding `.DS_Store` to a global `.gitignore` file to
+avoid accidentally checking in local metadata files:
+
+```shell
+echo .DS_Store>>~/.gitignore
+git config --global core.excludesFile '~/.gitignore'
+```
+
+### To check out older sources, use the superproject {#source-historical}
 
 The
 [git superproject](https://android.googlesource.com/platform/superproject/+/androidx-main)
