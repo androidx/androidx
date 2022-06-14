@@ -297,8 +297,6 @@ See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.ht
 \- Plugin 'com\.android\.internal\.library': external process started .*
 [0-9]+ problems were found storing the configuration cache, [0-9]+ of which seem unique\.
 \- Task `:[:A-Za-z0-9#\-]+` of type `org\.jetbrains\.kotlin\.gradle\.plugin\.mpp\.[A-Za-z0-9]+`: invocation of 'Task\.project' at execution time is unsupported\.
-# https://youtrack.jetbrains.com/issue/KT-52694/
-\- Task `:[:A-Za-z0-9#\-]+` of type `org\.jetbrains\.kotlin\.gradle\.tooling\.BuildKotlinToolingMetadataTask$FromKotlinExtension`: invocation of 'Task\.project' at execution time is unsupported\.
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:disallowed_types
 [0-9]+ problem was found storing the configuration cache.
 \- Task `:listTaskOutputs` of type `androidx\.build\.ListTaskOutputsTask`: invocation of 'Task\.project' at execution time is unsupported\.
@@ -306,8 +304,6 @@ See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.ht
 \- Plugin class 'androidx\.build\.AndroidXImplPlugin': read system property 'user\.dir'
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:undeclared_sys_prop_read
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:use_project_during_execution
-# https://youtrack.jetbrains.com/issue/KT-52694
-\- Task \`:[:A-Za-z0-9#\-]+` of type \`org\.jetbrains\.kotlin\.gradle\.tooling\.BuildKotlinToolingMetadataTask\$FromKotlinExtension\`\: invocation of \'Task\.project\' at execution time is unsupported\.
 \- Task `[^ ]*validateProperties` of type `[^ ]*ValidatePropertiesTask`: invocation of 'Task\.project' at execution time is unsupported\.
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:task_access
 plus [0-9]+ more problems\. Please see the report for details\.
@@ -1585,84 +1581,10 @@ C/C\+\+: Building ver\.\: [0-9]+\.[0-9]+\.[0-9]+
 C/C\+\+: Packaging for\: (amd\-[0-9]+|armhf\-[0-9]+|x86\-[0-9]+)
 C/C\+\+: Compiling for ARM
 # > Task :glance:glance:reportLibraryMetrics
-Info: Stripped invalid locals information from [0-9]+ methods?\.
+Info: Stripped invalid locals information from [0-9]+ method\.
 Info: Methods with invalid locals information:
 java\.lang\.Object androidx\.glance\.state\.GlanceState\.getDataStore\(android\.content\.Context, androidx\.glance\.state\.GlanceStateDefinition, java\.lang\.String, kotlin\.coroutines\.Continuation\)
 Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint OBJECT\.
-# https://youtrack.jetbrains.com/issue/KT-52702/
-void androidx\.compose\.animation\.demos\.visualaid\.EasingFunctionDemoKt\.EasingInfoDemo\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.foundation\.text\.CoreTextFieldKt\.CoreTextField\(androidx\.compose\.ui\.text\.input\.TextFieldValue, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.ui\.Modifier, androidx\.compose\.ui\.text\.TextStyle, androidx\.compose\.ui\.text\.input\.VisualTransformation, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.foundation\.interaction\.MutableInteractionSource, androidx\.compose\.ui\.graphics\.Brush, boolean, int, androidx\.compose\.ui\.text\.input\.ImeOptions, androidx\.compose\.foundation\.text\.KeyboardActions, boolean, boolean, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int, int\)
-void androidx\.compose\.material\.ModalBottomSheetKt\.ModalBottomSheetLayout\-BzaUkTc\(kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.ui\.Modifier, androidx\.compose\.material\.ModalBottomSheetState, androidx\.compose\.ui\.graphics\.Shape, float, long, long, long, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int\)
-java\.lang\.Object androidx\.compose\.runtime\.external\.kotlinx\.collections\.immutable\.implementations\.immutableSet\.TrieNode\.mutableRetainAll\(androidx\.compose\.runtime\.external\.kotlinx\.collections\.immutable\.implementations\.immutableSet\.TrieNode, int, androidx\.compose\.runtime\.external\.kotlinx\.collections\.immutable\.internal\.DeltaCounter, androidx\.compose\.runtime\.external\.kotlinx\.collections\.immutable\.implementations\.immutableSet\.PersistentHashSetBuilder\)
-void androidx\.compose\.material[0-9]+\.SliderKt\$RangeSlider\$[0-9]+\.invoke\(androidx\.compose\.foundation\.layout\.BoxWithConstraintsScope, androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.integration\.docs\.layout\.MaterialSnippet[0-9]+\.MyBackdrop\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.wear\.compose\.material\.samples\.PickerSampleKt\.OptionChangePicker\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.foundation\.samples\.MutatorMutexSamplesKt\.mutatorMutexStateObject\$ScrollControls\(androidx\.compose\.foundation\.samples\.MutatorMutexSamplesKt\$mutatorMutexStateObject\$ScrollState, androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.samples\.DrawerSamplesKt\.ModalDrawerSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material[0-9]+\.samples\.DrawerSamplesKt\.ModalNavigationDrawerSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.ui\.samples\.ComposableSingletons\$FocusAwareInputSamplesKt\$lambda\-[0-9]+\$[0-9]+\.invoke\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.paging\.compose\.demos\.room\.PagingRoomSampleKt\.PagingRoomDemo\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material[0-9]+\.catalog\.library\.ui\.common\.CatalogScaffoldKt\.CatalogScaffold\(java\.lang\.String, boolean, androidx\.compose\.material[0-9]+\.catalog\.library\.model\.Theme, java\.lang\.String, java\.lang\.String, java\.lang\.String, java\.lang\.String, java\.lang\.String, java\.lang\.String, java\.lang\.String, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int, int\)
-void androidx\.compose\.material\.catalog\.library\.ui\.common\.CatalogScaffoldKt\.CatalogScaffold\(java\.lang\.String, boolean, androidx\.compose\.material\.catalog\.library\.model\.Theme, java\.lang\.String, java\.lang\.String, java\.lang\.String, java\.lang\.String, java\.lang\.String, java\.lang\.String, java\.lang\.String, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int, int\)
-void androidx\.compose\.animation\.demos\.FancyScrollingDemoKt\.FancyScrollingDemo\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.foundation\.demos\.relocation\.BringIntoViewAndroidInteropDemoKt\.BringIntoViewAndroidInteropDemo\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.ui\.demos\.keyinput\.InterceptEnterToSendMessageDemoKt\.InterceptEnterToSendMessageDemo\(androidx\.compose\.runtime\.Composer, int\)
-long androidx\.compose\.ui\.input\.pointer\.util\.VelocityTracker\.getImpulseVelocity.*
-java\.lang\.Object androidx\.glance\.state\.GlanceState\.getDataStore\(android\.content\.Context, androidx\.glance\.state\.GlanceStateDefinition, java\.lang\.String, kotlin\.coroutines\.Continuation\)
-Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint [\-A-Z]*\.
-void androidx\.compose\.animation\.demos\.visualaid\.EasingFunctionDemoKt\.EasingGraph\(androidx\.compose\.animation\.core\.Easing, androidx\.compose\.ui\.Modifier, kotlinx\.coroutines\.CoroutineScope, androidx\.compose\.runtime\.Composer, int, int\)
-void androidx\.compose\.animation\.demos\.gesture\.FancyScrollingDemoKt\.FancyScrollingDemo\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.animation\.demos\.suspendfun\.SuspendDoubleTapToLikeDemoKt\.SuspendDoubleTapToLikeDemo\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.foundation\.lazy\.grid\.LazyGridKt\.LazyGrid\(androidx\.compose\.ui\.Modifier, androidx\.compose\.foundation\.lazy\.grid\.LazyGridState, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.foundation\.layout\.PaddingValues, boolean, boolean, androidx\.compose\.foundation\.gestures\.FlingBehavior, boolean, androidx\.compose\.foundation\.layout\.Arrangement\$Vertical, androidx\.compose\.foundation\.layout\.Arrangement\$Horizontal, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int, int\)
-void androidx\.compose\.foundation\.lazy\.LazyListKt\.LazyList\(androidx\.compose\.ui\.Modifier, androidx\.compose\.foundation\.lazy\.LazyListState, androidx\.compose\.foundation\.layout\.PaddingValues, boolean, boolean, androidx\.compose\.foundation\.gestures\.FlingBehavior, boolean, androidx\.compose\.ui\.Alignment\$Horizontal, androidx\.compose\.foundation\.layout\.Arrangement\$Vertical, androidx\.compose\.ui\.Alignment\$Vertical, androidx\.compose\.foundation\.layout\.Arrangement\$Horizontal, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int, int\)
-void androidx\.compose\.material\.BackdropScaffoldKt\$BackdropScaffold\$[0-9]+\.invoke\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.SliderKt\$Slider\$[0-9]+\.invoke\(androidx\.compose\.foundation\.layout\.BoxWithConstraintsScope, androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.TabRowKt\$ScrollableTabRow\$[0-9]+\.invoke\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.SliderKt\$RangeSlider\$[0-9]+\.invoke\(androidx\.compose\.foundation\.layout\.BoxWithConstraintsScope, androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.DrawerKt\.ModalDrawer\-Gs[0-9]+lGvM\(kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.ui\.Modifier, androidx\.compose\.material\.DrawerState, boolean, androidx\.compose\.ui\.graphics\.Shape, float, long, long, long, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int\)
-void androidx\.compose\.material\.DrawerKt\.BottomDrawer\-Gs[0-9]+lGvM\(kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.ui\.Modifier, androidx\.compose\.material\.BottomDrawerState, boolean, androidx\.compose\.ui\.graphics\.Shape, float, long, long, long, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int\)
-void androidx\.compose\.material\.BottomSheetScaffoldKt\.BottomSheetScaffold\-bGncdBI\(kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.ui\.Modifier, androidx\.compose\.material\.BottomSheetScaffoldState, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.jvm\.functions\.Function[0-9]+, int, boolean, androidx\.compose\.ui\.graphics\.Shape, float, long, long, float, kotlin\.jvm\.functions\.Function[0-9]+, boolean, androidx\.compose\.ui\.graphics\.Shape, float, long, long, long, long, long, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int, int, int\)
-java\.lang\.Object androidx\.compose\.runtime\.external\.kotlinx\.collections\.immutable\.implementations\.immutableSet\.TrieNode\.mutableRemoveAll\(androidx\.compose\.runtime\.external\.kotlinx\.collections\.immutable\.implementations\.immutableSet\.TrieNode, int, androidx\.compose\.runtime\.external\.kotlinx\.collections\.immutable\.internal\.DeltaCounter, androidx\.compose\.runtime\.external\.kotlinx\.collections\.immutable\.implementations\.immutableSet\.PersistentHashSetBuilder\)
-void androidx\.compose\.material[0-9]+\.NavigationDrawerKt\.ModalNavigationDrawer\-Gs[0-9]+lGvM\(kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.ui\.Modifier, androidx\.compose\.material[0-9]+\.DrawerState, boolean, androidx\.compose\.ui\.graphics\.Shape, float, long, long, long, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int\)
-void androidx\.compose\.material[0-9]+\.SwitchKt\.Switch\(boolean, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.ui\.Modifier, kotlin\.jvm\.functions\.Function[0-9]+, boolean, androidx\.compose\.foundation\.interaction\.MutableInteractionSource, androidx\.compose\.material[0-9]+\.SwitchColors, androidx\.compose\.runtime\.Composer, int, int\)
-void androidx\.compose\.material[0-9]+\.NavigationDrawerKt\.DismissibleNavigationDrawer\-ZEC[0-9]+aPw\(kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.ui\.Modifier, androidx\.compose\.material[0-9]+\.DrawerState, boolean, androidx\.compose\.ui\.graphics\.Shape, float, long, long, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int\)
-void androidx\.compose\.material[0-9]+\.SliderKt\$Slider\$[0-9]+\.invoke\(androidx\.compose\.foundation\.layout\.BoxWithConstraintsScope, androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material[0-9]+\.TabRowKt\$ScrollableTabRow\$[0-9]+\.invoke\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.integration\.docs\.layout\.MaterialSnippet[0-9]+\.MyDrawer\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.integration\.docs\.layout\.MaterialSnippet[0-9]+\.MyBottomSheet\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.integration\.docs\.layout\.MaterialSnippet[0-9]+\.MySnackbar\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.integration\.docs\.state\.ComposableSingletons\$StateKt\$lambda\-[0-9]+\$[0-9]+\.invoke\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.integration\.docs\.sideeffects\.SideEffectsSnippet[0-9]+\.MoviesScreen\(androidx\.compose\.material\.ScaffoldState, androidx\.compose\.runtime\.Composer, int, int\)
-void androidx\.compose\.integration\.docs\.kotlin\.KotlinKt\.KotlinSnippet[0-9]+\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.integration\.docs\.lists\.ListsSnippetsControllingScrollPosition\.MessageList\(java\.util\.List, androidx\.compose\.runtime\.Composer, int\)
-void androidx\.wear\.compose\.material\.samples\.ScalingLazyColumnSampleKt\.ScalingLazyColumnEdgeAnchoredAndAnimatedScrollTo\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.foundation\.samples\.BringIntoViewSamplesKt\.BringIntoViewSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.foundation\.samples\.BringIntoViewSamplesKt\.BringPartOfComposableIntoViewSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.foundation\.samples\.TransformableSampleKt\.TransformableSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.foundation\.samples\.OverscrollSampleKt\.OverscrollSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.foundation\.samples\.ScrollerSamplesKt\.ControlledScrollableRowSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.samples\.DrawerSamplesKt\.BottomDrawerSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.samples\.ScaffoldSamplesKt\.SimpleScaffoldWithTopBar\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.samples\.ScaffoldSamplesKt\.ScaffoldWithBottomBarAndCutout\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.samples\.ScaffoldSamplesKt\.ScaffoldWithSimpleSnackbar\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.samples\.ScaffoldSamplesKt\.ScaffoldWithCustomSnackbar\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.samples\.ModalBottomSheetSamplesKt\.ModalBottomSheetSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.samples\.BackdropScaffoldSamplesKt\.BackdropScaffoldSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material\.samples\.BottomSheetScaffoldSamplesKt\.BottomSheetScaffoldSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material[0-9]+\.samples\.DrawerSamplesKt\.DismissibleNavigationDrawerSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material[0-9]+\.samples\.ScaffoldSamplesKt\.ScaffoldWithSimpleSnackbar\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material[0-9]+\.samples\.ScaffoldSamplesKt\.ScaffoldWithIndefiniteSnackbar\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.material[0-9]+\.samples\.ScaffoldSamplesKt\.ScaffoldWithCustomSnackbar\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.ui\.samples\.FocusAwareInputSamplesKt\.RotaryEventSample\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.animation\.demos\.SuspendDoubleTapToLikeDemoKt\.SuspendDoubleTapToLikeDemo\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.animation\.demos\.EasingFunctionDemoKt\.EasingInfoDemo\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.animation\.demos\.EasingFunctionDemoKt\.EasingGraph\(androidx\.compose\.animation\.core\.Easing, androidx\.compose\.ui\.Modifier, kotlinx\.coroutines\.CoroutineScope, androidx\.compose\.runtime\.Composer, int, int\)
-void androidx\.compose\.foundation\.demos\.relocation\.RequestRectangleOnScreenDemoKt\.RequestRectangleOnScreenDemo\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.foundation\.demos\.relocation\.BringIntoViewDemoKt\.BringIntoViewDemo\(androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.foundation\.demos\.relocation\.BringNestedIntoViewDemoKt\.ControlGrid\(int, int, java\.util\.List, androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.foundation\.demos\.ListDemosKt\.ListHoistedStateDemo\(androidx\.compose\.runtime\.Composer, int\)
-androidx\.compose\.ui\.Modifier androidx\.compose\.ui\.demos\.modifier\.CommunicatingModifierDemoKt\$CommunicatingModifierDemo\$clickToRead\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
-void androidx\.compose\.ui\.demos\.focus\.ComposableSingletons\$LazyListChildFocusDemosKt\$lambda\-[0-9]+\$[0-9]+\.invoke\(androidx\.compose\.foundation\.lazy\.LazyItemScope, androidx\.compose\.runtime\.Composer, int\)
 Info: Some warnings are typically a sign of using an outdated Java toolchain\. To fix, recompile the source with an updated toolchain\.
 # > Task :compose:ui:ui-inspection:buildCMakeRelWithDebInfo[arm64-v8a]
 C/C\+\+: ninja: warning: bad deps log signature or version; starting over
