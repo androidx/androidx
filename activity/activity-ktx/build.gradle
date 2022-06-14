@@ -37,7 +37,7 @@ dependencies {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
     api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-rc01")
-    api("androidx.savedstate:savedstate-ktx:1.2.0") {
+    api("androidx.savedstate:savedstate-ktx:1.2.0-rc01") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
     api(libs.kotlinStdlib)
