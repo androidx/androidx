@@ -204,8 +204,8 @@ package androidx.camera.core {
 
   public static interface ImageAnalysis.Analyzer {
     method public void analyze(androidx.camera.core.ImageProxy);
+    method public default android.util.Size? getDefaultTargetResolution();
     method public default int getTargetCoordinateSystem();
-    method public default android.util.Size? getTargetResolutionOverride();
     method public default void updateTransform(android.graphics.Matrix?);
   }
 

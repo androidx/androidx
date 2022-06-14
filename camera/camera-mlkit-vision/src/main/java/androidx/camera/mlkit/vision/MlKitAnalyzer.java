@@ -56,13 +56,19 @@ import java.util.concurrent.Executor;
  * {@code Detector}s finish analyzing the frame, {@link Consumer#accept} will be
  * invoked with the aggregated analysis results.
  *
+ * <p> This class handles the coordinates transformation between MLKit output and the target
+ * coordinate system. Based the {@code targetCoordinateSystem} set in the constructor, it
+ * calculates the {@link Matrix} with the value provided by CameraX via
+ * {@link ImageAnalysis.Analyzer#updateTransform} and forward it to the MLKit {@code Detector}. The
+ * coordinates returned by MLKit will be in the desired coordinate system.
+ *
  * <p> This class is designed to work seamlessly with the {@code CameraController} class in
  * camera-view. When used with {@link ImageAnalysis} in camera-core, the following scenarios may
  * need special handling:
  * <ul>
  * <li> Cannot transform coordinates to UI coordinate system. e.g. camera-core only supports
  * {@link ImageAnalysis#COORDINATE_SYSTEM_ORIGINAL}.
- * <li>For the value of {@link #getTargetResolutionOverride()} to be effective, make sure
+ * <li>For the value of {@link #getDefaultTargetResolution()} to be effective, make sure
  * the {@link ImageAnalysis#setAnalyzer} is called before it's bound to the lifecycle.
  * </ul>
  *
@@ -112,6 +118,12 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
      * {@code Detector#getDetectorType()} is TYPE_SEGMENTATION and {@code targetCoordinateSystem}
      * is COORDINATE_SYSTEM_ORIGINAL. Currently MLKit does not support transformation with
      * segmentation.
+     *
+     * @param detectors              list of MLKit {@link Detector}.
+     * @param targetCoordinateSystem e.g. {@link ImageAnalysis#COORDINATE_SYSTEM_ORIGINAL}
+     *                               the coordinates in MLKit output will be based on this value.
+     * @param executor               on which the consumer is invoked.
+     * @param consumer               invoked when there is new MLKit result.
      */
     @OptIn(markerClass = TransformExperimental.class)
     public MlKitAnalyzer(
@@ -214,7 +226,7 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
      */
     @NonNull
     @Override
-    public final Size getTargetResolutionOverride() {
+    public final Size getDefaultTargetResolution() {
         Size size = DEFAULT_SIZE;
         for (Detector<?> detector : mDetectors) {
             Size detectorSize = getTargetResolution(detector.getDetectorType());
