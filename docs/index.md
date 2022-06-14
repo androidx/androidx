@@ -14,17 +14,10 @@ through broad OS- and device-level compatibility, high-level abstractions to
 simplify and unify platform features, and other new features that target
 developer pain points.
 
-## What happened to the Support Library?
+For frequently asked questions, see the [General FAQ](faq.md).
 
-As part of the Jetpack project to improve developer experience on Android, the
-Support Library team undertook a massive refactoring project. Over the course of
-2017 and 2018, we streamlined and enforced consistency in our packaging,
-developed new policies around versioning and release, and developed tools to
-make it easy for developers to migrate.
-
-Revision `28.0.0` of the Support Library, which launched as stable in September
-2018, was the last feature release in the `android.support` package. There will
-be no further releases under Support Library packaging.
+To get started developing in AndroidX, see the [Getting started](onboarding.md)
+guide.
 
 ## Quick links
 
