@@ -54,7 +54,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
@@ -239,7 +238,6 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     @Override
-    @OptIn(markerClass = ExperimentalAnalyzer.class)
     protected UseCaseConfig<?> onMergeConfig(@NonNull CameraInfoInternal cameraInfo,
             @NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
 
@@ -810,7 +808,6 @@ public final class ImageAnalysis extends UseCase {
          * @return the resolution to override the target resolution of {@link ImageAnalysis}, or
          * {@code null} if no overriding is needed.
          */
-        @ExperimentalAnalyzer
         @Nullable
         default Size getTargetResolutionOverride() {
             return null;
@@ -833,7 +830,6 @@ public final class ImageAnalysis extends UseCase {
          *
          * @see #updateTransform(Matrix)
          */
-        @ExperimentalAnalyzer
         default int getTargetCoordinateSystem() {
             return COORDINATE_SYSTEM_ORIGINAL;
         }
@@ -856,7 +852,6 @@ public final class ImageAnalysis extends UseCase {
          *
          * @see #getTargetCoordinateSystem()
          */
-        @ExperimentalAnalyzer
         default void updateTransform(@Nullable Matrix matrix) {
             // no-op
         }
@@ -869,7 +864,6 @@ public final class ImageAnalysis extends UseCase {
      * implementation. By using this option, CameraX will pass {@code null} to
      * {@link Analyzer#updateTransform(Matrix)}.
      */
-    @ExperimentalAnalyzer
     public static final int COORDINATE_SYSTEM_ORIGINAL = 0;
 
     /**
