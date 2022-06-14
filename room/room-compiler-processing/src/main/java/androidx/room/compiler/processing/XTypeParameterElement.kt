@@ -19,9 +19,6 @@ package androidx.room.compiler.processing
 import com.squareup.javapoet.TypeVariableName
 
 interface XTypeParameterElement : XElement {
-    /** Returns the simple name of this type parameter. */
-    val name: String
-
     /**
      * Returns the generic class, interface, or method that is parameterized by this type parameter.
      */
