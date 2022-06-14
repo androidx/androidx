@@ -18,8 +18,11 @@ package androidx.work.impl.background.systemjob;
 import static android.content.Context.JOB_SCHEDULER_SERVICE;
 
 import static androidx.work.OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST;
+import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_GENERATION;
 import static androidx.work.impl.background.systemjob.SystemJobInfoConverter.EXTRA_WORK_SPEC_ID;
+import static androidx.work.impl.model.SystemIdInfoKt.systemIdInfo;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
+import static androidx.work.impl.model.WorkSpecKt.generationalId;
 
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -27,7 +30,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.Build;
 import android.os.PersistableBundle;
-import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -40,6 +42,7 @@ import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.SystemIdInfo;
+import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.IdGenerator;
@@ -75,10 +78,10 @@ public class SystemJobScheduler implements Scheduler {
 
     @VisibleForTesting
     public SystemJobScheduler(
-            Context context,
-            WorkManagerImpl workManager,
-            JobScheduler jobScheduler,
-            SystemJobInfoConverter systemJobInfoConverter) {
+            @NonNull Context context,
+            @NonNull WorkManagerImpl workManager,
+            @NonNull JobScheduler jobScheduler,
+            @NonNull SystemJobInfoConverter systemJobInfoConverter) {
         mContext = context;
         mWorkManager = workManager;
         mJobScheduler = jobScheduler;
@@ -115,16 +118,15 @@ public class SystemJobScheduler implements Scheduler {
                     workDatabase.setTransactionSuccessful();
                     continue;
                 }
-
-                SystemIdInfo info = workDatabase.systemIdInfoDao()
-                        .getSystemIdInfo(workSpec.id);
+                WorkGenerationalId generationalId = generationalId(workSpec);
+                SystemIdInfo info = workDatabase.systemIdInfoDao().getSystemIdInfo(generationalId);
 
                 int jobId = info != null ? info.systemId : idGenerator.nextJobSchedulerIdWithRange(
                         mWorkManager.getConfiguration().getMinJobSchedulerId(),
                         mWorkManager.getConfiguration().getMaxJobSchedulerId());
 
                 if (info == null) {
-                    SystemIdInfo newSystemIdInfo = new SystemIdInfo(workSpec.id, jobId);
+                    SystemIdInfo newSystemIdInfo = systemIdInfo(generationalId, jobId);
                     mWorkManager.getWorkDatabase()
                             .systemIdInfoDao()
                             .insertSystemIdInfo(newSystemIdInfo);
@@ -178,7 +180,7 @@ public class SystemJobScheduler implements Scheduler {
      * @param workSpec The {@link WorkSpec} to schedule with JobScheduler.
      */
     @VisibleForTesting
-    public void scheduleInternal(WorkSpec workSpec, int jobId) {
+    public void scheduleInternal(@NonNull WorkSpec workSpec, int jobId) {
         JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec, jobId);
         Logger.get().debug(
                 TAG,
@@ -186,8 +188,7 @@ public class SystemJobScheduler implements Scheduler {
         try {
             int result = mJobScheduler.schedule(jobInfo);
             if (result == JobScheduler.RESULT_FAILURE) {
-                Logger.get()
-                        .warning(TAG, "Unable to schedule work ID " + workSpec.id);
+                Logger.get().warning(TAG, "Unable to schedule work ID " + workSpec.id);
                 if (workSpec.expedited
                         && workSpec.outOfQuotaPolicy == RUN_AS_NON_EXPEDITED_WORK_REQUEST) {
                     // Falling back to a non-expedited job.
@@ -301,9 +302,9 @@ public class SystemJobScheduler implements Scheduler {
         Set<String> jobSchedulerWorkSpecs = new HashSet<>(jobSize);
         if (jobs != null && !jobs.isEmpty()) {
             for (JobInfo jobInfo : jobs) {
-                String workSpecId = getWorkSpecIdFromJobInfo(jobInfo);
-                if (!TextUtils.isEmpty(workSpecId)) {
-                    jobSchedulerWorkSpecs.add(workSpecId);
+                WorkGenerationalId id = getWorkGenerationalIdFromJobInfo(jobInfo);
+                if (id != null) {
+                    jobSchedulerWorkSpecs.add(id.getWorkSpecId());
                 } else {
                     // Cancels invalid jobs owned by WorkManager.
                     // These jobs are invalid (in-actionable on our part) but occupy slots in
@@ -395,7 +396,8 @@ public class SystemJobScheduler implements Scheduler {
         List<Integer> jobIds = new ArrayList<>(2);
 
         for (JobInfo jobInfo : jobs) {
-            if (workSpecId.equals(getWorkSpecIdFromJobInfo(jobInfo))) {
+            WorkGenerationalId id = getWorkGenerationalIdFromJobInfo(jobInfo);
+            if (id != null && workSpecId.equals(id.getWorkSpecId())) {
                 jobIds.add(jobInfo.getId());
             }
         }
@@ -403,12 +405,13 @@ public class SystemJobScheduler implements Scheduler {
         return jobIds;
     }
 
-    @SuppressWarnings("ConstantConditions")
-    private static @Nullable String getWorkSpecIdFromJobInfo(@NonNull JobInfo jobInfo) {
+    @Nullable
+    private static WorkGenerationalId getWorkGenerationalIdFromJobInfo(@NonNull JobInfo jobInfo) {
         PersistableBundle extras = jobInfo.getExtras();
         try {
             if (extras != null && extras.containsKey(EXTRA_WORK_SPEC_ID)) {
-                return extras.getString(EXTRA_WORK_SPEC_ID);
+                int generation = extras.getInt(EXTRA_WORK_SPEC_GENERATION, 0);
+                return new WorkGenerationalId(extras.getString(EXTRA_WORK_SPEC_ID), generation);
             }
         } catch (NullPointerException e) {
             // b/138364061: BaseBundle.mMap seems to be null in some cases here.  Ignore and return

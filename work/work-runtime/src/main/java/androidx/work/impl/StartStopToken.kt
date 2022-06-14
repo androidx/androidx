@@ -15,6 +15,10 @@
  */
 package androidx.work.impl
 
+import androidx.work.impl.model.WorkGenerationalId
+import androidx.work.impl.model.WorkSpec
+import androidx.work.impl.model.generationalId
+
 // Impl note: it is **not** a data class on purpose.
 // Multiple schedulers can create `StartStopToken`-s for the same workSpecId, and `StartStopToken`
 // objects should be different. If two schedulers request to start a work with the same
@@ -25,22 +29,33 @@ package androidx.work.impl
 // be cancelled because the second scheduler tries to cancel already cancelled work.
 // So Processor class relies on StartStopToken-s being different and stores StartStopToken
 // with the same workSpecId in the set to differentiate between past and future run requests.
-class StartStopToken(val workSpecId: String)
+class StartStopToken(val id: WorkGenerationalId)
 
 class StartStopTokens {
     private val lock = Any()
-    private val runs = mutableMapOf<String, StartStopToken>()
+    private val runs = mutableMapOf<WorkGenerationalId, StartStopToken>()
 
-    fun tokenFor(workSpecId: String): StartStopToken {
+    fun tokenFor(id: WorkGenerationalId): StartStopToken {
         return synchronized(lock) {
-            val startStopToken = StartStopToken(workSpecId)
-            runs.getOrPut(workSpecId) { startStopToken }
+            val startStopToken = StartStopToken(id)
+            runs.getOrPut(id) { startStopToken }
         }
     }
 
-    fun remove(workSpecId: String): StartStopToken? {
+    fun remove(id: WorkGenerationalId): StartStopToken? {
         return synchronized(lock) {
-            runs.remove(workSpecId)
+            runs.remove(id)
         }
     }
+
+    fun remove(workSpecId: String): List<StartStopToken> {
+        return synchronized(lock) {
+            val toRemove = runs.filterKeys { it.workSpecId == workSpecId }
+            toRemove.keys.forEach { runs.remove(it) }
+            toRemove.values.toList()
+        }
+    }
+
+    fun tokenFor(spec: WorkSpec) = tokenFor(spec.generationalId())
+    fun remove(spec: WorkSpec) = remove(spec.generationalId())
 }

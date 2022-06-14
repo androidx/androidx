@@ -34,6 +34,7 @@ import androidx.work.WorkInfo
 import androidx.work.impl.Processor
 import androidx.work.impl.Scheduler
 import androidx.work.impl.WorkDatabase
+import androidx.work.impl.model.WorkGenerationalId
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.StartStopToken
 import androidx.work.impl.constraints.WorkConstraintsCallback
@@ -116,7 +117,8 @@ class SystemForegroundDispatcherTest {
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
         workDatabase.workSpecDao().insertWorkSpec(request.workSpec)
-        val intent = createStartForegroundIntent(context, request.stringId, metadata)
+        val intent = createStartForegroundIntent(context,
+            WorkGenerationalId(request.stringId, 0), metadata)
         dispatcher.onStartCommand(intent)
         verify(dispatcherCallback, times(1))
             .startForeground(eq(notificationId), eq(0), any<Notification>())
@@ -133,7 +135,8 @@ class SystemForegroundDispatcherTest {
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
-        val intent = createStartForegroundIntent(context, request.stringId, metadata)
+        val intent = createStartForegroundIntent(context,
+            WorkGenerationalId(request.stringId, 0), metadata)
         dispatcher.onStartCommand(intent)
         verify(dispatcherCallback, times(1))
             .startForeground(eq(notificationId), eq(0), any<Notification>())
@@ -150,7 +153,7 @@ class SystemForegroundDispatcherTest {
 
     @Test
     fun testStartForeground() {
-        val workSpecId = "workSpecId"
+        val workSpecId = WorkGenerationalId("workSpecId", 0)
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
@@ -162,12 +165,12 @@ class SystemForegroundDispatcherTest {
 
     @Test
     fun testNotify() {
-        val workSpecId = "workSpecId"
+        val workSpecId = WorkGenerationalId("workSpecId", 0)
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
         val intent = createNotifyIntent(context, workSpecId, metadata)
-        dispatcher.mCurrentForegroundWorkSpecId = "anotherWorkSpecId"
+        dispatcher.mCurrentForegroundId = WorkGenerationalId("anotherWorkSpecId", 0)
         dispatcher.onStartCommand(intent)
         verify(dispatcherCallback, times(1))
             .notify(eq(notificationId), any<Notification>())
@@ -175,24 +178,24 @@ class SystemForegroundDispatcherTest {
 
     @Test
     fun testPromoteWorkSpecForStartForeground() {
-        val firstWorkSpecId = "first"
+        val firstWorkSpecId = WorkGenerationalId("first", 0)
         val firstId = 1
         val notification = mock(Notification::class.java)
         val firstInfo = ForegroundInfo(firstId, notification)
         val firstIntent = createNotifyIntent(context, firstWorkSpecId, firstInfo)
 
-        val secondWorkSpecId = "second"
+        val secondWorkSpecId = WorkGenerationalId("second", 0)
         val secondId = 2
         val secondInfo = ForegroundInfo(secondId, notification)
         val secondIntent = createNotifyIntent(context, secondWorkSpecId, secondInfo)
 
         dispatcher.onStartCommand(firstIntent)
-        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        assertThat(dispatcher.mCurrentForegroundId, `is`(firstWorkSpecId))
         verify(dispatcherCallback, times(1))
             .startForeground(eq(firstId), eq(0), any<Notification>())
 
         dispatcher.onStartCommand(secondIntent)
-        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        assertThat(dispatcher.mCurrentForegroundId, `is`(firstWorkSpecId))
         verify(dispatcherCallback, times(1))
             .notify(eq(secondId), any<Notification>())
         assertThat(dispatcher.mForegroundInfoById.count(), `is`(2))
@@ -212,35 +215,35 @@ class SystemForegroundDispatcherTest {
 
     @Test
     fun promoteWorkSpecForStartForeground2() {
-        val firstWorkSpecId = "first"
+        val firstWorkSpecId = WorkGenerationalId("first", 0)
         val firstId = 1
         val notification = mock(Notification::class.java)
         val firstInfo = ForegroundInfo(firstId, notification)
         val firstIntent = createNotifyIntent(context, firstWorkSpecId, firstInfo)
 
-        val secondWorkSpecId = "second"
+        val secondWorkSpecId = WorkGenerationalId("second", 0)
         val secondId = 2
         val secondInfo = ForegroundInfo(secondId, notification)
         val secondIntent = createNotifyIntent(context, secondWorkSpecId, secondInfo)
 
-        val thirdWorkSpecId = "third"
+        val thirdWorkSpecId = WorkGenerationalId("third", 0)
         val thirdId = 3
         val thirdInfo = ForegroundInfo(thirdId, notification)
         val thirdIntent = createNotifyIntent(context, thirdWorkSpecId, thirdInfo)
 
         dispatcher.onStartCommand(firstIntent)
-        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        assertThat(dispatcher.mCurrentForegroundId, `is`(firstWorkSpecId))
         verify(dispatcherCallback, times(1))
             .startForeground(eq(firstId), eq(0), any<Notification>())
 
         dispatcher.onStartCommand(secondIntent)
-        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        assertThat(dispatcher.mCurrentForegroundId, `is`(firstWorkSpecId))
         verify(dispatcherCallback, times(1))
             .notify(eq(secondId), any<Notification>())
         assertThat(dispatcher.mForegroundInfoById.count(), `is`(2))
 
         dispatcher.onStartCommand(thirdIntent)
-        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        assertThat(dispatcher.mCurrentForegroundId, `is`(firstWorkSpecId))
         verify(dispatcherCallback, times(1))
             .notify(eq(secondId), any<Notification>())
         assertThat(dispatcher.mForegroundInfoById.count(), `is`(3))
@@ -255,35 +258,35 @@ class SystemForegroundDispatcherTest {
 
     @Test
     fun promoteWorkSpecForStartForeground3() {
-        val firstWorkSpecId = "first"
+        val firstWorkSpecId = WorkGenerationalId("first", 0)
         val firstId = 1
         val notification = mock(Notification::class.java)
         val firstInfo = ForegroundInfo(firstId, notification)
         val firstIntent = createNotifyIntent(context, firstWorkSpecId, firstInfo)
 
-        val secondWorkSpecId = "second"
+        val secondWorkSpecId = WorkGenerationalId("second", 0)
         val secondId = 2
         val secondInfo = ForegroundInfo(secondId, notification)
         val secondIntent = createNotifyIntent(context, secondWorkSpecId, secondInfo)
 
-        val thirdWorkSpecId = "third"
+        val thirdWorkSpecId = WorkGenerationalId("third", 0)
         val thirdId = 3
         val thirdInfo = ForegroundInfo(thirdId, notification)
         val thirdIntent = createNotifyIntent(context, thirdWorkSpecId, thirdInfo)
 
         dispatcher.onStartCommand(firstIntent)
-        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        assertThat(dispatcher.mCurrentForegroundId, `is`(firstWorkSpecId))
         verify(dispatcherCallback, times(1))
             .startForeground(eq(firstId), eq(0), any<Notification>())
 
         dispatcher.onStartCommand(secondIntent)
-        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        assertThat(dispatcher.mCurrentForegroundId, `is`(firstWorkSpecId))
         verify(dispatcherCallback, times(1))
             .notify(eq(secondId), any<Notification>())
         assertThat(dispatcher.mForegroundInfoById.count(), `is`(2))
 
         dispatcher.onStartCommand(thirdIntent)
-        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        assertThat(dispatcher.mCurrentForegroundId, `is`(firstWorkSpecId))
         verify(dispatcherCallback, times(1))
             .notify(eq(secondId), any<Notification>())
         assertThat(dispatcher.mForegroundInfoById.count(), `is`(3))
@@ -297,14 +300,14 @@ class SystemForegroundDispatcherTest {
     @Test
     @SdkSuppress(minSdkVersion = 29)
     fun testUpdateNotificationWithDifferentForegroundServiceType() {
-        val firstWorkSpecId = "first"
+        val firstWorkSpecId = WorkGenerationalId("first", 0)
         val firstId = 1
         val notification = mock(Notification::class.java)
         val firstInfo =
             ForegroundInfo(firstId, notification, FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE)
         val firstIntent = createNotifyIntent(context, firstWorkSpecId, firstInfo)
 
-        val secondWorkSpecId = "second"
+        val secondWorkSpecId = WorkGenerationalId("second", 0)
         val secondId = 2
         val secondInfo = ForegroundInfo(secondId, notification, FOREGROUND_SERVICE_TYPE_LOCATION)
         val secondIntent = createNotifyIntent(context, secondWorkSpecId, secondInfo)
@@ -318,7 +321,7 @@ class SystemForegroundDispatcherTest {
             )
 
         dispatcher.onStartCommand(secondIntent)
-        assertThat(dispatcher.mCurrentForegroundWorkSpecId, `is`(firstWorkSpecId))
+        assertThat(dispatcher.mCurrentForegroundId, `is`(firstWorkSpecId))
         verify(dispatcherCallback, times(1))
             .notify(eq(secondId), any<Notification>())
 
@@ -343,11 +346,14 @@ class SystemForegroundDispatcherTest {
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
-        val intent = createStartForegroundIntent(context, request.stringId, metadata)
+        val intent = createStartForegroundIntent(context,
+            WorkGenerationalId(request.stringId, 0), metadata)
         dispatcher.onStartCommand(intent)
         verify(tracker, times(1)).replace(setOf(request.workSpec))
         dispatcher.onAllConstraintsNotMet(listOf(request.workSpec))
-        verify(workManager, times(1)).stopForegroundWork(eq(request.workSpec.id))
+        verify(workManager, times(1)).stopForegroundWork(eq(
+            WorkGenerationalId(request.workSpec.id, 0)
+        ))
     }
 
     @Test
@@ -360,7 +366,8 @@ class SystemForegroundDispatcherTest {
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
-        val intent = createStartForegroundIntent(context, request.stringId, metadata)
+        val intent = createStartForegroundIntent(context,
+            WorkGenerationalId(request.workSpec.id, 0), metadata)
         dispatcher.onStartCommand(intent)
         verify(tracker, times(1)).replace(setOf(request.workSpec))
         val stopIntent = createCancelWorkIntent(context, request.stringId)
@@ -380,10 +387,11 @@ class SystemForegroundDispatcherTest {
         val notificationId = 1
         val notification = mock(Notification::class.java)
         val metadata = ForegroundInfo(notificationId, notification)
-        val intent = createStartForegroundIntent(context, request.stringId, metadata)
+        val intent = createStartForegroundIntent(context,
+            WorkGenerationalId(request.stringId, 0), metadata)
         dispatcher.onStartCommand(intent)
         val stopWorkRunnable = StopWorkRunnable(
-            workManager, StartStopToken(request.stringId), false
+            workManager, StartStopToken(WorkGenerationalId(request.stringId, 0)), false
         )
         stopWorkRunnable.run()
         val state = workDatabase.workSpecDao().getState(request.stringId)

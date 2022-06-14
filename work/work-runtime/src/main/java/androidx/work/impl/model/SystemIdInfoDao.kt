@@ -37,8 +37,18 @@ interface SystemIdInfoDao {
      * @param workSpecId The [WorkSpec] identifier.
      * @return The instance of [SystemIdInfo] if exists.
      */
-    @Query("SELECT * FROM SystemIdInfo WHERE work_spec_id=:workSpecId")
-    fun getSystemIdInfo(workSpecId: String): SystemIdInfo?
+    @Query("SELECT * FROM SystemIdInfo WHERE work_spec_id=:workSpecId AND generation=:generation")
+    fun getSystemIdInfo(workSpecId: String, generation: Int): SystemIdInfo?
+
+    fun getSystemIdInfo(id: WorkGenerationalId) = getSystemIdInfo(id.workSpecId, id.generation)
+
+    /**
+     * Removes [SystemIdInfo] corresponding to the [WorkSpec] identifier.
+     *
+     * @param workSpecId The [WorkSpec] identifier.
+     */
+    @Query("DELETE FROM SystemIdInfo where work_spec_id=:workSpecId AND generation=:generation")
+    fun removeSystemIdInfo(workSpecId: String, generation: Int)
 
     /**
      * Removes [SystemIdInfo] corresponding to the [WorkSpec] identifier.
@@ -47,6 +57,9 @@ interface SystemIdInfoDao {
      */
     @Query("DELETE FROM SystemIdInfo where work_spec_id=:workSpecId")
     fun removeSystemIdInfo(workSpecId: String)
+
+    fun removeSystemIdInfo(id: WorkGenerationalId) =
+        removeSystemIdInfo(id.workSpecId, id.generation)
 
     /**
      * @return The [List] of [WorkSpec] ids.

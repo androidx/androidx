@@ -31,6 +31,8 @@ import androidx.work.ForegroundInfo;
 import androidx.work.Logger;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.foreground.ForegroundProcessor;
+import androidx.work.impl.model.WorkGenerationalId;
+import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.utils.WakeLocks;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
@@ -113,18 +115,48 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     public boolean startWork(
             @NonNull StartStopToken startStopToken,
             @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
-        String id = startStopToken.getWorkSpecId();
+        WorkGenerationalId id = startStopToken.getId();
+        WorkSpec workSpec = mWorkDatabase.runInTransaction(
+                () -> mWorkDatabase.workSpecDao().getWorkSpec(id.getWorkSpecId())
+        );
+        if (workSpec == null) {
+            Logger.get().error(TAG, "Didn't find WorkSpec for id " + id);
+            runOnExecuted(id, false);
+            return false;
+        }
         WorkerWrapper workWrapper;
         synchronized (mLock) {
             // Work may get triggered multiple times if they have passing constraints
             // and new work with those constraints are added.
-            if (isEnqueued(id)) {
+            String workSpecId = id.getWorkSpecId();
+            if (isEnqueued(workSpecId)) {
                 // there must be another run if it is enqueued.
-                mWorkRuns.get(id).add(startStopToken);
-                Logger.get().debug(TAG, "Work " + id + " is already enqueued for processing");
+                Set<StartStopToken> tokens = mWorkRuns.get(workSpecId);
+                StartStopToken previousRun = tokens.iterator().next();
+                int previousRunGeneration = previousRun.getId().getGeneration();
+                if (previousRunGeneration == id.getGeneration()) {
+                    tokens.add(startStopToken);
+                    Logger.get().debug(TAG, "Work " + id + " is already enqueued for processing");
+                } else {
+                    // Implementation detail.
+                    // If previousRunGeneration > id.getGeneration(), then we don't have to do
+                    // anything because newer generation is already running
+                    //
+                    // Case of previousRunGeneration < id.getGeneration():
+                    // it should happen only in the case of the periodic worker,
+                    // so we let run a current Worker, and periodic worker will schedule
+                    // next iteration with updated work spec.
+                    runOnExecuted(id, false);
+                }
                 return false;
             }
 
+            if (workSpec.getGeneration() != id.getGeneration()) {
+                // not the latest generation, so ignoring this start request,
+                // new request with newer generation should arrive shortly.
+                runOnExecuted(id, false);
+                return false;
+            }
             workWrapper =
                     new WorkerWrapper.Builder(
                             mAppContext,
@@ -132,18 +164,18 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                             mWorkTaskExecutor,
                             this,
                             mWorkDatabase,
-                            id)
+                            workSpec)
                             .withSchedulers(mSchedulers)
                             .withRuntimeExtras(runtimeExtras)
                             .build();
             ListenableFuture<Boolean> future = workWrapper.getFuture();
             future.addListener(
-                    new FutureListener(this, id, future),
+                    new FutureListener(this, startStopToken.getId(), future),
                     mWorkTaskExecutor.getMainThreadExecutor());
-            mEnqueuedWorkMap.put(id, workWrapper);
+            mEnqueuedWorkMap.put(workSpecId, workWrapper);
             HashSet<StartStopToken> set = new HashSet<>();
             set.add(startStopToken);
-            mWorkRuns.put(id, set);
+            mWorkRuns.put(workSpecId, set);
         }
         mWorkTaskExecutor.getSerialTaskExecutor().execute(workWrapper);
         Logger.get().debug(TAG, getClass().getSimpleName() + ": processing " + id);
@@ -162,8 +194,8 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                     mForegroundLock.acquire();
                 }
                 mForegroundWorkMap.put(workSpecId, wrapper);
-                Intent intent = createStartForegroundIntent(mAppContext, workSpecId,
-                        foregroundInfo);
+                Intent intent = createStartForegroundIntent(mAppContext,
+                        wrapper.getWorkGenerationalId(), foregroundInfo);
                 ContextCompat.startForegroundService(mAppContext, intent);
             }
         }
@@ -172,10 +204,11 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     /**
      * Stops a unit of work running in the context of a foreground service.
      *
-     * @param id The work id to stop
+     * @param token The work to stop
      * @return {@code true} if the work was stopped successfully
      */
-    public boolean stopForegroundWork(@NonNull String id) {
+    public boolean stopForegroundWork(@NonNull StartStopToken token) {
+        String id = token.getId().getWorkSpecId();
         WorkerWrapper wrapper = null;
         synchronized (mLock) {
             Logger.get().debug(TAG, "Processor stopping foreground work " + id);
@@ -198,7 +231,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
      * @return {@code true} if the work was stopped successfully
      */
     public boolean stopWork(@NonNull StartStopToken runId) {
-        String id = runId.getWorkSpecId();
+        String id = runId.getId().getWorkSpecId();
         WorkerWrapper wrapper = null;
         synchronized (mLock) {
             // Processor _only_ receives stopWork() requests from the schedulers that originally
@@ -333,19 +366,26 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     }
 
     @Override
-    public void onExecuted(
-            @NonNull final String workSpecId,
-            boolean needsReschedule) {
-
+    public void onExecuted(@NonNull final WorkGenerationalId id, boolean needsReschedule) {
         synchronized (mLock) {
-            mEnqueuedWorkMap.remove(workSpecId);
+            WorkerWrapper workerWrapper = mEnqueuedWorkMap.get(id.getWorkSpecId());
+            // can be called for another generation, so we shouldn't removed
+            if (workerWrapper != null && id.equals(workerWrapper.getWorkGenerationalId())) {
+                mEnqueuedWorkMap.remove(id.getWorkSpecId());
+            }
             Logger.get().debug(TAG,
-                    getClass().getSimpleName() + " " + workSpecId +
-                            " executed; reschedule = " + needsReschedule);
+                    getClass().getSimpleName() + " " + id.getWorkSpecId()
+                            + " executed; reschedule = " + needsReschedule);
             for (ExecutionListener executionListener : mOuterListeners) {
-                executionListener.onExecuted(workSpecId, needsReschedule);
+                executionListener.onExecuted(id, needsReschedule);
             }
         }
+    }
+
+    private void runOnExecuted(@NonNull final WorkGenerationalId id, boolean needsReschedule) {
+        mWorkTaskExecutor.getMainThreadExecutor().execute(
+                () -> onExecuted(id, needsReschedule)
+        );
     }
 
     private void stopForegroundService() {
@@ -395,15 +435,15 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
     private static class FutureListener implements Runnable {
 
         private @NonNull ExecutionListener mExecutionListener;
-        private @NonNull String mWorkSpecId;
+        private @NonNull final WorkGenerationalId mWorkGenerationalId;
         private @NonNull ListenableFuture<Boolean> mFuture;
 
         FutureListener(
                 @NonNull ExecutionListener executionListener,
-                @NonNull String workSpecId,
+                @NonNull WorkGenerationalId workGenerationalId,
                 @NonNull ListenableFuture<Boolean> future) {
             mExecutionListener = executionListener;
-            mWorkSpecId = workSpecId;
+            mWorkGenerationalId = workGenerationalId;
             mFuture = future;
         }
 
@@ -416,7 +456,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                 // Should never really happen(?)
                 needsReschedule = true;
             }
-            mExecutionListener.onExecuted(mWorkSpecId, needsReschedule);
+            mExecutionListener.onExecuted(mWorkGenerationalId, needsReschedule);
         }
     }
 }
