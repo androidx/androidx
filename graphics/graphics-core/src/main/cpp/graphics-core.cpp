@@ -55,7 +55,6 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nCreateFromSurface(JNI
                                                                              jobject surface,
                                                                              jstring debug_name) {
     if (android_get_device_api_level() >= 29) {
-
         auto AWindow = ANativeWindow_fromSurface(env, surface);
         auto debugName = env->GetStringUTFChars(debug_name, nullptr);
         auto surfaceControl = reinterpret_cast<jlong>(ASurfaceControl_createFromWindow(AWindow,

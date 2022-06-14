@@ -24,7 +24,6 @@ import android.view.Surface
 import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
-import androidx.graphics.surface.SurfaceControlWrapper.Transaction
 import java.util.concurrent.Executor
 
 /**
@@ -252,11 +251,11 @@ class SurfaceControlCompat internal constructor(
          * @param releaseCallback Optional callback invoked when the buffer is ready for re-use
          * after being presented to the display.
          */
-        // TODO update to consume Fence API from either SyncFence or SyncFenceCompat
+        @JvmOverloads
         fun setBuffer(
             surfaceControl: SurfaceControlCompat,
             buffer: HardwareBuffer,
-            releaseCallback: (() -> Unit)?
+            releaseCallback: (() -> Unit)? = null
         ): Transaction {
             mImpl.setBuffer(surfaceControl.scImpl, buffer, releaseCallback)
             return this

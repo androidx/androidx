@@ -168,11 +168,10 @@ internal interface SurfaceControlImpl {
          * @param releaseCallback Optional callback invoked when the buffer is ready for re-use
          * after being presented to the display.
          */
-        // TODO update to consume Fence API from either SyncFence or SyncFenceCompat
         fun setBuffer(
             surfaceControl: SurfaceControlImpl,
             buffer: HardwareBuffer,
-            releaseCallback: (() -> Unit)?
+            releaseCallback: (() -> Unit)? = null
         ): Transaction
 
         /**

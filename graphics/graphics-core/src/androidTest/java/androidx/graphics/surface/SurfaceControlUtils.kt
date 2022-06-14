@@ -18,6 +18,7 @@ package androidx.graphics.surface
 
 import android.app.Instrumentation
 import android.graphics.Bitmap
+import android.hardware.HardwareBuffer
 import android.os.SystemClock
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -46,6 +47,16 @@ internal class SurfaceControlUtils {
             val uiAutomation = instrumentation.uiAutomation
             val screenshot = uiAutomation.takeScreenshot()
             return screenshot
+        }
+
+        fun getSolidBuffer(width: Int, height: Int, color: Int): HardwareBuffer {
+            return nGetSolidBuffer(width, height, color)
+        }
+
+        private external fun nGetSolidBuffer(width: Int, height: Int, color: Int): HardwareBuffer
+
+        init {
+            System.loadLibrary("sc-compat-test")
         }
     }
 }
