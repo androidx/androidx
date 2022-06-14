@@ -42,7 +42,7 @@ dependencies {
     androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
     androidTestImplementation projectOrArtifact(":compose:material:material")
     androidTestImplementation projectOrArtifact(":compose:test-utils")
-    androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-runtime-testing")
+    androidTestImplementation ("androidx.lifecycle:lifecycle-runtime-testing:2.5.0-rc01")
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunitKtx)
     androidTestImplementation(libs.junit)
