@@ -173,7 +173,7 @@ class GLWetDryRendererTest {
     }
 
     @Test
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun testUsageFlagContainsFrontBufferUsage() {
         val usageFlags = GLWetDryRenderer.obtainHardwareBufferUsageFlags()
         if (GLWetDryRenderer.supportsFrontBufferUsage()) {
