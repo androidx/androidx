@@ -129,7 +129,7 @@ public class ForceStopRunnable implements Runnable {
                         IllegalStateException throwable = new IllegalStateException(message,
                                 exception);
                         InitializationExceptionHandler exceptionHandler =
-                                mWorkManager.getConfiguration().getExceptionHandler();
+                                mWorkManager.getConfiguration().getInitializationExceptionHandler();
                         if (exceptionHandler != null) {
                             Logger.get().debug(TAG,
                                     "Routing exception to the specified exception handler",

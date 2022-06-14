@@ -37,6 +37,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
+import androidx.work.SchedulingExceptionHandler;
 import androidx.work.WorkInfo;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
@@ -73,7 +74,8 @@ public class SystemJobScheduler implements Scheduler {
         this(context,
                 workManager,
                 (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE),
-                new SystemJobInfoConverter(context));
+                new SystemJobInfoConverter(context)
+        );
     }
 
     @VisibleForTesting
@@ -215,8 +217,18 @@ public class SystemJobScheduler implements Scheduler {
 
             Logger.get().error(TAG, message);
 
-            // Rethrow a more verbose exception.
-            throw new IllegalStateException(message, e);
+            IllegalStateException schedulingException = new IllegalStateException(message, e);
+            // If a SchedulingExceptionHandler is defined, let the app handle the scheduling
+            // exception.
+            SchedulingExceptionHandler handler =
+                    mWorkManager.getConfiguration().getSchedulingExceptionHandler();
+            if (handler != null) {
+                handler.handleException(schedulingException);
+            } else {
+                // Rethrow a more verbose exception.
+                throw schedulingException;
+            }
+
         } catch (Throwable throwable) {
             // OEM implementation bugs in JobScheduler cause the app to crash. Avoid crashing.
             Logger.get().error(TAG, "Unable to schedule " + workSpec, throwable);
