@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-
-import androidx.build.LibraryType
-import androidx.build.Multiplatform
+import androidx.build.KmpPlatformsKt
 import androidx.build.Publish
+import androidx.build.LibraryType
 import androidx.build.RunApiTasks
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -28,7 +27,7 @@ plugins {
     id("org.jetbrains.kotlin.multiplatform")
 }
 
-def enableNative = Multiplatform.isKotlinNativeEnabled(project)
+def enableNative = KmpPlatformsKt.enableNative(project)
 
 kotlin {
     jvm {
