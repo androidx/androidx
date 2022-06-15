@@ -95,7 +95,6 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     private Camera2RequestProcessor mRequestProcessor;
     @Nullable
     private SessionConfig mProcessorSessionConfig;
-    private boolean mIsRepeatingRequestStarted = false;
 
     private static final long TIMEOUT_GET_SURFACE_IN_MS = 5000L;
     private ProcessorState mProcessorState;
@@ -561,10 +560,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                     CaptureRequestOptions.Builder.from(sessionConfig.getImplementationOptions())
                             .build();
             updateParameters(mSessionOptions, mStillCaptureOptions);
-            if (!mIsRepeatingRequestStarted) {
-                mSessionProcessor.startRepeating(mSessionProcessorCaptureCallback);
-                mIsRepeatingRequestStarted = true;
-            }
+            mSessionProcessor.startRepeating(mSessionProcessorCaptureCallback);
         }
     }
 
