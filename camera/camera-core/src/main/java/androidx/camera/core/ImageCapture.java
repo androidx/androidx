@@ -1447,7 +1447,8 @@ public final class ImageCapture extends UseCase {
 
                 ImageCaptureRequest currentRequest = mCurrentRequest;
                 mCurrentRequest = null;
-                if (mCurrentRequestFuture.cancel(true)) {
+                if (currentRequest != null && mCurrentRequestFuture != null
+                        && mCurrentRequestFuture.cancel(true)) {
                     remainingRequests.add(0, currentRequest);
                 }
             }
