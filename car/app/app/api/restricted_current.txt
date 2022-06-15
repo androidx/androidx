@@ -154,6 +154,14 @@ package androidx.car.app {
     method public void onNewIntent(android.content.Intent);
   }
 
+  @androidx.car.app.annotations.CarProtocol @androidx.car.app.annotations.RequiresCarApi(5) public class SessionInfo {
+    ctor public SessionInfo(int, String);
+    method public int getDisplayType();
+    method public String getSessionId();
+    field public static final int DISPLAY_TYPE_CLUSTER = 1; // 0x1
+    field public static final int DISPLAY_TYPE_MAIN = 0; // 0x0
+  }
+
   public interface SurfaceCallback {
     method @androidx.car.app.annotations.RequiresCarApi(5) public default void onClick(float, float);
     method @androidx.car.app.annotations.RequiresCarApi(2) public default void onFling(float, float);
