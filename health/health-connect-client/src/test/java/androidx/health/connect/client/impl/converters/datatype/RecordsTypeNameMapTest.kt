@@ -26,7 +26,10 @@ class RecordsTypeNameMapTest {
 
     @Test
     fun allRecordClassNamesHaveRecordSuffix() {
-        val wrongNames = RECORDS_TYPE_NAME_MAP.keys.filterNot { it.endsWith("Record") }
+        val wrongNames =
+            RECORDS_TYPE_NAME_MAP.values
+                .mapNotNull { it.simpleName }
+                .filterNot { it.endsWith("Record") }
 
         assertEquals(emptyList(), wrongNames)
     }

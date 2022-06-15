@@ -21,12 +21,12 @@ import java.time.Instant
 import java.time.ZoneOffset
 
 /**
- * Captures the time of a lap within an activity. A lap is explicitly marked segment within an
- * activity session (such as pool length while swimming or a track lap while running). Each data
- * point represents the start / stop time for an event.
+ * Captures the time of a lap within an exercise. A lap is explicitly marked segment within an
+ * exercise session (such as pool length while swimming or a track lap while running). Each record
+ * contains the start / stop time of the lap.
  */
-public class ActivityLapRecord(
-    /** Length of the lap, in [Length] unit. Optional field. Valid range: 0-1000000 meters. */
+public class ExerciseLapRecord(
+    /** Length of the lap, in meters. Optional field. Valid range: 0-1000000 meters. */
     public val length: Length? = null,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
@@ -45,7 +45,7 @@ public class ActivityLapRecord(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ActivityLapRecord) return false
+        if (other !is ExerciseLapRecord) return false
 
         if (length != other.length) return false
         if (startTime != other.startTime) return false

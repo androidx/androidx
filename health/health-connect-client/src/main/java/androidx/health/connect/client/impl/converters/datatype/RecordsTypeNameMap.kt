@@ -20,9 +20,6 @@ package androidx.health.connect.client.impl.converters.datatype
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.ActiveEnergyBurnedRecord
-import androidx.health.connect.client.records.ActivityEventRecord
-import androidx.health.connect.client.records.ActivityLapRecord
-import androidx.health.connect.client.records.ActivitySessionRecord
 import androidx.health.connect.client.records.BasalBodyTemperatureRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
@@ -35,6 +32,10 @@ import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseEventRecord
+import androidx.health.connect.client.records.ExerciseLapRecord
+import androidx.health.connect.client.records.ExerciseRepetitionsRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
@@ -56,7 +57,6 @@ import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
-import androidx.health.connect.client.records.RepetitionsRecord
 import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
@@ -74,62 +74,64 @@ import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import kotlin.reflect.KClass
 
-private val ALL_RECORDS_TYPES =
-    setOf(
-        ActiveCaloriesBurnedRecord::class,
-        ActiveEnergyBurnedRecord::class,
-        ActivityEventRecord::class,
-        ActivityLapRecord::class,
-        ActivitySessionRecord::class,
-        BasalBodyTemperatureRecord::class,
-        BasalMetabolicRateRecord::class,
-        BloodGlucoseRecord::class,
-        BloodPressureRecord::class,
-        BodyFatRecord::class,
-        BodyTemperatureRecord::class,
-        BodyWaterMassRecord::class,
-        BoneMassRecord::class,
-        CervicalMucusRecord::class,
-        CyclingPedalingCadenceRecord::class,
-        DistanceRecord::class,
-        ElevationGainedRecord::class,
-        FloorsClimbedRecord::class,
-        HeartRateRecord::class,
-        HeartRateVariabilityDifferentialIndexRecord::class,
-        HeartRateVariabilityRmssdRecord::class,
-        HeartRateVariabilitySRecord::class,
-        HeartRateVariabilitySd2Record::class,
-        HeartRateVariabilitySdannRecord::class,
-        HeartRateVariabilitySdnnRecord::class,
-        HeartRateVariabilitySdnnIndexRecord::class,
-        HeartRateVariabilitySdsdRecord::class,
-        HeartRateVariabilityTinnRecord::class,
-        HeightRecord::class,
-        HipCircumferenceRecord::class,
-        HydrationRecord::class,
-        LeanBodyMassRecord::class,
-        MenstruationRecord::class,
-        NutritionRecord::class,
-        OvulationTestRecord::class,
-        OxygenSaturationRecord::class,
-        PowerRecord::class,
-        RepetitionsRecord::class,
-        RespiratoryRateRecord::class,
-        RestingHeartRateRecord::class,
-        SexualActivityRecord::class,
-        SleepSessionRecord::class,
-        SleepStageRecord::class,
-        SpeedRecord::class,
-        StepsRecord::class,
-        StepsCadenceRecord::class,
-        SwimmingStrokesRecord::class,
-        TotalCaloriesBurnedRecord::class,
-        TotalEnergyBurnedRecord::class,
-        Vo2MaxRecord::class,
-        WaistCircumferenceRecord::class,
-        WheelchairPushesRecord::class,
-        WeightRecord::class,
+val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
+    mapOf(
+        "ActiveCaloriesBurned" to ActiveCaloriesBurnedRecord::class,
+        "ActiveEnergyBurned" to ActiveEnergyBurnedRecord::class,
+        "ActivityEvent" to ExerciseEventRecord::class, // Keep legacy Activity name
+        "ActivityLap" to ExerciseLapRecord::class, // Keep legacy Activity name
+        "ActivitySession" to ExerciseSessionRecord::class, // Keep legacy Activity name
+        "BasalBodyTemperature" to BasalBodyTemperatureRecord::class,
+        "BasalMetabolicRate" to BasalMetabolicRateRecord::class,
+        "BloodGlucose" to BloodGlucoseRecord::class,
+        "BloodPressure" to BloodPressureRecord::class,
+        "BodyFat" to BodyFatRecord::class,
+        "BodyTemperature" to BodyTemperatureRecord::class,
+        "BodyWaterMass" to BodyWaterMassRecord::class,
+        "BoneMass" to BoneMassRecord::class,
+        "CervicalMucus" to CervicalMucusRecord::class,
+        "CyclingPedalingCadenceSeries" to
+            CyclingPedalingCadenceRecord::class, // Keep legacy Series suffix
+        "Distance" to DistanceRecord::class,
+        "ElevationGained" to ElevationGainedRecord::class,
+        "FloorsClimbed" to FloorsClimbedRecord::class,
+        "HeartRateSeries" to HeartRateRecord::class, // Keep legacy Series suffix
+        "HeartRateVariabilityDifferentialIndex" to
+            HeartRateVariabilityDifferentialIndexRecord::class,
+        "HeartRateVariabilityRmssd" to HeartRateVariabilityRmssdRecord::class,
+        "HeartRateVariabilityS" to HeartRateVariabilitySRecord::class,
+        "HeartRateVariabilitySd2" to HeartRateVariabilitySd2Record::class,
+        "HeartRateVariabilitySdann" to HeartRateVariabilitySdannRecord::class,
+        "HeartRateVariabilitySdnn" to HeartRateVariabilitySdnnRecord::class,
+        "HeartRateVariabilitySdnnIndex" to HeartRateVariabilitySdnnIndexRecord::class,
+        "HeartRateVariabilitySdsd" to HeartRateVariabilitySdsdRecord::class,
+        "HeartRateVariabilityTinn" to HeartRateVariabilityTinnRecord::class,
+        "Height" to HeightRecord::class,
+        "HipCircumference" to HipCircumferenceRecord::class,
+        "Hydration" to HydrationRecord::class,
+        "LeanBodyMass" to LeanBodyMassRecord::class,
+        "Menstruation" to MenstruationRecord::class,
+        "Nutrition" to NutritionRecord::class,
+        "OvulationTest" to OvulationTestRecord::class,
+        "OxygenSaturation" to OxygenSaturationRecord::class,
+        "PowerSeries" to PowerRecord::class, // Keep legacy Series suffix
+        "Repetitions" to ExerciseRepetitionsRecord::class, // Keep legacy Repetitions name
+        "RespiratoryRate" to RespiratoryRateRecord::class,
+        "RestingHeartRate" to RestingHeartRateRecord::class,
+        "SexualActivity" to SexualActivityRecord::class,
+        "SleepSession" to SleepSessionRecord::class,
+        "SleepStage" to SleepStageRecord::class,
+        "SpeedSeries" to SpeedRecord::class, // Keep legacy Series suffix
+        "Steps" to StepsRecord::class,
+        "StepsCadenceSeries" to StepsCadenceRecord::class, // Keep legacy Series suffix
+        "SwimmingStrokes" to SwimmingStrokesRecord::class,
+        "TotalCaloriesBurned" to TotalCaloriesBurnedRecord::class,
+        "TotalEnergyBurned" to TotalEnergyBurnedRecord::class,
+        "Vo2Max" to Vo2MaxRecord::class,
+        "WaistCircumference" to WaistCircumferenceRecord::class,
+        "WheelchairPushes" to WheelchairPushesRecord::class,
+        "Weight" to WeightRecord::class,
     )
 
-val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
-    ALL_RECORDS_TYPES.associateBy { it.simpleName!! }
+val RECORDS_CLASS_NAME_MAP: Map<KClass<out Record>, String> =
+    RECORDS_TYPE_NAME_MAP.entries.associate { it.value to it.key }

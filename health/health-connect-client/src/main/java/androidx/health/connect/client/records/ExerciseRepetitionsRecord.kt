@@ -22,11 +22,11 @@ import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures the number of repetitions in an exercise set. */
-public class RepetitionsRecord(
+public class ExerciseRepetitionsRecord(
     /** Count. Required field. Valid range: 1-1000000. */
     public val count: Long,
-    /** Type of activity being repeated. Optional field. Allowed values: [ActivityType]. */
-    @property:ActivityTypes public val type: String,
+    /** Type of exercise being repeated. Required field. Allowed values: [ExerciseType]. */
+    @property:ExerciseTypes public val type: String,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
@@ -40,7 +40,7 @@ public class RepetitionsRecord(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is RepetitionsRecord) return false
+        if (other !is ExerciseRepetitionsRecord) return false
 
         if (count != other.count) return false
         if (type != other.type) return false
@@ -64,8 +64,8 @@ public class RepetitionsRecord(
         return result
     }
 
-    /** Activity types supported by [RepetitionsRecord]. */
-    public object ActivityType {
+    /** Exercise types supported by [ExerciseRepetitionsRecord]. */
+    public object ExerciseType {
         const val ARM_CURL = "arm_curl"
         const val BACK_EXTENSION = "back_extension"
         const val BALL_SLAM = "ball_slam"
@@ -99,45 +99,45 @@ public class RepetitionsRecord(
     }
 
     /**
-     * Activity types supported by repetitions.
+     * Exercise types supported by repetitions.
      * @suppress
      */
     @Retention(AnnotationRetention.SOURCE)
     @StringDef(
         value =
             [
-                ActivityType.ARM_CURL,
-                ActivityType.BACK_EXTENSION,
-                ActivityType.BALL_SLAM,
-                ActivityType.BENCH_PRESS,
-                ActivityType.BURPEE,
-                ActivityType.CRUNCH,
-                ActivityType.DEADLIFT,
-                ActivityType.DOUBLE_ARM_TRICEPS_EXTENSION,
-                ActivityType.DUMBBELL_ROW,
-                ActivityType.FRONT_RAISE,
-                ActivityType.HIP_THRUST,
-                ActivityType.HULA_HOOP,
-                ActivityType.JUMPING_JACK,
-                ActivityType.JUMP_ROPE,
-                ActivityType.KETTLEBELL_SWING,
-                ActivityType.LATERAL_RAISE,
-                ActivityType.LAT_PULL_DOWN,
-                ActivityType.LEG_CURL,
-                ActivityType.LEG_EXTENSION,
-                ActivityType.LEG_PRESS,
-                ActivityType.LEG_RAISE,
-                ActivityType.LUNGE,
-                ActivityType.MOUNTAIN_CLIMBER,
-                ActivityType.PLANK,
-                ActivityType.PULL_UP,
-                ActivityType.PUNCH,
-                ActivityType.SHOULDER_PRESS,
-                ActivityType.SINGLE_ARM_TRICEPS_EXTENSION,
-                ActivityType.SIT_UP,
-                ActivityType.SQUAT
+                ExerciseType.ARM_CURL,
+                ExerciseType.BACK_EXTENSION,
+                ExerciseType.BALL_SLAM,
+                ExerciseType.BENCH_PRESS,
+                ExerciseType.BURPEE,
+                ExerciseType.CRUNCH,
+                ExerciseType.DEADLIFT,
+                ExerciseType.DOUBLE_ARM_TRICEPS_EXTENSION,
+                ExerciseType.DUMBBELL_ROW,
+                ExerciseType.FRONT_RAISE,
+                ExerciseType.HIP_THRUST,
+                ExerciseType.HULA_HOOP,
+                ExerciseType.JUMPING_JACK,
+                ExerciseType.JUMP_ROPE,
+                ExerciseType.KETTLEBELL_SWING,
+                ExerciseType.LATERAL_RAISE,
+                ExerciseType.LAT_PULL_DOWN,
+                ExerciseType.LEG_CURL,
+                ExerciseType.LEG_EXTENSION,
+                ExerciseType.LEG_PRESS,
+                ExerciseType.LEG_RAISE,
+                ExerciseType.LUNGE,
+                ExerciseType.MOUNTAIN_CLIMBER,
+                ExerciseType.PLANK,
+                ExerciseType.PULL_UP,
+                ExerciseType.PUNCH,
+                ExerciseType.SHOULDER_PRESS,
+                ExerciseType.SINGLE_ARM_TRICEPS_EXTENSION,
+                ExerciseType.SIT_UP,
+                ExerciseType.SQUAT
             ]
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    annotation class ActivityTypes
+    annotation class ExerciseTypes
 }

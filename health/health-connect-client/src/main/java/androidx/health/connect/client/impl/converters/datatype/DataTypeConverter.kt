@@ -21,13 +21,13 @@ import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.Record
 import kotlin.reflect.KClass
 
-private const val RECORD_SUFFIX = "Record"
-
-/** Converts public API object into internal proto for ipc. */
+/**
+ * Converts public API object into internal proto for ipc.
+ *
+ * @suppress
+ */
 fun KClass<out Record>.toDataTypeName(): String =
-    simpleName?.removeSuffix(RECORD_SUFFIX)
-        ?: throw UnsupportedOperationException("Not supported yet: $this")
+    RECORDS_CLASS_NAME_MAP[this] ?: throw UnsupportedOperationException("Not supported yet: $this")
 
 fun String.toDataTypeKClass(): KClass<out Record> =
-    RECORDS_TYPE_NAME_MAP["$this$RECORD_SUFFIX"]
-        ?: throw UnsupportedOperationException("Not supported yet: $this")
+    RECORDS_TYPE_NAME_MAP[this] ?: throw UnsupportedOperationException("Not supported yet: $this")
