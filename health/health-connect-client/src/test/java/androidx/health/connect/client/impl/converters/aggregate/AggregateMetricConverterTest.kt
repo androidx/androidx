@@ -15,8 +15,8 @@
  */
 package androidx.health.connect.client.impl.converters.aggregate
 
-import androidx.health.connect.client.records.ActivitySessionRecord
 import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HeartRateRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.platform.client.proto.RequestProto
@@ -45,7 +45,7 @@ class AggregateMetricConverterTest {
                     .setFieldName("distance")
                     .build()
             )
-        assertThat(ActivitySessionRecord.ACTIVE_TIME_TOTAL.toProto())
+        assertThat(ExerciseSessionRecord.ACTIVE_TIME_TOTAL.toProto())
             .isEqualTo(
                 RequestProto.AggregateMetricSpec.newBuilder()
                     .setDataTypeName("ActiveTime")

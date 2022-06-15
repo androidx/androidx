@@ -20,9 +20,6 @@ package androidx.health.connect.client.impl.converters.records
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.ActiveEnergyBurnedRecord
-import androidx.health.connect.client.records.ActivityEventRecord
-import androidx.health.connect.client.records.ActivityLapRecord
-import androidx.health.connect.client.records.ActivitySessionRecord
 import androidx.health.connect.client.records.BasalBodyTemperatureRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
@@ -36,6 +33,10 @@ import androidx.health.connect.client.records.CyclingPedalingCadence
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseEventRecord
+import androidx.health.connect.client.records.ExerciseLapRecord
+import androidx.health.connect.client.records.ExerciseRepetitionsRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRate
 import androidx.health.connect.client.records.HeartRateRecord
@@ -59,7 +60,6 @@ import androidx.health.connect.client.records.OxygenSaturationRecord
 import androidx.health.connect.client.records.Power
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
-import androidx.health.connect.client.records.RepetitionsRecord
 import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
@@ -399,7 +399,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "ActivityEvent" ->
-                ActivityEventRecord(
+                ExerciseEventRecord(
                     eventType = getEnum("eventType") ?: "",
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
@@ -408,8 +408,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "ActivityLap" ->
-                ActivityLapRecord(
-                    length = valuesMap["length"]?.doubleVal?.meters,
+                ExerciseLapRecord(
+                    length = getDouble("length").meters,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -417,8 +417,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "ActivitySession" ->
-                ActivitySessionRecord(
-                    activityType = getEnum("activityType") ?: "",
+                ExerciseSessionRecord(
+                    exerciseType = getEnum("activityType") ?: "",
                     title = getString("title"),
                     notes = getString("notes"),
                     startTime = startTime,
@@ -516,7 +516,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "Repetitions" ->
-                RepetitionsRecord(
+                ExerciseRepetitionsRecord(
                     count = getLong("count"),
                     type = getEnum("type") ?: "",
                     startTime = startTime,

@@ -22,10 +22,12 @@ import java.time.Instant
 import java.time.ZoneOffset
 
 /**
- * Captures the time of a event within an activity - such as a pause or rest. Each record represents
- * the start / stop time for an event.
+ * Captures pause or rest events within an exercise. Each record contains the start / stop time of
+ * the event.
+ *
+ * For pause events, resume state can be assumed from the end time of the pause or rest event.
  */
-public class ActivityEventRecord(
+public class ExerciseEventRecord(
     /** Type of event. Required field. Allowed values: [EventType]. */
     @property:EventTypes public val eventType: String,
     override val startTime: Instant,
@@ -36,7 +38,7 @@ public class ActivityEventRecord(
 ) : IntervalRecord {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is ActivityEventRecord) return false
+        if (other !is ExerciseEventRecord) return false
 
         if (eventType != other.eventType) return false
         if (startTime != other.startTime) return false
@@ -59,7 +61,7 @@ public class ActivityEventRecord(
     }
 
     /**
-     * Types of activity event. They can be either explicitly requested by a user or auto-detected
+     * Types of exercise event. They can be either explicitly requested by a user or auto-detected
      * by a tracking app.
      */
     public object EventType {
@@ -76,7 +78,7 @@ public class ActivityEventRecord(
         const val REST = "rest"
     }
     /**
-     * Types of activity event. They can be either explicitly requested by a user or auto-detected
+     * Types of exercise event. They can be either explicitly requested by a user or auto-detected
      * by a tracking app.
      *
      * @suppress
