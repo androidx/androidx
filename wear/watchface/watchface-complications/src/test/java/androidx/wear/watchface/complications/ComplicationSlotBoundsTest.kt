@@ -29,12 +29,15 @@ class ComplicationSlotBoundsTest {
             mapOf(
                 ComplicationType.SHORT_TEXT to RectF(0.1f, 0.2f, 0.3f, 0.4f),
                 ComplicationType.LONG_TEXT to RectF(0.5f, 0.6f, 0.7f, 0.8f)
+            ),
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(0.4f, 0.3f, 0.2f, 0.1f)
             )
         )
 
         val bounds = complicationSlotBounds.perComplicationTypeBounds
 
-        // SHORT_TEXT and LONG_TEXT should match the input
+        // SHORT_TEXT and LONG_TEXT should match the input bounds
         Truth.assertThat(bounds[ComplicationType.SHORT_TEXT])
             .isEqualTo(RectF(0.1f, 0.2f, 0.3f, 0.4f))
         Truth.assertThat(bounds[ComplicationType.LONG_TEXT])
@@ -44,6 +47,19 @@ class ComplicationSlotBoundsTest {
         for (type in ComplicationType.values()) {
             if (type != ComplicationType.SHORT_TEXT && type != ComplicationType.LONG_TEXT) {
                 Truth.assertThat(bounds[type]).isEqualTo(RectF())
+            }
+        }
+
+        val margins = complicationSlotBounds.perComplicationTypeMargins
+
+        // SHORT_TEXT should match the input margin.
+        Truth.assertThat(margins[ComplicationType.SHORT_TEXT])
+            .isEqualTo(RectF(0.4f, 0.3f, 0.2f, 0.1f))
+
+        // All other types should have been backfilled with an empty rect.
+        for (type in ComplicationType.values()) {
+            if (type != ComplicationType.SHORT_TEXT) {
+                Truth.assertThat(margins[type]).isEqualTo(RectF())
             }
         }
     }

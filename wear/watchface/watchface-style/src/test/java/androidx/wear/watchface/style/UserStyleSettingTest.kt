@@ -343,14 +343,18 @@ public class UserStyleSettingTest {
                 ComplicationType.LONG_TEXT.toWireComplicationType() to
                     RectF(0.5f, 0.6f, 0.7f, 0.8f)
             ),
-            null
+            null,
+            mapOf(
+                ComplicationType.LONG_TEXT.toWireComplicationType() to
+                    RectF(0.2f, 0.2f, 0.2f, 0.2f)
+           )
         )
 
         val overlay =
             UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(wireFormat)
         val bounds = overlay.complicationSlotBounds!!.perComplicationTypeBounds
 
-        // SHORT_TEXT and LONG_TEXT should match the input
+        // SHORT_TEXT and LONG_TEXT should match the input bounds
         assertThat(bounds[ComplicationType.SHORT_TEXT]).isEqualTo(RectF(0.1f, 0.2f, 0.3f, 0.4f))
         assertThat(bounds[ComplicationType.LONG_TEXT]).isEqualTo(RectF(0.5f, 0.6f, 0.7f, 0.8f))
 
@@ -358,6 +362,18 @@ public class UserStyleSettingTest {
         for (type in ComplicationType.values()) {
             if (type != ComplicationType.SHORT_TEXT && type != ComplicationType.LONG_TEXT) {
                 assertThat(bounds[type]).isEqualTo(RectF())
+            }
+        }
+
+        val margins = overlay.complicationSlotBounds!!.perComplicationTypeMargins
+
+        // LONG_TEXT should match the input bounds
+        assertThat(margins[ComplicationType.LONG_TEXT]).isEqualTo(RectF(0.2f, 0.2f, 0.2f, 0.2f))
+
+        // All other types should have been backfilled with an empty rect.
+        for (type in ComplicationType.values()) {
+            if (type != ComplicationType.LONG_TEXT) {
+                assertThat(margins[type]).isEqualTo(RectF())
             }
         }
     }
