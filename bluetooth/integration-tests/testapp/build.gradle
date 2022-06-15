@@ -22,10 +22,42 @@ plugins {
     id("kotlin-android")
 }
 
-dependencies {
-    implementation(libs.kotlinStdlib)
+android {
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 31
+        versionCode 1
+        versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+    buildFeatures {
+        viewBinding true
+    }
+
+    namespace "androidx.bluetooth.integration.testapp"
 }
 
-android {
-    namespace "androidx.bluetooth.integration.testapp"
+dependencies {
+    implementation(libs.kotlinStdlib)
+
+    implementation(project(":bluetooth:bluetooth"))
+
+//    Removing temporarily because core-ktx:1.8.0 is using activity:1.1.0 instead of activity:1.4.0
+//    implementation("androidx.core:core-ktx:1.8.0")
+//    implementation("androidx.appcompat:appcompat:1.4.2")
+
+    implementation("androidx.activity:activity-ktx:1.4.0")
+    implementation("androidx.fragment:fragment-ktx:1.4.1")
+
+    implementation(libs.constraintLayout)
+
+    implementation("androidx.navigation:navigation-fragment-ktx:2.4.2")
+    implementation("androidx.navigation:navigation-ui-ktx:2.4.2")
 }
