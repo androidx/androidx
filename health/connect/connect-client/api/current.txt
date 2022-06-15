@@ -1303,19 +1303,19 @@ package androidx.health.connect.client.records.metadata {
   }
 
   public final class Metadata {
-    ctor public Metadata(optional String? uid, optional androidx.health.connect.client.records.metadata.DataOrigin dataOrigin, optional java.time.Instant lastModifiedTime, optional String? clientId, optional long clientVersion, optional androidx.health.connect.client.records.metadata.Device? device);
+    ctor public Metadata(optional String uid, optional androidx.health.connect.client.records.metadata.DataOrigin dataOrigin, optional java.time.Instant lastModifiedTime, optional String? clientId, optional long clientVersion, optional androidx.health.connect.client.records.metadata.Device? device);
     method public String? getClientId();
     method public long getClientVersion();
     method public androidx.health.connect.client.records.metadata.DataOrigin getDataOrigin();
     method public androidx.health.connect.client.records.metadata.Device? getDevice();
     method public java.time.Instant getLastModifiedTime();
-    method public String? getUid();
+    method public String getUid();
     property public final String? clientId;
     property public final long clientVersion;
     property public final androidx.health.connect.client.records.metadata.DataOrigin dataOrigin;
     property public final androidx.health.connect.client.records.metadata.Device? device;
     property public final java.time.Instant lastModifiedTime;
-    property public final String? uid;
+    property public final String uid;
   }
 
 }

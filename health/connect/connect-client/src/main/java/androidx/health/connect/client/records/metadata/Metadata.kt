@@ -16,21 +16,30 @@
 package androidx.health.connect.client.records.metadata
 
 import java.time.Instant
+import androidx.health.connect.client.records.Record
 
-/** Set of shared metadata fields for [androidx.health.data.client.records.Record]. */
+/** Set of shared metadata fields for [Record]. */
 @SuppressWarnings("NewApi") // Temporary until we can enable java8 desugaring effectively.
 public class Metadata(
     /**
      * Unique identifier of this data, assigned by the Android Health Platform at insertion time.
+     * When [Record] is created before insertion, this takes a sentinel value, any assigned value
+     * will be ignored.
      */
-    public val uid: String? = null,
+    public val uid: String = EMPTY_UID,
 
     /**
      * Where the data comes from, such as application information originally generated this data.
+     * When [Record] is created before insertion, this contains a sentinel value, any assigned value
+     * will be ignored. After insertion, this will be populated with inserted application.
      */
     public val dataOrigin: DataOrigin = DataOrigin(""),
 
-    /** Automatically populated to when data was last modified (or originally created). */
+    /**
+     * Automatically populated to when data was last modified (or originally created).
+     * When [Record] is created before inserted, this contains a sentinel value, any assigned value
+     * will be ignored.
+     */
     public val lastModifiedTime: Instant = Instant.EPOCH,
 
     /**
@@ -73,7 +82,7 @@ public class Metadata(
     }
 
     override fun hashCode(): Int {
-        var result = uid?.hashCode() ?: 0
+        var result = uid.hashCode()
         result = 31 * result + dataOrigin.hashCode()
         result = 31 * result + lastModifiedTime.hashCode()
         result = 31 * result + (clientId?.hashCode() ?: 0)
@@ -83,6 +92,8 @@ public class Metadata(
     }
 
     internal companion object {
+        internal const val EMPTY_UID: String = ""
+
         /** A default instance of metadata with no fields initialised. */
         @JvmField internal val EMPTY = Metadata()
     }
