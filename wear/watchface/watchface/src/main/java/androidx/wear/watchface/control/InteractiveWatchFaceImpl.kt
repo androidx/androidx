@@ -19,6 +19,7 @@ package androidx.wear.watchface.control
 import android.os.Build
 import android.os.Bundle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.utility.TraceEvent
 import androidx.wear.watchface.TapEvent
@@ -41,6 +42,10 @@ internal class InteractiveWatchFaceImpl(
     internal var engine: WatchFaceService.EngineWrapper?,
     internal var instanceId: String
 ) : IInteractiveWatchFace.Stub() {
+    private companion object {
+        private const val TAG = "InteractiveWatchFaceImpl"
+    }
+
     private val uiThreadCoroutineScope = engine!!.uiThreadCoroutineScope
 
     override fun getApiVersion() = IInteractiveWatchFace.API_VERSION
@@ -104,8 +109,10 @@ internal class InteractiveWatchFaceImpl(
             engine,
             "InteractiveWatchFaceImpl.setWatchUiState"
         ) {
-            engine?.systemHasSentWatchUiState = true
-            engine?.setWatchUiState(watchUiState)
+            engine?.let {
+                it.systemHasSentWatchUiState = true
+                it.setWatchUiState(watchUiState)
+            } ?: Log.d(TAG, "setWatchUiState ignored due to null engine id $instanceId")
         }
     }
 
@@ -114,7 +121,10 @@ internal class InteractiveWatchFaceImpl(
     override fun ambientTickUpdate() {
         uiThreadCoroutineScope.runBlockingWithTracing(
             "InteractiveWatchFaceImpl.ambientTickUpdate"
-        ) { engine?.ambientTickUpdate() }
+        ) {
+            engine?.ambientTickUpdate()
+                ?: Log.d(TAG, "ambientTickUpdate ignored due to null engine id $instanceId")
+        }
     }
 
     override fun release(): Unit = TraceEvent("InteractiveWatchFaceImpl.release").use {
@@ -139,7 +149,10 @@ internal class InteractiveWatchFaceImpl(
         complicationDatumWireFormats: MutableList<IdAndComplicationDataWireFormat>
     ): Unit = uiThreadCoroutineScope.runBlockingWithTracing(
         "InteractiveWatchFaceImpl.updateComplicationData"
-    ) { engine?.setComplicationDataList(complicationDatumWireFormats) }
+    ) {
+        engine?.setComplicationDataList(complicationDatumWireFormats)
+            ?: Log.d(TAG, "updateComplicationData ignored due to null engine id $instanceId")
+    }
 
     override fun updateWatchfaceInstance(
         newInstanceId: String,
@@ -182,6 +195,7 @@ internal class InteractiveWatchFaceImpl(
     override fun addWatchfaceReadyListener(listener: IWatchfaceReadyListener) {
         uiThreadCoroutineScope.launch {
             engine?.addWatchfaceReadyListener(listener)
+                ?: Log.d(TAG, "addWatchfaceReadyListener ignored due to null engine id $instanceId")
         }
     }
 
@@ -189,6 +203,7 @@ internal class InteractiveWatchFaceImpl(
         // Note this is almost certainly called on the ui thread, from release() above.
         runBlocking {
             withContext(uiThreadCoroutineScope.coroutineContext) {
+                Log.d(TAG, "onDestroy id $instanceId")
                 engine = null
             }
         }
