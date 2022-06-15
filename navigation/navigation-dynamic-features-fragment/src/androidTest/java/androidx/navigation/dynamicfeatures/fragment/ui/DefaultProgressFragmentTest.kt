@@ -19,6 +19,7 @@ package androidx.navigation.dynamicfeatures.fragment.ui
 import androidx.navigation.dynamicfeatures.fragment.R as mainR
 import androidx.navigation.dynamicfeatures.fragment.test.R as testR
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.dynamicfeatures.fragment.DynamicNavHostFragment
 import androidx.navigation.dynamicfeatures.fragment.NavigationActivity
 import androidx.navigation.fragment.findNavController
@@ -26,7 +27,10 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
+import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,6 +40,8 @@ class DefaultProgressFragmentTest {
     @Test
     fun testInstallationFailure() {
         lateinit var fragment: DynamicNavHostFragment
+        lateinit var defaultProgressFragment: DefaultProgressFragment
+        val failureCountdownLatch = CountDownLatch(1)
         with(ActivityScenario.launch(NavigationActivity::class.java)) {
             withActivity {
                 fragment = DynamicNavHostFragment()
@@ -48,6 +54,28 @@ class DefaultProgressFragmentTest {
                 val navController = fragment.findNavController()
                 navController.setGraph(testR.navigation.include_dynamic_nav_graph)
             }
+
+            withActivity {
+                defaultProgressFragment =
+                    fragment.childFragmentManager.primaryNavigationFragment
+                        as DefaultProgressFragment
+                val viewModel = ViewModelProvider(
+                    defaultProgressFragment, InstallViewModel.FACTORY
+                )[InstallViewModel::class.java]
+                // On devices that have play store installed, instead of the split install failing
+                // synchronously without a connection, the connection succeeds and we end up failing
+                // asynchronously since there are no play accounts to install. In this case, we need
+                // the test to wait for the failure signal from the splitInstall session. To do that
+                // we observe the livedata of the DefaultProgressFragment's viewModel, and wait for
+                // it to fail before we check for test failure.
+                viewModel.installMonitor!!.status.observe(defaultProgressFragment) {
+                    if (it.status() == SplitInstallSessionStatus.FAILED) {
+                        failureCountdownLatch.countDown()
+                    }
+                }
+            }
+
+            assertThat(failureCountdownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
             // check that we are now on the installation failed screen
             withActivity {
