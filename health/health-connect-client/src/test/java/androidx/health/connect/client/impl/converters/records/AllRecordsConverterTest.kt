@@ -86,6 +86,7 @@ import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.celsius
+import androidx.health.connect.client.units.kilocalories
 import androidx.health.connect.client.units.meters
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -693,7 +694,7 @@ class AllRecordsConverterTest {
     fun testActiveCaloriesBurned() {
         val data =
             ActiveCaloriesBurnedRecord(
-                energyKcal = 1.0,
+                energy = 1.kilocalories,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -826,8 +827,8 @@ class AllRecordsConverterTest {
                 biotinGrams = 1.0,
                 caffeineGrams = 1.0,
                 calciumGrams = 1.0,
-                kcal = 1.0,
-                kcalFromFat = 1.0,
+                energy = 1.kilocalories,
+                energyFromFat = 1.kilocalories,
                 chlorideGrams = 1.0,
                 cholesterolGrams = 1.0,
                 chromiumGrams = 1.0,
@@ -965,7 +966,7 @@ class AllRecordsConverterTest {
     fun testTotalCaloriesBurned() {
         val data =
             TotalCaloriesBurnedRecord(
-                energyKcal = 1.0,
+                energy = 1.kilocalories,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
