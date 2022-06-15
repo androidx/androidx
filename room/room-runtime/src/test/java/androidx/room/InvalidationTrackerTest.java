@@ -48,6 +48,7 @@ import com.google.common.truth.Truth;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,7 +77,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
 
-@org.junit.Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
 @RunWith(JUnit4.class)
 public class InvalidationTrackerTest {
     private InvalidationTracker mTracker;
@@ -126,6 +126,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void tableIds() {
         assertThat(mTracker.tableIdLookup.size(), is(5));
         assertThat(mTracker.tableIdLookup.get("a"), is(0));
@@ -136,6 +137,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void tableNames() {
         assertThat(mTracker.tablesNames.length, is(5));
         assertThat(mTracker.tablesNames[0], is("a"));
@@ -146,6 +148,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void testWeak() throws InterruptedException {
         final AtomicInteger data = new AtomicInteger(0);
         InvalidationTracker.Observer observer = new InvalidationTracker.Observer("a") {
@@ -168,6 +171,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void addRemoveObserver() throws Exception {
         InvalidationTracker.Observer observer = new LatchObserver(1, "a");
         mTracker.addObserver(observer);
@@ -183,6 +187,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void badObserver() {
         InvalidationTracker.Observer observer = new LatchObserver(1, "x");
         mTracker.addObserver(observer);
@@ -194,6 +199,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void refreshCheckTasks() throws Exception {
         when(mRoomDatabase.query(any(SimpleSQLiteQuery.class)))
                 .thenReturn(mock(Cursor.class));
@@ -208,6 +214,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void observe1Table() throws Exception {
         LatchObserver observer = new LatchObserver(1, "a");
         mTracker.addObserver(observer);
@@ -230,6 +237,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void observe2Tables() throws Exception {
         LatchObserver observer = new LatchObserver(1, "A", "B");
         mTracker.addObserver(observer);
@@ -259,12 +267,14 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void locale() {
         LatchObserver observer = new LatchObserver(1, "I");
         mTracker.addObserver(observer);
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void closedDb() {
         doReturn(false).when(mRoomDatabase).isOpen();
         doThrow(new IllegalStateException("foo")).when(mOpenHelper).getWritableDatabase();
@@ -273,6 +283,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void createTriggerOnShadowTable() {
         LatchObserver observer = new LatchObserver(1, "C");
         String[] triggers = new String[]{"UPDATE", "DELETE", "INSERT"};
@@ -309,6 +320,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void observeFtsTable() throws InterruptedException {
         LatchObserver observer = new LatchObserver(1, "C");
         mTracker.addObserver(observer);
@@ -331,6 +343,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void observeExternalContentFtsTable() throws InterruptedException {
         LatchObserver observer = new LatchObserver(1, "d");
         mTracker.addObserver(observer);
@@ -353,6 +366,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void observeExternalContentFtsTableAndContentTable() throws InterruptedException {
         LatchObserver observer = new LatchObserver(1, "d", "a");
         mTracker.addObserver(observer);
@@ -375,6 +389,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void observeExternalContentFatsTableAndContentTableSeparately()
             throws InterruptedException {
         LatchObserver observerA = new LatchObserver(1, "a");
@@ -407,6 +422,7 @@ public class InvalidationTrackerTest {
     }
 
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void observeView() throws InterruptedException {
         LatchObserver observer = new LatchObserver(1, "E");
         mTracker.addObserver(observer);
@@ -430,6 +446,7 @@ public class InvalidationTrackerTest {
 
     @SuppressWarnings("deprecation")
     @Test
+    @Ignore // TODO(b/233855234) - disabled until test is moved to Kotlin
     public void failFastCreateLiveData() {
         // assert that sending a bad createLiveData table name fails instantly
         try {
@@ -445,7 +462,8 @@ public class InvalidationTrackerTest {
         }
     }
 
-    // @Test - disabled due to flakiness b/65257997
+    @Test
+    @Ignore // disabled due to flakiness b/65257997
     public void closedDbAfterOpen() throws InterruptedException {
         setInvalidatedTables(3, 1);
         mTracker.addObserver(new LatchObserver(1, "a", "b"));
