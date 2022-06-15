@@ -17,16 +17,23 @@
 package androidx.camera.integration.diagnose
 
 import android.Manifest
+import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
 
@@ -36,6 +43,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        previewView = findViewById(R.id.preview_view)
+        cameraController = LifecycleCameraController(this)
+        previewView.controller = cameraController
         // Request CAMERA permission and fail gracefully if not granted.
         if (allPermissionsGranted()) {
             startCamera()
@@ -44,17 +54,11 @@ class MainActivity : AppCompatActivity() {
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             )
         }
-
-        // Setup CameraX
-        previewView = findViewById(R.id.preview_view)
-        cameraController = LifecycleCameraController(this)
-        cameraController.bindToLifecycle(this)
-        previewView.controller = cameraController
-
         // Setup UI events
         findViewById<Button>(R.id.image_capture).setOnClickListener {
             // TODO: handle capture button click event following examples
             //  in CameraControllerFragment.
+            Log.d(TAG, "image button clicked")
             takePhoto()
         }
 
@@ -86,11 +90,52 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun takePhoto() {}
+    private fun startCamera() {
+        // Setup CameraX
+        cameraController.bindToLifecycle(this)
+        Log.d(TAG, "started camera")
+    }
+
+    private fun takePhoto() {
+        val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
+            .format(System.currentTimeMillis())
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
+            }
+        }
+
+        // Create output options object which contains file + metadata
+        val outputOptions = ImageCapture.OutputFileOptions
+            .Builder(contentResolver,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                contentValues)
+            .build()
+
+        // Set up image capture listener, which is triggered after photo has
+        // been taken
+        cameraController.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(this),
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onError(exc: ImageCaptureException) {
+                    val msg = "Photo capture failed: ${exc.message}"
+                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                    Log.d(TAG, msg)
+                }
+
+                override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+                    val msg = "Photo capture succeeded: ${output.savedUri}"
+                    Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                    Log.d(TAG, msg)
+                }
+            }
+        )
+    }
 
     private fun captureVideo() {}
-
-    private fun startCamera() {}
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(
@@ -100,6 +145,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "DiagnoseApp"
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS =
             mutableListOf(
