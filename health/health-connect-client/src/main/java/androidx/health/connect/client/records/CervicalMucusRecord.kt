@@ -17,9 +17,9 @@ package androidx.health.connect.client.records
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.StringDef
-import androidx.health.connect.client.metadata.Metadata
 import androidx.health.connect.client.records.CervicalMucusRecord.Appearances
 import androidx.health.connect.client.records.CervicalMucusRecord.Sensations
+import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 

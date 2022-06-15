@@ -15,7 +15,7 @@
  */
 package androidx.health.connect.client.records
 
-import androidx.health.connect.client.metadata.Metadata
+import androidx.health.connect.client.records.metadata.Metadata
 
 /** Common interface shared by readable or writable records. */
 public interface Record {

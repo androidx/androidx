@@ -20,8 +20,8 @@ package androidx.health.connect.client.impl.converters.request
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeName
 import androidx.health.connect.client.impl.converters.time.toProto
-import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.records.Record
+import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.RequestProto

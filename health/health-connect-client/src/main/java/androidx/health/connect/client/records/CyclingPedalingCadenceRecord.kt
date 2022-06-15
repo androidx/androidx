@@ -21,7 +21,7 @@ import androidx.health.connect.client.aggregate.AggregateMetric.AggregationType.
 import androidx.health.connect.client.aggregate.AggregateMetric.AggregationType.MAXIMUM
 import androidx.health.connect.client.aggregate.AggregateMetric.AggregationType.MINIMUM
 import androidx.health.connect.client.aggregate.AggregateMetric.Companion.doubleMetric
-import androidx.health.connect.client.metadata.Metadata
+import androidx.health.connect.client.records.metadata.Metadata
 import java.time.Instant
 import java.time.ZoneOffset
 
