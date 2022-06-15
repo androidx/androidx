@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 
 import android.car.hardware.CarPropertyValue;
 
+import com.google.common.collect.ImmutableMap;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -33,6 +35,11 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 
 @RunWith(RobolectricTestRunner.class)
@@ -86,5 +93,20 @@ public class PropertyUtilsTest {
                 PropertyUtils.convertPropertyValueToPropertyResponse(mCarPropertyValue)).isEqualTo(
                 CAR_PROPERTY_RESPONSE_BUILDER.setStatus(CarValue.STATUS_UNKNOWN).build());
         verify(mCarPropertyValue, never()).getValue();
+    }
+
+    @Test
+    public void convertPropertyValueToPropertyResponse_GetPropertyIdWithAreaIdForGlobalZone() {
+        List<PropertyIdAreaId> propertyIdAreaIds = new ArrayList<>();
+        propertyIdAreaIds.add(PropertyIdAreaId.builder()
+                .setAreaId(GLOBAL_AREA_ID)
+                .setPropertyId(PROPERTY_ID)
+                .build());
+        Map<Integer, List<CarZone>> propertyIdsWithCarZones =
+                ImmutableMap.<Integer, List<CarZone>>builder().put(PROPERTY_ID,
+                        Collections.singletonList(CarZone.CAR_ZONE_GLOBAL)).buildKeepingLast();
+        assertThat(
+                PropertyUtils.getPropertyIdWithAreaIds(propertyIdsWithCarZones)).isEqualTo(
+                        propertyIdAreaIds);
     }
 }
