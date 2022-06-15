@@ -232,6 +232,7 @@
          <trusted-key id="6f538074ccebf35f28af9b066a0975f8b1127b83">
             <trusting group="org.jetbrains.kotlin"/>
             <trusting group="org.jetbrains.kotlin.jvm"/>
+            <trusting group="org.jetbrains.kotlin.plugin.serialization"/>
          </trusted-key>
          <trusted-key id="6f656b7f6bfb238d38acf81f3c27d97b0c83a85c" group="com.google.errorprone"/>
          <trusted-key id="6f7e5acbcd02db60dfd232e45e1f79a7c298661e">
@@ -1236,10 +1237,22 @@
          </artifact>
       </component>
       <!-- Unsigned, b/227204920 -->
-      <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.6.21">
-        <artifact name="kotlin-native-prebuilt-linux-x86_64-1.6.21.tar.gz">
-          <sha256 value="803226b45a60ceac9eacc6b554d38d50d174b860abce2daf772ec4c8529399ba" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.6.21.tar.gz"/>
-        </artifact>
+      <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.7.0">
+         <artifact name="kotlin-native-prebuilt-linux-x86_64-1.7.0.tar.gz">
+            <sha256 value="3790ab4de2bbc716c0842fdff7798145923aa80489390c88eb3a08bb945a0a37" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.7.0.tar.gz"/>
+         </artifact>
+      </component>
+
+      <component group="" name="kotlin-native-prebuilt-macos-aarch64" version="1.7.0">
+         <artifact name="kotlin-native-prebuilt-macos-aarch64-1.7.0.tar.gz">
+            <sha256 value="9f181b9ffccf77281a5f894208192421e2ad8bcb1da50ffd153a9f426faa1084" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-aarch64-1.7.0.tar.gz"/>
+         </artifact>
+      </component>
+
+      <component group="" name="kotlin-native-prebuilt-macos-x86_64" version="1.7.0">
+         <artifact name="kotlin-native-prebuilt-macos-x86_64-1.7.0.tar.gz">
+            <sha256 value="9eef3dc4726bd604ab685a44baaaba076585a8b92512898b53aebb071d770115" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-x86_64-1.7.0.tar.gz"/>
+         </artifact>
       </component>
    </components>
 </verification-metadata>
