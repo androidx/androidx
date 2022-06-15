@@ -292,7 +292,7 @@ public class SnippetTest {
 
         SearchResult.MatchInfo match2 = searchResultPage.getResults().get(0).getMatchInfos().get(1);
         assertThat(match2.getPropertyPath()).isEqualTo("sender.email[1]");
-        assertThat(match2.getPropertyPathObject()).isEqualTo(new PropertyPath("sender.name[1]"));
+        assertThat(match2.getPropertyPathObject()).isEqualTo(new PropertyPath("sender.email[1]"));
         assertThat(match2.getFullText()).isEqualTo("TestNameJr2@gmail.com");
         assertThat(match2.getExactMatchRange()).isEqualTo(
                 new SearchResult.MatchRange(/*lower=*/0, /*upper=*/21));
