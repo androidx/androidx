@@ -37,8 +37,7 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 
 /**
- * The base class for implementing a car app that runs in the car.
- *
+ * The base class for implementing a car app that runs in the car
  * <h4>Service Declaration</h4>
  *
  * The app must extend the {@link CarAppService} to be bound by the car host. The service must also
