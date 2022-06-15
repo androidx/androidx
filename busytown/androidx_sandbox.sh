@@ -9,4 +9,4 @@ export ANDROIDX_PROJECTS=KMP
 export USE_ANDROIDX_REMOTE_BUILD_CACHE=false
 
 # run build in a sandbox
-../development/sandbox/run-without-network.sh impl/build.sh buildOnServer --no-configuration-cache --no-daemon --offline
+../development/sandbox/run-without-network.sh impl/build.sh buildOnServer --no-configuration-cache --no-daemon
