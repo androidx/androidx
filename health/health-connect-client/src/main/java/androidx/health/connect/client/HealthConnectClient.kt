@@ -26,8 +26,8 @@ import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.impl.HealthConnectClientImpl
-import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.records.Record
+import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
@@ -51,8 +51,8 @@ interface HealthConnectClient {
 
     /**
      * Inserts one or more [Record] and returns newly assigned
-     * [androidx.health.connect.client.metadata.Metadata.uid] generated. Insertion of multiple
-     * [records] is executed in a transaction - if one fails, none is inserted.
+     * [androidx.health.connect.client.records.metadata.Metadata.uid] generated. Insertion of
+     * multiple [records] is executed in a transaction - if one fails, none is inserted.
      *
      * @param records List of records to insert
      * @return List of unique identifiers in the order of inserted records.

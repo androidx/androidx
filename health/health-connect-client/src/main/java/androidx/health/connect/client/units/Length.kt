@@ -17,7 +17,8 @@
 package androidx.health.connect.client.units
 
 /** Represents a unit of length. Supported units: meters, kilometers, miles, inches and feet. */
-class Length private constructor(
+class Length
+private constructor(
     private val value: Double,
     private val type: Type,
 ) : Comparable<Length> {
