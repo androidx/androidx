@@ -167,7 +167,7 @@ public fun Picker(
                         .padding(vertical = 1.dp)
                         .align(Alignment.Center)
                 } else {
-                    Modifier
+                    Modifier.align(Alignment.Center)
                 }
             ),
             state = state.scalingLazyListState,
@@ -290,6 +290,7 @@ private fun ContentDrawScope.drawShim(
         size = Size(size.width, height)
     )
 }
+
 // Apply a fade-out gradient on the top and bottom of the Picker.
 private fun ContentDrawScope.drawGradient(
     gradientColor: Color,
@@ -310,6 +311,7 @@ private fun ContentDrawScope.drawGradient(
         )
     )
 }
+
 /**
  * Creates a [PickerState] that is remembered across compositions.
  *
@@ -325,6 +327,7 @@ public fun rememberPickerState(
 ): PickerState = rememberSaveable(saver = PickerState.Saver) {
     PickerState(initialNumberOfOptions, initiallySelectedOption, repeatItems)
 }
+
 /**
  * A state object that can be hoisted to observe item selection.
  *
@@ -344,7 +347,9 @@ public class PickerState constructor(
     init {
         verifyNumberOfOptions(initialNumberOfOptions)
     }
+
     private var _numberOfOptions by mutableStateOf(initialNumberOfOptions)
+
     var numberOfOptions
         get() = _numberOfOptions
         set(newNumberOfOptions) {
@@ -358,7 +363,9 @@ public class PickerState constructor(
             )
             _numberOfOptions = newNumberOfOptions
         }
+
     internal fun numberOfItems() = if (!repeatItems) numberOfOptions else LARGE_NUMBER_OF_ITEMS
+
     // The difference between the option we want to select for the current numberOfOptions
     // and the selection with the initial numberOfOptions.
     // Note that if repeatItems is true (the default), we have a large number of items, and a
@@ -368,6 +375,7 @@ public class PickerState constructor(
     // current number of options gives the option index:
     // itemIndex - optionsOffset =(mod numberOfOptions) optionIndex
     internal var optionsOffset = 0
+
     internal val scalingLazyListState = run {
         val repeats = if (repeatItems) LARGE_NUMBER_OF_ITEMS / numberOfOptions else 1
         val centerOffset = numberOfOptions * (repeats / 2)
@@ -376,11 +384,13 @@ public class PickerState constructor(
             0
         )
     }
+
     /**
      * Index of the option selected (i.e., at the center)
      */
     public val selectedOption: Int
         get() = (scalingLazyListState.centerItemIndex + optionsOffset) % numberOfOptions
+
     /**
      * Instantly scroll to an item.
      * Note that for this to work properly, all options need to have the same height, and this can
@@ -404,6 +414,7 @@ public class PickerState constructor(
             }
         scalingLazyListState.scrollToItem(itemIndex, 0)
     }
+
     public companion object {
         /**
          * The default [Saver] implementation for [PickerState].
@@ -426,17 +437,21 @@ public class PickerState constructor(
             }
         )
     }
+
     public override suspend fun scroll(
         scrollPriority: MutatePriority,
         block: suspend ScrollScope.() -> Unit
     ) {
         scalingLazyListState.scroll(scrollPriority, block)
     }
+
     public override fun dispatchRawDelta(delta: Float): Float {
         return scalingLazyListState.dispatchRawDelta(delta)
     }
+
     public override val isScrollInProgress: Boolean
         get() = scalingLazyListState.isScrollInProgress
+
     private fun verifyNumberOfOptions(numberOfOptions: Int) {
         require(numberOfOptions > 0) { "The picker should have at least one item." }
         require(numberOfOptions < LARGE_NUMBER_OF_ITEMS / 3) {
@@ -472,6 +487,7 @@ public object PickerDefaults {
         scaleInterpolator = scaleInterpolator,
         viewportVerticalOffsetResolver = viewportVerticalOffsetResolver
     )
+
     /**
      * Create and remember a [FlingBehavior] that will represent natural fling curve with snap to
      * central item as the fling decays.
@@ -498,6 +514,7 @@ public object PickerDefaults {
      */
     public val DefaultGradientRatio = 0.33f
 }
+
 /**
  * Receiver scope which is used by [Picker].
  */
@@ -507,7 +524,9 @@ public interface PickerScope {
      */
     public val selectedOption: Int
 }
+
 private fun positiveModule(n: Int, mod: Int) = ((n % mod) + mod) % mod
+
 @Stable
 private class PickerScopeImpl(
     private val pickerState: PickerState
@@ -515,4 +534,5 @@ private class PickerScopeImpl(
     override val selectedOption: Int
         get() = pickerState.selectedOption
 }
+
 private const val LARGE_NUMBER_OF_ITEMS = 100_000_000

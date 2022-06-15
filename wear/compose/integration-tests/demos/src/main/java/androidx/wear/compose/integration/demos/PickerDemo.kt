@@ -645,3 +645,23 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
         option = option
     )
 }
+
+@Composable
+fun PickerWithoutGradient() {
+    val items = listOf("One", "Two", "Three", "Four", "Five")
+    val state = rememberPickerState(items.size)
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Picker(
+            readOnly = false,
+            modifier = Modifier.size(100.dp, 100.dp),
+            gradientRatio = 0.0f,
+            contentDescription = { (it + 1).toString() },
+            state = state
+        ) {
+            Text(items[it])
+        }
+    }
+}
