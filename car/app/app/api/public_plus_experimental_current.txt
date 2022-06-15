@@ -192,7 +192,7 @@ package androidx.car.app.annotations {
 
 package androidx.car.app.connection {
 
-  public class CarConnection {
+  public final class CarConnection {
     ctor public CarConnection(android.content.Context);
     method public androidx.lifecycle.LiveData<java.lang.Integer!> getType();
     field public static final String ACTION_CAR_CONNECTION_UPDATED = "androidx.car.app.connection.action.CAR_CONNECTION_UPDATED";

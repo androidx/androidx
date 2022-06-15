@@ -36,7 +36,7 @@ import java.lang.annotation.Target;
 /**
  * A class that allows retrieval of information about connection to a car head unit.
  */
-public class CarConnection {
+public final class CarConnection {
     /**
      * Defines current car connection state.
      *
