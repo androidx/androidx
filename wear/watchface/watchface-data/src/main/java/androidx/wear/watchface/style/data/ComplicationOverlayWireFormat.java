@@ -59,6 +59,10 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
     @ParcelField(4)
     long mAccessibilityTraversalIndex;
 
+    @ParcelField(5)
+    @Nullable
+    public Map<Integer, RectF> mPerComplicationTypeMargins;
+
     ComplicationOverlayWireFormat() {
     }
 
@@ -66,7 +70,8 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
             int complicationSlotId,
             @Nullable Boolean enabled,
             @Nullable Map<Integer, RectF> perComplicationTypeBounds,
-            @Nullable Integer accessibilityTraversalIndex
+            @Nullable Integer accessibilityTraversalIndex,
+            @Nullable Map<Integer, RectF> perComplicationTypeMargins
     ) {
         mComplicationSlotId = complicationSlotId;
         if (enabled != null) {
@@ -80,6 +85,19 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
         } else {
             mAccessibilityTraversalIndex = accessibilityTraversalIndex;
         }
+        mPerComplicationTypeMargins = perComplicationTypeMargins;
+    }
+
+    /** @deprecated Use a constructor with perComplicationTypeMargins instead. */
+    @Deprecated
+    public ComplicationOverlayWireFormat(
+            int complicationSlotId,
+            @Nullable Boolean enabled,
+            @Nullable Map<Integer, RectF> perComplicationTypeBounds,
+            @Nullable Integer accessibilityTraversalIndex
+    ) {
+        this(complicationSlotId, enabled, perComplicationTypeBounds, accessibilityTraversalIndex,
+                null);
     }
 
     @Override

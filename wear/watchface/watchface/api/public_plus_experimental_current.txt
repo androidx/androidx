@@ -3,7 +3,6 @@ package androidx.wear.watchface {
 
   public final class BackgroundComplicationTapFilter implements androidx.wear.watchface.ComplicationTapFilter {
     ctor public BackgroundComplicationTapFilter();
-    method public boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y);
   }
 
   @androidx.wear.watchface.complications.data.ComplicationExperimental public final class BoundingArc {
@@ -38,6 +37,7 @@ package androidx.wear.watchface {
   }
 
   public final class ComplicationSlot {
+    method public android.graphics.Rect computeBounds(android.graphics.Rect screen, optional boolean applyMargins);
     method public android.graphics.Rect computeBounds(android.graphics.Rect screen);
     method public static androidx.wear.watchface.ComplicationSlot.Builder createBackgroundComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy);
     method public static androidx.wear.watchface.ComplicationSlot.Builder createEdgeComplicationSlotBuilder(int id, androidx.wear.watchface.CanvasComplicationFactory canvasComplicationFactory, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.ComplicationSlotBounds bounds, androidx.wear.watchface.ComplicationTapFilter complicationTapFilter);
@@ -131,7 +131,8 @@ package androidx.wear.watchface {
   }
 
   public interface ComplicationTapFilter {
-    method public boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y);
+    method public default boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y, boolean includeMargins);
+    method @Deprecated public default boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y);
   }
 
   public final class ContentDescriptionLabel {
@@ -300,7 +301,6 @@ package androidx.wear.watchface {
 
   public final class RoundRectComplicationTapFilter implements androidx.wear.watchface.ComplicationTapFilter {
     ctor public RoundRectComplicationTapFilter();
-    method public boolean hitTest(androidx.wear.watchface.ComplicationSlot complicationSlot, android.graphics.Rect screenBounds, @Px int x, @Px int y);
   }
 
   public final class TapEvent {

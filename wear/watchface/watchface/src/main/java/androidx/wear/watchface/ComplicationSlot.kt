@@ -163,13 +163,36 @@ public interface ComplicationTapFilter {
      * @param screenBounds A [Rect] describing the bounds of the display.
      * @param x The screen space X coordinate in pixels.
      * @param y The screen space Y coordinate in pixels.
+     * @param includeMargins Whether or not the margins should be included
      */
+    @Suppress("DEPRECATION")
+    public fun hitTest(
+        complicationSlot: ComplicationSlot,
+        screenBounds: Rect,
+        @Px x: Int,
+        @Px y: Int,
+        includeMargins: Boolean
+    ): Boolean = hitTest(complicationSlot, screenBounds, x, y)
+
+    /**
+     * Performs a hit test, returning `true` if the supplied coordinates in pixels are within the
+     * the provided [complicationSlot] scaled to [screenBounds].
+     *
+     * @param complicationSlot The [ComplicationSlot] to perform a hit test for.
+     * @param screenBounds A [Rect] describing the bounds of the display.
+     * @param x The screen space X coordinate in pixels.
+     * @param y The screen space Y coordinate in pixels.
+     */
+    @Deprecated(
+        "hitTest without specifying includeMargins is deprecated",
+        replaceWith = ReplaceWith("hitTest(ComplicationSlot, Rect, Int, Int, Boolean)")
+    )
     public fun hitTest(
         complicationSlot: ComplicationSlot,
         screenBounds: Rect,
         @Px x: Int,
         @Px y: Int
-    ): Boolean
+    ): Boolean = hitTest(complicationSlot, screenBounds, x, y, false)
 }
 
 /** Default [ComplicationTapFilter] for [ComplicationSlotBoundsType.ROUND_RECT] complicationSlots. */
@@ -178,8 +201,9 @@ public class RoundRectComplicationTapFilter : ComplicationTapFilter {
         complicationSlot: ComplicationSlot,
         screenBounds: Rect,
         @Px x: Int,
-        @Px y: Int
-    ): Boolean = complicationSlot.computeBounds(screenBounds).contains(x, y)
+        @Px y: Int,
+        includeMargins: Boolean
+    ): Boolean = complicationSlot.computeBounds(screenBounds, includeMargins).contains(x, y)
 }
 
 /** Default [ComplicationTapFilter] for [ComplicationSlotBoundsType.BACKGROUND] complicationSlots. */
@@ -188,7 +212,8 @@ public class BackgroundComplicationTapFilter : ComplicationTapFilter {
         complicationSlot: ComplicationSlot,
         screenBounds: Rect,
         @Px x: Int,
-        @Px y: Int
+        @Px y: Int,
+        includeMargins: Boolean
     ): Boolean = false
 }
 
@@ -300,6 +325,14 @@ public class BoundingArc(var startAngle: Float, var totalAngle: Float, @Px var t
  * Represents the slot an individual complication on the screen may go in. The number of
  * ComplicationSlots is fixed (see [ComplicationSlotsManager]) but ComplicationSlots can be
  * enabled or disabled via [UserStyleSetting.ComplicationSlotsUserStyleSetting].
+ *
+ * Taps on the watch are tested first against each ComplicationSlot's
+ * [ComplicationSlotBounds.perComplicationTypeBounds] for the relevant [ComplicationType]. Its
+ * assumed that [ComplicationSlotBounds.perComplicationTypeBounds] don't overlap. If no intersection
+ * was found then taps are checked against [ComplicationSlotBounds.perComplicationTypeBounds]
+ * expanded by [ComplicationSlotBounds.perComplicationTypeMargins]. Expanded bounds can overlap
+ * so the [ComplicationSlot] with the lowest id that intersects the coordinates, if any, is
+ * selected.
  *
  * @param id The Watch Face's ID for the complication slot.
  * @param accessibilityTraversalIndex Used to sort Complications when generating accessibility
@@ -599,7 +632,8 @@ public class ComplicationSlot
                     complicationSlot: ComplicationSlot,
                     screenBounds: Rect,
                     x: Int,
-                    y: Int
+                    y: Int,
+                    @Suppress("UNUSED_PARAMETER") includeMargins: Boolean
                 ) = boundingArc.hitTest(
                     complicationSlot.computeBounds(screenBounds),
                     x.toFloat(),
@@ -1063,11 +1097,28 @@ public class ComplicationSlot
      * @param screen A [Rect] describing the dimensions of the screen.
      * @param complicationType The [ComplicationType] to use when looking up the slot's
      * [ComplicationSlotBounds.perComplicationTypeBounds].
+     * @param applyMargins Whether or not the margins should be applied to the computed [Rect].
      * @hide
      */
+    @JvmOverloads
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun computeBounds(screen: Rect, complicationType: ComplicationType): Rect {
+    public fun computeBounds(
+        screen: Rect,
+        complicationType: ComplicationType,
+        applyMargins: Boolean = false
+    ): Rect {
         val unitSquareBounds = complicationSlotBounds.perComplicationTypeBounds[complicationType]!!
+        if (applyMargins) {
+            val unitSquareMargins =
+                complicationSlotBounds.perComplicationTypeMargins[complicationType]!!
+            // Apply the margins
+            unitSquareBounds.set(
+                unitSquareBounds.left - unitSquareMargins.left,
+                unitSquareBounds.top - unitSquareMargins.top,
+                unitSquareBounds.right + unitSquareMargins.right,
+                unitSquareBounds.bottom + unitSquareMargins.bottom
+            )
+        }
         unitSquareBounds.intersect(unitSquare)
         // We add 0.5 to make toInt() round to the nearest whole number rather than truncating.
         return Rect(
@@ -1083,9 +1134,13 @@ public class ComplicationSlot
      * complication type to pixels based on the [screen]'s dimensions.
      *
      * @param screen A [Rect] describing the dimensions of the screen.
+     * @param applyMargins Whether or not the margins should be applied to the computed [Rect].
      */
-    public fun computeBounds(screen: Rect): Rect =
-        computeBounds(screen, complicationData.value.type)
+    @JvmOverloads
+    public fun computeBounds(
+        screen: Rect,
+        applyMargins: Boolean = false
+    ): Rect = computeBounds(screen, complicationData.value.type, applyMargins)
 
     @UiThread
     internal fun dump(writer: IndentingPrintWriter) {
@@ -1116,12 +1171,9 @@ public class ComplicationSlot
             defaultDataSourcePolicy.systemDataSourceFallbackDefaultType)
         writer.println("timelineComplicationData=$timelineComplicationData")
         writer.println("data=${renderer.getData()}")
-        val bounds = complicationSlotBounds.perComplicationTypeBounds.map {
-            "${it.key} -> ${it.value}"
-        }
         @OptIn(ComplicationExperimental::class)
         writer.println("boundingArc=$boundingArc")
-        writer.println("bounds=[$bounds]")
+        writer.println("complicationSlotBounds=$complicationSlotBounds")
         writer.println("data history")
         complicationHistory?.let {
             writer.increaseIndent()

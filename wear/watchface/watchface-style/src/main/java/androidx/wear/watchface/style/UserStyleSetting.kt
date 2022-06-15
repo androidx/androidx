@@ -976,7 +976,14 @@ public sealed class UserStyleSetting private constructor(
                 },
                 wireFormat.mPerComplicationTypeBounds?.let { perComplicationTypeBounds ->
                     ComplicationSlotBounds.createFromPartialMap(
-                        perComplicationTypeBounds.mapKeys { ComplicationType.fromWireType(it.key) }
+                        perComplicationTypeBounds.mapKeys {
+                            ComplicationType.fromWireType(it.key)
+                        },
+                        wireFormat.mPerComplicationTypeMargins?.let { perComplicationTypeMargins ->
+                            perComplicationTypeMargins.mapKeys {
+                                ComplicationType.fromWireType(it.key)
+                            }
+                        } ?: emptyMap()
                     )
                 },
                 wireFormat.accessibilityTraversalIndex
@@ -1001,7 +1008,10 @@ public sealed class UserStyleSetting private constructor(
                     complicationSlotBounds?.perComplicationTypeBounds?.mapKeys {
                         it.key.toWireComplicationType()
                     },
-                    accessibilityTraversalIndex
+                    accessibilityTraversalIndex,
+                    complicationSlotBounds?.perComplicationTypeMargins?.mapKeys {
+                        it.key.toWireComplicationType()
+                    },
                 )
 
             internal companion object {
