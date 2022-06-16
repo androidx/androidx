@@ -21,8 +21,6 @@ import android.content.ComponentName
 import android.graphics.drawable.Icon
 import android.os.Build
 import androidx.annotation.RestrictTo
-import androidx.wear.tiles.proto.LayoutElementProto
-import androidx.wear.tiles.proto.ResourceProto
 import androidx.wear.tiles.LayoutElementBuilders
 import androidx.wear.tiles.ResourceBuilders
 import java.time.Instant
@@ -1530,23 +1528,17 @@ constructor(
 
     /** The [LayoutElementBuilders.Layout] to be displayed when the device is ambient. */
     public val ambientLayout: LayoutElementBuilders.Layout by lazy {
-        LayoutElementBuilders.Layout.fromProto(
-            LayoutElementProto.Layout.parseFrom(ambientLayoutWireFormat)
-        )
+        LayoutElementBuilders.Layout.fromByteArray(ambientLayoutWireFormat)!!
     }
 
     /** The [LayoutElementBuilders.Layout] to be displayed when the device is interactive. */
     public val interactiveLayout: LayoutElementBuilders.Layout by lazy {
-        LayoutElementBuilders.Layout.fromProto(
-             LayoutElementProto.Layout.parseFrom(interactiveLayoutWireFormat)
-        )
+        LayoutElementBuilders.Layout.fromByteArray(interactiveLayoutWireFormat)!!
     }
 
     /** The [ResourceBuilders.Resources] for [ambientLayout] and [interactiveLayout]. */
     public val layoutResources: ResourceBuilders.Resources by lazy {
-        ResourceBuilders.Resources.fromProto(
-            ResourceProto.Resources.parseFrom(layoutResourcesWireFormat)
-        )
+        ResourceBuilders.Resources.fromByteArray(layoutResourcesWireFormat)!!
     }
 
     /**
@@ -1584,9 +1576,9 @@ constructor(
             resources: ResourceBuilders.Resources,
             contentDescription: ComplicationText
         ) : this(
-            ambientLayout.toProto().toByteArray(),
-            interactiveLayout.toProto().toByteArray(),
-            resources.toProto().toByteArray(),
+            ambientLayout.toByteArray(),
+            interactiveLayout.toByteArray(),
+            resources.toByteArray(),
             contentDescription
         )
 
