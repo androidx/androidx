@@ -735,10 +735,11 @@ class RemoteViewsTranslatorKtTest {
             )
         }
 
-        val button = assertIs<android.widget.Button>(context.applyRemoteViews(rv))
-        assertThat(button.text).isEqualTo("Button")
-        assertThat(button.isEnabled).isTrue()
-        assertThat(button.hasOnClickListeners()).isTrue()
+        // All items with actions are wrapped in FrameLayout
+        val frame = assertIs<FrameLayout>(context.applyRemoteViews(rv))
+        assertThat(frame.hasOnClickListeners()).isTrue()
+        assertThat(frame.isEnabled).isTrue()
+        checkNotNull(frame.findView<TextView> { it.text == "Button" })
     }
 
     @Test
@@ -751,10 +752,10 @@ class RemoteViewsTranslatorKtTest {
             )
         }
 
-        val button = assertIs<android.widget.Button>(context.applyRemoteViews(rv))
-        assertThat(button.text).isEqualTo("Button")
-        assertThat(button.isEnabled).isFalse()
-        assertThat(button.hasOnClickListeners()).isFalse()
+        val frame = assertIs<FrameLayout>(context.applyRemoteViews(rv))
+        assertThat(frame.hasOnClickListeners()).isFalse()
+        assertThat(frame.isEnabled).isFalse()
+        checkNotNull(frame.findView<TextView> { it.text == "Button" })
     }
 
     @Test

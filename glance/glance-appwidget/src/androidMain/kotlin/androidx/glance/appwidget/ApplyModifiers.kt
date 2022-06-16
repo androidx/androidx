@@ -63,6 +63,9 @@ internal fun applyModifiers(
     var cornerRadius: Dimension? = null
     var visibility = Visibility.Visible
     var actionModifier: ActionModifier? = null
+    var enabled: EnabledModifier? = null
+    var clipToOutline: ClipToOutlineModifier? = null
+    var shouldUnsetAction = true
     modifiers.foldIn(Unit) { _, modifier ->
         when (modifier) {
             is ActionModifier -> {
@@ -97,6 +100,11 @@ internal fun applyModifiers(
             is AlignmentModifier -> {
                 // This modifier is handled somewhere else.
             }
+            is ClipToOutlineModifier -> clipToOutline = modifier
+            is EnabledModifier -> enabled = modifier
+            is DoNotUnsetActionModifier -> {
+                shouldUnsetAction = false
+            }
             else -> {
                 Log.w(GlanceAppWidgetTag, "Unknown modifier '$modifier', nothing done.")
             }
@@ -104,7 +112,9 @@ internal fun applyModifiers(
     }
     applySizeModifiers(translationContext, rv, widthModifier, heightModifier, viewDef)
     actionModifier?.let { applyAction(translationContext, rv, it.action, viewDef.mainViewId) }
-        ?: unsetAction(translationContext, rv, viewDef.mainViewId)
+    if (actionModifier == null && shouldUnsetAction) {
+        unsetAction(translationContext, rv, viewDef.mainViewId)
+    }
     cornerRadius?.let { applyRoundedCorners(rv, viewDef.mainViewId, it) }
     paddingModifiers?.let { padding ->
         val absolutePadding = padding.toDp(context.resources).toAbsolute(translationContext.isRtl)
@@ -116,6 +126,14 @@ internal fun applyModifiers(
             absolutePadding.right.toPixels(displayMetrics),
             absolutePadding.bottom.toPixels(displayMetrics)
         )
+    }
+    clipToOutline?.let {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            rv.setBoolean(viewDef.mainViewId, "setClipToOutline", true)
+        }
+    }
+    enabled?.let {
+        rv.setBoolean(viewDef.mainViewId, "setEnabled", it.enabled)
     }
     rv.setViewVisibility(viewDef.mainViewId, visibility.toViewVisibility())
 }
