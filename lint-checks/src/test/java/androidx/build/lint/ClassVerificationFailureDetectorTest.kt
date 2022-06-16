@@ -446,4 +446,43 @@ Fix for src/androidx/AutofixUnsafeMethodWithQualifiedClass.java line 35: Extract
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
+
+    @Test
+    fun `Auto-fix for unsafe method call on this`() {
+        val input = arrayOf(
+            javaSample("androidx.AutofixUnsafeCallToThis")
+        )
+
+        /* ktlint-disable max-line-length */
+        val expected = """
+src/androidx/AutofixUnsafeCallToThis.java:39: Error: This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeCallToThis is reachable from earlier API levels and will fail run-time class verification. [ClassVerificationFailure]
+            getClipToPadding();
+            ~~~~~~~~~~~~~~~~
+1 errors, 0 warnings
+        """
+
+        val expectedFix = """
+Fix for src/androidx/AutofixUnsafeCallToThis.java line 39: Extract to static inner class:
+@@ -39 +39
+-             getClipToPadding();
++             Api21Impl.getClipToPadding(this);
+@@ -42 +42
++ @annotation.RequiresApi(21)
++ static class Api21Impl {
++     private Api21Impl() {
++         // This class is not instantiable.
++     }
++
++     @annotation.DoNotInline
++     static boolean getClipToPadding(ViewGroup viewGroup) {
++         return viewGroup.getClipToPadding();
++     }
++
+@@ -43 +54
++ }
+        """
+        /* ktlint-enable max-line-length */
+
+        check(*input).expect(expected).expectFixDiffs(expectedFix)
+    }
 }
