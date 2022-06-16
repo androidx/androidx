@@ -159,6 +159,7 @@ package androidx.car.app {
     ctor public SessionInfo(int, String);
     method public int getDisplayType();
     method public String getSessionId();
+    method @androidx.car.app.annotations.ExperimentalCarApi public java.util.Set<java.lang.Class<? extends androidx.car.app.model.Template>!>? getSupportedTemplates(int);
     field public static final int DISPLAY_TYPE_CLUSTER = 1; // 0x1
     field public static final int DISPLAY_TYPE_MAIN = 0; // 0x0
   }
