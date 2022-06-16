@@ -1587,6 +1587,7 @@ C/C\+\+: Compiling for ARM
 # > Task :glance:glance:reportLibraryMetrics
 Info: Stripped invalid locals information from [0-9]+ methods?\.
 Info: Methods with invalid locals information:
+void androidx\.wear\.compose\.material\.PickerKt\.Picker\-gjPtlC[0-9]+\(androidx\.wear\.compose\.material\.PickerState, java\.lang\.String, androidx\.compose\.ui\.Modifier, boolean, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.wear\.compose\.material\.ScalingParams, float, float, long, androidx\.compose\.foundation\.gestures\.FlingBehavior, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int, int\)
 void androidx\.wear\.compose\.material\.PickerKt\.Picker\-gjPtlC[0-9]+\(androidx\.wear\.compose\.material\.PickerState, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.ui\.Modifier, boolean, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.wear\.compose\.material\.ScalingParams, float, float, long, androidx\.compose\.foundation\.gestures\.FlingBehavior, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int, int\)
 java\.lang\.Object androidx\.glance\.state\.GlanceState\.getDataStore\(android\.content\.Context, androidx\.glance\.state\.GlanceStateDefinition, java\.lang\.String, kotlin\.coroutines\.Continuation\)
 Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint OBJECT\.
