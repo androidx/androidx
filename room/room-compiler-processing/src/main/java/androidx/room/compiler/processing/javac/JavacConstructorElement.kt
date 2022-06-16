@@ -40,6 +40,8 @@ internal class JavacConstructorElement(
             "Constructor element is constructed with invalid type: $element"
         }
     }
+    override val name: String
+        get() = "<init>"
 
     override val typeParameters: List<XTypeParameterElement> by lazy {
         element.typeParameters.map {

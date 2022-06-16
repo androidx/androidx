@@ -25,6 +25,10 @@ import com.squareup.javapoet.ClassName
  * synthetic container class does not exist
  */
 interface XMemberContainer : XElement {
+
+    override val name: String
+        get() = if (this is XTypeElement) this.name else className.simpleName()
+
     /**
      * The JVM ClassName for this container.
      * For top level members of a Kotlin file, you can use this [className] for code generation.
