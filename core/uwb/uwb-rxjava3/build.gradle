@@ -24,10 +24,29 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    api(libs.rxjava3)
+    api(libs.kotlinCoroutinesRx3)
+    api(project(":core:uwb:uwb"))
+
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation('com.google.android.gms:play-services-base:18.0.1')
+    androidTestImplementation('com.google.android.gms:play-services-nearby:18.2.0', {
+        exclude group: "androidx.core"
+    })
+    androidTestImplementation(libs.multidex)
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
+
     namespace "androidx.core.uwb.rxjava3"
 }
 
