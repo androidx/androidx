@@ -129,6 +129,7 @@ androidx {
         android = Publish.NONE
         jvm = Publish.SNAPSHOT_AND_RELEASE
         linux = Publish.SNAPSHOT_AND_RELEASE
+        mac = Publish.SNAPSHOT_AND_RELEASE
     }
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
