@@ -680,21 +680,21 @@ package androidx.health.connect.client.records {
   }
 
   public final class HydrationRecord implements androidx.health.connect.client.records.Record {
-    ctor public HydrationRecord(double volumeLiters, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public HydrationRecord(androidx.health.connect.client.units.Volume volume, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
-    method public double getVolumeLiters();
+    method public androidx.health.connect.client.units.Volume getVolume();
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
-    property public final double volumeLiters;
+    property public final androidx.health.connect.client.units.Volume volume;
     field public static final androidx.health.connect.client.records.HydrationRecord.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VOLUME_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Volume> VOLUME_TOTAL;
   }
 
   public static final class HydrationRecord.Companion {
@@ -1498,6 +1498,25 @@ package androidx.health.connect.client.units {
   }
 
   public final class TemperatureKt {
+  }
+
+  public final class Volume implements java.lang.Comparable<androidx.health.connect.client.units.Volume> {
+    method public int compareTo(androidx.health.connect.client.units.Volume other);
+    method public double getLiters();
+    method public double getMilliliters();
+    method public static androidx.health.connect.client.units.Volume liters(double value);
+    method public static androidx.health.connect.client.units.Volume milliliters(double value);
+    property public final double inLiters;
+    property public final double inMilliliters;
+    field public static final androidx.health.connect.client.units.Volume.Companion Companion;
+  }
+
+  public static final class Volume.Companion {
+    method public androidx.health.connect.client.units.Volume liters(double value);
+    method public androidx.health.connect.client.units.Volume milliliters(double value);
+  }
+
+  public final class VolumeKt {
   }
 
 }
