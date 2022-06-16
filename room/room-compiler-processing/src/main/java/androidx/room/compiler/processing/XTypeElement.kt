@@ -30,13 +30,6 @@ interface XTypeElement : XHasModifiers, XParameterizable, XElement, XMemberConta
     val packageName: String
 
     /**
-     * SimpleName of the type converted to String.
-     *
-     * @see [javax.lang.model.element.Element.getSimpleName]
-     */
-    val name: String
-
-    /**
      * The type represented by this [XTypeElement].
      */
     override val type: XType

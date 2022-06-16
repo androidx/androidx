@@ -32,6 +32,9 @@ internal class KspConstructorElement(
     declaration = declaration
 ),
     XConstructorElement {
+    override val name: String
+        get() = "<init>"
+
     override val enclosingElement: KspTypeElement by lazy {
         declaration.requireEnclosingMemberContainer(env) as? KspTypeElement
             ?: error("Constructor parent must be a type element $this")
