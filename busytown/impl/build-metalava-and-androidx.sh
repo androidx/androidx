@@ -55,7 +55,7 @@ export METALAVA_VERSION=`perl -nle'print $& while m{(?<=metalavaVersion=).*}g' $
 export METALAVA_REPO="$ROOT_DIR/out/dist/repo/m2repository"
 
 function buildAndroidx() {
-  ./frameworks/support/gradlew --ci -p frameworks/support $androidxArguments \
+  ./frameworks/support/busytown/impl/build.sh $androidxArguments \
     --dependency-verification=off # building against tip of tree of metalava that potentially pulls in new dependencies
 
 }
