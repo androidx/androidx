@@ -16,6 +16,11 @@
 
 package androidx.test.uiautomator.testapp;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
+
 import android.content.Context;
 import android.content.Intent;
 import android.widget.Button;
@@ -39,7 +44,6 @@ import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,12 +93,12 @@ public class BySelectorTests {
         BySelector base = By.clazz(".TextView");
 
         // Select various TextView instances
-        Assert.assertNotNull(mDevice.findObject(By.copy(base).text("Text View 1")));
-        Assert.assertNotNull(mDevice.findObject(By.copy(base).text("Item1")));
-        Assert.assertNotNull(mDevice.findObject(By.copy(base).text("Item3")));
+        assertNotNull(mDevice.findObject(By.copy(base).text("Text View 1")));
+        assertNotNull(mDevice.findObject(By.copy(base).text("Item1")));
+        assertNotNull(mDevice.findObject(By.copy(base).text("Item3")));
 
         // Shouldn't be able to select an object that does not match the base
-        Assert.assertNull(mDevice.findObject(By.copy(base).text("Accessible button")));
+        assertNull(mDevice.findObject(By.copy(base).text("Accessible button")));
     }
 
     @Test
@@ -102,10 +106,10 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestClazzActivity");
 
         // Button
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget", "Button")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget.Button")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(".Button")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(Button.class)));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget", "Button")));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget.Button")));
+        assertNotNull(mDevice.findObject(By.clazz(".Button")));
+        assertNotNull(mDevice.findObject(By.clazz(Button.class)));
     }
 
     @Test
@@ -113,10 +117,10 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestClazzActivity");
 
         // CheckBox
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget", "CheckBox")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget.CheckBox")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(".CheckBox")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(CheckBox.class)));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget", "CheckBox")));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget.CheckBox")));
+        assertNotNull(mDevice.findObject(By.clazz(".CheckBox")));
+        assertNotNull(mDevice.findObject(By.clazz(CheckBox.class)));
     }
 
     @Test
@@ -124,10 +128,10 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestClazzActivity");
 
         // EditText
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget", "EditText")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget.EditText")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(".EditText")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(EditText.class)));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget", "EditText")));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget.EditText")));
+        assertNotNull(mDevice.findObject(By.clazz(".EditText")));
+        assertNotNull(mDevice.findObject(By.clazz(EditText.class)));
     }
 
     @Test
@@ -135,10 +139,10 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestClazzActivity");
 
         // ProgressBar
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget", "ProgressBar")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget.ProgressBar")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(".ProgressBar")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(ProgressBar.class)));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget", "ProgressBar")));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget.ProgressBar")));
+        assertNotNull(mDevice.findObject(By.clazz(".ProgressBar")));
+        assertNotNull(mDevice.findObject(By.clazz(ProgressBar.class)));
     }
 
     @Test
@@ -146,10 +150,10 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestClazzActivity");
 
         // RadioButton
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget", "RadioButton")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget.RadioButton")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(".RadioButton")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(RadioButton.class)));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget", "RadioButton")));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget.RadioButton")));
+        assertNotNull(mDevice.findObject(By.clazz(".RadioButton")));
+        assertNotNull(mDevice.findObject(By.clazz(RadioButton.class)));
     }
 
     @Test
@@ -157,10 +161,10 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestClazzActivity");
 
         // RatingBar
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget", "RatingBar")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget.RatingBar")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(".RatingBar")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(RatingBar.class)));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget", "RatingBar")));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget.RatingBar")));
+        assertNotNull(mDevice.findObject(By.clazz(".RatingBar")));
+        assertNotNull(mDevice.findObject(By.clazz(RatingBar.class)));
     }
 
     @Test
@@ -168,10 +172,10 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestClazzActivity");
 
         // SeekBar
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget", "SeekBar")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget.SeekBar")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(".SeekBar")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(SeekBar.class)));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget", "SeekBar")));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget.SeekBar")));
+        assertNotNull(mDevice.findObject(By.clazz(".SeekBar")));
+        assertNotNull(mDevice.findObject(By.clazz(SeekBar.class)));
     }
 
     @Test
@@ -179,10 +183,10 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestClazzActivity");
 
         // Switch
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget", "Switch")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget.Switch")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(".Switch")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(Switch.class)));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget", "Switch")));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget.Switch")));
+        assertNotNull(mDevice.findObject(By.clazz(".Switch")));
+        assertNotNull(mDevice.findObject(By.clazz(Switch.class)));
     }
 
     @Test
@@ -190,10 +194,10 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestClazzActivity");
 
         // TextView
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget", "TextView")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget.TextView")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(".TextView")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(TextView.class)));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget", "TextView")));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget.TextView")));
+        assertNotNull(mDevice.findObject(By.clazz(".TextView")));
+        assertNotNull(mDevice.findObject(By.clazz(TextView.class)));
     }
 
     @Test
@@ -201,55 +205,60 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestClazzActivity");
 
         // ToggleButton
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget", "ToggleButton")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz("android.widget.ToggleButton")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(".ToggleButton")));
-        Assert.assertNotNull(mDevice.findObject(By.clazz(ToggleButton.class)));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget", "ToggleButton")));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget.ToggleButton")));
+        assertNotNull(mDevice.findObject(By.clazz(".ToggleButton")));
+        assertNotNull(mDevice.findObject(By.clazz(ToggleButton.class)));
     }
 
     @Test
     public void testClazzNotFound() {
         launchTestActivity("BySelectorTestClazzActivity");
 
-        // Non-existant class
-        Assert.assertNull(mDevice.findObject(By.clazz("android.widget", "NonExistantClass")));
-        Assert.assertNull(mDevice.findObject(By.clazz("android.widget.NonExistantClass")));
-        Assert.assertNull(mDevice.findObject(By.clazz(".NonExistantClass")));
+        // Non-existent class
+        assertNull(mDevice.findObject(By.clazz("android.widget", "NonExistentClass")));
+        assertNull(mDevice.findObject(By.clazz("android.widget.NonExistentClass")));
+        assertNull(mDevice.findObject(By.clazz(".NonExistentClass")));
     }
 
     @Test
     public void testClazzNull() {
         // clazz(String)
         try {
-            mDevice.findObject(By.clazz((String)null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.clazz((String) null));
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
         // clazz(String, String)
         try {
-            mDevice.findObject(By.clazz((String)null, "foo"));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.clazz((String) null, "foo"));
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
         try {
-            mDevice.findObject(By.clazz("foo", (String)null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.clazz("foo", (String) null));
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
         // clazz(Class)
         try {
-            mDevice.findObject(By.clazz((Class)null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.clazz((Class) null));
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
         // clazz(Pattern)
         try {
-            mDevice.findObject(By.clazz((Pattern)null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.clazz((Pattern) null));
+            fail();
+        } catch (NullPointerException expected) {
+        }
     }
 
-    // TODO(allenhair): Implement these for clazz():
+    // TODO(b/235841286): Implement these for clazz():
     // 1. Custom class
     // 2. Patterns
     // 3. Runtime Widgets
@@ -259,7 +268,7 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestDescActivity");
 
         // Content Description from resource
-        Assert.assertNotNull(mDevice.findObject(By.desc("Content Description Set From Layout")));
+        assertNotNull(mDevice.findObject(By.desc("Content Description Set From Layout")));
     }
 
     @Test
@@ -267,7 +276,7 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestDescActivity");
 
         // Content Description set at runtime
-        Assert.assertNotNull(mDevice.findObject(By.desc("Content Description Set At Runtime")));
+        assertNotNull(mDevice.findObject(By.desc("Content Description Set At Runtime")));
     }
 
     @Test
@@ -275,7 +284,7 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestDescActivity");
 
         // No element has this content description
-        Assert.assertNull(mDevice.findObject(By.desc("No element has this Content Description")));
+        assertNull(mDevice.findObject(By.desc("No element has this Content Description")));
     }
 
     @Test
@@ -283,17 +292,19 @@ public class BySelectorTests {
         // desc(String)
         try {
             mDevice.findObject(By.desc((String) null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
         // desc(Pattern)
         try {
-            mDevice.findObject(By.desc((Pattern)null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.desc((Pattern) null));
+            fail();
+        } catch (NullPointerException expected) {
+        }
     }
 
-    // TODO(allenhair): Implement these for desc():
+    // TODO(b/235841286): Implement these for desc():
     // 1. Patterns
     // 2. Runtime Widgets
 
@@ -302,22 +313,24 @@ public class BySelectorTests {
         launchTestActivity("MainActivity");
 
         // Full match with string argument
-        Assert.assertNotNull(mDevice.findObject(By.pkg(TEST_APP)));
+        assertNotNull(mDevice.findObject(By.pkg(TEST_APP)));
     }
 
     @Test
     public void testPkgNull() {
         // pkg(String)
         try {
-            mDevice.findObject(By.pkg((String)null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.pkg((String) null));
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
         // pkg(Pattern)
         try {
-            mDevice.findObject(By.pkg((Pattern)null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.pkg((Pattern) null));
+            fail();
+        } catch (NullPointerException expected) {
+        }
     }
 
     @Test
@@ -325,8 +338,8 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestResActivity");
 
         // Unique ID
-        Assert.assertNotNull(mDevice.findObject(By.res(TEST_APP, "unique_id")));
-        Assert.assertNotNull(mDevice.findObject(By.res(TEST_APP + ":id/unique_id")));
+        assertNotNull(mDevice.findObject(By.res(TEST_APP, "unique_id")));
+        assertNotNull(mDevice.findObject(By.res(TEST_APP + ":id/unique_id")));
     }
 
     @Test
@@ -334,8 +347,8 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestResActivity");
 
         // Shared ID
-        Assert.assertNotNull(mDevice.findObject(By.res(TEST_APP, "shared_id")));
-        Assert.assertNotNull(mDevice.findObject(By.res(TEST_APP + ":id/shared_id")));
+        assertNotNull(mDevice.findObject(By.res(TEST_APP, "shared_id")));
+        assertNotNull(mDevice.findObject(By.res(TEST_APP + ":id/shared_id")));
         // 1. Make sure we can see all instances
         // 2. Differentiate between matches by other criteria
     }
@@ -344,26 +357,30 @@ public class BySelectorTests {
     public void testResNull() {
         // res(String)
         try {
-            mDevice.findObject(By.res((String)null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.res((String) null));
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
         // res(String, String)
         try {
-            mDevice.findObject(By.res((String)null, "foo"));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.res((String) null, "foo"));
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
         try {
-            mDevice.findObject(By.res("foo", (String)null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.res("foo", (String) null));
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
         // res(Pattern)
         try {
-            mDevice.findObject(By.res((Pattern)null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.res((Pattern) null));
+            fail();
+        } catch (NullPointerException expected) {
+        }
     }
 
     @Test
@@ -371,7 +388,7 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestTextActivity");
 
         // Unique Text
-        Assert.assertNotNull(mDevice.findObject(By.text("Unique Text")));
+        assertNotNull(mDevice.findObject(By.text("Unique Text")));
     }
 
     @Test
@@ -379,23 +396,25 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestTextActivity");
 
         // Common Text
-        Assert.assertNotNull(mDevice.findObject(By.text("Common Text")));
-        Assert.assertEquals(2, mDevice.findObjects(By.text("Common Text")).size());
+        assertNotNull(mDevice.findObject(By.text("Common Text")));
+        assertEquals(2, mDevice.findObjects(By.text("Common Text")).size());
     }
 
     @Test
     public void testTextNull() {
         // text(String)
         try {
-            mDevice.findObject(By.text((String)null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.text((String) null));
+            fail();
+        } catch (NullPointerException expected) {
+        }
 
         // text(Pattern)
         try {
-            mDevice.findObject(By.text((Pattern)null));
-            Assert.fail();
-        } catch (NullPointerException e) {}
+            mDevice.findObject(By.text((Pattern) null));
+            fail();
+        } catch (NullPointerException expected) {
+        }
     }
 
     @Test
@@ -404,7 +423,7 @@ public class BySelectorTests {
 
         // Find parent with unique child
         UiObject2 object = mDevice.findObject(By.hasChild(By.res(TEST_APP, "toplevel1_child1")));
-        Assert.assertNotNull(object);
+        assertNotNull(object);
     }
 
     @Test
@@ -412,8 +431,9 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestHasChildActivity");
 
         // Find parent(s) with common child
-        Assert.assertNotNull(mDevice.findObject(By.pkg(TEST_APP).hasChild(By.clazz(".TextView"))));
-        Assert.assertEquals(3, mDevice.findObjects(By.pkg(TEST_APP).hasChild(By.clazz(".TextView"))).size());
+        assertNotNull(mDevice.findObject(By.pkg(TEST_APP).hasChild(By.clazz(".TextView"))));
+        assertEquals(3,
+                mDevice.findObjects(By.pkg(TEST_APP).hasChild(By.clazz(".TextView"))).size());
     }
 
     @Test
@@ -421,7 +441,7 @@ public class BySelectorTests {
         launchTestActivity("BySelectorTestHasChildActivity");
 
         UiObject2 parent = mDevice.findObject(By.res(TEST_APP, "toplevel2"));
-        Assert.assertEquals(2, parent.getChildren().size());
+        assertEquals(2, parent.getChildren().size());
     }
 
     @Test
@@ -432,7 +452,7 @@ public class BySelectorTests {
         UiObject2 object = mDevice.findObject(By
                 .hasChild(By.res(TEST_APP, "toplevel2_child1"))
                 .hasChild(By.res(TEST_APP, "toplevel2_child2")));
-        Assert.assertNotNull(object);
+        assertNotNull(object);
     }
 
     @Test
@@ -443,7 +463,7 @@ public class BySelectorTests {
         UiObject2 object = mDevice.findObject(By
                 .hasChild(By.res(TEST_APP, "toplevel1_child1"))
                 .hasChild(By.clazz(".TextView")));
-        Assert.assertNotNull(object);
+        assertNotNull(object);
     }
 
     @Test
@@ -453,7 +473,7 @@ public class BySelectorTests {
         // Select parent with child that has a child
         UiObject2 object = mDevice.findObject(
                 By.hasChild(By.hasChild(By.res(TEST_APP, "toplevel3_container1_child1"))));
-        Assert.assertNotNull(object);
+        assertNotNull(object);
     }
 
     @Test
@@ -464,6 +484,6 @@ public class BySelectorTests {
         UiObject2 object = mDevice.findObject(By
                 .clazz(".RelativeLayout")
                 .hasDescendant(By.res(TEST_APP, "toplevel3_container1_child1")));
-        Assert.assertNotNull(object);
+        assertNotNull(object);
     }
 }
