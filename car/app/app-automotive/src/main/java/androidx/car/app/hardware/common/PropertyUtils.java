@@ -143,6 +143,8 @@ public final class PropertyUtils {
                     .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_THIRD)
                                     .setColumn(CarZone.CAR_ZONE_COLUMN_RIGHT).build(),
                             VehicleAreaSeat.SEAT_ROW_3_RIGHT)
+                    .put(new CarZone.Builder().setRow(CarZone.CAR_ZONE_ROW_ALL)
+                                    .setColumn(CarZone.CAR_ZONE_COLUMN_ALL).build(), 0)
                     .buildOrThrow();
 
     // Permissions for writing properties. They are system level permissions.
@@ -396,15 +398,16 @@ public final class PropertyUtils {
         for (Map.Entry<Integer, List<CarZone>> propertyIdWithCarZones :
                 propertyIdToCarZones.entrySet()) {
             for (CarZone carZone : propertyIdWithCarZones.getValue()) {
+                int propertyId = propertyIdWithCarZones.getKey();
                 if (CAR_ZONE_TO_AREA_ID.containsKey(carZone)) {
                     propertyIdWithAreaIds.add(PropertyIdAreaId.builder()
                             .setAreaId(CAR_ZONE_TO_AREA_ID.get(carZone))
-                            .setPropertyId(propertyIdWithCarZones.getKey())
+                            .setPropertyId(propertyId)
                             .build());
                 } else {
                     Log.w(LogTags.TAG_CAR_HARDWARE,
                             "Could not find area Id for car zone: " + carZone.toString()
-                                    +  " for property: " + propertyIdWithCarZones.getKey());
+                                    +  " for property: " + propertyId);
                 }
             }
         }
