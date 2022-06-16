@@ -32,7 +32,8 @@ package androidx.car.app {
     method public final androidx.car.app.Session? getCurrentSession();
     method public final androidx.car.app.HostInfo? getHostInfo();
     method @CallSuper public final android.os.IBinder onBind(android.content.Intent);
-    method public abstract androidx.car.app.Session onCreateSession();
+    method @Deprecated public abstract androidx.car.app.Session onCreateSession();
+    method public androidx.car.app.Session onCreateSession(androidx.car.app.SessionInfo);
     method public final boolean onUnbind(android.content.Intent);
     field @Deprecated public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
     field public static final String CATEGORY_NAVIGATION_APP = "androidx.car.app.category.NAVIGATION";
@@ -158,6 +159,7 @@ package androidx.car.app {
     ctor public SessionInfo(int, String);
     method public int getDisplayType();
     method public String getSessionId();
+    field public static final androidx.car.app.SessionInfo DEFAULT_SESSION_INFO;
     field public static final int DISPLAY_TYPE_CLUSTER = 1; // 0x1
     field public static final int DISPLAY_TYPE_MAIN = 0; // 0x0
   }

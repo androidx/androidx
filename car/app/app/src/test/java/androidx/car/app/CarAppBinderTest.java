@@ -97,6 +97,7 @@ public class CarAppBinderTest {
                         return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
                     }
 
+                    @SuppressWarnings("deprecation")
                     @Override
                     @NonNull
                     public Session onCreateSession() {
