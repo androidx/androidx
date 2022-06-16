@@ -19,7 +19,6 @@ package androidx.health.connect.client.impl.converters.datatype
 
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
-import androidx.health.connect.client.records.ActiveEnergyBurnedRecord
 import androidx.health.connect.client.records.BasalBodyTemperatureRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
@@ -67,7 +66,6 @@ import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.SwimmingStrokesRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
-import androidx.health.connect.client.records.TotalEnergyBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
@@ -77,7 +75,6 @@ import kotlin.reflect.KClass
 val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
     mapOf(
         "ActiveCaloriesBurned" to ActiveCaloriesBurnedRecord::class,
-        "ActiveEnergyBurned" to ActiveEnergyBurnedRecord::class,
         "ActivityEvent" to ExerciseEventRecord::class, // Keep legacy Activity name
         "ActivityLap" to ExerciseLapRecord::class, // Keep legacy Activity name
         "ActivitySession" to ExerciseSessionRecord::class, // Keep legacy Activity name
@@ -126,7 +123,6 @@ val RECORDS_TYPE_NAME_MAP: Map<String, KClass<out Record>> =
         "StepsCadenceSeries" to StepsCadenceRecord::class, // Keep legacy Series suffix
         "SwimmingStrokes" to SwimmingStrokesRecord::class,
         "TotalCaloriesBurned" to TotalCaloriesBurnedRecord::class,
-        "TotalEnergyBurned" to TotalEnergyBurnedRecord::class,
         "Vo2Max" to Vo2MaxRecord::class,
         "WaistCircumference" to WaistCircumferenceRecord::class,
         "WheelchairPushes" to WheelchairPushesRecord::class,

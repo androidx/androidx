@@ -19,7 +19,6 @@ package androidx.health.connect.client.impl.converters.records
 
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
-import androidx.health.connect.client.records.ActiveEnergyBurnedRecord
 import androidx.health.connect.client.records.BasalBodyTemperatureRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
@@ -72,7 +71,6 @@ import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.SwimmingStrokesRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
-import androidx.health.connect.client.records.TotalEnergyBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
@@ -389,15 +387,6 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endZoneOffset = endZoneOffset,
                     metadata = metadata
                 )
-            "ActiveEnergyBurned" ->
-                ActiveEnergyBurnedRecord(
-                    energyKcal = getDouble("energy"),
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
-                    metadata = metadata
-                )
             "ActivityEvent" ->
                 ExerciseEventRecord(
                     eventType = getEnum("eventType") ?: "",
@@ -565,15 +554,6 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "TotalCaloriesBurned" ->
                 TotalCaloriesBurnedRecord(
-                    energyKcal = getDouble("energy"),
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
-                    metadata = metadata
-                )
-            "TotalEnergyBurned" ->
-                TotalEnergyBurnedRecord(
                     energyKcal = getDouble("energy"),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
