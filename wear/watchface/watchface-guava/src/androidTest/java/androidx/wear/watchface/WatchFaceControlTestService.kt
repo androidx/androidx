@@ -64,7 +64,7 @@ public class WatchFaceControlTestService : Service() {
     private val realService = object : WatchFaceControlService() {
         override fun createServiceStub(): IWatchFaceInstanceServiceStub =
             object : IWatchFaceInstanceServiceStub(
-                ApplicationProvider.getApplicationContext<Context>(),
+                this@WatchFaceControlTestService,
                 MainScope()
             ) {
                 @RequiresApi(Build.VERSION_CODES.O_MR1)
