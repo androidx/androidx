@@ -343,15 +343,17 @@ public class UserStyleSettingTest {
                 ComplicationType.LONG_TEXT.toWireComplicationType() to
                     RectF(0.5f, 0.6f, 0.7f, 0.8f)
             ),
-            null,
-            mapOf(
-                ComplicationType.LONG_TEXT.toWireComplicationType() to
-                    RectF(0.2f, 0.2f, 0.2f, 0.2f)
-           )
+            null
         )
 
         val overlay =
-            UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(wireFormat)
+            UserStyleSetting.ComplicationSlotsUserStyleSetting.ComplicationSlotOverlay(
+                wireFormat,
+                mapOf(
+                    ComplicationType.LONG_TEXT.toWireComplicationType() to
+                        RectF(0.2f, 0.2f, 0.2f, 0.2f)
+                )
+            )
         val bounds = overlay.complicationSlotBounds!!.perComplicationTypeBounds
 
         // SHORT_TEXT and LONG_TEXT should match the input bounds
