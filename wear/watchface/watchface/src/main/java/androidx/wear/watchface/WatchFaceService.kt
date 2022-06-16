@@ -432,7 +432,9 @@ public abstract class WatchFaceService : WallpaperService() {
      */
     @WorkerThread
     protected open fun createUserStyleSchema(): UserStyleSchema =
-        xmlSchemaAndComplicationSlotsDefinition.schema ?: UserStyleSchema(emptyList())
+        UserStyleSchema(
+            xmlSchemaAndComplicationSlotsDefinition.schema?.userStyleSettings ?: emptyList()
+        )
 
     /**
      * If the WatchFaceService's manifest doesn't define a
