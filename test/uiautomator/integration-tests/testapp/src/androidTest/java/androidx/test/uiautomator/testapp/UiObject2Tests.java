@@ -34,13 +34,50 @@ import org.junit.Test;
 
 public class UiObject2Tests extends BaseTest {
 
-    /* TODO(b/235841473): Implement these tests
-    public void testExists() {}
+    @Test
+    public void testHasObject() {
+        launchTestActivity(MainActivity.class);
 
-    public void testGetChildCount() {}
+        UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
 
-    public void testGetVisibleBounds() {}
-    */
+        assertTrue(object.hasObject(By.text("Text View 1")));
+        assertFalse(object.hasObject(By.text("")));
+    }
+
+    @Test
+    public void testGetChildCount() {
+        launchTestActivity(MainActivity.class);
+
+        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "example_id"));
+        assertEquals(0, object.getChildCount());
+
+        UiObject2 nestedObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
+        assertEquals(2, nestedObject.getChildCount());
+    }
+
+    @Test
+    public void testGetVisibleBounds() {
+        launchTestActivity(MainActivity.class);
+
+        UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
+        Rect bounds = object.getVisibleBounds();
+        int top = bounds.top;
+        int bottom = bounds.bottom;
+        int left = bounds.left;
+        int right = bounds.right;
+        int boundsHeight = bounds.height();
+        int boundsWidth = bounds.width();
+        int displayHeight = mDevice.getDisplayHeight();
+        int displayWidth = mDevice.getDisplayWidth();
+        // Test the lower bounds
+        assertTrue(0 <= top);
+        assertTrue(0 <= left);
+        assertTrue(top < bottom);
+        assertTrue(left < right);
+        // Test the upper bounds
+        assertTrue(boundsHeight < displayHeight);
+        assertTrue(boundsWidth < displayWidth);
+    }
 
     @Test
     public void testGetClassNameButton() {
@@ -260,7 +297,6 @@ public class UiObject2Tests extends BaseTest {
         Rect bounds = scrollView.getVisibleBounds();
         float distance = 50000 / (bounds.height() - 2 * 10);
 
-        //
         //scrollView.scroll(Direction.DOWN, 1.0f);
         //assertNull(mDevice.findObject(By.res(TEST_APP, "top_text")));
         //while (scrollView.scroll(Direction.DOWN, 1.0f)) {
