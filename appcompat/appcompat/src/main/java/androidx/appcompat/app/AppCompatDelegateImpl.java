@@ -366,7 +366,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         if (sCanApplyOverrideConfiguration
                 && baseContext instanceof android.view.ContextThemeWrapper) {
             final Configuration config = createOverrideConfigurationForDayNight(
-                    baseContext, modeToApply, null, false);
+                    baseContext, modeToApply, null);
             if (DEBUG) {
                 Log.d(TAG, String.format("Attempting to apply config to base context: %s",
                         config.toString()));
@@ -386,7 +386,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // Again, but using the AppCompat version of ContextThemeWrapper.
         if (baseContext instanceof ContextThemeWrapper) {
             final Configuration config = createOverrideConfigurationForDayNight(
-                    baseContext, modeToApply, null, false);
+                    baseContext, modeToApply, null);
             if (DEBUG) {
                 Log.d(TAG, String.format("Attempting to apply config to base context: %s",
                         config.toString()));
@@ -443,7 +443,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         final Configuration config = createOverrideConfigurationForDayNight(
-                baseContext, modeToApply, configOverlay, true);
+                baseContext, modeToApply, configOverlay);
         if (DEBUG) {
             Log.d(TAG, String.format("Applying night mode using ContextThemeWrapper and "
                     + "applyOverrideConfiguration(). Config: %s", config.toString()));
@@ -2464,7 +2464,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     @NonNull
     private Configuration createOverrideConfigurationForDayNight(
             @NonNull Context context, @ApplyableNightMode final int mode,
-            @Nullable Configuration configOverlay, boolean ignoreFollowSystem) {
+            @Nullable Configuration configOverlay) {
         int newNightMode;
         switch (mode) {
             case MODE_NIGHT_YES:
@@ -2475,15 +2475,11 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 break;
             default:
             case MODE_NIGHT_FOLLOW_SYSTEM:
-                if (ignoreFollowSystem) {
-                    newNightMode = 0;
-                } else {
-                    // If we're following the system, we just use the system default from the
-                    // application context
-                    final Configuration appConfig =
-                            context.getApplicationContext().getResources().getConfiguration();
-                    newNightMode = appConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-                }
+                // If we're following the system, we just use the system default from the
+                // application context
+                final Configuration appConfig =
+                        context.getApplicationContext().getResources().getConfiguration();
+                newNightMode = appConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
                 break;
         }
 
@@ -2512,7 +2508,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         boolean handled = false;
 
         final Configuration overrideConfig =
-                createOverrideConfigurationForDayNight(mContext, mode, null, false);
+                createOverrideConfigurationForDayNight(mContext, mode, null);
 
         final boolean activityHandlingUiMode = isActivityManifestHandlingUiMode(mContext);
         final Configuration currentConfiguration = mEffectiveConfiguration == null
