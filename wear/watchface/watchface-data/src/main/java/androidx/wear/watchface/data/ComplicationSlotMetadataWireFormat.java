@@ -96,10 +96,10 @@ public final class ComplicationSlotMetadataWireFormat implements VersionedParcel
     @Nullable
     BoundingArcWireFormat mBoundingArc;
 
-    @ParcelField(15)
-    @Nullable
     // This needs to be a list because VersionedParcelable appears not to be backwards compatible
     // when introducing new arrays.
+    @ParcelField(value = 15, defaultValue = "null")
+    @Nullable
     List<RectF> mComplicationMargins;
 
     /** Used by VersionedParcelable. */
