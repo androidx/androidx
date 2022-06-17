@@ -107,7 +107,7 @@ public final class ComplicationStateWireFormat implements VersionedParcelable, P
     @Nullable
     BoundingArcWireFormat mBoundingArc;
 
-    @ParcelField(17)
+    @ParcelField(value = 17, defaultValue = "null")
     @Nullable
     Rect mBoundsWithMargins;
 
