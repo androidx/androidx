@@ -135,15 +135,15 @@ package androidx.health.connect.client.records {
   }
 
   public final class BasalBodyTemperatureRecord implements androidx.health.connect.client.records.InstantaneousRecord {
-    ctor public BasalBodyTemperatureRecord(double temperatureDegreesCelsius, optional String? measurementLocation, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public BasalBodyTemperatureRecord(androidx.health.connect.client.units.Temperature temperature, optional String? measurementLocation, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public String? getMeasurementLocation();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public double getTemperatureDegreesCelsius();
+    method public androidx.health.connect.client.units.Temperature getTemperature();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
     property public final String? measurementLocation;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public final double temperatureDegreesCelsius;
+    property public final androidx.health.connect.client.units.Temperature temperature;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
   }
@@ -264,15 +264,15 @@ package androidx.health.connect.client.records {
   }
 
   public final class BodyTemperatureRecord implements androidx.health.connect.client.records.InstantaneousRecord {
-    ctor public BodyTemperatureRecord(double temperatureDegreesCelsius, optional String? measurementLocation, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public BodyTemperatureRecord(androidx.health.connect.client.units.Temperature temperature, optional String? measurementLocation, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public String? getMeasurementLocation();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public double getTemperatureDegreesCelsius();
+    method public androidx.health.connect.client.units.Temperature getTemperature();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
     property public final String? measurementLocation;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public final double temperatureDegreesCelsius;
+    property public final androidx.health.connect.client.units.Temperature temperature;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
   }
@@ -1456,6 +1456,25 @@ package androidx.health.connect.client.units {
   }
 
   public final class LengthKt {
+  }
+
+  public final class Temperature implements java.lang.Comparable<androidx.health.connect.client.units.Temperature> {
+    method public static androidx.health.connect.client.units.Temperature celsius(double value);
+    method public int compareTo(androidx.health.connect.client.units.Temperature other);
+    method public static androidx.health.connect.client.units.Temperature fahrenheit(double value);
+    method public double getCelsius();
+    method public double getFahrenheit();
+    property public final double inCelsius;
+    property public final double inFahrenheit;
+    field public static final androidx.health.connect.client.units.Temperature.Companion Companion;
+  }
+
+  public static final class Temperature.Companion {
+    method public androidx.health.connect.client.units.Temperature celsius(double value);
+    method public androidx.health.connect.client.units.Temperature fahrenheit(double value);
+  }
+
+  public final class TemperatureKt {
   }
 
 }

@@ -77,6 +77,7 @@ import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
+import androidx.health.connect.client.units.celsius
 import androidx.health.connect.client.units.meters
 import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
@@ -87,7 +88,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
         when (dataType.name) {
             "BasalBodyTemperature" ->
                 BasalBodyTemperatureRecord(
-                    temperatureDegreesCelsius = getDouble("temperature"),
+                    temperature = getDouble("temperature").celsius,
                     measurementLocation = getEnum("measurementLocation"),
                     time = time,
                     zoneOffset = zoneOffset,
@@ -129,7 +130,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "BodyTemperature" ->
                 BodyTemperatureRecord(
-                    temperatureDegreesCelsius = getDouble("temperature"),
+                    temperature = getDouble("temperature").celsius,
                     measurementLocation = getEnum("measurementLocation"),
                     time = time,
                     zoneOffset = zoneOffset,
