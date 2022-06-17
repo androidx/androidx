@@ -61,8 +61,6 @@ import org.jetbrains.uast.USuperExpression
 import org.jetbrains.uast.UThisExpression
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
-import org.jetbrains.uast.java.JavaUQualifiedReferenceExpression
-import org.jetbrains.uast.java.JavaUSimpleNameReferenceExpression
 import org.jetbrains.uast.util.isConstructorCall
 import org.jetbrains.uast.util.isMethodCall
 
@@ -522,7 +520,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 call.valueArguments,
                 wrapperClassName,
                 wrapperMethodName
-            ) ?: return null
+            )
 
             return fix().name("Extract to static inner class")
                 .composite(
@@ -602,9 +600,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         }
 
         /**
-         * Generates source code for a call to the generated wrapper method, or `null` if we don't
-         * know how to do that. Currently, this method is capable of handling static calls --
-         * including constructor calls -- and simple reference expressions from Java source code.
+         * Generates source code for a call to the generated wrapper method.
          *
          * Source code follows the general format:
          *
@@ -625,12 +621,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             callValueArguments: List<UExpression>,
             wrapperClassName: String,
             wrapperMethodName: String,
-        ): String? {
-            var unwrappedCallReceiver = callReceiver
-            while (unwrappedCallReceiver is UParenthesizedExpression) {
-                unwrappedCallReceiver = unwrappedCallReceiver.expression
-            }
-
+        ): String {
             val callReceiverStr = when {
                 // Static method
                 context.evaluator.isStatic(method) ->
@@ -640,19 +631,11 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     null
                 // If there is no call receiver, and the method isn't a constructor or static,
                 // it must be a call to an instance method using `this` implicitly.
-                unwrappedCallReceiver == null ->
+                callReceiver == null ->
                     "this"
-                // Simple reference
-                unwrappedCallReceiver is JavaUSimpleNameReferenceExpression ->
-                    unwrappedCallReceiver.identifier
-                // Qualified reference
-                unwrappedCallReceiver is JavaUQualifiedReferenceExpression ->
-                    "${unwrappedCallReceiver.receiver}.${unwrappedCallReceiver.selector}"
-                else -> {
-                    // We don't know how to handle this type of receiver. If this happens a lot, we
-                    // might try returning `UElement.asSourceString()` by default.
-                    return null
-                }
+                // Otherwise, use the original call receiver string (removing extra parens)
+                else ->
+                    unwrapExpression(callReceiver).asSourceString()
             }
 
             val callValues = if (callValueArguments.isNotEmpty()) {
@@ -666,6 +649,18 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             val replacementArgs = listOfNotNull(callReceiverStr, callValues).joinToString(", ")
 
             return "$wrapperClassName.$wrapperMethodName($replacementArgs)"
+        }
+
+        /**
+         * Remove parentheses from the expression (unwrap the expression until it is no longer a
+         * UParenthesizedExpression).
+         */
+        private fun unwrapExpression(expr: UExpression): UExpression {
+            var unwrappedExpr = expr
+            while (unwrappedExpr is UParenthesizedExpression) {
+                unwrappedExpr = unwrappedExpr.expression
+            }
+            return unwrappedExpr
         }
 
         /**

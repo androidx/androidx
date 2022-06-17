@@ -39,4 +39,22 @@ public abstract class AutofixUnsafeCallToThis extends ViewGroup {
             getClipToPadding();
         }
     }
+
+    /**
+     * Method making the unsafe reference on an explicit this.
+     */
+    public void unsafeReferenceOnExplicitThis() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            this.getClipToPadding();
+        }
+    }
+
+    /**
+     * Method making the unsafe reference on an explicit super.
+     */
+    public void unsafeReferenceOnExplicitSuper() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            super.getClipToPadding();
+        }
+    }
 }
