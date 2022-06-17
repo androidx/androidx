@@ -24,6 +24,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.tracing.perfetto.Tracing.EnableTracingResponse
+import androidx.tracing.perfetto.Tracing.errorMessage
 import androidx.tracing.perfetto.TracingReceiver.Companion.ACTION_ENABLE_TRACING
 import java.io.File
 import java.util.concurrent.LinkedBlockingQueue
@@ -127,7 +128,7 @@ class TracingReceiver : BroadcastReceiver() {
                 } catch (e: Exception) {
                     EnableTracingResponse(
                         exitCode = RESULT_CODE_ERROR_OTHER,
-                        errorMessage = e.toErrorMessage()
+                        errorMessage = errorMessage(e)
                     )
                 }
             }

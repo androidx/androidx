@@ -1,0 +1,13 @@
+// Signature format: 4.0
+package androidx.tracing.perfetto {
+
+  public final class Tracing {
+    method public boolean isEnabled();
+    method public void traceEventEnd();
+    method public void traceEventStart(int key, String traceInfo);
+    property public final boolean isEnabled;
+    field public static final androidx.tracing.perfetto.Tracing INSTANCE;
+  }
+
+}
+

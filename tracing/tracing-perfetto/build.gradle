@@ -34,7 +34,6 @@ dependencies {
 
 androidx {
     name = "AndroidX Tracing: Perfetto SDK"
-    runApiTasks= new RunApiTasks.No("The API is still evolving")
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.TRACING_PERFETTO
     mavenGroup = LibraryGroups.TRACING
