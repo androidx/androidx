@@ -242,6 +242,10 @@
             android:configChanges="orientation|screenSize|keyboardHidden"/>
 
         <activity
+            android:name="androidx.appcompat.app.g3.FilternatorActivityWithCustomDefault"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
+
+        <activity
             android:name="androidx.appcompat.app.g3.OldTranslateActivity"
             android:configChanges="screenSize|keyboardHidden|orientation|smallestScreenSize|screenLayout"
             android:recreateOnConfigChanges="mcc|mnc"
