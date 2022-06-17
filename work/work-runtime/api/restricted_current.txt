@@ -20,6 +20,7 @@ package androidx.work {
     method public int getMaxJobSchedulerId();
     method public int getMinJobSchedulerId();
     method public androidx.work.RunnableScheduler getRunnableScheduler();
+    method public androidx.work.SchedulingExceptionHandler? getSchedulingExceptionHandler();
     method public java.util.concurrent.Executor getTaskExecutor();
     method public androidx.work.WorkerFactory getWorkerFactory();
     field public static final int MIN_SCHEDULER_LIMIT = 20; // 0x14
@@ -35,6 +36,7 @@ package androidx.work {
     method public androidx.work.Configuration.Builder setMaxSchedulerLimit(int);
     method public androidx.work.Configuration.Builder setMinimumLoggingLevel(int);
     method public androidx.work.Configuration.Builder setRunnableScheduler(androidx.work.RunnableScheduler);
+    method public androidx.work.Configuration.Builder setSchedulingExceptionHandler(androidx.work.SchedulingExceptionHandler);
     method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor);
     method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory);
   }
@@ -297,6 +299,10 @@ package androidx.work {
   public interface RunnableScheduler {
     method public void cancel(Runnable);
     method public void scheduleWithDelay(@IntRange(from=0) long, Runnable);
+  }
+
+  public interface SchedulingExceptionHandler {
+    method public void handleException(Throwable);
   }
 
   public abstract class WorkContinuation {

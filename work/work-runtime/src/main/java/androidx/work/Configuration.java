@@ -68,6 +68,8 @@ public final class Configuration {
     @SuppressWarnings("WeakerAccess")
     final @Nullable InitializationExceptionHandler mExceptionHandler;
     @SuppressWarnings("WeakerAccess")
+    final @Nullable SchedulingExceptionHandler mSchedulingExceptionHandler;
+    @SuppressWarnings("WeakerAccess")
     final @Nullable String mDefaultProcessName;
     @SuppressWarnings("WeakerAccess")
     final int mLoggingLevel;
@@ -120,6 +122,7 @@ public final class Configuration {
         mMaxJobSchedulerId = builder.mMaxJobSchedulerId;
         mMaxSchedulerLimit = builder.mMaxSchedulerLimit;
         mExceptionHandler = builder.mExceptionHandler;
+        mSchedulingExceptionHandler = builder.mSchedulingExceptionHandler;
         mDefaultProcessName = builder.mDefaultProcessName;
     }
 
@@ -253,8 +256,17 @@ public final class Configuration {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Nullable
-    public InitializationExceptionHandler getExceptionHandler() {
+    public InitializationExceptionHandler getInitializationExceptionHandler() {
         return mExceptionHandler;
+    }
+
+    /**
+     * @return the {@link SchedulingExceptionHandler} that can be used to intercept exceptions
+     * caused when trying to schedule {@link WorkRequest}s.
+     */
+    @Nullable
+    public SchedulingExceptionHandler getSchedulingExceptionHandler() {
+        return mSchedulingExceptionHandler;
     }
 
     private @NonNull Executor createDefaultExecutor(boolean isTaskExecutor) {
@@ -289,6 +301,7 @@ public final class Configuration {
         Executor mTaskExecutor;
         RunnableScheduler mRunnableScheduler;
         @Nullable InitializationExceptionHandler mExceptionHandler;
+        @Nullable SchedulingExceptionHandler mSchedulingExceptionHandler;
         @Nullable String mDefaultProcessName;
 
         int mLoggingLevel;
@@ -327,6 +340,7 @@ public final class Configuration {
             mMaxSchedulerLimit = configuration.mMaxSchedulerLimit;
             mRunnableScheduler = configuration.mRunnableScheduler;
             mExceptionHandler = configuration.mExceptionHandler;
+            mSchedulingExceptionHandler = configuration.mSchedulingExceptionHandler;
             mDefaultProcessName = configuration.mDefaultProcessName;
         }
 
@@ -485,6 +499,20 @@ public final class Configuration {
         public Builder setInitializationExceptionHandler(
                 @NonNull InitializationExceptionHandler exceptionHandler) {
             mExceptionHandler = exceptionHandler;
+            return this;
+        }
+
+        /**
+         * Specifies the {@link SchedulingExceptionHandler} that can be used to intercept
+         * exceptions caused when trying to schedule {@link WorkRequest}s.
+         *
+         * @param schedulingExceptionHandler The {@link SchedulingExceptionHandler} instance
+         * @return This {@link Builder} instance
+         */
+        @NonNull
+        public Builder setSchedulingExceptionHandler(
+                @NonNull SchedulingExceptionHandler schedulingExceptionHandler) {
+            mSchedulingExceptionHandler = schedulingExceptionHandler;
             return this;
         }
 
