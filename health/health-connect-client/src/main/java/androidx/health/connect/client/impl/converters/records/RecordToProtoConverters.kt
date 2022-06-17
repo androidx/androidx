@@ -19,7 +19,6 @@ package androidx.health.connect.client.impl.converters.records
 
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
-import androidx.health.connect.client.records.ActiveEnergyBurnedRecord
 import androidx.health.connect.client.records.BasalBodyTemperatureRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
@@ -68,7 +67,6 @@ import androidx.health.connect.client.records.StepsCadenceRecord
 import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.SwimmingStrokesRecord
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
-import androidx.health.connect.client.records.TotalEnergyBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
@@ -290,11 +288,6 @@ fun Record.toProto(): DataProto.DataPoint =
                 .setDataType(protoDataType("ActiveCaloriesBurned"))
                 .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
-        is ActiveEnergyBurnedRecord ->
-            intervalProto()
-                .setDataType(protoDataType("ActiveEnergyBurned"))
-                .apply { putValues("energy", doubleVal(energyKcal)) }
-                .build()
         is ExerciseEventRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivityEvent"))
@@ -511,11 +504,6 @@ fun Record.toProto(): DataProto.DataPoint =
         is TotalCaloriesBurnedRecord ->
             intervalProto()
                 .setDataType(protoDataType("TotalCaloriesBurned"))
-                .apply { putValues("energy", doubleVal(energyKcal)) }
-                .build()
-        is TotalEnergyBurnedRecord ->
-            intervalProto()
-                .setDataType(protoDataType("TotalEnergyBurned"))
                 .apply { putValues("energy", doubleVal(energyKcal)) }
                 .build()
         is WheelchairPushesRecord ->
