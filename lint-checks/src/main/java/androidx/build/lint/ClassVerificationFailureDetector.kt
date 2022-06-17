@@ -638,6 +638,10 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 // Constructor
                 method.isConstructor ->
                     null
+                // If there is no call receiver, and the method isn't a constructor or static,
+                // it must be a call to an instance method using `this` implicitly.
+                unwrappedCallReceiver == null ->
+                    "this"
                 // Simple reference
                 unwrappedCallReceiver is JavaUSimpleNameReferenceExpression ->
                     unwrappedCallReceiver.identifier
