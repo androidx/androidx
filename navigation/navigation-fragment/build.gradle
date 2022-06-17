@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.fragment:fragment-ktx:1.5.0-rc01")
+    api("androidx.fragment:fragment-ktx:1.5.0")
     api(project(":navigation:navigation-runtime"))
     api("androidx.slidingpanelayout:slidingpanelayout:1.2.0")
     api(libs.kotlinStdlib)
