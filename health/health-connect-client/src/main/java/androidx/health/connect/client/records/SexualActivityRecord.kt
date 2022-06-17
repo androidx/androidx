@@ -29,6 +29,8 @@ public class SexualActivityRecord(
     /**
      * Whether protection was used during sexual activity. Optional field, null if unknown. Allowed
      * values: [Protection].
+     *
+     * @see Protection
      */
     @property:Protections public val protectionUsed: String? = null,
     override val time: Instant,

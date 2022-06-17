@@ -26,7 +26,11 @@ import java.time.ZoneOffset
  * heavy). Each record represents a description of how heavy the user's menstrual bleeding was.
  */
 public class MenstruationRecord(
-    /** How heavy the user's menstrual flow was. Optional field. Allowed values: [Flows]. */
+    /**
+     * How heavy the user's menstrual flow was. Optional field. Allowed values: [Flow].
+     *
+     * @see Flow
+     */
     @property:Flows public val flow: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,

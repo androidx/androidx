@@ -27,15 +27,21 @@ import java.time.ZoneOffset
  * Captures the description of cervical mucus. Each record represents a self-assessed description of
  * cervical mucus for a user. All fields are optional and can be used to describe the look and feel
  * of cervical mucus.
- *
- * @param appearance The consistency of the user's cervical mucus. Optional field. Allowed values:
- * [Appearances].
- *
- * @param sensation The feel of the user's cervical mucus. Optional field. Allowed values:
- * [Sensations].
  */
 public class CervicalMucusRecord(
+    /**
+     * The consistency of the user's cervical mucus. Optional field. Allowed values:
+     * [Appearance].
+     *
+     * @see Appearance
+     */
     @property:Appearances public val appearance: String? = null,
+    /**
+     * The feel of the user's cervical mucus. Optional field. Allowed values:
+     * [Sensation].
+     *
+     * @see Sensation
+     */
     @property:Sensations public val sensation: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,

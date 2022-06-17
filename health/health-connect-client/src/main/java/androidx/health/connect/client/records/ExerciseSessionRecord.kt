@@ -33,6 +33,8 @@ import java.time.ZoneOffset
 public class ExerciseSessionRecord(
     /**
      * Type of exercise (e.g. walking, swimming). Required field. Allowed values: [ExerciseType].
+     *
+     * @see ExerciseType
      */
     @property:ExerciseTypes public val exerciseType: String,
     /** Title of the session. Optional field. */

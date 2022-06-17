@@ -25,7 +25,11 @@ import java.time.ZoneOffset
 public class ExerciseRepetitionsRecord(
     /** Count. Required field. Valid range: 1-1000000. */
     public val count: Long,
-    /** Type of exercise being repeated. Required field. Allowed values: [ExerciseType]. */
+    /**
+     * Type of exercise being repeated. Required field. Allowed values: [ExerciseType].
+     *
+     * @see ExerciseType
+     */
     @property:ExerciseTypes public val type: String,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
