@@ -63,7 +63,7 @@ public final class MetadataRepo {
     /**
      * Typeface to be used to render emojis.
      */
-    private final Typeface mTypeface;
+    private final @NonNull Typeface mTypeface;
 
     /**
      * Constructor used for tests.
@@ -72,7 +72,7 @@ public final class MetadataRepo {
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     MetadataRepo() {
-        mTypeface = null;
+        mTypeface = Typeface.DEFAULT;
         mMetadataList = null;
         mRootNode = new Node(DEFAULT_ROOT_SIZE);
         mEmojiCharArray = new char[0];
@@ -149,7 +149,7 @@ public final class MetadataRepo {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    Typeface getTypeface() {
+    @NonNull Typeface getTypeface() {
         return mTypeface;
     }
 
