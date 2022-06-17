@@ -17,6 +17,7 @@
 package androidx.camera.integration.diagnose
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.pm.PackageManager
 import android.os.Build
@@ -25,20 +26,29 @@ import android.provider.MediaStore
 import android.util.Log
 import android.widget.Button
 import android.widget.Toast
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.view.CameraController.IMAGE_CAPTURE
+import androidx.camera.view.CameraController.VIDEO_CAPTURE
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
+import androidx.camera.view.video.ExperimentalVideo
+import androidx.camera.view.video.OnVideoSavedCallback
+import androidx.camera.view.video.OutputFileOptions
+import androidx.camera.view.video.OutputFileResults
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.concurrent.Executor
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var cameraController: LifecycleCameraController
     private lateinit var previewView: PreviewView
+    private lateinit var executor: Executor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +56,7 @@ class MainActivity : AppCompatActivity() {
         previewView = findViewById(R.id.preview_view)
         cameraController = LifecycleCameraController(this)
         previewView.controller = cameraController
+        executor = ContextCompat.getMainExecutor(this)
         // Request CAMERA permission and fail gracefully if not granted.
         if (allPermissionsGranted()) {
             startCamera()
@@ -56,15 +67,12 @@ class MainActivity : AppCompatActivity() {
         }
         // Setup UI events
         findViewById<Button>(R.id.image_capture).setOnClickListener {
-            // TODO: handle capture button click event following examples
-            //  in CameraControllerFragment.
             Log.d(TAG, "image button clicked")
             takePhoto()
         }
 
         findViewById<Button>(R.id.video_capture).setOnClickListener {
-            // TODO: handle capture button click event following examples
-            //  in CameraControllerFragment.
+            Log.d(TAG, "video button clicked")
             captureVideo()
         }
     }
@@ -97,6 +105,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun takePhoto() {
+        cameraController.setEnabledUseCases(IMAGE_CAPTURE)
+
         val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
             .format(System.currentTimeMillis())
         val contentValues = ContentValues().apply {
@@ -118,7 +128,7 @@ class MainActivity : AppCompatActivity() {
         // been taken
         cameraController.takePicture(
             outputOptions,
-            ContextCompat.getMainExecutor(this),
+            executor,
             object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exc: ImageCaptureException) {
                     val msg = "Photo capture failed: ${exc.message}"
@@ -135,7 +145,65 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun captureVideo() {}
+    @SuppressLint("NullAnnotationGroup")
+    @OptIn(ExperimentalVideo::class)
+    private fun captureVideo() {
+        // determine whether the onclick is to start recording or stop recording
+        if (cameraController.isRecording) {
+            cameraController.stopRecording()
+            val msg = "video stopped recording"
+            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+            Log.d(TAG, msg)
+        } else {
+            // enabling video capture
+            cameraController.setEnabledUseCases(VIDEO_CAPTURE)
+
+            // building file output
+            val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
+                .format(System.currentTimeMillis())
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+                put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
+                    put(MediaStore.Video.Media.RELATIVE_PATH, "Movies/CameraX-Video")
+                }
+            }
+            val outputFileOptions = OutputFileOptions
+                .builder(contentResolver,
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    contentValues)
+                .build()
+            Log.d(TAG, "finished composing video name")
+
+            // start recording
+            try {
+                cameraController.startRecording(
+                    outputFileOptions,
+                    executor,
+                    object : OnVideoSavedCallback {
+                        override fun onVideoSaved(outputFileResults: OutputFileResults) {
+                            val msg = "Video record succeeded: " + outputFileResults.savedUri
+                            Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                            Log.d(TAG, msg)
+                        }
+
+                        override fun onError(
+                            videoCaptureError: Int,
+                            message: String,
+                            cause: Throwable?
+                        ) {
+                            Log.e(TAG, "Video saving failed: $message")
+                        }
+                    }
+                )
+                val msg = "video recording"
+                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                Log.d(TAG, msg)
+            } catch (exception: RuntimeException) {
+                Log.e(TAG, "Video failed to record: " + exception.message)
+            }
+        }
+    }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
         ContextCompat.checkSelfPermission(

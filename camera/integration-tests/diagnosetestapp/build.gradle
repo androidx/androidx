@@ -51,7 +51,6 @@ dependencies {
 
     implementation(libs.guavaAndroid)
     implementation(libs.constraintLayout)
-    implementation 'androidx.camera:camera-view:1.1.0-beta03'
 
     compileOnly(libs.kotlinCompiler)
 
