@@ -120,7 +120,7 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                 () -> mWorkDatabase.workSpecDao().getWorkSpec(id.getWorkSpecId())
         );
         if (workSpec == null) {
-            Logger.get().error(TAG, "Didn't find WorkSpec for id " + id);
+            Logger.get().warning(TAG, "Didn't find WorkSpec for id " + id);
             runOnExecuted(id, false);
             return false;
         }
