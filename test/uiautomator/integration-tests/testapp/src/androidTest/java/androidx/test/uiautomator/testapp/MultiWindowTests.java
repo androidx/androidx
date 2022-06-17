@@ -18,30 +18,13 @@ package androidx.test.uiautomator.testapp;
 
 import static org.junit.Assert.assertTrue;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
-import androidx.test.uiautomator.UiDevice;
 
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
-public class MultiWindowTests {
-
-    private UiDevice mDevice;
-    private static final String TEST_APP = "androidx.test.uiautomator.testapp";
-
-    @Before
-    public void setUp() {
-        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-
-        mDevice.pressHome();
-        mDevice.waitForIdle();
-    }
+public class MultiWindowTests extends BaseTest {
 
     @Test
     @Ignore

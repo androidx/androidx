@@ -21,8 +21,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-import android.content.Context;
-import android.content.Intent;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -34,60 +32,19 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
-import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
-import androidx.test.uiautomator.Until;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import java.util.regex.Pattern;
 
-@RunWith(AndroidJUnit4.class)
-public class BySelectorTests {
-
-    private static final String TAG = BySelectorTests.class.getSimpleName();
-
-    private static final String TEST_APP = "androidx.test.uiautomator.testapp";
-    private static final String ANDROID_WIDGET_PACKAGE = "android.widget";
-
-    private UiDevice mDevice;
-
-    @Before
-    public void setUp() throws Exception {
-        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-    }
-
-    public void launchTestActivity(String activity) {
-        // Launch the test app
-        Context context = ApplicationProvider.getApplicationContext();
-        Intent intent = new Intent()
-                .setClassName(TEST_APP, String.format("%s.%s", TEST_APP, activity))
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        context.startActivity(intent);
-
-        // Wait for activity to appear
-        mDevice.wait(Until.hasObject(By.pkg(TEST_APP)), 10000);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        mDevice.pressHome();
-
-        // Wait for the activity to disappear
-        mDevice.wait(Until.gone(By.pkg(TEST_APP)), 5000);
-    }
+public class BySelectorTests extends BaseTest {
 
     @Test
     public void testCopy() {
-        launchTestActivity("MainActivity");
+        launchTestActivity(MainActivity.class);
 
         // Base selector
         BySelector base = By.clazz(".TextView");
@@ -103,7 +60,7 @@ public class BySelectorTests {
 
     @Test
     public void testClazzButton() {
-        launchTestActivity("BySelectorTestClazzActivity");
+        launchTestActivity(BySelectorTestClazzActivity.class);
 
         // Button
         assertNotNull(mDevice.findObject(By.clazz("android.widget", "Button")));
@@ -114,7 +71,7 @@ public class BySelectorTests {
 
     @Test
     public void testClazzCheckBox() {
-        launchTestActivity("BySelectorTestClazzActivity");
+        launchTestActivity(BySelectorTestClazzActivity.class);
 
         // CheckBox
         assertNotNull(mDevice.findObject(By.clazz("android.widget", "CheckBox")));
@@ -125,7 +82,7 @@ public class BySelectorTests {
 
     @Test
     public void testClazzEditText() {
-        launchTestActivity("BySelectorTestClazzActivity");
+        launchTestActivity(BySelectorTestClazzActivity.class);
 
         // EditText
         assertNotNull(mDevice.findObject(By.clazz("android.widget", "EditText")));
@@ -136,7 +93,7 @@ public class BySelectorTests {
 
     @Test
     public void testClazzProgressBar() {
-        launchTestActivity("BySelectorTestClazzActivity");
+        launchTestActivity(BySelectorTestClazzActivity.class);
 
         // ProgressBar
         assertNotNull(mDevice.findObject(By.clazz("android.widget", "ProgressBar")));
@@ -147,7 +104,7 @@ public class BySelectorTests {
 
     @Test
     public void testClazzRadioButton() {
-        launchTestActivity("BySelectorTestClazzActivity");
+        launchTestActivity(BySelectorTestClazzActivity.class);
 
         // RadioButton
         assertNotNull(mDevice.findObject(By.clazz("android.widget", "RadioButton")));
@@ -158,7 +115,7 @@ public class BySelectorTests {
 
     @Test
     public void testClazzRatingBar() {
-        launchTestActivity("BySelectorTestClazzActivity");
+        launchTestActivity(BySelectorTestClazzActivity.class);
 
         // RatingBar
         assertNotNull(mDevice.findObject(By.clazz("android.widget", "RatingBar")));
@@ -169,7 +126,7 @@ public class BySelectorTests {
 
     @Test
     public void testClazzSeekBar() {
-        launchTestActivity("BySelectorTestClazzActivity");
+        launchTestActivity(BySelectorTestClazzActivity.class);
 
         // SeekBar
         assertNotNull(mDevice.findObject(By.clazz("android.widget", "SeekBar")));
@@ -180,7 +137,7 @@ public class BySelectorTests {
 
     @Test
     public void testClazzSwitch() {
-        launchTestActivity("BySelectorTestClazzActivity");
+        launchTestActivity(BySelectorTestClazzActivity.class);
 
         // Switch
         assertNotNull(mDevice.findObject(By.clazz("android.widget", "Switch")));
@@ -191,7 +148,7 @@ public class BySelectorTests {
 
     @Test
     public void testClazzTextView() {
-        launchTestActivity("BySelectorTestClazzActivity");
+        launchTestActivity(BySelectorTestClazzActivity.class);
 
         // TextView
         assertNotNull(mDevice.findObject(By.clazz("android.widget", "TextView")));
@@ -202,7 +159,7 @@ public class BySelectorTests {
 
     @Test
     public void testClazzToggleButton() {
-        launchTestActivity("BySelectorTestClazzActivity");
+        launchTestActivity(BySelectorTestClazzActivity.class);
 
         // ToggleButton
         assertNotNull(mDevice.findObject(By.clazz("android.widget", "ToggleButton")));
@@ -213,7 +170,7 @@ public class BySelectorTests {
 
     @Test
     public void testClazzNotFound() {
-        launchTestActivity("BySelectorTestClazzActivity");
+        launchTestActivity(BySelectorTestClazzActivity.class);
 
         // Non-existent class
         assertNull(mDevice.findObject(By.clazz("android.widget", "NonExistentClass")));
@@ -265,7 +222,7 @@ public class BySelectorTests {
 
     @Test
     public void testDescSetFromResource() {
-        launchTestActivity("BySelectorTestDescActivity");
+        launchTestActivity(BySelectorTestDescActivity.class);
 
         // Content Description from resource
         assertNotNull(mDevice.findObject(By.desc("Content Description Set From Layout")));
@@ -273,7 +230,7 @@ public class BySelectorTests {
 
     @Test
     public void testDescSetAtRuntime() {
-        launchTestActivity("BySelectorTestDescActivity");
+        launchTestActivity(BySelectorTestDescActivity.class);
 
         // Content Description set at runtime
         assertNotNull(mDevice.findObject(By.desc("Content Description Set At Runtime")));
@@ -281,7 +238,7 @@ public class BySelectorTests {
 
     @Test
     public void testDescNotFound() {
-        launchTestActivity("BySelectorTestDescActivity");
+        launchTestActivity(BySelectorTestDescActivity.class);
 
         // No element has this content description
         assertNull(mDevice.findObject(By.desc("No element has this Content Description")));
@@ -310,7 +267,7 @@ public class BySelectorTests {
 
     @Test
     public void testPackage() {
-        launchTestActivity("MainActivity");
+        launchTestActivity(MainActivity.class);
 
         // Full match with string argument
         assertNotNull(mDevice.findObject(By.pkg(TEST_APP)));
@@ -335,7 +292,7 @@ public class BySelectorTests {
 
     @Test
     public void testResUniqueId() {
-        launchTestActivity("BySelectorTestResActivity");
+        launchTestActivity(BySelectorTestResActivity.class);
 
         // Unique ID
         assertNotNull(mDevice.findObject(By.res(TEST_APP, "unique_id")));
@@ -344,7 +301,7 @@ public class BySelectorTests {
 
     @Test
     public void testResCommonId() {
-        launchTestActivity("BySelectorTestResActivity");
+        launchTestActivity(BySelectorTestResActivity.class);
 
         // Shared ID
         assertNotNull(mDevice.findObject(By.res(TEST_APP, "shared_id")));
@@ -385,7 +342,7 @@ public class BySelectorTests {
 
     @Test
     public void testTextUnique() {
-        launchTestActivity("BySelectorTestTextActivity");
+        launchTestActivity(BySelectorTestTextActivity.class);
 
         // Unique Text
         assertNotNull(mDevice.findObject(By.text("Unique Text")));
@@ -393,7 +350,7 @@ public class BySelectorTests {
 
     @Test
     public void testTextCommon() {
-        launchTestActivity("BySelectorTestTextActivity");
+        launchTestActivity(BySelectorTestTextActivity.class);
 
         // Common Text
         assertNotNull(mDevice.findObject(By.text("Common Text")));
@@ -419,7 +376,7 @@ public class BySelectorTests {
 
     @Test
     public void testHasUniqueChild() {
-        launchTestActivity("BySelectorTestHasChildActivity");
+        launchTestActivity(BySelectorTestHasChildActivity.class);
 
         // Find parent with unique child
         UiObject2 object = mDevice.findObject(By.hasChild(By.res(TEST_APP, "toplevel1_child1")));
@@ -428,7 +385,7 @@ public class BySelectorTests {
 
     @Test
     public void testHasCommonChild() {
-        launchTestActivity("BySelectorTestHasChildActivity");
+        launchTestActivity(BySelectorTestHasChildActivity.class);
 
         // Find parent(s) with common child
         assertNotNull(mDevice.findObject(By.pkg(TEST_APP).hasChild(By.clazz(".TextView"))));
@@ -438,7 +395,7 @@ public class BySelectorTests {
 
     @Test
     public void testGetChildren() {
-        launchTestActivity("BySelectorTestHasChildActivity");
+        launchTestActivity(BySelectorTestHasChildActivity.class);
 
         UiObject2 parent = mDevice.findObject(By.res(TEST_APP, "toplevel2"));
         assertEquals(2, parent.getChildren().size());
@@ -446,7 +403,7 @@ public class BySelectorTests {
 
     @Test
     public void testHasMultipleChildren() {
-        launchTestActivity("BySelectorTestHasChildActivity");
+        launchTestActivity(BySelectorTestHasChildActivity.class);
 
         // Select parent with multiple hasChild selectors
         UiObject2 object = mDevice.findObject(By
@@ -457,7 +414,7 @@ public class BySelectorTests {
 
     @Test
     public void testHasMultipleChildrenCollision() {
-        launchTestActivity("BySelectorTestHasChildActivity");
+        launchTestActivity(BySelectorTestHasChildActivity.class);
 
         // Select parent with multiple hasChild selectors, but single child that matches both
         UiObject2 object = mDevice.findObject(By
@@ -468,7 +425,7 @@ public class BySelectorTests {
 
     @Test
     public void testHasChildThatHasChild() {
-        launchTestActivity("BySelectorTestHasChildActivity");
+        launchTestActivity(BySelectorTestHasChildActivity.class);
 
         // Select parent with child that has a child
         UiObject2 object = mDevice.findObject(
@@ -478,7 +435,7 @@ public class BySelectorTests {
 
     @Test
     public void testHasDescendant() {
-        launchTestActivity("BySelectorTestHasChildActivity");
+        launchTestActivity(BySelectorTestHasChildActivity.class);
 
         // Select a LinearLayout that has a unique descendant
         UiObject2 object = mDevice.findObject(By

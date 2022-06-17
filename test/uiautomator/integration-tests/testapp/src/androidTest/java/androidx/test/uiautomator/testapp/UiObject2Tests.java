@@ -21,69 +21,18 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Rect;
 import android.os.SystemClock;
 
-import androidx.test.core.app.ApplicationProvider;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
-import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.Direction;
-import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
-public class UiObject2Tests {
-
-    private static final String TEST_APP = "androidx.test.uiautomator.testapp";
-
-    private UiDevice mDevice;
-
-    @Before
-    public void setUp() throws Exception {
-        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-        mDevice.pressHome();
-    }
-
-    private class LaunchActivityRunnable implements Runnable {
-
-        private String mActivity;
-
-        LaunchActivityRunnable(String activity) {
-            mActivity = activity;
-        }
-
-        @Override
-        public void run() {
-            Context context = ApplicationProvider.getApplicationContext();
-            Intent intent = new Intent()
-                    .setClassName(TEST_APP, String.format("%s.%s", TEST_APP, mActivity))
-                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            context.startActivity(intent);
-        }
-    }
-
-    private void launchTestActivity(String activity) {
-        // Launch the test app
-        mDevice.performActionAndWait(new LaunchActivityRunnable(activity), Until.newWindow(), 5000);
-    }
-
-    @After
-    public void tearDown() throws Exception {
-        mDevice.pressHome();
-
-        // Wait for the activity to disappear
-        mDevice.wait(Until.gone(By.pkg(TEST_APP)), 5000);
-    }
+public class UiObject2Tests extends BaseTest {
 
     /* TODO(b/235841473): Implement these tests
     public void testExists() {}
@@ -95,7 +44,7 @@ public class UiObject2Tests {
 
     @Test
     public void testGetClassNameButton() {
-        launchTestActivity("UiObject2TestGetClassNameActivity");
+        launchTestActivity(UiObject2TestGetClassNameActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "button"));
         assertEquals("android.widget.Button", object.getClassName());
@@ -103,7 +52,7 @@ public class UiObject2Tests {
 
     @Test
     public void testGetClassNameCheckBox() {
-        launchTestActivity("UiObject2TestGetClassNameActivity");
+        launchTestActivity(UiObject2TestGetClassNameActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "check_box"));
         assertEquals("android.widget.CheckBox", object.getClassName());
@@ -111,7 +60,7 @@ public class UiObject2Tests {
 
     @Test
     public void testGetClassNameEditText() {
-        launchTestActivity("UiObject2TestGetClassNameActivity");
+        launchTestActivity(UiObject2TestGetClassNameActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "edit_text"));
         assertEquals("android.widget.EditText", object.getClassName());
@@ -119,7 +68,7 @@ public class UiObject2Tests {
 
     @Test
     public void testGetClassNameProgressBar() {
-        launchTestActivity("UiObject2TestGetClassNameActivity");
+        launchTestActivity(UiObject2TestGetClassNameActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "progress_bar"));
         assertEquals("android.widget.ProgressBar", object.getClassName());
@@ -127,7 +76,7 @@ public class UiObject2Tests {
 
     @Test
     public void testGetClassNameRadioButton() {
-        launchTestActivity("UiObject2TestGetClassNameActivity");
+        launchTestActivity(UiObject2TestGetClassNameActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "radio_button"));
         assertEquals("android.widget.RadioButton", object.getClassName());
@@ -135,7 +84,7 @@ public class UiObject2Tests {
 
     @Test
     public void testGetClassNameRatingBar() {
-        launchTestActivity("UiObject2TestGetClassNameActivity");
+        launchTestActivity(UiObject2TestGetClassNameActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "rating_bar"));
         assertEquals("android.widget.RatingBar", object.getClassName());
@@ -143,7 +92,7 @@ public class UiObject2Tests {
 
     @Test
     public void testGetClassNameSeekBar() {
-        launchTestActivity("UiObject2TestGetClassNameActivity");
+        launchTestActivity(UiObject2TestGetClassNameActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "seek_bar"));
         assertEquals("android.widget.SeekBar", object.getClassName());
@@ -151,7 +100,7 @@ public class UiObject2Tests {
 
     @Test
     public void testGetClassNameSwitch() {
-        launchTestActivity("UiObject2TestGetClassNameActivity");
+        launchTestActivity(UiObject2TestGetClassNameActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "switch_toggle"));
         assertEquals("android.widget.Switch", object.getClassName());
@@ -159,7 +108,7 @@ public class UiObject2Tests {
 
     @Test
     public void testGetClassNameTextView() {
-        launchTestActivity("UiObject2TestGetClassNameActivity");
+        launchTestActivity(UiObject2TestGetClassNameActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "text_view"));
         assertEquals("android.widget.TextView", object.getClassName());
@@ -167,7 +116,7 @@ public class UiObject2Tests {
 
     @Test
     public void testGetClassNameToggleButton() {
-        launchTestActivity("UiObject2TestGetClassNameActivity");
+        launchTestActivity(UiObject2TestGetClassNameActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "toggle_button"));
         assertEquals("android.widget.ToggleButton", object.getClassName());
@@ -205,7 +154,7 @@ public class UiObject2Tests {
 
     @Test
     public void testClickButton() {
-        launchTestActivity("UiObject2TestClickActivity");
+        launchTestActivity(UiObject2TestClickActivity.class);
 
         // Find the button and verify its initial state
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
@@ -220,7 +169,7 @@ public class UiObject2Tests {
 
     @Test
     public void testClickCheckBox() {
-        launchTestActivity("UiObject2TestClickActivity");
+        launchTestActivity(UiObject2TestClickActivity.class);
 
         // Find the checkbox and verify its initial state
         UiObject2 checkbox = mDevice.findObject(By.res(TEST_APP, "check_box"));
@@ -234,7 +183,7 @@ public class UiObject2Tests {
 
     @Test
     public void testClickAndWaitForNewWindow() {
-        launchTestActivity("UiObject2TestClickAndWaitActivity");
+        launchTestActivity(UiObject2TestClickAndWaitActivity.class);
 
         // Click the button and wait for a new window
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
@@ -243,7 +192,7 @@ public class UiObject2Tests {
 
     @Test
     public void testLongClickButton() {
-        launchTestActivity("UiObject2TestLongClickActivity");
+        launchTestActivity(UiObject2TestLongClickActivity.class);
 
         // Find the button and verify its initial state
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
@@ -257,7 +206,7 @@ public class UiObject2Tests {
 
     @Test
     public void testPinchIn100Percent() {
-        launchTestActivity("UiObject2TestPinchActivity");
+        launchTestActivity(UiObject2TestPinchActivity.class);
 
         // Find the area to pinch
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
@@ -268,7 +217,7 @@ public class UiObject2Tests {
 
     @Test
     public void testPinchIn75Percent() {
-        launchTestActivity("UiObject2TestPinchActivity");
+        launchTestActivity(UiObject2TestPinchActivity.class);
 
         // Find the area to pinch
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
@@ -279,7 +228,7 @@ public class UiObject2Tests {
 
     @Test
     public void testPinchIn50Percent() {
-        launchTestActivity("UiObject2TestPinchActivity");
+        launchTestActivity(UiObject2TestPinchActivity.class);
 
         // Find the area to pinch
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
@@ -290,7 +239,7 @@ public class UiObject2Tests {
 
     @Test
     public void testPinchIn25Percent() {
-        launchTestActivity("UiObject2TestPinchActivity");
+        launchTestActivity(UiObject2TestPinchActivity.class);
 
         // Find the area to pinch
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
@@ -302,7 +251,7 @@ public class UiObject2Tests {
     @Test
     @FlakyTest
     public void testScrollDown() {
-        launchTestActivity("UiObject2TestVerticalScrollActivity");
+        launchTestActivity(UiObject2TestVerticalScrollActivity.class);
 
         // Make sure we're at the top
         assertNotNull(mDevice.findObject(By.res(TEST_APP, "top_text")));
@@ -322,7 +271,7 @@ public class UiObject2Tests {
 
     /* TODO(b/235841473): Fix this test
     public void testScrollDistance() {
-        launchTestActivity("UiObject2TestVerticalScrollActivity");
+        launchTestActivity(UiObject2TestVerticalScrollActivity.class);
 
         // Make sure we're at the top
         assertNotNull(mDevice.findObject(By.res(TEST_APP, "top_text")));
@@ -348,7 +297,7 @@ public class UiObject2Tests {
     @Test
     @FlakyTest
     public void testScrollDownToEnd() {
-        launchTestActivity("UiObject2TestVerticalScrollActivity");
+        launchTestActivity(UiObject2TestVerticalScrollActivity.class);
 
         // Make sure we're at the top
         assertNotNull(mDevice.findObject(By.res(TEST_APP, "top_text")));
