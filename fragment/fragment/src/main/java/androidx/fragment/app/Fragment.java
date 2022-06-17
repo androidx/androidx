@@ -1982,12 +1982,16 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @SuppressWarnings("deprecation")
     void restoreChildFragmentState(@Nullable Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            Parcelable p = savedInstanceState.getParcelable(
-                    FragmentManager.SAVED_STATE_TAG);
-            if (p != null) {
-                mChildFragmentManager.restoreSaveStateInternal(p);
-                mChildFragmentManager.dispatchCreate();
+        if (savedInstanceState != null && mSavedFragmentState != null) {
+            FragmentState fs =
+                    mSavedFragmentState.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
+            if (fs != null) {
+                Parcelable p = fs.mSavedFragmentState.getParcelable(
+                        FragmentManager.SAVED_STATE_TAG);
+                if (p != null) {
+                    mChildFragmentManager.restoreSaveStateInternal(p);
+                    mChildFragmentManager.dispatchCreate();
+                }
             }
         }
     }
@@ -3122,10 +3126,17 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
+    @SuppressWarnings("deprecation")
     void performViewCreated() {
         // since calling super.onViewCreated() is not required, we do not need to set and check the
         // `mCalled` flag
-        onViewCreated(mView, mSavedFragmentState);
+        Bundle basicState = null;
+        if (mSavedFragmentState != null) {
+            FragmentState fs = mSavedFragmentState.getParcelable(
+                    FragmentManager.FRAGMENT_STATE_TAG);
+            basicState = fs != null ? fs.mSavedFragmentState : null;
+        }
+        onViewCreated(mView, basicState);
         mChildFragmentManager.dispatchViewCreated();
     }
 
@@ -3143,12 +3154,19 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mChildFragmentManager.dispatchActivityCreated();
     }
 
+    @SuppressWarnings("deprecation")
     private void restoreViewState() {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(FragmentManager.TAG, "moveto RESTORE_VIEW_STATE: " + this);
         }
         if (mView != null) {
-            restoreViewState(mSavedFragmentState);
+            Bundle basicBundle = null;
+            if (mSavedFragmentState != null) {
+                FragmentState fs =
+                        mSavedFragmentState.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
+                basicBundle = fs != null ? fs.mSavedFragmentState : null;
+            }
+            restoreViewState(basicBundle);
         }
         mSavedFragmentState = null;
     }

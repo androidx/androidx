@@ -73,6 +73,7 @@ final class FragmentState implements Parcelable {
      * Instantiates the Fragment from this state.
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     Fragment instantiate(@NonNull FragmentFactory fragmentFactory,
             @NonNull ClassLoader classLoader) {
         Fragment fragment = fragmentFactory.instantiate(classLoader, mClassName);
@@ -87,14 +88,18 @@ final class FragmentState implements Parcelable {
         fragment.mDetached = mDetached;
         fragment.mHidden = mHidden;
         fragment.mMaxState = Lifecycle.State.values()[mMaxLifecycleState];
-        if (mSavedFragmentState != null) {
-            fragment.mSavedFragmentState = mSavedFragmentState;
-        } else {
-            // When restoring a Fragment, always ensure we have a
-            // non-null Bundle so that developers have a signal for
-            // when the Fragment is being restored
-            fragment.mSavedFragmentState = new Bundle();
+
+        // When restoring a Fragment, always ensure we have a
+        // non-null Bundle so that developers have a signal for
+        // when the Fragment is being restored
+        if (mSavedFragmentState == null) {
+            mSavedFragmentState = new Bundle();
         }
+        // Construct a new Bundle of all of the information we have
+        // restored from this FragmentState object
+        Bundle savedFragmentState = new Bundle();
+        savedFragmentState.putParcelable(FragmentManager.FRAGMENT_STATE_TAG, this);
+        fragment.mSavedFragmentState = savedFragmentState;
         return fragment;
     }
 
