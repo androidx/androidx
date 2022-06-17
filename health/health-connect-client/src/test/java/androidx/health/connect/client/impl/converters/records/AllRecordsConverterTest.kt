@@ -17,7 +17,6 @@ package androidx.health.connect.client.impl.converters.records
 
 import androidx.health.connect.client.impl.converters.datatype.toDataTypeName
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
-import androidx.health.connect.client.records.ActiveEnergyBurnedRecord
 import androidx.health.connect.client.records.BasalBodyTemperatureRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
 import androidx.health.connect.client.records.BloodGlucoseRecord
@@ -79,7 +78,6 @@ import androidx.health.connect.client.records.StepsRecord
 import androidx.health.connect.client.records.SwimmingStrokesRecord
 import androidx.health.connect.client.records.SwimmingStrokesRecord.SwimmingType
 import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
-import androidx.health.connect.client.records.TotalEnergyBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
@@ -708,22 +706,6 @@ class AllRecordsConverterTest {
     }
 
     @Test
-    fun testActiveEnergyBurned() {
-        val data =
-            ActiveEnergyBurnedRecord(
-                energyKcal = 1.0,
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
     fun testActivityEvent() {
         val data =
             ExerciseEventRecord(
@@ -983,22 +965,6 @@ class AllRecordsConverterTest {
     fun testTotalCaloriesBurned() {
         val data =
             TotalCaloriesBurnedRecord(
-                energyKcal = 1.0,
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
-        checkProtoAndRecordTypeNameMatch(data)
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testTotalEnergyBurned() {
-        val data =
-            TotalEnergyBurnedRecord(
                 energyKcal = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
