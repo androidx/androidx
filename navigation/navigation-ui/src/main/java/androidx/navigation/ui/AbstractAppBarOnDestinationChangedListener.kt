@@ -26,6 +26,7 @@ import androidx.appcompat.graphics.drawable.DrawerArrowDrawable
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.navigation.NavType
 import androidx.navigation.ui.NavigationUI.matchDestinations
 import java.lang.ref.WeakReference
 import java.util.regex.Pattern
@@ -74,7 +75,14 @@ internal abstract class AbstractAppBarOnDestinationChangedListener(
                 val argName = matcher.group(1)
                 if (arguments != null && arguments.containsKey(argName)) {
                     matcher.appendReplacement(title, "")
-                    title.append(arguments[argName].toString())
+
+                    val argType = argName?.let { destination.arguments[argName]?.type }
+                    if (argType == NavType.ReferenceType) {
+                        val value = context.resources.getString(arguments[argName] as Int)
+                        title.append(value)
+                    } else {
+                        title.append(arguments[argName].toString())
+                    }
                 } else {
                     throw IllegalArgumentException(
                         "Could not find \"$argName\" in $arguments to fill label \"$label\""
