@@ -16,56 +16,40 @@
 
 package androidx.test.uiautomator.testapp;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
-import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.uiautomator.By;
-import androidx.test.uiautomator.UiDevice;
+import static org.junit.Assert.assertTrue;
 
-import org.junit.Assert;
-import org.junit.Before;
+import androidx.test.filters.SdkSuppress;
+import androidx.test.uiautomator.By;
+
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(AndroidJUnit4.class)
-public class MultiWindowTests {
-
-    private UiDevice mDevice;
-    private static final String TEST_APP = "androidx.test.uiautomator.testapp";
-
-    @Before
-    public void setUp() {
-        mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-
-        mDevice.pressHome();
-        mDevice.waitForIdle();
-    }
+public class MultiWindowTests extends BaseTest {
 
     @Test
     @Ignore
-    @SdkSuppress(minSdkVersion=21)
+    @SdkSuppress(minSdkVersion = 21)
     public void testHasBackButton() {
-        Assert.assertTrue(mDevice.hasObject(By.res("com.android.systemui", "back")));
+        assertTrue(mDevice.hasObject(By.res("com.android.systemui", "back")));
     }
 
     @Test
     @Ignore
-    @SdkSuppress(minSdkVersion=21)
+    @SdkSuppress(minSdkVersion = 21)
     public void testHasHomeButton() {
-        Assert.assertTrue(mDevice.hasObject(By.res("com.android.systemui", "home")));
+        assertTrue(mDevice.hasObject(By.res("com.android.systemui", "home")));
     }
 
     @Test
     @Ignore
-    @SdkSuppress(minSdkVersion=21)
+    @SdkSuppress(minSdkVersion = 21)
     public void testHasRecentsButton() {
-        Assert.assertTrue(mDevice.hasObject(By.res("com.android.systemui", "recent_apps")));
+        assertTrue(mDevice.hasObject(By.res("com.android.systemui", "recent_apps")));
     }
 
     @Test
-    @SdkSuppress(minSdkVersion=21)
+    @SdkSuppress(minSdkVersion = 21)
     public void testHasStatusBar() {
-        Assert.assertTrue(mDevice.hasObject(By.res("com.android.systemui", "status_bar")));
+        assertTrue(mDevice.hasObject(By.res("com.android.systemui", "status_bar")));
     }
 }
