@@ -40,6 +40,7 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1" )
+    androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(project(":internal-testutils-appcompat"), {
         exclude group: "androidx.appcompat", module: "appcompat"
         exclude group: "androidx.core", module: "core"
@@ -86,6 +87,7 @@ android {
     useLibrary "android.test.base"
     useLibrary "android.test.mock"
     namespace "androidx.appcompat"
+    testNamespace "androidx.appcompat.test"
 }
 
 androidx {

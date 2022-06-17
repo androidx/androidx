@@ -238,6 +238,17 @@
             android:name="androidx.appcompat.app.FragmentContentIdActivity"/>
 
         <activity
+            android:name="androidx.appcompat.app.g3.FilternatorActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"/>
+
+        <activity
+            android:name="androidx.appcompat.app.g3.OldTranslateActivity"
+            android:configChanges="screenSize|keyboardHidden|orientation|smallestScreenSize|screenLayout"
+            android:recreateOnConfigChanges="mcc|mnc"
+            android:documentLaunchMode="never"
+            android:windowSoftInputMode="adjustNothing"/>
+
+        <activity
             android:name="androidx.appcompat.app.NightModeActivity"
             android:theme="@style/Theme.AppCompat.DayNight"/>
 
