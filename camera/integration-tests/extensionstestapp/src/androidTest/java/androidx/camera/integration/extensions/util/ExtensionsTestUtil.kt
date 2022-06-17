@@ -52,6 +52,23 @@ object ExtensionsTestUtil {
         }
 
     /**
+     * Gets a list of all camera id and mode combinations. Normal mode and all extension modes will
+     * be included.
+     */
+    @JvmStatic
+    fun getAllCameraIdModeCombinations(): List<Array<Any>> =
+        arrayListOf<Array<Any>>().apply {
+            val allModes = mutableListOf<Int>()
+            allModes.add(0, ExtensionMode.NONE)
+            allModes.addAll(ExtensionModeUtil.AVAILABLE_EXTENSION_MODES)
+            CameraUtil.getBackwardCompatibleCameraIdListOrThrow().forEach { cameraId ->
+                allModes.forEach { mode ->
+                    add(arrayOf(cameraId, mode))
+                }
+            }
+        }
+
+    /**
      * Creates an [ImageCaptureExtenderImpl] object for specific [ExtensionMode] and
      * camera id.
      *
@@ -113,4 +130,25 @@ object ExtensionsTestUtil {
         // extensions and it will cause pre-submit failures.
         return !Build.MODEL.contains("Cuttlefish", true)
     }
+
+    /**
+     * Stress test repeat count to run the test
+     */
+    const val STRESS_TEST_REPEAT_COUNT = 2
+
+    /**
+     * Stress test target testing operation count.
+     *
+     * <p>The target testing operation might be:
+     * <ul>
+     *     <li> Open and close camera
+     *     <li> Open and close capture session
+     *     <li> Bind and unbind use cases
+     *     <li> Pause and resume lifecycle owner
+     *     <li> Switch cameras
+     *     <li> Switch extension modes
+     * </ul>
+     *
+     */
+    const val STRESS_TEST_OPERATION_REPEAT_COUNT = 10
 }
