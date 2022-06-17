@@ -87,6 +87,7 @@ import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Device
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.units.celsius
 import androidx.health.connect.client.units.meters
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -120,7 +121,7 @@ class AllRecordsConverterTest {
     fun testBasalBodyTemperature() {
         val dataOnlyRequired =
             BasalBodyTemperatureRecord(
-                temperatureDegreesCelsius = 1.0,
+                temperature = 1.celsius,
                 measurementLocation = null,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -129,7 +130,7 @@ class AllRecordsConverterTest {
 
         val dataAllFields =
             BasalBodyTemperatureRecord(
-                temperatureDegreesCelsius = 1.0,
+                temperature = 1.celsius,
                 measurementLocation = BodyTemperatureMeasurementLocation.ARMPIT,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -207,7 +208,7 @@ class AllRecordsConverterTest {
     fun testBodyTemperature() {
         val data =
             BodyTemperatureRecord(
-                temperatureDegreesCelsius = 1.0,
+                temperature = 1.celsius,
                 measurementLocation = null,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,

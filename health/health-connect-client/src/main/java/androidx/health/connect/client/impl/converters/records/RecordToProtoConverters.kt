@@ -82,7 +82,7 @@ fun Record.toProto(): DataProto.DataPoint =
             instantaneousProto()
                 .setDataType(protoDataType("BasalBodyTemperature"))
                 .apply {
-                    putValues("temperature", doubleVal(temperatureDegreesCelsius))
+                    putValues("temperature", doubleVal(temperature.inCelsius))
                     measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
                 }
                 .build()
@@ -120,7 +120,7 @@ fun Record.toProto(): DataProto.DataPoint =
             instantaneousProto()
                 .setDataType(protoDataType("BodyTemperature"))
                 .apply {
-                    putValues("temperature", doubleVal(temperatureDegreesCelsius))
+                    putValues("temperature", doubleVal(temperature.inCelsius))
                     measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
                 }
                 .build()
