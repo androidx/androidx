@@ -80,7 +80,7 @@ public class ComplicationSlotBounds(
 
         other as ComplicationSlotBounds
 
-        if (perComplicationTypeBounds == other.perComplicationTypeBounds) return false
+        if (perComplicationTypeBounds != other.perComplicationTypeBounds) return false
         return perComplicationTypeMargins == other.perComplicationTypeMargins
     }
 
