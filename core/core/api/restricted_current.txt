@@ -3578,7 +3578,7 @@ package androidx.core.view.accessibility {
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! findFocus(int);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! focusSearch(int);
     method public java.util.List<androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat!>! getActionList();
-    method public int getActions();
+    method @Deprecated public int getActions();
     method public java.util.List<java.lang.String!> getAvailableExtraData();
     method @Deprecated public void getBoundsInParent(android.graphics.Rect!);
     method public void getBoundsInScreen(android.graphics.Rect!);
@@ -3591,6 +3591,7 @@ package androidx.core.view.accessibility {
     method public CharSequence! getContentDescription();
     method public int getDrawingOrder();
     method public CharSequence! getError();
+    method public android.view.accessibility.AccessibilityNodeInfo.ExtraRenderingInfo? getExtraRenderingInfo();
     method public android.os.Bundle! getExtras();
     method public CharSequence? getHintText();
     method @Deprecated public Object! getInfo();
@@ -3976,18 +3977,22 @@ package androidx.core.view.accessibility {
     method public void getBoundsInScreen(android.graphics.Rect);
     method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat? getChild(int);
     method public int getChildCount();
+    method public int getDisplayId();
     method public int getId();
     method public int getLayer();
     method public androidx.core.view.accessibility.AccessibilityWindowInfoCompat? getParent();
+    method public void getRegionInScreen(android.graphics.Region);
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getRoot();
     method public CharSequence? getTitle();
     method public int getType();
     method public boolean isAccessibilityFocused();
     method public boolean isActive();
     method public boolean isFocused();
+    method public boolean isInPictureInPictureMode();
     method public static androidx.core.view.accessibility.AccessibilityWindowInfoCompat? obtain();
     method public static androidx.core.view.accessibility.AccessibilityWindowInfoCompat? obtain(androidx.core.view.accessibility.AccessibilityWindowInfoCompat?);
     method public void recycle();
+    method public android.view.accessibility.AccessibilityWindowInfo? unwrap();
     field public static final int TYPE_ACCESSIBILITY_OVERLAY = 4; // 0x4
     field public static final int TYPE_APPLICATION = 1; // 0x1
     field public static final int TYPE_INPUT_METHOD = 2; // 0x2

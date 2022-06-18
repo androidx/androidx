@@ -40,10 +40,12 @@ import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.TouchDelegateInfo;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
@@ -2076,7 +2078,10 @@ public class AccessibilityNodeInfoCompat {
      * @see android.view.accessibility.AccessibilityNodeInfo#ACTION_CLEAR_FOCUS
      * @see android.view.accessibility.AccessibilityNodeInfo#ACTION_SELECT
      * @see android.view.accessibility.AccessibilityNodeInfo#ACTION_CLEAR_SELECTION
+     *
+     * @deprecated Use {@link #getActionList()} instead.
      */
+    @Deprecated
     public int getActions() {
         return mInfo.getActions();
     }
@@ -3195,6 +3200,23 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the {@link android.view.accessibility.AccessibilityNodeInfo.ExtraRenderingInfo
+     * extra rendering info} if the node is meant to be refreshed with extra data
+     * to examine rendering related accessibility issues.
+     *
+     * @return The {@link android.view.accessibility.AccessibilityNodeInfo.ExtraRenderingInfo
+     * extra rendering info}.
+     */
+    @Nullable
+    public AccessibilityNodeInfo.ExtraRenderingInfo getExtraRenderingInfo() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            return Api33Impl.getExtraRenderingInfo(mInfo);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Gets the actions that can be performed on the node.
      *
      * @return A list of AccessibilityActions.
@@ -4164,7 +4186,7 @@ public class AccessibilityNodeInfoCompat {
      */
     public @Nullable CharSequence getRoleDescription() {
         if (Build.VERSION.SDK_INT >= 19) {
-            return getExtras().getCharSequence(ROLE_DESCRIPTION_KEY);
+            return mInfo.getExtras().getCharSequence(ROLE_DESCRIPTION_KEY);
         } else {
             return null;
         }
@@ -4196,7 +4218,7 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setRoleDescription(@Nullable CharSequence roleDescription) {
         if (Build.VERSION.SDK_INT >= 19) {
-            getExtras().putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
+            mInfo.getExtras().putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
         }
     }
 
@@ -4446,6 +4468,19 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_DRAG_CANCEL";
             default:
                 return "ACTION_UNKNOWN";
+        }
+    }
+
+    @RequiresApi(33)
+    private static class Api33Impl {
+        private Api33Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        public static AccessibilityNodeInfo.ExtraRenderingInfo getExtraRenderingInfo(
+                AccessibilityNodeInfo info) {
+            return info.getExtraRenderingInfo();
         }
     }
 }
