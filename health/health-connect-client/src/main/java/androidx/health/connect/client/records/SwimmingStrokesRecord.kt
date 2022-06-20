@@ -25,7 +25,11 @@ import java.time.ZoneOffset
 public class SwimmingStrokesRecord(
     /** Count of strokes. Optional field. Valid range: 1-1000000. */
     public val count: Long = 0,
-    /** Swimming style. Required field. Allowed values: [SwimmingType]. */
+    /**
+     * Swimming style. Required field. Allowed values: [SwimmingType].
+     *
+     * @see SwimmingType
+     */
     @property:SwimmingTypes public val type: String,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,

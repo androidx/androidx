@@ -38,12 +38,16 @@ public class BloodPressureRecord(
     public val diastolicMillimetersOfMercury: Double,
     /**
      * The user's body position when the measurement was taken. Optional field. Allowed values:
-     * [BodyPositions].
+     * [BodyPosition].
+     *
+     * @see BodyPosition
      */
     @property:BodyPositions public val bodyPosition: String? = null,
     /**
      * The arm and part of the arm where the measurement was taken. Optional field. Allowed values:
      * [MeasurementLocation].
+     *
+     * @see MeasurementLocation
      */
     @property:MeasurementLocations public val measurementLocation: String? = null,
     override val time: Instant,

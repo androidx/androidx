@@ -25,7 +25,9 @@ import java.time.ZoneOffset
 public class OvulationTestRecord(
     /**
      * The result of a user's ovulation test, which shows if they're ovulating or not. Required
-     * field. Allowed values: [Results].
+     * field. Allowed values: [Result].
+     *
+     * @see Result
      */
     @property:Results public val result: String,
     override val time: Instant,

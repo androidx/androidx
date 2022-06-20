@@ -28,7 +28,11 @@ import java.time.ZoneOffset
  * For pause events, resume state can be assumed from the end time of the pause or rest event.
  */
 public class ExerciseEventRecord(
-    /** Type of event. Required field. Allowed values: [EventType]. */
+    /**
+     * Type of event. Required field. Allowed values: [EventType].
+     *
+     * @see EventType
+     */
     @property:EventTypes public val eventType: String,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,

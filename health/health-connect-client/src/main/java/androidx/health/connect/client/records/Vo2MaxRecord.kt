@@ -25,7 +25,11 @@ import java.time.ZoneOffset
 public class Vo2MaxRecord(
     /** Maximal aerobic capacity (VO2 max) in milliliters. Required field. Valid range: 0-100. */
     public val vo2MillilitersPerMinuteKilogram: Double,
-    /** VO2 max measurement method. Optional field. Allowed values: [MeasurementMethods]. */
+    /**
+     * VO2 max measurement method. Optional field. Allowed values: [MeasurementMethod].
+     *
+     * @see MeasurementMethod
+     */
     @property:MeasurementMethods public val measurementMethod: String? = null,
     override val time: Instant,
     override val zoneOffset: ZoneOffset?,
