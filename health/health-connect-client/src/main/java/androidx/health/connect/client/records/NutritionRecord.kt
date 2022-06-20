@@ -16,7 +16,10 @@
 package androidx.health.connect.client.records
 
 import androidx.health.connect.client.aggregate.AggregateMetric
+import androidx.health.connect.client.aggregate.AggregateMetric.AggregationType
+import androidx.health.connect.client.aggregate.AggregateMetric.Companion.doubleMetric
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.units.Energy
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -28,10 +31,10 @@ public class NutritionRecord(
     public val caffeineGrams: Double = 0.0,
     /** Calcium in grams. Optional field. Valid range: 0-100. */
     public val calciumGrams: Double = 0.0,
-    /** Calories in kilocalories. Optional field. Valid range: 0-100000. */
-    public val kcal: Double = 0.0,
-    /** Calories from fat in kilocalories. Optional field. Valid range: 0-100000. */
-    public val kcalFromFat: Double = 0.0,
+    /** Energy in [Energy] unit. Optional field. Valid range: 0-100000 kcal. */
+    public val energy: Energy? = null,
+    /** Energy from fat in [Energy] unit. Optional field. Valid range: 0-100000 kcal. */
+    public val energyFromFat: Energy? = null,
     /** Chloride in grams. Optional field. Valid range: 0-100. */
     public val chlorideGrams: Double = 0.0,
     /** Cholesterol in grams. Optional field. Valid range: 0-100. */
@@ -126,8 +129,8 @@ public class NutritionRecord(
         if (biotinGrams != other.biotinGrams) return false
         if (caffeineGrams != other.caffeineGrams) return false
         if (calciumGrams != other.calciumGrams) return false
-        if (kcal != other.kcal) return false
-        if (kcalFromFat != other.kcalFromFat) return false
+        if (energy != other.energy) return false
+        if (energyFromFat != other.energyFromFat) return false
         if (chlorideGrams != other.chlorideGrams) return false
         if (cholesterolGrams != other.cholesterolGrams) return false
         if (chromiumGrams != other.chromiumGrams) return false
@@ -165,8 +168,8 @@ public class NutritionRecord(
         if (vitaminEGrams != other.vitaminEGrams) return false
         if (vitaminKGrams != other.vitaminKGrams) return false
         if (zincGrams != other.zincGrams) return false
-        if (mealType != other.mealType) return false
         if (name != other.name) return false
+        if (mealType != other.mealType) return false
         if (startTime != other.startTime) return false
         if (startZoneOffset != other.startZoneOffset) return false
         if (endTime != other.endTime) return false
@@ -177,12 +180,11 @@ public class NutritionRecord(
     }
 
     override fun hashCode(): Int {
-        var result = 0
-        result = 31 * result + biotinGrams.hashCode()
+        var result = biotinGrams.hashCode()
         result = 31 * result + caffeineGrams.hashCode()
         result = 31 * result + calciumGrams.hashCode()
-        result = 31 * result + kcal.hashCode()
-        result = 31 * result + kcalFromFat.hashCode()
+        result = 31 * result + (energy?.hashCode() ?: 0)
+        result = 31 * result + (energyFromFat?.hashCode() ?: 0)
         result = 31 * result + chlorideGrams.hashCode()
         result = 31 * result + cholesterolGrams.hashCode()
         result = 31 * result + chromiumGrams.hashCode()
@@ -220,8 +222,9 @@ public class NutritionRecord(
         result = 31 * result + vitaminEGrams.hashCode()
         result = 31 * result + vitaminKGrams.hashCode()
         result = 31 * result + zincGrams.hashCode()
-        result = 31 * result + mealType.hashCode()
-        result = 31 * result + name.hashCode()
+        result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + (mealType?.hashCode() ?: 0)
+        result = 31 * result + startTime.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)
@@ -265,28 +268,20 @@ public class NutritionRecord(
             )
 
         /**
-         * Metric identifier to retrieve the total calories from
+         * Metric identifier to retrieve the total energy from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val CALORIES_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "calories"
-            )
+        val ENERGY_TOTAL: AggregateMetric<Energy> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "calories", Energy::calories)
 
         /**
-         * Metric identifier to retrieve the total calories from fat from
+         * Metric identifier to retrieve the total energy from fat from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val CALORIES_FROM_FAT_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "caloriesFromFat"
-            )
+        val ENERGY_FROM_FAT_TOTAL: AggregateMetric<Energy> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "caloriesFromFat", Energy::calories)
 
         /**
          * Metric identifier to retrieve the total chloride from

@@ -286,7 +286,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is ActiveCaloriesBurnedRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActiveCaloriesBurned"))
-                .apply { putValues("energy", doubleVal(energyKcal)) }
+                .apply { putValues("energy", doubleVal(energy.inKilocalories)) }
                 .build()
         is ExerciseEventRecord ->
             intervalProto()
@@ -344,11 +344,11 @@ fun Record.toProto(): DataProto.DataPoint =
                     if (calciumGrams > 0) {
                         putValues("calcium", doubleVal(calciumGrams))
                     }
-                    if (kcal > 0) {
-                        putValues("calories", doubleVal(kcal))
+                    if (energy != null) {
+                        putValues("calories", doubleVal(energy.inKilocalories))
                     }
-                    if (kcalFromFat > 0) {
-                        putValues("caloriesFromFat", doubleVal(kcalFromFat))
+                    if (energyFromFat != null) {
+                        putValues("caloriesFromFat", doubleVal(energyFromFat.inKilocalories))
                     }
                     if (chlorideGrams > 0) {
                         putValues("chloride", doubleVal(chlorideGrams))
@@ -504,7 +504,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is TotalCaloriesBurnedRecord ->
             intervalProto()
                 .setDataType(protoDataType("TotalCaloriesBurned"))
-                .apply { putValues("energy", doubleVal(energyKcal)) }
+                .apply { putValues("energy", doubleVal(energy.inKilocalories)) }
                 .build()
         is WheelchairPushesRecord ->
             intervalProto()
