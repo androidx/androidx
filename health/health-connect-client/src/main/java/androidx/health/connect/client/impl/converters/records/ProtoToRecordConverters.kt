@@ -56,7 +56,6 @@ import androidx.health.connect.client.records.MenstruationRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
-import androidx.health.connect.client.records.Power
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.RespiratoryRateRecord
@@ -77,7 +76,9 @@ import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.units.celsius
 import androidx.health.connect.client.units.kilocalories
+import androidx.health.connect.client.units.kilocaloriesPerDay
 import androidx.health.connect.client.units.meters
+import androidx.health.connect.client.units.watts
 import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
 
@@ -95,7 +96,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "BasalMetabolicRate" ->
                 BasalMetabolicRateRecord(
-                    kcalPerDay = getDouble("bmr"),
+                    basalMetabolicRate = getDouble("bmr").kilocaloriesPerDay,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -300,9 +301,9 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     endZoneOffset = endZoneOffset,
                     samples =
                         seriesValuesList.map { value ->
-                            Power(
+                            PowerRecord.Sample(
                                 time = Instant.ofEpochMilli(value.instantTimeMillis),
-                                watts = value.getDouble("power"),
+                                power = value.getDouble("power").watts,
                             )
                         },
                     metadata = metadata,

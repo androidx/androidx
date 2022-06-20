@@ -87,7 +87,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is BasalMetabolicRateRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BasalMetabolicRate"))
-                .apply { putValues("bmr", doubleVal(kcalPerDay)) }
+                .apply { putValues("bmr", doubleVal(basalMetabolicRate.inKilocaloriesPerDay)) }
                 .build()
         is BloodGlucoseRecord ->
             instantaneousProto()
@@ -232,7 +232,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is PowerRecord ->
             toProto(dataTypeName = "PowerSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
-                    .putValues("power", doubleVal(sample.watts))
+                    .putValues("power", doubleVal(sample.power.inWatts))
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
