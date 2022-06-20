@@ -570,10 +570,10 @@ public object ToggleChipDefaults {
     @Composable
     public fun toggleChipColors(
         checkedStartBackgroundColor: Color =
-            MaterialTheme.colors.surface.copy(alpha = 0.75f)
+            MaterialTheme.colors.surface.copy(alpha = 0f)
                 .compositeOver(MaterialTheme.colors.surface),
         checkedEndBackgroundColor: Color =
-            MaterialTheme.colors.primary.copy(alpha = 0.325f)
+            MaterialTheme.colors.primary.copy(alpha = 0.5f)
                 .compositeOver(MaterialTheme.colors.surface),
         checkedContentColor: Color = MaterialTheme.colors.onSurface,
         checkedSecondaryContentColor: Color = MaterialTheme.colors.onSurfaceVariant,
