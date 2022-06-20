@@ -75,8 +75,10 @@ import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.units.celsius
+import androidx.health.connect.client.units.grams
 import androidx.health.connect.client.units.kilocalories
 import androidx.health.connect.client.units.kilocaloriesPerDay
+import androidx.health.connect.client.units.kilograms
 import androidx.health.connect.client.units.liters
 import androidx.health.connect.client.units.meters
 import androidx.health.connect.client.units.watts
@@ -139,14 +141,14 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "BodyWaterMass" ->
                 BodyWaterMassRecord(
-                    massKg = getDouble("mass"),
+                    mass = getDouble("mass").kilograms,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "BoneMass" ->
                 BoneMassRecord(
-                    massKg = getDouble("mass"),
+                    mass = getDouble("mass").kilograms,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -268,7 +270,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "LeanBodyMass" ->
                 LeanBodyMassRecord(
-                    massKg = getDouble("mass"),
+                    mass = getDouble("mass").kilograms,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -377,7 +379,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "Weight" ->
                 WeightRecord(
-                    weightKg = getDouble("weight"),
+                    weight = getDouble("weight").kilograms,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -458,48 +460,48 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "Nutrition" ->
                 NutritionRecord(
-                    biotinGrams = getDouble("biotin"),
-                    caffeineGrams = getDouble("caffeine"),
-                    calciumGrams = getDouble("calcium"),
+                    biotin = valuesMap["biotin"]?.doubleVal?.grams,
+                    caffeine = valuesMap["caffeine"]?.doubleVal?.grams,
+                    calcium = valuesMap["calcium"]?.doubleVal?.grams,
                     energy = valuesMap["calories"]?.doubleVal?.kilocalories,
                     energyFromFat = valuesMap["caloriesFromFat"]?.doubleVal?.kilocalories,
-                    chlorideGrams = getDouble("chloride"),
-                    cholesterolGrams = getDouble("cholesterol"),
-                    chromiumGrams = getDouble("chromium"),
-                    copperGrams = getDouble("copper"),
-                    dietaryFiberGrams = getDouble("dietaryFiber"),
-                    folateGrams = getDouble("folate"),
-                    folicAcidGrams = getDouble("folicAcid"),
-                    iodineGrams = getDouble("iodine"),
-                    ironGrams = getDouble("iron"),
-                    magnesiumGrams = getDouble("magnesium"),
-                    manganeseGrams = getDouble("manganese"),
-                    molybdenumGrams = getDouble("molybdenum"),
-                    monounsaturatedFatGrams = getDouble("monounsaturatedFat"),
-                    niacinGrams = getDouble("niacin"),
-                    pantothenicAcidGrams = getDouble("pantothenicAcid"),
-                    phosphorusGrams = getDouble("phosphorus"),
-                    polyunsaturatedFatGrams = getDouble("polyunsaturatedFat"),
-                    potassiumGrams = getDouble("potassium"),
-                    proteinGrams = getDouble("protein"),
-                    riboflavinGrams = getDouble("riboflavin"),
-                    saturatedFatGrams = getDouble("saturatedFat"),
-                    seleniumGrams = getDouble("selenium"),
-                    sodiumGrams = getDouble("sodium"),
-                    sugarGrams = getDouble("sugar"),
-                    thiaminGrams = getDouble("thiamin"),
-                    totalCarbohydrateGrams = getDouble("totalCarbohydrate"),
-                    totalFatGrams = getDouble("totalFat"),
-                    transFatGrams = getDouble("transFat"),
-                    unsaturatedFatGrams = getDouble("unsaturatedFat"),
-                    vitaminAGrams = getDouble("vitaminA"),
-                    vitaminB12Grams = getDouble("vitaminB12"),
-                    vitaminB6Grams = getDouble("vitaminB6"),
-                    vitaminCGrams = getDouble("vitaminC"),
-                    vitaminDGrams = getDouble("vitaminD"),
-                    vitaminEGrams = getDouble("vitaminE"),
-                    vitaminKGrams = getDouble("vitaminK"),
-                    zincGrams = getDouble("zinc"),
+                    chloride = valuesMap["chloride"]?.doubleVal?.grams,
+                    cholesterol = valuesMap["cholesterol"]?.doubleVal?.grams,
+                    chromium = valuesMap["chromium"]?.doubleVal?.grams,
+                    copper = valuesMap["copper"]?.doubleVal?.grams,
+                    dietaryFiber = valuesMap["dietaryFiber"]?.doubleVal?.grams,
+                    folate = valuesMap["folate"]?.doubleVal?.grams,
+                    folicAcid = valuesMap["folicAcid"]?.doubleVal?.grams,
+                    iodine = valuesMap["iodine"]?.doubleVal?.grams,
+                    iron = valuesMap["iron"]?.doubleVal?.grams,
+                    magnesium = valuesMap["magnesium"]?.doubleVal?.grams,
+                    manganese = valuesMap["manganese"]?.doubleVal?.grams,
+                    molybdenum = valuesMap["molybdenum"]?.doubleVal?.grams,
+                    monounsaturatedFat = valuesMap["monounsaturatedFat"]?.doubleVal?.grams,
+                    niacin = valuesMap["niacin"]?.doubleVal?.grams,
+                    pantothenicAcid = valuesMap["pantothenicAcid"]?.doubleVal?.grams,
+                    phosphorus = valuesMap["phosphorus"]?.doubleVal?.grams,
+                    polyunsaturatedFat = valuesMap["polyunsaturatedFat"]?.doubleVal?.grams,
+                    potassium = valuesMap["potassium"]?.doubleVal?.grams,
+                    protein = valuesMap["protein"]?.doubleVal?.grams,
+                    riboflavin = valuesMap["riboflavin"]?.doubleVal?.grams,
+                    saturatedFat = valuesMap["saturatedFat"]?.doubleVal?.grams,
+                    selenium = valuesMap["selenium"]?.doubleVal?.grams,
+                    sodium = valuesMap["sodium"]?.doubleVal?.grams,
+                    sugar = valuesMap["sugar"]?.doubleVal?.grams,
+                    thiamin = valuesMap["thiamin"]?.doubleVal?.grams,
+                    totalCarbohydrate = valuesMap["totalCarbohydrate"]?.doubleVal?.grams,
+                    totalFat = valuesMap["totalFat"]?.doubleVal?.grams,
+                    transFat = valuesMap["transFat"]?.doubleVal?.grams,
+                    unsaturatedFat = valuesMap["unsaturatedFat"]?.doubleVal?.grams,
+                    vitaminA = valuesMap["vitaminA"]?.doubleVal?.grams,
+                    vitaminB12 = valuesMap["vitaminB12"]?.doubleVal?.grams,
+                    vitaminB6 = valuesMap["vitaminB6"]?.doubleVal?.grams,
+                    vitaminC = valuesMap["vitaminC"]?.doubleVal?.grams,
+                    vitaminD = valuesMap["vitaminD"]?.doubleVal?.grams,
+                    vitaminE = valuesMap["vitaminE"]?.doubleVal?.grams,
+                    vitaminK = valuesMap["vitaminK"]?.doubleVal?.grams,
+                    zinc = valuesMap["zinc"]?.doubleVal?.grams,
                     mealType = getEnum("mealType"),
                     name = getString("name"),
                     startTime = startTime,

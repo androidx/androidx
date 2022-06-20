@@ -125,12 +125,12 @@ fun Record.toProto(): DataProto.DataPoint =
         is BodyWaterMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BodyWaterMass"))
-                .apply { putValues("mass", doubleVal(massKg)) }
+                .apply { putValues("mass", doubleVal(mass.inKilograms)) }
                 .build()
         is BoneMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BoneMass"))
-                .apply { putValues("mass", doubleVal(massKg)) }
+                .apply { putValues("mass", doubleVal(mass.inKilograms)) }
                 .build()
         is CervicalMucusRecord ->
             instantaneousProto()
@@ -212,7 +212,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is LeanBodyMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("LeanBodyMass"))
-                .apply { putValues("mass", doubleVal(massKg)) }
+                .apply { putValues("mass", doubleVal(mass.inKilograms)) }
                 .build()
         is MenstruationRecord ->
             instantaneousProto()
@@ -281,7 +281,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is WeightRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Weight"))
-                .apply { putValues("weight", doubleVal(weightKg)) }
+                .apply { putValues("weight", doubleVal(weight.inKilograms)) }
                 .build()
         is ActiveCaloriesBurnedRecord ->
             intervalProto()
@@ -335,14 +335,14 @@ fun Record.toProto(): DataProto.DataPoint =
             intervalProto()
                 .setDataType(protoDataType("Nutrition"))
                 .apply {
-                    if (biotinGrams > 0) {
-                        putValues("biotin", doubleVal(biotinGrams))
+                    if (biotin != null) {
+                        putValues("biotin", doubleVal(biotin.inGrams))
                     }
-                    if (caffeineGrams > 0) {
-                        putValues("caffeine", doubleVal(caffeineGrams))
+                    if (caffeine != null) {
+                        putValues("caffeine", doubleVal(caffeine.inGrams))
                     }
-                    if (calciumGrams > 0) {
-                        putValues("calcium", doubleVal(calciumGrams))
+                    if (calcium != null) {
+                        putValues("calcium", doubleVal(calcium.inGrams))
                     }
                     if (energy != null) {
                         putValues("calories", doubleVal(energy.inKilocalories))
@@ -350,116 +350,116 @@ fun Record.toProto(): DataProto.DataPoint =
                     if (energyFromFat != null) {
                         putValues("caloriesFromFat", doubleVal(energyFromFat.inKilocalories))
                     }
-                    if (chlorideGrams > 0) {
-                        putValues("chloride", doubleVal(chlorideGrams))
+                    if (chloride != null) {
+                        putValues("chloride", doubleVal(chloride.inGrams))
                     }
-                    if (cholesterolGrams > 0) {
-                        putValues("cholesterol", doubleVal(cholesterolGrams))
+                    if (cholesterol != null) {
+                        putValues("cholesterol", doubleVal(cholesterol.inGrams))
                     }
-                    if (chromiumGrams > 0) {
-                        putValues("chromium", doubleVal(chromiumGrams))
+                    if (chromium != null) {
+                        putValues("chromium", doubleVal(chromium.inGrams))
                     }
-                    if (copperGrams > 0) {
-                        putValues("copper", doubleVal(copperGrams))
+                    if (copper != null) {
+                        putValues("copper", doubleVal(copper.inGrams))
                     }
-                    if (dietaryFiberGrams > 0) {
-                        putValues("dietaryFiber", doubleVal(dietaryFiberGrams))
+                    if (dietaryFiber != null) {
+                        putValues("dietaryFiber", doubleVal(dietaryFiber.inGrams))
                     }
-                    if (folateGrams > 0) {
-                        putValues("folate", doubleVal(folateGrams))
+                    if (folate != null) {
+                        putValues("folate", doubleVal(folate.inGrams))
                     }
-                    if (folicAcidGrams > 0) {
-                        putValues("folicAcid", doubleVal(folicAcidGrams))
+                    if (folicAcid != null) {
+                        putValues("folicAcid", doubleVal(folicAcid.inGrams))
                     }
-                    if (iodineGrams > 0) {
-                        putValues("iodine", doubleVal(iodineGrams))
+                    if (iodine != null) {
+                        putValues("iodine", doubleVal(iodine.inGrams))
                     }
-                    if (ironGrams > 0) {
-                        putValues("iron", doubleVal(ironGrams))
+                    if (iron != null) {
+                        putValues("iron", doubleVal(iron.inGrams))
                     }
-                    if (magnesiumGrams > 0) {
-                        putValues("magnesium", doubleVal(magnesiumGrams))
+                    if (magnesium != null) {
+                        putValues("magnesium", doubleVal(magnesium.inGrams))
                     }
-                    if (manganeseGrams > 0) {
-                        putValues("manganese", doubleVal(manganeseGrams))
+                    if (manganese != null) {
+                        putValues("manganese", doubleVal(manganese.inGrams))
                     }
-                    if (molybdenumGrams > 0) {
-                        putValues("molybdenum", doubleVal(molybdenumGrams))
+                    if (molybdenum != null) {
+                        putValues("molybdenum", doubleVal(molybdenum.inGrams))
                     }
-                    if (monounsaturatedFatGrams > 0) {
-                        putValues("monounsaturatedFat", doubleVal(monounsaturatedFatGrams))
+                    if (monounsaturatedFat != null) {
+                        putValues("monounsaturatedFat", doubleVal(monounsaturatedFat.inGrams))
                     }
-                    if (niacinGrams > 0) {
-                        putValues("niacin", doubleVal(niacinGrams))
+                    if (niacin != null) {
+                        putValues("niacin", doubleVal(niacin.inGrams))
                     }
-                    if (pantothenicAcidGrams > 0) {
-                        putValues("pantothenicAcid", doubleVal(pantothenicAcidGrams))
+                    if (pantothenicAcid != null) {
+                        putValues("pantothenicAcid", doubleVal(pantothenicAcid.inGrams))
                     }
-                    if (phosphorusGrams > 0) {
-                        putValues("phosphorus", doubleVal(phosphorusGrams))
+                    if (phosphorus != null) {
+                        putValues("phosphorus", doubleVal(phosphorus.inGrams))
                     }
-                    if (polyunsaturatedFatGrams > 0) {
-                        putValues("polyunsaturatedFat", doubleVal(polyunsaturatedFatGrams))
+                    if (polyunsaturatedFat != null) {
+                        putValues("polyunsaturatedFat", doubleVal(polyunsaturatedFat.inGrams))
                     }
-                    if (potassiumGrams > 0) {
-                        putValues("potassium", doubleVal(potassiumGrams))
+                    if (potassium != null) {
+                        putValues("potassium", doubleVal(potassium.inGrams))
                     }
-                    if (proteinGrams > 0) {
-                        putValues("protein", doubleVal(proteinGrams))
+                    if (protein != null) {
+                        putValues("protein", doubleVal(protein.inGrams))
                     }
-                    if (riboflavinGrams > 0) {
-                        putValues("riboflavin", doubleVal(riboflavinGrams))
+                    if (riboflavin != null) {
+                        putValues("riboflavin", doubleVal(riboflavin.inGrams))
                     }
-                    if (saturatedFatGrams > 0) {
-                        putValues("saturatedFat", doubleVal(saturatedFatGrams))
+                    if (saturatedFat != null) {
+                        putValues("saturatedFat", doubleVal(saturatedFat.inGrams))
                     }
-                    if (seleniumGrams > 0) {
-                        putValues("selenium", doubleVal(seleniumGrams))
+                    if (selenium != null) {
+                        putValues("selenium", doubleVal(selenium.inGrams))
                     }
-                    if (sodiumGrams > 0) {
-                        putValues("sodium", doubleVal(sodiumGrams))
+                    if (sodium != null) {
+                        putValues("sodium", doubleVal(sodium.inGrams))
                     }
-                    if (sugarGrams > 0) {
-                        putValues("sugar", doubleVal(sugarGrams))
+                    if (sugar != null) {
+                        putValues("sugar", doubleVal(sugar.inGrams))
                     }
-                    if (thiaminGrams > 0) {
-                        putValues("thiamin", doubleVal(thiaminGrams))
+                    if (thiamin != null) {
+                        putValues("thiamin", doubleVal(thiamin.inGrams))
                     }
-                    if (totalCarbohydrateGrams > 0) {
-                        putValues("totalCarbohydrate", doubleVal(totalCarbohydrateGrams))
+                    if (totalCarbohydrate != null) {
+                        putValues("totalCarbohydrate", doubleVal(totalCarbohydrate.inGrams))
                     }
-                    if (totalFatGrams > 0) {
-                        putValues("totalFat", doubleVal(totalFatGrams))
+                    if (totalFat != null) {
+                        putValues("totalFat", doubleVal(totalFat.inGrams))
                     }
-                    if (transFatGrams > 0) {
-                        putValues("transFat", doubleVal(transFatGrams))
+                    if (transFat != null) {
+                        putValues("transFat", doubleVal(transFat.inGrams))
                     }
-                    if (unsaturatedFatGrams > 0) {
-                        putValues("unsaturatedFat", doubleVal(unsaturatedFatGrams))
+                    if (unsaturatedFat != null) {
+                        putValues("unsaturatedFat", doubleVal(unsaturatedFat.inGrams))
                     }
-                    if (vitaminAGrams > 0) {
-                        putValues("vitaminA", doubleVal(vitaminAGrams))
+                    if (vitaminA != null) {
+                        putValues("vitaminA", doubleVal(vitaminA.inGrams))
                     }
-                    if (vitaminB12Grams > 0) {
-                        putValues("vitaminB12", doubleVal(vitaminB12Grams))
+                    if (vitaminB12 != null) {
+                        putValues("vitaminB12", doubleVal(vitaminB12.inGrams))
                     }
-                    if (vitaminB6Grams > 0) {
-                        putValues("vitaminB6", doubleVal(vitaminB6Grams))
+                    if (vitaminB6 != null) {
+                        putValues("vitaminB6", doubleVal(vitaminB6.inGrams))
                     }
-                    if (vitaminCGrams > 0) {
-                        putValues("vitaminC", doubleVal(vitaminCGrams))
+                    if (vitaminC != null) {
+                        putValues("vitaminC", doubleVal(vitaminC.inGrams))
                     }
-                    if (vitaminDGrams > 0) {
-                        putValues("vitaminD", doubleVal(vitaminDGrams))
+                    if (vitaminD != null) {
+                        putValues("vitaminD", doubleVal(vitaminD.inGrams))
                     }
-                    if (vitaminEGrams > 0) {
-                        putValues("vitaminE", doubleVal(vitaminEGrams))
+                    if (vitaminE != null) {
+                        putValues("vitaminE", doubleVal(vitaminE.inGrams))
                     }
-                    if (vitaminKGrams > 0) {
-                        putValues("vitaminK", doubleVal(vitaminKGrams))
+                    if (vitaminK != null) {
+                        putValues("vitaminK", doubleVal(vitaminK.inGrams))
                     }
-                    if (zincGrams > 0) {
-                        putValues("zinc", doubleVal(zincGrams))
+                    if (zinc != null) {
+                        putValues("zinc", doubleVal(zinc.inGrams))
                     }
                     mealType?.let { putValues("mealType", enumVal(it)) }
                     name?.let { putValues("name", stringVal(it)) }

@@ -278,12 +278,12 @@ package androidx.health.connect.client.records {
   }
 
   public final class BoneMassRecord implements androidx.health.connect.client.records.InstantaneousRecord {
-    ctor public BoneMassRecord(double massKg, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public double getMassKg();
+    ctor public BoneMassRecord(androidx.health.connect.client.units.Mass mass, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.Mass getMass();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final double massKg;
+    property public final androidx.health.connect.client.units.Mass mass;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
@@ -719,12 +719,12 @@ package androidx.health.connect.client.records {
   }
 
   public final class LeanBodyMassRecord implements androidx.health.connect.client.records.InstantaneousRecord {
-    ctor public LeanBodyMassRecord(double massKg, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public double getMassKg();
+    ctor public LeanBodyMassRecord(androidx.health.connect.client.units.Mass mass, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.Mass getMass();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
-    property public final double massKg;
+    property public final androidx.health.connect.client.units.Mass mass;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
@@ -760,148 +760,148 @@ package androidx.health.connect.client.records {
   }
 
   public final class NutritionRecord implements androidx.health.connect.client.records.IntervalRecord {
-    ctor public NutritionRecord(optional double biotinGrams, optional double caffeineGrams, optional double calciumGrams, optional androidx.health.connect.client.units.Energy? energy, optional androidx.health.connect.client.units.Energy? energyFromFat, optional double chlorideGrams, optional double cholesterolGrams, optional double chromiumGrams, optional double copperGrams, optional double dietaryFiberGrams, optional double folateGrams, optional double folicAcidGrams, optional double iodineGrams, optional double ironGrams, optional double magnesiumGrams, optional double manganeseGrams, optional double molybdenumGrams, optional double monounsaturatedFatGrams, optional double niacinGrams, optional double pantothenicAcidGrams, optional double phosphorusGrams, optional double polyunsaturatedFatGrams, optional double potassiumGrams, optional double proteinGrams, optional double riboflavinGrams, optional double saturatedFatGrams, optional double seleniumGrams, optional double sodiumGrams, optional double sugarGrams, optional double thiaminGrams, optional double totalCarbohydrateGrams, optional double totalFatGrams, optional double transFatGrams, optional double unsaturatedFatGrams, optional double vitaminAGrams, optional double vitaminB12Grams, optional double vitaminB6Grams, optional double vitaminCGrams, optional double vitaminDGrams, optional double vitaminEGrams, optional double vitaminKGrams, optional double zincGrams, optional String? name, optional String? mealType, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
-    method public double getBiotinGrams();
-    method public double getCaffeineGrams();
-    method public double getCalciumGrams();
-    method public double getChlorideGrams();
-    method public double getCholesterolGrams();
-    method public double getChromiumGrams();
-    method public double getCopperGrams();
-    method public double getDietaryFiberGrams();
+    ctor public NutritionRecord(optional androidx.health.connect.client.units.Mass? biotin, optional androidx.health.connect.client.units.Mass? caffeine, optional androidx.health.connect.client.units.Mass? calcium, optional androidx.health.connect.client.units.Energy? energy, optional androidx.health.connect.client.units.Energy? energyFromFat, optional androidx.health.connect.client.units.Mass? chloride, optional androidx.health.connect.client.units.Mass? cholesterol, optional androidx.health.connect.client.units.Mass? chromium, optional androidx.health.connect.client.units.Mass? copper, optional androidx.health.connect.client.units.Mass? dietaryFiber, optional androidx.health.connect.client.units.Mass? folate, optional androidx.health.connect.client.units.Mass? folicAcid, optional androidx.health.connect.client.units.Mass? iodine, optional androidx.health.connect.client.units.Mass? iron, optional androidx.health.connect.client.units.Mass? magnesium, optional androidx.health.connect.client.units.Mass? manganese, optional androidx.health.connect.client.units.Mass? molybdenum, optional androidx.health.connect.client.units.Mass? monounsaturatedFat, optional androidx.health.connect.client.units.Mass? niacin, optional androidx.health.connect.client.units.Mass? pantothenicAcid, optional androidx.health.connect.client.units.Mass? phosphorus, optional androidx.health.connect.client.units.Mass? polyunsaturatedFat, optional androidx.health.connect.client.units.Mass? potassium, optional androidx.health.connect.client.units.Mass? protein, optional androidx.health.connect.client.units.Mass? riboflavin, optional androidx.health.connect.client.units.Mass? saturatedFat, optional androidx.health.connect.client.units.Mass? selenium, optional androidx.health.connect.client.units.Mass? sodium, optional androidx.health.connect.client.units.Mass? sugar, optional androidx.health.connect.client.units.Mass? thiamin, optional androidx.health.connect.client.units.Mass? totalCarbohydrate, optional androidx.health.connect.client.units.Mass? totalFat, optional androidx.health.connect.client.units.Mass? transFat, optional androidx.health.connect.client.units.Mass? unsaturatedFat, optional androidx.health.connect.client.units.Mass? vitaminA, optional androidx.health.connect.client.units.Mass? vitaminB12, optional androidx.health.connect.client.units.Mass? vitaminB6, optional androidx.health.connect.client.units.Mass? vitaminC, optional androidx.health.connect.client.units.Mass? vitaminD, optional androidx.health.connect.client.units.Mass? vitaminE, optional androidx.health.connect.client.units.Mass? vitaminK, optional androidx.health.connect.client.units.Mass? zinc, optional String? name, optional String? mealType, java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.Mass? getBiotin();
+    method public androidx.health.connect.client.units.Mass? getCaffeine();
+    method public androidx.health.connect.client.units.Mass? getCalcium();
+    method public androidx.health.connect.client.units.Mass? getChloride();
+    method public androidx.health.connect.client.units.Mass? getCholesterol();
+    method public androidx.health.connect.client.units.Mass? getChromium();
+    method public androidx.health.connect.client.units.Mass? getCopper();
+    method public androidx.health.connect.client.units.Mass? getDietaryFiber();
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public androidx.health.connect.client.units.Energy? getEnergy();
     method public androidx.health.connect.client.units.Energy? getEnergyFromFat();
-    method public double getFolateGrams();
-    method public double getFolicAcidGrams();
-    method public double getIodineGrams();
-    method public double getIronGrams();
-    method public double getMagnesiumGrams();
-    method public double getManganeseGrams();
+    method public androidx.health.connect.client.units.Mass? getFolate();
+    method public androidx.health.connect.client.units.Mass? getFolicAcid();
+    method public androidx.health.connect.client.units.Mass? getIodine();
+    method public androidx.health.connect.client.units.Mass? getIron();
+    method public androidx.health.connect.client.units.Mass? getMagnesium();
+    method public androidx.health.connect.client.units.Mass? getManganese();
     method public String? getMealType();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public double getMolybdenumGrams();
-    method public double getMonounsaturatedFatGrams();
+    method public androidx.health.connect.client.units.Mass? getMolybdenum();
+    method public androidx.health.connect.client.units.Mass? getMonounsaturatedFat();
     method public String? getName();
-    method public double getNiacinGrams();
-    method public double getPantothenicAcidGrams();
-    method public double getPhosphorusGrams();
-    method public double getPolyunsaturatedFatGrams();
-    method public double getPotassiumGrams();
-    method public double getProteinGrams();
-    method public double getRiboflavinGrams();
-    method public double getSaturatedFatGrams();
-    method public double getSeleniumGrams();
-    method public double getSodiumGrams();
+    method public androidx.health.connect.client.units.Mass? getNiacin();
+    method public androidx.health.connect.client.units.Mass? getPantothenicAcid();
+    method public androidx.health.connect.client.units.Mass? getPhosphorus();
+    method public androidx.health.connect.client.units.Mass? getPolyunsaturatedFat();
+    method public androidx.health.connect.client.units.Mass? getPotassium();
+    method public androidx.health.connect.client.units.Mass? getProtein();
+    method public androidx.health.connect.client.units.Mass? getRiboflavin();
+    method public androidx.health.connect.client.units.Mass? getSaturatedFat();
+    method public androidx.health.connect.client.units.Mass? getSelenium();
+    method public androidx.health.connect.client.units.Mass? getSodium();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
-    method public double getSugarGrams();
-    method public double getThiaminGrams();
-    method public double getTotalCarbohydrateGrams();
-    method public double getTotalFatGrams();
-    method public double getTransFatGrams();
-    method public double getUnsaturatedFatGrams();
-    method public double getVitaminAGrams();
-    method public double getVitaminB12Grams();
-    method public double getVitaminB6Grams();
-    method public double getVitaminCGrams();
-    method public double getVitaminDGrams();
-    method public double getVitaminEGrams();
-    method public double getVitaminKGrams();
-    method public double getZincGrams();
-    property public final double biotinGrams;
-    property public final double caffeineGrams;
-    property public final double calciumGrams;
-    property public final double chlorideGrams;
-    property public final double cholesterolGrams;
-    property public final double chromiumGrams;
-    property public final double copperGrams;
-    property public final double dietaryFiberGrams;
+    method public androidx.health.connect.client.units.Mass? getSugar();
+    method public androidx.health.connect.client.units.Mass? getThiamin();
+    method public androidx.health.connect.client.units.Mass? getTotalCarbohydrate();
+    method public androidx.health.connect.client.units.Mass? getTotalFat();
+    method public androidx.health.connect.client.units.Mass? getTransFat();
+    method public androidx.health.connect.client.units.Mass? getUnsaturatedFat();
+    method public androidx.health.connect.client.units.Mass? getVitaminA();
+    method public androidx.health.connect.client.units.Mass? getVitaminB12();
+    method public androidx.health.connect.client.units.Mass? getVitaminB6();
+    method public androidx.health.connect.client.units.Mass? getVitaminC();
+    method public androidx.health.connect.client.units.Mass? getVitaminD();
+    method public androidx.health.connect.client.units.Mass? getVitaminE();
+    method public androidx.health.connect.client.units.Mass? getVitaminK();
+    method public androidx.health.connect.client.units.Mass? getZinc();
+    property public final androidx.health.connect.client.units.Mass? biotin;
+    property public final androidx.health.connect.client.units.Mass? caffeine;
+    property public final androidx.health.connect.client.units.Mass? calcium;
+    property public final androidx.health.connect.client.units.Mass? chloride;
+    property public final androidx.health.connect.client.units.Mass? cholesterol;
+    property public final androidx.health.connect.client.units.Mass? chromium;
+    property public final androidx.health.connect.client.units.Mass? copper;
+    property public final androidx.health.connect.client.units.Mass? dietaryFiber;
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
     property public final androidx.health.connect.client.units.Energy? energy;
     property public final androidx.health.connect.client.units.Energy? energyFromFat;
-    property public final double folateGrams;
-    property public final double folicAcidGrams;
-    property public final double iodineGrams;
-    property public final double ironGrams;
-    property public final double magnesiumGrams;
-    property public final double manganeseGrams;
+    property public final androidx.health.connect.client.units.Mass? folate;
+    property public final androidx.health.connect.client.units.Mass? folicAcid;
+    property public final androidx.health.connect.client.units.Mass? iodine;
+    property public final androidx.health.connect.client.units.Mass? iron;
+    property public final androidx.health.connect.client.units.Mass? magnesium;
+    property public final androidx.health.connect.client.units.Mass? manganese;
     property public final String? mealType;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public final double molybdenumGrams;
-    property public final double monounsaturatedFatGrams;
+    property public final androidx.health.connect.client.units.Mass? molybdenum;
+    property public final androidx.health.connect.client.units.Mass? monounsaturatedFat;
     property public final String? name;
-    property public final double niacinGrams;
-    property public final double pantothenicAcidGrams;
-    property public final double phosphorusGrams;
-    property public final double polyunsaturatedFatGrams;
-    property public final double potassiumGrams;
-    property public final double proteinGrams;
-    property public final double riboflavinGrams;
-    property public final double saturatedFatGrams;
-    property public final double seleniumGrams;
-    property public final double sodiumGrams;
+    property public final androidx.health.connect.client.units.Mass? niacin;
+    property public final androidx.health.connect.client.units.Mass? pantothenicAcid;
+    property public final androidx.health.connect.client.units.Mass? phosphorus;
+    property public final androidx.health.connect.client.units.Mass? polyunsaturatedFat;
+    property public final androidx.health.connect.client.units.Mass? potassium;
+    property public final androidx.health.connect.client.units.Mass? protein;
+    property public final androidx.health.connect.client.units.Mass? riboflavin;
+    property public final androidx.health.connect.client.units.Mass? saturatedFat;
+    property public final androidx.health.connect.client.units.Mass? selenium;
+    property public final androidx.health.connect.client.units.Mass? sodium;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
-    property public final double sugarGrams;
-    property public final double thiaminGrams;
-    property public final double totalCarbohydrateGrams;
-    property public final double totalFatGrams;
-    property public final double transFatGrams;
-    property public final double unsaturatedFatGrams;
-    property public final double vitaminAGrams;
-    property public final double vitaminB12Grams;
-    property public final double vitaminB6Grams;
-    property public final double vitaminCGrams;
-    property public final double vitaminDGrams;
-    property public final double vitaminEGrams;
-    property public final double vitaminKGrams;
-    property public final double zincGrams;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> BIOTIN_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CAFFEINE_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CALCIUM_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CHLORIDE_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CHOLESTEROL_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> CHROMIUM_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> COPPER_TOTAL;
+    property public final androidx.health.connect.client.units.Mass? sugar;
+    property public final androidx.health.connect.client.units.Mass? thiamin;
+    property public final androidx.health.connect.client.units.Mass? totalCarbohydrate;
+    property public final androidx.health.connect.client.units.Mass? totalFat;
+    property public final androidx.health.connect.client.units.Mass? transFat;
+    property public final androidx.health.connect.client.units.Mass? unsaturatedFat;
+    property public final androidx.health.connect.client.units.Mass? vitaminA;
+    property public final androidx.health.connect.client.units.Mass? vitaminB12;
+    property public final androidx.health.connect.client.units.Mass? vitaminB6;
+    property public final androidx.health.connect.client.units.Mass? vitaminC;
+    property public final androidx.health.connect.client.units.Mass? vitaminD;
+    property public final androidx.health.connect.client.units.Mass? vitaminE;
+    property public final androidx.health.connect.client.units.Mass? vitaminK;
+    property public final androidx.health.connect.client.units.Mass? zinc;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> BIOTIN_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> CAFFEINE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> CALCIUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> CHLORIDE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> CHOLESTEROL_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> CHROMIUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> COPPER_TOTAL;
     field public static final androidx.health.connect.client.records.NutritionRecord.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> DIETARY_FIBER_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> DIETARY_FIBER_TOTAL;
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Energy> ENERGY_FROM_FAT_TOTAL;
     field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Energy> ENERGY_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> FOLATE_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> FOLIC_ACID_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> IODINE_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> IRON_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MAGNESIUM_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MANGANESE_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MOLYBDENUM_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> MONOUNSATURATED_FAT_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> NIACIN_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> PANTOTHENIC_ACID_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> PHOSPHORUS_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> POLYUNSATURATED_FAT_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> POTASSIUM_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> PROTEIN_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> RIBOFLAVIN_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SATURATED_FAT_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SELENIUM_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SODIUM_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SUGAR_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> THIAMIN_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> TOTAL_CARBOHYDRATE_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> TOTAL_FAT_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> TRANS_FAT_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> UNSATURATED_FAT_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_A_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_B12_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_B6_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_C_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_D_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_E_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> VITAMIN_K_TOTAL;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> ZINC_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> FOLATE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> FOLIC_ACID_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> IODINE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> IRON_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> MAGNESIUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> MANGANESE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> MOLYBDENUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> MONOUNSATURATED_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> NIACIN_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> PANTOTHENIC_ACID_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> PHOSPHORUS_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> POLYUNSATURATED_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> POTASSIUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> PROTEIN_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> RIBOFLAVIN_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> SATURATED_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> SELENIUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> SODIUM_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> SUGAR_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> THIAMIN_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> TOTAL_CARBOHYDRATE_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> TOTAL_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> TRANS_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> UNSATURATED_FAT_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> VITAMIN_A_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> VITAMIN_B12_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> VITAMIN_B6_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> VITAMIN_C_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> VITAMIN_D_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> VITAMIN_E_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> VITAMIN_K_TOTAL;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> ZINC_TOTAL;
   }
 
   public static final class NutritionRecord.Companion {
@@ -1256,19 +1256,19 @@ package androidx.health.connect.client.records {
   }
 
   public final class WeightRecord implements androidx.health.connect.client.records.InstantaneousRecord {
-    ctor public WeightRecord(double weightKg, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public WeightRecord(androidx.health.connect.client.units.Mass weight, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
     method public java.time.Instant getTime();
-    method public double getWeightKg();
+    method public androidx.health.connect.client.units.Mass getWeight();
     method public java.time.ZoneOffset? getZoneOffset();
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
     property public java.time.Instant time;
-    property public final double weightKg;
+    property public final androidx.health.connect.client.units.Mass weight;
     property public java.time.ZoneOffset? zoneOffset;
     field public static final androidx.health.connect.client.records.WeightRecord.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> WEIGHT_AVG;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> WEIGHT_MAX;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> WEIGHT_MIN;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> WEIGHT_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> WEIGHT_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Mass> WEIGHT_MIN;
   }
 
   public static final class WeightRecord.Companion {
@@ -1483,6 +1483,37 @@ package androidx.health.connect.client.units {
   }
 
   public final class LengthKt {
+  }
+
+  public final class Mass implements java.lang.Comparable<androidx.health.connect.client.units.Mass> {
+    method public int compareTo(androidx.health.connect.client.units.Mass other);
+    method public double getGrams();
+    method public double getKilograms();
+    method public double getMicrograms();
+    method public double getMilligrams();
+    method public double getOunces();
+    method public static androidx.health.connect.client.units.Mass grams(double value);
+    method public static androidx.health.connect.client.units.Mass kilograms(double value);
+    method public static androidx.health.connect.client.units.Mass micrograms(double value);
+    method public static androidx.health.connect.client.units.Mass milligrams(double value);
+    method public static androidx.health.connect.client.units.Mass ounces(double value);
+    property public final double inGrams;
+    property public final double inKilograms;
+    property public final double inMicrograms;
+    property public final double inMilligrams;
+    property public final double inOunces;
+    field public static final androidx.health.connect.client.units.Mass.Companion Companion;
+  }
+
+  public static final class Mass.Companion {
+    method public androidx.health.connect.client.units.Mass grams(double value);
+    method public androidx.health.connect.client.units.Mass kilograms(double value);
+    method public androidx.health.connect.client.units.Mass micrograms(double value);
+    method public androidx.health.connect.client.units.Mass milligrams(double value);
+    method public androidx.health.connect.client.units.Mass ounces(double value);
+  }
+
+  public final class MassKt {
   }
 
   public final class Power implements java.lang.Comparable<androidx.health.connect.client.units.Power> {

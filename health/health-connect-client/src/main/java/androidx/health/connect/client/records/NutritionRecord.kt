@@ -20,95 +20,96 @@ import androidx.health.connect.client.aggregate.AggregateMetric.AggregationType
 import androidx.health.connect.client.aggregate.AggregateMetric.Companion.doubleMetric
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.Energy
+import androidx.health.connect.client.units.Mass
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures what nutrients were consumed as part of a meal or a food item. */
 public class NutritionRecord(
-    /** Biotin in grams. Optional field. Valid range: 0-100. */
-    public val biotinGrams: Double = 0.0,
-    /** Caffeine in grams. Optional field. Valid range: 0-100. */
-    public val caffeineGrams: Double = 0.0,
-    /** Calcium in grams. Optional field. Valid range: 0-100. */
-    public val calciumGrams: Double = 0.0,
+    /** Biotin in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val biotin: Mass? = null,
+    /** Caffeine in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val caffeine: Mass? = null,
+    /** Calcium in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val calcium: Mass? = null,
     /** Energy in [Energy] unit. Optional field. Valid range: 0-100000 kcal. */
     public val energy: Energy? = null,
     /** Energy from fat in [Energy] unit. Optional field. Valid range: 0-100000 kcal. */
     public val energyFromFat: Energy? = null,
-    /** Chloride in grams. Optional field. Valid range: 0-100. */
-    public val chlorideGrams: Double = 0.0,
-    /** Cholesterol in grams. Optional field. Valid range: 0-100. */
-    public val cholesterolGrams: Double = 0.0,
-    /** Chromium in grams. Optional field. Valid range: 0-100. */
-    public val chromiumGrams: Double = 0.0,
-    /** Copper in grams. Optional field. Valid range: 0-100. */
-    public val copperGrams: Double = 0.0,
-    /** Dietary fiber in grams. Optional field. Valid range: 0-100000. */
-    public val dietaryFiberGrams: Double = 0.0,
-    /** Folate in grams. Optional field. Valid range: 0-100. */
-    public val folateGrams: Double = 0.0,
-    /** Folic acid in grams. Optional field. Valid range: 0-100. */
-    public val folicAcidGrams: Double = 0.0,
-    /** Iodine in grams. Optional field. Valid range: 0-100. */
-    public val iodineGrams: Double = 0.0,
-    /** Iron in grams. Optional field. Valid range: 0-100. */
-    public val ironGrams: Double = 0.0,
-    /** Magnesium in grams. Optional field. Valid range: 0-100. */
-    public val magnesiumGrams: Double = 0.0,
-    /** Manganese in grams. Optional field. Valid range: 0-100. */
-    public val manganeseGrams: Double = 0.0,
-    /** Molybdenum in grams. Optional field. Valid range: 0-100. */
-    public val molybdenumGrams: Double = 0.0,
-    /** Monounsaturated fat in grams. Optional field. Valid range: 0-100000. */
-    public val monounsaturatedFatGrams: Double = 0.0,
-    /** Niacin in grams. Optional field. Valid range: 0-100. */
-    public val niacinGrams: Double = 0.0,
-    /** Pantothenic acid in grams. Optional field. Valid range: 0-100. */
-    public val pantothenicAcidGrams: Double = 0.0,
-    /** Phosphorus in grams. Optional field. Valid range: 0-100. */
-    public val phosphorusGrams: Double = 0.0,
-    /** Polyunsaturated fat in grams. Optional field. Valid range: 0-100000. */
-    public val polyunsaturatedFatGrams: Double = 0.0,
-    /** Potassium in grams. Optional field. Valid range: 0-100. */
-    public val potassiumGrams: Double = 0.0,
-    /** Protein in grams. Optional field. Valid range: 0-100000. */
-    public val proteinGrams: Double = 0.0,
-    /** Riboflavin in grams. Optional field. Valid range: 0-100. */
-    public val riboflavinGrams: Double = 0.0,
-    /** Saturated fat in grams. Optional field. Valid range: 0-100000. */
-    public val saturatedFatGrams: Double = 0.0,
-    /** Selenium in grams. Optional field. Valid range: 0-100. */
-    public val seleniumGrams: Double = 0.0,
-    /** Sodium in grams. Optional field. Valid range: 0-100. */
-    public val sodiumGrams: Double = 0.0,
-    /** Sugar in grams. Optional field. Valid range: 0-100000. */
-    public val sugarGrams: Double = 0.0,
-    /** Thiamin in grams. Optional field. Valid range: 0-100. */
-    public val thiaminGrams: Double = 0.0,
-    /** Total carbohydrate in grams. Optional field. Valid range: 0-100000. */
-    public val totalCarbohydrateGrams: Double = 0.0,
-    /** Total fat in grams. Optional field. Valid range: 0-100000. */
-    public val totalFatGrams: Double = 0.0,
-    /** Trans fat in grams. Optional field. Valid range: 0-100000. */
-    public val transFatGrams: Double = 0.0,
-    /** Unsaturated fat in grams. Optional field. Valid range: 0-100000. */
-    public val unsaturatedFatGrams: Double = 0.0,
-    /** Vitamin A in grams. Optional field. Valid range: 0-100. */
-    public val vitaminAGrams: Double = 0.0,
-    /** Vitamin B12 in grams. Optional field. Valid range: 0-100. */
-    public val vitaminB12Grams: Double = 0.0,
-    /** Vitamin B6 in grams. Optional field. Valid range: 0-100. */
-    public val vitaminB6Grams: Double = 0.0,
-    /** Vitamin C in grams. Optional field. Valid range: 0-100. */
-    public val vitaminCGrams: Double = 0.0,
-    /** Vitamin D in grams. Optional field. Valid range: 0-100. */
-    public val vitaminDGrams: Double = 0.0,
-    /** Vitamin E in grams. Optional field. Valid range: 0-100. */
-    public val vitaminEGrams: Double = 0.0,
-    /** Vitamin K in grams. Optional field. Valid range: 0-100. */
-    public val vitaminKGrams: Double = 0.0,
-    /** Zinc in grams. Optional field. Valid range: 0-100. */
-    public val zincGrams: Double = 0.0,
+    /** Chloride in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val chloride: Mass? = null,
+    /** Cholesterol in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val cholesterol: Mass? = null,
+    /** Chromium in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val chromium: Mass? = null,
+    /** Copper in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val copper: Mass? = null,
+    /** Dietary fiber in [Mass] unit. Optional field. Valid range: 0-100000 grams. */
+    public val dietaryFiber: Mass? = null,
+    /** Folate in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val folate: Mass? = null,
+    /** Folic acid in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val folicAcid: Mass? = null,
+    /** Iodine in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val iodine: Mass? = null,
+    /** Iron in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val iron: Mass? = null,
+    /** Magnesium in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val magnesium: Mass? = null,
+    /** Manganese in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val manganese: Mass? = null,
+    /** Molybdenum in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val molybdenum: Mass? = null,
+    /** Monounsaturated fat in [Mass] unit. Optional field. Valid range: 0-100000 grams. */
+    public val monounsaturatedFat: Mass? = null,
+    /** Niacin in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val niacin: Mass? = null,
+    /** Pantothenic acid in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val pantothenicAcid: Mass? = null,
+    /** Phosphorus in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val phosphorus: Mass? = null,
+    /** Polyunsaturated fat in [Mass] unit. Optional field. Valid range: 0-100000 grams. */
+    public val polyunsaturatedFat: Mass? = null,
+    /** Potassium in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val potassium: Mass? = null,
+    /** Protein in [Mass] unit. Optional field. Valid range: 0-100000 grams. */
+    public val protein: Mass? = null,
+    /** Riboflavin in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val riboflavin: Mass? = null,
+    /** Saturated fat in [Mass] unit. Optional field. Valid range: 0-100000 grams. */
+    public val saturatedFat: Mass? = null,
+    /** Selenium in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val selenium: Mass? = null,
+    /** Sodium in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val sodium: Mass? = null,
+    /** Sugar in [Mass] unit. Optional field. Valid range: 0-100000 grams. */
+    public val sugar: Mass? = null,
+    /** Thiamin in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val thiamin: Mass? = null,
+    /** Total carbohydrate in [Mass] unit. Optional field. Valid range: 0-100000 grams. */
+    public val totalCarbohydrate: Mass? = null,
+    /** Total fat in [Mass] unit. Optional field. Valid range: 0-100000 grams. */
+    public val totalFat: Mass? = null,
+    /** Trans fat in [Mass] unit. Optional field. Valid range: 0-100000 grams. */
+    public val transFat: Mass? = null,
+    /** Unsaturated fat in [Mass] unit. Optional field. Valid range: 0-100000 grams. */
+    public val unsaturatedFat: Mass? = null,
+    /** Vitamin A in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val vitaminA: Mass? = null,
+    /** Vitamin B12 in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val vitaminB12: Mass? = null,
+    /** Vitamin B6 in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val vitaminB6: Mass? = null,
+    /** Vitamin C in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val vitaminC: Mass? = null,
+    /** Vitamin D in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val vitaminD: Mass? = null,
+    /** Vitamin E in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val vitaminE: Mass? = null,
+    /** Vitamin K in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val vitaminK: Mass? = null,
+    /** Zinc in [Mass] unit. Optional field. Valid range: 0-100 grams. */
+    public val zinc: Mass? = null,
     /** Name for food or drink, provided by the user. Optional field. */
     public val name: String? = null,
     /**
@@ -124,52 +125,56 @@ public class NutritionRecord(
     override val endZoneOffset: ZoneOffset?,
     override val metadata: Metadata = Metadata.EMPTY,
 ) : IntervalRecord {
+
+    /*
+     * Generated by the IDE: Code -> Generate -> "equals() and hashCode()".
+     */
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is NutritionRecord) return false
 
-        if (biotinGrams != other.biotinGrams) return false
-        if (caffeineGrams != other.caffeineGrams) return false
-        if (calciumGrams != other.calciumGrams) return false
+        if (biotin != other.biotin) return false
+        if (caffeine != other.caffeine) return false
+        if (calcium != other.calcium) return false
         if (energy != other.energy) return false
         if (energyFromFat != other.energyFromFat) return false
-        if (chlorideGrams != other.chlorideGrams) return false
-        if (cholesterolGrams != other.cholesterolGrams) return false
-        if (chromiumGrams != other.chromiumGrams) return false
-        if (copperGrams != other.copperGrams) return false
-        if (dietaryFiberGrams != other.dietaryFiberGrams) return false
-        if (folateGrams != other.folateGrams) return false
-        if (folicAcidGrams != other.folicAcidGrams) return false
-        if (iodineGrams != other.iodineGrams) return false
-        if (ironGrams != other.ironGrams) return false
-        if (magnesiumGrams != other.magnesiumGrams) return false
-        if (manganeseGrams != other.manganeseGrams) return false
-        if (molybdenumGrams != other.molybdenumGrams) return false
-        if (monounsaturatedFatGrams != other.monounsaturatedFatGrams) return false
-        if (niacinGrams != other.niacinGrams) return false
-        if (pantothenicAcidGrams != other.pantothenicAcidGrams) return false
-        if (phosphorusGrams != other.phosphorusGrams) return false
-        if (polyunsaturatedFatGrams != other.polyunsaturatedFatGrams) return false
-        if (potassiumGrams != other.potassiumGrams) return false
-        if (proteinGrams != other.proteinGrams) return false
-        if (riboflavinGrams != other.riboflavinGrams) return false
-        if (saturatedFatGrams != other.saturatedFatGrams) return false
-        if (seleniumGrams != other.seleniumGrams) return false
-        if (sodiumGrams != other.sodiumGrams) return false
-        if (sugarGrams != other.sugarGrams) return false
-        if (thiaminGrams != other.thiaminGrams) return false
-        if (totalCarbohydrateGrams != other.totalCarbohydrateGrams) return false
-        if (totalFatGrams != other.totalFatGrams) return false
-        if (transFatGrams != other.transFatGrams) return false
-        if (unsaturatedFatGrams != other.unsaturatedFatGrams) return false
-        if (vitaminAGrams != other.vitaminAGrams) return false
-        if (vitaminB12Grams != other.vitaminB12Grams) return false
-        if (vitaminB6Grams != other.vitaminB6Grams) return false
-        if (vitaminCGrams != other.vitaminCGrams) return false
-        if (vitaminDGrams != other.vitaminDGrams) return false
-        if (vitaminEGrams != other.vitaminEGrams) return false
-        if (vitaminKGrams != other.vitaminKGrams) return false
-        if (zincGrams != other.zincGrams) return false
+        if (chloride != other.chloride) return false
+        if (cholesterol != other.cholesterol) return false
+        if (chromium != other.chromium) return false
+        if (copper != other.copper) return false
+        if (dietaryFiber != other.dietaryFiber) return false
+        if (folate != other.folate) return false
+        if (folicAcid != other.folicAcid) return false
+        if (iodine != other.iodine) return false
+        if (iron != other.iron) return false
+        if (magnesium != other.magnesium) return false
+        if (manganese != other.manganese) return false
+        if (molybdenum != other.molybdenum) return false
+        if (monounsaturatedFat != other.monounsaturatedFat) return false
+        if (niacin != other.niacin) return false
+        if (pantothenicAcid != other.pantothenicAcid) return false
+        if (phosphorus != other.phosphorus) return false
+        if (polyunsaturatedFat != other.polyunsaturatedFat) return false
+        if (potassium != other.potassium) return false
+        if (protein != other.protein) return false
+        if (riboflavin != other.riboflavin) return false
+        if (saturatedFat != other.saturatedFat) return false
+        if (selenium != other.selenium) return false
+        if (sodium != other.sodium) return false
+        if (sugar != other.sugar) return false
+        if (thiamin != other.thiamin) return false
+        if (totalCarbohydrate != other.totalCarbohydrate) return false
+        if (totalFat != other.totalFat) return false
+        if (transFat != other.transFat) return false
+        if (unsaturatedFat != other.unsaturatedFat) return false
+        if (vitaminA != other.vitaminA) return false
+        if (vitaminB12 != other.vitaminB12) return false
+        if (vitaminB6 != other.vitaminB6) return false
+        if (vitaminC != other.vitaminC) return false
+        if (vitaminD != other.vitaminD) return false
+        if (vitaminE != other.vitaminE) return false
+        if (vitaminK != other.vitaminK) return false
+        if (zinc != other.zinc) return false
         if (name != other.name) return false
         if (mealType != other.mealType) return false
         if (startTime != other.startTime) return false
@@ -181,49 +186,52 @@ public class NutritionRecord(
         return true
     }
 
+    /*
+     * Generated by the IDE: Code -> Generate -> "equals() and hashCode()".
+     */
     override fun hashCode(): Int {
-        var result = biotinGrams.hashCode()
-        result = 31 * result + caffeineGrams.hashCode()
-        result = 31 * result + calciumGrams.hashCode()
-        result = 31 * result + (energy?.hashCode() ?: 0)
-        result = 31 * result + (energyFromFat?.hashCode() ?: 0)
-        result = 31 * result + chlorideGrams.hashCode()
-        result = 31 * result + cholesterolGrams.hashCode()
-        result = 31 * result + chromiumGrams.hashCode()
-        result = 31 * result + copperGrams.hashCode()
-        result = 31 * result + dietaryFiberGrams.hashCode()
-        result = 31 * result + folateGrams.hashCode()
-        result = 31 * result + folicAcidGrams.hashCode()
-        result = 31 * result + iodineGrams.hashCode()
-        result = 31 * result + ironGrams.hashCode()
-        result = 31 * result + magnesiumGrams.hashCode()
-        result = 31 * result + manganeseGrams.hashCode()
-        result = 31 * result + molybdenumGrams.hashCode()
-        result = 31 * result + monounsaturatedFatGrams.hashCode()
-        result = 31 * result + niacinGrams.hashCode()
-        result = 31 * result + pantothenicAcidGrams.hashCode()
-        result = 31 * result + phosphorusGrams.hashCode()
-        result = 31 * result + polyunsaturatedFatGrams.hashCode()
-        result = 31 * result + potassiumGrams.hashCode()
-        result = 31 * result + proteinGrams.hashCode()
-        result = 31 * result + riboflavinGrams.hashCode()
-        result = 31 * result + saturatedFatGrams.hashCode()
-        result = 31 * result + seleniumGrams.hashCode()
-        result = 31 * result + sodiumGrams.hashCode()
-        result = 31 * result + sugarGrams.hashCode()
-        result = 31 * result + thiaminGrams.hashCode()
-        result = 31 * result + totalCarbohydrateGrams.hashCode()
-        result = 31 * result + totalFatGrams.hashCode()
-        result = 31 * result + transFatGrams.hashCode()
-        result = 31 * result + unsaturatedFatGrams.hashCode()
-        result = 31 * result + vitaminAGrams.hashCode()
-        result = 31 * result + vitaminB12Grams.hashCode()
-        result = 31 * result + vitaminB6Grams.hashCode()
-        result = 31 * result + vitaminCGrams.hashCode()
-        result = 31 * result + vitaminDGrams.hashCode()
-        result = 31 * result + vitaminEGrams.hashCode()
-        result = 31 * result + vitaminKGrams.hashCode()
-        result = 31 * result + zincGrams.hashCode()
+        var result = biotin.hashCode()
+        result = 31 * result + caffeine.hashCode()
+        result = 31 * result + calcium.hashCode()
+        result = 31 * result + energy.hashCode()
+        result = 31 * result + energyFromFat.hashCode()
+        result = 31 * result + chloride.hashCode()
+        result = 31 * result + cholesterol.hashCode()
+        result = 31 * result + chromium.hashCode()
+        result = 31 * result + copper.hashCode()
+        result = 31 * result + dietaryFiber.hashCode()
+        result = 31 * result + folate.hashCode()
+        result = 31 * result + folicAcid.hashCode()
+        result = 31 * result + iodine.hashCode()
+        result = 31 * result + iron.hashCode()
+        result = 31 * result + magnesium.hashCode()
+        result = 31 * result + manganese.hashCode()
+        result = 31 * result + molybdenum.hashCode()
+        result = 31 * result + monounsaturatedFat.hashCode()
+        result = 31 * result + niacin.hashCode()
+        result = 31 * result + pantothenicAcid.hashCode()
+        result = 31 * result + phosphorus.hashCode()
+        result = 31 * result + polyunsaturatedFat.hashCode()
+        result = 31 * result + potassium.hashCode()
+        result = 31 * result + protein.hashCode()
+        result = 31 * result + riboflavin.hashCode()
+        result = 31 * result + saturatedFat.hashCode()
+        result = 31 * result + selenium.hashCode()
+        result = 31 * result + sodium.hashCode()
+        result = 31 * result + sugar.hashCode()
+        result = 31 * result + thiamin.hashCode()
+        result = 31 * result + totalCarbohydrate.hashCode()
+        result = 31 * result + totalFat.hashCode()
+        result = 31 * result + transFat.hashCode()
+        result = 31 * result + unsaturatedFat.hashCode()
+        result = 31 * result + vitaminA.hashCode()
+        result = 31 * result + vitaminB12.hashCode()
+        result = 31 * result + vitaminB6.hashCode()
+        result = 31 * result + vitaminC.hashCode()
+        result = 31 * result + vitaminD.hashCode()
+        result = 31 * result + vitaminE.hashCode()
+        result = 31 * result + vitaminK.hashCode()
+        result = 31 * result + zinc.hashCode()
         result = 31 * result + (name?.hashCode() ?: 0)
         result = 31 * result + (mealType?.hashCode() ?: 0)
         result = 31 * result + startTime.hashCode()
@@ -242,32 +250,24 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val BIOTIN_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "biotin")
+        val BIOTIN_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "biotin", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total caffeine from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val CAFFEINE_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "caffeine"
-            )
+        val CAFFEINE_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "caffeine", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total calcium from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val CALCIUM_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "calcium"
-            )
+        val CALCIUM_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "calcium", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total energy from
@@ -290,411 +290,295 @@ public class NutritionRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val CHLORIDE_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "chloride"
-            )
+        val CHLORIDE_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "chloride", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total cholesterol from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val CHOLESTEROL_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "cholesterol"
-            )
+        val CHOLESTEROL_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "cholesterol", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total chromium from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val CHROMIUM_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "chromium"
-            )
+        val CHROMIUM_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "chromium", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total copper from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val COPPER_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "copper")
+        val COPPER_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "copper", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total dietary fiber from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val DIETARY_FIBER_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "dietaryFiber"
-            )
+        val DIETARY_FIBER_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "dietaryFiber", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total folate from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val FOLATE_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "folate")
+        val FOLATE_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "folate", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total folic acid from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val FOLIC_ACID_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "folicAcid"
-            )
+        val FOLIC_ACID_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "folicAcid", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total iodine from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val IODINE_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "iodine")
+        val IODINE_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "iodine", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total iron from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val IRON_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "iron")
+        val IRON_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "iron", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total magnesium from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val MAGNESIUM_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "magnesium"
-            )
+        val MAGNESIUM_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "magnesium", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total manganese from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val MANGANESE_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "manganese"
-            )
+        val MANGANESE_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "manganese", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total molybdenum from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val MOLYBDENUM_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "molybdenum"
-            )
+        val MOLYBDENUM_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "molybdenum", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total monounsaturated fat from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val MONOUNSATURATED_FAT_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "monounsaturatedFat"
-            )
+        val MONOUNSATURATED_FAT_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "monounsaturatedFat", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total niacin from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val NIACIN_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "niacin")
+        val NIACIN_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "niacin", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total pantothenic acid from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val PANTOTHENIC_ACID_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "pantothenicAcid"
-            )
+        val PANTOTHENIC_ACID_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "pantothenicAcid", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total phosphorus from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val PHOSPHORUS_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "phosphorus"
-            )
+        val PHOSPHORUS_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "phosphorus", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total polyunsaturated fat from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val POLYUNSATURATED_FAT_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "polyunsaturatedFat"
-            )
+        val POLYUNSATURATED_FAT_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "polyunsaturatedFat", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total potassium from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val POTASSIUM_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "potassium"
-            )
+        val POTASSIUM_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "potassium", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total protein from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val PROTEIN_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "protein"
-            )
+        val PROTEIN_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "protein", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total riboflavin from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val RIBOFLAVIN_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "riboflavin"
-            )
+        val RIBOFLAVIN_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "riboflavin", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total saturated fat from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SATURATED_FAT_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "saturatedFat"
-            )
+        val SATURATED_FAT_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "saturatedFat", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total selenium from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SELENIUM_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "selenium"
-            )
+        val SELENIUM_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "selenium", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total sodium from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SODIUM_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "sodium")
+        val SODIUM_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "sodium", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total sugar from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val SUGAR_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "sugar")
+        val SUGAR_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "sugar", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total thiamin from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val THIAMIN_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "thiamin"
-            )
+        val THIAMIN_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "thiamin", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total total carbohydrate from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val TOTAL_CARBOHYDRATE_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "totalCarbohydrate"
-            )
+        val TOTAL_CARBOHYDRATE_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "totalCarbohydrate", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total total fat from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val TOTAL_FAT_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "totalFat"
-            )
+        val TOTAL_FAT_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "totalFat", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total trans fat from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val TRANS_FAT_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "transFat"
-            )
+        val TRANS_FAT_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "transFat", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total unsaturated fat from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val UNSATURATED_FAT_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "unsaturatedFat"
-            )
+        val UNSATURATED_FAT_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "unsaturatedFat", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total vitamin a from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_A_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "vitaminA"
-            )
+        val VITAMIN_A_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminA", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total vitamin b12 from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_B12_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "vitaminB12"
-            )
+        val VITAMIN_B12_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminB12", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total vitamin b6 from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_B6_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "vitaminB6"
-            )
+        val VITAMIN_B6_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminB6", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total vitamin c from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_C_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "vitaminC"
-            )
+        val VITAMIN_C_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminC", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total vitamin d from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_D_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "vitaminD"
-            )
+        val VITAMIN_D_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminD", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total vitamin e from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_E_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "vitaminE"
-            )
+        val VITAMIN_E_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminE", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total vitamin k from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VITAMIN_K_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(
-                TYPE_NAME,
-                AggregateMetric.AggregationType.TOTAL,
-                "vitaminK"
-            )
+        val VITAMIN_K_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "vitaminK", Mass::grams)
 
         /**
          * Metric identifier to retrieve the total zinc from
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val ZINC_TOTAL: AggregateMetric<Double> =
-            AggregateMetric.doubleMetric(TYPE_NAME, AggregateMetric.AggregationType.TOTAL, "zinc")
+        val ZINC_TOTAL: AggregateMetric<Mass> =
+            doubleMetric(TYPE_NAME, AggregationType.TOTAL, "zinc", Mass::grams)
     }
 }
