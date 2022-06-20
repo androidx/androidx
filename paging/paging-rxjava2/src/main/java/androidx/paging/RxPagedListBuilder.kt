@@ -388,49 +388,53 @@ class RxPagedListBuilder<Key : Any, Value : Any> {
 
             currentJob?.cancel()
             currentJob = GlobalScope.launch(fetchDispatcher) {
-                currentData.pagingSource.unregisterInvalidatedCallback(callback)
-                val pagingSource = pagingSourceFactory()
-                pagingSource.registerInvalidatedCallback(callback)
-                if (pagingSource is LegacyPagingSource) {
-                    pagingSource.setPageSize(config.pageSize)
-                }
+                try {
+                    currentData.pagingSource.unregisterInvalidatedCallback(callback)
+                    val pagingSource = pagingSourceFactory()
+                    pagingSource.registerInvalidatedCallback(callback)
+                    if (pagingSource is LegacyPagingSource) {
+                        pagingSource.setPageSize(config.pageSize)
+                    }
 
-                withContext(notifyDispatcher) {
-                    currentData.setInitialLoadState(LoadType.REFRESH, Loading)
-                }
+                    withContext(notifyDispatcher) {
+                        currentData.setInitialLoadState(LoadType.REFRESH, Loading)
+                    }
 
-                @Suppress("UNCHECKED_CAST")
-                val lastKey = currentData.lastKey as Key?
-                val params = config.toRefreshLoadParams(lastKey)
-                when (val initialResult = pagingSource.load(params)) {
-                    is PagingSource.LoadResult.Invalid -> {
-                        currentData.setInitialLoadState(
-                            LoadType.REFRESH,
-                            LoadState.NotLoading(endOfPaginationReached = false)
-                        )
-                        pagingSource.invalidate()
+                    @Suppress("UNCHECKED_CAST")
+                    val lastKey = currentData.lastKey as Key?
+                    val params = config.toRefreshLoadParams(lastKey)
+                    when (val initialResult = pagingSource.load(params)) {
+                        is PagingSource.LoadResult.Invalid -> {
+                            currentData.setInitialLoadState(
+                                LoadType.REFRESH,
+                                LoadState.NotLoading(endOfPaginationReached = false)
+                            )
+                            pagingSource.invalidate()
+                        }
+                        is PagingSource.LoadResult.Error -> {
+                            currentData.setInitialLoadState(
+                                LoadType.REFRESH,
+                                LoadState.Error(initialResult.throwable)
+                            )
+                        }
+                        is PagingSource.LoadResult.Page -> {
+                            val pagedList = PagedList.create(
+                                pagingSource,
+                                initialResult,
+                                GlobalScope,
+                                notifyDispatcher,
+                                fetchDispatcher,
+                                boundaryCallback,
+                                config,
+                                lastKey
+                            )
+                            onItemUpdate(currentData, pagedList)
+                            currentData = pagedList
+                            emitter.onNext(pagedList)
+                        }
                     }
-                    is PagingSource.LoadResult.Error -> {
-                        currentData.setInitialLoadState(
-                            LoadType.REFRESH,
-                            LoadState.Error(initialResult.throwable)
-                        )
-                    }
-                    is PagingSource.LoadResult.Page -> {
-                        val pagedList = PagedList.create(
-                            pagingSource,
-                            initialResult,
-                            GlobalScope,
-                            notifyDispatcher,
-                            fetchDispatcher,
-                            boundaryCallback,
-                            config,
-                            lastKey
-                        )
-                        onItemUpdate(currentData, pagedList)
-                        currentData = pagedList
-                        emitter.onNext(pagedList)
-                    }
+                } catch (e: Throwable) {
+                    emitter.onError(e)
                 }
             }
         }
