@@ -76,6 +76,7 @@ import androidx.health.connect.client.records.WaistCircumferenceRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.units.celsius
+import androidx.health.connect.client.units.kilocalories
 import androidx.health.connect.client.units.meters
 import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
@@ -381,7 +382,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "ActiveCaloriesBurned" ->
                 ActiveCaloriesBurnedRecord(
-                    energyKcal = getDouble("energy"),
+                    energy = getDouble("energy").kilocalories,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -458,8 +459,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     biotinGrams = getDouble("biotin"),
                     caffeineGrams = getDouble("caffeine"),
                     calciumGrams = getDouble("calcium"),
-                    kcal = getDouble("calories"),
-                    kcalFromFat = getDouble("caloriesFromFat"),
+                    energy = valuesMap["calories"]?.doubleVal?.kilocalories,
+                    energyFromFat = valuesMap["caloriesFromFat"]?.doubleVal?.kilocalories,
                     chlorideGrams = getDouble("chloride"),
                     cholesterolGrams = getDouble("cholesterol"),
                     chromiumGrams = getDouble("chromium"),
@@ -555,7 +556,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "TotalCaloriesBurned" ->
                 TotalCaloriesBurnedRecord(
-                    energyKcal = getDouble("energy"),
+                    energy = getDouble("energy").kilocalories,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
