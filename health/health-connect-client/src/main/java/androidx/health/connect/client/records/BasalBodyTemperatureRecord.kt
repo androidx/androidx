@@ -30,7 +30,9 @@ public class BasalBodyTemperatureRecord(
     public val temperature: Temperature,
     /**
      * Where on the user's basal body the temperature measurement was taken from. Optional field.
-     * Allowed values: [BodyTemperatureMeasurementLocations].
+     * Allowed values: [BodyTemperatureMeasurementLocation].
+     *
+     * @see BodyTemperatureMeasurementLocation
      */
     @property:BodyTemperatureMeasurementLocations public val measurementLocation: String? = null,
     override val time: Instant,

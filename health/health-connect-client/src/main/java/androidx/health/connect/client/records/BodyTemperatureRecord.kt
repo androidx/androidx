@@ -29,7 +29,9 @@ public class BodyTemperatureRecord(
     public val temperature: Temperature,
     /**
      * Where on the user's body the temperature measurement was taken from. Optional field. Allowed
-     * values: [BodyTemperatureMeasurementLocations].
+     * values: [BodyTemperatureMeasurementLocation].
+     *
+     * @see BodyTemperatureMeasurementLocation
      */
     @property:BodyTemperatureMeasurementLocations public val measurementLocation: String? = null,
     override val time: Instant,

@@ -113,7 +113,9 @@ public class NutritionRecord(
     public val name: String? = null,
     /**
      * Type of meal related to the nutrients consumed. Optional, enum field. Allowed values:
-     * [MealTypes].
+     * [MealType].
+     *
+     * @see MealType
      */
     @property:MealTypes public val mealType: String? = null,
     override val startTime: Instant,

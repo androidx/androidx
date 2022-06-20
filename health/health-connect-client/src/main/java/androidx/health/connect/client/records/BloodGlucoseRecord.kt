@@ -34,16 +34,22 @@ public class BloodGlucoseRecord(
     /**
      * Type of body fluid used to measure the blood glucose. Optional, enum field. Allowed values:
      * [SpecimenSource].
+     *
+     * @see SpecimenSource
      */
     @property:SpecimenSources public val specimenSource: String? = null,
     /**
      * Type of meal related to the blood glucose measurement. Optional, enum field. Allowed values:
-     * [MealTypes].
+     * [MealType].
+     *
+     * @see MealType
      */
     @property:MealTypes public val mealType: String? = null,
     /**
      * Relationship of the meal to the blood glucose measurement. Optional, enum field. Allowed
-     * values: [RelationToMeals].
+     * values: [RelationToMeal].
+     *
+     * @see RelationToMeal
      */
     @property:RelationToMeals public val relationToMeal: String? = null,
     override val time: Instant,

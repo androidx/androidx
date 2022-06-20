@@ -23,7 +23,11 @@ import java.time.ZoneOffset
 
 /** Captures the sleep stage the user entered during a sleep session. */
 public class SleepStageRecord(
-    /** Type of sleep stage. Required field. Allowed values: [StageType]. */
+    /**
+     * Type of sleep stage. Required field. Allowed values: [StageType].
+     *
+     * @see StageType
+     */
     @property:StageTypes public val stage: String,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
