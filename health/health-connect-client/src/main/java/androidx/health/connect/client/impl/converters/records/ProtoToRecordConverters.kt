@@ -81,6 +81,7 @@ import androidx.health.connect.client.units.kilocaloriesPerDay
 import androidx.health.connect.client.units.kilograms
 import androidx.health.connect.client.units.liters
 import androidx.health.connect.client.units.meters
+import androidx.health.connect.client.units.millimetersOfMercury
 import androidx.health.connect.client.units.watts
 import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
@@ -116,8 +117,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "BloodPressure" ->
                 BloodPressureRecord(
-                    systolicMillimetersOfMercury = getDouble("systolic"),
-                    diastolicMillimetersOfMercury = getDouble("diastolic"),
+                    systolic = getDouble("systolic").millimetersOfMercury,
+                    diastolic = getDouble("diastolic").millimetersOfMercury,
                     bodyPosition = getEnum("bodyPosition"),
                     measurementLocation = getEnum("measurementLocation"),
                     time = time,
