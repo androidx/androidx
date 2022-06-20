@@ -91,6 +91,7 @@ import androidx.health.connect.client.units.kilocaloriesPerDay
 import androidx.health.connect.client.units.kilograms
 import androidx.health.connect.client.units.liters
 import androidx.health.connect.client.units.meters
+import androidx.health.connect.client.units.millimetersOfMercury
 import androidx.health.connect.client.units.watts
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -180,8 +181,8 @@ class AllRecordsConverterTest {
     fun testBloodPressure() {
         val data =
             BloodPressureRecord(
-                systolicMillimetersOfMercury = 20.0,
-                diastolicMillimetersOfMercury = 10.0,
+                systolic = 20.millimetersOfMercury,
+                diastolic = 10.millimetersOfMercury,
                 bodyPosition = null,
                 measurementLocation = null,
                 time = START_TIME,
