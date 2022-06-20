@@ -44,6 +44,8 @@ import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.response.ReadRecordResponse
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
+import androidx.health.connect.client.units.grams
+import androidx.health.connect.client.units.kilograms
 import androidx.health.platform.client.impl.ServiceBackedHealthDataClient
 import androidx.health.platform.client.impl.error.errorCodeExceptionMap
 import androidx.health.platform.client.impl.ipc.ClientConfiguration
@@ -257,7 +259,7 @@ class HealthConnectClientImplTest {
             healthConnectClient.insertRecords(
                 listOf(
                     WeightRecord(
-                        weightKg = 45.8,
+                        weight = 45.8.kilograms,
                         time = Instant.ofEpochMilli(1234L),
                         zoneOffset = null,
                     )
@@ -287,8 +289,8 @@ class HealthConnectClientImplTest {
             healthConnectClient.insertRecords(
                 listOf(
                     NutritionRecord(
-                        vitaminEGrams = 10.0,
-                        vitaminCGrams = 20.0,
+                        vitaminE = 10.grams,
+                        vitaminC = 20.grams,
                         startTime = Instant.ofEpochMilli(1234L),
                         startZoneOffset = null,
                         endTime = Instant.ofEpochMilli(5678L),
