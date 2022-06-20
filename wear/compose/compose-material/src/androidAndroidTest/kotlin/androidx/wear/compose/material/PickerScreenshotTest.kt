@@ -110,7 +110,7 @@ class PickerScreenshotTest {
                 state = state,
                 gradientRatio = gradientRatio,
                 separation = separation,
-                contentDescription = { "" },
+                contentDescription = "",
             ) {
                 Text(items[it])
             }
@@ -146,7 +146,7 @@ class PickerScreenshotTest {
                     initialNumberOfOptions = 100,
                     initiallySelectedOption = 11
                 ),
-                contentDescription = { "" },
+                contentDescription = "",
                 readOnly = false,
                 modifier = Modifier.size(64.dp, 100.dp),
                 option = { Option(MaterialTheme.colors.secondary, "%2d".format(it)) }
@@ -159,7 +159,7 @@ class PickerScreenshotTest {
                     initialNumberOfOptions = 100,
                     initiallySelectedOption = 100
                 ),
-                contentDescription = { "" },
+                contentDescription = "",
                 readOnly = true,
                 readOnlyLabel = { if (readOnlyLabel != null) LabelText(readOnlyLabel) },
                 modifier = Modifier.size(64.dp, 100.dp),
