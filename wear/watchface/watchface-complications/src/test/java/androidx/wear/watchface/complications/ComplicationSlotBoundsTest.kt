@@ -19,6 +19,7 @@ package androidx.wear.watchface.complications
 import android.graphics.RectF
 import androidx.wear.watchface.complications.data.ComplicationType
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 @org.junit.runner.RunWith(SharedRobolectricTestRunner::class)
@@ -62,5 +63,82 @@ class ComplicationSlotBoundsTest {
                 Truth.assertThat(margins[type]).isEqualTo(RectF())
             }
         }
+    }
+
+    @Test
+    fun equality() {
+        val complicationSlotBoundsA = ComplicationSlotBounds.createFromPartialMap(
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(0.1f, 0.2f, 0.3f, 0.4f),
+                ComplicationType.LONG_TEXT to RectF(0.5f, 0.6f, 0.7f, 0.8f)
+            ),
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(0.4f, 0.3f, 0.2f, 0.1f)
+            )
+        )
+
+        val complicationSlotBoundsB = ComplicationSlotBounds.createFromPartialMap(
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(0.1f, 0.2f, 0.3f, 0.4f),
+                ComplicationType.LONG_TEXT to RectF(0.5f, 0.6f, 0.7f, 0.8f)
+            ),
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(0.4f, 0.3f, 0.2f, 0.1f)
+            )
+        )
+
+        val complicationSlotBoundsC = ComplicationSlotBounds.createFromPartialMap(
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(3f, 2f, 1f, 0f),
+                ComplicationType.LONG_TEXT to RectF(0.5f, 0.6f, 0.7f, 0.8f)
+            ),
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(0.4f, 0.3f, 0.2f, 0.1f)
+            )
+        )
+
+        val complicationSlotBoundsD = ComplicationSlotBounds.createFromPartialMap(
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(0.1f, 0.2f, 0.3f, 0.4f),
+                ComplicationType.LONG_TEXT to RectF(3f, 2f, 1f, 0f)
+            ),
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(0.4f, 0.3f, 0.2f, 0.1f)
+            )
+        )
+
+        val complicationSlotBoundsE = ComplicationSlotBounds.createFromPartialMap(
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(0.1f, 0.2f, 0.3f, 0.4f),
+                ComplicationType.LONG_TEXT to RectF(0.5f, 0.6f, 0.7f, 0.8f)
+            ),
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(3f, 2f, 1f, 0f)
+            )
+        )
+
+        val complicationSlotBoundsF = ComplicationSlotBounds.createFromPartialMap(
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(0.1f, 0.2f, 0.3f, 0.4f)
+            ),
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(3f, 2f, 1f, 0f)
+            )
+        )
+
+        val complicationSlotBoundsG = ComplicationSlotBounds.createFromPartialMap(
+            mapOf(
+                ComplicationType.SHORT_TEXT to RectF(0.1f, 0.2f, 0.3f, 0.4f),
+                ComplicationType.LONG_TEXT to RectF(0.5f, 0.6f, 0.7f, 0.8f)
+            ),
+            emptyMap()
+        )
+
+        assertThat(complicationSlotBoundsA).isEqualTo(complicationSlotBoundsB)
+        assertThat(complicationSlotBoundsA).isNotEqualTo(complicationSlotBoundsC)
+        assertThat(complicationSlotBoundsA).isNotEqualTo(complicationSlotBoundsD)
+        assertThat(complicationSlotBoundsA).isNotEqualTo(complicationSlotBoundsE)
+        assertThat(complicationSlotBoundsA).isNotEqualTo(complicationSlotBoundsF)
+        assertThat(complicationSlotBoundsA).isNotEqualTo(complicationSlotBoundsG)
     }
 }
