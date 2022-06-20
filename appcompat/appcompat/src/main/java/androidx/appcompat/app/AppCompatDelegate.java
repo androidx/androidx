@@ -658,6 +658,8 @@ public abstract class AppCompatDelegate {
      *
      * <p>Apps should continue to read Locales via their in-process {@link LocaleList}s.</p>
      *
+     * <p>Pass a {@link LocaleListCompat#getEmptyLocaleList()} to reset to the system locale.</p>
+     *
      * <p>On API level 33 and above, this API will handle storage automatically.</p>
      *
      * <p>For API levels below that, the developer has two options:</p>
