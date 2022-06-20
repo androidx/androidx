@@ -329,7 +329,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is HydrationRecord ->
             intervalProto()
                 .setDataType(protoDataType("Hydration"))
-                .apply { putValues("volume", doubleVal(volumeLiters)) }
+                .apply { putValues("volume", doubleVal(volume.inLiters)) }
                 .build()
         is NutritionRecord ->
             intervalProto()

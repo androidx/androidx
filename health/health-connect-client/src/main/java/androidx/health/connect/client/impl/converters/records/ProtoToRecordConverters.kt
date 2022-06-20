@@ -77,6 +77,7 @@ import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.units.celsius
 import androidx.health.connect.client.units.kilocalories
 import androidx.health.connect.client.units.kilocaloriesPerDay
+import androidx.health.connect.client.units.liters
 import androidx.health.connect.client.units.meters
 import androidx.health.connect.client.units.watts
 import androidx.health.platform.client.proto.DataProto
@@ -448,7 +449,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "Hydration" ->
                 HydrationRecord(
-                    volumeLiters = getDouble("volume"),
+                    volume = getDouble("volume").liters,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,

@@ -87,6 +87,7 @@ import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.celsius
 import androidx.health.connect.client.units.kilocalories
 import androidx.health.connect.client.units.kilocaloriesPerDay
+import androidx.health.connect.client.units.liters
 import androidx.health.connect.client.units.meters
 import androidx.health.connect.client.units.watts
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -809,7 +810,7 @@ class AllRecordsConverterTest {
     fun testHydration() {
         val data =
             HydrationRecord(
-                volumeLiters = 1.0,
+                volume = 1.liters,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,

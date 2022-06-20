@@ -17,13 +17,14 @@ package androidx.health.connect.client.records
 
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.units.Volume
 import java.time.Instant
 import java.time.ZoneOffset
 
 /** Captures how much water a user drank in a single drink. */
 public class HydrationRecord(
-    /** Volume of water in liters. Required field. Valid range: 0-100. */
-    public val volumeLiters: Double,
+    /** Volume of water in [Volume] unit. Required field. Valid range: 0-100 liters. */
+    public val volume: Volume,
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
@@ -32,14 +33,14 @@ public class HydrationRecord(
 ) : IntervalRecord {
 
     init {
-        requireNonNegative(value = volumeLiters, name = "volumeLiters")
+        volume.requireNotLess(other = volume.zero(), name = "volume")
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is HydrationRecord) return false
 
-        if (volumeLiters != other.volumeLiters) return false
+        if (volume != other.volume) return false
         if (startTime != other.startTime) return false
         if (startZoneOffset != other.startZoneOffset) return false
         if (endTime != other.endTime) return false
@@ -50,8 +51,8 @@ public class HydrationRecord(
     }
 
     override fun hashCode(): Int {
-        var result = 0
-        result = 31 * result + volumeLiters.hashCode()
+        var result = volume.hashCode()
+        result = 31 * result + startTime.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)
@@ -65,11 +66,12 @@ public class HydrationRecord(
          * [androidx.health.connect.client.aggregate.AggregationResult].
          */
         @JvmField
-        val VOLUME_TOTAL: AggregateMetric<Double> =
+        val VOLUME_TOTAL: AggregateMetric<Volume> =
             AggregateMetric.doubleMetric(
-                "Hydration",
-                AggregateMetric.AggregationType.TOTAL,
-                "volume"
+                dataTypeName = "Hydration",
+                aggregationType = AggregateMetric.AggregationType.TOTAL,
+                fieldName = "volume",
+                mapper = Volume::liters,
             )
     }
 }
