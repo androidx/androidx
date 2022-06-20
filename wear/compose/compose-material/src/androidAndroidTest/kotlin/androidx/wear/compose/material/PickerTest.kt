@@ -76,7 +76,7 @@ class PickerTest {
             Picker(
                 modifier = Modifier.testTag(TEST_TAG),
                 state = rememberPickerState(1),
-                contentDescription = { CONTENT_DESCRIPTION },
+                contentDescription = CONTENT_DESCRIPTION,
             ) {
                 Box(modifier = Modifier.size(20.dp))
             }
@@ -92,7 +92,7 @@ class PickerTest {
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(5).also { state = it },
-                    contentDescription = { CONTENT_DESCRIPTION },
+                    contentDescription = CONTENT_DESCRIPTION,
                     modifier = Modifier.testTag(TEST_TAG)
                         .requiredSize(itemSizeDp * 3),
                 ) {
@@ -126,7 +126,7 @@ class PickerTest {
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(5).also { state = it },
-                    contentDescription = { CONTENT_DESCRIPTION },
+                    contentDescription = CONTENT_DESCRIPTION,
                     modifier = Modifier.testTag(TEST_TAG)
                         .requiredSize(itemSizeDp * 3),
                 ) {
@@ -156,7 +156,7 @@ class PickerTest {
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(numberOfOptions).also { state = it },
-                    contentDescription = { CONTENT_DESCRIPTION },
+                    contentDescription = CONTENT_DESCRIPTION,
                     modifier = Modifier.testTag(TEST_TAG)
                         .requiredSize(itemSizeDp * 3),
                 ) {
@@ -192,7 +192,7 @@ class PickerTest {
             WithTouchSlop(0f) {
                 Picker(
                     state = rememberPickerState(20).also { state = it },
-                    contentDescription = { CONTENT_DESCRIPTION },
+                    contentDescription = CONTENT_DESCRIPTION,
                     modifier = Modifier.testTag(TEST_TAG)
                         .requiredSize(itemSizeDp * 11 + separationDp * 10 * separationSign),
                     separation = separationDp * separationSign
@@ -257,7 +257,7 @@ class PickerTest {
                             initialNumberOfOptions = 28,
                             initiallySelectedOption = initialOption
                         ).also { state = it },
-                    contentDescription = { CONTENT_DESCRIPTION },
+                    contentDescription = CONTENT_DESCRIPTION,
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -287,7 +287,7 @@ class PickerTest {
                             initialNumberOfOptions = 25,
                             initiallySelectedOption = initialOption
                         ).also { state = it },
-                    contentDescription = { CONTENT_DESCRIPTION },
+                    contentDescription = CONTENT_DESCRIPTION,
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
                 }
@@ -318,7 +318,7 @@ class PickerTest {
 
             Picker(
                 state = state,
-                contentDescription = { CONTENT_DESCRIPTION },
+                contentDescription = CONTENT_DESCRIPTION,
             ) { Box(Modifier.requiredSize(itemSizeDp)) }
         }
 
@@ -335,7 +335,7 @@ class PickerTest {
             state = rememberPickerState(20, initiallySelectedOption = targetIndex)
             Picker(
                 state = state,
-                contentDescription = { CONTENT_DESCRIPTION },
+                contentDescription = CONTENT_DESCRIPTION,
             ) { Box(Modifier.requiredSize(itemSizeDp)) }
         }
 
@@ -399,7 +399,7 @@ class PickerTest {
                     state = rememberPickerState(5),
                     readOnly = true,
                     readOnlyLabel = { Text(text = labelText) },
-                    contentDescription = { CONTENT_DESCRIPTION },
+                    contentDescription = CONTENT_DESCRIPTION,
                     modifier = Modifier.testTag(TEST_TAG)
                         .requiredSize(itemSizeDp * 3)
                 ) {
@@ -422,7 +422,7 @@ class PickerTest {
                     state = rememberPickerState(5),
                     readOnly = false,
                     readOnlyLabel = { Text(text = labelText) },
-                    contentDescription = { CONTENT_DESCRIPTION },
+                    contentDescription = CONTENT_DESCRIPTION,
                     modifier = Modifier.testTag(TEST_TAG)
                         .requiredSize(itemSizeDp * 3)
                 ) {
@@ -450,7 +450,7 @@ class PickerTest {
                         initiallySelectedOption = initialOption)
                         .also { state = it },
                     readOnly = readOnly.value,
-                    contentDescription = { CONTENT_DESCRIPTION },
+                    contentDescription = CONTENT_DESCRIPTION,
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -479,7 +479,7 @@ class PickerTest {
                         initiallySelectedOption = initialOption)
                         .also { state = it },
                     readOnly = true,
-                    contentDescription = { CONTENT_DESCRIPTION },
+                    contentDescription = CONTENT_DESCRIPTION,
                     modifier = Modifier.testTag(TEST_TAG).requiredSize(itemSizeDp * 3),
                 ) {
                     Box(Modifier.requiredSize(itemSizeDp))
@@ -571,7 +571,7 @@ class PickerTest {
                         .onGloballyPositioned { pickerLayoutCoordinates = it },
                     separation = separationDp * separationSign,
                     readOnly = readOnly.value,
-                    contentDescription = { CONTENT_DESCRIPTION },
+                    contentDescription = CONTENT_DESCRIPTION,
                 ) { optionIndex ->
                     Box(Modifier.requiredSize(itemSizeDp)
                         .onGloballyPositioned {
