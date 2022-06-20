@@ -379,10 +379,10 @@ public object CardDefaults {
     @Composable
     public fun cardBackgroundPainter(
         startBackgroundColor: Color =
-            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.20f)
+            MaterialTheme.colors.primary.copy(alpha = 0.30f)
                 .compositeOver(MaterialTheme.colors.background),
         endBackgroundColor: Color =
-            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.10f)
+            MaterialTheme.colors.onSurfaceVariant.copy(alpha = 0.20f)
                 .compositeOver(MaterialTheme.colors.background),
         gradientDirection: LayoutDirection = LocalLayoutDirection.current
     ): Painter {
