@@ -214,8 +214,8 @@ final class ClassesInfoCache {
             mMethod.setAccessible(true);
         }
 
+        @SuppressWarnings("BanUncheckedReflection")
         void invokeCallback(LifecycleOwner source, Lifecycle.Event event, Object target) {
-            //noinspection TryWithIdenticalCatches
             try {
                 switch (mCallType) {
                     case CALL_TYPE_NO_ARG:
