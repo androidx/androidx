@@ -204,12 +204,13 @@ class SliceXml {
             } else if (type == START_TAG && TAG_SLICE.equals(parser.getName())) {
                 b.addSubSlice(parseSlice(context, parser, listener), subtype);
             } else if (type == START_TAG && TAG_ACTION.equals(parser.getName())) {
-                b.addAction(new SliceItem.ActionHandler() {
-                    @Override
-                    public void onAction(SliceItem item, Context context, Intent intent) {
-                        listener.onSliceAction(item.getSlice().getUri(), context, intent);
-                    }
-                }, parseSlice(context, parser, listener), subtype);
+                b.addAction(parseSlice(context, parser, listener), subtype,
+                        new SliceItem.ActionHandler() {
+                            @Override
+                            public void onAction(SliceItem item, Context context, Intent intent) {
+                                listener.onSliceAction(item.getSlice().getUri(), context, intent);
+                            }
+                        });
             }
         }
     }
