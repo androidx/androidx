@@ -241,20 +241,6 @@ public final class SurfaceRequest {
     }
 
     /**
-     * Returns whether this surface request has been serviced.
-     *
-     * <p>A surface request is considered serviced if
-     * {@link #provideSurface(Surface, Executor, Consumer)} or {@link #willNotProvideSurface()}
-     * has been called.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public boolean isServiced() {
-        return mSurfaceFuture.isDone();
-    }
-
-    /**
      * Returns the resolution of the requested {@link Surface}.
      *
      * The surface which fulfills this request must have the resolution specified here in
