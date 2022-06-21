@@ -314,9 +314,9 @@ package androidx.test.uiautomator {
   }
 
   public class UiObjectNotFoundException extends java.lang.Exception {
-    ctor public UiObjectNotFoundException(String!);
-    ctor public UiObjectNotFoundException(String!, Throwable!);
-    ctor public UiObjectNotFoundException(Throwable!);
+    ctor public UiObjectNotFoundException(String);
+    ctor public UiObjectNotFoundException(String, Throwable?);
+    ctor public UiObjectNotFoundException(Throwable?);
   }
 
   public class UiScrollable extends androidx.test.uiautomator.UiCollection {
