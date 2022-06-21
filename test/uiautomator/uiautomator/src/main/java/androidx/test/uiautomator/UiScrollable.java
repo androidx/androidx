@@ -20,6 +20,8 @@ import android.graphics.Rect;
 import android.util.Log;
 import android.view.accessibility.AccessibilityNodeInfo;
 
+import androidx.annotation.NonNull;
+
 /**
  * UiScrollable is a {@link UiCollection} and provides support for searching
  * for items in scrollable layout elements. This class can be used with
@@ -106,14 +108,16 @@ public class UiScrollable extends UiCollection {
      * See {@link #getChildByDescription(UiSelector, String, boolean)}
      *
      * @param childPattern {@link UiSelector} for a child in a scollable layout element
-     * @param text Content-description to find in the children of 
+     * @param text Content-description to find in the children of
      * the <code>childPattern</code> match
      * @return {@link UiObject} representing the child element that matches the search conditions
      * @throws UiObjectNotFoundException
      * @since API Level 16
      */
+    @NonNull
     @Override
-    public UiObject getChildByDescription(UiSelector childPattern, String text)
+    public UiObject getChildByDescription(
+            @NonNull UiSelector childPattern, @NonNull String text)
             throws UiObjectNotFoundException {
         Tracer.trace(childPattern, text);
         return getChildByDescription(childPattern, text, true);
@@ -158,6 +162,7 @@ public class UiScrollable extends UiCollection {
      * @return {@link UiObject} representing the child element that matches the search conditions
      * @since API Level 16
      */
+    @NonNull
     @Override
     public UiObject getChildByInstance(UiSelector childPattern, int instance)
             throws UiObjectNotFoundException {
@@ -183,8 +188,9 @@ public class UiScrollable extends UiCollection {
      * @throws UiObjectNotFoundException
      * @since API Level 16
      */
+    @NonNull
     @Override
-    public UiObject getChildByText(UiSelector childPattern, String text)
+    public UiObject getChildByText(@NonNull UiSelector childPattern, @NonNull String text)
             throws UiObjectNotFoundException {
         Tracer.trace(childPattern, text);
         return getChildByText(childPattern, text, true);
@@ -339,7 +345,7 @@ public class UiScrollable extends UiCollection {
     /**
      * Sets the maximum number of scrolls allowed when performing a
      * scroll action in search of a child element.
-     * See {@link #getChildByDescription(UiSelector, String)} and
+     * See {@link UiCollection#getChildByDescription(UiSelector, String)} and
      * {@link #getChildByText(UiSelector, String)}.
      *
      * @param swipes the number of search swipes to perform until giving up
@@ -355,7 +361,7 @@ public class UiScrollable extends UiCollection {
     /**
      * Gets the maximum number of scrolls allowed when performing a
      * scroll action in search of a child element.
-     * See {@link #getChildByDescription(UiSelector, String)} and
+     * See {@link UiCollection#getChildByDescription(UiSelector, String)} and
      * {@link #getChildByText(UiSelector, String)}.
      *
      * @return max the number of search swipes to perform until giving up

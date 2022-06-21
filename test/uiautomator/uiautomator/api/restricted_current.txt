@@ -132,11 +132,11 @@ package androidx.test.uiautomator {
   }
 
   public class UiCollection extends androidx.test.uiautomator.UiObject {
-    ctor public UiCollection(androidx.test.uiautomator.UiSelector!);
-    method public androidx.test.uiautomator.UiObject! getChildByDescription(androidx.test.uiautomator.UiSelector!, String!) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiObject! getChildByInstance(androidx.test.uiautomator.UiSelector!, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiObject! getChildByText(androidx.test.uiautomator.UiSelector!, String!) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public int getChildCount(androidx.test.uiautomator.UiSelector!);
+    ctor public UiCollection(androidx.test.uiautomator.UiSelector);
+    method public androidx.test.uiautomator.UiObject getChildByDescription(androidx.test.uiautomator.UiSelector, String) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public androidx.test.uiautomator.UiObject getChildByInstance(androidx.test.uiautomator.UiSelector, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public androidx.test.uiautomator.UiObject getChildByText(androidx.test.uiautomator.UiSelector, String) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public int getChildCount(androidx.test.uiautomator.UiSelector);
   }
 
   public class UiDevice {
