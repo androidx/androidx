@@ -155,30 +155,6 @@ class SurfaceRequestTest {
     }
 
     @Test
-    fun isServiced_trueAfterProvideSurface() {
-        val request = createNewRequest(FAKE_SIZE)
-        request.provideSurface(
-            MOCK_SURFACE,
-            CameraXExecutors.directExecutor(),
-            NO_OP_RESULT_LISTENER
-        )
-        Truth.assertThat(request.isServiced).isTrue()
-    }
-
-    @Test
-    fun isServiced_trueAfterWillNotProvideSurface() {
-        val request = createNewRequest(FAKE_SIZE)
-        request.willNotProvideSurface()
-        Truth.assertThat(request.isServiced).isTrue()
-    }
-
-    @Test
-    fun isServiced_falseInitially() {
-        val request = createNewRequest(FAKE_SIZE)
-        Truth.assertThat(request.isServiced).isFalse()
-    }
-
-    @Test
     @Suppress("UNCHECKED_CAST")
     fun cancelledRequest_resultsInREQUEST_CANCELLED() {
         val request = createNewRequest(FAKE_SIZE)
