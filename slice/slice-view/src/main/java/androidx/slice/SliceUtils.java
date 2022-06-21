@@ -188,12 +188,8 @@ public class SliceUtils {
             @NonNull OutputStream output,
             @NonNull final SerializeOptions options) throws IllegalArgumentException {
         synchronized (SliceItemHolder.sSerializeLock) {
-            SliceItemHolder.sHandler = new SliceItemHolder.HolderHandler() {
-                @Override
-                public void handle(SliceItemHolder holder, String format) {
-                    handleOptions(context, holder, format, options);
-                }
-            };
+            SliceItemHolder.sHandler =
+                    (holder, format) -> handleOptions(context, holder, format, options);
             ParcelUtils.toOutputStream(s, output);
             SliceItemHolder.sHandler = null;
         }
@@ -284,7 +280,7 @@ public class SliceUtils {
             synchronized (SliceItemHolder.sSerializeLock) {
                 SliceItemHolder.sHandler = new SliceItemHolder.HolderHandler() {
                     @Override
-                    public void handle(SliceItemHolder holder, String format) {
+                    public void handle(@NonNull SliceItemHolder holder, @NonNull String format) {
                         setActionsAndUpdateIcons(holder, handler, context, format);
                     }
                 };
