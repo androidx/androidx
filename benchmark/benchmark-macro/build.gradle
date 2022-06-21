@@ -37,6 +37,10 @@ android {
                 SupportConfigKt.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/testdata"
         )
+        androidTest.assets.srcDirs += new File(
+                SupportConfigKt.getPrebuiltsRoot(project),
+                "androidx/internal/androidx/tracing/tracing-perfetto-binary"
+        )
     }
 
     namespace "androidx.benchmark.macro"
@@ -55,7 +59,7 @@ dependencies {
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation("androidx.activity:activity-ktx:1.3.1")
-    androidTestImplementation(project(":tracing:tracing-perfetto"))
+    androidTestImplementation(project(":tracing:tracing-perfetto-common"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
