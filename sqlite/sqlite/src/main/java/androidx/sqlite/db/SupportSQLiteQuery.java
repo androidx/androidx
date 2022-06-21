@@ -16,6 +16,8 @@
 
 package androidx.sqlite.db;
 
+import androidx.annotation.NonNull;
+
 /**
  * A query with typed bindings. It is better to use this API instead of
  * {@link android.database.sqlite.SQLiteDatabase#rawQuery(String, String[])} because it allows
@@ -27,6 +29,7 @@ public interface SupportSQLiteQuery {
      *
      * @return The SQL query to compile
      */
+    @NonNull
     String getSql();
 
     /**
@@ -34,7 +37,7 @@ public interface SupportSQLiteQuery {
      *
      * @param statement The compiled statement
      */
-    void bindTo(SupportSQLiteProgram statement);
+    void bindTo(@NonNull SupportSQLiteProgram statement);
 
     /**
      * Returns the number of arguments in this query. This is equal to the number of placeholders

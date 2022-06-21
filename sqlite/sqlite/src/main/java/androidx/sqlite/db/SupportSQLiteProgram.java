@@ -16,6 +16,8 @@
 
 package androidx.sqlite.db;
 
+import androidx.annotation.NonNull;
+
 import java.io.Closeable;
 
 /**
@@ -57,7 +59,7 @@ public interface SupportSQLiteProgram extends Closeable {
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind, must not be null
      */
-    void bindString(int index, String value);
+    void bindString(int index, @NonNull String value);
 
     /**
      * Bind a byte array value to this statement. The value remains bound until
@@ -66,7 +68,7 @@ public interface SupportSQLiteProgram extends Closeable {
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind, must not be null
      */
-    void bindBlob(int index, byte[] value);
+    void bindBlob(int index, @NonNull byte[] value);
 
     /**
      * Clears all existing bindings. Unset bindings are treated as NULL.
