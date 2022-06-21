@@ -94,9 +94,9 @@ public class EnqueueRunnable implements Runnable {
                 PackageManagerHelper.setComponentEnabled(context, RescheduleReceiver.class, true);
                 scheduleWorkInBackground();
             }
-            mOperation.setState(Operation.SUCCESS);
+            mOperation.markState(Operation.SUCCESS);
         } catch (Throwable exception) {
-            mOperation.setState(new Operation.State.FAILURE(exception));
+            mOperation.markState(new Operation.State.FAILURE(exception));
         }
     }
 
