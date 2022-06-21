@@ -19,39 +19,39 @@ package androidx.camera.integration.avsync
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+
+private const val KEY_BEEP_FREQUENCY = "beep_frequency"
+private const val DEFAULT_BEEP_FREQUENCY = 1500
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MaterialTheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    Greeting("CameraX")
-                }
+            App(getBeepFrequency())
+        }
+    }
+
+    private fun getBeepFrequency(): Int {
+        val frequency = intent.getStringExtra(KEY_BEEP_FREQUENCY)
+
+        if (frequency != null) {
+            try {
+                return Integer.parseInt(frequency)
+            } catch (e: NumberFormatException) {
+                e.printStackTrace()
             }
         }
+
+        return DEFAULT_BEEP_FREQUENCY
     }
 }
 
 @Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
+fun App(beepFrequency: Int) {
     MaterialTheme {
-        Greeting("CameraX")
+        SignalGeneratorScreen(beepFrequency)
     }
 }
