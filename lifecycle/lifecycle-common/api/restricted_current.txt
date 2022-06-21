@@ -60,7 +60,7 @@ package androidx.lifecycle {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class Lifecycling {
-    method public static String! getAdapterName(String!);
+    method public static String getAdapterName(String);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class MethodCallsLogger {
