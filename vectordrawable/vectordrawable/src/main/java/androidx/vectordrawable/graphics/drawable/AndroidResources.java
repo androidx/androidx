@@ -16,8 +16,11 @@
 
 package androidx.vectordrawable.graphics.drawable;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.StyleableRes;
 
+@SuppressLint("ResourceType") // We're doing something non-standard but correct.
 class AndroidResources {
 
     // Resources ID generated in the latest R.java for framework.
@@ -69,6 +72,8 @@ class AndroidResources {
     static final int STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_OFFSET = 7;
     static final int STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_START = 5;
     static final int STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_FILLTYPE = 13;
+
+    @StyleableRes
     static final int[] STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH = {
             android.R.attr.name, android.R.attr.pathData, android.R.attr.fillType
     };
@@ -76,10 +81,12 @@ class AndroidResources {
     static final int STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_PATH_DATA = 1;
     static final int STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_FILLTYPE = 2;
 
+    @StyleableRes
     static final int[] STYLEABLE_ANIMATED_VECTOR_DRAWABLE = {
             android.R.attr.drawable
     };
     static final int STYLEABLE_ANIMATED_VECTOR_DRAWABLE_DRAWABLE = 0;
+
     @StyleableRes
     static final int[] STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET = {
             android.R.attr.name, android.R.attr.animation
@@ -122,6 +129,7 @@ class AndroidResources {
     };
     public static final int STYLEABLE_KEYFRAME_VALUE = 0;
     public static final int STYLEABLE_KEYFRAME_INTERPOLATOR = 1;
+    @SuppressWarnings("unused")
     public static final int STYLEABLE_KEYFRAME_VALUE_TYPE = 2;
     public static final int STYLEABLE_KEYFRAME_FRACTION = 3;
 
