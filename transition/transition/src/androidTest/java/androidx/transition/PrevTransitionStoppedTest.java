@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.test.filters.MediumTest;
 import androidx.transition.test.R;
 
@@ -41,7 +42,7 @@ public class PrevTransitionStoppedTest extends BaseTransitionTest {
     Transition createTransition() {
         return new Visibility() {
             @Override
-            public Animator onDisappear(ViewGroup sceneRoot, View view,
+            public Animator onDisappear(@NonNull ViewGroup sceneRoot, @NonNull View view,
                     TransitionValues startValues, TransitionValues endValues) {
                 mAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
                 return mAnimator;
