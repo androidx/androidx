@@ -16,6 +16,8 @@
 
 package androidx.work.impl.utils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.StartStopToken;
@@ -34,9 +36,9 @@ public class StartWorkRunnable implements Runnable {
     private WorkerParameters.RuntimeExtras mRuntimeExtras;
 
     public StartWorkRunnable(
-            WorkManagerImpl workManagerImpl,
-            StartStopToken workSpecId,
-            WorkerParameters.RuntimeExtras runtimeExtras) {
+            @NonNull WorkManagerImpl workManagerImpl,
+            @NonNull StartStopToken workSpecId,
+            @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
         mWorkManagerImpl = workManagerImpl;
         mWorkSpecId = workSpecId;
         mRuntimeExtras = runtimeExtras;

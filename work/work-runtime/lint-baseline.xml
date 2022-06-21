@@ -142,51 +142,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Operation getOperation() {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static CancelWorkRunnable forId("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static CancelWorkRunnable forTag("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static CancelWorkRunnable forName("
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static CancelWorkRunnable forAll(@NonNull final WorkManagerImpl workManagerImpl) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/CancelWorkRunnable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Intent newConstraintProxyUpdateIntent("
         errorLine2="                  ~~~~~~">
         <location
@@ -232,42 +187,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static boolean isComponentExplicitlyEnabled(Context context, Class&lt;?> klazz) {"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/PackageManagerHelper.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static boolean isComponentExplicitlyEnabled(Context context, Class&lt;?> klazz) {"
-        errorLine2="                                                                        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/PackageManagerHelper.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static boolean isComponentExplicitlyEnabled(Context context, String className) {"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/PackageManagerHelper.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static boolean isComponentExplicitlyEnabled(Context context, String className) {"
-        errorLine2="                                                                        ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/PackageManagerHelper.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public PruneWorkRunnable(WorkManagerImpl workManagerImpl) {"
         errorLine2="                             ~~~~~~~~~~~~~~~">
         <location
@@ -281,15 +200,6 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/PruneWorkRunnable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            List&lt;Scheduler> schedulers) {"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/Schedulers.java"/>
     </issue>
 
     <issue
@@ -317,33 +227,6 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/futures/SettableFuture.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            WorkManagerImpl workManagerImpl,"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/StartWorkRunnable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            String workSpecId,"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/StartWorkRunnable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            WorkerParameters.RuntimeExtras runtimeExtras) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/StartWorkRunnable.java"/>
     </issue>
 
     <issue
@@ -394,73 +277,10 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    Executor getMainThreadExecutor();"
-        errorLine2="    ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/taskexecutor/TaskExecutor.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    default void executeOnTaskThread(Runnable runnable) {"
-        errorLine2="                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/taskexecutor/TaskExecutor.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    SerialExecutor getSerialTaskExecutor();"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/utils/taskexecutor/TaskExecutor.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static PowerManager.WakeLock newWakeLock("
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/WakeLocks.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public ExistingWorkPolicy getExistingWorkPolicy() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public List&lt;String> getAllIds() {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public List&lt;WorkContinuationImpl> getParents() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static Set&lt;String> prerequisitesFor(WorkContinuationImpl continuation) {"
-        errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"/>
     </issue>
 
     <issue
@@ -471,14 +291,4 @@
         <location
             file="src/main/java/androidx/work/impl/utils/taskexecutor/WorkManagerTaskExecutor.java"/>
     </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Network network;"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/WorkerParameters.java"/>
-    </issue>
-
 </issues>

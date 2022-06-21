@@ -73,6 +73,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         return mName;
     }
 
+    @NonNull
     public ExistingWorkPolicy getExistingWorkPolicy() {
         return mExistingWorkPolicy;
     }
@@ -87,6 +88,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         return mIds;
     }
 
+    @NonNull
     public List<String> getAllIds() {
         return mAllIds;
     }
@@ -102,6 +104,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         mEnqueued = true;
     }
 
+    @Nullable
     public List<WorkContinuationImpl> getParents() {
         return mParents;
     }
@@ -273,7 +276,7 @@ public class WorkContinuationImpl extends WorkContinuation {
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static Set<String> prerequisitesFor(WorkContinuationImpl continuation) {
+    public static Set<String> prerequisitesFor(@NonNull WorkContinuationImpl continuation) {
         Set<String> preRequisites = new HashSet<>();
         List<WorkContinuationImpl> parents = continuation.getParents();
         if (parents != null && !parents.isEmpty()) {
