@@ -1322,16 +1322,13 @@ public final class Recorder implements VideoOutput {
         VideoEncoderConfig config = resolveVideoEncoderConfig(videoMimeInfo,
                 mediaSpec.getVideoSpec(), surfaceRequest.getResolution());
 
-        Encoder videoEncoder;
         try {
-            videoEncoder = mVideoEncoderFactory.createEncoder(mExecutor, config);
+            mVideoEncoder = mVideoEncoderFactory.createEncoder(mExecutor, config);
         } catch (InvalidConfigException e) {
             Logger.e(TAG, "Unable to initialize video encoder.", e);
             onEncoderSetupError(new ResourceCreationException(e));
             return;
         }
-
-        mVideoEncoder = videoEncoder;
 
         Encoder.EncoderInput encoderInput = mVideoEncoder.getInput();
         if (!(encoderInput instanceof Encoder.SurfaceInput)) {
@@ -1340,30 +1337,58 @@ public final class Recorder implements VideoOutput {
         ((Encoder.SurfaceInput) encoderInput).setOnSurfaceUpdateListener(
                 mSequentialExecutor,
                 surface -> {
-                    if (mVideoEncoder != videoEncoder) {
-                        // The video encoder has been recreated, ignore the previous surface update.
-                        return;
-                    }
-
-                    if (mLatestSurface != surface) {
-                        setLatestSurface(surface);
-                        if (!surfaceRequest.isServiced()) {
-                            // Provide the surface to the surface request if it hasn't been
-                            // serviced, otherwise setLatestSurface() will update the StreamInfo
-                            // with the new stream ID, which will trigger VideoCapture to send a
-                            // new surface request.
-                            mActiveSurface = surface;
-                            surfaceRequest.provideSurface(surface, mSequentialExecutor,
-                                    this::onSurfaceRequestComplete);
-                            onConfigured();
-                        } else {
-                            Logger.d(TAG, "The video encoder updates a surface but the surface "
-                                    + "request has already been serviced.");
+                    synchronized (mLock) {
+                        Logger.d(TAG, "Encoder surface updated: " + surface.hashCode()
+                                + ", Current surface: " + mStreamId);
+                        switch (mState) {
+                            case PENDING_RECORDING:
+                                // Fall-through
+                            case PENDING_PAUSED:
+                                // Fall-through
+                            case CONFIGURING:
+                                // Fall-through
+                            case STOPPING:
+                                // Fall-through
+                            case IDLING:
+                                onEncoderSurfaceUpdated(surface, surfaceRequest);
+                                break;
+                            case RECORDING:
+                                // Fall-through
+                            case PAUSED:
+                                throw new AssertionError("Unexpected state on update of encoder "
+                                        + "surface " + mState);
+                            case RESETTING:
+                                // No-op, should wait for the new surface request to
+                                // re-initialize the encoder.
+                                break;
+                            case ERROR:
+                                // No-op
+                                break;
                         }
-                    } else {
-                        Logger.d(TAG, "Video encoder provides the same surface.");
                     }
                 });
+    }
+
+    @ExecutedBy("mSequentialExecutor")
+    private void onEncoderSurfaceUpdated(@NonNull Surface surface,
+            @NonNull SurfaceRequest surfaceRequest) {
+        if (mLatestSurface != surface) {
+            Surface currentSurface = mLatestSurface;
+            setLatestSurface(surface);
+            if (currentSurface == null) {
+                // Provide the surface to the first surface request.
+                mActiveSurface = surface;
+                surfaceRequest.provideSurface(surface, mSequentialExecutor,
+                        this::onSurfaceRequestComplete);
+                onConfigured();
+            } else {
+                // Encoder updates the surface while there's already an active surface.
+                // setLatestSurface() will update the StreamInfo with the new stream ID, which will
+                // trigger VideoCapture to send a new surface request.
+            }
+        } else {
+            Logger.d(TAG, "Video encoder provides the same surface.");
+        }
     }
 
     @ExecutedBy("mSequentialExecutor")
@@ -2173,8 +2198,8 @@ public final class Recorder implements VideoOutput {
                     if (mEncoderNotUsePersistentInputSurface) {
                         // If the encoder doesn't use persistent input surface, the active
                         // surface will become invalid after a recording is finalized. If there's
-                        // an unserviced surface request, configure with it directly, otherwise
-                        // wait for a new surface update.
+                        // an unserviced surface request, configure with it directly, wait for a
+                        // surface update.
                         mActiveSurface = null;
                         if (mLatestSurfaceRequest != null && !mLatestSurfaceRequest.isServiced()) {
                             needsConfigure = true;
@@ -2195,14 +2220,8 @@ public final class Recorder implements VideoOutput {
                         error = ERROR_SOURCE_INACTIVE;
                         errorCause = PENDING_RECORDING_ERROR_CAUSE_SOURCE_INACTIVE;
                     } else if (mEncoderNotUsePersistentInputSurface) {
-                        // If the encoder doesn't use persistent input surface, the active
-                        // surface will become invalid after a recording is finalized. If there's
-                        // an unserviced surface request, configure with it directly, otherwise
-                        // wait for a new surface update.
-                        mActiveSurface = null;
-                        if (mLatestSurfaceRequest != null && !mLatestSurfaceRequest.isServiced()) {
-                            needsConfigure = true;
-                        }
+                        // If the encoder doesn't use persistent input surface, reset the
+                        // non-pending state to INITIALIZING to wait for a surface update.
                         updateNonPendingState(State.CONFIGURING);
                     } else {
                         recordingToStart = makePendingRecordingActiveLocked(mState);
