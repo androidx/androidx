@@ -82,6 +82,7 @@ import androidx.health.connect.client.units.kilograms
 import androidx.health.connect.client.units.liters
 import androidx.health.connect.client.units.meters
 import androidx.health.connect.client.units.millimetersOfMercury
+import androidx.health.connect.client.units.percent
 import androidx.health.connect.client.units.watts
 import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
@@ -127,7 +128,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "BodyFat" ->
                 BodyFatRecord(
-                    percentage = getDouble("percentage").toInt(),
+                    percentage = getDouble("percentage").percent,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
@@ -292,7 +293,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                 )
             "OxygenSaturation" ->
                 OxygenSaturationRecord(
-                    percentage = getDouble("percentage").toInt(),
+                    percentage = getDouble("percentage").percent,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata

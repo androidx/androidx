@@ -230,13 +230,13 @@ package androidx.health.connect.client.records {
   }
 
   public final class BodyFatRecord implements androidx.health.connect.client.records.Record {
-    ctor public BodyFatRecord(int percentage, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public BodyFatRecord(androidx.health.connect.client.units.Percentage percentage, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public int getPercentage();
+    method public androidx.health.connect.client.units.Percentage getPercentage();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public final int percentage;
+    property public final androidx.health.connect.client.units.Percentage percentage;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
   }
@@ -910,13 +910,13 @@ package androidx.health.connect.client.records {
   }
 
   public final class OxygenSaturationRecord implements androidx.health.connect.client.records.Record {
-    ctor public OxygenSaturationRecord(int percentage, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public OxygenSaturationRecord(androidx.health.connect.client.units.Percentage percentage, java.time.Instant time, java.time.ZoneOffset? zoneOffset, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public int getPercentage();
+    method public androidx.health.connect.client.units.Percentage getPercentage();
     method public java.time.Instant getTime();
     method public java.time.ZoneOffset? getZoneOffset();
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public final int percentage;
+    property public final androidx.health.connect.client.units.Percentage percentage;
     property public java.time.Instant time;
     property public java.time.ZoneOffset? zoneOffset;
   }
@@ -1491,6 +1491,16 @@ package androidx.health.connect.client.units {
   }
 
   public final class MassKt {
+  }
+
+  public final class Percentage implements java.lang.Comparable<androidx.health.connect.client.units.Percentage> {
+    ctor public Percentage(double value);
+    method public int compareTo(androidx.health.connect.client.units.Percentage other);
+    method public double getValue();
+    property public final double value;
+  }
+
+  public final class PercentageKt {
   }
 
   public final class Power implements java.lang.Comparable<androidx.health.connect.client.units.Power> {
