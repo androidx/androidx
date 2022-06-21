@@ -80,6 +80,7 @@ class AndroidResources {
             android.R.attr.drawable
     };
     static final int STYLEABLE_ANIMATED_VECTOR_DRAWABLE_DRAWABLE = 0;
+    @StyleableRes
     static final int[] STYLEABLE_ANIMATED_VECTOR_DRAWABLE_TARGET = {
             android.R.attr.name, android.R.attr.animation
     };

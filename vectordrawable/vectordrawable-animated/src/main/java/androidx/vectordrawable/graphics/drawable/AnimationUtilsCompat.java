@@ -36,7 +36,10 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 
+import androidx.annotation.AnimRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.core.util.ObjectsCompat;
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
@@ -59,11 +62,16 @@ public class AnimationUtilsCompat {
      * @param id      The resource id of the animation to load
      * @return The animation object reference by the specified id
      */
-    public static Interpolator loadInterpolator(Context context, int id)
+    @SuppressWarnings("UnnecessaryInitCause") // requires API 24+
+    @NonNull
+    public static Interpolator loadInterpolator(@NonNull Context context, @AnimRes int id)
             throws NotFoundException {
         // From API 21, we added path Interpolator .
         if (Build.VERSION.SDK_INT >= 21) {
-            return AnimationUtils.loadInterpolator(context, id);
+            Interpolator interp = AnimationUtils.loadInterpolator(context, id);
+            ObjectsCompat.requireNonNull(interp, "Failed to parse interpolator, no start tag "
+                    + "found");
+            return interp;
         }
 
         XmlResourceParser parser = null;
@@ -94,9 +102,9 @@ public class AnimationUtilsCompat {
 
     }
 
-    private static Interpolator createInterpolatorFromXml(Context context,
-            XmlPullParser parser)
-            throws XmlPullParserException, IOException {
+    @NonNull
+    private static Interpolator createInterpolatorFromXml(@NonNull Context context,
+            @NonNull XmlPullParser parser) throws XmlPullParserException, IOException {
 
         Interpolator interpolator = null;
 
@@ -115,30 +123,46 @@ public class AnimationUtilsCompat {
 
             String name = parser.getName();
 
-            if (name.equals("linearInterpolator")) {
-                interpolator = new LinearInterpolator();
-            } else if (name.equals("accelerateInterpolator")) {
-                interpolator = new AccelerateInterpolator(context, attrs);
-            } else if (name.equals("decelerateInterpolator")) {
-                interpolator = new DecelerateInterpolator(context, attrs);
-            } else if (name.equals("accelerateDecelerateInterpolator")) {
-                interpolator = new AccelerateDecelerateInterpolator();
-            } else if (name.equals("cycleInterpolator")) {
-                interpolator = new CycleInterpolator(context, attrs);
-            } else if (name.equals("anticipateInterpolator")) {
-                interpolator = new AnticipateInterpolator(context, attrs);
-            } else if (name.equals("overshootInterpolator")) {
-                interpolator = new OvershootInterpolator(context, attrs);
-            } else if (name.equals("anticipateOvershootInterpolator")) {
-                interpolator = new AnticipateOvershootInterpolator(context, attrs);
-            } else if (name.equals("bounceInterpolator")) {
-                interpolator = new BounceInterpolator();
-            } else if (name.equals("pathInterpolator")) {
-                interpolator = new PathInterpolatorCompat(context, attrs, parser);
-            } else {
-                throw new RuntimeException("Unknown interpolator name: " + parser.getName());
+            switch (name) {
+                case "linearInterpolator":
+                    interpolator = new LinearInterpolator();
+                    break;
+                case "accelerateInterpolator":
+                    interpolator = new AccelerateInterpolator(context, attrs);
+                    break;
+                case "decelerateInterpolator":
+                    interpolator = new DecelerateInterpolator(context, attrs);
+                    break;
+                case "accelerateDecelerateInterpolator":
+                    interpolator = new AccelerateDecelerateInterpolator();
+                    break;
+                case "cycleInterpolator":
+                    interpolator = new CycleInterpolator(context, attrs);
+                    break;
+                case "anticipateInterpolator":
+                    interpolator = new AnticipateInterpolator(context, attrs);
+                    break;
+                case "overshootInterpolator":
+                    interpolator = new OvershootInterpolator(context, attrs);
+                    break;
+                case "anticipateOvershootInterpolator":
+                    interpolator = new AnticipateOvershootInterpolator(context, attrs);
+                    break;
+                case "bounceInterpolator":
+                    interpolator = new BounceInterpolator();
+                    break;
+                case "pathInterpolator":
+                    interpolator = new PathInterpolatorCompat(context, attrs, parser);
+                    break;
+                default:
+                    throw new RuntimeException("Unknown interpolator name: " + parser.getName());
             }
         }
+
+        if (interpolator == null) {
+            throw new RuntimeException("Failed to parse interpolator, no start tag found");
+        }
+
         return interpolator;
     }
 
