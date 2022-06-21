@@ -36,6 +36,7 @@ import android.os.Build;
 import android.os.PersistableBundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.TaskExecutor;
 import androidx.test.core.app.ApplicationProvider;
@@ -286,6 +287,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         mDatabase.workSpecDao().insertWorkSpec(work.getWorkSpec());
     }
 
+    @RequiresApi(24)
     public static class ContentUriTriggerLoggingWorker extends Worker {
 
         static int sTimesUpdated = 0;
@@ -308,6 +310,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
         }
     }
 
+    @RequiresApi(28)
     public static class NetworkLoggingWorker extends Worker {
 
         static int sTimesUpdated = 0;

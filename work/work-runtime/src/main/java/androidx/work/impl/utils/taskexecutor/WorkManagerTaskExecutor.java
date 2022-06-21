@@ -50,6 +50,7 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     };
 
     @Override
+    @NonNull
     public Executor getMainThreadExecutor() {
         return mMainThreadExecutor;
     }

@@ -94,14 +94,18 @@ public class WorkTimer {
 
     @VisibleForTesting
     @NonNull
-    public synchronized Map<WorkGenerationalId, WorkTimerRunnable> getTimerMap() {
-        return mTimerMap;
+    public Map<WorkGenerationalId, WorkTimerRunnable> getTimerMap() {
+        synchronized (mLock) {
+            return mTimerMap;
+        }
     }
 
     @VisibleForTesting
     @NonNull
-    public synchronized Map<WorkGenerationalId, TimeLimitExceededListener> getListeners() {
-        return mListeners;
+    public Map<WorkGenerationalId, TimeLimitExceededListener> getListeners() {
+        synchronized (mLock) {
+            return mListeners;
+        }
     }
 
     /**

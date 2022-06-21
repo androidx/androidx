@@ -891,6 +891,7 @@ public class WorkerWrapperTest extends DatabaseTest {
 
     @Test
     @SmallTest
+    @SdkSuppress(minSdkVersion = 24)
     public void testFromWorkSpec_hasCorrectRuntimeExtras() {
         OneTimeWorkRequest work =
                 new OneTimeWorkRequest.Builder(TestWorker.class).build();

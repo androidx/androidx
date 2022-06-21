@@ -138,10 +138,12 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         TaskExecutor instantTaskExecutor = new TaskExecutor() {
 
             @Override
+            @NonNull
             public Executor getMainThreadExecutor() {
                 return mMainThreadExecutor;
             }
 
+            @NonNull
             @Override
             public SerialExecutor getSerialTaskExecutor() {
                 return new SerialExecutorImpl(new SynchronousExecutor());
