@@ -94,7 +94,7 @@ package androidx.test.uiautomator {
   }
 
   public enum Direction {
-    method public static androidx.test.uiautomator.Direction! reverse(androidx.test.uiautomator.Direction!);
+    method public static androidx.test.uiautomator.Direction reverse(androidx.test.uiautomator.Direction);
     enum_constant public static final androidx.test.uiautomator.Direction DOWN;
     enum_constant public static final androidx.test.uiautomator.Direction LEFT;
     enum_constant public static final androidx.test.uiautomator.Direction RIGHT;
