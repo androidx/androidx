@@ -76,13 +76,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * Please refer to the documentations on individual methods for the exact usage.
  */
+@SuppressWarnings("unused")
 public final class HeifWriter implements AutoCloseable {
     private static final String TAG = "HeifWriter";
     private static final boolean DEBUG = false;
     private static final int MUXER_DATA_FLAG = 16;
 
     private final @InputMode int mInputMode;
-    private final HandlerThread mHandlerThread;
     private final Handler mHandler;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mNumTiles;
@@ -143,6 +143,7 @@ public final class HeifWriter implements AutoCloseable {
     /**
      * Builder class for constructing a HeifWriter object from specified parameters.
      */
+    @SuppressWarnings("unused")
     public static final class Builder {
         private final String mPath;
         private final FileDescriptor mFd;
@@ -203,6 +204,7 @@ public final class HeifWriter implements AutoCloseable {
          *                 Default is 0.
          * @return this Builder object.
          */
+        @NonNull
         public Builder setRotation(int rotation) {
             if (rotation != 0 && rotation != 90 && rotation != 180 && rotation != 270) {
                 throw new IllegalArgumentException("Invalid rotation angle: " + rotation);
@@ -218,6 +220,7 @@ public final class HeifWriter implements AutoCloseable {
          *                    automatically chosen. Default is to enable.
          * @return this Builder object.
          */
+        @NonNull
         public Builder setGridEnabled(boolean gridEnabled) {
             mGridEnabled = gridEnabled;
             return this;
@@ -230,6 +233,7 @@ public final class HeifWriter implements AutoCloseable {
          *                quality supported by this implementation. Default is 100.
          * @return this Builder object.
          */
+        @NonNull
         public Builder setQuality(int quality) {
             if (quality < 0 || quality > 100) {
                 throw new IllegalArgumentException("Invalid quality: " + quality);
@@ -249,6 +253,7 @@ public final class HeifWriter implements AutoCloseable {
          *                  Default is 1.
          * @return this Builder object.
          */
+        @NonNull
         public Builder setMaxImages(int maxImages) {
             if (maxImages <= 0) {
                 throw new IllegalArgumentException("Invalid maxImage: " + maxImages);
@@ -264,6 +269,7 @@ public final class HeifWriter implements AutoCloseable {
          *                     range [0, maxImages - 1] inclusive. Default is 0.
          * @return this Builder object.
          */
+        @NonNull
         public Builder setPrimaryIndex(int primaryIndex) {
             if (primaryIndex < 0) {
                 throw new IllegalArgumentException("Invalid primaryIndex: " + primaryIndex);
@@ -280,6 +286,7 @@ public final class HeifWriter implements AutoCloseable {
          *                writer. Default is null.
          * @return this Builder object.
          */
+        @NonNull
         public Builder setHandler(@Nullable Handler handler) {
             mHandler = handler;
             return this;
@@ -292,6 +299,7 @@ public final class HeifWriter implements AutoCloseable {
          * @throws IOException if failed to create the writer, possibly due to failure to create
          *                     {@link android.media.MediaMuxer} or {@link android.media.MediaCodec}.
          */
+        @NonNull
         public HeifWriter build() throws IOException {
             return new HeifWriter(mPath, mFd, mWidth, mHeight, mRotation, mGridEnabled, mQuality,
                     mMaxImages, mPrimaryIndex, mInputMode, mHandler);
@@ -300,17 +308,17 @@ public final class HeifWriter implements AutoCloseable {
 
     @SuppressLint("WrongConstant")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    HeifWriter(@NonNull String path,
-                       @NonNull FileDescriptor fd,
-                       int width,
-                       int height,
-                       int rotation,
-                       boolean gridEnabled,
-                       int quality,
-                       int maxImages,
-                       int primaryIndex,
-                       @InputMode int inputMode,
-                       @Nullable Handler handler) throws IOException {
+    HeifWriter(@Nullable String path,
+            @Nullable FileDescriptor fd,
+            int width,
+            int height,
+            int rotation,
+            boolean gridEnabled,
+            int quality,
+            int maxImages,
+            int primaryIndex,
+            @InputMode int inputMode,
+            @Nullable Handler handler) throws IOException {
         if (primaryIndex >= maxImages) {
             throw new IllegalArgumentException(
                     "Invalid maxImages (" + maxImages + ") or primaryIndex (" + primaryIndex + ")");
@@ -336,13 +344,12 @@ public final class HeifWriter implements AutoCloseable {
         mPrimaryIndex = primaryIndex;
 
         Looper looper = (handler != null) ? handler.getLooper() : null;
+        HandlerThread handlerThread;
         if (looper == null) {
-            mHandlerThread = new HandlerThread("HeifEncoderThread",
+            handlerThread = new HandlerThread("HeifEncoderThread",
                     Process.THREAD_PRIORITY_FOREGROUND);
-            mHandlerThread.start();
-            looper = mHandlerThread.getLooper();
-        } else {
-            mHandlerThread = null;
+            handlerThread.start();
+            looper = handlerThread.getLooper();
         }
         mHandler = new Handler(looper);
 
@@ -453,7 +460,7 @@ public final class HeifWriter implements AutoCloseable {
         buffer.flip();
         // Put it in a queue, as we might not be able to process it at this time.
         synchronized (mExifList) {
-            mExifList.add(new Pair<Integer, ByteBuffer>(imageIndex, buffer));
+            mExifList.add(new Pair<>(imageIndex, buffer));
         }
         processExifData();
     }
@@ -541,7 +548,7 @@ public final class HeifWriter implements AutoCloseable {
                 mMuxer.stop();
                 mMuxer.release();
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         } finally {
             mMuxer = null;
         }
@@ -549,7 +556,7 @@ public final class HeifWriter implements AutoCloseable {
             if (mHeifEncoder != null) {
                 mHeifEncoder.close();
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         } finally {
             synchronized (this) {
                 mHeifEncoder = null;
@@ -660,59 +667,64 @@ public final class HeifWriter implements AutoCloseable {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static class ResultWaiter {
+        private final Object mLock = new Object();
+
         private boolean mDone;
         private Exception mException;
 
-        synchronized void waitForResult(long timeoutMs) throws Exception {
-            if (timeoutMs < 0) {
-                throw new IllegalArgumentException("timeoutMs is negative");
-            }
-            if (timeoutMs == 0) {
-                while (!mDone) {
-                    try {
-                        wait();
-                    } catch (InterruptedException ex) {}
+        void waitForResult(long timeoutMs) throws Exception {
+            synchronized (mLock) {
+                if (timeoutMs < 0) {
+                    throw new IllegalArgumentException("timeoutMs is negative");
                 }
-            } else {
-                final long startTimeMs = System.currentTimeMillis();
-                long remainingWaitTimeMs = timeoutMs;
-                // avoid early termination by "spurious" wakeup.
-                while (!mDone && remainingWaitTimeMs > 0) {
-                    try {
-                        wait(remainingWaitTimeMs);
-                    } catch (InterruptedException ex) {}
-                    remainingWaitTimeMs -= (System.currentTimeMillis() - startTimeMs);
+                if (timeoutMs == 0) {
+                    while (!mDone) {
+                        try {
+                            wait();
+                        } catch (InterruptedException ignored) {
+                        }
+                    }
+                } else {
+                    final long startTimeMs = System.currentTimeMillis();
+                    long remainingWaitTimeMs = timeoutMs;
+                    // avoid early termination by "spurious" wakeup.
+                    while (!mDone && remainingWaitTimeMs > 0) {
+                        try {
+                            wait(remainingWaitTimeMs);
+                        } catch (InterruptedException ignored) {
+                        }
+                        remainingWaitTimeMs -= (System.currentTimeMillis() - startTimeMs);
+                    }
                 }
-            }
-            if (!mDone) {
-                mDone = true;
-                mException = new TimeoutException("timed out waiting for result");
-            }
-            if (mException != null) {
-                throw mException;
+                if (!mDone) {
+                    mDone = true;
+                    mException = new TimeoutException("timed out waiting for result");
+                }
+                if (mException != null) {
+                    throw mException;
+                }
             }
         }
 
-        synchronized void signalResult(@Nullable Exception e) {
-            if (!mDone) {
-                mDone = true;
-                mException = e;
-                notifyAll();
+        void signalResult(@Nullable Exception e) {
+            synchronized (mLock) {
+                if (!mDone) {
+                    mDone = true;
+                    mException = e;
+                    notifyAll();
+                }
             }
         }
     }
 
     @Override
     public void close() {
-        mHandler.postAtFrontOfQueue(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    closeInternal();
-                } catch (Exception e) {
-                    // If the client called stop() properly, any errors would have been
-                    // reported there. We don't want to crash when closing.
-                }
+        mHandler.postAtFrontOfQueue(() -> {
+            try {
+                closeInternal();
+            } catch (Exception e) {
+                // If the client called stop() properly, any errors would have been
+                // reported there. We don't want to crash when closing.
             }
         });
     }
