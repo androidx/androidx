@@ -18,6 +18,8 @@ package androidx.test.uiautomator;
 
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
+
 /**
  * Allows you to set key parameters for running uiautomator tests. The new
  * settings take effect immediately and can be changed any time during a test run.
@@ -61,7 +63,7 @@ public final class Configurator {
      * @return Configurator instance
      * @since API Level 18
      */
-    public static Configurator getInstance() {
+    public static @NonNull Configurator getInstance() {
         if (sConfigurator == null) {
             sConfigurator = new Configurator();
         }
@@ -83,7 +85,7 @@ public final class Configurator {
      * @return self
      * @since API Level 18
      */
-    public Configurator setWaitForIdleTimeout(long timeout) {
+    public @NonNull Configurator setWaitForIdleTimeout(long timeout) {
         mWaitForIdleTimeout = timeout;
         return this;
     }
@@ -119,7 +121,7 @@ public final class Configurator {
      * @return self
      * @since API Level 18
      */
-    public Configurator setWaitForSelectorTimeout(long timeout) {
+    public @NonNull Configurator setWaitForSelectorTimeout(long timeout) {
         mWaitForSelector = timeout;
         return this;
     }
@@ -153,7 +155,7 @@ public final class Configurator {
      * @return self
      * @since API Level 18
      */
-    public Configurator setScrollAcknowledgmentTimeout(long timeout) {
+    public @NonNull Configurator setScrollAcknowledgmentTimeout(long timeout) {
         mScrollEventWaitTimeout = timeout;
         return this;
     }
@@ -187,7 +189,7 @@ public final class Configurator {
      * @return self
      * @since API Level 18
      */
-    public Configurator setActionAcknowledgmentTimeout(long timeout) {
+    public @NonNull Configurator setActionAcknowledgmentTimeout(long timeout) {
         mWaitForActionAcknowledgment = timeout;
         return this;
     }
@@ -216,7 +218,7 @@ public final class Configurator {
      * @return self
      * @since API Level 18
      */
-    public Configurator setKeyInjectionDelay(long delay) {
+    public @NonNull Configurator setKeyInjectionDelay(long delay) {
         mKeyInjectionDelay = delay;
         return this;
     }
@@ -236,7 +238,7 @@ public final class Configurator {
      * Sets the current tool type to use for motion events.
      * @see MotionEvent#getToolType(int)
      */
-    public Configurator setToolType(final int toolType) {
+    public @NonNull Configurator setToolType(final int toolType) {
         mToolType = toolType;
         return this;
     }
@@ -257,7 +259,7 @@ public final class Configurator {
      * @see Instrumentation#getUiAutomation(int)
      * @see UiAutomation#FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES
      */
-    public Configurator setUiAutomationFlags(int flags) {
+    public @NonNull Configurator setUiAutomationFlags(int flags) {
         mUiAutomationFlags = flags;
         return this;
     }
