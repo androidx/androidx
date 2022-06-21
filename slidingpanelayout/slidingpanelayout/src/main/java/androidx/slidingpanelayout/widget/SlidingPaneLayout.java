@@ -1426,7 +1426,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
      * @param y      Y coordinate of the active touch point
      * @return true if child views of v can be scrolled by delta of dx.
      */
-    protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
+    protected boolean canScroll(@NonNull View v, boolean checkV, int dx, int x, int y) {
         if (v instanceof ViewGroup) {
             final ViewGroup group = (ViewGroup) v;
             final int scrollX = v.getScrollX();
@@ -1479,6 +1479,7 @@ public class SlidingPaneLayout extends ViewGroup implements Openable {
         return new LayoutParams(getContext(), attrs);
     }
 
+    @NonNull
     @Override
     protected Parcelable onSaveInstanceState() {
         Parcelable superState = super.onSaveInstanceState();
