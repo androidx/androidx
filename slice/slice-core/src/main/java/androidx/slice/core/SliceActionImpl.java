@@ -263,10 +263,11 @@ public class SliceActionImpl implements SliceAction {
 
     /**
      * @param description the content description for this action.
+     * @return
      */
     @Nullable
     @Override
-    public SliceActionImpl setContentDescription(@NonNull CharSequence description) {
+    public @NonNull SliceAction setContentDescription(@NonNull CharSequence description) {
         mContentDescription = description;
         return this;
     }

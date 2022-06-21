@@ -40,6 +40,7 @@ import android.net.Uri;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
@@ -273,7 +274,8 @@ public class SliceUtils {
             Slice slice;
             final SliceItem.ActionHandler handler = new SliceItem.ActionHandler() {
                 @Override
-                public void onAction(SliceItem item, Context context, Intent intent) {
+                public void onAction(@NonNull SliceItem item, @Nullable Context context,
+                        Intent intent) {
                     listener.onSliceAction(item.getSlice().getUri(), context, intent);
                 }
             };
