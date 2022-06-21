@@ -19,6 +19,7 @@ package androidx.remotecallback;
 import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -38,7 +39,9 @@ public interface CallbackBase<T> {
      * be used in the context on {@link CallbackReceiver#createRemoteCallback}.
      * @hide
      */
+    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    RemoteCallback toRemoteCallback(Class<T> cls, Context context, String authority, Bundle args,
-            String method);
+    RemoteCallback toRemoteCallback(@NonNull Class<T> cls, @NonNull Context context,
+            @NonNull String authority, @NonNull Bundle args,
+            @NonNull String method);
 }
