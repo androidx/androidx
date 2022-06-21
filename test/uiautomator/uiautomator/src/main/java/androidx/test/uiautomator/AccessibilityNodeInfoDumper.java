@@ -30,6 +30,7 @@ import java.io.OutputStream;
  * @hide
  */
 class AccessibilityNodeInfoDumper {
+    private AccessibilityNodeInfoDumper() { }
 
     private static final String LOGTAG = AccessibilityNodeInfoDumper.class.getSimpleName();
     private static final String[] NAF_EXCLUDED_CLASSES = new String[] {
