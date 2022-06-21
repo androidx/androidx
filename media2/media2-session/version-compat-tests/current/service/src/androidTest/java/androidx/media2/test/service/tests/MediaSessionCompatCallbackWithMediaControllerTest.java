@@ -30,6 +30,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -95,6 +96,9 @@ public class MediaSessionCompatCallbackWithMediaControllerTest extends MediaSess
     @Before
     @Override
     public void setUp() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         super.setUp();
         final Intent sessionActivity = new Intent(mContext, MockActivity.class);
         // Create this test specific MediaSession to use our own Handler.
