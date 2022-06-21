@@ -60,9 +60,9 @@ public abstract class CancelWorkRunnable implements Runnable {
     public void run() {
         try {
             runInternal();
-            mOperation.setState(Operation.SUCCESS);
+            mOperation.markState(Operation.SUCCESS);
         } catch (Throwable throwable) {
-            mOperation.setState(new Operation.State.FAILURE(throwable));
+            mOperation.markState(new Operation.State.FAILURE(throwable));
         }
     }
 

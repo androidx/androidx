@@ -28,6 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -156,7 +157,9 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
     @After
     public void tearDown() {
-        mHandlerThread.quitSafely();
+        if (Build.VERSION.SDK_INT >= 18) {
+            mHandlerThread.quitSafely();
+        }
     }
 
     @Test
