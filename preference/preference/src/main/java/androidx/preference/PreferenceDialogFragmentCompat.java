@@ -18,6 +18,7 @@ package androidx.preference;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -172,6 +173,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
      *
      * @return The {@link DialogPreference} associated with this dialog
      */
+    @SuppressLint("UnknownNullness")
     @SuppressWarnings("deprecation")
     public DialogPreference getPreference() {
         if (mPreference == null) {
