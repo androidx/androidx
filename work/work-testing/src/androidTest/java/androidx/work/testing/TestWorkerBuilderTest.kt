@@ -18,6 +18,7 @@ package androidx.work.testing
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -97,17 +98,23 @@ class TestWorkerBuilderTest {
         val contentUris = arrayOf(Uri.parse("android.test://1"))
         val authorities = arrayOf("android.test")
 
-        val worker = TestListenableWorkerBuilder.from(context, request)
+        val builder = TestListenableWorkerBuilder.from(context, request)
             .setRunAttemptCount(2)
-            .setTriggeredContentAuthorities(authorities.toList())
-            .setTriggeredContentUris(contentUris.toList())
-            .build()
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            builder.setTriggeredContentAuthorities(authorities.toList())
+            .setTriggeredContentUris(contentUris.toList())
+        }
+
+        val worker = builder.build()
         assertThat(worker.tags, hasItems("test"))
         assertThat(worker.id, `is`(request.id))
         assertThat(worker.runAttemptCount, `is`(2))
-        assertThat(worker.triggeredContentAuthorities, containsInAnyOrder(*authorities))
-        assertThat(worker.triggeredContentUris, containsInAnyOrder(*contentUris))
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            assertThat(worker.triggeredContentAuthorities, containsInAnyOrder(*authorities))
+            assertThat(worker.triggeredContentUris, containsInAnyOrder(*contentUris))
+        }
     }
 
     @Test
