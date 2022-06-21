@@ -106,7 +106,7 @@ package androidx.test.uiautomator {
   }
 
   public interface IAutomationSupport {
-    method public void sendStatus(int, android.os.Bundle!);
+    method public void sendStatus(int, android.os.Bundle);
   }
 
   public abstract class SearchCondition<R> {

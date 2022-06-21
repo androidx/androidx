@@ -19,6 +19,8 @@ package androidx.test.uiautomator;
 import android.app.Instrumentation;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+
 /**
  * A wrapper around {@link Instrumentation} to provide sendStatus function
  *
@@ -35,7 +37,7 @@ class InstrumentationAutomationSupport implements IAutomationSupport {
     }
 
     @Override
-    public void sendStatus(int resultCode, Bundle status) {
+    public void sendStatus(int resultCode, @NonNull Bundle status) {
         mInstrumentation.sendStatus(resultCode, status);
     }
 }
