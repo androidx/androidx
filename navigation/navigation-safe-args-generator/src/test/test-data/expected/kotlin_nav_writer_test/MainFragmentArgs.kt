@@ -28,7 +28,7 @@ public data class MainFragmentArgs(
   public val floatArg: Float = 1F,
   public val boolArg: Boolean = true,
   public val optionalParcelable: ActivityInfo? = null,
-  public val enumArg: AccessMode = AccessMode.READ
+  public val enumArg: AccessMode = AccessMode.READ,
 ) : NavArgs {
   @Suppress("CAST_NEVER_SUCCEEDS")
   public fun toBundle(): Bundle {
