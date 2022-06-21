@@ -27,6 +27,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -97,6 +98,9 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     @Before
     @Override
     public void setUp() throws Exception {
+        // b/230354064
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         super.setUp();
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
         mSession = new RemoteMediaSessionCompat(DEFAULT_TEST_NAME, mContext);
@@ -106,7 +110,9 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
     @Override
     public void cleanUp() throws Exception {
         super.cleanUp();
-        mSession.cleanUp();
+        if (mSession != null) {
+            mSession.cleanUp();
+        }
         if (mController != null) {
             mController.close();
         }
