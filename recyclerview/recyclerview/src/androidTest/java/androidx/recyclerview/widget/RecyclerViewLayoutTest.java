@@ -983,8 +983,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         recyclerView.setAdapter(adapter);
         recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
             @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                    RecyclerView.State state) {
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                    @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
                 outRect.set(1, 2, 3, 4);
             }
         });
@@ -3844,8 +3844,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
         final RecyclerView.ItemDecoration decoration = new RecyclerView.ItemDecoration() {
             @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                    RecyclerView.State state) {
+            public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                    @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
                 try {
                     TestViewHolder tvh = (TestViewHolder) parent.getChildViewHolder(view);
                     Object data = tvh.getData();
@@ -5251,8 +5251,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         if (addItemDecors) {
             rv.addItemDecoration(new RecyclerView.ItemDecoration() {
                 @Override
-                public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                        RecyclerView.State state) {
+                public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                        @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
                     outRect.set(0, 10, 0, 10);
                 }
             });
