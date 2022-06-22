@@ -91,4 +91,20 @@
             file="integration-tests/src/main/java/androidx/PrivateConstructorForUtilityClassJava.java"/>
     </issue>
 
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use @androidx.annotation.NonNull instead of @org.jetbrains.annotations.NotNull"
+        errorLine1="    private void method1(@NotNull String arg) {"
+        errorLine2="                         ~~~~~~~~">
+        <location file="integration-tests/src/main/java/androidx/NullabilityAnnotationsJava.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use @androidx.annotation.Nullable instead of @org.jetbrains.annotations.Nullable"
+        errorLine1="    private void method2(@Nullable String arg) {"
+        errorLine2="                         ~~~~~~~~~">
+        <location file="integration-tests/src/main/java/androidx/NullabilityAnnotationsJava.java"/>
+    </issue>
+
 </issues>

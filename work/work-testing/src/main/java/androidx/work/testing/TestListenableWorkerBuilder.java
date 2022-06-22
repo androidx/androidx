@@ -102,51 +102,12 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     }
 
     /**
-     * @return The {@link UUID} id associated with this unit of work.
-     */
-    @NonNull
-    UUID getId() {
-        return mId;
-    }
-
-    /**
-     * @return The input {@link Data} associated with this unit of work.
-     */
-    @NonNull
-    Data getInputData() {
-        return mInputData;
-    }
-
-    /**
-     * @return The {@link List} of tags associated with this unit of work.
-     */
-    @NonNull
-    List<String> getTags() {
-        return mTags;
-    }
-
-    /**
-     * @return The unit of work's current run attempt count.
-     */
-    int getRunAttemptCount() {
-        return mRunAttemptCount;
-    }
-
-    /**
      * @return The {@link androidx.work.WorkerParameters.RuntimeExtras} associated with this unit
      * of work.
      */
     @NonNull
     WorkerParameters.RuntimeExtras getRuntimeExtras() {
         return mRuntimeExtras;
-    }
-
-    /**
-     * @return The {@link WorkerFactory} associated with this unit of work.
-     */
-    @NonNull
-    WorkerFactory getWorkerFactory() {
-        return mWorkerFactory;
     }
 
     /**
@@ -336,15 +297,15 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
     public W build() {
         WorkerParameters parameters =
                 new WorkerParameters(
-                        getId(),
-                        getInputData(),
-                        getTags(),
+                        mId,
+                        mInputData,
+                        mTags,
                         getRuntimeExtras(),
-                        getRunAttemptCount(),
+                        mRunAttemptCount,
                         // This is unused for ListenableWorker
                         getExecutor(),
                         getTaskExecutor(),
-                        getWorkerFactory(),
+                        mWorkerFactory,
                         getProgressUpdater(),
                         getForegroundUpdater()
                 );

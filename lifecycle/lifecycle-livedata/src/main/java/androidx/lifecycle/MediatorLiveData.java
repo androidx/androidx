@@ -38,25 +38,25 @@ import java.util.Map;
  * is called for either of them, we set a new value in {@code liveDataMerger}.
  *
  * <pre>
- * LiveData<Integer> liveData1 = ...;
- * LiveData<Integer> liveData2 = ...;
+ * LiveData&lt;Integer&gt; liveData1 = ...;
+ * LiveData&lt;Integer&gt; liveData2 = ...;
  *
- * MediatorLiveData<Integer> liveDataMerger = new MediatorLiveData<>();
- * liveDataMerger.addSource(liveData1, value -> liveDataMerger.setValue(value));
- * liveDataMerger.addSource(liveData2, value -> liveDataMerger.setValue(value));
+ * MediatorLiveData&lt;Integer&gt; liveDataMerger = new MediatorLiveData&lt;&gt;();
+ * liveDataMerger.addSource(liveData1, value -&gt; liveDataMerger.setValue(value));
+ * liveDataMerger.addSource(liveData2, value -&gt; liveDataMerger.setValue(value));
  * </pre>
  * <p>
  * Let's consider that we only want 10 values emitted by {@code liveData1}, to be
  * merged in the {@code liveDataMerger}. Then, after 10 values, we can stop listening to {@code
  * liveData1} and remove it as a source.
  * <pre>
- * liveDataMerger.addSource(liveData1, new Observer<Integer>() {
+ * liveDataMerger.addSource(liveData1, new Observer&lt;Integer&gt;() {
  *      private int count = 1;
  *
  *      {@literal @}Override public void onChanged(@Nullable Integer s) {
  *          count++;
  *          liveDataMerger.setValue(s);
- *          if (count > 10) {
+ *          if (count &gt; 10) {
  *              liveDataMerger.removeSource(liveData1);
  *          }
  *      }

@@ -23,7 +23,7 @@ import androidx.compose.runtime.Stable
  * This plays the same role as [androidx.compose.ui.Modifier], but for the Glance composables.
  */
 @Stable
-public interface GlanceModifier {
+interface GlanceModifier {
     /**
      * Accumulates a value starting with [initial] and applying [operation] to the current value
      * and each element from outside in.
@@ -33,7 +33,7 @@ public interface GlanceModifier {
      * of the elements that appear after it. [foldIn] may be used to accumulate a value starting
      * from the parent or head of the modifier chain to the final wrapped child.
      */
-    public fun <R> foldIn(initial: R, operation: (R, Element) -> R): R
+    fun <R> foldIn(initial: R, operation: (R, Element) -> R): R
 
     /**
      * Accumulates a value starting with [initial] and applying [operation] to the current value
@@ -44,31 +44,31 @@ public interface GlanceModifier {
      * of the elements that appear after it. [foldOut] may be used to accumulate a value starting
      * from the child or tail of the modifier chain up to the parent or head of the chain.
      */
-    public fun <R> foldOut(initial: R, operation: (Element, R) -> R): R
+    fun <R> foldOut(initial: R, operation: (Element, R) -> R): R
 
     /**
      * Returns `true` if [predicate] returns true for any [Element] in this [GlanceModifier].
      */
-    public fun any(predicate: (Element) -> Boolean): Boolean
+    fun any(predicate: (Element) -> Boolean): Boolean
 
     /**
      * Returns `true` if [predicate] returns true for all [Element]s in this [GlanceModifier] or if
      * this [GlanceModifier] contains no [Element]s.
      */
-    public fun all(predicate: (Element) -> Boolean): Boolean
+    fun all(predicate: (Element) -> Boolean): Boolean
 
     /**
      * Concatenates this modifier with another.
      *
      * Returns a [GlanceModifier] representing this modifier followed by [other] in sequence.
      */
-    public infix fun then(other: GlanceModifier): GlanceModifier =
+    infix fun then(other: GlanceModifier): GlanceModifier =
         if (other === GlanceModifier) this else CombinedGlanceModifier(this, other)
 
     /**
      * A single element contained within a [GlanceModifier] chain.
      */
-    public interface Element : GlanceModifier {
+    interface Element : GlanceModifier {
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R =
             operation(initial, this)
 
@@ -86,7 +86,7 @@ public interface GlanceModifier {
      */
     // The companion object implements `Modifier` so that it may be used  as the start of a
     // modifier extension factory expression.
-    public companion object : GlanceModifier {
+    companion object : GlanceModifier {
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
         override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R = initial
         override fun any(predicate: (Element) -> Boolean): Boolean = false
@@ -100,7 +100,7 @@ public interface GlanceModifier {
  * A node in a [GlanceModifier] chain. A CombinedModifier always contains at least two elements;
  * a Modifier [outer] that wraps around the Modifier [inner].
  */
-public class CombinedGlanceModifier(
+class CombinedGlanceModifier(
     private val outer: GlanceModifier,
     private val inner: GlanceModifier
 ) : GlanceModifier {

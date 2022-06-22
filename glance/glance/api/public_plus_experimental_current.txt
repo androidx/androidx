@@ -79,6 +79,8 @@ package androidx.glance {
   }
 
   public enum Visibility {
+    method public static androidx.glance.Visibility valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.glance.Visibility[] values();
     enum_constant public static final androidx.glance.Visibility Gone;
     enum_constant public static final androidx.glance.Visibility Invisible;
     enum_constant public static final androidx.glance.Visibility Visible;
@@ -448,6 +450,8 @@ package androidx.glance.template {
   }
 
   public enum TemplateMode {
+    method public static androidx.glance.template.TemplateMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.glance.template.TemplateMode[] values();
     enum_constant public static final androidx.glance.template.TemplateMode Collapsed;
     enum_constant public static final androidx.glance.template.TemplateMode Horizontal;
     enum_constant public static final androidx.glance.template.TemplateMode Vertical;
@@ -462,6 +466,8 @@ package androidx.glance.template {
   }
 
   public enum TemplateText.Type {
+    method public static androidx.glance.template.TemplateText.Type valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.glance.template.TemplateText.Type[] values();
     enum_constant public static final androidx.glance.template.TemplateText.Type Body;
     enum_constant public static final androidx.glance.template.TemplateText.Type Display;
     enum_constant public static final androidx.glance.template.TemplateText.Type Label;

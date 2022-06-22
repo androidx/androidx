@@ -64,11 +64,13 @@ internal open class JankStatsApi16Impl(
     override fun setupFrameTimer(enable: Boolean) {
         val decorView = decorViewRef.get()
         decorView?.let {
-            if (enable) {
-                val delegates = decorView.getOrCreateOnPreDrawListenerDelegates()
-                delegates.add(onFrameListenerDelegate)
-            } else {
-                decorView.removeOnPreDrawListenerDelegate(onFrameListenerDelegate)
+            withDelegates(decorView) {
+                if (enable) {
+                    val delegates = decorView.getOrCreateOnPreDrawListenerDelegates()
+                    delegates.add(onFrameListenerDelegate)
+                } else {
+                    decorView.removeOnPreDrawListenerDelegate(onFrameListenerDelegate)
+                }
             }
         }
     }
@@ -86,7 +88,6 @@ internal open class JankStatsApi16Impl(
     }
 
     private fun View.removeOnPreDrawListenerDelegate(delegate: OnFrameListenerDelegate) {
-        setTag(R.id.metricsDelegator, null)
         val delegator = getTag(R.id.metricsDelegator) as DelegatingOnPreDrawListener?
         with(delegator?.delegates) {
             this?.remove(delegate)
@@ -130,6 +131,22 @@ internal open class JankStatsApi16Impl(
     fun getExpectedFrameDuration(view: View?): Long {
         return DelegatingOnPreDrawListener.getExpectedFrameDuration(view)
     }
+
+    companion object {
+
+        /**
+         * Anything dealing with the delegates list must go through this function, to avoid the list
+         * changing while being used on a different thread. It synchronizes on the DecorView object
+         * to guarantee that all delegate access is similarly synchronized.
+         */
+        fun withDelegates(decorView: View, delegateAction: () -> Unit) {
+            // prevent concurrent modification of delegates list by synchronizing on
+            // DecorView, which holds the delegator object
+            synchronized(decorView) {
+                delegateAction()
+            }
+        }
+    }
 }
 
 /**
@@ -157,21 +174,21 @@ internal open class DelegatingOnPreDrawListener(
 
     override fun onPreDraw(): Boolean {
         val decorView = decorViewRef.get()
-        with(decorView!!) {
+        decorView?.let {
             val frameStart = getFrameStartTime()
-            decorView.let {
-                handler.sendMessage(
-                    Message.obtain(handler) {
-                        val now = System.nanoTime()
-                        val expectedDuration = getExpectedFrameDuration(decorView)
+            with(decorView) {
+                handler.sendMessage(Message.obtain(handler) {
+                    val now = System.nanoTime()
+                    val expectedDuration = getExpectedFrameDuration(decorView)
+                    JankStatsApi16Impl.withDelegates(decorView) {
                         for (delegate in delegates) {
                             delegate.onFrame(frameStart, now - frameStart, expectedDuration)
                         }
-                        metricsStateHolder.state?.cleanupSingleFrameStates()
-                    }.apply {
-                        setMessageAsynchronicity(this)
                     }
-                )
+                    metricsStateHolder.state?.cleanupSingleFrameStates()
+                }.apply {
+                    setMessageAsynchronicity(this)
+                })
             }
         }
         return true

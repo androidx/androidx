@@ -35,7 +35,7 @@ enum class TemplateMode {
  * @param text string to be displayed
  * @param type the [Type] of the item, used for styling
  */
-public class TemplateText(val text: String, val type: Type) {
+class TemplateText(val text: String, val type: Type) {
 
     override fun hashCode(): Int {
         var result = text.hashCode()
@@ -59,7 +59,7 @@ public class TemplateText(val text: String, val type: Type) {
      * The text types that can be used with templates. Types are set on [TemplateText] items and
      * can be used by templates to determine text styling.
      */
-    public enum class Type {
+    enum class Type {
         Display,
         Title,
         Label,
@@ -74,7 +74,7 @@ public class TemplateText(val text: String, val type: Type) {
  * @param description The image description, usually used as alt text
  * @param cornerRadius The image corner radius in Dp
  */
-public class TemplateImageWithDescription(
+class TemplateImageWithDescription(
     val image: ImageProvider,
     val description: String,
     val cornerRadius: Dp = 16.dp
@@ -99,7 +99,7 @@ public class TemplateImageWithDescription(
  *
  * @param action The onClick action
  */
-public sealed class TemplateButton(val action: Action) {
+sealed class TemplateButton(val action: Action) {
 
     override fun hashCode(): Int = action.hashCode()
 
@@ -117,7 +117,7 @@ public sealed class TemplateButton(val action: Action) {
  * @param action The onClick action
  * @param text The button display text
  */
-public class TemplateTextButton(action: Action, val text: String) : TemplateButton(action) {
+class TemplateTextButton(action: Action, val text: String) : TemplateButton(action) {
 
     override fun hashCode(): Int = 31 * super.hashCode() + text.hashCode()
 
@@ -136,7 +136,7 @@ public class TemplateTextButton(action: Action, val text: String) : TemplateButt
  * @param action The onClick action
  * @param image The button image
  */
-public class TemplateImageButton(
+class TemplateImageButton(
     action: Action,
     val image: TemplateImageWithDescription
 ) : TemplateButton(action) {

@@ -20,17 +20,17 @@ import androidx.annotation.RestrictTo
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface Emittable {
-    public var modifier: GlanceModifier
+interface Emittable {
+    var modifier: GlanceModifier
 }
 
 /** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class EmittableWithChildren(
+abstract class EmittableWithChildren(
     internal var maxDepth: Int = Int.MAX_VALUE,
     internal val resetsDepthForChildren: Boolean = false
 ) : Emittable {
-    public val children: MutableList<Emittable> = mutableListOf<Emittable>()
+    val children: MutableList<Emittable> = mutableListOf<Emittable>()
 
     protected fun childrenToString(): String =
         children.joinToString(",\n").prependIndent("  ")

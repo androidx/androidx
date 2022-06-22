@@ -27,6 +27,7 @@ dependencies {
     // Add dependencies here
     api("androidx.annotation:annotation:1.2.0")
     androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
@@ -46,5 +47,8 @@ android {
     namespace "androidx.core.i18n"
     defaultConfig {
         minSdkVersion 19
+    }
+    lintOptions {
+        lintConfig = file("lint.xml")
     }
 }

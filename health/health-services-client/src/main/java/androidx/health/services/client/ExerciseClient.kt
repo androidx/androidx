@@ -128,8 +128,9 @@ public interface ExerciseClient {
      * Ends the current exercise, if it has been started.
      *
      * Health Services will flush and then shut down the active sensors and return an
-     * [ExerciseUpdate] with [ExerciseState.USER_ENDED] to the [ExerciseUpdateCallback]. If the
-     * exercise has ended then this future will fail.
+     * [ExerciseUpdate] with [ExerciseState.ENDED] along with the reason
+     * [ExerciseEndReason.USER_END] to the [ExerciseUpdateCallback]. If the exercise has ended then
+     * this future will fail.
      *
      * No additional metrics will be produced for the exercise and any on device persisted data
      * about the exercise will be deleted after the summary has been sent back.

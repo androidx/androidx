@@ -20,8 +20,11 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
@@ -30,6 +33,7 @@ import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.material.CircularProgressIndicator;
+import androidx.wear.tiles.material.Text;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,8 +42,12 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
 public class ProgressIndicatorLayoutTest {
+    private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
     private static final DeviceParameters DEVICE_PARAMETERS =
             new DeviceParameters.Builder().setScreenWidthDp(192).setScreenHeightDp(192).build();
+    private static final Text PRIMARY_LABEL = new Text.Builder(CONTEXT, "Primary label").build();
+    private static final Text SECONDARY_LABEL =
+            new Text.Builder(CONTEXT, "Secondary label").build();
 
     @Test
     public void testAll() {
@@ -50,9 +58,11 @@ public class ProgressIndicatorLayoutTest {
                 new ProgressIndicatorLayout.Builder(DEVICE_PARAMETERS)
                         .setContent(content)
                         .setProgressIndicatorContent(progressIndicator)
+                        .setPrimaryLabelTextContent(PRIMARY_LABEL)
+                        .setSecondaryLabelTextContent(SECONDARY_LABEL)
                         .build();
 
-        assertLayout(layout, progressIndicator, content);
+        assertLayout(layout, progressIndicator, content, PRIMARY_LABEL, SECONDARY_LABEL);
     }
 
     @Test
@@ -61,7 +71,7 @@ public class ProgressIndicatorLayoutTest {
         ProgressIndicatorLayout layout =
                 new ProgressIndicatorLayout.Builder(DEVICE_PARAMETERS).setContent(content).build();
 
-        assertLayout(layout, null, content);
+        assertLayout(layout, null, content, null, null);
     }
 
     @Test
@@ -73,7 +83,7 @@ public class ProgressIndicatorLayoutTest {
                         .setProgressIndicatorContent(progressIndicator)
                         .build();
 
-        assertLayout(layout, progressIndicator, null);
+        assertLayout(layout, progressIndicator, null, null, null);
     }
 
     @Test
@@ -81,7 +91,7 @@ public class ProgressIndicatorLayoutTest {
         ProgressIndicatorLayout layout =
                 new ProgressIndicatorLayout.Builder(DEVICE_PARAMETERS).build();
 
-        assertLayout(layout, null, null);
+        assertLayout(layout, null, null, null, null);
     }
 
     @Test
@@ -136,8 +146,15 @@ public class ProgressIndicatorLayoutTest {
     private void assertLayout(
             @NonNull ProgressIndicatorLayout actualLayout,
             @Nullable LayoutElement expectedProgressIndicator,
-            @Nullable LayoutElement expectedContent) {
-        assertLayoutIsEqual(actualLayout, expectedProgressIndicator, expectedContent);
+            @Nullable LayoutElement expectedContent,
+            @Nullable LayoutElement expectedPrimaryLabel,
+            @Nullable LayoutElement expectedSecondaryLabel) {
+        assertLayoutIsEqual(
+                actualLayout,
+                expectedProgressIndicator,
+                expectedContent,
+                expectedPrimaryLabel,
+                expectedSecondaryLabel);
 
         Box box = new Box.Builder().addContent(actualLayout).build();
 
@@ -145,35 +162,66 @@ public class ProgressIndicatorLayoutTest {
                 ProgressIndicatorLayout.fromLayoutElement(box.getContents().get(0));
 
         assertThat(newLayout).isNotNull();
-        assertLayoutIsEqual(newLayout, expectedProgressIndicator, expectedContent);
+        assertLayoutIsEqual(
+                newLayout,
+                expectedProgressIndicator,
+                expectedContent,
+                expectedPrimaryLabel,
+                expectedSecondaryLabel);
+
+        assertThat(ProgressIndicatorLayout.fromLayoutElement(actualLayout)).isEqualTo(actualLayout);
     }
 
     private void assertLayoutIsEqual(
             @NonNull ProgressIndicatorLayout actualLayout,
             @Nullable LayoutElement expectedProgressIndicator,
-            @Nullable LayoutElement expectedContent) {
+            @Nullable LayoutElement expectedContent,
+            @Nullable LayoutElement expectedPrimaryLabel,
+            @Nullable LayoutElement expectedSecondaryLabel) {
         byte[] expectedMetadata = ProgressIndicatorLayout.METADATA_TAG_BASE.clone();
 
         if (expectedProgressIndicator == null) {
             assertThat(actualLayout.getProgressIndicatorContent()).isNull();
         } else {
             assertThat(actualLayout.getProgressIndicatorContent().toLayoutElementProto())
-                .isEqualTo(expectedProgressIndicator.toLayoutElementProto());
+                    .isEqualTo(expectedProgressIndicator.toLayoutElementProto());
             expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX] =
-                (byte)
-                    (expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX]
-                        | ProgressIndicatorLayout.PROGRESS_INDICATOR_PRESENT);
+                    (byte)
+                            (expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX]
+                                    | ProgressIndicatorLayout.PROGRESS_INDICATOR_PRESENT);
         }
 
         if (expectedContent == null) {
             assertThat(actualLayout.getContent()).isNull();
         } else {
             assertThat(actualLayout.getContent().toLayoutElementProto())
-                .isEqualTo(expectedContent.toLayoutElementProto());
+                    .isEqualTo(expectedContent.toLayoutElementProto());
             expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX] =
-                (byte)
-                    (expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX]
-                        | ProgressIndicatorLayout.CONTENT_PRESENT);
+                    (byte)
+                            (expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX]
+                                    | ProgressIndicatorLayout.CONTENT_PRESENT);
+        }
+
+        if (expectedPrimaryLabel == null) {
+            assertThat(actualLayout.getPrimaryLabelTextContent()).isNull();
+        } else {
+            assertThat(actualLayout.getPrimaryLabelTextContent().toLayoutElementProto())
+                    .isEqualTo(expectedPrimaryLabel.toLayoutElementProto());
+            expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX] =
+                    (byte)
+                            (expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX]
+                                    | ProgressIndicatorLayout.PRIMARY_LABEL_PRESENT);
+        }
+
+        if (expectedSecondaryLabel == null) {
+            assertThat(actualLayout.getSecondaryLabelTextContent()).isNull();
+        } else {
+            assertThat(actualLayout.getSecondaryLabelTextContent().toLayoutElementProto())
+                    .isEqualTo(expectedSecondaryLabel.toLayoutElementProto());
+            expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX] =
+                    (byte)
+                            (expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX]
+                                    | ProgressIndicatorLayout.SECONDARY_LABEL_PRESENT);
         }
 
         assertThat(actualLayout.getMetadataTag()).isEqualTo(expectedMetadata);

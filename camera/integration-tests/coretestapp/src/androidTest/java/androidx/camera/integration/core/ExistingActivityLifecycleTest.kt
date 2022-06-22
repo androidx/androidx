@@ -71,6 +71,9 @@ class ExistingActivityLifecycleTest {
             Manifest.permission.RECORD_AUDIO
         )
 
+    @get:Rule
+    val repeatRule = RepeatRule()
+
     companion object {
         @AfterClass
         @JvmStatic

@@ -45,7 +45,6 @@ import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
-import androidx.camera.core.ExperimentalAnalyzer;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
@@ -137,7 +136,6 @@ public abstract class CameraController {
      *
      * @see ImageAnalysis.Analyzer
      */
-    @ExperimentalAnalyzer
     public static final int COORDINATE_SYSTEM_VIEW_REFERENCED = 1;
 
     /**
@@ -893,7 +891,6 @@ public abstract class CameraController {
         restartCameraIfAnalyzerResolutionChanged(oldAnalyzer, null);
     }
 
-    @OptIn(markerClass = ExperimentalAnalyzer.class)
     private void restartCameraIfAnalyzerResolutionChanged(
             @Nullable ImageAnalysis.Analyzer oldAnalyzer,
             @Nullable ImageAnalysis.Analyzer newAnalyzer) {
@@ -1083,7 +1080,7 @@ public abstract class CameraController {
         }
     }
 
-    @OptIn(markerClass = {TransformExperimental.class, ExperimentalAnalyzer.class})
+    @OptIn(markerClass = {TransformExperimental.class})
     @MainThread
     void updatePreviewViewTransform(@Nullable OutputTransform outputTransform) {
         checkMainThread();

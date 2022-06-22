@@ -21,7 +21,11 @@ import androidx.health.platform.client.impl.data.ProtoParcelable
 import androidx.health.platform.client.proto.ErrorProto
 import java.lang.reflect.Field
 
-/** Data object holding error state for IPC method calls. */
+/**
+ * Data object holding error state for IPC method calls.
+ *
+ * @suppress
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class ErrorStatus
 constructor(
@@ -45,7 +49,8 @@ constructor(
         @ErrorCode
         fun safeErrorCode(errorCode: Int): Int {
             return ErrorCode::class
-                .java.declaredFields
+                .java
+                .declaredFields
                 .filter { it.type.isAssignableFrom(Int::class.java) }
                 .map { field: Field ->
                     try {

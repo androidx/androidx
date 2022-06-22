@@ -22,17 +22,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
-}
-
-// If set to `true`, we'll use KSP instead of KAPT.
-// Note that the CI does not run tests with KSP yet so this is only for local usage.
-// Once variants are properly supported by both ksp and AndroidX, we'll add support for this.
-// (b/153917176)
-def useKsp = project.properties.getOrDefault("useKsp", "false").toBoolean()
-if (useKsp) {
-    apply plugin: "com.google.devtools.ksp"
-} else {
-    apply plugin: "kotlin-kapt"
+    id("com.google.devtools.ksp")
 }
 
 dependencies {
@@ -50,17 +40,9 @@ dependencies {
     androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation("androidx.arch.core:core-testing:2.0.1")
     androidTestImplementation(project(":internal-testutils-common"))
-    // depend on the shadowed version so that it tests with the shipped artifact
-    // this is a temporary attribute until KSP and AndroidX plugin supports variants.
-    if(useKsp) {
-        kspAndroidTest(
-                project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
-        )
-    } else {
-        kaptAndroidTest(
+    kspAndroidTest(
             project(path: ":room:room-compiler", configuration: "shadowAndImplementation")
-        )
-    }
+    )
 }
 
 // Allow usage of Kotlin's @OptIn.

@@ -143,6 +143,9 @@ data class WorkSpec(
      */
     @ColumnInfo(name = "period_count", defaultValue = "0")
     var periodCount: Int = 0,
+
+    @ColumnInfo(defaultValue = "0")
+    val generation: Int = 0,
 ) {
     constructor(
         id: String,
@@ -394,3 +397,7 @@ data class WorkSpec(
         }
     }
 }
+
+data class WorkGenerationalId(val workSpecId: String, val generation: Int)
+
+fun WorkSpec.generationalId() = WorkGenerationalId(id, generation)

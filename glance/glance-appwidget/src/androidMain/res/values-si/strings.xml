@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_layout_title" msgid="7937809248738392417"><b>"Glance යෙදුම් විජට් දෝෂය"</b></string>
-    <string name="error_layout_text" msgid="6543889412094559379">"නිවැරදි දෝෂය "<b><tt>"adb logcat"</tt></b>" භාවිතයෙන් පරීක්ෂා කරන්න, "<b><tt>"GlanceAppWidget"</tt></b>" සඳහා සොයමින්"</string>
+    <string name="glance_error_layout_title" msgid="2896109737634971880"><b>"Glance යෙදුම් විජට්ටු දෝෂය"</b></string>
+    <string name="glance_error_layout_text" msgid="8513923302775602854">"නිවැරදි දෝෂය "<b><tt>"GlanceAppWidget"</tt></b>" සොයන "<b><tt>"adb logcat"</tt></b>" භාවිත කර පරීක්ෂා කරන්න"</string>
 </resources>

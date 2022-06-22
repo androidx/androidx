@@ -213,6 +213,7 @@ public final class WorkerParameters {
         public @NonNull List<Uri> triggeredContentUris = Collections.emptyList();
 
         @RequiresApi(28)
+        @Nullable
         public Network network;
     }
 }

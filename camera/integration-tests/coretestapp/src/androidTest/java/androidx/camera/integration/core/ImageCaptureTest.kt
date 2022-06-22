@@ -210,12 +210,28 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     }
 
     @Test
-    fun canCaptureMultipleImagesWithZsl() {
+    fun canCaptureMultipleImagesWithZsl() = runBlocking {
         skipTestOnCameraPipeConfig()
 
-        canTakeMultipleImages(
-            ImageCapture.Builder().setCaptureMode(ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG)
-        )
+        val useCase = ImageCapture.Builder()
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG).build()
+        var camera: Camera
+        withContext(Dispatchers.Main) {
+            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        }
+
+        if (camera.cameraInfo.isZslSupported) {
+            val numImages = 5
+            val callback = FakeImageCaptureCallback(capturesCount = numImages)
+            for (i in 0 until numImages) {
+                useCase.takePicture(mainExecutor, callback)
+            }
+
+            callback.awaitCapturesAndAssert(
+                timeout = numImages * CAPTURE_TIMEOUT,
+                capturedImagesCount = numImages
+            )
+        }
     }
 
     private fun canTakeMultipleImages(builder: ImageCapture.Builder): Unit = runBlocking {

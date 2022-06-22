@@ -118,6 +118,9 @@ package androidx.room {
     method @Deprecated public void setTransactionSuccessful();
     property public androidx.room.InvalidationTracker invalidationTracker;
     property public boolean isOpen;
+    property public androidx.sqlite.db.SupportSQLiteOpenHelper openHelper;
+    property public java.util.concurrent.Executor queryExecutor;
+    property public java.util.concurrent.Executor transactionExecutor;
     field public static final androidx.room.RoomDatabase.Companion Companion;
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int MAX_BIND_PARAMETER_CNT = 999; // 0x3e7
     field @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected java.util.List<? extends androidx.room.RoomDatabase.Callback>? mCallbacks;
@@ -159,6 +162,8 @@ package androidx.room {
   }
 
   public enum RoomDatabase.JournalMode {
+    method public static androidx.room.RoomDatabase.JournalMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.room.RoomDatabase.JournalMode[] values();
     enum_constant public static final androidx.room.RoomDatabase.JournalMode AUTOMATIC;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode TRUNCATE;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode WRITE_AHEAD_LOGGING;
@@ -168,6 +173,7 @@ package androidx.room {
     ctor public RoomDatabase.MigrationContainer();
     method public void addMigrations(androidx.room.migration.Migration... migrations);
     method public void addMigrations(java.util.List<? extends androidx.room.migration.Migration> migrations);
+    method public final boolean contains(int startVersion, int endVersion);
     method public java.util.List<androidx.room.migration.Migration>? findMigrationPath(int start, int end);
     method public java.util.Map<java.lang.Integer,java.util.Map<java.lang.Integer,androidx.room.migration.Migration>> getMigrations();
   }

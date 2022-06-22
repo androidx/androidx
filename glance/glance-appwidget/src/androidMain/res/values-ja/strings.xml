@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_layout_title" msgid="7937809248738392417"><b>"Google Pixel のスナップショット アプリ ウィジェット エラー"</b></string>
-    <string name="error_layout_text" msgid="6543889412094559379"><b><tt>"adb logcat"</tt></b>" を使用して "<b><tt>"GlanceAppWidget"</tt></b>" を検索し、エラーを詳しくご確認ください"</string>
+    <string name="glance_error_layout_title" msgid="2896109737634971880"><b>"Google Pixel のスナップショット アプリ ウィジェット エラー"</b></string>
+    <string name="glance_error_layout_text" msgid="8513923302775602854"><b><tt>"adb logcat"</tt></b>" を使用して "<b><tt>"GlanceAppWidget"</tt></b>" を検索し、エラーを詳しくご確認ください"</string>
 </resources>

@@ -19,6 +19,7 @@ package androidx.media2.test.service.tests;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -67,6 +68,9 @@ public class MediaSessionTest extends MediaSessionTestBase {
     @Before
     @Override
     public void setUp() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         super.setUp();
         mPlayer = new MockPlayer(1);
 

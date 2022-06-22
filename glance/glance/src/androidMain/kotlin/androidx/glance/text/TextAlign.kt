@@ -20,7 +20,7 @@ package androidx.glance.text
  * Defines the alignment of the text in its view.
  */
 @JvmInline
-public value class TextAlign internal constructor(private val value: Int) {
+value class TextAlign internal constructor(private val value: Int) {
     override fun toString(): String {
         return when (this) {
             Left -> "Left"

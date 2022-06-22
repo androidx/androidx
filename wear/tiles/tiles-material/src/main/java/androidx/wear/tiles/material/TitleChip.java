@@ -49,6 +49,25 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults},
  * e.g. {@link ChipDefaults#TITLE_PRIMARY_COLORS} to get a color scheme for a primary {@link
  * TitleChip}.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * TitleChip chip = new TitleChip...
+ * Box box = new Box.Builder().addContent(chip).build();
+ *
+ * TitleChip myChip = (TitleChip) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link TitleChip} object from any layout element, {@link #fromLayoutElement}
+ * method should be used, i.e.:
+ *
+ * <pre>{@code
+ * TitleChip myChip = TitleChip.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class TitleChip implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a TitleChip. */
@@ -179,7 +198,7 @@ public class TitleChip implements LayoutElement {
     /** Returns text content of this Chip. */
     @NonNull
     public String getText() {
-        return checkNotNull(mElement.getPrimaryText());
+        return checkNotNull(mElement.getPrimaryTextContent());
     }
 
     /** Returns the horizontal alignment of the content in this Chip. */
@@ -195,11 +214,15 @@ public class TitleChip implements LayoutElement {
     }
 
     /**
-     * Returns TitleChip object from the given LayoutElement if that element can be converted to
-     * TitleChip. Otherwise, returns null.
+     * Returns TitleChip object from the given LayoutElement (e.g. one retrieved from a container's
+     * content with {@code container.getContents().get(index)}) if that element can be converted to
+     * TitleChip. Otherwise, it will return null.
      */
     @Nullable
     public static TitleChip fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof TitleChip) {
+            return (TitleChip) element;
+        }
         if (!(element instanceof Box)) {
             return null;
         }

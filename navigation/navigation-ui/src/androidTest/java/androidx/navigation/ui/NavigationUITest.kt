@@ -16,13 +16,22 @@
 
 package androidx.navigation.ui
 
+import android.content.Context
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.res.TypedArrayUtils.getString
 import androidx.navigation.NavGraph
 import androidx.navigation.NavGraphNavigator
+import androidx.navigation.NavHostController
+import androidx.navigation.NavType
+import androidx.navigation.createGraph
 import androidx.navigation.ui.NavigationUI.matchDestinations
+import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.testutils.TestNavigator
 import androidx.testutils.TestNavigatorProvider
+import androidx.testutils.test
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,5 +47,34 @@ class NavigationUITest {
         }
 
         assertThat(destination.matchDestinations(setOf(1, 2))).isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun navigateWithStringReferenceArgs() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val navController = NavHostController(context)
+        navController.navigatorProvider.addNavigator(TestNavigator())
+
+        val startDestination = "start_destination"
+        val endDestination = "end_destination"
+
+        navController.graph = navController.createGraph(startDestination = startDestination) {
+            test(startDestination)
+            test("$endDestination/{test}") {
+                label = "{test}"
+                argument(name = "test") {
+                    type = NavType.ReferenceType
+                }
+            }
+        }
+
+        val toolbar = Toolbar(context).apply { setupWithNavController(navController) }
+        navController.navigate(
+            endDestination + "/${R.string.dest_title}"
+        )
+
+        val expected = context.resources.getString(R.string.dest_title)
+        assertThat(toolbar.title.toString()).isEqualTo(expected)
     }
 }

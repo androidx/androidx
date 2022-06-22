@@ -511,11 +511,11 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
     static final int PF_FOCUS_OUT_FRONT = 1 << 11;
 
     /**
-     * Allow DPAD key to navigate out at the end of the view, default is false.
+     * Allow DPAD key to navigate out at the back of the view, default is false.
      */
-    static final int PF_FOCUS_OUT_END = 1 << 12;
+    static final int PF_FOCUS_OUT_BACK = 1 << 12;
 
-    static final int PF_FOCUS_OUT_MASKS = PF_FOCUS_OUT_FRONT | PF_FOCUS_OUT_END;
+    static final int PF_FOCUS_OUT_MASKS = PF_FOCUS_OUT_FRONT | PF_FOCUS_OUT_BACK;
 
     /**
      * Allow DPAD key to navigate out of second axis.
@@ -755,6 +755,23 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         mFlag |= PF_FORCE_FULL_LAYOUT;
     }
 
+    /**
+     * Sets whether focus can move out from the front and/or back of the grid view.
+     *
+     * @param throughFront For the vertical orientation, this controls whether focus can move out
+     * from the top of the grid. For the horizontal orientation, this controls whether focus can
+     * move out the front side of the grid.
+     *
+     * @param throughBack For the vertical orientation, this controls whether focus can move out
+     * from the bottom of the grid. For the horizontal orientation, this controls whether focus can
+     * move out the back side of the grid.
+     */
+    public void setFocusOutAllowed(boolean throughFront, boolean throughBack) {
+        mFlag = (mFlag & ~PF_FOCUS_OUT_MASKS)
+                | (throughFront ? PF_FOCUS_OUT_FRONT : 0)
+                | (throughBack ? PF_FOCUS_OUT_BACK : 0);
+    }
+
     void onRtlPropertiesChanged(int layoutDirection) {
         final int flags;
         if (mOrientation == HORIZONTAL) {
@@ -836,12 +853,6 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
 
     int getItemAlignmentViewId() {
         return mItemAlignment.mainAxis().getItemAlignmentViewId();
-    }
-
-    void setFocusOutAllowed(boolean throughFront, boolean throughEnd) {
-        mFlag = (mFlag & ~PF_FOCUS_OUT_MASKS)
-                | (throughFront ? PF_FOCUS_OUT_FRONT : 0)
-                | (throughEnd ? PF_FOCUS_OUT_END : 0);
     }
 
     void setFocusOutSideAllowed(boolean throughStart, boolean throughEnd) {
@@ -3286,7 +3297,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         int movement = getMovement(direction);
         final boolean isScroll = mBaseGridView.getScrollState() != RecyclerView.SCROLL_STATE_IDLE;
         if (movement == NEXT_ITEM) {
-            if (isScroll || (mFlag & PF_FOCUS_OUT_END) == 0) {
+            if (isScroll || (mFlag & PF_FOCUS_OUT_BACK) == 0) {
                 result = focused;
             }
             if ((mFlag & PF_SCROLL_ENABLED) != 0 && !hasCreatedLastItem()) {
@@ -3969,7 +3980,7 @@ public final class GridLayoutManager extends RecyclerView.LayoutManager {
         if ((mFlag & PF_FOCUS_OUT_FRONT) == 0 || (count > 1 && !isItemFullyVisible(0))) {
             addA11yActionMovingBackward(info, reverseFlowPrimary);
         }
-        if ((mFlag & PF_FOCUS_OUT_END) == 0 || (count > 1 && !isItemFullyVisible(count - 1))) {
+        if ((mFlag & PF_FOCUS_OUT_BACK) == 0 || (count > 1 && !isItemFullyVisible(count - 1))) {
             addA11yActionMovingForward(info, reverseFlowPrimary);
         }
         final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo =

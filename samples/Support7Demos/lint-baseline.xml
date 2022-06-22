@@ -5024,4 +5024,31 @@
             file="src/main/java/com/example/android/supportv7/app/ToolbarUsage.java"/>
     </issue>
 
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use @androidx.annotation.NonNull instead of @org.jetbrains.annotations.NotNull"
+        errorLine1="        @NotNull"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/RemoveLargeItemsDemo.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use @androidx.annotation.NonNull instead of @org.jetbrains.annotations.NotNull"
+        errorLine1="        public MyViewHolder onCreateViewHolder(@NotNull ViewGroup parent, int viewType) {"
+        errorLine2="                                               ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/RemoveLargeItemsDemo.java"/>
+    </issue>
+
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use @androidx.annotation.NonNull instead of @org.jetbrains.annotations.NotNull"
+        errorLine1="        public void onBindViewHolder(@NotNull MyViewHolder myViewHolder, int position) {"
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/supportv7/widget/RemoveLargeItemsDemo.java"/>
+    </issue>
+
 </issues>

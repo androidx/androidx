@@ -22,32 +22,34 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.Build.VERSION_CODES;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.graphics.ColorUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-@SdkSuppress(minSdkVersion = VERSION_CODES.LOLLIPOP)
+@SdkSuppress(minSdkVersion = VERSION_CODES.Q)
+@RequiresApi(VERSION_CODES.Q)
 public class WebSettingsCompatDarkThemeTest extends
         WebSettingsCompatDarkModeTestBase<WebViewDarkThemeTestActivity> {
     public WebSettingsCompatDarkThemeTest() {
         // targetSdkVersion to T, it is min version the algorithmic darkening works.
-        // TODO(http://b/214741472): Use VERSION_CODES.TIRAMISU once available.
-        super(WebViewDarkThemeTestActivity.class, VERSION_CODES.CUR_DEVELOPMENT);
+        // VERSION_CODES.TIRAMISU can't be compiled, follows the pattern in
+        // core/core/src/main/java/androidx/core/os/BuildCompat.java,
+        // uses 33 instead of VERSION_CODES.TIRAMISU
+        super(WebViewDarkThemeTestActivity.class, 33);
     }
 
     /**
      * Test the algorithmic darkening is disabled by default.
      */
     @Test
-    @Ignore("Disabled due to b/230365968")
     public void testSimplifiedDarkMode_default() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
 
@@ -59,7 +61,6 @@ public class WebSettingsCompatDarkThemeTest extends
      * Test the algorithmic darkening on web content that doesn't support dark style.
      */
     @Test
-    @Ignore("Disabled due to b/230365968")
     public void testSimplifiedDarkMode_rendersDark() throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
@@ -82,7 +83,6 @@ public class WebSettingsCompatDarkThemeTest extends
      * Test the algorithmic darkening on web content that supports dark style.
      */
     @Test
-    @Ignore("Disabled due to b/230365968")
     public void testSimplifiedDarkMode_pageSupportDarkTheme() {
         WebkitUtils.checkFeature(WebViewFeature.ALGORITHMIC_DARKENING);
         WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);

@@ -31,31 +31,59 @@ class BanConcurrentHashMapTest : AbstractLintDetectorTest(
 
     @Test
     fun `Detection of ConcurrentHashMap usage in Java sources`() {
-        val input = arrayOf(
-            javaSample("androidx.ConcurrentHashMapUsageJava"),
+        val input = java(
+            "src/androidx/ConcurrentHashMapUsageJava.java",
+            """
+                import androidx.annotation.NonNull;
+                import java.util.Map;
+                import java.util.concurrent.ConcurrentHashMap;
+
+                public class ConcurrentHashMapUsageJava {
+
+                    private final ConcurrentHashMap<?, ?> mMap = new ConcurrentHashMap<>();
+
+                    @NonNull
+                    public <V, K> Map<V, K> createMap() {
+                        return new ConcurrentHashMap<>();
+                    }
+                }
+            """.trimIndent()
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/ConcurrentHashMapUsageJava.java:22: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
+src/androidx/ConcurrentHashMapUsageJava.java:3: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
 import java.util.concurrent.ConcurrentHashMap;
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        check(*input).expect(expected)
+        check(input).expect(expected)
     }
 
     @Test
     fun `Detection of ConcurrentHashMap usage in Kotlin sources`() {
-        val input = arrayOf(
-            ktSample("androidx.ConcurrentHashMapUsageKotlin"),
+        val input = kotlin(
+            "src/androidx/ConcurrentHashMapUsageKotlin.kt",
+            """
+                package androidx
+
+                import java.util.concurrent.ConcurrentHashMap
+
+                @Suppress("unused")
+                class ConcurrentHashMapUsageKotlin {
+                    private val mMap: ConcurrentHashMap<*, *> = ConcurrentHashMap<Any, Any>()
+                    fun <V, K> createMap(): Map<V, K> {
+                        return ConcurrentHashMap()
+                    }
+                }
+            """.trimIndent()
         )
 
         /* ktlint-disable max-line-length */
         val expected = """
-src/androidx/ConcurrentHashMapUsageKotlin.kt:19: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
+src/androidx/ConcurrentHashMapUsageKotlin.kt:3: Error: Detected ConcurrentHashMap usage. [BanConcurrentHashMap]
 import java.util.concurrent.ConcurrentHashMap
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
@@ -65,7 +93,7 @@ import java.util.concurrent.ConcurrentHashMap
         lint()
             .files(
                 *stubs,
-                *input
+                input
             )
             .skipTestModes(TestMode.IMPORT_ALIAS) // b/203124716
             .run()

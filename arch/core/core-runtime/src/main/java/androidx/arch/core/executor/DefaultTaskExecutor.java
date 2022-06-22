@@ -56,12 +56,12 @@ public class DefaultTaskExecutor extends TaskExecutor {
     private volatile Handler mMainHandler;
 
     @Override
-    public void executeOnDiskIO(Runnable runnable) {
+    public void executeOnDiskIO(@NonNull Runnable runnable) {
         mDiskIO.execute(runnable);
     }
 
     @Override
-    public void postToMainThread(Runnable runnable) {
+    public void postToMainThread(@NonNull Runnable runnable) {
         if (mMainHandler == null) {
             synchronized (mLock) {
                 if (mMainHandler == null) {

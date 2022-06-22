@@ -140,10 +140,11 @@ class RecorderTest {
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
-        // Skip for b/168175357
+        // Skip for b/168175357, b/233661493
         assumeFalse(
-            "Cuttlefish has MediaCodec dequeueInput/Output buffer fails issue. Unable to test.",
-            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
+            "Skip tests for Cuttlefish MediaCodec issues",
+            Build.MODEL.contains("Cuttlefish") &&
+                (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
         )
         assumeTrue(AudioUtil.canStartAudioRecord(MediaRecorder.AudioSource.CAMCORDER))
 

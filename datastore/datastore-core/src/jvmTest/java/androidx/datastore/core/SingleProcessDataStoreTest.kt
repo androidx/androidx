@@ -19,8 +19,21 @@
 package androidx.datastore.core
 
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
-import androidx.testutils.assertThrows
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.AbstractCoroutineContextElement
+import kotlin.coroutines.CoroutineContext
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -44,28 +57,11 @@ import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.TestCoroutineScope
 import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.withContext
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
-import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.rules.Timeout
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
-import java.io.File
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
-import java.lang.IllegalStateException
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicInteger
-import kotlin.coroutines.AbstractCoroutineContextElement
-import kotlin.coroutines.CoroutineContext
 
-@ExperimentalCoroutinesApi
-@RunWith(JUnit4::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 class SingleProcessDataStoreTest {
     @get:Rule
     val tempFolder = TemporaryFolder()
@@ -78,7 +74,7 @@ class SingleProcessDataStoreTest {
     private lateinit var testFile: File
     private lateinit var dataStoreScope: TestCoroutineScope
 
-    @Before
+    @BeforeTest
     fun setUp() {
         testingSerializer = TestingSerializer()
         testFile = tempFolder.newFile()
@@ -91,7 +87,7 @@ class SingleProcessDataStoreTest {
             )
     }
 
-    @After
+    @AfterTest
     fun cleanUp() {
         dataStoreScope.cleanupTestCoroutines()
     }
@@ -120,7 +116,7 @@ class SingleProcessDataStoreTest {
             store.data.first()
         }
 
-        assertThat(result.exceptionOrNull()).isInstanceOf(IOException::class.java)
+        assertThat(result.exceptionOrNull()).isInstanceOf<IOException>()
         assertThat(result.exceptionOrNull()).hasMessageThat().contains("Permission denied")
     }
 

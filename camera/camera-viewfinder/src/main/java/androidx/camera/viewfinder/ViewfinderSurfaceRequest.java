@@ -249,6 +249,13 @@ public class ViewfinderSurfaceRequest {
         }, CameraExecutors.directExecutor());
     }
 
+    @Override
+    @SuppressWarnings("GenericException") // super.finalize() throws Throwable
+    protected void finalize() throws Throwable {
+        mInternalViewfinderSurface.close();
+        super.finalize();
+    }
+
     /**
      * Returns the resolution of the requested {@link Surface}.
      *

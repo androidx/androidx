@@ -59,6 +59,9 @@ public class ComplicationOverlayWireFormat implements VersionedParcelable, Parce
     @ParcelField(4)
     long mAccessibilityTraversalIndex;
 
+    // IMPORTANT: DO NOT EXTEND THIS FILE! IT WILL NOT BE BACKWARDS COMPATIBLE :(
+    // Instead extend ComplicationsOptionWireFormat.
+
     ComplicationOverlayWireFormat() {
     }
 

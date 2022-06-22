@@ -16,6 +16,7 @@
 
 package androidx.core.i18n
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.core.os.BuildCompat
@@ -24,6 +25,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import kotlin.test.assertFailsWith
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -36,6 +38,7 @@ import androidx.core.i18n.DateTimeFormatterSkeletonOptions as SkeletonOptions
 
 /** Must execute on an Android device. */
 @RunWith(AndroidJUnit4::class)
+@SuppressLint("ClassVerificationFailure")
 class DateTimeFormatterTest {
     companion object {
         // Lollipop introduced Locale.toLanguageTag and Locale.forLanguageTag
@@ -402,5 +405,20 @@ class DateTimeFormatterTest {
             if (isIcuAvailable) "9:42 PM GMT-6" else "8:42 PM PDT",
             DateTimeFormatter(appContext, options, locale).format(coloradoTime)
         )
+    }
+
+    @Test @SmallTest
+    fun testEmptySkeleton() {
+        val options = SkeletonOptions.fromString("")
+        assertEquals("",
+            DateTimeFormatter(appContext, options, Locale.US).format(testDate)
+        )
+    }
+
+    @Test @SmallTest
+    fun testInvalidSkeletonField_throwsIAE() {
+        assertFailsWith<IllegalArgumentException> {
+            SkeletonOptions.fromString("fiInNopPRtT")
+        }
     }
 }

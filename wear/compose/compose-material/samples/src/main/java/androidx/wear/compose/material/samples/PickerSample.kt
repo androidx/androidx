@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,6 +51,7 @@ import kotlinx.coroutines.launch
 fun SimplePicker() {
     val items = listOf("One", "Two", "Three", "Four", "Five")
     val state = rememberPickerState(items.size)
+    val contentDescription by remember { derivedStateOf { "${state.selectedOption + 1}" } }
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -60,7 +62,8 @@ fun SimplePicker() {
         )
         Picker(
             modifier = Modifier.size(100.dp, 100.dp),
-            state = state
+            state = state,
+            contentDescription = contentDescription,
         ) {
             Text(items[it])
         }
@@ -72,7 +75,12 @@ fun SimplePicker() {
 fun OptionChangePicker() {
     val coroutineScope = rememberCoroutineScope()
     val state = rememberPickerState(initialNumberOfOptions = 10)
-    Picker(state = state, separation = 4.dp) {
+    val contentDescription by remember { derivedStateOf { "${state.selectedOption + 1}" } }
+    Picker(
+        state = state,
+        separation = 4.dp,
+        contentDescription = contentDescription,
+    ) {
         Chip(
             onClick = {
                 coroutineScope.launch { state.scrollToOption(it) }
@@ -111,22 +119,33 @@ fun DualPicker() {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
+        val hourState = rememberPickerState(
+            initialNumberOfOptions = 12,
+            initiallySelectedOption = 5
+        )
+        val hourContentDescription by remember {
+            derivedStateOf { "${hourState.selectedOption + 1 } hours" }
+        }
         Picker(
             readOnly = selectedColumn != 0,
-            state = rememberPickerState(
-                initialNumberOfOptions = 12,
-                initiallySelectedOption = 5
-            ),
+            state = hourState,
             modifier = Modifier.size(64.dp, 100.dp),
+            contentDescription = hourContentDescription,
             option = { hour: Int -> Option(0, "%2d".format(hour + 1)) }
         )
         Spacer(Modifier.width(8.dp))
         Text(text = ":", style = textStyle, color = MaterialTheme.colors.onBackground)
         Spacer(Modifier.width(8.dp))
+        val minuteState =
+            rememberPickerState(initialNumberOfOptions = 60, initiallySelectedOption = 0)
+        val minuteContentDescription by remember {
+            derivedStateOf { "${minuteState.selectedOption} minutes" }
+        }
         Picker(
             readOnly = selectedColumn != 1,
-            state = rememberPickerState(initialNumberOfOptions = 60, initiallySelectedOption = 0),
+            state = minuteState,
             modifier = Modifier.size(64.dp, 100.dp),
+            contentDescription = minuteContentDescription,
             option = { minute: Int -> Option(1, "%02d".format(minute)) }
         )
     }

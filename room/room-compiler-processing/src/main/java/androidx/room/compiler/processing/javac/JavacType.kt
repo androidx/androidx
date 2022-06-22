@@ -31,7 +31,7 @@ import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
 
 internal abstract class JavacType(
-    protected val env: JavacProcessingEnv,
+    internal val env: JavacProcessingEnv,
     open val typeMirror: TypeMirror,
     private val maybeNullability: XNullability?,
 ) : XType, XEquality {

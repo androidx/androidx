@@ -230,6 +230,8 @@ package androidx.annotation {
   }
 
   public enum RestrictTo.Scope {
+    method public static androidx.annotation.RestrictTo.Scope valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.annotation.RestrictTo.Scope[] values();
     enum_constant @Deprecated public static final androidx.annotation.RestrictTo.Scope GROUP_ID;
     enum_constant public static final androidx.annotation.RestrictTo.Scope LIBRARY;
     enum_constant public static final androidx.annotation.RestrictTo.Scope LIBRARY_GROUP;

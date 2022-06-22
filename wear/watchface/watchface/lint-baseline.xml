@@ -11,15 +11,6 @@
     </issue>
 
     <issue
-        id="WrongThread"
-        message="Method addTapListener must be called from the UI thread, currently inferred thread is worker thread"
-        errorLine1="        complicationSlotsManager.addTapListener("
-        errorLine2="        ^">
-        <location
-            file="src/test/java/androidx/wear/watchface/TestCommon.kt"/>
-    </issue>
-
-    <issue
         id="VisibleForTests"
         message="This method should only be accessed from tests or within private scope"
         errorLine1="            complicationSlotsManager.watchState,"

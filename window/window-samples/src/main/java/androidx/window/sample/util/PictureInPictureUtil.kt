@@ -27,9 +27,28 @@ import androidx.annotation.RequiresApi
 import androidx.window.sample.R
 
 @RequiresApi(Build.VERSION_CODES.O)
-private object PictureInPictureLauncher {
-    fun startPictureInPictureO(activity: Activity) {
+private object PictureInPictureLauncherO {
+    fun startPictureInPicture(activity: Activity) {
         activity.enterPictureInPictureMode(PictureInPictureParams.Builder().build())
+    }
+
+    fun setPictureInPictureParams(activity: Activity) {
+        activity.setPictureInPictureParams(PictureInPictureParams.Builder().build())
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object PictureInPictureLauncherS {
+    fun startPictureInPicture(activity: Activity, autoEnterPip: Boolean = false) {
+        activity.enterPictureInPictureMode(PictureInPictureParams.Builder()
+            .setAutoEnterEnabled(autoEnterPip)
+            .build())
+    }
+
+    fun setPictureInPictureParams(activity: Activity, autoEnterPip: Boolean = false) {
+        activity.setPictureInPictureParams(PictureInPictureParams.Builder()
+            .setAutoEnterEnabled(autoEnterPip)
+            .build())
     }
 }
 
@@ -62,9 +81,25 @@ object PictureInPictureUtil {
         }
     }
 
-    fun startPictureInPicture(activity: Activity) {
-        if (Build.VERSION.SDK_INT > 26) {
-            PictureInPictureLauncher.startPictureInPictureO(activity)
+    fun startPictureInPicture(activity: Activity, autoEnterPip: Boolean = false) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PictureInPictureLauncherS.startPictureInPicture(activity, autoEnterPip)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            PictureInPictureLauncherO.startPictureInPicture(activity)
+        } else {
+            Toast.makeText(activity, "PiP not supported", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    fun setPictureInPictureParams(activity: Activity, autoEnterPip: Boolean = false) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PictureInPictureLauncherS.setPictureInPictureParams(activity, autoEnterPip)
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            PictureInPictureLauncherO.setPictureInPictureParams(activity)
+            if (autoEnterPip) {
+                Toast.makeText(activity, "Auto enter PIP not supported", Toast.LENGTH_LONG)
+                    .show()
+            }
         } else {
             Toast.makeText(activity, "PiP not supported", Toast.LENGTH_LONG).show()
         }

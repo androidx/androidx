@@ -18,7 +18,7 @@ package androidx.health.connect.client.impl.converters.aggregate
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
-import androidx.health.connect.client.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.platform.client.proto.DataProto
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat

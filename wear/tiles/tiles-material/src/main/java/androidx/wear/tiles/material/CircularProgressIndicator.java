@@ -63,6 +63,26 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * <p>The recommended set of {@link ProgressIndicatorColors} can be obtained from {@link
  * ProgressIndicatorDefaults}, e.g. {@link ProgressIndicatorDefaults#DEFAULT_COLORS} to get a
  * default color scheme for a {@link CircularProgressIndicator}.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * CircularProgressIndicator cpi = new CircularProgressIndicator...
+ * Box box = new Box.Builder().addContent(cpi).build();
+ *
+ * CircularProgressIndicator myCpi = (CircularProgressIndicator) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link CircularProgressIndicator} object from any layout element, {@link
+ * #fromLayoutElement} method should be used, i.e.:
+ *
+ * <pre>{@code
+ * CircularProgressIndicator myCpi =
+ *   CircularProgressIndicator.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class CircularProgressIndicator implements LayoutElement {
     /**
@@ -292,15 +312,20 @@ public class CircularProgressIndicator implements LayoutElement {
      */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(checkNotNull(mElement.getModifiers()));
+        return getMetadataTagName(
+                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
     }
 
     /**
-     * Returns CircularProgressIndicator object from the given LayoutElement if that element can be
-     * converted to CircularProgressIndicator. Otherwise, returns null.
+     * Returns CircularProgressIndicator object from the given LayoutElement (e.g. one retrieved
+     * from a container's content with {@code container.getContents().get(index)}) if that element
+     * can be converted to CircularProgressIndicator. Otherwise, it will return null.
      */
     @Nullable
     public static CircularProgressIndicator fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof CircularProgressIndicator) {
+            return (CircularProgressIndicator) element;
+        }
         if (!(element instanceof Arc)) {
             return null;
         }

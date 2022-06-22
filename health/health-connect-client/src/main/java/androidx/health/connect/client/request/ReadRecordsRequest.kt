@@ -15,8 +15,8 @@
  */
 package androidx.health.connect.client.request
 
-import androidx.health.connect.client.metadata.DataOrigin
 import androidx.health.connect.client.records.Record
+import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.time.TimeRangeFilter
 import kotlin.reflect.KClass
 

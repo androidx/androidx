@@ -102,20 +102,18 @@ public class ConstraintControllerTest extends WorkManagerTest {
     @SmallTest
     public void testReplace_workSpecWithConstraint_constrained() {
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
-        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.id);
         List<WorkSpec> workSpecs = Collections.singletonList(workSpecWithConstraint);
 
         mTracker.setDeviceActive();
         mTestIdleController.replace(workSpecs);
         assertThat(mTracker.mTracking, is(true));
-        verify(mCallback, atLeastOnce()).onConstraintNotMet(eq(expectedWorkIds));
+        verify(mCallback, atLeastOnce()).onConstraintNotMet(eq(workSpecs));
     }
 
     @Test
     @SmallTest
     public void testReplace_workSpecWithConstraint_unconstrained() {
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
-        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.id);
         List<WorkSpec> workSpecs = Collections.singletonList(workSpecWithConstraint);
 
         mTracker.setDeviceIdle();
@@ -124,21 +122,20 @@ public class ConstraintControllerTest extends WorkManagerTest {
         // called twice: replace calls updateCallback explicitly and
         // tracker.addListener results in updateCallback too
         // probably should be fixed eventually
-        verify(mCallback, atLeastOnce()).onConstraintMet(eq(expectedWorkIds));
+        verify(mCallback, atLeastOnce()).onConstraintMet(eq(workSpecs));
     }
 
     @Test
     @SmallTest
     public void testReplace_workSpecWithConstraint_constraintNotSet() {
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
-        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.id);
         List<WorkSpec> workSpecs = Collections.singletonList(workSpecWithConstraint);
 
         mTestIdleController.replace(workSpecs);
         // called twice: replace calls updateCallback explictily and
         // tracker.addListener results in updateCallback too
         // probably should be fixed eventually
-        verify(mCallback, atLeastOnce()).onConstraintNotMet(expectedWorkIds);
+        verify(mCallback, atLeastOnce()).onConstraintNotMet(workSpecs);
     }
 
     @Test
@@ -170,27 +167,25 @@ public class ConstraintControllerTest extends WorkManagerTest {
     @SmallTest
     public void testOnConstraintChanged_toConstrained_withMatchingWorkSpecs() {
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
-        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.id);
         List<WorkSpec> workSpecs = Collections.singletonList(workSpecWithConstraint);
         mTestIdleController.replace(workSpecs);
-        verify(mCallback, times(2)).onConstraintNotMet(expectedWorkIds);
+        verify(mCallback, times(2)).onConstraintNotMet(workSpecs);
 
         final boolean deviceIdle = false;
         mTestIdleController.onConstraintChanged(deviceIdle);
-        verify(mCallback, times(3)).onConstraintNotMet(expectedWorkIds);
+        verify(mCallback, times(3)).onConstraintNotMet(workSpecs);
     }
 
     @Test
     @SmallTest
     public void testOnConstraintChanged_toUnconstrained_withMatchingWorkSpecs() {
         WorkSpec workSpecWithConstraint = createTestConstraintWorkSpec();
-        List<String> expectedWorkIds = Collections.singletonList(workSpecWithConstraint.id);
         List<WorkSpec> workSpecs = Collections.singletonList(workSpecWithConstraint);
         mTestIdleController.replace(workSpecs);
 
         final boolean deviceIdle = true;
         mTestIdleController.onConstraintChanged(deviceIdle);
-        verify(mCallback).onConstraintMet(expectedWorkIds);
+        verify(mCallback).onConstraintMet(workSpecs);
     }
 
     @Test

@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeParameterElement
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE
 import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.KspExperimental
@@ -54,6 +55,10 @@ internal abstract class KspExecutableElement(
 
     override val closestMemberContainer: XMemberContainer
         get() = enclosingElement
+
+    override val typeParameters: List<XTypeParameterElement> by lazy {
+        declaration.typeParameters.map { KspTypeParameterElement(env, it) }
+    }
 
     @OptIn(KspExperimental::class)
     override val thrownTypes: List<XType> by lazy {

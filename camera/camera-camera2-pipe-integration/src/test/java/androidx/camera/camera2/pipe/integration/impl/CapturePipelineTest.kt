@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
+import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession
@@ -51,7 +52,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.guava.asListenableFuture
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.AfterClass
@@ -69,7 +69,6 @@ import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 
-@Ignore // b/216788724
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -210,11 +209,13 @@ class CapturePipelineTest {
     }
 
     @Test
+    @Ignore // b/216788724
     fun miniLatency_flashOn_shouldTriggerAePreCapture(): Unit = runBlocking {
         flashOn_shouldTriggerAePreCapture(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
     }
 
     @Test
+    @Ignore // b/216788724
     fun maxQuality_flashOn_shouldTriggerAePreCapture(): Unit = runBlocking {
         flashOn_shouldTriggerAePreCapture(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
     }
@@ -250,11 +251,13 @@ class CapturePipelineTest {
     }
 
     @Test
+    @Ignore // b/216788724
     fun miniLatency_flashAutoFlashRequired_shouldTriggerAePreCapture(): Unit = runBlocking {
         flashAutoFlashRequired_shouldTriggerAePreCapture(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
     }
 
     @Test
+    @Ignore // b/216788724
     fun maxQuality_flashAutoFlashRequired_shouldTriggerAePreCapture(): Unit = runBlocking {
         flashAutoFlashRequired_shouldTriggerAePreCapture(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
     }
@@ -302,11 +305,13 @@ class CapturePipelineTest {
     //  maxQuality_withTorchAsFlashQuirk_shouldOpenTorch
 
     @Test
+    @Ignore // b/216788724
     fun miniLatency_withTemplateRecord_shouldOpenTorch(): Unit = runBlocking {
         withTemplateRecord_shouldOpenTorch(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
     }
 
     @Test
+    @Ignore // b/216788724
     fun maxQuality_withTemplateRecord_shouldOpenTorch(): Unit = runBlocking {
         withTemplateRecord_shouldOpenTorch(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
     }
@@ -348,11 +353,13 @@ class CapturePipelineTest {
     }
 
     @Test
+    @Ignore // b/216788724
     fun miniLatency_withFlashTypeTorch_shouldOpenTorch(): Unit = runBlocking {
         withFlashTypeTorch_shouldOpenTorch(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
     }
 
     @Test
+    @Ignore // b/216788724
     fun maxQuality_withFlashTypeTorch_shouldOpenTorch(): Unit = runBlocking {
         withFlashTypeTorch_shouldOpenTorch(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
     }
@@ -392,6 +399,7 @@ class CapturePipelineTest {
     }
 
     @Test
+    @Ignore // b/216788724
     fun miniLatency_flashRequired_withFlashTypeTorch_shouldLock3A(): Unit = runBlocking {
         withFlashTypeTorch_shouldLock3A(
             ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
@@ -400,6 +408,7 @@ class CapturePipelineTest {
     }
 
     @Test
+    @Ignore // b/216788724
     fun maxQuality_withFlashTypeTorch_shouldLock3A(): Unit = runBlocking {
         withFlashTypeTorch_shouldLock3A(
             ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY,
@@ -441,6 +450,7 @@ class CapturePipelineTest {
     }
 
     @Test
+    @Ignore // b/216788724
     fun miniLatency_withFlashTypeTorch_shouldNotLock3A(): Unit = runBlocking {
         // Act.
         capturePipeline.submitStillCaptures(
@@ -457,6 +467,7 @@ class CapturePipelineTest {
     }
 
     @Test
+    @Ignore // b/216788724
     fun withFlashTypeTorch_torchAlreadyOn_skipTurnOnTorch(): Unit = runBlocking {
         // Arrange.
         // Ensure the torch is already turned on before capturing.
@@ -480,6 +491,7 @@ class CapturePipelineTest {
     }
 
     @Test
+    @Ignore // b/216788724
     fun miniLatency_shouldNotAePreCapture(): Unit = runBlocking {
         // Act.
         capturePipeline.submitStillCaptures(
@@ -496,6 +508,7 @@ class CapturePipelineTest {
     }
 
     @Test
+    @Ignore // b/216788724
     fun captureFailure_taskShouldFailure(): Unit = runBlocking {
         // Arrange.
         fakeCameraGraphSession.requestHandler = { requests ->
@@ -532,6 +545,7 @@ class CapturePipelineTest {
     }
 
     @Test
+    @Ignore // b/216788724
     fun captureCancel_taskShouldFailureWithCAMERA_CLOSED(): Unit = runBlocking {
         // Arrange.
         fakeCameraGraphSession.requestHandler = { requests ->

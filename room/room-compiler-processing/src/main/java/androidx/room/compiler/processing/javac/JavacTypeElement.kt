@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMemberContainer
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.XTypeParameterElement
 import androidx.room.compiler.processing.collectAllMethods
 import androidx.room.compiler.processing.collectFieldsIncludingPrivateSupers
 import androidx.room.compiler.processing.filterMethodsByConfig
@@ -64,6 +65,13 @@ internal sealed class JavacTypeElement(
 
     override val enclosingElement: XMemberContainer? by lazy {
         enclosingTypeElement
+    }
+
+    override val typeParameters: List<XTypeParameterElement> by lazy {
+        element.typeParameters.mapIndexed { index, typeParameter ->
+            val typeArgument = kotlinMetadata?.kmType?.typeArguments?.get(index)
+            JavacTypeParameterElement(env, this, typeParameter, typeArgument)
+        }
     }
 
     override val closestMemberContainer: JavacTypeElement

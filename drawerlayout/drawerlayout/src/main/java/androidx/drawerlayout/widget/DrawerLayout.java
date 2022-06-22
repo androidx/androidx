@@ -367,6 +367,7 @@ public class DrawerLayout extends ViewGroup implements Openable {
                         });
                 setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+                @SuppressLint("ResourceType")
                 final TypedArray a = context.obtainStyledAttributes(THEME_ATTRS);
                 try {
                     mStatusBarBackground = a.getDrawable(0);
@@ -2080,6 +2081,7 @@ public class DrawerLayout extends ViewGroup implements Openable {
         }
     }
 
+    @NonNull
     @Override
     protected Parcelable onSaveInstanceState() {
         final Parcelable superState = super.onSaveInstanceState();

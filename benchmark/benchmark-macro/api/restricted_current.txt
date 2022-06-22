@@ -5,6 +5,8 @@ package androidx.benchmark.macro {
   }
 
   public enum BaselineProfileMode {
+    method public static androidx.benchmark.macro.BaselineProfileMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.benchmark.macro.BaselineProfileMode[] values();
     enum_constant public static final androidx.benchmark.macro.BaselineProfileMode Disable;
     enum_constant public static final androidx.benchmark.macro.BaselineProfileMode Require;
     enum_constant public static final androidx.benchmark.macro.BaselineProfileMode UseIfAvailable;
@@ -97,6 +99,8 @@ package androidx.benchmark.macro {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public enum PowerCategory {
+    method public static androidx.benchmark.macro.PowerCategory valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.benchmark.macro.PowerCategory[] values();
     enum_constant public static final androidx.benchmark.macro.PowerCategory CPU;
     enum_constant public static final androidx.benchmark.macro.PowerCategory DISPLAY;
     enum_constant public static final androidx.benchmark.macro.PowerCategory GPS;
@@ -108,6 +112,8 @@ package androidx.benchmark.macro {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public enum PowerCategoryDisplayLevel {
+    method public static androidx.benchmark.macro.PowerCategoryDisplayLevel valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.benchmark.macro.PowerCategoryDisplayLevel[] values();
     enum_constant public static final androidx.benchmark.macro.PowerCategoryDisplayLevel BREAKDOWN;
     enum_constant public static final androidx.benchmark.macro.PowerCategoryDisplayLevel TOTAL;
   }
@@ -147,6 +153,8 @@ package androidx.benchmark.macro {
   }
 
   public enum StartupMode {
+    method public static androidx.benchmark.macro.StartupMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.benchmark.macro.StartupMode[] values();
     enum_constant public static final androidx.benchmark.macro.StartupMode COLD;
     enum_constant public static final androidx.benchmark.macro.StartupMode HOT;
     enum_constant public static final androidx.benchmark.macro.StartupMode WARM;

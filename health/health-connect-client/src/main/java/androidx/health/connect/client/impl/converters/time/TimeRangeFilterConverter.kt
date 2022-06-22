@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.impl.converters.time
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.platform.client.proto.TimeProto
 
-/** Converts public API object into internal proto for ipc. */
+/**
+ * Converts public API object into internal proto for ipc.
+ *
+ * @suppress
+ */
 @SuppressWarnings("NewApi") // TODO(b/208786847) figure a way to suppress false positive NewApi
 fun TimeRangeFilter.toProto(): TimeProto.TimeSpec {
     val obj = this

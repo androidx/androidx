@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.os.Build;
 import android.view.ViewGroup;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
@@ -54,7 +55,7 @@ class ViewGroupUtils {
      */
     static void suppressLayout(@NonNull ViewGroup group, boolean suppress) {
         if (Build.VERSION.SDK_INT >= 29) {
-            group.suppressLayout(suppress);
+            Api29Impl.suppressLayout(group, suppress);
         } else if (Build.VERSION.SDK_INT >= 18) {
             hiddenSuppressLayout(group, suppress);
         } else {
@@ -69,7 +70,7 @@ class ViewGroupUtils {
             // Since this was an @hide method made public, we can link directly against it with
             // a try/catch for its absence instead of doing the same through reflection.
             try {
-                group.suppressLayout(suppress);
+                Api29Impl.suppressLayout(group, suppress);
             } catch (NoSuchMethodError e) {
                 sTryHiddenSuppressLayout = false;
             }
@@ -81,7 +82,7 @@ class ViewGroupUtils {
      */
     static int getChildDrawingOrder(@NonNull ViewGroup viewGroup, int i) {
         if (Build.VERSION.SDK_INT >= 29) {
-            return viewGroup.getChildDrawingOrder(i);
+            return Api29Impl.getChildDrawingOrder(viewGroup, i);
         } else {
             if (!sGetChildDrawingOrderMethodFetched) {
                 try {
@@ -107,6 +108,22 @@ class ViewGroupUtils {
     }
 
 
-    private ViewGroupUtils() {
+    private ViewGroupUtils() { }
+
+    @RequiresApi(29)
+    static class Api29Impl {
+        private Api29Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void suppressLayout(ViewGroup viewGroup, boolean suppress) {
+            viewGroup.suppressLayout(suppress);
+        }
+
+        @DoNotInline
+        static int getChildDrawingOrder(ViewGroup viewGroup, int drawingPosition) {
+            return viewGroup.getChildDrawingOrder(drawingPosition);
+        }
     }
 }

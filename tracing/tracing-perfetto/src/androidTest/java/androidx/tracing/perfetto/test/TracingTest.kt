@@ -16,6 +16,8 @@
 
 package androidx.tracing.perfetto.test
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.tracing.perfetto.Tracing
@@ -25,6 +27,7 @@ import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
+@RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
 class TracingTest {
     @Test
     fun test_endToEnd_binaryDependenciesPresent() {

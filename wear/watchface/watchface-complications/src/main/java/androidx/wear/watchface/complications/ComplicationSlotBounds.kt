@@ -37,21 +37,40 @@ const val NAMESPACE_ANDROID = "http://schemas.android.com/apk/res/android"
  *
  * One bound is expected per [ComplicationType] to allow [androidx.wear.watchface.ComplicationSlot]s
  * to change shape depending on the type.
+ *
+ * Taps on the watch are tested first against each ComplicationSlot's [perComplicationTypeBounds]
+ * for the relevant [ComplicationType]. Its assumed that [perComplicationTypeBounds] don't overlap.
+ * If no intersection was found then taps are checked against [perComplicationTypeBounds] expanded
+ * by [perComplicationTypeMargins]. Expanded bounds can overlap so the ComplicationSlot with the
+ * lowest id that intersects the coordinates, if any, is selected.
+ *
+ * @param perComplicationTypeBounds Per [ComplicationType] fractional unit-square screen space
+ * complication bounds.
+ * @param perComplicationTypeMargins Per [ComplicationType] fractional unit-square screen space
+ * complication margins for tap detection (doesn't affect rendering).
  */
 public class ComplicationSlotBounds(
-    /** Per [ComplicationType] fractional unit-square screen space complication bounds. */
-    public val perComplicationTypeBounds: Map<ComplicationType, RectF>
+    public val perComplicationTypeBounds: Map<ComplicationType, RectF>,
+    public val perComplicationTypeMargins: Map<ComplicationType, RectF>
 ) {
+    @Deprecated(
+        "Use a constructor that specifies perComplicationTypeMargins",
+        ReplaceWith(
+            "ComplicationSlotBounds(Map<ComplicationType, RectF>, Map<ComplicationType, RectF>)"
+        )
+    )
+    constructor(perComplicationTypeBounds: Map<ComplicationType, RectF>) : this(
+        perComplicationTypeBounds,
+        perComplicationTypeBounds.mapValues { RectF() }
+    )
+
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun write(dos: DataOutputStream) {
         perComplicationTypeBounds.keys.toSortedSet().forEach { type ->
-            val bounds = perComplicationTypeBounds[type]!!
             dos.writeInt(type.toWireComplicationType())
-            dos.writeFloat(bounds.left)
-            dos.writeFloat(bounds.right)
-            dos.writeFloat(bounds.top)
-            dos.writeFloat(bounds.bottom)
+            perComplicationTypeBounds[type]!!.write(dos)
+            perComplicationTypeMargins[type]!!.write(dos)
         }
     }
 
@@ -61,26 +80,47 @@ public class ComplicationSlotBounds(
 
         other as ComplicationSlotBounds
 
-        return perComplicationTypeBounds == other.perComplicationTypeBounds
+        if (perComplicationTypeBounds != other.perComplicationTypeBounds) return false
+        return perComplicationTypeMargins == other.perComplicationTypeMargins
     }
 
     override fun hashCode(): Int {
-        return perComplicationTypeBounds.toSortedMap().hashCode()
+        var result = perComplicationTypeBounds.toSortedMap().hashCode()
+        result = 31 * result + perComplicationTypeMargins.toSortedMap().hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "ComplicationSlotBounds(perComplicationTypeBounds=$perComplicationTypeBounds, " +
+            "perComplicationTypeMargins=$perComplicationTypeMargins)"
     }
 
     /**
      * Constructs a ComplicationSlotBounds where all complication types have the same screen space
-     * unit-square bounds.
+     * unit-square [bounds] and [margins].
      */
-    public constructor(bounds: RectF) : this(ComplicationType.values().associateWith { bounds })
+    @JvmOverloads
+    public constructor(
+        bounds: RectF,
+        margins: RectF = RectF()
+    ) : this(
+        ComplicationType.values().associateWith { bounds },
+        ComplicationType.values().associateWith { margins }
+    )
 
     init {
         require(perComplicationTypeBounds.size == ComplicationType.values().size) {
-            "ComplicationSlotBounds must contain entries for each ComplicationType"
+            "perComplicationTypeBounds must contain entries for each ComplicationType"
+        }
+        require(perComplicationTypeMargins.size == ComplicationType.values().size) {
+            "perComplicationTypeMargins must contain entries for each ComplicationType"
         }
         for (type in ComplicationType.values()) {
             require(perComplicationTypeBounds.containsKey(type)) {
                 "Missing bounds for $type"
+            }
+            require(perComplicationTypeMargins.containsKey(type)) {
+                "Missing margins for $type"
             }
         }
     }
@@ -100,15 +140,18 @@ public class ComplicationSlotBounds(
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun createFromPartialMap(
-            partialPerComplicationTypeBounds: Map<ComplicationType, RectF>
+            partialPerComplicationTypeBounds: Map<ComplicationType, RectF>,
+            partialPerComplicationTypeMargins: Map<ComplicationType, RectF>
         ): ComplicationSlotBounds {
-            val map = HashMap(partialPerComplicationTypeBounds)
+            val boundsMap = HashMap(partialPerComplicationTypeBounds)
+            val marginsMap = HashMap(partialPerComplicationTypeMargins)
 
             for (type in ComplicationType.values()) {
-                map.putIfAbsent(type, RectF())
+                boundsMap.putIfAbsent(type, RectF())
+                marginsMap.putIfAbsent(type, RectF())
             }
 
-            return ComplicationSlotBounds(map)
+            return ComplicationSlotBounds(boundsMap, marginsMap)
         }
 
         /**
@@ -120,6 +163,7 @@ public class ComplicationSlotBounds(
             parser: XmlResourceParser
         ): ComplicationSlotBounds? {
             val perComplicationTypeBounds by lazy { HashMap<ComplicationType, RectF>() }
+            val perComplicationTypeMargins by lazy { HashMap<ComplicationType, RectF>() }
             parser.iterate {
                 when (parser.name) {
                     NODE_NAME -> {
@@ -146,6 +190,12 @@ public class ComplicationSlotBounds(
                                 "either define top, bottom, left, right" +
                                 "or center_x, center_y, size_x, size_y should be specified")
                         }
+                        val margin = RectF(
+                            parser.get("marginLeft", resources) ?: 0f,
+                            parser.get("marginTop", resources) ?: 0f,
+                            parser.get("marginRight", resources) ?: 0f,
+                            parser.get("marginBottom", resources) ?: 0f
+                        )
                         if (null != parser.getAttributeValue(
                                 NAMESPACE_APP,
                                 "complicationType"
@@ -164,6 +214,7 @@ public class ComplicationSlotBounds(
                                 "Duplicate $complicationType"
                             }
                             perComplicationTypeBounds[complicationType] = rect
+                            perComplicationTypeMargins[complicationType] = margin
                         } else {
                             for (complicationType in ComplicationType.values()) {
                                 require(
@@ -174,6 +225,7 @@ public class ComplicationSlotBounds(
                                     "Duplicate $complicationType"
                                 }
                                 perComplicationTypeBounds[complicationType] = rect
+                                perComplicationTypeMargins[complicationType] = margin
                             }
                         }
                     }
@@ -184,7 +236,7 @@ public class ComplicationSlotBounds(
             return if (perComplicationTypeBounds.isEmpty()) {
                 null
             } else {
-                createFromPartialMap(perComplicationTypeBounds)
+                createFromPartialMap(perComplicationTypeBounds, perComplicationTypeMargins)
             }
         }
     }
@@ -194,11 +246,18 @@ internal fun XmlResourceParser.requireAndGet(
     id: String,
     resources: Resources
 ): Float {
-    val stringValue = getAttributeValue(NAMESPACE_APP, id)
-    require(null != stringValue) {
+    val value = get(id, resources)
+    require(value != null) {
         "${ComplicationSlotBounds.NODE_NAME} must define '$id'"
     }
+    return value
+}
 
+internal fun XmlResourceParser.get(
+    id: String,
+    resources: Resources
+): Float? {
+    val stringValue = getAttributeValue(NAMESPACE_APP, id) ?: return null
     val resId = getAttributeResourceValue(NAMESPACE_APP, id, 0)
     if (resId != 0) {
         return resources.getDimension(resId) / resources.displayMetrics.widthPixels
@@ -223,4 +282,11 @@ internal fun XmlResourceParser.requireAndGet(
 
 fun XmlResourceParser.hasValue(id: String): Boolean {
     return null != getAttributeValue(NAMESPACE_APP, id)
+}
+
+internal fun RectF.write(dos: DataOutputStream) {
+    dos.writeFloat(left)
+    dos.writeFloat(right)
+    dos.writeFloat(top)
+    dos.writeFloat(bottom)
 }

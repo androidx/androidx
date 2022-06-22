@@ -2498,6 +2498,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                             getFragmentFactory(), stateBundle);
                 }
                 Fragment f = fragmentStateManager.getFragment();
+                f.mSavedFragmentState = stateBundle;
                 f.mFragmentManager = this;
                 if (isLoggingEnabled(Log.VERBOSE)) {
                     Log.v(TAG, "restoreSaveState: active (" + f.mWho + "): " + f);

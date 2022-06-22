@@ -35,7 +35,7 @@ import java.util.List;
  *
  * <h3>Example</h3>
  * <pre>
- * MediaRouteSelector selectorBuilder = new MediaRouteSelector.Builder()
+ * MediaRouteSelector selector = new MediaRouteSelector.Builder()
  *         .addControlCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO)
  *         .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
  *         .build();

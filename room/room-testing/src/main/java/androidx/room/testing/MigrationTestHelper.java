@@ -27,6 +27,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.room.AutoMigration;
 import androidx.room.DatabaseConfiguration;
@@ -100,6 +101,8 @@ public class MigrationTestHelper extends TestWatcher {
     private List<AutoMigrationSpec> mSpecs;
     @Nullable
     private Class<? extends RoomDatabase> mDatabaseClass;
+    @NonNull
+    private DatabaseConfiguration mDatabaseConfiguration;
 
     /**
      * Creates a new migration helper. It uses the Instrumentation context to load the schema
@@ -302,9 +305,19 @@ public class MigrationTestHelper extends TestWatcher {
         }
         SchemaBundle schemaBundle = loadSchema(version);
         RoomDatabase.MigrationContainer container = new RoomDatabase.MigrationContainer();
-        container.addMigrations(getAutoMigrations(mSpecs));
         container.addMigrations(migrations);
-        DatabaseConfiguration configuration = new DatabaseConfiguration(
+        List<Migration> autoMigrations = getAutoMigrations(mSpecs);
+        for (Migration autoMigration : autoMigrations) {
+            boolean migrationExists = container.contains(
+                    autoMigration.startVersion,
+                    autoMigration.endVersion
+            );
+            if (!migrationExists) {
+                container.addMigrations(autoMigration);
+            }
+        }
+
+        mDatabaseConfiguration = new DatabaseConfiguration(
                 mInstrumentation.getTargetContext(),
                 name,
                 mOpenFactory,
@@ -324,13 +337,28 @@ public class MigrationTestHelper extends TestWatcher {
                 null,
                 emptyList(),
                 emptyList());
-        RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
+        RoomOpenHelper roomOpenHelper = new RoomOpenHelper(mDatabaseConfiguration,
                 new MigratingDelegate(schemaBundle.getDatabase(), validateDroppedTables),
                 // we pass the same hash twice since an old schema does not necessarily have
                 // a legacy hash and we would not even persist it.
                 schemaBundle.getDatabase().getIdentityHash(),
                 schemaBundle.getDatabase().getIdentityHash());
         return openDatabase(name, roomOpenHelper);
+    }
+
+    /**
+     * Returns the {@link DatabaseConfiguration} at the current state of the database after all
+     * migrations have been run and validated in
+     * {@link MigrationTestHelper#runMigrationsAndValidate(String, int, boolean, Migration...)}.
+     * <p>
+     * Returns null if runMigrationsAndValidate() has not been called yet.
+     *
+     * @hide
+     */
+    @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public DatabaseConfiguration getDbConfigurationAfterMigrations() {
+        return mDatabaseConfiguration;
     }
 
     /**

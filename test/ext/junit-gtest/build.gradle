@@ -73,7 +73,7 @@ android {
 }
 
 afterEvaluate {
-    tasks.withType(com.android.build.gradle.tasks.PrefabPackageTask).configureEach { task ->
+    tasks.withType(com.android.build.gradle.tasks.PrefabPackageConfigurationTask).configureEach { task ->
         task.doLast {
             // the following modification to junit-gtest/module.json is required so that the consuming library
             // does not need to add the same flags to their CMakeLists.txt. If AGP adds explicit support for

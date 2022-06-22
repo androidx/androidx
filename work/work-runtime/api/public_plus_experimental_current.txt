@@ -7,6 +7,8 @@ package androidx.work {
   }
 
   public enum BackoffPolicy {
+    method public static androidx.work.BackoffPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.BackoffPolicy[] values();
     enum_constant public static final androidx.work.BackoffPolicy EXPONENTIAL;
     enum_constant public static final androidx.work.BackoffPolicy LINEAR;
   }
@@ -18,6 +20,7 @@ package androidx.work {
     method public int getMaxJobSchedulerId();
     method public int getMinJobSchedulerId();
     method public androidx.work.RunnableScheduler getRunnableScheduler();
+    method public androidx.work.SchedulingExceptionHandler? getSchedulingExceptionHandler();
     method public java.util.concurrent.Executor getTaskExecutor();
     method public androidx.work.WorkerFactory getWorkerFactory();
     field public static final int MIN_SCHEDULER_LIMIT = 20; // 0x14
@@ -33,6 +36,7 @@ package androidx.work {
     method public androidx.work.Configuration.Builder setMaxSchedulerLimit(int);
     method public androidx.work.Configuration.Builder setMinimumLoggingLevel(int);
     method public androidx.work.Configuration.Builder setRunnableScheduler(androidx.work.RunnableScheduler);
+    method public androidx.work.Configuration.Builder setSchedulingExceptionHandler(androidx.work.SchedulingExceptionHandler);
     method public androidx.work.Configuration.Builder setTaskExecutor(java.util.concurrent.Executor);
     method public androidx.work.Configuration.Builder setWorkerFactory(androidx.work.WorkerFactory);
   }
@@ -138,11 +142,15 @@ package androidx.work {
   }
 
   public enum ExistingPeriodicWorkPolicy {
+    method public static androidx.work.ExistingPeriodicWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.ExistingPeriodicWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy KEEP;
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy REPLACE;
   }
 
   public enum ExistingWorkPolicy {
+    method public static androidx.work.ExistingWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.ExistingWorkPolicy[] values();
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND;
     enum_constant public static final androidx.work.ExistingWorkPolicy APPEND_OR_REPLACE;
     enum_constant public static final androidx.work.ExistingWorkPolicy KEEP;
@@ -199,6 +207,8 @@ package androidx.work {
   }
 
   public enum NetworkType {
+    method public static androidx.work.NetworkType valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.NetworkType[] values();
     enum_constant public static final androidx.work.NetworkType CONNECTED;
     enum_constant public static final androidx.work.NetworkType METERED;
     enum_constant public static final androidx.work.NetworkType NOT_REQUIRED;
@@ -248,6 +258,8 @@ package androidx.work {
   }
 
   public enum OutOfQuotaPolicy {
+    method public static androidx.work.OutOfQuotaPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.work.OutOfQuotaPolicy[] values();
     enum_constant public static final androidx.work.OutOfQuotaPolicy DROP_WORK_REQUEST;
     enum_constant public static final androidx.work.OutOfQuotaPolicy RUN_AS_NON_EXPEDITED_WORK_REQUEST;
   }
@@ -287,6 +299,10 @@ package androidx.work {
   public interface RunnableScheduler {
     method public void cancel(Runnable);
     method public void scheduleWithDelay(@IntRange(from=0) long, Runnable);
+  }
+
+  public interface SchedulingExceptionHandler {
+    method public void handleException(Throwable);
   }
 
   public abstract class WorkContinuation {

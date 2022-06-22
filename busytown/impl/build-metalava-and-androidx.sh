@@ -53,12 +53,9 @@ buildMetalava
 # Mac grep doesn't support -P, so use perl version of `grep -oP "(?<=metalavaVersion=).*"`
 export METALAVA_VERSION=`perl -nle'print $& while m{(?<=metalavaVersion=).*}g' $METALAVA_DIR/src/main/resources/version.properties`
 export METALAVA_REPO="$ROOT_DIR/out/dist/repo/m2repository"
-export JAVA_TOOLS_JAR="$(pwd)/prebuilts/jdk/jdk8/$PREBUILT_JDK/lib/tools.jar"
 
 function buildAndroidx() {
-  LOG_PROCESSOR="$SCRIPTS_DIR/../development/build_log_processor.sh"
-  properties="-Pandroidx.summarizeStderr --no-daemon"
-  "$LOG_PROCESSOR" $gw $properties -p frameworks/support $androidxArguments \
+  ./frameworks/support/busytown/impl/build.sh $androidxArguments \
     --dependency-verification=off # building against tip of tree of metalava that potentially pulls in new dependencies
 
 }

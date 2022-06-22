@@ -91,6 +91,7 @@ dependencies {
 android {
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    resourcePrefix "glance_"
 
     sourceSets {
         androidTest.assets.srcDirs += project.rootDir.absolutePath + "/../../golden/glance/glance-appwidget"

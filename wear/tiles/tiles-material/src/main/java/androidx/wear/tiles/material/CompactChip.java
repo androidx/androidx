@@ -46,6 +46,25 @@ import androidx.wear.tiles.proto.LayoutElementProto;
  * <p>The recommended set of {@link ChipColors} styles can be obtained from {@link ChipDefaults}.,
  * e.g. {@link ChipDefaults#COMPACT_PRIMARY_COLORS} to get a color scheme for a primary {@link
  * CompactChip}.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * CompactChip chip = new CompactChip...
+ * Box box = new Box.Builder().addContent(chip).build();
+ *
+ * CompactChip myChip = (CompactChip) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link CompactChip} object from any layout element, {@link
+ * #fromLayoutElement} method should be used, i.e.:
+ *
+ * <pre>{@code
+ * CompactChip myChip = CompactChip.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class CompactChip implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a CompactChip. */
@@ -69,8 +88,7 @@ public class CompactChip implements LayoutElement {
          * Creates a builder for the {@link CompactChip} with associated action and the given text
          *
          * @param context The application's context.
-         * @param text The text to be displayed in this compact chip. It shouldn't contain more than
-         *     9 characters. Any extra characters will be deleted.
+         * @param text The text to be displayed in this compact chip.
          * @param clickable Associated {@link Clickable} for click events. When the CompactChip is
          *     clicked it will fire the associated action.
          * @param deviceParameters The device parameters used for styling text.
@@ -81,7 +99,7 @@ public class CompactChip implements LayoutElement {
                 @NonNull Clickable clickable,
                 @NonNull DeviceParameters deviceParameters) {
             this.mContext = context;
-            this.mText = text.substring(0, Math.min(text.length(), 9));
+            this.mText = text;
             this.mClickable = clickable;
             this.mDeviceParameters = deviceParameters;
         }
@@ -135,7 +153,7 @@ public class CompactChip implements LayoutElement {
     /** Returns text content of this Chip. */
     @NonNull
     public String getText() {
-        return checkNotNull(mElement.getPrimaryText());
+        return checkNotNull(mElement.getPrimaryTextContent());
     }
 
     /** Returns metadata tag set to this CompactChip, which should be {@link #METADATA_TAG}. */
@@ -145,11 +163,15 @@ public class CompactChip implements LayoutElement {
     }
 
     /**
-     * Returns CompactChip object from the given LayoutElement if that element can be converted to
-     * CompactChip. Otherwise, returns null.
+     * Returns CompactChip object from the given LayoutElement (e.g. one retrieved from a
+     * container's content with {@code container.getContents().get(index)}) if that element can be
+     * converted to CompactChip. Otherwise, it will return null.
      */
     @Nullable
     public static CompactChip fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof CompactChip) {
+            return (CompactChip) element;
+        }
         if (!(element instanceof Box)) {
             return null;
         }

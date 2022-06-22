@@ -38,7 +38,7 @@ internal class StartActivityIntentAction(
  * @param parameters the parameters associated with the action. Parameter values will be added to
  * the activity intent, keyed by the parameter key name string.
  */
-public fun actionStartActivity(
+fun actionStartActivity(
     intent: Intent,
     parameters: ActionParameters = actionParametersOf()
 ): Action = StartActivityIntentAction(intent, parameters)

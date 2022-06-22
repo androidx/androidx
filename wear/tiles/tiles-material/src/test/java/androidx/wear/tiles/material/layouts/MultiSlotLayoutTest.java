@@ -57,6 +57,8 @@ public class MultiSlotLayoutTest {
 
         assertThat(newLayout).isNotNull();
         assertLayoutIsEqual(content1, content2, spacerWidth, newLayout);
+
+        assertThat(MultiSlotLayout.fromLayoutElement(layout)).isEqualTo(layout);
     }
 
     @Test

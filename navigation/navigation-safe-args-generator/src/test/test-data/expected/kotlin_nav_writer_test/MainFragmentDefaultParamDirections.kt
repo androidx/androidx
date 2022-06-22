@@ -12,7 +12,7 @@ public class MainFragmentDefaultParamDirections private constructor() {
     public val main: String,
     public val optional: String = "bla",
     public val optionalFloat: Float = 0.1F,
-    public val optionalInt: Int = 1
+    public val optionalInt: Int = 1,
   ) : NavDirections {
     public override val actionId: Int = R.id.next
 
@@ -34,7 +34,7 @@ public class MainFragmentDefaultParamDirections private constructor() {
       main: String,
       optional: String = "bla",
       optionalFloat: Float = 0.1F,
-      optionalInt: Int = 1
+      optionalInt: Int = 1,
     ): NavDirections = Next(main, optional, optionalFloat, optionalInt)
   }
 }

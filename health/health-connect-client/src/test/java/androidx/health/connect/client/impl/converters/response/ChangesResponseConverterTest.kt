@@ -17,10 +17,10 @@ package androidx.health.connect.client.impl.converters.response
 
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
-import androidx.health.connect.client.metadata.DataOrigin
-import androidx.health.connect.client.metadata.Device
-import androidx.health.connect.client.metadata.Metadata
-import androidx.health.connect.client.records.Steps
+import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.Device
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.platform.client.proto.ChangeProto
 import androidx.health.platform.client.proto.DataProto
 import androidx.health.platform.client.proto.ResponseProto
@@ -71,7 +71,7 @@ class ChangesResponseConverterTest {
         assertThat(changesResponse.changes).hasSize(1)
         assertThat((changesResponse.changes[0] as? UpsertionChange)?.record)
             .isEqualTo(
-                Steps(
+                StepsRecord(
                     count = 120,
                     startTime = Instant.ofEpochMilli(1234L),
                     startZoneOffset = null,

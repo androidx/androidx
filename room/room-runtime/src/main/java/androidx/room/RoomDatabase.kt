@@ -27,7 +27,6 @@ import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.room.migration.AutoMigrationSpec
@@ -73,12 +72,29 @@ abstract class RoomDatabase {
     @JvmField
     protected var mDatabase: SupportSQLiteDatabase? = null
 
-    private lateinit var queryExecutor: Executor
+    /**
+     * The Executor in use by this database for async queries.
+     */
+    open val queryExecutor: Executor
+        get() = internalQueryExecutor
 
-    private lateinit var transactionExecutor: Executor
+    private lateinit var internalQueryExecutor: Executor
 
-    @VisibleForTesting
-    internal lateinit var openHelper: SupportSQLiteOpenHelper
+    /**
+     * The Executor in use by this database for async transactions.
+     */
+    open val transactionExecutor: Executor
+        get() = internalTransactionExecutor
+
+    private lateinit var internalTransactionExecutor: Executor
+
+    /**
+     * The SQLite open helper used by this database.
+     */
+    open val openHelper: SupportSQLiteOpenHelper
+        get() = internalOpenHelper
+
+    private lateinit var internalOpenHelper: SupportSQLiteOpenHelper
 
     /**
      * The invalidation tracker for this database.
@@ -167,7 +183,7 @@ abstract class RoomDatabase {
     @CallSuper
     @Suppress("DEPRECATION")
     open fun init(configuration: DatabaseConfiguration) {
-        openHelper = createOpenHelper(configuration)
+        internalOpenHelper = createOpenHelper(configuration)
         val requiredAutoMigrationSpecs = getRequiredAutoMigrationSpecs()
         val usedSpecs = BitSet()
         for (spec in requiredAutoMigrationSpecs) {
@@ -196,8 +212,10 @@ abstract class RoomDatabase {
         }
         val autoMigrations = getAutoMigrations(autoMigrationSpecs)
         for (autoMigration in autoMigrations) {
-            val migrationExists = configuration.migrationContainer.getMigrations()
-                .containsKey(autoMigration.startVersion)
+            val migrationExists = configuration.migrationContainer.contains(
+                autoMigration.startVersion,
+                autoMigration.endVersion
+            )
             if (!migrationExists) {
                 configuration.migrationContainer.addMigrations(autoMigration)
             }
@@ -225,8 +243,8 @@ abstract class RoomDatabase {
             false
         }
         mCallbacks = configuration.callbacks
-        queryExecutor = configuration.queryExecutor
-        transactionExecutor = TransactionExecutor(configuration.transactionExecutor)
+        internalQueryExecutor = configuration.queryExecutor
+        internalTransactionExecutor = TransactionExecutor(configuration.transactionExecutor)
         allowMainThreadQueries = configuration.allowMainThreadQueries
         writeAheadLoggingEnabled = wal
         if (configuration.multiInstanceInvalidationServiceIntent != null) {
@@ -535,29 +553,6 @@ abstract class RoomDatabase {
             // endTransaction call to do it.
             invalidationTracker.refreshVersionsAsync()
         }
-    }
-
-    /**
-     * Returns the SQLite open helper used by this database.
-     *
-     * @return The SQLite open helper used by this database.
-     */
-    open fun getOpenHelper(): SupportSQLiteOpenHelper {
-        return openHelper
-    }
-
-    /**
-     * @return The Executor in use by this database for async queries.
-     */
-    open fun getQueryExecutor(): Executor {
-        return queryExecutor
-    }
-
-    /**
-     * @return The Executor in use by this database for async transactions.
-     */
-    open fun getTransactionExecutor(): Executor {
-        return transactionExecutor
     }
 
     /**
@@ -1458,6 +1453,23 @@ abstract class RoomDatabase {
                 }
             }
             return result
+        }
+
+        /**
+         * Indicates if the given migration is contained within the [MigrationContainer] based
+         * on its start-end versions.
+         *
+         * @param startVersion Start version of the migration.
+         * @param endVersion End version of the migration
+         * @return True if it contains a migration with the same start-end version, false otherwise.
+         */
+        fun contains(startVersion: Int, endVersion: Int): Boolean {
+            val migrations = getMigrations()
+            if (migrations.containsKey(startVersion)) {
+                val startVersionMatches = migrations[startVersion] ?: emptyMap()
+                return startVersionMatches.containsKey(endVersion)
+            }
+            return false
         }
     }
 

@@ -158,6 +158,8 @@ public class TextTest {
         Text newText = Text.fromLayoutElement(box.getContents().get(0));
         assertThat(newText).isNotNull();
         assertTextIsEqual(newText, textContent, modifiers, color, expectedFontStyle);
+
+        assertThat(Text.fromLayoutElement(text)).isEqualTo(text);
     }
 
     private void assertTextIsEqual(
