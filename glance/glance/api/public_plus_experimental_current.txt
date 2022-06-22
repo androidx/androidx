@@ -378,33 +378,48 @@ package androidx.glance.template {
     property public final String title;
   }
 
+  @kotlin.jvm.JvmInline public final value class ListStyle {
+    field public static final androidx.glance.template.ListStyle.Companion Companion;
+  }
+
+  public static final class ListStyle.Companion {
+    method public int getBrief();
+    method public int getFull();
+    property public final int Brief;
+    property public final int Full;
+  }
+
   public final class ListTemplateData {
-    ctor public ListTemplateData(androidx.glance.template.TemplateImageWithDescription headerIcon, optional java.util.List<androidx.glance.template.ListTemplateItem> listContent, optional androidx.glance.template.TemplateText? header, optional androidx.glance.template.TemplateText? title, optional androidx.glance.template.TemplateTextButton? button, optional androidx.glance.unit.ColorProvider? backgroundColor);
+    ctor public ListTemplateData(optional androidx.glance.template.TemplateImageWithDescription? headerIcon, optional java.util.List<androidx.glance.template.ListTemplateItem> listContent, optional androidx.glance.template.TemplateText? header, optional androidx.glance.template.TemplateText? title, optional androidx.glance.template.TemplateButton? button, optional androidx.glance.unit.ColorProvider? backgroundColor, optional int listStyle);
     method public androidx.glance.unit.ColorProvider? getBackgroundColor();
-    method public androidx.glance.template.TemplateTextButton? getButton();
+    method public androidx.glance.template.TemplateButton? getButton();
     method public androidx.glance.template.TemplateText? getHeader();
-    method public androidx.glance.template.TemplateImageWithDescription getHeaderIcon();
+    method public androidx.glance.template.TemplateImageWithDescription? getHeaderIcon();
     method public java.util.List<androidx.glance.template.ListTemplateItem> getListContent();
+    method public int getListStyle();
     method public androidx.glance.template.TemplateText? getTitle();
     property public final androidx.glance.unit.ColorProvider? backgroundColor;
-    property public final androidx.glance.template.TemplateTextButton? button;
+    property public final androidx.glance.template.TemplateButton? button;
     property public final androidx.glance.template.TemplateText? header;
-    property public final androidx.glance.template.TemplateImageWithDescription headerIcon;
+    property public final androidx.glance.template.TemplateImageWithDescription? headerIcon;
     property public final java.util.List<androidx.glance.template.ListTemplateItem> listContent;
+    property public final int listStyle;
     property public final androidx.glance.template.TemplateText? title;
   }
 
   public final class ListTemplateItem {
-    ctor public ListTemplateItem(androidx.glance.template.TemplateText title, androidx.glance.template.TemplateText? body, androidx.glance.action.Action? action, androidx.glance.template.TemplateImageWithDescription? image, androidx.glance.template.TemplateButton? button);
+    ctor public ListTemplateItem(androidx.glance.template.TemplateText title, optional androidx.glance.template.TemplateText? body, optional androidx.glance.template.TemplateText? label, optional androidx.glance.action.Action? action, optional androidx.glance.template.TemplateImageWithDescription? image, optional androidx.glance.template.TemplateButton? button);
     method public androidx.glance.action.Action? getAction();
     method public androidx.glance.template.TemplateText? getBody();
     method public androidx.glance.template.TemplateButton? getButton();
     method public androidx.glance.template.TemplateImageWithDescription? getImage();
+    method public androidx.glance.template.TemplateText? getLabel();
     method public androidx.glance.template.TemplateText getTitle();
     property public final androidx.glance.action.Action? action;
     property public final androidx.glance.template.TemplateText? body;
     property public final androidx.glance.template.TemplateButton? button;
     property public final androidx.glance.template.TemplateImageWithDescription? image;
+    property public final androidx.glance.template.TemplateText? label;
     property public final androidx.glance.template.TemplateText title;
   }
 
