@@ -198,7 +198,7 @@ class ImageCaptureExtenderValidationTest(
     @Test
     fun returnCaptureStages_whenCaptureProcessorIsNotNull(): Unit = runBlocking {
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
-        // window before start the test.
+        // window before starting the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
 
         val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
