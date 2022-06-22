@@ -5,9 +5,10 @@
     <application
         android:allowBackup="false"
         android:label="@string/app_name"
+        android:theme="@style/Theme.AppCompat.Light"
         tools:ignore="GoogleAppIndexingWarning,MissingApplicationIcon">
         <activity
-            android:name=".BluetoothXTestAppActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,5 +17,10 @@
             </intent-filter>
         </activity>
     </application>
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
 
 </manifest>
