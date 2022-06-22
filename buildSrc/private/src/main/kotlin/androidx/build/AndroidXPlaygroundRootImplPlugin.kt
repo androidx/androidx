@@ -83,7 +83,9 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
                     val snapshotVersion = findSnapshotVersion(requested.group, requested.name)
                     details.useVersion(snapshotVersion)
                 }
-                // tracing perfetto binaries are not published
+                // workaround for 236834525
+                // perfetto tracing binary is missing from prebuilts, this code revert it
+                // to the latest alpha version as a workaround for now.
                 if (requested.group == "androidx.tracing" &&
                     requested.name == "tracing-perfetto-binary"
                 ) {
