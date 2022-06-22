@@ -29,6 +29,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+// This class is guaranteed to only be called on SDKs 14-18 due to gating
 class ViewUtilsBase {
 
     private static final String TAG = "ViewUtilsBase";
@@ -138,6 +139,7 @@ class ViewUtilsBase {
         }
     }
 
+    @SuppressLint("BanUncheckedReflection") // This class is only used on APIs 14-18
     public void setLeftTopRightBottom(@NonNull View v, int left, int top, int right, int bottom) {
         fetchSetFrame();
         if (sSetFrameMethod != null) {
