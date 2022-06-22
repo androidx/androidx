@@ -265,10 +265,10 @@ package androidx.recyclerview.widget {
   }
 
   public interface ItemTouchUIUtil {
-    method public void clearView(android.view.View!);
-    method public void onDraw(android.graphics.Canvas!, androidx.recyclerview.widget.RecyclerView!, android.view.View!, float, float, int, boolean);
-    method public void onDrawOver(android.graphics.Canvas!, androidx.recyclerview.widget.RecyclerView!, android.view.View!, float, float, int, boolean);
-    method public void onSelected(android.view.View!);
+    method public void clearView(android.view.View);
+    method public void onDraw(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean);
+    method public void onDrawOver(android.graphics.Canvas, androidx.recyclerview.widget.RecyclerView, android.view.View, float, float, int, boolean);
+    method public void onSelected(android.view.View);
   }
 
   public class LinearLayoutManager extends androidx.recyclerview.widget.RecyclerView.LayoutManager implements androidx.recyclerview.widget.ItemTouchHelper.ViewDropHandler androidx.recyclerview.widget.RecyclerView.SmoothScroller.ScrollVectorProvider {
