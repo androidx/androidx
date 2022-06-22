@@ -24,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.os.CancellationSignal;
 import androidx.fragment.app.Fragment;
@@ -44,12 +45,13 @@ import java.util.List;
 public class FragmentTransitionSupport extends FragmentTransitionImpl {
 
     @Override
-    public boolean canHandle(Object transition) {
+    public boolean canHandle(@NonNull Object transition) {
         return transition instanceof Transition;
     }
 
+    @Nullable
     @Override
-    public Object cloneTransition(Object transition) {
+    public Object cloneTransition(@Nullable Object transition) {
         Transition copy = null;
         if (transition != null) {
             copy = ((Transition) transition).clone();
@@ -57,8 +59,9 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
         return copy;
     }
 
+    @Nullable
     @Override
-    public Object wrapTransitionInSet(Object transition) {
+    public Object wrapTransitionInSet(@Nullable Object transition) {
         if (transition == null) {
             return null;
         }
@@ -68,8 +71,8 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
-    public void setSharedElementTargets(Object transitionObj,
-            View nonExistentView, ArrayList<View> sharedViews) {
+    public void setSharedElementTargets(@NonNull Object transitionObj,
+            @NonNull View nonExistentView, @NonNull ArrayList<View> sharedViews) {
         TransitionSet transition = (TransitionSet) transitionObj;
         final List<View> views = transition.getTargets();
         views.clear();
@@ -84,7 +87,7 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
-    public void setEpicenter(Object transitionObj, View view) {
+    public void setEpicenter(@NonNull Object transitionObj, @NonNull View view) {
         if (view != null) {
             Transition transition = (Transition) transitionObj;
             final Rect epicenter = new Rect();
@@ -100,7 +103,7 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
-    public void addTargets(Object transitionObj, ArrayList<View> views) {
+    public void addTargets(@NonNull Object transitionObj, @NonNull ArrayList<View> views) {
         Transition transition = (Transition) transitionObj;
         if (transition == null) {
             return;
@@ -130,9 +133,10 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
                 || !isNullOrEmpty(transition.getTargetTypes());
     }
 
+    @NonNull
     @Override
-    public Object mergeTransitionsTogether(Object transition1, Object transition2,
-            Object transition3) {
+    public Object mergeTransitionsTogether(@NonNull Object transition1,
+            @NonNull Object transition2, @Nullable Object transition3) {
         TransitionSet transitionSet = new TransitionSet();
         if (transition1 != null) {
             transitionSet.addTransition((Transition) transition1);
@@ -147,8 +151,8 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
-    public void scheduleHideFragmentView(Object exitTransitionObj, final View fragmentView,
-            final ArrayList<View> exitingViews) {
+    public void scheduleHideFragmentView(@NonNull Object exitTransitionObj,
+            final @NonNull View fragmentView, final @NonNull ArrayList<View> exitingViews) {
         Transition exitTransition = (Transition) exitTransitionObj;
         exitTransition.addListener(new Transition.TransitionListener() {
             @Override
@@ -187,9 +191,10 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
         });
     }
 
+    @Nullable
     @Override
-    public Object mergeTransitionsInSequence(Object exitTransitionObj,
-            Object enterTransitionObj, Object sharedElementTransitionObj) {
+    public Object mergeTransitionsInSequence(@Nullable Object exitTransitionObj,
+            @Nullable Object enterTransitionObj, @Nullable Object sharedElementTransitionObj) {
         // First do exit, then enter, but allow shared element transition to happen
         // during both.
         Transition staggered = null;
@@ -219,15 +224,16 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
-    public void beginDelayedTransition(ViewGroup sceneRoot, Object transition) {
+    public void beginDelayedTransition(@NonNull ViewGroup sceneRoot, @Nullable Object transition) {
         TransitionManager.beginDelayedTransition(sceneRoot, (Transition) transition);
     }
 
     @Override
-    public void scheduleRemoveTargets(final Object overallTransitionObj,
-            final Object enterTransition, final ArrayList<View> enteringViews,
-            final Object exitTransition, final ArrayList<View> exitingViews,
-            final Object sharedElementTransition, final ArrayList<View> sharedElementsIn) {
+    public void scheduleRemoveTargets(final @NonNull Object overallTransitionObj,
+            final @Nullable Object enterTransition, final @Nullable ArrayList<View> enteringViews,
+            final @Nullable Object exitTransition, final @Nullable ArrayList<View> exitingViews,
+            final @Nullable Object sharedElementTransition,
+            final @Nullable ArrayList<View> sharedElementsIn) {
         final Transition overallTransition = (Transition) overallTransitionObj;
         overallTransition.addListener(new TransitionListenerAdapter() {
             @Override
@@ -292,8 +298,9 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
-    public void swapSharedElementTargets(Object sharedElementTransitionObj,
-            ArrayList<View> sharedElementsOut, ArrayList<View> sharedElementsIn) {
+    public void swapSharedElementTargets(@Nullable Object sharedElementTransitionObj,
+            @Nullable ArrayList<View> sharedElementsOut,
+            @Nullable ArrayList<View> sharedElementsIn) {
         TransitionSet sharedElementTransition = (TransitionSet) sharedElementTransitionObj;
         if (sharedElementTransition != null) {
             sharedElementTransition.getTargets().clear();
@@ -303,8 +310,9 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
-    public void replaceTargets(Object transitionObj, ArrayList<View> oldTargets,
-            ArrayList<View> newTargets) {
+    public void replaceTargets(@NonNull Object transitionObj,
+            @SuppressLint("UnknownNullness") ArrayList<View> oldTargets,
+            @SuppressLint("UnknownNullness") ArrayList<View> newTargets) {
         Transition transition = (Transition) transitionObj;
         if (transition instanceof TransitionSet) {
             TransitionSet set = (TransitionSet) transition;
@@ -330,7 +338,7 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
-    public void addTarget(Object transitionObj, View view) {
+    public void addTarget(@NonNull Object transitionObj, @NonNull View view) {
         if (transitionObj != null) {
             Transition transition = (Transition) transitionObj;
             transition.addTarget(view);
@@ -338,7 +346,7 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
-    public void removeTarget(Object transitionObj, View view) {
+    public void removeTarget(@NonNull Object transitionObj, @NonNull View view) {
         if (transitionObj != null) {
             Transition transition = (Transition) transitionObj;
             transition.removeTarget(view);
@@ -346,7 +354,7 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
     }
 
     @Override
-    public void setEpicenter(Object transitionObj, final Rect epicenter) {
+    public void setEpicenter(@NonNull Object transitionObj, final @NonNull Rect epicenter) {
         if (transitionObj != null) {
             Transition transition = (Transition) transitionObj;
             transition.setEpicenterCallback(new Transition.EpicenterCallback() {
