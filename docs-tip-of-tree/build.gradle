@@ -272,6 +272,8 @@ dependencies {
     docs(project(":tracing:tracing-ktx"))
     docs(project(":transition:transition"))
     docs(project(":transition:transition-ktx"))
+    docs(project(":tv:tv-foundation"))
+    docs(project(":tv:tv-material"))
     docs(project(":tvprovider:tvprovider"))
     docs(project(":vectordrawable:vectordrawable"))
     docs(project(":vectordrawable:vectordrawable-animated"))
