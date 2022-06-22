@@ -11,7 +11,7 @@ package androidx.lifecycle {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface GeneratedAdapter {
-    method public void callMethods(androidx.lifecycle.LifecycleOwner!, androidx.lifecycle.Lifecycle.Event!, boolean, androidx.lifecycle.MethodCallsLogger!);
+    method public void callMethods(androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.Event, boolean, androidx.lifecycle.MethodCallsLogger?);
   }
 
   @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface GenericLifecycleObserver extends androidx.lifecycle.LifecycleEventObserver {
