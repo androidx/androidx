@@ -65,7 +65,8 @@ abstract class LayoutGeneratorTask : DefaultTask() {
         generateRegistry(
             packageName = outputModule,
             layouts = generatedLayouts.generatedContainers,
-            boxChildLayouts = generatedLayouts.generatedChildren,
+            boxChildLayouts = generatedLayouts.generatedBoxChildren,
+            rowColumnChildLayouts = generatedLayouts.generatedRowColumnChildren,
             outputSourceDir = outputSourceDir.get().asFile
         )
         cleanResources(
@@ -78,8 +79,13 @@ abstract class LayoutGeneratorTask : DefaultTask() {
         generatedContainers.values.flatMap { container ->
             container.map { it.generatedFile }
         }.toSet() +
-            generatedChildren.values.flatMap { child -> child.map { it.generatedFile } }.toSet() +
-            extraFiles
+        generatedBoxChildren.values.flatMap { child ->
+            child.map { it.generatedFile }
+        }.toSet() +
+        generatedRowColumnChildren.values.flatMap { child ->
+            child.map { it.generatedFile }
+        }.toSet() +
+        extraFiles
 
     companion object {
         /**

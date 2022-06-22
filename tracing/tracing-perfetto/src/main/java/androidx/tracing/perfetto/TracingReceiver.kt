@@ -19,12 +19,16 @@ package androidx.tracing.perfetto
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.tracing.perfetto.Tracing.EnableTracingResponse
 import androidx.tracing.perfetto.TracingReceiver.Companion.ACTION_ENABLE_TRACING
 import java.io.File
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 
 /** Allows for enabling tracing in an app using a broadcast. @see [ACTION_ENABLE_TRACING] */
 @RestrictTo(LIBRARY)
@@ -76,6 +80,16 @@ class TracingReceiver : BroadcastReceiver() {
     )
     internal annotation class EnableTracingResultCode
 
+    private val executor by lazy {
+        ThreadPoolExecutor(
+            /* corePoolSize = */ 0,
+            /* maximumPoolSize = */ 1,
+            /* keepAliveTime = */ 10, // gives time for tooling to side-load the .so file
+            /* unit = */ TimeUnit.SECONDS,
+            /* workQueue = */ LinkedBlockingQueue()
+        )
+    }
+
     // TODO: check value on app start
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent == null || intent.action != ACTION_ENABLE_TRACING) return
@@ -84,11 +98,32 @@ class TracingReceiver : BroadcastReceiver() {
         // will be used if present.
         val srcPath = intent.extras?.getString(KEY_PATH)
 
-        val response: EnableTracingResponse = when {
+        val pendingResult = goAsync()
+
+        executor.execute {
+            try {
+                val response = enableTracing(srcPath, context)
+                pendingResult.setResult(response.exitCode, response.toJsonString(), null)
+            } finally {
+                pendingResult.finish()
+            }
+        }
+    }
+
+    private fun enableTracing(srcPath: String?, context: Context?): EnableTracingResponse =
+        when {
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.R -> {
+                // TODO(234351579): Support API < 30
+                EnableTracingResponse(
+                    exitCode = RESULT_CODE_ERROR_OTHER,
+                    errorMessage = "SDK version not supported. " +
+                        "Current minimum SDK = ${Build.VERSION_CODES.R}"
+                )
+            }
             srcPath != null && context != null -> {
                 try {
                     val dstFile = copyExternalLibraryFile(context, srcPath)
-                    Tracing.enable(dstFile.path)
+                    Tracing.enable(dstFile, context)
                 } catch (e: Exception) {
                     EnableTracingResponse(
                         exitCode = RESULT_CODE_ERROR_OTHER,
@@ -105,12 +140,9 @@ class TracingReceiver : BroadcastReceiver() {
             }
             else -> {
                 // Library path was not provided, trying to resolve using app's local library files.
-                Tracing.enable(null)
+                Tracing.enable()
             }
         }
-
-        setResult(response.exitCode, response.toJsonString(), null)
-    }
 
     private fun copyExternalLibraryFile(
         context: Context,

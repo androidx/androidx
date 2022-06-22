@@ -59,6 +59,18 @@ public class LayoutDefaults {
      */
     static final float PRIMARY_LAYOUT_MARGIN_HORIZONTAL_SQUARE_PERCENT = 2.8f / 100;
 
+    /**
+     * The padding for the primary chip in {@link PrimaryLayout} so it doesn't bleed off screen if
+     * text is too big.
+     */
+    static final float PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP = 32;
+
+    /**
+     * The padding for the primary chip in {@link PrimaryLayout} so it doesn't bleed off screen if
+     * text is too big.
+     */
+    static final float PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP = 0;
+
     /** The default spacer height for primary chip in the {@link PrimaryLayout}. */
     static final DpProp PRIMARY_LAYOUT_SPACER_HEIGHT = dp(12);
 

@@ -2,7 +2,7 @@
 set -e
 
 function runGradle() {
-  kmpArgs="-Pandroidx.compose.multiplatformEnabled=true -Pandroidx.kmp.native.enabled=true"
+  kmpArgs="-Pandroidx.compose.multiplatformEnabled=true -Pandroidx.enabled.kmp.target.platforms=+native"
   echo running ./gradlew $kmpArgs "$@"
   if ./gradlew $kmpArgs "$@"; then
     echo succeeded: ./gradlew $kmpArgs "$@"

@@ -15,7 +15,9 @@
  */
 
 
+import androidx.build.KmpPlatformsKt
 import androidx.build.Publish
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
@@ -26,17 +28,7 @@ plugins {
     id("org.jetbrains.kotlin.multiplatform")
 }
 
-// This should be true when building from GitHub, and false when building
-// from AOSP.  Use this to block out any features or code that we're not
-// ready to build yet in AOSP
-
-def boolProperty(name) {
-    return project.providers.gradleProperty(name).getOrNull()?.toBoolean()
-}
-
-def playground = androidx.build.StudioType.isPlayground(project)
-//Native on by default in playground
-def enableNative = boolProperty('androidx.kmp.native.enabled') ?: playground
+def enableNative = KmpPlatformsKt.enableNative(project)
 
 kotlin {
     jvm {
@@ -133,11 +125,15 @@ dependencies {
 
 androidx {
     name = "Android Support Library collections"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = LibraryType.kmpLibrary {
+        android = Publish.NONE
+        jvm = Publish.SNAPSHOT_AND_RELEASE
+        linux = Publish.SNAPSHOT_AND_RELEASE
+        mac = Publish.SNAPSHOT_AND_RELEASE
+    }
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
     description = "Standalone efficient collections."
-    publishPlatforms = ["jvm"]
 }
 
 kotlin.targets.withType(KotlinNativeTarget.class) {

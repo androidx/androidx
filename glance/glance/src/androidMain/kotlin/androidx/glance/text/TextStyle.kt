@@ -24,13 +24,13 @@ import androidx.glance.unit.ColorProvider
  * Description of a text style for the [androidx.glance.layout.Text] composable.
  */
 @Immutable
-public class TextStyle(
-    public val color: ColorProvider? = null,
-    public val fontSize: TextUnit? = null,
-    public val fontWeight: FontWeight? = null,
-    public val fontStyle: FontStyle? = null,
-    public val textAlign: TextAlign? = null,
-    public val textDecoration: TextDecoration? = null,
+class TextStyle(
+    val color: ColorProvider? = null,
+    val fontSize: TextUnit? = null,
+    val fontWeight: FontWeight? = null,
+    val fontStyle: FontStyle? = null,
+    val textAlign: TextAlign? = null,
+    val textDecoration: TextDecoration? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

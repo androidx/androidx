@@ -27,6 +27,8 @@ import static androidx.wear.tiles.material.Helper.getMetadataTagBytes;
 import static androidx.wear.tiles.material.Helper.getTagBytes;
 import static androidx.wear.tiles.material.Helper.isRoundDevice;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.DEFAULT_VERTICAL_SPACER_HEIGHT;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT;
@@ -65,10 +67,30 @@ import java.util.List;
 /**
  * Tiles layout that represents a suggested layout style for Material Tiles with the primary
  * (compact) chip at the bottom with the given content in the center and the recommended margin and
- * padding applied.
+ * padding applied. There is a fixed slot for an optional primary label above or optional secondary
+ * label below the main content area.
  *
  * <p>For additional examples and suggested layouts see <a
  * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
+ *
+ * <p>When accessing the contents of a container for testing, note that this element can't be simply
+ * casted back to the original type, i.e.:
+ *
+ * <pre>{@code
+ * PrimaryLayout pl = new PrimaryLayout...
+ * Box box = new Box.Builder().addContent(pl).build();
+ *
+ * PrimaryLayout myPl = (PrimaryLayout) box.getContents().get(0);
+ * }</pre>
+ *
+ * will fail.
+ *
+ * <p>To be able to get {@link PrimaryLayout} object from any layout element, {@link
+ * #fromLayoutElement} method should be used, i.e.:
+ *
+ * <pre>{@code
+ * PrimaryLayout myPl = PrimaryLayout.fromLayoutElement(box.getContents().get(0));
+ * }</pre>
  */
 public class PrimaryLayout implements LayoutElement {
     /**
@@ -202,22 +224,16 @@ public class PrimaryLayout implements LayoutElement {
         }
 
         /** Constructs and returns {@link PrimaryLayout} with the provided content and look. */
+        // The @Dimension(unit = DP) on dp() is seemingly being ignored, so lint complains that
+        // we're passing DP to something expecting PX. Just suppress the warning for now.
+        @SuppressLint("ResourceType")
         @NonNull
         @Override
         public PrimaryLayout build() {
-            float topPadding =
-                    mDeviceParameters.getScreenHeightDp()
-                            * (isRoundDevice(mDeviceParameters)
-                                    ? PRIMARY_LAYOUT_MARGIN_TOP_ROUND_PERCENT
-                                    : PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT);
-            float bottomPadding =
-                    mPrimaryChip != null
-                            ? (mDeviceParameters.getScreenHeightDp()
-                                    * (isRoundDevice(mDeviceParameters)
-                                            ? PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT
-                                            : PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT))
-                            : topPadding;
+            float topPadding = getTopPadding();
+            float bottomPadding = getBottomPadding();
             float horizontalPadding = getHorizontalPadding();
+            float horizontalChipPadding = getChipHorizontalPadding();
 
             float primaryChipHeight =
                     mPrimaryChip != null
@@ -230,17 +246,6 @@ public class PrimaryLayout implements LayoutElement {
                                     - primaryChipHeight
                                     - bottomPadding
                                     - topPadding);
-
-            Modifiers modifiers =
-                    new Modifiers.Builder()
-                            .setPadding(
-                                    new Padding.Builder()
-                                            .setTop(dp(topPadding))
-                                            .setBottom(dp(bottomPadding))
-                                            .setStart(dp(horizontalPadding))
-                                            .setEnd(dp(horizontalPadding))
-                                            .build())
-                            .build();
 
             Column.Builder innerContentBuilder =
                     new Column.Builder()
@@ -270,7 +275,16 @@ public class PrimaryLayout implements LayoutElement {
 
             Column.Builder layoutBuilder =
                     new Column.Builder()
-                            .setModifiers(modifiers)
+                            .setModifiers(
+                                    new Modifiers.Builder()
+                                            .setPadding(
+                                                    new Padding.Builder()
+                                                            .setStart(dp(horizontalPadding))
+                                                            .setEnd(dp(horizontalPadding))
+                                                            .setTop(dp(topPadding))
+                                                            .setBottom(dp(bottomPadding))
+                                                            .build())
+                                            .build())
                             .setWidth(expand())
                             .setHeight(expand())
                             .setHorizontalAlignment(LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER);
@@ -285,9 +299,22 @@ public class PrimaryLayout implements LayoutElement {
                                         .build())
                         .addContent(
                                 new Box.Builder()
-                                        .setVerticalAlignment(
-                                                LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
-                                        .setHeight(wrap())
+                                    .setVerticalAlignment(
+                                        LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
+                                    .setWidth(expand())
+                                    .setHeight(wrap())
+                                    .setModifiers(
+                                        new Modifiers.Builder()
+                                            .setPadding(
+                                                new Padding.Builder()
+                                                    .setStart(
+                                                        dp(
+                                                            horizontalChipPadding))
+                                                    .setEnd(
+                                                        dp(
+                                                            horizontalChipPadding))
+                                                    .build())
+                                            .build())
                                         .addContent(mPrimaryChip)
                                         .build());
             }
@@ -313,14 +340,51 @@ public class PrimaryLayout implements LayoutElement {
         }
 
         /**
+         * Returns the recommended bottom padding, based on percentage values in {@link
+         * LayoutDefaults}.
+         */
+        private float getBottomPadding() {
+            return mPrimaryChip != null
+                    ? (mDeviceParameters.getScreenHeightDp()
+                            * (isRoundDevice(mDeviceParameters)
+                                    ? PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT
+                                    : PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT))
+                    : getTopPadding();
+        }
+
+        /**
+         * Returns the recommended top padding, based on percentage values in {@link
+         * LayoutDefaults}.
+         */
+        @Dimension(unit = DP)
+        private float getTopPadding() {
+            return mDeviceParameters.getScreenHeightDp()
+                    * (isRoundDevice(mDeviceParameters)
+                            ? PRIMARY_LAYOUT_MARGIN_TOP_ROUND_PERCENT
+                            : PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT);
+        }
+
+        /**
          * Returns the recommended horizontal padding, based on percentage values in {@link
          * LayoutDefaults}.
          */
-        float getHorizontalPadding() {
+        @Dimension(unit = DP)
+        private float getHorizontalPadding() {
             return mDeviceParameters.getScreenWidthDp()
                     * (isRoundDevice(mDeviceParameters)
                             ? PRIMARY_LAYOUT_MARGIN_HORIZONTAL_ROUND_PERCENT
                             : PRIMARY_LAYOUT_MARGIN_HORIZONTAL_SQUARE_PERCENT);
+        }
+
+        /**
+         * Returns the recommended horizontal padding for primary chip, based on percentage values
+         * and DP values in {@link LayoutDefaults}.
+         */
+        @Dimension(unit = DP)
+        private float getChipHorizontalPadding() {
+            return isRoundDevice(mDeviceParameters)
+                    ? PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_ROUND_DP
+                    : PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP;
         }
     }
 
@@ -330,7 +394,7 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(PRIMARY_LABEL_PRESENT)) {
             return null;
         }
-        // By tag we know that primary label exists, it will always be at position 0.
+        // By tag we know that primary label exists. It will always be at position 0.
         return mInnerColumn.get(0);
     }
 
@@ -340,7 +404,7 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(SECONDARY_LABEL_PRESENT)) {
             return null;
         }
-        // By tag we know that secondary label exists, it will always be at last position.
+        // By tag we know that secondary label exists. It will always be at last position.
         return mInnerColumn.get(mInnerColumn.size() - 1);
     }
 
@@ -350,8 +414,8 @@ public class PrimaryLayout implements LayoutElement {
         if (!areElementsPresent(CONTENT_PRESENT)) {
             return null;
         }
-        // By tag we know that content exists, it will at position 0 if there is no primary label,
-        // or at position 2 (primary label, spacer - content) otherwise.
+        // By tag we know that content exists. It will be at position 0 if there is no primary
+        // label, or at position 2 (primary label, spacer - content) otherwise.
         int contentPosition = areElementsPresent(PRIMARY_LABEL_PRESENT) ? 2 : 0;
         return ((Box) mInnerColumn.get(contentPosition)).getContents().get(0);
     }
@@ -395,15 +459,19 @@ public class PrimaryLayout implements LayoutElement {
     /** Returns metadata tag set to this PrimaryLayout. */
     @NonNull
     byte[] getMetadataTag() {
-        return getMetadataTagBytes(checkNotNull(mImpl.getModifiers()));
+        return getMetadataTagBytes(checkNotNull(checkNotNull(mImpl.getModifiers()).getMetadata()));
     }
 
     /**
-     * Returns PrimaryLayout object from the given LayoutElement if that element can be converted to
-     * PrimaryLayout. Otherwise, returns null.
+     * Returns PrimaryLayout object from the given LayoutElement (e.g. one retrieved from a
+     * container's content with {@code container.getContents().get(index)}) if that element can be
+     * converted to PrimaryLayout. Otherwise, it will return null.
      */
     @Nullable
     public static PrimaryLayout fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof PrimaryLayout) {
+            return (PrimaryLayout) element;
+        }
         if (!(element instanceof Box)) {
             return null;
         }

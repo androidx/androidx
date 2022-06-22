@@ -226,7 +226,7 @@ data class ProjectProps(
                 kotlinVersion = properties.getProperty("kotlinVersion"),
                 kspVersion = properties.getProperty("kspVersion"),
                 agpDependency = properties.getProperty("agpDependency"),
-                buildSrcOutPath = properties.getCanonicalPath("buildSrcOutPath")
+                buildSrcOutPath = properties.getCanonicalPath("buildSrcOutRelativePath")
             )
         }
     }

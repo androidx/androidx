@@ -63,7 +63,8 @@ public class PackageManagerHelper {
     /**
      * Convenience method for {@link #isComponentExplicitlyEnabled(Context, String)}
      */
-    public static boolean isComponentExplicitlyEnabled(Context context, Class<?> klazz) {
+    public static boolean isComponentExplicitlyEnabled(@NonNull Context context,
+            @NonNull Class<?> klazz) {
         return isComponentExplicitlyEnabled(context, klazz.getName());
     }
 
@@ -74,7 +75,8 @@ public class PackageManagerHelper {
      * @param className {@link Class#getName()} name of component
      * @return {@code true} if component is explicitly enabled
      */
-    public static boolean isComponentExplicitlyEnabled(Context context, String className) {
+    public static boolean isComponentExplicitlyEnabled(@NonNull Context context,
+            @NonNull String className) {
         PackageManager packageManager = context.getPackageManager();
         ComponentName componentName = new ComponentName(context, className);
         int state = packageManager.getComponentEnabledSetting(componentName);

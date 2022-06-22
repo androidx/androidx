@@ -148,6 +148,7 @@ val WearMaterialDemos = DemoCategory(
                         )
                     },
                     ComposableDemo("Simple Picker") { SimplePicker() },
+                    ComposableDemo("No gradient") { PickerWithoutGradient() },
                 )
             } else {
                 listOf(

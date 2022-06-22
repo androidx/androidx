@@ -370,4 +370,13 @@
             file="src/main/java/androidx/car/app/serialization/Bundler.java"/>
     </issue>
 
+    <issue
+        id="NullabilityAnnotationsDetector"
+        message="Use @androidx.annotation.NonNull instead of @org.jetbrains.annotations.NotNull"
+        errorLine1="    public void sendPanModeChanged(boolean isInPanMode, @NonNull @NotNull OnDoneCallback callback) {"
+        errorLine2="                                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/navigation/model/PanModeDelegateImpl.java"/>
+    </issue>
+
 </issues>

@@ -16,6 +16,8 @@
 
 package androidx.lifecycle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -33,6 +35,7 @@ public interface GeneratedAdapter {
      * @param logger if passed, used to track called methods and prevent calling the same method
      *              twice
      */
-    void callMethods(LifecycleOwner source, Lifecycle.Event event, boolean onAny,
-            MethodCallsLogger logger);
+    @SuppressWarnings("LambdaLast")
+    void callMethods(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event, boolean onAny,
+            @Nullable MethodCallsLogger logger);
 }

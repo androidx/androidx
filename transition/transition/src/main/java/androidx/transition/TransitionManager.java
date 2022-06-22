@@ -137,17 +137,15 @@ public class TransitionManager {
     private Transition getTransition(Scene scene) {
         Transition transition;
         ViewGroup sceneRoot = scene.getSceneRoot();
-        if (sceneRoot != null) {
-            // TODO: cached in Scene instead? long-term, cache in View itself
-            Scene currScene = Scene.getCurrentScene(sceneRoot);
-            if (currScene != null) {
-                ArrayMap<Scene, Transition> sceneTransitionMap = mScenePairTransitions
-                        .get(scene);
-                if (sceneTransitionMap != null) {
-                    transition = sceneTransitionMap.get(currScene);
-                    if (transition != null) {
-                        return transition;
-                    }
+        // TODO: cached in Scene instead? long-term, cache in View itself
+        Scene currScene = Scene.getCurrentScene(sceneRoot);
+        if (currScene != null) {
+            ArrayMap<Scene, Transition> sceneTransitionMap = mScenePairTransitions
+                    .get(scene);
+            if (sceneTransitionMap != null) {
+                transition = sceneTransitionMap.get(currScene);
+                if (transition != null) {
+                    return transition;
                 }
             }
         }
@@ -425,7 +423,7 @@ public class TransitionManager {
      *
      * @param sceneRoot The root of the View hierarchy to end transitions on.
      */
-    public static void endTransitions(final ViewGroup sceneRoot) {
+    public static void endTransitions(final @Nullable ViewGroup sceneRoot) {
         sPendingTransitions.remove(sceneRoot);
         final ArrayList<Transition> runningTransitions = getRunningTransitions().get(sceneRoot);
         if (runningTransitions != null && !runningTransitions.isEmpty()) {

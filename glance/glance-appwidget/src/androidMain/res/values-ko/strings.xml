@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_layout_title" msgid="7937809248738392417"><b>"Glance 앱 위젯 오류"</b></string>
-    <string name="error_layout_text" msgid="6543889412094559379"><b><tt>"adb logcat"</tt></b>"을 사용하여 정확한 오류 확인, "<b><tt>"GlanceAppWidget"</tt></b>" 검색"</string>
+    <string name="glance_error_layout_title" msgid="2896109737634971880"><b>"Glance 앱 위젯 오류"</b></string>
+    <string name="glance_error_layout_text" msgid="8513923302775602854"><b><tt>"GlanceAppWidget"</tt></b>" 검색 중 "<b><tt>"adb logcat"</tt></b>"을 사용하여 정확한 오류 확인"</string>
 </resources>

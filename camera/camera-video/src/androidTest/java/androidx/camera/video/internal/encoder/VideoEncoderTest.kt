@@ -109,12 +109,11 @@ class VideoEncoderTest {
     @Before
     fun setUp() {
         assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
-        // Same issue happened in new video encoder in pre-submit test. Bypass this test on
-        // CuttleFish API 29.
-        // TODO(b/168175357): Fix VideoCaptureTest problems on CuttleFish API 29
+        // Skip for b/168175357, b/233661493
         assumeFalse(
-            "Cuttlefish has MediaCodec dequeueInput/Output buffer fails issue. Unable to test.",
-            Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 29
+            "Skip tests for Cuttlefish MediaCodec issues",
+            Build.MODEL.contains("Cuttlefish") &&
+                (Build.VERSION.SDK_INT == 29 || Build.VERSION.SDK_INT == 33)
         )
 
         val cameraXConfig: CameraXConfig = Camera2Config.defaultConfig()

@@ -75,7 +75,7 @@ public class CheckTheJavaApisTest {
                         .setTimezone(Timezone.SHORT_GENERIC)
                         .setPeriod(Period.FLEXIBLE);
 
-        DateTimeFormatterOptions dateTimeFormatterOptions = builder.build();
+        DateTimeFormatterSkeletonOptions dateTimeFormatterOptions = builder.build();
         String expected;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             expected = "Mo., 23. August 2021 n. Chr., 19:53:47,123 MEZ";
@@ -131,9 +131,9 @@ public class CheckTheJavaApisTest {
 
     @Test @SmallTest
     public void testJdkOptions() {
-        DateTimeFormatterOptions options =
+        DateTimeFormatterJdkStyleOptions options =
                 DateTimeFormatterJdkStyleOptions.createDateInstance(DateFormat.LONG);
         assertEquals("23. August 2021",
-                new DateTimeFormatter(mAppContext, options, mLocale).format(mCal));
+                new DateTimeFormatter(options, mLocale).format(mCal));
     }
 }

@@ -19,7 +19,7 @@
 
     <uses-sdk
         android:minSdkVersion="14"
-        tools:overrideLibrary="android_libs.ub_uiautomator" />
+        tools:overrideLibrary="android_libs.ub_uiautomator, androidx.test.uiautomator" />
 
     <application
         android:name="androidx.multidex.MultiDexApplication"
@@ -271,16 +271,6 @@
             android:name="androidx.appcompat.app.NightModeUiModeConfigChangesActivityC"
             android:theme="@style/Theme.AppCompat.DayNight"
             android:configChanges="uiMode"/>
-
-        <activity
-            android:name="androidx.appcompat.app.NightModeRotationConfigChangesActivityA"
-            android:theme="@style/Theme.AppCompat.DayNight"
-            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|fontScale|uiMode|mcc|mnc"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name="androidx.appcompat.app.NightModeRotationConfigChangesActivityB"
-            android:screenOrientation="landscape" />
 
         <activity
             android:name="androidx.appcompat.app.NightModeRotateDoesNotRecreateActivity"

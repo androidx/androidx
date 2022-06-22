@@ -217,7 +217,7 @@ public final class CarValue<T> {
         return Objects.equals(mValue, otherCarValue.mValue)
                 && mTimestampMillis == otherCarValue.mTimestampMillis
                 && mStatus == otherCarValue.mStatus
-                && Objects.equals(mCarZones, otherCarValue.getCarZones());
+                && Objects.equals(mCarZones, otherCarValue.mCarZones);
     }
 
     /**

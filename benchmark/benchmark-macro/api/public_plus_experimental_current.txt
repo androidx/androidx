@@ -9,6 +9,8 @@ package androidx.benchmark.macro {
   }
 
   public enum BaselineProfileMode {
+    method public static androidx.benchmark.macro.BaselineProfileMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.benchmark.macro.BaselineProfileMode[] values();
     enum_constant public static final androidx.benchmark.macro.BaselineProfileMode Disable;
     enum_constant public static final androidx.benchmark.macro.BaselineProfileMode Require;
     enum_constant public static final androidx.benchmark.macro.BaselineProfileMode UseIfAvailable;
@@ -93,6 +95,8 @@ package androidx.benchmark.macro {
   }
 
   public enum StartupMode {
+    method public static androidx.benchmark.macro.StartupMode valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.benchmark.macro.StartupMode[] values();
     enum_constant public static final androidx.benchmark.macro.StartupMode COLD;
     enum_constant public static final androidx.benchmark.macro.StartupMode HOT;
     enum_constant public static final androidx.benchmark.macro.StartupMode WARM;

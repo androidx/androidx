@@ -18,6 +18,9 @@ package androidx.transition;
 
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Base class for <code>TransitionPropagation</code>s that care about
  * View Visibility and the center position of the View.
@@ -41,7 +44,7 @@ public abstract class VisibilityPropagation extends TransitionPropagation {
     };
 
     @Override
-    public void captureValues(TransitionValues transitionValues) {
+    public void captureValues(@NonNull TransitionValues transitionValues) {
         View view = transitionValues.view;
         Integer visibility = (Integer) transitionValues.values.get(Visibility.PROPNAME_VISIBILITY);
         if (visibility == null) {
@@ -57,6 +60,7 @@ public abstract class VisibilityPropagation extends TransitionPropagation {
         transitionValues.values.put(PROPNAME_VIEW_CENTER, loc);
     }
 
+    @Nullable
     @Override
     public String[] getPropagationProperties() {
         return VISIBILITY_PROPAGATION_VALUES;
@@ -69,7 +73,7 @@ public abstract class VisibilityPropagation extends TransitionPropagation {
      * @return {@link android.view.View#getVisibility()} for the View at the time the values
      * were captured.
      */
-    public int getViewVisibility(TransitionValues values) {
+    public int getViewVisibility(@Nullable TransitionValues values) {
         if (values == null) {
             return View.GONE;
         }
@@ -87,7 +91,7 @@ public abstract class VisibilityPropagation extends TransitionPropagation {
      * @return the View's center x coordinate, relative to the screen, at the time the values
      * were captured.
      */
-    public int getViewX(TransitionValues values) {
+    public int getViewX(@Nullable TransitionValues values) {
         return getViewCoordinate(values, 0);
     }
 
@@ -98,11 +102,11 @@ public abstract class VisibilityPropagation extends TransitionPropagation {
      * @return the View's center y coordinate, relative to the screen, at the time the values
      * were captured.
      */
-    public int getViewY(TransitionValues values) {
+    public int getViewY(@Nullable TransitionValues values) {
         return getViewCoordinate(values, 1);
     }
 
-    private static int getViewCoordinate(TransitionValues values, int coordinateIndex) {
+    private static int getViewCoordinate(@Nullable TransitionValues values, int coordinateIndex) {
         if (values == null) {
             return -1;
         }

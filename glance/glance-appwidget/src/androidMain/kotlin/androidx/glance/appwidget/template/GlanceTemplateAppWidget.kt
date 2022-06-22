@@ -31,7 +31,7 @@ import androidx.glance.template.TemplateMode
 /**
  * A [GlanceAppWidget] that provides template local values.
  */
-public abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
+abstract class GlanceTemplateAppWidget : GlanceAppWidget() {
 
     /** Default widget size mode is [SizeMode.Exact] */
     override val sizeMode = SizeMode.Exact

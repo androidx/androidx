@@ -318,6 +318,7 @@ class AdvancedSessionProcessorTest {
     }
 
     // Test if physicalCameraId is set and returned in the image received in the image processor.
+    @SdkSuppress(minSdkVersion = 29) // YUV to JPEG requires api level >= 29
     @Test
     fun useCasesCanWork_setPhysicalCameraId() = runBlocking {
         assumeAllowsSharedSurface()
@@ -336,30 +337,25 @@ class AdvancedSessionProcessorTest {
             previewConfigBlock = { outputSurfaceImpl ->
                 Camera2OutputConfigImplBuilder
                     .newSurfaceConfig(outputSurfaceImpl.surface)
+                    .setPhysicalCameraId(physicalCameraId)
                     .build()
             },
             // Has intermediate image reader to process YUV
             captureConfigBlock = { outputSurfaceImpl ->
                 captureOutputSurface = outputSurfaceImpl.surface
-                Camera2OutputConfigImplBuilder
-                    .newImageReaderConfig(outputSurfaceImpl.size, ImageFormat.YUV_420_888, 2)
-                    .setPhysicalCameraId(physicalCameraId)
-                    .build()
-                    .also {
-                        intermediaConfigId = it.id
-                    }
-            },
-            // Directly use output surface with shared ImageReader surface.
-            analysisConfigBlock = { outputSurfaceImpl ->
                 val sharedConfig = Camera2OutputConfigImplBuilder.newImageReaderConfig(
                     outputSurfaceImpl.size, outputSurfaceImpl.imageFormat, 2
                 ).setPhysicalCameraId(physicalCameraId).build()
                 sharedConfigId = sharedConfig.id
 
-                Camera2OutputConfigImplBuilder.newSurfaceConfig(outputSurfaceImpl.surface)
-                    .addSurfaceSharingOutputConfig(sharedConfig)
+                Camera2OutputConfigImplBuilder
+                    .newImageReaderConfig(outputSurfaceImpl.size, ImageFormat.YUV_420_888, 2)
                     .setPhysicalCameraId(physicalCameraId)
+                    .addSurfaceSharingOutputConfig(sharedConfig)
                     .build()
+                    .also {
+                        intermediaConfigId = it.id
+                    }
             },
             onCaptureSessionStarted = { requestProcessor ->
                 val imageWriter = ImageWriter.newInstance(captureOutputSurface!!, 2)
@@ -384,8 +380,7 @@ class AdvancedSessionProcessorTest {
                 listOf(android.util.Pair(ImageFormat.YUV_420_888, arrayOf(Size(640, 480))))
             )
             .build()
-        val imageAnalysis = ImageAnalysis.Builder().build()
-        verifyUseCasesOutput(fakeSessionProcessImpl, preview, imageCapture, imageAnalysis)
+        verifyUseCasesOutput(fakeSessionProcessImpl, preview, imageCapture)
         assertThat(deferredImagePhysicalCameraId.awaitWithTimeout(2000))
             .isEqualTo(physicalCameraId)
         assertThat(deferredSharedImagePhysicalCameraId.awaitWithTimeout(2000))
@@ -456,11 +451,11 @@ class AdvancedSessionProcessorTest {
                 }
             })
 
-        assertThat(latchPreviewFrame.await(2, TimeUnit.SECONDS)).isTrue()
-        assertThat(deferCapturedImage.awaitWithTimeout(2000).image!!.format)
+        assertThat(latchPreviewFrame.await(3, TimeUnit.SECONDS)).isTrue()
+        assertThat(deferCapturedImage.awaitWithTimeout(5000).image!!.format)
             .isEqualTo(ImageFormat.JPEG)
         imageAnalysis?.let {
-            assertThat(latchAnalysis.await(2, TimeUnit.SECONDS)).isTrue()
+            assertThat(latchAnalysis.await(3, TimeUnit.SECONDS)).isTrue()
         }
     }
 }

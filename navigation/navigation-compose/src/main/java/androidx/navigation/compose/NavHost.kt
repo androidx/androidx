@@ -142,7 +142,8 @@ public fun NavHost(
             val lastEntry = visibleEntries.last { entry ->
                 it == entry.id
             }
-            DisposableEffect(lastEntry) {
+            // We are disposing on a Unit as we only want to dispose when the CrossFade completes
+            DisposableEffect(Unit) {
                 if (initialCrossfade) {
                     // There's no animation for the initial crossfade,
                     // so we can instantly mark the transition as complete

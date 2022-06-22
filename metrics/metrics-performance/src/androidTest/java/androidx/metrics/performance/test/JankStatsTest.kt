@@ -182,13 +182,16 @@ class JankStatsTest {
 
         frameInit.initFramePipeline()
 
+        var numSecondListenerCalls = 0
         val secondListenerStates = mutableListOf<StateInfo>()
         val secondListener = OnFrameListener {
             secondListenerStates.addAll(it.states)
+            numSecondListenerCalls++
         }
+        lateinit var jankStats2: JankStats
         val scenario = delayedActivityRule.scenario
         scenario.onActivity { _ ->
-            JankStats.createAndTrack(
+            jankStats2 = JankStats.createAndTrack(
                 delayedActivity.window,
                 Dispatchers.Default.asExecutor(), secondListener
             )
@@ -201,8 +204,42 @@ class JankStatsTest {
         latchedListener.reset()
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         val jankData: FrameData = latchedListener.jankData[0]
+        assertTrue("No calls to second listener", numSecondListenerCalls > 0)
         assertEquals(listOf(testState), jankData.states)
         assertEquals(listOf(testState), secondListenerStates)
+
+        jankStats2.isTrackingEnabled = false
+        numSecondListenerCalls = 0
+        latchedListener.reset()
+        runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
+        assertEquals(0, numSecondListenerCalls)
+        assertTrue("Removal of second listener should not have removed first",
+            latchedListener.jankData.size > 0)
+
+        // Now make sure that extra listeners can be added concurrently from other threads
+        latchedListener.reset()
+        val listenerPostingThread = Thread()
+        var numNewListeners = 0
+        lateinit var poster: Runnable
+        poster = Runnable {
+            JankStats.createAndTrack(
+                delayedActivity.window,
+                Dispatchers.Default.asExecutor(), secondListener
+            )
+            ++numNewListeners
+            if (numNewListeners < 100) {
+                delayedView.postDelayed(poster, 10)
+            }
+        }
+        scenario.onActivity { _ ->
+            listenerPostingThread.run {
+                poster.run()
+            }
+        }
+        listenerPostingThread.start()
+        runDelayTest(frameDelay, NUM_FRAMES * 100, latchedListener)
+        // add listeners concurrently - no asserts here, just testing whether we
+        // avoid any concurrency issues with adding and using multiple listeners
     }
 
     @SdkSuppress(minSdkVersion = JELLY_BEAN)

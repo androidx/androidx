@@ -50,7 +50,7 @@ fun pluginTest(action: AndroidXPluginTestContext.() -> Unit) {
  */
 data class AndroidXPluginTestContext(
     private val tmpFolder: TemporaryFolder,
-    private val setup: ProjectSetupRule
+    val setup: ProjectSetupRule
 ) {
     override fun toString() =
         mapOf("tmpFolder" to tmpFolder.root, "settings" to settingsWritten).toString()
@@ -62,11 +62,17 @@ data class AndroidXPluginTestContext(
     val privateJar = outBuildSrc.resolve("private/build/libs/private.jar")
     private val publicJar = outBuildSrc.resolve("public/build/libs/public.jar")
 
-    private val outDir: File by lazy { tmpFolder.newFolder() }
-    private val supportRoot = setup.rootDir
+    val outDir: File by lazy { tmpFolder.newFolder() }
 
-    fun runGradle(vararg args: String): BuildResult =
-        GradleRunner.create().withProjectDir(setup.rootDir).withArguments(*args).build()
+    // Gradle sometimes canonicalizes this path, so we have to or things don't match up.
+    val supportRoot: File = setup.rootDir.canonicalFile
+
+    fun runGradle(vararg args: String): BuildResult {
+        // Empty environment so that the host environment does not leak through
+        val env = mapOf<String, String>()
+        return GradleRunner.create().withProjectDir(supportRoot)
+            .withArguments(*args).withEnvironment(env).build()
+    }
 
     private var settingsWritten: String? = null
 
@@ -113,6 +119,19 @@ data class AndroidXPluginTestContext(
            |
            |    classpath '${props.agpDependency}'
            |    classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:${props.kotlinVersion}'
+           |
+           |    // These are largely duplicated with shared.gradle, but reusing shared.gradle
+           |    // doesn't work because of path assumptions.
+           |    classpath 'org.tomlj:tomlj:1.0.0'
+           |
+           |    // for sortPomDependencies
+           |    classpath('org.dom4j:dom4j:2.1.3') {
+           |      // Optional dependency where Ivy fails to parse the POM file.
+           |      exclude(group:"net.java.dev.msv", module:"xsdlib")
+           |    }
+           |
+           |    // Needed for ZipFile
+           |    classpath('org.apache.ant:ant:1.10.11')
            |  }
            |}
            |

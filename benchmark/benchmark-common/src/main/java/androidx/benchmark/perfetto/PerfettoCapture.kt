@@ -94,6 +94,7 @@ public class PerfettoCapture(
      * Enables Perfetto SDK tracing in an app if present. Provides required binary dependencies to
      * the app if they're missing and the [provideBinariesIfMissing] parameter is set to `true`.
      */
+    @RequiresApi(Build.VERSION_CODES.R) // TODO(234351579): Support API < 30
     fun enableAndroidxTracingPerfetto(
         targetPackage: String,
         provideBinariesIfMissing: Boolean
@@ -142,10 +143,10 @@ public class PerfettoCapture(
         val abiDirName = File(context.applicationInfo.nativeLibraryDir).name
         val baseApk = File(context.applicationInfo.publicSourceDir!!)
 
-        val shellWriteableAppReadableDir = File("/sdcard/Android/data/$targetPackage/files")
+        val shellWriteableAppReadableDir = File("/sdcard/Android/media/$targetPackage/files")
         val dstDir = shellWriteableAppReadableDir.resolve("lib/$abiDirName")
         val dstFile = dstDir.resolve(libFileName)
-        val tmpFile = context.cacheDir.resolve(".tmp_$libFileName")
+        val tmpFile = Outputs.dirUsableByAppAndShell.resolve(".tmp_$libFileName")
 
         val rxLibPathInsideZip = Regex(".*lib/[^/]*$abiDirName[^/]*/$libFileName")
 

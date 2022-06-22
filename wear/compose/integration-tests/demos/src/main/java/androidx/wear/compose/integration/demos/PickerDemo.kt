@@ -51,6 +51,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -105,10 +106,20 @@ public fun TimePicker(
         initialNumberOfOptions = 60,
         initiallySelectedOption = time.minute
     )
-    val secondsState = rememberPickerState(
+    val secondState = rememberPickerState(
         initialNumberOfOptions = 60,
         initiallySelectedOption = time.second
     )
+    val hourContentDescription by remember { derivedStateOf {
+        "${hourState.selectedOption} hours"
+    } }
+    val minuteContentDescription by remember { derivedStateOf {
+        "${minuteState.selectedOption} minutes"
+    } }
+    val secondContentDescription by remember { derivedStateOf {
+        "${secondState.selectedOption} seconds"
+    } }
+
     MaterialTheme(typography = typography) {
         var selectedColumn by remember { mutableStateOf(0) }
         val textStyle = MaterialTheme.typography.display3
@@ -148,6 +159,8 @@ public fun TimePicker(
                         state = hourState,
                         focusRequester = focusRequester1,
                         modifier = Modifier.size(40.dp, 100.dp),
+                        onSelected = { selectedColumn = 0 },
+                        contentDescription = hourContentDescription,
                     ) { hour: Int ->
                         TimePiece(
                             selected = selectedColumn == 0,
@@ -162,6 +175,8 @@ public fun TimePicker(
                         state = minuteState,
                         focusRequester = focusRequester2,
                         modifier = Modifier.size(40.dp, 100.dp),
+                        onSelected = { selectedColumn = 1 },
+                        contentDescription = minuteContentDescription,
                     ) { minute: Int ->
                         TimePiece(
                             selected = selectedColumn == 1,
@@ -173,9 +188,11 @@ public fun TimePicker(
                     Separator(6.dp, textStyle)
                     PickerWithRSB(
                         readOnly = selectedColumn != 2,
-                        state = secondsState,
+                        state = secondState,
                         focusRequester = focusRequester3,
                         modifier = Modifier.size(40.dp, 100.dp),
+                        onSelected = { selectedColumn = 2 },
+                        contentDescription = secondContentDescription,
                     ) { second: Int ->
                         TimePiece(
                             selected = selectedColumn == 2,
@@ -194,7 +211,7 @@ public fun TimePicker(
                     val confirmedTime = LocalTime.of(
                         hourState.selectedOption,
                         minuteState.selectedOption,
-                        secondsState.selectedOption
+                        secondState.selectedOption
                     )
                     onTimeConfirm(confirmedTime)
                 }) {
@@ -250,14 +267,21 @@ public fun TimePickerWith12HourClock(
         initialNumberOfOptions = 60,
         initiallySelectedOption = time.minute
     )
-    var amPm by remember { mutableStateOf(time[ChronoField.AMPM_OF_DAY]) }
+    val hoursContentDescription by remember {
+        derivedStateOf { "${hourState.selectedOption + 1} hours" }
+    }
+    val minutesContentDescription by remember {
+        derivedStateOf { "${minuteState.selectedOption} minutes" }
+    }
 
+    var amPm by remember { mutableStateOf(time[ChronoField.AMPM_OF_DAY]) }
     val amString = remember {
         LocalTime.of(6, 0).format(DateTimeFormatter.ofPattern("a"))
     }
     val pmString = remember {
         LocalTime.of(18, 0).format(DateTimeFormatter.ofPattern("a"))
     }
+
     MaterialTheme(typography = typography) {
         var selectedColumn by remember { mutableStateOf(0) }
         val textStyle = MaterialTheme.typography.display1
@@ -304,7 +328,9 @@ public fun TimePickerWith12HourClock(
                     state = hourState,
                     focusRequester = focusRequester1,
                     modifier = Modifier.size(64.dp, 100.dp),
-                    readOnlyLabel = { LabelText("Hour") }
+                    readOnlyLabel = { LabelText("Hour") },
+                    onSelected = { selectedColumn = 0 },
+                    contentDescription = hoursContentDescription,
                 ) { hour: Int ->
                     TimePiece(
                         selected = selectedColumn == 0,
@@ -320,7 +346,9 @@ public fun TimePickerWith12HourClock(
                     state = minuteState,
                     focusRequester = focusRequester2,
                     modifier = Modifier.size(64.dp, 100.dp),
-                    readOnlyLabel = { LabelText("Min") }
+                    readOnlyLabel = { LabelText("Min") },
+                    onSelected = { selectedColumn = 1 },
+                    contentDescription = minutesContentDescription,
                 ) { minute: Int ->
                     TimePiece(
                         selected = selectedColumn == 1,
@@ -427,6 +455,16 @@ public fun DatePicker(
                 LocalDate.of(2022, it, 1).format(monthFormatter)
             }
         }
+        val yearContentDescription by remember { derivedStateOf {
+            "${yearState.selectedOption + 1}"
+        } }
+        val monthContentDescription by remember { derivedStateOf {
+            "${monthNames[monthState.selectedOption]}"
+        } }
+        val dayContentDescription by remember { derivedStateOf {
+            "${dayState.selectedOption + 1}"
+        } }
+
         var selectedColumn by remember { mutableStateOf(0) }
         BoxWithConstraints(modifier = modifier.fillMaxSize()) {
             val boxConstraints = this
@@ -472,7 +510,8 @@ public fun DatePicker(
                             onSelected = { selectedColumn = 0 },
                             text = { day: Int -> "%d".format(day + 1) },
                             width = dayWidth,
-                            focusRequester = focusRequester1
+                            focusRequester = focusRequester1,
+                            contentDescription = dayContentDescription,
                         )
                         Spacer(modifier = Modifier.width(spacerWidth))
                     }
@@ -482,7 +521,8 @@ public fun DatePicker(
                         onSelected = { selectedColumn = 1 },
                         text = { month: Int -> monthNames[month] },
                         width = monthWidth,
-                        focusRequester = focusRequester2
+                        focusRequester = focusRequester2,
+                        contentDescription = monthContentDescription,
                     )
                     if (selectedColumn > 0) {
                         Spacer(modifier = Modifier.width(spacerWidth))
@@ -492,7 +532,8 @@ public fun DatePicker(
                             onSelected = { selectedColumn = 2 },
                             text = { year: Int -> "%4d".format(year + 1) },
                             width = yearWidth,
-                            focusRequester = focusRequester3
+                            focusRequester = focusRequester3,
+                            contentDescription = yearContentDescription,
                         )
                     }
                 }
@@ -538,13 +579,16 @@ private fun DatePickerImpl(
     onSelected: () -> Unit,
     text: (option: Int) -> String,
     focusRequester: FocusRequester,
-    width: Dp
+    width: Dp,
+    contentDescription: String,
 ) {
     PickerWithRSB(
         readOnly = readOnly,
         state = state,
         focusRequester = focusRequester,
         modifier = Modifier.size(width, 100.dp),
+        onSelected = onSelected,
+        contentDescription = contentDescription,
     ) { option ->
         TimePiece(
             selected = !readOnly,
@@ -590,7 +634,9 @@ private fun BoxScope.LabelText(text: String) {
         text = text,
         style = MaterialTheme.typography.caption1,
         color = MaterialTheme.colors.onSurfaceVariant,
-        modifier = Modifier.align(Alignment.TopCenter).offset(y = 8.dp)
+        modifier = Modifier
+            .align(Alignment.TopCenter)
+            .offset(y = 8.dp)
     )
 }
 
@@ -600,7 +646,8 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
     Text(
         text = ":",
         style = textStyle,
-        color = MaterialTheme.colors.onBackground
+        color = MaterialTheme.colors.onBackground,
+        modifier = Modifier.clearAndSetSemantics {}
     )
     Spacer(Modifier.width(width))
 }
@@ -610,8 +657,10 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
     readOnly: Boolean,
     modifier: Modifier,
     focusRequester: FocusRequester,
+    contentDescription: String?,
     readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state = state),
+    onSelected: () -> Unit = {},
     option: @Composable PickerScope.(optionIndex: Int) -> Unit
 ) {
     Picker(
@@ -624,6 +673,31 @@ private fun Separator(width: Dp, textStyle: TextStyle) {
         flingBehavior = flingBehavior,
         readOnly = readOnly,
         readOnlyLabel = readOnlyLabel,
+        onSelected = onSelected,
+        contentDescription = contentDescription,
         option = option
     )
+}
+
+@Composable
+fun PickerWithoutGradient() {
+    val items = listOf("One", "Two", "Three", "Four", "Five")
+    val state = rememberPickerState(items.size)
+    val contentDescription by remember { derivedStateOf {
+        "${state.selectedOption + 1}"
+    } }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Picker(
+            readOnly = false,
+            modifier = Modifier.size(100.dp, 100.dp),
+            gradientRatio = 0.0f,
+            contentDescription = contentDescription,
+            state = state
+        ) {
+            Text(items[it])
+        }
+    }
 }

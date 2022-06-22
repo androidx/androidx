@@ -221,17 +221,8 @@ public class XmlSchemaAndComplicationSlotsDefinition(
 
     fun buildComplicationSlotsManager(
         currentUserStyleRepository: CurrentUserStyleRepository,
-        complicationSlotInflationFactory: ComplicationSlotInflationFactory?
+        complicationSlotInflationFactory: ComplicationSlotInflationFactory
     ): ComplicationSlotsManager {
-        if (complicationSlots.isEmpty()) {
-            return ComplicationSlotsManager(emptyList(), currentUserStyleRepository)
-        }
-
-        require(complicationSlotInflationFactory != null) {
-            "You must override WatchFaceService.getComplicationSlotInflationFactory to provide " +
-            "additional details needed to inflate ComplicationSlotsManager"
-        }
-
         return ComplicationSlotsManager(
             complicationSlots.map {
                 ComplicationSlot(

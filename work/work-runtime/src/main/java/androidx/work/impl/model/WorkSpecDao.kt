@@ -378,4 +378,7 @@ interface WorkSpecDao {
             "        (SELECT id FROM workspec WHERE state IN " + COMPLETED_STATES + "))"
     )
     fun pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast()
+
+    @Query("UPDATE workspec SET generation=generation+1 WHERE id=:id")
+    fun incrementGeneration(id: String)
 }

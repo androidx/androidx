@@ -17,6 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="error_layout_title" msgid="7937809248738392417">"‏"<b>"خطأ في App Widget من Glance"</b></string>
-    <string name="error_layout_text" msgid="6543889412094559379">"‏تحقق من الخطأ بالضبط باستخدام بحث "<b><tt>"adb logcat"</tt></b>" عن "<b><tt>"GlanceAppWidget"</tt></b>"."</string>
+    <string name="glance_error_layout_title" msgid="2896109737634971880">"‏"<b>"خطأ في أداة تطبيق Glance"</b></string>
+    <string name="glance_error_layout_text" msgid="8513923302775602854">"‏تحقَّق من الخطأ بالضبط باستخدام "<b><tt>"أداة سطر الأوامر adb logcat"</tt></b>"، من خلال البحث عن "<b><tt>"GlanceAppWidget"</tt></b>"."</string>
 </resources>

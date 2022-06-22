@@ -15,77 +15,84 @@
  */
 package androidx.health.connect.client.impl.converters.records
 
-import androidx.health.connect.client.metadata.DataOrigin
-import androidx.health.connect.client.metadata.Device
-import androidx.health.connect.client.metadata.Metadata
-import androidx.health.connect.client.records.ActiveCaloriesBurned
-import androidx.health.connect.client.records.ActiveEnergyBurned
-import androidx.health.connect.client.records.ActivityEvent
-import androidx.health.connect.client.records.ActivityEvent.EventType
-import androidx.health.connect.client.records.ActivityLap
-import androidx.health.connect.client.records.ActivitySession
-import androidx.health.connect.client.records.ActivitySession.ActivityType
-import androidx.health.connect.client.records.BasalBodyTemperature
-import androidx.health.connect.client.records.BasalMetabolicRate
-import androidx.health.connect.client.records.BloodGlucose
-import androidx.health.connect.client.records.BloodPressure
-import androidx.health.connect.client.records.BodyFat
-import androidx.health.connect.client.records.BodyTemperature
+import androidx.health.connect.client.impl.converters.datatype.toDataTypeName
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.BasalBodyTemperatureRecord
+import androidx.health.connect.client.records.BasalMetabolicRateRecord
+import androidx.health.connect.client.records.BloodGlucoseRecord
+import androidx.health.connect.client.records.BloodPressureRecord
+import androidx.health.connect.client.records.BodyFatRecord
 import androidx.health.connect.client.records.BodyTemperatureMeasurementLocation
-import androidx.health.connect.client.records.BodyWaterMass
-import androidx.health.connect.client.records.BoneMass
-import androidx.health.connect.client.records.CervicalMucus
-import androidx.health.connect.client.records.CervicalMucus.Amount
-import androidx.health.connect.client.records.CervicalMucus.Texture
-import androidx.health.connect.client.records.CervicalPosition
+import androidx.health.connect.client.records.BodyTemperatureRecord
+import androidx.health.connect.client.records.BodyWaterMassRecord
+import androidx.health.connect.client.records.BoneMassRecord
+import androidx.health.connect.client.records.CervicalMucusRecord
+import androidx.health.connect.client.records.CervicalMucusRecord.Appearance
+import androidx.health.connect.client.records.CervicalMucusRecord.Sensation
 import androidx.health.connect.client.records.CyclingPedalingCadence
-import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
-import androidx.health.connect.client.records.Distance
-import androidx.health.connect.client.records.ElevationGained
-import androidx.health.connect.client.records.FloorsClimbed
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
+import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseEventRecord
+import androidx.health.connect.client.records.ExerciseEventRecord.EventType
+import androidx.health.connect.client.records.ExerciseLapRecord
+import androidx.health.connect.client.records.ExerciseRepetitionsRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord.ExerciseType
+import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRate
-import androidx.health.connect.client.records.HeartRateSeries
-import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndex
-import androidx.health.connect.client.records.HeartRateVariabilityRmssd
-import androidx.health.connect.client.records.HeartRateVariabilityS
-import androidx.health.connect.client.records.HeartRateVariabilitySd2
-import androidx.health.connect.client.records.HeartRateVariabilitySdann
-import androidx.health.connect.client.records.HeartRateVariabilitySdnn
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndex
-import androidx.health.connect.client.records.HeartRateVariabilitySdsd
-import androidx.health.connect.client.records.HeartRateVariabilityTinn
-import androidx.health.connect.client.records.Height
-import androidx.health.connect.client.records.HipCircumference
-import androidx.health.connect.client.records.Hydration
-import androidx.health.connect.client.records.LeanBodyMass
-import androidx.health.connect.client.records.Menstruation
-import androidx.health.connect.client.records.Menstruation.Flow
-import androidx.health.connect.client.records.Nutrition
-import androidx.health.connect.client.records.OvulationTest
-import androidx.health.connect.client.records.OvulationTest.Result
-import androidx.health.connect.client.records.OxygenSaturation
-import androidx.health.connect.client.records.Power
-import androidx.health.connect.client.records.PowerSeries
-import androidx.health.connect.client.records.Repetitions
-import androidx.health.connect.client.records.RespiratoryRate
-import androidx.health.connect.client.records.RestingHeartRate
-import androidx.health.connect.client.records.SexualActivity
-import androidx.health.connect.client.records.SleepSession
-import androidx.health.connect.client.records.SleepStage
-import androidx.health.connect.client.records.SleepStage.StageType
+import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
+import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
+import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
+import androidx.health.connect.client.records.HeightRecord
+import androidx.health.connect.client.records.HipCircumferenceRecord
+import androidx.health.connect.client.records.HydrationRecord
+import androidx.health.connect.client.records.LeanBodyMassRecord
+import androidx.health.connect.client.records.MenstruationRecord
+import androidx.health.connect.client.records.MenstruationRecord.Flow
+import androidx.health.connect.client.records.NutritionRecord
+import androidx.health.connect.client.records.OvulationTestRecord
+import androidx.health.connect.client.records.OvulationTestRecord.Result
+import androidx.health.connect.client.records.OxygenSaturationRecord
+import androidx.health.connect.client.records.PowerRecord
+import androidx.health.connect.client.records.Record
+import androidx.health.connect.client.records.RespiratoryRateRecord
+import androidx.health.connect.client.records.RestingHeartRateRecord
+import androidx.health.connect.client.records.SexualActivityRecord
+import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SleepStageRecord
+import androidx.health.connect.client.records.SleepStageRecord.StageType
 import androidx.health.connect.client.records.Speed
-import androidx.health.connect.client.records.SpeedSeries
-import androidx.health.connect.client.records.Steps
+import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadence
-import androidx.health.connect.client.records.StepsCadenceSeries
-import androidx.health.connect.client.records.SwimmingStrokes
-import androidx.health.connect.client.records.SwimmingStrokes.SwimmingType
-import androidx.health.connect.client.records.TotalCaloriesBurned
-import androidx.health.connect.client.records.TotalEnergyBurned
-import androidx.health.connect.client.records.Vo2Max
-import androidx.health.connect.client.records.WaistCircumference
-import androidx.health.connect.client.records.Weight
-import androidx.health.connect.client.records.WheelchairPushes
+import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.SwimmingStrokesRecord
+import androidx.health.connect.client.records.SwimmingStrokesRecord.SwimmingType
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import androidx.health.connect.client.records.Vo2MaxRecord
+import androidx.health.connect.client.records.WaistCircumferenceRecord
+import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.records.WheelchairPushesRecord
+import androidx.health.connect.client.records.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.Device
+import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.units.celsius
+import androidx.health.connect.client.units.grams
+import androidx.health.connect.client.units.kilocalories
+import androidx.health.connect.client.units.kilocaloriesPerDay
+import androidx.health.connect.client.units.kilograms
+import androidx.health.connect.client.units.liters
+import androidx.health.connect.client.units.meters
+import androidx.health.connect.client.units.millimetersOfMercury
+import androidx.health.connect.client.units.watts
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
@@ -117,8 +124,8 @@ class AllRecordsConverterTest {
     @Test
     fun testBasalBodyTemperature() {
         val dataOnlyRequired =
-            BasalBodyTemperature(
-                temperatureDegreesCelsius = 1.0,
+            BasalBodyTemperatureRecord(
+                temperature = 1.celsius,
                 measurementLocation = null,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
@@ -126,14 +133,15 @@ class AllRecordsConverterTest {
             )
 
         val dataAllFields =
-            BasalBodyTemperature(
-                temperatureDegreesCelsius = 1.0,
+            BasalBodyTemperatureRecord(
+                temperature = 1.celsius,
                 measurementLocation = BodyTemperatureMeasurementLocation.ARMPIT,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(dataOnlyRequired)
         assertThat(toRecord(dataOnlyRequired.toProto())).isEqualTo(dataOnlyRequired)
         assertThat(toRecord(dataAllFields.toProto())).isEqualTo(dataAllFields)
     }
@@ -141,20 +149,21 @@ class AllRecordsConverterTest {
     @Test
     fun testBasalMetabolicRate() {
         val data =
-            BasalMetabolicRate(
-                kcalPerDay = 1.0,
+            BasalMetabolicRateRecord(
+                basalMetabolicRate = 1.kilocaloriesPerDay,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testBloodGlucose() {
         val data =
-            BloodGlucose(
+            BloodGlucoseRecord(
                 levelMillimolesPerLiter = 1.0,
                 specimenSource = null,
                 mealType = null,
@@ -164,15 +173,16 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testBloodPressure() {
         val data =
-            BloodPressure(
-                systolicMillimetersOfMercury = 20.0,
-                diastolicMillimetersOfMercury = 10.0,
+            BloodPressureRecord(
+                systolic = 20.millimetersOfMercury,
+                diastolic = 10.millimetersOfMercury,
                 bodyPosition = null,
                 measurementLocation = null,
                 time = START_TIME,
@@ -180,95 +190,86 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testBodyFat() {
         val data =
-            BodyFat(
+            BodyFatRecord(
                 percentage = 1,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testBodyTemperature() {
         val data =
-            BodyTemperature(
-                temperatureDegreesCelsius = 1.0,
+            BodyTemperatureRecord(
+                temperature = 1.celsius,
                 measurementLocation = null,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testBodyWaterMass() {
         val data =
-            BodyWaterMass(
-                massKg = 1.0,
+            BodyWaterMassRecord(
+                mass = 1.kilograms,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testBoneMass() {
         val data =
-            BoneMass(
-                massKg = 1.0,
+            BoneMassRecord(
+                mass = 1.kilograms,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testCervicalMucus() {
         val data =
-            CervicalMucus(
-                texture = Texture.CLEAR,
-                amount = Amount.HEAVY,
+            CervicalMucusRecord(
+                appearance = Appearance.CLEAR,
+                sensation = Sensation.HEAVY,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testCervicalPosition() {
-        val data =
-            CervicalPosition(
-                position = null,
-                dilation = null,
-                firmness = null,
-                time = START_TIME,
-                zoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testCyclingPedalingCadenceSeries() {
         val data =
-            CyclingPedalingCadenceSeries(
+            CyclingPedalingCadenceRecord(
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -287,13 +288,14 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA,
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHeartRateSeries() {
         val data =
-            HeartRateSeries(
+            HeartRateRecord(
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -316,272 +318,292 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA,
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHeight() {
         val data =
-            Height(
-                heightMeters = 1.0,
+            HeightRecord(
+                height = 1.meters,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHipCircumference() {
         val data =
-            HipCircumference(
-                circumferenceMeters = 1.0,
+            HipCircumferenceRecord(
+                circumference = 1.meters,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHeartRateVariabilityDifferentialIndex() {
         val data =
-            HeartRateVariabilityDifferentialIndex(
+            HeartRateVariabilityDifferentialIndexRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHeartRateVariabilityRmssd() {
         val data =
-            HeartRateVariabilityRmssd(
+            HeartRateVariabilityRmssdRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHeartRateVariabilityS() {
         val data =
-            HeartRateVariabilityS(
+            HeartRateVariabilitySRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHeartRateVariabilitySd2() {
         val data =
-            HeartRateVariabilitySd2(
+            HeartRateVariabilitySd2Record(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHeartRateVariabilitySdann() {
         val data =
-            HeartRateVariabilitySdann(
+            HeartRateVariabilitySdannRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHeartRateVariabilitySdnnIndex() {
         val data =
-            HeartRateVariabilitySdnnIndex(
+            HeartRateVariabilitySdnnIndexRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHeartRateVariabilitySdnn() {
         val data =
-            HeartRateVariabilitySdnn(
+            HeartRateVariabilitySdnnRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHeartRateVariabilitySdsd() {
         val data =
-            HeartRateVariabilitySdsd(
+            HeartRateVariabilitySdsdRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHeartRateVariabilityTinn() {
         val data =
-            HeartRateVariabilityTinn(
+            HeartRateVariabilityTinnRecord(
                 heartRateVariabilityMillis = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testLeanBodyMass() {
         val data =
-            LeanBodyMass(
-                massKg = 1.0,
+            LeanBodyMassRecord(
+                mass = 1.kilograms,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testMenstruation() {
         val data =
-            Menstruation(
+            MenstruationRecord(
                 flow = Flow.HEAVY,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testOvulationTest() {
         val data =
-            OvulationTest(
+            OvulationTestRecord(
                 result = Result.NEGATIVE,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testOxygenSaturation() {
         val data =
-            OxygenSaturation(
+            OxygenSaturationRecord(
                 percentage = 1,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testPowerSeries() {
         val data =
-            PowerSeries(
+            PowerRecord(
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
                 endZoneOffset = END_ZONE_OFFSET,
                 samples =
                     listOf(
-                        Power(
+                        PowerRecord.Sample(
                             time = START_TIME,
-                            watts = 1.0,
+                            power = 1.watts,
                         ),
-                        Power(
+                        PowerRecord.Sample(
                             time = START_TIME,
-                            watts = 2.0,
+                            power = 2.watts,
                         ),
                     ),
                 metadata = TEST_METADATA,
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testRespiratoryRate() {
         val data =
-            RespiratoryRate(
+            RespiratoryRateRecord(
                 rate = 1.0,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testRestingHeartRate() {
         val data =
-            RestingHeartRate(
+            RestingHeartRateRecord(
                 beatsPerMinute = 1,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testSexualActivity() {
         val data =
-            SexualActivity(
+            SexualActivityRecord(
                 protectionUsed = null,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testSpeedSeries() {
         val data =
-            SpeedSeries(
+            SpeedRecord(
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -600,13 +622,14 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA,
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testStepsCadenceSeries() {
         val data =
-            StepsCadenceSeries(
+            StepsCadenceRecord(
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -625,13 +648,14 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA,
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testVo2Max() {
         val data =
-            Vo2Max(
+            Vo2MaxRecord(
                 vo2MillilitersPerMinuteKilogram = 1.0,
                 measurementMethod = null,
                 time = START_TIME,
@@ -639,40 +663,43 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testWaistCircumference() {
         val data =
-            WaistCircumference(
-                circumferenceMeters = 1.0,
+            WaistCircumferenceRecord(
+                circumference = 1.meters,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testWeight() {
         val data =
-            Weight(
-                weightKg = 1.0,
+            WeightRecord(
+                weight = 1.kilograms,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testActiveCaloriesBurned() {
         val data =
-            ActiveCaloriesBurned(
-                energyKcal = 1.0,
+            ActiveCaloriesBurnedRecord(
+                energy = 1.kilocalories,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -680,28 +707,14 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testActiveEnergyBurned() {
-        val data =
-            ActiveEnergyBurned(
-                energyKcal = 1.0,
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testActivityEvent() {
         val data =
-            ActivityEvent(
+            ExerciseEventRecord(
                 eventType = EventType.PAUSE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -710,14 +723,15 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testActivityLap() {
         val data =
-            ActivityLap(
-                lengthMeters = 1.0,
+            ExerciseLapRecord(
+                length = 1.meters,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -725,14 +739,15 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testActivitySession() {
         val data =
-            ActivitySession(
-                activityType = ActivityType.BACK_EXTENSION,
+            ExerciseSessionRecord(
+                exerciseType = ExerciseType.BACK_EXTENSION,
                 title = null,
                 notes = null,
                 startTime = START_TIME,
@@ -742,14 +757,15 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testDistance() {
         val data =
-            Distance(
-                distanceMeters = 1.0,
+            DistanceRecord(
+                distance = 1.meters,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -757,14 +773,15 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testElevationGained() {
         val data =
-            ElevationGained(
-                elevationMeters = 1.0,
+            ElevationGainedRecord(
+                elevation = 1.meters,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -772,13 +789,14 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testFloorsClimbed() {
         val data =
-            FloorsClimbed(
+            FloorsClimbedRecord(
                 floors = 1.0,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -787,14 +805,15 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testHydration() {
         val data =
-            Hydration(
-                volumeLiters = 1.0,
+            HydrationRecord(
+                volume = 1.liters,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -802,55 +821,56 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testNutrition() {
         val data =
-            Nutrition(
-                biotinGrams = 1.0,
-                caffeineGrams = 1.0,
-                calciumGrams = 1.0,
-                kcal = 1.0,
-                kcalFromFat = 1.0,
-                chlorideGrams = 1.0,
-                cholesterolGrams = 1.0,
-                chromiumGrams = 1.0,
-                copperGrams = 1.0,
-                dietaryFiberGrams = 1.0,
-                folateGrams = 1.0,
-                folicAcidGrams = 1.0,
-                iodineGrams = 1.0,
-                ironGrams = 1.0,
-                magnesiumGrams = 1.0,
-                manganeseGrams = 1.0,
-                molybdenumGrams = 1.0,
-                monounsaturatedFatGrams = 1.0,
-                niacinGrams = 1.0,
-                pantothenicAcidGrams = 1.0,
-                phosphorusGrams = 1.0,
-                polyunsaturatedFatGrams = 1.0,
-                potassiumGrams = 1.0,
-                proteinGrams = 1.0,
-                riboflavinGrams = 1.0,
-                saturatedFatGrams = 1.0,
-                seleniumGrams = 1.0,
-                sodiumGrams = 1.0,
-                sugarGrams = 1.0,
-                thiaminGrams = 1.0,
-                totalCarbohydrateGrams = 1.0,
-                totalFatGrams = 1.0,
-                transFatGrams = 1.0,
-                unsaturatedFatGrams = 1.0,
-                vitaminAGrams = 1.0,
-                vitaminB12Grams = 1.0,
-                vitaminB6Grams = 1.0,
-                vitaminCGrams = 1.0,
-                vitaminDGrams = 1.0,
-                vitaminEGrams = 1.0,
-                vitaminKGrams = 1.0,
-                zincGrams = 1.0,
+            NutritionRecord(
+                biotin = 1.grams,
+                caffeine = 1.grams,
+                calcium = 1.grams,
+                energy = 1.kilocalories,
+                energyFromFat = 1.kilocalories,
+                chloride = 1.grams,
+                cholesterol = 1.grams,
+                chromium = 1.grams,
+                copper = 1.grams,
+                dietaryFiber = 1.grams,
+                folate = 1.grams,
+                folicAcid = 1.grams,
+                iodine = 1.grams,
+                iron = 1.grams,
+                magnesium = 1.grams,
+                manganese = 1.grams,
+                molybdenum = 1.grams,
+                monounsaturatedFat = 1.grams,
+                niacin = 1.grams,
+                pantothenicAcid = 1.grams,
+                phosphorus = 1.grams,
+                polyunsaturatedFat = 1.grams,
+                potassium = 1.grams,
+                protein = 1.grams,
+                riboflavin = 1.grams,
+                saturatedFat = 1.grams,
+                selenium = 1.grams,
+                sodium = 1.grams,
+                sugar = 1.grams,
+                thiamin = 1.grams,
+                totalCarbohydrate = 1.grams,
+                totalFat = 1.grams,
+                transFat = 1.grams,
+                unsaturatedFat = 1.grams,
+                vitaminA = 1.grams,
+                vitaminB12 = 1.grams,
+                vitaminB6 = 1.grams,
+                vitaminC = 1.grams,
+                vitaminD = 1.grams,
+                vitaminE = 1.grams,
+                vitaminK = 1.grams,
+                zinc = 1.grams,
                 mealType = null,
                 name = null,
                 startTime = START_TIME,
@@ -860,15 +880,16 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testRepetitions() {
         val data =
-            Repetitions(
+            ExerciseRepetitionsRecord(
                 count = 1,
-                type = ActivityType.JUMPING_JACK,
+                type = ExerciseType.JUMPING_JACK,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -876,13 +897,14 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testSleepSession() {
         val data =
-            SleepSession(
+            SleepSessionRecord(
                 title = null,
                 notes = null,
                 startTime = START_TIME,
@@ -892,13 +914,14 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testSleepStage() {
         val data =
-            SleepStage(
+            SleepStageRecord(
                 stage = StageType.AWAKE,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -907,13 +930,14 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testSteps() {
         val data =
-            Steps(
+            StepsRecord(
                 count = 1,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -922,13 +946,14 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testSwimmingStrokes() {
         val data =
-            SwimmingStrokes(
+            SwimmingStrokesRecord(
                 count = 1,
                 type = SwimmingType.BACKSTROKE,
                 startTime = START_TIME,
@@ -938,14 +963,15 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testTotalCaloriesBurned() {
         val data =
-            TotalCaloriesBurned(
-                energyKcal = 1.0,
+            TotalCaloriesBurnedRecord(
+                energy = 1.kilocalories,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
                 endTime = END_TIME,
@@ -953,28 +979,14 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
-        assertThat(toRecord(data.toProto())).isEqualTo(data)
-    }
-
-    @Test
-    fun testTotalEnergyBurned() {
-        val data =
-            TotalEnergyBurned(
-                energyKcal = 1.0,
-                startTime = START_TIME,
-                startZoneOffset = START_ZONE_OFFSET,
-                endTime = END_TIME,
-                endZoneOffset = END_ZONE_OFFSET,
-                metadata = TEST_METADATA
-            )
-
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
     }
 
     @Test
     fun testWheelchairPushes() {
         val data =
-            WheelchairPushes(
+            WheelchairPushesRecord(
                 count = 1,
                 startTime = START_TIME,
                 startZoneOffset = START_ZONE_OFFSET,
@@ -983,6 +995,13 @@ class AllRecordsConverterTest {
                 metadata = TEST_METADATA
             )
 
+        checkProtoAndRecordTypeNameMatch(data)
         assertThat(toRecord(data.toProto())).isEqualTo(data)
+    }
+
+    private inline fun <reified T : Record> checkProtoAndRecordTypeNameMatch(record: T) {
+        val serializedTypeName = record.toProto().dataType.name
+
+        assertThat(T::class.toDataTypeName()).isEqualTo(serializedTypeName)
     }
 }

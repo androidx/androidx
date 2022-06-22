@@ -54,6 +54,7 @@ import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
 import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.RawWorkInfoDao;
+import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.CancelWorkRunnable;
@@ -667,7 +668,7 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void startWork(@NonNull WorkRunId workSpecId) {
+    public void startWork(@NonNull StartStopToken workSpecId) {
         startWork(workSpecId, null);
     }
 
@@ -678,7 +679,7 @@ public class WorkManagerImpl extends WorkManager {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void startWork(
-            @NonNull WorkRunId workSpecId,
+            @NonNull StartStopToken workSpecId,
             @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
         mWorkTaskExecutor
                 .executeOnTaskThread(
@@ -690,19 +691,19 @@ public class WorkManagerImpl extends WorkManager {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void stopWork(@NonNull WorkRunId workSpecId) {
+    public void stopWork(@NonNull StartStopToken workSpecId) {
         mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(this, workSpecId, false));
     }
 
     /**
-     * @param workSpecId The {@link WorkSpec} id to stop when running in the context of a
+     * @param id The {@link WorkSpec} id to stop when running in the context of a
      *                   foreground service.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void stopForegroundWork(@NonNull String workSpecId) {
+    public void stopForegroundWork(@NonNull WorkGenerationalId id) {
         mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(this,
-                new WorkRunId(workSpecId), true));
+                new StartStopToken(id), true));
     }
 
     /**

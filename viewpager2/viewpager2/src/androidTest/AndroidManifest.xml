@@ -17,7 +17,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator" />
+    <uses-sdk tools:overrideLibrary="android_libs.ub_uiautomator, androidx.test.uiautomator" />
     <application android:supportsRtl="true">
         <activity android:name="androidx.viewpager2.widget.swipe.TestActivity"
                   android:theme="@style/Theme.AppCompat"/>

@@ -267,6 +267,6 @@ class RadioButtonTranslatorTest {
     private val ViewGroup.radioImageView: ImageView?
         get() = findView {
             shadowOf(it.drawable).createdFromResId ==
-                androidx.glance.appwidget.R.drawable.btn_radio_material_anim
+                androidx.glance.appwidget.R.drawable.glance_btn_radio_material_anim
         }
 }

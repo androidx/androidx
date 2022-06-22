@@ -22,7 +22,6 @@ import com.android.SdkConstants.ATTR_VALUE
 import com.android.tools.lint.checks.ApiLookup
 import com.android.tools.lint.checks.ApiLookup.equivalentName
 import com.android.tools.lint.checks.DesugaredMethodLookup
-import com.android.tools.lint.checks.VersionChecks.Companion.codeNameToApi
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Context
@@ -62,8 +61,6 @@ import org.jetbrains.uast.USuperExpression
 import org.jetbrains.uast.UThisExpression
 import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
-import org.jetbrains.uast.java.JavaUQualifiedReferenceExpression
-import org.jetbrains.uast.java.JavaUSimpleNameReferenceExpression
 import org.jetbrains.uast.util.isConstructorCall
 import org.jetbrains.uast.util.isMethodCall
 
@@ -523,7 +520,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 call.valueArguments,
                 wrapperClassName,
                 wrapperMethodName
-            ) ?: return null
+            )
 
             return fix().name("Extract to static inner class")
                 .composite(
@@ -588,6 +585,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     }
                     $wrapperMethodBody
                 }
+
                 """.trimIndent()
             } else {
                 implInsertionPoint = context.getLocation(existingWrapperClass.lastChild)
@@ -602,9 +600,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         }
 
         /**
-         * Generates source code for a call to the generated wrapper method, or `null` if we don't
-         * know how to do that. Currently, this method is capable of handling static calls --
-         * including constructor calls -- and simple reference expressions from Java source code.
+         * Generates source code for a call to the generated wrapper method.
          *
          * Source code follows the general format:
          *
@@ -625,12 +621,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             callValueArguments: List<UExpression>,
             wrapperClassName: String,
             wrapperMethodName: String,
-        ): String? {
-            var unwrappedCallReceiver = callReceiver
-            while (unwrappedCallReceiver is UParenthesizedExpression) {
-                unwrappedCallReceiver = unwrappedCallReceiver.expression
-            }
-
+        ): String {
             val callReceiverStr = when {
                 // Static method
                 context.evaluator.isStatic(method) ->
@@ -638,17 +629,13 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 // Constructor
                 method.isConstructor ->
                     null
-                // Simple reference
-                unwrappedCallReceiver is JavaUSimpleNameReferenceExpression ->
-                    unwrappedCallReceiver.identifier
-                // Qualified reference
-                unwrappedCallReceiver is JavaUQualifiedReferenceExpression ->
-                    "${unwrappedCallReceiver.receiver}.${unwrappedCallReceiver.selector}"
-                else -> {
-                    // We don't know how to handle this type of receiver. If this happens a lot, we
-                    // might try returning `UElement.asSourceString()` by default.
-                    return null
-                }
+                // If there is no call receiver, and the method isn't a constructor or static,
+                // it must be a call to an instance method using `this` implicitly.
+                callReceiver == null ->
+                    "this"
+                // Otherwise, use the original call receiver string (removing extra parens)
+                else ->
+                    unwrapExpression(callReceiver).asSourceString()
             }
 
             val callValues = if (callValueArguments.isNotEmpty()) {
@@ -662,6 +649,18 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             val replacementArgs = listOfNotNull(callReceiverStr, callValues).joinToString(", ")
 
             return "$wrapperClassName.$wrapperMethodName($replacementArgs)"
+        }
+
+        /**
+         * Remove parentheses from the expression (unwrap the expression until it is no longer a
+         * UParenthesizedExpression).
+         */
+        private fun unwrapExpression(expr: UExpression): UExpression {
+            var unwrappedExpr = expr
+            while (unwrappedExpr is UParenthesizedExpression) {
+                unwrappedExpr = unwrappedExpr.expression
+            }
+            return unwrappedExpr
         }
 
         /**
@@ -688,10 +687,13 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             val isStatic = evaluator.isStatic(method)
             val isConstructor = method.isConstructor
 
-            // Neither of these should be null if we're looking at Java code.
+            // None of these should be null if we're looking at Java code.
             val containingClass = method.containingClass ?: return null
-            val hostType = containingClass.name ?: return null
-            val hostVar = hostType[0].lowercaseChar() + hostType.substring(1)
+            // When referencing the type, use the fully qualified type in case it isn't imported
+            // (shortenTypes will simplify if it is). For the variable name, use just the class name
+            val hostType = containingClass.qualifiedName ?: return null
+            val hostClassName = containingClass.name ?: return null
+            val hostVar = hostClassName[0].lowercaseChar() + hostClassName.substring(1)
 
             val hostParam = if (isStatic || isConstructor) { null } else { "$hostType $hostVar" }
 

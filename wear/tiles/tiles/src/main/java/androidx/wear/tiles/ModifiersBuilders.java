@@ -540,7 +540,10 @@ public final class ModifiersBuilders {
         }
     }
 
-    /** Metadata about an element, for use by libraries only. */
+    /**
+     * Metadata about an element. For use by libraries building higher-level components only. This
+     * can be used to track component metadata.
+     */
     public static final class ElementMetadata {
         private final ModifiersProto.ElementMetadata mImpl;
 
@@ -549,8 +552,8 @@ public final class ModifiersBuilders {
         }
 
         /**
-         * Gets property describing the element with which it is associated. Intended for testing
-         * purposes only.
+         * Gets property describing the element with which it is associated. For use by libraries
+         * building higher-level components only. This can be used to track component metadata.
          */
         @NonNull
         public byte[] getTagData() {
@@ -578,7 +581,11 @@ public final class ModifiersBuilders {
 
             public Builder() {}
 
-            /** Sets property describing the element with which it is associated. */
+            /**
+             * Sets property describing the element with which it is associated. For use by
+             * libraries building higher-level components only. This can be used to track component
+             * metadata.
+             */
             @NonNull
             public Builder setTagData(@NonNull byte[] tagData) {
                 mImpl.setTagData(ByteString.copyFrom(tagData));
@@ -665,8 +672,8 @@ public final class ModifiersBuilders {
         }
 
         /**
-         * Gets metadata about an element, for use by libraries only. Intended for testing purposes
-         * only.
+         * Gets metadata about an element. For use by libraries building higher-level components
+         * only. This can be used to track component metadata.
          */
         @Nullable
         public ElementMetadata getMetadata() {
@@ -739,7 +746,10 @@ public final class ModifiersBuilders {
                 return this;
             }
 
-            /** Sets metadata about an element, for use by libraries only. */
+            /**
+             * Sets metadata about an element. For use by libraries building higher-level components
+             * only. This can be used to track component metadata.
+             */
             @NonNull
             public Builder setMetadata(@NonNull ElementMetadata metadata) {
                 mImpl.setMetadata(metadata.toProto());

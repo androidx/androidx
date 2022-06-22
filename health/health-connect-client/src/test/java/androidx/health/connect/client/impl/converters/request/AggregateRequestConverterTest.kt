@@ -16,8 +16,8 @@
 package androidx.health.connect.client.impl.converters.request
 
 import androidx.health.connect.client.impl.converters.time.toProto
-import androidx.health.connect.client.metadata.DataOrigin
-import androidx.health.connect.client.records.Steps
+import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
@@ -32,7 +32,7 @@ import java.time.Period
 import org.junit.Test
 import org.junit.runner.RunWith
 
-private val METRIC = Steps.COUNT_TOTAL
+private val METRIC = StepsRecord.COUNT_TOTAL
 private val METRIC_PROTO =
     RequestProto.AggregateMetricSpec.newBuilder()
         .setDataTypeName("Steps")

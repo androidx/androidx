@@ -267,8 +267,7 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
     fi
   fi
   if [ "$compact" == "--strict" ]; then
-    expanded="-Pandroidx.allWarningsAsErrors\
-     -Pandroidx.validateNoUnrecognizedMessages\
+    expanded="-Pandroidx.validateNoUnrecognizedMessages\
      -Pandroidx.verifyUpToDate\
      --no-watch-fs\
      --no-daemon"
@@ -406,7 +405,7 @@ function runGradle() {
   # If the caller specified where to save data, then also save the build scan data
   if [ "$DIST_DIR" != "" ]; then
     if [ "$GRADLE_USER_HOME" != "" ]; then
-      if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
+      if [[ "$DISALLOW_TASK_EXECUTION" != "" ]]; then
         zipPath="$DIST_DIR/scan-up-to-date.zip"
       else
         zipPath="$DIST_DIR/scan.zip"
@@ -443,14 +442,9 @@ if [ "$cleanCaches" == true ]; then
   echo
 fi
 
-if [[ " ${@} " =~ " -PdisallowExecution " ]]; then
-  echo "Passing '-PdisallowExecution' directly is forbidden. Did you mean -Pandroidx.verifyUpToDate ?"
+if [[ "$DISALLOW_TASK_EXECUTION" != "" ]]; then
+  echo "Setting 'DISALLOW_TASK_EXECUTION' directly is forbidden. Did you mean -Pandroidx.verifyUpToDate ?"
   echo "See TaskUpToDateValidator.java for more information"
-  exit 1
-fi
-
-if [[ " ${@} " =~ " -PverifyUpToDate " ]]; then
-  echo "-PverifyUpToDate has been renamed to -Pandroidx.verifyUpToDate"
   exit 1
 fi
 
@@ -458,7 +452,7 @@ runGradle "$@"
 # Check whether we were given the "-Pandroidx.verifyUpToDate" argument
 if [[ " ${@} " =~ " -Pandroidx.verifyUpToDate " ]]; then
   # Re-run Gradle, and find all tasks that are unexpectly out of date
-  if ! runGradle "$@" -PdisallowExecution --continue; then
+  if ! DISALLOW_TASK_EXECUTION=true runGradle "$@" --continue; then
     echo >&2
     echo "TaskUpToDateValidator's second build failed. To reproduce, try running './gradlew -Pandroidx.verifyUpToDate <failing tasks>'" >&2
     exit 1

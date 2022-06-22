@@ -46,6 +46,7 @@ internal fun generateRegistry(
     packageName: String,
     layouts: Map<File, List<ContainerProperties>>,
     boxChildLayouts: Map<File, List<BoxChildProperties>>,
+    rowColumnChildLayouts: Map<File, List<RowColumnChildProperties>>,
     outputSourceDir: File,
 ) {
     outputSourceDir.mkdirs()
@@ -143,6 +144,14 @@ internal fun generateRegistry(
         initializer(buildBoxChildInitializer(boxChildLayouts))
     }
     file.addProperty(generatedBoxChildren)
+    val generatedRowColumnChildren = propertySpec(
+        "generatedRowColumnChildren",
+        RowColumnChildrenMap,
+        INTERNAL,
+    ) {
+        initializer(buildRowColumnChildInitializer(rowColumnChildLayouts))
+    }
+    file.addProperty(generatedRowColumnChildren)
 
     val generatedComplexLayouts = propertySpec("generatedComplexLayouts", LayoutsMap, INTERNAL) {
         initializer(buildComplexInitializer())
@@ -230,6 +239,26 @@ private fun buildBoxChildInitializer(layouts: Map<File, List<BoxChildProperties>
         }
     }
 
+private fun buildRowColumnChildInitializer(
+    layouts: Map<File, List<RowColumnChildProperties>>
+): CodeBlock =
+    buildCodeBlock {
+        withIndent {
+            addStatement("mapOf(")
+            withIndent {
+                add(
+                    layouts.map {
+                        it.key to createRowColumnChildFileInitializer(it.key, it.value)
+                    }
+                        .sortedBy { it.first.nameWithoutExtension }
+                        .map { it.second }
+                        .joinToCode("")
+                )
+            }
+            addStatement(")")
+        }
+    }
+
 private fun buildComplexInitializer(): CodeBlock {
     return buildCodeBlock {
         addStatement("mapOf(")
@@ -307,6 +336,22 @@ private fun createBoxChildFileInitializer(
                 viewType = viewType,
                 horizontalAlignment = props.horizontalAlignment,
                 verticalAlignment = props.verticalAlignment,
+            )
+        }
+    }
+
+private fun createRowColumnChildFileInitializer(
+    layout: File,
+    generated: List<RowColumnChildProperties>
+): CodeBlock =
+    buildCodeBlock {
+        val viewType = layout.nameWithoutExtension.toLayoutType()
+        generated.forEach { props ->
+            addRowColumnChild(
+                resourceName = makeRowColumnChildResourceName(layout, props.width, props.height),
+                viewType = viewType,
+                width = props.width,
+                height = props.height,
             )
         }
     }
@@ -414,9 +459,26 @@ private fun CodeBlock.Builder.addBoxChild(
     addStatement(") to %T(layoutId = R.layout.$resourceName),", LayoutInfo)
 }
 
+private fun CodeBlock.Builder.addRowColumnChild(
+    resourceName: String,
+    viewType: String,
+    width: ValidSize,
+    height: ValidSize,
+) {
+    addStatement("%T(", RowColumnChildSelector)
+    withIndent {
+        addStatement("type = %M,", makeViewType(viewType))
+        addStatement("expandWidth = %L, ", width == ValidSize.Expand)
+        addStatement("expandHeight = %L, ", height == ValidSize.Expand)
+    }
+    addStatement(") to %T(layoutId = R.layout.$resourceName),", LayoutInfo)
+}
+
 private val ContainerSelector = ClassName("androidx.glance.appwidget", "ContainerSelector")
 private val SizeSelector = ClassName("androidx.glance.appwidget", "SizeSelector")
 private val BoxChildSelector = ClassName("androidx.glance.appwidget", "BoxChildSelector")
+private val RowColumnChildSelector =
+    ClassName("androidx.glance.appwidget", "RowColumnChildSelector")
 private val LayoutInfo = ClassName("androidx.glance.appwidget", "LayoutInfo")
 private val ContainerInfo = ClassName("androidx.glance.appwidget", "ContainerInfo")
 private val ContainerMap = Map::class.asTypeName().parameterizedBy(ContainerSelector, ContainerInfo)
@@ -447,12 +509,14 @@ private val LayoutType = ClassName("androidx.glance.appwidget", "LayoutType")
 private val ChildrenMap = Map::class.asTypeName().parameterizedBy(INT, SizeSelectorToIntMap)
 private val ContainerChildrenMap = Map::class.asTypeName().parameterizedBy(LayoutType, ChildrenMap)
 private val BoxChildrenMap = Map::class.asTypeName().parameterizedBy(BoxChildSelector, LayoutInfo)
+private val RowColumnChildrenMap =
+    Map::class.asTypeName().parameterizedBy(RowColumnChildSelector, LayoutInfo)
 
 private fun makeViewType(name: String) =
     MemberName("androidx.glance.appwidget.LayoutType", name)
 
 private fun String.toLayoutType(): String =
-    snakeRegex.replace(this) {
+    snakeRegex.replace(this.removePrefix("glance_")) {
         it.value.replace("_", "").uppercase()
     }.replaceFirstChar { it.uppercaseChar() }
 
@@ -518,6 +582,17 @@ internal fun makeBoxChildResourceName(
         file.nameWithoutExtension,
         horizontalAlignment?.resourceName,
         verticalAlignment?.resourceName,
+    ).joinToString(separator = "_")
+
+internal fun makeRowColumnChildResourceName(
+    file: File,
+    width: ValidSize,
+    height: ValidSize,
+) =
+    listOf(
+        file.nameWithoutExtension,
+        if (width == ValidSize.Expand) "expandwidth" else "wrapwidth",
+        if (height == ValidSize.Expand) "expandheight" else "wrapheight",
     ).joinToString(separator = "_")
 
 internal fun makeIdName(pos: Int, width: ValidSize, height: ValidSize) =

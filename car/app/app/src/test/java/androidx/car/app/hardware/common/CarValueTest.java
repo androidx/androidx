@@ -114,4 +114,11 @@ public class CarValueTest {
                 CarValue.STATUS_UNKNOWN)).isNotEqualTo(carValue);
     }
 
+    @Test
+    public void equals_handlesUnimplementedStatus() {
+        long timeStampMillis = 10;
+        int status = CarValue.STATUS_UNIMPLEMENTED;
+        assertThat(new CarValue<>(null, timeStampMillis, status)).isEqualTo(new CarValue<>(null,
+                timeStampMillis, status));
+    }
 }

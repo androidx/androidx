@@ -19,6 +19,9 @@ package androidx.recyclerview.widget;
 import android.graphics.Canvas;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
+
 /**
  * Utility class for {@link ItemTouchHelper} which handles item transformations for different
  * API versions.
@@ -38,26 +41,26 @@ public interface ItemTouchUIUtil {
      * The default implementation for {@link ItemTouchHelper.Callback#onChildDraw(Canvas,
      * RecyclerView, RecyclerView.ViewHolder, float, float, int, boolean)}
      */
-    void onDraw(Canvas c, RecyclerView recyclerView, View view,
+    void onDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull View view,
             float dX, float dY, int actionState, boolean isCurrentlyActive);
 
     /**
      * The default implementation for {@link ItemTouchHelper.Callback#onChildDrawOver(Canvas,
      * RecyclerView, RecyclerView.ViewHolder, float, float, int, boolean)}
      */
-    void onDrawOver(Canvas c, RecyclerView recyclerView, View view,
+    void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull View view,
             float dX, float dY, int actionState, boolean isCurrentlyActive);
 
     /**
      * The default implementation for {@link ItemTouchHelper.Callback#clearView(RecyclerView,
      * RecyclerView.ViewHolder)}
      */
-    void clearView(View view);
+    void clearView(@NonNull View view);
 
     /**
      * The default implementation for {@link ItemTouchHelper.Callback#onSelectedChanged(
      * RecyclerView.ViewHolder, int)}
      */
-    void onSelected(View view);
+    void onSelected(@NonNull View view);
 }
 

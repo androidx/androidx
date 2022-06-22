@@ -27,6 +27,7 @@ import android.os.Handler
 import android.os.Looper
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.SharedMemoryImage
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContract
@@ -428,9 +429,12 @@ public abstract class BaseEditorSession internal constructor(
     private companion object {
         /** Timeout for fetching ComplicationsPreviewData in [BaseEditorSession.close]. */
         private const val CLOSE_BROADCAST_TIMEOUT_MILLIS = 500L
+
+        private const val TAG = "BaseEditorSession"
     }
 
     init {
+        Log.d(TAG, "Session started")
         EditorService.globalEditorService.addCloseCallback(closeCallback)
     }
 
@@ -667,6 +671,7 @@ public abstract class BaseEditorSession internal constructor(
     }
 
     override fun close() {
+        Log.d(TAG, "close")
         // Silently do nothing if we've been force closed, this simplifies the editor activity.
         if (forceClosed) {
             return
@@ -727,6 +732,7 @@ public abstract class BaseEditorSession internal constructor(
 
     @UiThread
     internal fun forceClose() {
+        Log.d(TAG, "forceClose")
         commitChangesOnClose = false
         closed = true
         forceClosed = true
@@ -802,7 +808,8 @@ internal class OnWatchFaceEditorSessionImpl(
                 previewDataMap[it.key]?.type ?: it.value.complicationData.value.type
             }
             ComplicationSlotState(
-                it.value.computeBounds(editorDelegate.screenBounds, type),
+                it.value.computeBounds(editorDelegate.screenBounds, type, applyMargins = false),
+                it.value.computeBounds(editorDelegate.screenBounds, type, applyMargins = true),
                 it.value.boundsType,
                 it.value.supportedTypes,
                 it.value.defaultDataSourcePolicy,

@@ -188,7 +188,7 @@ public class RemoteListenableWorkerTest {
             mTaskExecutor,
             mForegroundProcessor,
             mDatabase,
-            request.stringId
+            mDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         ).build()
     }
 

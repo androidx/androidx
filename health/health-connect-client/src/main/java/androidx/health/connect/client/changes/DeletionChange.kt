@@ -15,8 +15,8 @@
  */
 package androidx.health.connect.client.changes
 
-import androidx.health.connect.client.metadata.Metadata
 import androidx.health.connect.client.records.Record
+import androidx.health.connect.client.records.metadata.Metadata
 
 /**
  * A [Change] with [Metadata.uid] of deleted [Record]. For privacy, only unique identifiers of the

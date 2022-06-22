@@ -61,20 +61,22 @@ public class WatchFaceControlTestService : Service() {
         public var apiVersionOverride: Int? = null
     }
 
-    private val realService = object : WatchFaceControlService() {
-        override fun createServiceStub(): IWatchFaceInstanceServiceStub =
-            object : IWatchFaceInstanceServiceStub(
-                ApplicationProvider.getApplicationContext<Context>(),
-                MainScope()
-            ) {
+    private val realService =
+        @RequiresApi(Build.VERSION_CODES.O_MR1)
+        object : WatchFaceControlService() {
+            override fun createServiceStub(): IWatchFaceInstanceServiceStub =
                 @RequiresApi(Build.VERSION_CODES.O_MR1)
-                override fun getApiVersion(): Int = apiVersionOverride ?: super.getApiVersion()
-            }
+                object : IWatchFaceInstanceServiceStub(
+                    this@WatchFaceControlTestService,
+                    MainScope()
+                ) {
+                    override fun getApiVersion(): Int = apiVersionOverride ?: super.getApiVersion()
+                }
 
-        init {
-            setContext(ApplicationProvider.getApplicationContext<Context>())
+            init {
+                setContext(ApplicationProvider.getApplicationContext<Context>())
+            }
         }
-    }
 
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     override fun onBind(intent: Intent?): IBinder? = realService.onBind(intent)

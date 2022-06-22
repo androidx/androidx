@@ -13,83 +13,83 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.impl.converters.records
 
-import androidx.health.connect.client.records.ActiveCaloriesBurned
-import androidx.health.connect.client.records.ActiveEnergyBurned
-import androidx.health.connect.client.records.ActivityEvent
-import androidx.health.connect.client.records.ActivityLap
-import androidx.health.connect.client.records.ActivitySession
-import androidx.health.connect.client.records.BasalBodyTemperature
-import androidx.health.connect.client.records.BasalMetabolicRate
-import androidx.health.connect.client.records.BloodGlucose
-import androidx.health.connect.client.records.BloodPressure
-import androidx.health.connect.client.records.BodyFat
-import androidx.health.connect.client.records.BodyTemperature
-import androidx.health.connect.client.records.BodyWaterMass
-import androidx.health.connect.client.records.BoneMass
-import androidx.health.connect.client.records.CervicalMucus
-import androidx.health.connect.client.records.CervicalPosition
-import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
-import androidx.health.connect.client.records.Distance
-import androidx.health.connect.client.records.ElevationGained
-import androidx.health.connect.client.records.FloorsClimbed
-import androidx.health.connect.client.records.HeartRateSeries
-import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndex
-import androidx.health.connect.client.records.HeartRateVariabilityRmssd
-import androidx.health.connect.client.records.HeartRateVariabilityS
-import androidx.health.connect.client.records.HeartRateVariabilitySd2
-import androidx.health.connect.client.records.HeartRateVariabilitySdann
-import androidx.health.connect.client.records.HeartRateVariabilitySdnn
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndex
-import androidx.health.connect.client.records.HeartRateVariabilitySdsd
-import androidx.health.connect.client.records.HeartRateVariabilityTinn
-import androidx.health.connect.client.records.Height
-import androidx.health.connect.client.records.HipCircumference
-import androidx.health.connect.client.records.Hydration
-import androidx.health.connect.client.records.LeanBodyMass
-import androidx.health.connect.client.records.Menstruation
-import androidx.health.connect.client.records.Nutrition
-import androidx.health.connect.client.records.OvulationTest
-import androidx.health.connect.client.records.OxygenSaturation
-import androidx.health.connect.client.records.PowerSeries
+import androidx.annotation.RestrictTo
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.BasalBodyTemperatureRecord
+import androidx.health.connect.client.records.BasalMetabolicRateRecord
+import androidx.health.connect.client.records.BloodGlucoseRecord
+import androidx.health.connect.client.records.BloodPressureRecord
+import androidx.health.connect.client.records.BodyFatRecord
+import androidx.health.connect.client.records.BodyTemperatureRecord
+import androidx.health.connect.client.records.BodyWaterMassRecord
+import androidx.health.connect.client.records.BoneMassRecord
+import androidx.health.connect.client.records.CervicalMucusRecord
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
+import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseEventRecord
+import androidx.health.connect.client.records.ExerciseLapRecord
+import androidx.health.connect.client.records.ExerciseRepetitionsRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.FloorsClimbedRecord
+import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
+import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
+import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
+import androidx.health.connect.client.records.HeightRecord
+import androidx.health.connect.client.records.HipCircumferenceRecord
+import androidx.health.connect.client.records.HydrationRecord
+import androidx.health.connect.client.records.LeanBodyMassRecord
+import androidx.health.connect.client.records.MenstruationRecord
+import androidx.health.connect.client.records.NutritionRecord
+import androidx.health.connect.client.records.OvulationTestRecord
+import androidx.health.connect.client.records.OxygenSaturationRecord
+import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
-import androidx.health.connect.client.records.Repetitions
-import androidx.health.connect.client.records.RespiratoryRate
-import androidx.health.connect.client.records.RestingHeartRate
+import androidx.health.connect.client.records.RespiratoryRateRecord
+import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SeriesRecord
-import androidx.health.connect.client.records.SexualActivity
-import androidx.health.connect.client.records.SleepSession
-import androidx.health.connect.client.records.SleepStage
-import androidx.health.connect.client.records.SpeedSeries
-import androidx.health.connect.client.records.Steps
-import androidx.health.connect.client.records.StepsCadenceSeries
-import androidx.health.connect.client.records.SwimmingStrokes
-import androidx.health.connect.client.records.TotalCaloriesBurned
-import androidx.health.connect.client.records.TotalEnergyBurned
-import androidx.health.connect.client.records.Vo2Max
-import androidx.health.connect.client.records.WaistCircumference
-import androidx.health.connect.client.records.Weight
-import androidx.health.connect.client.records.WheelchairPushes
+import androidx.health.connect.client.records.SexualActivityRecord
+import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SleepStageRecord
+import androidx.health.connect.client.records.SpeedRecord
+import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.SwimmingStrokesRecord
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import androidx.health.connect.client.records.Vo2MaxRecord
+import androidx.health.connect.client.records.WaistCircumferenceRecord
+import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.platform.client.proto.DataProto
 
 /** Converts public API object into internal proto for ipc. */
 fun Record.toProto(): DataProto.DataPoint =
     when (this) {
-        is BasalBodyTemperature ->
+        is BasalBodyTemperatureRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BasalBodyTemperature"))
                 .apply {
-                    putValues("temperature", doubleVal(temperatureDegreesCelsius))
+                    putValues("temperature", doubleVal(temperature.inCelsius))
                     measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
                 }
                 .build()
-        is BasalMetabolicRate ->
+        is BasalMetabolicRateRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BasalMetabolicRate"))
-                .apply { putValues("bmr", doubleVal(kcalPerDay)) }
+                .apply { putValues("bmr", doubleVal(basalMetabolicRate.inKilocaloriesPerDay)) }
                 .build()
-        is BloodGlucose ->
+        is BloodGlucoseRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BloodGlucose"))
                 .apply {
@@ -99,182 +99,173 @@ fun Record.toProto(): DataProto.DataPoint =
                     relationToMeal?.let { putValues("relationToMeal", enumVal(it)) }
                 }
                 .build()
-        is BloodPressure ->
+        is BloodPressureRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BloodPressure"))
                 .apply {
-                    putValues("systolic", doubleVal(systolicMillimetersOfMercury))
-                    putValues("diastolic", doubleVal(diastolicMillimetersOfMercury))
+                    putValues("systolic", doubleVal(systolic.inMillimetersOfMercury))
+                    putValues("diastolic", doubleVal(diastolic.inMillimetersOfMercury))
                     bodyPosition?.let { putValues("bodyPosition", enumVal(it)) }
                     measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
                 }
                 .build()
-        is BodyFat ->
+        is BodyFatRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BodyFat"))
                 .apply { putValues("percentage", doubleVal(percentage.toDouble())) }
                 .build()
-        is BodyTemperature ->
+        is BodyTemperatureRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BodyTemperature"))
                 .apply {
-                    putValues("temperature", doubleVal(temperatureDegreesCelsius))
+                    putValues("temperature", doubleVal(temperature.inCelsius))
                     measurementLocation?.let { putValues("measurementLocation", enumVal(it)) }
                 }
                 .build()
-        is BodyWaterMass ->
+        is BodyWaterMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BodyWaterMass"))
-                .apply { putValues("mass", doubleVal(massKg)) }
+                .apply { putValues("mass", doubleVal(mass.inKilograms)) }
                 .build()
-        is BoneMass ->
+        is BoneMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("BoneMass"))
-                .apply { putValues("mass", doubleVal(massKg)) }
+                .apply { putValues("mass", doubleVal(mass.inKilograms)) }
                 .build()
-        is CervicalMucus ->
+        is CervicalMucusRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("CervicalMucus"))
                 .apply {
-                    texture?.let { putValues("texture", enumVal(it)) }
-                    amount?.let { putValues("amount", enumVal(it)) }
+                    appearance?.let { putValues("texture", enumVal(it)) }
+                    sensation?.let { putValues("amount", enumVal(it)) }
                 }
                 .build()
-        is CervicalPosition ->
-            instantaneousProto()
-                .setDataType(protoDataType("CervicalPosition"))
-                .apply {
-                    position?.let { putValues("position", enumVal(it)) }
-                    dilation?.let { putValues("dilation", enumVal(it)) }
-                    firmness?.let { putValues("firmness", enumVal(it)) }
-                }
-                .build()
-        is CyclingPedalingCadenceSeries ->
+        is CyclingPedalingCadenceRecord ->
             toProto(dataTypeName = "CyclingPedalingCadenceSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
                     .putValues("rpm", doubleVal(sample.revolutionsPerMinute))
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
-        is HeartRateSeries ->
+        is HeartRateRecord ->
             toProto(dataTypeName = "HeartRateSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
                     .putValues("bpm", longVal(sample.beatsPerMinute))
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
-        is Height ->
+        is HeightRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Height"))
-                .apply { putValues("height", doubleVal(heightMeters)) }
+                .apply { putValues("height", doubleVal(height.inMeters)) }
                 .build()
-        is HipCircumference ->
+        is HipCircumferenceRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HipCircumference"))
-                .apply { putValues("circumference", doubleVal(circumferenceMeters)) }
+                .apply { putValues("circumference", doubleVal(circumference.inMeters)) }
                 .build()
-        is HeartRateVariabilityDifferentialIndex ->
+        is HeartRateVariabilityDifferentialIndexRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityDifferentialIndex"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilityRmssd ->
+        is HeartRateVariabilityRmssdRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityRmssd"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilityS ->
+        is HeartRateVariabilitySRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityS"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilitySd2 ->
+        is HeartRateVariabilitySd2Record ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySd2"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilitySdann ->
+        is HeartRateVariabilitySdannRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySdann"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilitySdnnIndex ->
+        is HeartRateVariabilitySdnnIndexRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySdnnIndex"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilitySdnn ->
+        is HeartRateVariabilitySdnnRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySdnn"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilitySdsd ->
+        is HeartRateVariabilitySdsdRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilitySdsd"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is HeartRateVariabilityTinn ->
+        is HeartRateVariabilityTinnRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("HeartRateVariabilityTinn"))
                 .apply { putValues("heartRateVariability", doubleVal(heartRateVariabilityMillis)) }
                 .build()
-        is LeanBodyMass ->
+        is LeanBodyMassRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("LeanBodyMass"))
-                .apply { putValues("mass", doubleVal(massKg)) }
+                .apply { putValues("mass", doubleVal(mass.inKilograms)) }
                 .build()
-        is Menstruation ->
+        is MenstruationRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Menstruation"))
                 .apply { flow?.let { putValues("flow", enumVal(it)) } }
                 .build()
-        is OvulationTest ->
+        is OvulationTestRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("OvulationTest"))
                 .apply { putValues("result", enumVal(result)) }
                 .build()
-        is OxygenSaturation ->
+        is OxygenSaturationRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("OxygenSaturation"))
                 .apply { putValues("percentage", doubleVal(percentage.toDouble())) }
                 .build()
-        is PowerSeries ->
+        is PowerRecord ->
             toProto(dataTypeName = "PowerSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
-                    .putValues("power", doubleVal(sample.watts))
+                    .putValues("power", doubleVal(sample.power.inWatts))
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
-        is RespiratoryRate ->
+        is RespiratoryRateRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("RespiratoryRate"))
                 .apply { putValues("rate", doubleVal(rate)) }
                 .build()
-        is RestingHeartRate ->
+        is RestingHeartRateRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("RestingHeartRate"))
                 .apply { putValues("bpm", longVal(beatsPerMinute)) }
                 .build()
-        is SexualActivity ->
+        is SexualActivityRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("SexualActivity"))
                 .apply { protectionUsed?.let { putValues("protectionUsed", enumVal(it)) } }
                 .build()
-        is SpeedSeries ->
+        is SpeedRecord ->
             toProto(dataTypeName = "SpeedSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
                     .putValues("speed", doubleVal(sample.metersPerSecond))
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
-        is StepsCadenceSeries ->
+        is StepsCadenceRecord ->
             toProto(dataTypeName = "StepsCadenceSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
                     .putValues("rate", doubleVal(sample.rate))
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }
-        is Vo2Max ->
+        is Vo2MaxRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Vo2Max"))
                 .apply {
@@ -282,204 +273,199 @@ fun Record.toProto(): DataProto.DataPoint =
                     measurementMethod?.let { putValues("measurementMethod", enumVal(it)) }
                 }
                 .build()
-        is WaistCircumference ->
+        is WaistCircumferenceRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("WaistCircumference"))
-                .apply { putValues("circumference", doubleVal(circumferenceMeters)) }
+                .apply { putValues("circumference", doubleVal(circumference.inMeters)) }
                 .build()
-        is Weight ->
+        is WeightRecord ->
             instantaneousProto()
                 .setDataType(protoDataType("Weight"))
-                .apply { putValues("weight", doubleVal(weightKg)) }
+                .apply { putValues("weight", doubleVal(weight.inKilograms)) }
                 .build()
-        is ActiveCaloriesBurned ->
+        is ActiveCaloriesBurnedRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActiveCaloriesBurned"))
-                .apply { putValues("energy", doubleVal(energyKcal)) }
+                .apply { putValues("energy", doubleVal(energy.inKilocalories)) }
                 .build()
-        is ActiveEnergyBurned ->
-            intervalProto()
-                .setDataType(protoDataType("ActiveEnergyBurned"))
-                .apply { putValues("energy", doubleVal(energyKcal)) }
-                .build()
-        is ActivityEvent ->
+        is ExerciseEventRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivityEvent"))
                 .apply { putValues("eventType", enumVal(eventType)) }
                 .build()
-        is ActivityLap ->
+        is ExerciseLapRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivityLap"))
                 .apply {
-                    if (lengthMeters > 0) {
-                        putValues("length", doubleVal(lengthMeters))
+                    if (length != null) {
+                        putValues("length", doubleVal(length.inMeters))
                     }
                 }
                 .build()
-        is ActivitySession ->
+        is ExerciseSessionRecord ->
             intervalProto()
                 .setDataType(protoDataType("ActivitySession"))
                 .apply {
-                    putValues("activityType", enumVal(activityType))
+                    putValues("activityType", enumVal(exerciseType))
                     title?.let { putValues("title", stringVal(it)) }
                     notes?.let { putValues("notes", stringVal(it)) }
                 }
                 .build()
-        is Distance ->
+        is DistanceRecord ->
             intervalProto()
                 .setDataType(protoDataType("Distance"))
-                .apply { putValues("distance", doubleVal(distanceMeters)) }
+                .apply { putValues("distance", doubleVal(distance.inMeters)) }
                 .build()
-        is ElevationGained ->
+        is ElevationGainedRecord ->
             intervalProto()
                 .setDataType(protoDataType("ElevationGained"))
-                .apply { putValues("elevation", doubleVal(elevationMeters)) }
+                .apply { putValues("elevation", doubleVal(elevation.inMeters)) }
                 .build()
-        is FloorsClimbed ->
+        is FloorsClimbedRecord ->
             intervalProto()
                 .setDataType(protoDataType("FloorsClimbed"))
                 .apply { putValues("floors", doubleVal(floors)) }
                 .build()
-        is Hydration ->
+        is HydrationRecord ->
             intervalProto()
                 .setDataType(protoDataType("Hydration"))
-                .apply { putValues("volume", doubleVal(volumeLiters)) }
+                .apply { putValues("volume", doubleVal(volume.inLiters)) }
                 .build()
-        is Nutrition ->
+        is NutritionRecord ->
             intervalProto()
                 .setDataType(protoDataType("Nutrition"))
                 .apply {
-                    if (biotinGrams > 0) {
-                        putValues("biotin", doubleVal(biotinGrams))
+                    if (biotin != null) {
+                        putValues("biotin", doubleVal(biotin.inGrams))
                     }
-                    if (caffeineGrams > 0) {
-                        putValues("caffeine", doubleVal(caffeineGrams))
+                    if (caffeine != null) {
+                        putValues("caffeine", doubleVal(caffeine.inGrams))
                     }
-                    if (calciumGrams > 0) {
-                        putValues("calcium", doubleVal(calciumGrams))
+                    if (calcium != null) {
+                        putValues("calcium", doubleVal(calcium.inGrams))
                     }
-                    if (kcal > 0) {
-                        putValues("calories", doubleVal(kcal))
+                    if (energy != null) {
+                        putValues("calories", doubleVal(energy.inKilocalories))
                     }
-                    if (kcalFromFat > 0) {
-                        putValues("caloriesFromFat", doubleVal(kcalFromFat))
+                    if (energyFromFat != null) {
+                        putValues("caloriesFromFat", doubleVal(energyFromFat.inKilocalories))
                     }
-                    if (chlorideGrams > 0) {
-                        putValues("chloride", doubleVal(chlorideGrams))
+                    if (chloride != null) {
+                        putValues("chloride", doubleVal(chloride.inGrams))
                     }
-                    if (cholesterolGrams > 0) {
-                        putValues("cholesterol", doubleVal(cholesterolGrams))
+                    if (cholesterol != null) {
+                        putValues("cholesterol", doubleVal(cholesterol.inGrams))
                     }
-                    if (chromiumGrams > 0) {
-                        putValues("chromium", doubleVal(chromiumGrams))
+                    if (chromium != null) {
+                        putValues("chromium", doubleVal(chromium.inGrams))
                     }
-                    if (copperGrams > 0) {
-                        putValues("copper", doubleVal(copperGrams))
+                    if (copper != null) {
+                        putValues("copper", doubleVal(copper.inGrams))
                     }
-                    if (dietaryFiberGrams > 0) {
-                        putValues("dietaryFiber", doubleVal(dietaryFiberGrams))
+                    if (dietaryFiber != null) {
+                        putValues("dietaryFiber", doubleVal(dietaryFiber.inGrams))
                     }
-                    if (folateGrams > 0) {
-                        putValues("folate", doubleVal(folateGrams))
+                    if (folate != null) {
+                        putValues("folate", doubleVal(folate.inGrams))
                     }
-                    if (folicAcidGrams > 0) {
-                        putValues("folicAcid", doubleVal(folicAcidGrams))
+                    if (folicAcid != null) {
+                        putValues("folicAcid", doubleVal(folicAcid.inGrams))
                     }
-                    if (iodineGrams > 0) {
-                        putValues("iodine", doubleVal(iodineGrams))
+                    if (iodine != null) {
+                        putValues("iodine", doubleVal(iodine.inGrams))
                     }
-                    if (ironGrams > 0) {
-                        putValues("iron", doubleVal(ironGrams))
+                    if (iron != null) {
+                        putValues("iron", doubleVal(iron.inGrams))
                     }
-                    if (magnesiumGrams > 0) {
-                        putValues("magnesium", doubleVal(magnesiumGrams))
+                    if (magnesium != null) {
+                        putValues("magnesium", doubleVal(magnesium.inGrams))
                     }
-                    if (manganeseGrams > 0) {
-                        putValues("manganese", doubleVal(manganeseGrams))
+                    if (manganese != null) {
+                        putValues("manganese", doubleVal(manganese.inGrams))
                     }
-                    if (molybdenumGrams > 0) {
-                        putValues("molybdenum", doubleVal(molybdenumGrams))
+                    if (molybdenum != null) {
+                        putValues("molybdenum", doubleVal(molybdenum.inGrams))
                     }
-                    if (monounsaturatedFatGrams > 0) {
-                        putValues("monounsaturatedFat", doubleVal(monounsaturatedFatGrams))
+                    if (monounsaturatedFat != null) {
+                        putValues("monounsaturatedFat", doubleVal(monounsaturatedFat.inGrams))
                     }
-                    if (niacinGrams > 0) {
-                        putValues("niacin", doubleVal(niacinGrams))
+                    if (niacin != null) {
+                        putValues("niacin", doubleVal(niacin.inGrams))
                     }
-                    if (pantothenicAcidGrams > 0) {
-                        putValues("pantothenicAcid", doubleVal(pantothenicAcidGrams))
+                    if (pantothenicAcid != null) {
+                        putValues("pantothenicAcid", doubleVal(pantothenicAcid.inGrams))
                     }
-                    if (phosphorusGrams > 0) {
-                        putValues("phosphorus", doubleVal(phosphorusGrams))
+                    if (phosphorus != null) {
+                        putValues("phosphorus", doubleVal(phosphorus.inGrams))
                     }
-                    if (polyunsaturatedFatGrams > 0) {
-                        putValues("polyunsaturatedFat", doubleVal(polyunsaturatedFatGrams))
+                    if (polyunsaturatedFat != null) {
+                        putValues("polyunsaturatedFat", doubleVal(polyunsaturatedFat.inGrams))
                     }
-                    if (potassiumGrams > 0) {
-                        putValues("potassium", doubleVal(potassiumGrams))
+                    if (potassium != null) {
+                        putValues("potassium", doubleVal(potassium.inGrams))
                     }
-                    if (proteinGrams > 0) {
-                        putValues("protein", doubleVal(proteinGrams))
+                    if (protein != null) {
+                        putValues("protein", doubleVal(protein.inGrams))
                     }
-                    if (riboflavinGrams > 0) {
-                        putValues("riboflavin", doubleVal(riboflavinGrams))
+                    if (riboflavin != null) {
+                        putValues("riboflavin", doubleVal(riboflavin.inGrams))
                     }
-                    if (saturatedFatGrams > 0) {
-                        putValues("saturatedFat", doubleVal(saturatedFatGrams))
+                    if (saturatedFat != null) {
+                        putValues("saturatedFat", doubleVal(saturatedFat.inGrams))
                     }
-                    if (seleniumGrams > 0) {
-                        putValues("selenium", doubleVal(seleniumGrams))
+                    if (selenium != null) {
+                        putValues("selenium", doubleVal(selenium.inGrams))
                     }
-                    if (sodiumGrams > 0) {
-                        putValues("sodium", doubleVal(sodiumGrams))
+                    if (sodium != null) {
+                        putValues("sodium", doubleVal(sodium.inGrams))
                     }
-                    if (sugarGrams > 0) {
-                        putValues("sugar", doubleVal(sugarGrams))
+                    if (sugar != null) {
+                        putValues("sugar", doubleVal(sugar.inGrams))
                     }
-                    if (thiaminGrams > 0) {
-                        putValues("thiamin", doubleVal(thiaminGrams))
+                    if (thiamin != null) {
+                        putValues("thiamin", doubleVal(thiamin.inGrams))
                     }
-                    if (totalCarbohydrateGrams > 0) {
-                        putValues("totalCarbohydrate", doubleVal(totalCarbohydrateGrams))
+                    if (totalCarbohydrate != null) {
+                        putValues("totalCarbohydrate", doubleVal(totalCarbohydrate.inGrams))
                     }
-                    if (totalFatGrams > 0) {
-                        putValues("totalFat", doubleVal(totalFatGrams))
+                    if (totalFat != null) {
+                        putValues("totalFat", doubleVal(totalFat.inGrams))
                     }
-                    if (transFatGrams > 0) {
-                        putValues("transFat", doubleVal(transFatGrams))
+                    if (transFat != null) {
+                        putValues("transFat", doubleVal(transFat.inGrams))
                     }
-                    if (unsaturatedFatGrams > 0) {
-                        putValues("unsaturatedFat", doubleVal(unsaturatedFatGrams))
+                    if (unsaturatedFat != null) {
+                        putValues("unsaturatedFat", doubleVal(unsaturatedFat.inGrams))
                     }
-                    if (vitaminAGrams > 0) {
-                        putValues("vitaminA", doubleVal(vitaminAGrams))
+                    if (vitaminA != null) {
+                        putValues("vitaminA", doubleVal(vitaminA.inGrams))
                     }
-                    if (vitaminB12Grams > 0) {
-                        putValues("vitaminB12", doubleVal(vitaminB12Grams))
+                    if (vitaminB12 != null) {
+                        putValues("vitaminB12", doubleVal(vitaminB12.inGrams))
                     }
-                    if (vitaminB6Grams > 0) {
-                        putValues("vitaminB6", doubleVal(vitaminB6Grams))
+                    if (vitaminB6 != null) {
+                        putValues("vitaminB6", doubleVal(vitaminB6.inGrams))
                     }
-                    if (vitaminCGrams > 0) {
-                        putValues("vitaminC", doubleVal(vitaminCGrams))
+                    if (vitaminC != null) {
+                        putValues("vitaminC", doubleVal(vitaminC.inGrams))
                     }
-                    if (vitaminDGrams > 0) {
-                        putValues("vitaminD", doubleVal(vitaminDGrams))
+                    if (vitaminD != null) {
+                        putValues("vitaminD", doubleVal(vitaminD.inGrams))
                     }
-                    if (vitaminEGrams > 0) {
-                        putValues("vitaminE", doubleVal(vitaminEGrams))
+                    if (vitaminE != null) {
+                        putValues("vitaminE", doubleVal(vitaminE.inGrams))
                     }
-                    if (vitaminKGrams > 0) {
-                        putValues("vitaminK", doubleVal(vitaminKGrams))
+                    if (vitaminK != null) {
+                        putValues("vitaminK", doubleVal(vitaminK.inGrams))
                     }
-                    if (zincGrams > 0) {
-                        putValues("zinc", doubleVal(zincGrams))
+                    if (zinc != null) {
+                        putValues("zinc", doubleVal(zinc.inGrams))
                     }
                     mealType?.let { putValues("mealType", enumVal(it)) }
                     name?.let { putValues("name", stringVal(it)) }
                 }
                 .build()
-        is Repetitions ->
+        is ExerciseRepetitionsRecord ->
             intervalProto()
                 .setDataType(protoDataType("Repetitions"))
                 .apply {
@@ -487,7 +473,7 @@ fun Record.toProto(): DataProto.DataPoint =
                     putValues("type", enumVal(type))
                 }
                 .build()
-        is SleepSession ->
+        is SleepSessionRecord ->
             intervalProto()
                 .setDataType(protoDataType("SleepSession"))
                 .apply {
@@ -495,17 +481,17 @@ fun Record.toProto(): DataProto.DataPoint =
                     notes?.let { putValues("notes", stringVal(it)) }
                 }
                 .build()
-        is SleepStage ->
+        is SleepStageRecord ->
             intervalProto()
                 .setDataType(protoDataType("SleepStage"))
                 .apply { putValues("stage", enumVal(stage)) }
                 .build()
-        is Steps ->
+        is StepsRecord ->
             intervalProto()
                 .setDataType(protoDataType("Steps"))
                 .apply { putValues("count", longVal(count)) }
                 .build()
-        is SwimmingStrokes ->
+        is SwimmingStrokesRecord ->
             intervalProto()
                 .setDataType(protoDataType("SwimmingStrokes"))
                 .apply {
@@ -515,17 +501,12 @@ fun Record.toProto(): DataProto.DataPoint =
                     putValues("type", enumVal(type))
                 }
                 .build()
-        is TotalCaloriesBurned ->
+        is TotalCaloriesBurnedRecord ->
             intervalProto()
                 .setDataType(protoDataType("TotalCaloriesBurned"))
-                .apply { putValues("energy", doubleVal(energyKcal)) }
+                .apply { putValues("energy", doubleVal(energy.inKilocalories)) }
                 .build()
-        is TotalEnergyBurned ->
-            intervalProto()
-                .setDataType(protoDataType("TotalEnergyBurned"))
-                .apply { putValues("energy", doubleVal(energyKcal)) }
-                .build()
-        is WheelchairPushes ->
+        is WheelchairPushesRecord ->
             intervalProto()
                 .setDataType(protoDataType("WheelchairPushes"))
                 .apply { putValues("count", longVal(count)) }

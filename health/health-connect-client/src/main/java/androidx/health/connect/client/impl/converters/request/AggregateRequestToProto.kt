@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.impl.converters.request
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.impl.converters.aggregate.toProto
 import androidx.health.connect.client.impl.converters.time.toProto
-import androidx.health.connect.client.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest

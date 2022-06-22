@@ -30,8 +30,9 @@ import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
+import androidx.work.impl.StartStopTokens;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.WorkRunIds;
+import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.utils.WakeLocks;
 import androidx.work.impl.utils.WorkTimer;
 import androidx.work.impl.utils.taskexecutor.SerialExecutor;
@@ -72,7 +73,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     @Nullable
     private CommandsCompletedListener mCompletedListener;
 
-    private WorkRunIds mWorkRunIds;
+    private StartStopTokens mStartStopTokens;
 
     SystemAlarmDispatcher(@NonNull Context context) {
         this(context, null, null);
@@ -84,8 +85,8 @@ public class SystemAlarmDispatcher implements ExecutionListener {
             @Nullable Processor processor,
             @Nullable WorkManagerImpl workManager) {
         mContext = context.getApplicationContext();
-        mWorkRunIds = new WorkRunIds();
-        mCommandHandler = new CommandHandler(mContext, mWorkRunIds);
+        mStartStopTokens = new StartStopTokens();
+        mCommandHandler = new CommandHandler(mContext, mStartStopTokens);
         mWorkManager = workManager != null ? workManager : WorkManagerImpl.getInstance(context);
         mWorkTimer = new WorkTimer(mWorkManager.getConfiguration().getRunnableScheduler());
         mProcessor = processor != null ? processor : mWorkManager.getProcessor();
@@ -108,7 +109,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     }
 
     @Override
-    public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
+    public void onExecuted(@NonNull WorkGenerationalId id, boolean needsReschedule) {
 
         // When there are lots of workers completing at around the same time,
         // this creates lock contention for the DelayMetCommandHandlers inside the CommandHandler.
@@ -119,7 +120,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                         this,
                         CommandHandler.createExecutionCompletedIntent(
                                 mContext,
-                                workSpecId,
+                                id,
                                 needsReschedule),
                         DEFAULT_START_ID));
     }

@@ -79,6 +79,7 @@ import java.util.concurrent.TimeUnit;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class FocusMeteringControl {
     private static final String TAG = "FocusMeteringControl";
+    static final long AUTO_FOCUS_TIMEOUT_DURATION = 5000;
     private final Camera2CameraControlImpl mCameraControl;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @CameraExecutor
@@ -96,6 +97,7 @@ class FocusMeteringControl {
     @NonNull
     Integer mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
     private ScheduledFuture<?> mAutoCancelHandle;
+    private ScheduledFuture<?> mAutoFocusTimeoutHandle;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     long mFocusTimeoutCounter = 0;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -488,12 +490,19 @@ class FocusMeteringControl {
         mCameraControl.submitCaptureRequestsInternal(Collections.singletonList(builder.build()));
     }
 
-
     @ExecutedBy("mExecutor")
     private void disableAutoCancel() {
         if (mAutoCancelHandle != null) {
             mAutoCancelHandle.cancel(/*mayInterruptIfRunning=*/true);
             mAutoCancelHandle = null;
+        }
+    }
+
+    @ExecutedBy("mExecutor")
+    private void clearAutoFocusTimeoutHandle() {
+        if (mAutoFocusTimeoutHandle != null) {
+            mAutoFocusTimeoutHandle.cancel(/*mayInterruptIfRunning=*/true);
+            mAutoFocusTimeoutHandle = null;
         }
     }
 
@@ -515,7 +524,8 @@ class FocusMeteringControl {
     }
 
     @ExecutedBy("mExecutor")
-    private void completeActionFuture(boolean isFocusSuccessful) {
+    void completeActionFuture(boolean isFocusSuccessful) {
+        clearAutoFocusTimeoutHandle();
         if (mRunningActionCompleter != null) {
             mRunningActionCompleter.set(FocusMeteringResult.create(isFocusSuccessful));
             mRunningActionCompleter = null;
@@ -559,6 +569,7 @@ class FocusMeteringControl {
         mCameraControl.removeCaptureResultListener(mSessionListenerForFocus);
 
         disableAutoCancel();
+        clearAutoFocusTimeoutHandle();
 
         mAfRects = afRects;
         mAeRects = aeRects;
@@ -619,8 +630,23 @@ class FocusMeteringControl {
 
         mCameraControl.addCaptureResultListener(mSessionListenerForFocus);
 
+        final long timeoutId = ++mFocusTimeoutCounter;
+
+        // Sets auto focus timeout runnable first so that action will be completed with
+        // mIsFocusSuccessful is false when auto cancel is enabled with the same default 5000ms
+        // duration.
+        final Runnable autoFocusTimeoutRunnable = () -> mExecutor.execute(() -> {
+            if (timeoutId == mFocusTimeoutCounter) {
+                mIsFocusSuccessful = false;
+                completeActionFuture(mIsFocusSuccessful);
+            }
+        });
+
+        mAutoFocusTimeoutHandle = mScheduler.schedule(autoFocusTimeoutRunnable,
+                AUTO_FOCUS_TIMEOUT_DURATION,
+                TimeUnit.MILLISECONDS);
+
         if (focusMeteringAction.isAutoCancelEnabled()) {
-            final long timeoutId = ++mFocusTimeoutCounter;
             final Runnable autoCancelRunnable = () -> mExecutor.execute(() -> {
                 if (timeoutId == mFocusTimeoutCounter) {
                     cancelFocusAndMeteringWithoutAsyncResult();
@@ -658,6 +684,7 @@ class FocusMeteringControl {
         failActionFuture("Cancelled by cancelFocusAndMetering()");
         mRunningCancelCompleter = completer;
         disableAutoCancel();
+        clearAutoFocusTimeoutHandle();
 
         if (shouldTriggerAF()) {
             cancelAfAeTrigger(true, false);

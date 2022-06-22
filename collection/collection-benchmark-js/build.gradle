@@ -26,7 +26,7 @@ if (githubBuild) {
     }
 
     task linkCollectionPackage(type: Exec) {
-        def compileTaskName = ':collection2:collection2:compileKotlinJs'
+        def compileTaskName = ':collection:collection:compileKotlinJs'
         dependsOn compileTaskName
 
         // Store where the node module is located. Subject to future changes.

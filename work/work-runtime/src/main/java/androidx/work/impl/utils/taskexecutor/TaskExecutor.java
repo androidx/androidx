@@ -16,6 +16,7 @@
 
 package androidx.work.impl.utils.taskexecutor;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Configuration;
 
@@ -32,13 +33,14 @@ public interface TaskExecutor {
     /**
      * @return The {@link Executor} for main thread task processing
      */
+    @NonNull
     Executor getMainThreadExecutor();
 
     /**
      * @param runnable {@link Runnable} to execute on a thread pool used
      *                 for internal book-keeping.
      */
-    default void executeOnTaskThread(Runnable runnable) {
+    default void executeOnTaskThread(@NonNull Runnable runnable) {
         getSerialTaskExecutor().execute(runnable);
     }
 
@@ -49,5 +51,6 @@ public interface TaskExecutor {
      *
      * @return The {@link Executor} for internal book-keeping
      */
+    @NonNull
     SerialExecutor getSerialTaskExecutor();
 }

@@ -15,6 +15,7 @@
  */
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
     id("com.android.application")
     id("kotlin-android")
 }
@@ -45,10 +46,22 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    // Compose
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
     namespace "androidx.camera.integration.uiwidgets"
 }
 
 dependencies {
+    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
+
     // Internal library
     implementation(libs.kotlinStdlib)
     implementation(project(":camera:camera-core"))
@@ -70,6 +83,16 @@ dependencies {
 
     // Guava
     implementation(libs.guavaAndroid)
+
+    // Compose
+    implementation 'androidx.activity:activity-compose:1.4.0'
+    implementation 'androidx.compose.material:material:1.1.1'
+    implementation 'androidx.compose.animation:animation:1.1.1'
+    implementation 'androidx.compose.ui:ui-tooling:1.1.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
+    implementation 'androidx.navigation:navigation-compose:2.4.2'
+    implementation 'androidx.compose.material:material-icons-extended:1.1.1'
+    androidTestImplementation 'androidx.compose.ui:ui-test-junit4:1.1.1'
 
     // Testing framework
     androidTestImplementation(libs.testExtJunit)

@@ -1,7 +1,13 @@
 // Signature format: 4.0
 package androidx.car.app.activity {
 
-  public final class CarAppActivity extends androidx.fragment.app.FragmentActivity implements androidx.lifecycle.LifecycleOwner {
+  public abstract class BaseCarAppActivity extends androidx.fragment.app.FragmentActivity implements androidx.lifecycle.LifecycleOwner {
+    ctor public BaseCarAppActivity();
+    method public void bindToViewModel();
+    method public android.content.ComponentName? retrieveServiceComponentName();
+  }
+
+  public final class CarAppActivity extends androidx.car.app.activity.BaseCarAppActivity implements androidx.lifecycle.LifecycleOwner {
     ctor public CarAppActivity();
   }
 

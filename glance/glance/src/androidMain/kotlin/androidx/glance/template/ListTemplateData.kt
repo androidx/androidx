@@ -75,7 +75,7 @@ class ListTemplateData(
  * @param button Action button
  */
 // TODO: Allow users to define a custom list item
-public class ListTemplateItem(
+class ListTemplateItem(
     val title: TemplateText,
     val body: TemplateText?,
     val action: Action?,

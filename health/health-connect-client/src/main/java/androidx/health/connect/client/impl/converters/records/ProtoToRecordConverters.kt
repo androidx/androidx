@@ -13,68 +13,76 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.impl.converters.records
 
-import androidx.health.connect.client.records.ActiveCaloriesBurned
-import androidx.health.connect.client.records.ActiveEnergyBurned
-import androidx.health.connect.client.records.ActivityEvent
-import androidx.health.connect.client.records.ActivityLap
-import androidx.health.connect.client.records.ActivitySession
-import androidx.health.connect.client.records.BasalBodyTemperature
-import androidx.health.connect.client.records.BasalMetabolicRate
-import androidx.health.connect.client.records.BloodGlucose
-import androidx.health.connect.client.records.BloodPressure
-import androidx.health.connect.client.records.BodyFat
-import androidx.health.connect.client.records.BodyTemperature
-import androidx.health.connect.client.records.BodyWaterMass
-import androidx.health.connect.client.records.BoneMass
-import androidx.health.connect.client.records.CervicalMucus
-import androidx.health.connect.client.records.CervicalPosition
+import androidx.annotation.RestrictTo
+import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
+import androidx.health.connect.client.records.BasalBodyTemperatureRecord
+import androidx.health.connect.client.records.BasalMetabolicRateRecord
+import androidx.health.connect.client.records.BloodGlucoseRecord
+import androidx.health.connect.client.records.BloodPressureRecord
+import androidx.health.connect.client.records.BodyFatRecord
+import androidx.health.connect.client.records.BodyTemperatureRecord
+import androidx.health.connect.client.records.BodyWaterMassRecord
+import androidx.health.connect.client.records.BoneMassRecord
+import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadence
-import androidx.health.connect.client.records.CyclingPedalingCadenceSeries
-import androidx.health.connect.client.records.Distance
-import androidx.health.connect.client.records.ElevationGained
-import androidx.health.connect.client.records.FloorsClimbed
+import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
+import androidx.health.connect.client.records.DistanceRecord
+import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseEventRecord
+import androidx.health.connect.client.records.ExerciseLapRecord
+import androidx.health.connect.client.records.ExerciseRepetitionsRecord
+import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.FloorsClimbedRecord
 import androidx.health.connect.client.records.HeartRate
-import androidx.health.connect.client.records.HeartRateSeries
-import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndex
-import androidx.health.connect.client.records.HeartRateVariabilityRmssd
-import androidx.health.connect.client.records.HeartRateVariabilityS
-import androidx.health.connect.client.records.HeartRateVariabilitySd2
-import androidx.health.connect.client.records.HeartRateVariabilitySdann
-import androidx.health.connect.client.records.HeartRateVariabilitySdnn
-import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndex
-import androidx.health.connect.client.records.HeartRateVariabilitySdsd
-import androidx.health.connect.client.records.HeartRateVariabilityTinn
-import androidx.health.connect.client.records.Height
-import androidx.health.connect.client.records.HipCircumference
-import androidx.health.connect.client.records.Hydration
-import androidx.health.connect.client.records.LeanBodyMass
-import androidx.health.connect.client.records.Menstruation
-import androidx.health.connect.client.records.Nutrition
-import androidx.health.connect.client.records.OvulationTest
-import androidx.health.connect.client.records.OxygenSaturation
-import androidx.health.connect.client.records.Power
-import androidx.health.connect.client.records.PowerSeries
+import androidx.health.connect.client.records.HeartRateRecord
+import androidx.health.connect.client.records.HeartRateVariabilityDifferentialIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilityRmssdRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySd2Record
+import androidx.health.connect.client.records.HeartRateVariabilitySdannRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnIndexRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdnnRecord
+import androidx.health.connect.client.records.HeartRateVariabilitySdsdRecord
+import androidx.health.connect.client.records.HeartRateVariabilityTinnRecord
+import androidx.health.connect.client.records.HeightRecord
+import androidx.health.connect.client.records.HipCircumferenceRecord
+import androidx.health.connect.client.records.HydrationRecord
+import androidx.health.connect.client.records.LeanBodyMassRecord
+import androidx.health.connect.client.records.MenstruationRecord
+import androidx.health.connect.client.records.NutritionRecord
+import androidx.health.connect.client.records.OvulationTestRecord
+import androidx.health.connect.client.records.OxygenSaturationRecord
+import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
-import androidx.health.connect.client.records.Repetitions
-import androidx.health.connect.client.records.RespiratoryRate
-import androidx.health.connect.client.records.RestingHeartRate
-import androidx.health.connect.client.records.SexualActivity
-import androidx.health.connect.client.records.SleepSession
-import androidx.health.connect.client.records.SleepStage
+import androidx.health.connect.client.records.RespiratoryRateRecord
+import androidx.health.connect.client.records.RestingHeartRateRecord
+import androidx.health.connect.client.records.SexualActivityRecord
+import androidx.health.connect.client.records.SleepSessionRecord
+import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.Speed
-import androidx.health.connect.client.records.SpeedSeries
-import androidx.health.connect.client.records.Steps
+import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadence
-import androidx.health.connect.client.records.StepsCadenceSeries
-import androidx.health.connect.client.records.SwimmingStrokes
-import androidx.health.connect.client.records.TotalCaloriesBurned
-import androidx.health.connect.client.records.TotalEnergyBurned
-import androidx.health.connect.client.records.Vo2Max
-import androidx.health.connect.client.records.WaistCircumference
-import androidx.health.connect.client.records.Weight
-import androidx.health.connect.client.records.WheelchairPushes
+import androidx.health.connect.client.records.StepsCadenceRecord
+import androidx.health.connect.client.records.StepsRecord
+import androidx.health.connect.client.records.SwimmingStrokesRecord
+import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
+import androidx.health.connect.client.records.Vo2MaxRecord
+import androidx.health.connect.client.records.WaistCircumferenceRecord
+import androidx.health.connect.client.records.WeightRecord
+import androidx.health.connect.client.records.WheelchairPushesRecord
+import androidx.health.connect.client.units.celsius
+import androidx.health.connect.client.units.grams
+import androidx.health.connect.client.units.kilocalories
+import androidx.health.connect.client.units.kilocaloriesPerDay
+import androidx.health.connect.client.units.kilograms
+import androidx.health.connect.client.units.liters
+import androidx.health.connect.client.units.meters
+import androidx.health.connect.client.units.millimetersOfMercury
+import androidx.health.connect.client.units.watts
 import androidx.health.platform.client.proto.DataProto
 import java.time.Instant
 
@@ -83,22 +91,22 @@ fun toRecord(proto: DataProto.DataPoint): Record =
     with(proto) {
         when (dataType.name) {
             "BasalBodyTemperature" ->
-                BasalBodyTemperature(
-                    temperatureDegreesCelsius = getDouble("temperature"),
+                BasalBodyTemperatureRecord(
+                    temperature = getDouble("temperature").celsius,
                     measurementLocation = getEnum("measurementLocation"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "BasalMetabolicRate" ->
-                BasalMetabolicRate(
-                    kcalPerDay = getDouble("bmr"),
+                BasalMetabolicRateRecord(
+                    basalMetabolicRate = getDouble("bmr").kilocaloriesPerDay,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "BloodGlucose" ->
-                BloodGlucose(
+                BloodGlucoseRecord(
                     levelMillimolesPerLiter = getDouble("level"),
                     specimenSource = getEnum("specimenSource"),
                     mealType = getEnum("mealType"),
@@ -108,9 +116,9 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "BloodPressure" ->
-                BloodPressure(
-                    systolicMillimetersOfMercury = getDouble("systolic"),
-                    diastolicMillimetersOfMercury = getDouble("diastolic"),
+                BloodPressureRecord(
+                    systolic = getDouble("systolic").millimetersOfMercury,
+                    diastolic = getDouble("diastolic").millimetersOfMercury,
                     bodyPosition = getEnum("bodyPosition"),
                     measurementLocation = getEnum("measurementLocation"),
                     time = time,
@@ -118,53 +126,44 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "BodyFat" ->
-                BodyFat(
+                BodyFatRecord(
                     percentage = getDouble("percentage").toInt(),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "BodyTemperature" ->
-                BodyTemperature(
-                    temperatureDegreesCelsius = getDouble("temperature"),
+                BodyTemperatureRecord(
+                    temperature = getDouble("temperature").celsius,
                     measurementLocation = getEnum("measurementLocation"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "BodyWaterMass" ->
-                BodyWaterMass(
-                    massKg = getDouble("mass"),
+                BodyWaterMassRecord(
+                    mass = getDouble("mass").kilograms,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "BoneMass" ->
-                BoneMass(
-                    massKg = getDouble("mass"),
+                BoneMassRecord(
+                    mass = getDouble("mass").kilograms,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "CervicalMucus" ->
-                CervicalMucus(
-                    texture = getEnum("texture"),
-                    amount = getEnum("amount"),
-                    time = time,
-                    zoneOffset = zoneOffset,
-                    metadata = metadata
-                )
-            "CervicalPosition" ->
-                CervicalPosition(
-                    position = getEnum("position"),
-                    dilation = getEnum("dilation"),
-                    firmness = getEnum("firmness"),
+                CervicalMucusRecord(
+                    appearance = getEnum("texture"),
+                    sensation = getEnum("amount"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "CyclingPedalingCadenceSeries" ->
-                CyclingPedalingCadenceSeries(
+                CyclingPedalingCadenceRecord(
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -179,7 +178,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata,
                 )
             "HeartRateSeries" ->
-                HeartRateSeries(
+                HeartRateRecord(
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -194,148 +193,148 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata,
                 )
             "Height" ->
-                Height(
-                    heightMeters = getDouble("height"),
+                HeightRecord(
+                    height = getDouble("height").meters,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HipCircumference" ->
-                HipCircumference(
-                    circumferenceMeters = getDouble("circumference"),
+                HipCircumferenceRecord(
+                    circumference = getDouble("circumference").meters,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilityDifferentialIndex" ->
-                HeartRateVariabilityDifferentialIndex(
+                HeartRateVariabilityDifferentialIndexRecord(
                     heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilityRmssd" ->
-                HeartRateVariabilityRmssd(
+                HeartRateVariabilityRmssdRecord(
                     heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilityS" ->
-                HeartRateVariabilityS(
+                HeartRateVariabilitySRecord(
                     heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilitySd2" ->
-                HeartRateVariabilitySd2(
+                HeartRateVariabilitySd2Record(
                     heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilitySdann" ->
-                HeartRateVariabilitySdann(
+                HeartRateVariabilitySdannRecord(
                     heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilitySdnnIndex" ->
-                HeartRateVariabilitySdnnIndex(
+                HeartRateVariabilitySdnnIndexRecord(
                     heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilitySdnn" ->
-                HeartRateVariabilitySdnn(
+                HeartRateVariabilitySdnnRecord(
                     heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilitySdsd" ->
-                HeartRateVariabilitySdsd(
+                HeartRateVariabilitySdsdRecord(
                     heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "HeartRateVariabilityTinn" ->
-                HeartRateVariabilityTinn(
+                HeartRateVariabilityTinnRecord(
                     heartRateVariabilityMillis = getDouble("heartRateVariability"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "LeanBodyMass" ->
-                LeanBodyMass(
-                    massKg = getDouble("mass"),
+                LeanBodyMassRecord(
+                    mass = getDouble("mass").kilograms,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "Menstruation" ->
-                Menstruation(
+                MenstruationRecord(
                     flow = getEnum("flow"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "OvulationTest" ->
-                OvulationTest(
+                OvulationTestRecord(
                     result = getEnum("result") ?: "",
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "OxygenSaturation" ->
-                OxygenSaturation(
+                OxygenSaturationRecord(
                     percentage = getDouble("percentage").toInt(),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "PowerSeries" ->
-                PowerSeries(
+                PowerRecord(
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
                     endZoneOffset = endZoneOffset,
                     samples =
                         seriesValuesList.map { value ->
-                            Power(
+                            PowerRecord.Sample(
                                 time = Instant.ofEpochMilli(value.instantTimeMillis),
-                                watts = value.getDouble("power"),
+                                power = value.getDouble("power").watts,
                             )
                         },
                     metadata = metadata,
                 )
             "RespiratoryRate" ->
-                RespiratoryRate(
+                RespiratoryRateRecord(
                     rate = getDouble("rate"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "RestingHeartRate" ->
-                RestingHeartRate(
+                RestingHeartRateRecord(
                     beatsPerMinute = getLong("bpm"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "SexualActivity" ->
-                SexualActivity(
+                SexualActivityRecord(
                     protectionUsed = getEnum("protectionUsed"),
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "SpeedSeries" ->
-                SpeedSeries(
+                SpeedRecord(
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -350,7 +349,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata,
                 )
             "StepsCadenceSeries" ->
-                StepsCadenceSeries(
+                StepsCadenceRecord(
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -365,7 +364,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata,
                 )
             "Vo2Max" ->
-                Vo2Max(
+                Vo2MaxRecord(
                     vo2MillilitersPerMinuteKilogram = getDouble("vo2"),
                     measurementMethod = getEnum("measurementMethod"),
                     time = time,
@@ -373,31 +372,22 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "WaistCircumference" ->
-                WaistCircumference(
-                    circumferenceMeters = getDouble("circumference"),
+                WaistCircumferenceRecord(
+                    circumference = getDouble("circumference").meters,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "Weight" ->
-                Weight(
-                    weightKg = getDouble("weight"),
+                WeightRecord(
+                    weight = getDouble("weight").kilograms,
                     time = time,
                     zoneOffset = zoneOffset,
                     metadata = metadata
                 )
             "ActiveCaloriesBurned" ->
-                ActiveCaloriesBurned(
-                    energyKcal = getDouble("energy"),
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
-                    metadata = metadata
-                )
-            "ActiveEnergyBurned" ->
-                ActiveEnergyBurned(
-                    energyKcal = getDouble("energy"),
+                ActiveCaloriesBurnedRecord(
+                    energy = getDouble("energy").kilocalories,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -405,7 +395,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "ActivityEvent" ->
-                ActivityEvent(
+                ExerciseEventRecord(
                     eventType = getEnum("eventType") ?: "",
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
@@ -414,8 +404,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "ActivityLap" ->
-                ActivityLap(
-                    lengthMeters = getDouble("length"),
+                ExerciseLapRecord(
+                    length = getDouble("length").meters,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -423,8 +413,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "ActivitySession" ->
-                ActivitySession(
-                    activityType = getEnum("activityType") ?: "",
+                ExerciseSessionRecord(
+                    exerciseType = getEnum("activityType") ?: "",
                     title = getString("title"),
                     notes = getString("notes"),
                     startTime = startTime,
@@ -434,8 +424,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "Distance" ->
-                Distance(
-                    distanceMeters = getDouble("distance"),
+                DistanceRecord(
+                    distance = getDouble("distance").meters,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -443,8 +433,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "ElevationGained" ->
-                ElevationGained(
-                    elevationMeters = getDouble("elevation"),
+                ElevationGainedRecord(
+                    elevation = getDouble("elevation").meters,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -452,7 +442,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "FloorsClimbed" ->
-                FloorsClimbed(
+                FloorsClimbedRecord(
                     floors = getDouble("floors"),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
@@ -461,8 +451,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "Hydration" ->
-                Hydration(
-                    volumeLiters = getDouble("volume"),
+                HydrationRecord(
+                    volume = getDouble("volume").liters,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -470,49 +460,49 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "Nutrition" ->
-                Nutrition(
-                    biotinGrams = getDouble("biotin"),
-                    caffeineGrams = getDouble("caffeine"),
-                    calciumGrams = getDouble("calcium"),
-                    kcal = getDouble("calories"),
-                    kcalFromFat = getDouble("caloriesFromFat"),
-                    chlorideGrams = getDouble("chloride"),
-                    cholesterolGrams = getDouble("cholesterol"),
-                    chromiumGrams = getDouble("chromium"),
-                    copperGrams = getDouble("copper"),
-                    dietaryFiberGrams = getDouble("dietaryFiber"),
-                    folateGrams = getDouble("folate"),
-                    folicAcidGrams = getDouble("folicAcid"),
-                    iodineGrams = getDouble("iodine"),
-                    ironGrams = getDouble("iron"),
-                    magnesiumGrams = getDouble("magnesium"),
-                    manganeseGrams = getDouble("manganese"),
-                    molybdenumGrams = getDouble("molybdenum"),
-                    monounsaturatedFatGrams = getDouble("monounsaturatedFat"),
-                    niacinGrams = getDouble("niacin"),
-                    pantothenicAcidGrams = getDouble("pantothenicAcid"),
-                    phosphorusGrams = getDouble("phosphorus"),
-                    polyunsaturatedFatGrams = getDouble("polyunsaturatedFat"),
-                    potassiumGrams = getDouble("potassium"),
-                    proteinGrams = getDouble("protein"),
-                    riboflavinGrams = getDouble("riboflavin"),
-                    saturatedFatGrams = getDouble("saturatedFat"),
-                    seleniumGrams = getDouble("selenium"),
-                    sodiumGrams = getDouble("sodium"),
-                    sugarGrams = getDouble("sugar"),
-                    thiaminGrams = getDouble("thiamin"),
-                    totalCarbohydrateGrams = getDouble("totalCarbohydrate"),
-                    totalFatGrams = getDouble("totalFat"),
-                    transFatGrams = getDouble("transFat"),
-                    unsaturatedFatGrams = getDouble("unsaturatedFat"),
-                    vitaminAGrams = getDouble("vitaminA"),
-                    vitaminB12Grams = getDouble("vitaminB12"),
-                    vitaminB6Grams = getDouble("vitaminB6"),
-                    vitaminCGrams = getDouble("vitaminC"),
-                    vitaminDGrams = getDouble("vitaminD"),
-                    vitaminEGrams = getDouble("vitaminE"),
-                    vitaminKGrams = getDouble("vitaminK"),
-                    zincGrams = getDouble("zinc"),
+                NutritionRecord(
+                    biotin = valuesMap["biotin"]?.doubleVal?.grams,
+                    caffeine = valuesMap["caffeine"]?.doubleVal?.grams,
+                    calcium = valuesMap["calcium"]?.doubleVal?.grams,
+                    energy = valuesMap["calories"]?.doubleVal?.kilocalories,
+                    energyFromFat = valuesMap["caloriesFromFat"]?.doubleVal?.kilocalories,
+                    chloride = valuesMap["chloride"]?.doubleVal?.grams,
+                    cholesterol = valuesMap["cholesterol"]?.doubleVal?.grams,
+                    chromium = valuesMap["chromium"]?.doubleVal?.grams,
+                    copper = valuesMap["copper"]?.doubleVal?.grams,
+                    dietaryFiber = valuesMap["dietaryFiber"]?.doubleVal?.grams,
+                    folate = valuesMap["folate"]?.doubleVal?.grams,
+                    folicAcid = valuesMap["folicAcid"]?.doubleVal?.grams,
+                    iodine = valuesMap["iodine"]?.doubleVal?.grams,
+                    iron = valuesMap["iron"]?.doubleVal?.grams,
+                    magnesium = valuesMap["magnesium"]?.doubleVal?.grams,
+                    manganese = valuesMap["manganese"]?.doubleVal?.grams,
+                    molybdenum = valuesMap["molybdenum"]?.doubleVal?.grams,
+                    monounsaturatedFat = valuesMap["monounsaturatedFat"]?.doubleVal?.grams,
+                    niacin = valuesMap["niacin"]?.doubleVal?.grams,
+                    pantothenicAcid = valuesMap["pantothenicAcid"]?.doubleVal?.grams,
+                    phosphorus = valuesMap["phosphorus"]?.doubleVal?.grams,
+                    polyunsaturatedFat = valuesMap["polyunsaturatedFat"]?.doubleVal?.grams,
+                    potassium = valuesMap["potassium"]?.doubleVal?.grams,
+                    protein = valuesMap["protein"]?.doubleVal?.grams,
+                    riboflavin = valuesMap["riboflavin"]?.doubleVal?.grams,
+                    saturatedFat = valuesMap["saturatedFat"]?.doubleVal?.grams,
+                    selenium = valuesMap["selenium"]?.doubleVal?.grams,
+                    sodium = valuesMap["sodium"]?.doubleVal?.grams,
+                    sugar = valuesMap["sugar"]?.doubleVal?.grams,
+                    thiamin = valuesMap["thiamin"]?.doubleVal?.grams,
+                    totalCarbohydrate = valuesMap["totalCarbohydrate"]?.doubleVal?.grams,
+                    totalFat = valuesMap["totalFat"]?.doubleVal?.grams,
+                    transFat = valuesMap["transFat"]?.doubleVal?.grams,
+                    unsaturatedFat = valuesMap["unsaturatedFat"]?.doubleVal?.grams,
+                    vitaminA = valuesMap["vitaminA"]?.doubleVal?.grams,
+                    vitaminB12 = valuesMap["vitaminB12"]?.doubleVal?.grams,
+                    vitaminB6 = valuesMap["vitaminB6"]?.doubleVal?.grams,
+                    vitaminC = valuesMap["vitaminC"]?.doubleVal?.grams,
+                    vitaminD = valuesMap["vitaminD"]?.doubleVal?.grams,
+                    vitaminE = valuesMap["vitaminE"]?.doubleVal?.grams,
+                    vitaminK = valuesMap["vitaminK"]?.doubleVal?.grams,
+                    zinc = valuesMap["zinc"]?.doubleVal?.grams,
                     mealType = getEnum("mealType"),
                     name = getString("name"),
                     startTime = startTime,
@@ -522,7 +512,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "Repetitions" ->
-                Repetitions(
+                ExerciseRepetitionsRecord(
                     count = getLong("count"),
                     type = getEnum("type") ?: "",
                     startTime = startTime,
@@ -532,7 +522,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "SleepSession" ->
-                SleepSession(
+                SleepSessionRecord(
                     title = getString("title"),
                     notes = getString("notes"),
                     startTime = startTime,
@@ -542,7 +532,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "SleepStage" ->
-                SleepStage(
+                SleepStageRecord(
                     stage = getEnum("stage") ?: "",
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
@@ -551,7 +541,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "Steps" ->
-                Steps(
+                StepsRecord(
                     count = getLong("count"),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
@@ -560,7 +550,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "SwimmingStrokes" ->
-                SwimmingStrokes(
+                SwimmingStrokesRecord(
                     count = getLong("count"),
                     type = getEnum("type") ?: "",
                     startTime = startTime,
@@ -570,17 +560,8 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "TotalCaloriesBurned" ->
-                TotalCaloriesBurned(
-                    energyKcal = getDouble("energy"),
-                    startTime = startTime,
-                    startZoneOffset = startZoneOffset,
-                    endTime = endTime,
-                    endZoneOffset = endZoneOffset,
-                    metadata = metadata
-                )
-            "TotalEnergyBurned" ->
-                TotalEnergyBurned(
-                    energyKcal = getDouble("energy"),
+                TotalCaloriesBurnedRecord(
+                    energy = getDouble("energy").kilocalories,
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,
                     endTime = endTime,
@@ -588,7 +569,7 @@ fun toRecord(proto: DataProto.DataPoint): Record =
                     metadata = metadata
                 )
             "WheelchairPushes" ->
-                WheelchairPushes(
+                WheelchairPushesRecord(
                     count = getLong("count"),
                     startTime = startTime,
                     startZoneOffset = startZoneOffset,

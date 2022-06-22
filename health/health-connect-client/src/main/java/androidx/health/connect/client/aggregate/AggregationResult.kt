@@ -16,7 +16,7 @@
 package androidx.health.connect.client.aggregate
 
 import androidx.health.connect.client.aggregate.AggregateMetric.Converter
-import androidx.health.connect.client.metadata.DataOrigin
+import androidx.health.connect.client.records.metadata.DataOrigin
 
 /**
  * Contains results of requested [AggregateMetric].

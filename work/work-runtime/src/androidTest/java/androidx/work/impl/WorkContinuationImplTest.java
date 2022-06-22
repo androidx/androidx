@@ -315,7 +315,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 new InstantWorkTaskExecutor(),
                 foregroundProcessor,
                 mDatabase,
-                joinId)
+                workSpecDao.getWorkSpec(joinId))
                 .build()
                 .run();
 

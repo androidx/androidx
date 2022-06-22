@@ -16,6 +16,9 @@
 
 package androidx.work.impl.background.systemalarm;
 
+import static androidx.work.impl.model.SystemIdInfoKt.systemIdInfo;
+import static androidx.work.impl.model.WorkSpecKt.generationalId;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -32,6 +35,7 @@ import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.SystemIdInfo;
+import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.worker.TestWorker;
 
 import org.junit.Before;
@@ -61,7 +65,7 @@ public class AlarmsTest extends DatabaseTest {
     public void testSetAlarm_noPreExistingAlarms() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
-        String workSpecId = work.getStringId();
+        WorkGenerationalId workSpecId = generationalId(work.getWorkSpec());
 
         Alarms.setAlarm(mContext, mWorkManager, workSpecId, mTriggerAt);
         SystemIdInfo systemIdInfo = mDatabase.systemIdInfoDao().getSystemIdInfo(workSpecId);
@@ -72,9 +76,9 @@ public class AlarmsTest extends DatabaseTest {
     public void testSetAlarm_withPreExistingAlarms() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
-        String workSpecId = work.getStringId();
+        WorkGenerationalId workSpecId = generationalId(work.getWorkSpec());
 
-        SystemIdInfo systemIdInfo = new SystemIdInfo(workSpecId, 1);
+        SystemIdInfo systemIdInfo = systemIdInfo(workSpecId, 1);
         mDatabase.systemIdInfoDao().insertSystemIdInfo(systemIdInfo);
 
         Alarms.setAlarm(mContext, mWorkManager, workSpecId, mTriggerAt);
@@ -87,9 +91,9 @@ public class AlarmsTest extends DatabaseTest {
     public void testCancelAlarm() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWork(work);
-        String workSpecId = work.getStringId();
+        WorkGenerationalId workSpecId = generationalId(work.getWorkSpec());
 
-        SystemIdInfo systemIdInfo = new SystemIdInfo(workSpecId, 1);
+        SystemIdInfo systemIdInfo = systemIdInfo(workSpecId, 1);
         mDatabase.systemIdInfoDao().insertSystemIdInfo(systemIdInfo);
 
         Alarms.cancelAlarm(mContext, mWorkManager, workSpecId);

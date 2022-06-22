@@ -497,7 +497,7 @@ class MultiTypedPagingSourceTest(
     ) {
         if (preOpenDb) {
             // trigger db open
-            db.getOpenHelper().writableDatabase
+            db.openHelper.writableDatabase
         }
 
         runTest {

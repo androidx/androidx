@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.content.res.XmlResourceParser
 import android.graphics.BitmapFactory
+import android.graphics.RectF
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
@@ -53,6 +54,7 @@ import androidx.wear.watchface.style.data.ListUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.LongRangeOptionWireFormat
 import androidx.wear.watchface.style.data.LongRangeUserStyleSettingWireFormat
 import androidx.wear.watchface.style.data.OptionWireFormat
+import androidx.wear.watchface.style.data.PerComplicationTypeMargins
 import androidx.wear.watchface.style.data.UserStyleSettingWireFormat
 import java.io.DataOutputStream
 import org.xmlpull.v1.XmlPullParser
@@ -963,7 +965,8 @@ public sealed class UserStyleSetting private constructor(
             }
 
             internal constructor(
-                wireFormat: ComplicationOverlayWireFormat
+                wireFormat: ComplicationOverlayWireFormat,
+                perComplicationTypeMargins: Map<Int, RectF>?
             ) : this(
                 wireFormat.mComplicationSlotId,
                 when (wireFormat.mEnabled) {
@@ -976,7 +979,14 @@ public sealed class UserStyleSetting private constructor(
                 },
                 wireFormat.mPerComplicationTypeBounds?.let { perComplicationTypeBounds ->
                     ComplicationSlotBounds.createFromPartialMap(
-                        perComplicationTypeBounds.mapKeys { ComplicationType.fromWireType(it.key) }
+                        perComplicationTypeBounds.mapKeys {
+                            ComplicationType.fromWireType(it.key)
+                        },
+                        perComplicationTypeMargins?.let { margins ->
+                            margins.mapKeys {
+                                ComplicationType.fromWireType(it.key)
+                            }
+                        } ?: emptyMap()
                     )
                 },
                 wireFormat.accessibilityTraversalIndex
@@ -1344,7 +1354,13 @@ public sealed class UserStyleSetting private constructor(
                 wireFormat: ComplicationsOptionWireFormat
             ) : super(Id(wireFormat.mId), emptyList()) {
                 complicationSlotOverlays =
-                    wireFormat.mComplicationOverlays.map { ComplicationSlotOverlay(it) }
+                    wireFormat.mComplicationOverlays.mapIndexed { index, value ->
+                        ComplicationSlotOverlay(
+                            value,
+                            wireFormat.mComplicationOverlaysMargins?.get(index)
+                                ?.mPerComplicationTypeMargins
+                        )
+                    }
                 displayNameInternal = DisplayText.CharSequenceDisplayText(wireFormat.mDisplayName)
                 icon = wireFormat.mIcon
                 watchFaceEditorData = null // This will get overwritten.
@@ -1386,7 +1402,15 @@ public sealed class UserStyleSetting private constructor(
                     id.value,
                     displayName,
                     icon,
-                    complicationSlotOverlays.map { it.toWireFormat() }.toTypedArray()
+                    complicationSlotOverlays.map { it.toWireFormat() }.toTypedArray(),
+                    complicationSlotOverlays.map { overlay ->
+                        PerComplicationTypeMargins(
+                            overlay.complicationSlotBounds
+                                ?.perComplicationTypeMargins?.mapKeys {
+                                    it.key.toWireComplicationType()
+                                } ?: emptyMap()
+                        )
+                    }
                 )
 
             override fun write(dos: DataOutputStream) {

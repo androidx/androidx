@@ -13,8 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+
 package androidx.health.connect.client.impl.converters.response
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.changes.Change
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
@@ -23,7 +26,11 @@ import androidx.health.connect.client.response.ChangesResponse
 import androidx.health.platform.client.proto.ChangeProto
 import androidx.health.platform.client.proto.ResponseProto
 
-/** Converts proto response to public API object. */
+/**
+ * Converts proto response to public API object.
+ *
+ * @suppress
+ */
 fun toChangesResponse(proto: ResponseProto.GetChangesResponse): ChangesResponse {
     return ChangesResponse(
         changes = extractChanges(proto.changesList),

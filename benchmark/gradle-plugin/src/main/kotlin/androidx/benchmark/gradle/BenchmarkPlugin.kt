@@ -100,7 +100,7 @@ class BenchmarkPlugin : Plugin<Project> {
             defaultConfig.testInstrumentationRunnerArguments["androidx.benchmark.output.enable"] =
                 "true"
 
-            if (!project.properties[ADDITIONAL_TEST_OUTPUT_KEY].toString().toBoolean()) {
+            if (!project.findProperty(ADDITIONAL_TEST_OUTPUT_KEY).toString().toBoolean()) {
                 defaultConfig.testInstrumentationRunnerArguments["no-isolated-storage"] = "1"
             }
         }

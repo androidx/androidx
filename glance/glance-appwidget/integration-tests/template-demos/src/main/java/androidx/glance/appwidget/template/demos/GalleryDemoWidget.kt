@@ -23,18 +23,18 @@ import androidx.glance.ImageProvider
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.unit.ColorProvider
 import androidx.glance.appwidget.template.GalleryTemplate
+import androidx.glance.appwidget.template.GlanceTemplateAppWidget
 import androidx.glance.template.GalleryTemplateData
 import androidx.glance.template.TemplateImageWithDescription
 
 /**
- * A widget that uses [GalleryTemplate]. Template locals are not used, so the widget is a regular
- * [GlanceAppWidget].
+ * A widget that uses [GalleryTemplate].
  */
-class GalleryTemplateWidget : GlanceAppWidget() {
+class GalleryTemplateWidget : GlanceTemplateAppWidget() {
     override val sizeMode = SizeMode.Exact
 
     @Composable
-    override fun Content() {
+    override fun TemplateContent() {
         GalleryTemplate(
             GalleryTemplateData(
                 header = "Gallery Template example",

@@ -23,6 +23,7 @@ import static androidx.work.WorkInfo.State.FAILED;
 import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
+import static androidx.work.impl.model.WorkSpecKt.generationalId;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -44,6 +45,7 @@ import androidx.work.WorkerParameters;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.foreground.ForegroundProcessor;
 import androidx.work.impl.model.DependencyDao;
+import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTagDao;
@@ -78,7 +80,7 @@ public class WorkerWrapper implements Runnable {
 
     // Avoid Synthetic accessor
     Context mAppContext;
-    private String mWorkSpecId;
+    private final String mWorkSpecId;
     private List<Scheduler> mSchedulers;
     private WorkerParameters.RuntimeExtras mRuntimeExtras;
     // Avoid Synthetic accessor
@@ -116,7 +118,8 @@ public class WorkerWrapper implements Runnable {
         mAppContext = builder.mAppContext;
         mWorkTaskExecutor = builder.mWorkTaskExecutor;
         mForegroundProcessor = builder.mForegroundProcessor;
-        mWorkSpecId = builder.mWorkSpecId;
+        mWorkSpec = builder.mWorkSpec;
+        mWorkSpecId = mWorkSpec.id;
         mSchedulers = builder.mSchedulers;
         mRuntimeExtras = builder.mRuntimeExtras;
         mWorker = builder.mWorker;
@@ -126,6 +129,11 @@ public class WorkerWrapper implements Runnable {
         mWorkSpecDao = mWorkDatabase.workSpecDao();
         mDependencyDao = mWorkDatabase.dependencyDao();
         mWorkTagDao = mWorkDatabase.workTagDao();
+    }
+
+    @NonNull
+    public WorkGenerationalId getWorkGenerationalId() {
+        return generationalId(mWorkSpec);
     }
 
     public @NonNull ListenableFuture<Boolean> getFuture() {
@@ -147,16 +155,6 @@ public class WorkerWrapper implements Runnable {
 
         mWorkDatabase.beginTransaction();
         try {
-            mWorkSpec = mWorkSpecDao.getWorkSpec(mWorkSpecId);
-            if (mWorkSpec == null) {
-                Logger.get().error(
-                        TAG,
-                        "Didn't find WorkSpec for id " + mWorkSpecId);
-                resolve(false);
-                mWorkDatabase.setTransactionSuccessful();
-                return;
-            }
-
             // Do a quick check to make sure we don't need to bail out in case this work is already
             // running, finished, or is blocked.
             if (mWorkSpec.state != ENQUEUED) {
@@ -639,7 +637,7 @@ public class WorkerWrapper implements Runnable {
         @NonNull TaskExecutor mWorkTaskExecutor;
         @NonNull Configuration mConfiguration;
         @NonNull WorkDatabase mWorkDatabase;
-        @NonNull String mWorkSpecId;
+        @NonNull WorkSpec mWorkSpec;
         List<Scheduler> mSchedulers;
         @NonNull
         WorkerParameters.RuntimeExtras mRuntimeExtras = new WorkerParameters.RuntimeExtras();
@@ -649,13 +647,13 @@ public class WorkerWrapper implements Runnable {
                 @NonNull TaskExecutor workTaskExecutor,
                 @NonNull ForegroundProcessor foregroundProcessor,
                 @NonNull WorkDatabase database,
-                @NonNull String workSpecId) {
+                @NonNull WorkSpec workSpec) {
             mAppContext = context.getApplicationContext();
             mWorkTaskExecutor = workTaskExecutor;
             mForegroundProcessor = foregroundProcessor;
             mConfiguration = configuration;
             mWorkDatabase = database;
-            mWorkSpecId = workSpecId;
+            mWorkSpec = workSpec;
         }
 
         /**

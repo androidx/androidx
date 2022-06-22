@@ -25,6 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -149,6 +150,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
 
     @Test
     public void disconnectedAfterTimeout() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         CountDownLatch disconnectedLatch = new CountDownLatch(1);
         RemoteMediaControllerCompat controller = null;
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -431,6 +435,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
 
     @Test
     public void setRepeatMode() throws InterruptedException {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         final int testRepeatMode = SessionPlayer.REPEAT_MODE_GROUP;
         mController.getTransportControls().setRepeatMode(testRepeatMode);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -458,6 +465,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
 
     @Test
     public void adjustVolume() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         final int maxVolume = 100;
         final int currentVolume = 23;
         final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
@@ -475,6 +485,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
 
     @Test
     public void setVolumeWithLocalVolume() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
             return;
@@ -521,6 +534,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
 
     @Test
     public void adjustVolumeWithLocalVolume() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         if (Build.VERSION.SDK_INT >= 21 && mAudioManager.isVolumeFixed()) {
             // This test is not eligible for this device.
             return;
@@ -567,6 +583,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
 
     @Test
     public void sendCommand() throws InterruptedException {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         // TODO(jaewan): Need to revisit with the permission.
         final String testCommand = "test_command";
         final Bundle testArgs = new Bundle();
@@ -606,6 +625,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
 
     @Test
     public void controllerCallback_sessionRejects() throws Exception {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         final SessionCallback sessionCallback = new SessionCallback() {
             @Override
             public SessionCommandGroup onConnect(@NonNull MediaSession session,
@@ -703,6 +725,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
 
     @Test
     public void playFromMediaUri() throws InterruptedException {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         final Uri request = Uri.parse("foo://bar");
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -762,6 +787,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
 
     @Test
     public void playFromMediaId() throws InterruptedException {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         final String mediaId = "media_id";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
@@ -852,6 +880,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
 
     @Test
     public void setRating() throws InterruptedException {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         final int ratingType = RatingCompat.RATING_5_STARS;
         final float ratingValue = 3.5f;
         final RatingCompat rating = RatingCompat.newStarRating(ratingType, ratingValue);
@@ -884,6 +915,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
 
     @Test
     public void onCommandCallback() throws InterruptedException {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         final ArrayList<SessionCommand> commands = new ArrayList<>();
         final CountDownLatch latchForPause = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
@@ -1015,6 +1049,9 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
     @Test
     @LargeTest
     public void controllerAfterSessionIsGone() throws InterruptedException {
+        // b/204596299
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
         mSession.close();
         testSessionCallbackIsNotCalled();
 

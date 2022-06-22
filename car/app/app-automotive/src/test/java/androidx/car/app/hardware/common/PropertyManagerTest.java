@@ -104,9 +104,9 @@ public class PropertyManagerTest extends MockedCarTestBase {
                 responsesMap.get(VehiclePropertyIds.INFO_MODEL_YEAR);
 
         assertThat(responses.size()).isEqualTo(requests.size());
-        assertThat(infoMakerResponse.getValue()).isEqualTo(MODEL_MAKER);
+        assertThat(infoMakerResponse.getValue()).isNull();
         assertThat(infoMakerResponse.getStatus()).isEqualTo(CarValue.STATUS_UNAVAILABLE);
-        assertThat(infoModelResponse.getValue()).isEqualTo(MODEL_NAME);
+        assertThat(infoModelResponse.getValue()).isNull();
         assertThat(infoModelResponse.getStatus()).isEqualTo(CarValue.STATUS_UNKNOWN);
         assertThat(infoModelResponse.getCarZones()).isEqualTo(CAR_ZONE_GLOBAL);
         assertThat(infoYearResponse.getValue()).isEqualTo(MODEL_YEAR);
