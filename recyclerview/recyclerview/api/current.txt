@@ -312,20 +312,20 @@ package androidx.recyclerview.widget {
   }
 
   public class LinearSmoothScroller extends androidx.recyclerview.widget.RecyclerView.SmoothScroller {
-    ctor public LinearSmoothScroller(android.content.Context!);
+    ctor public LinearSmoothScroller(android.content.Context);
     method public int calculateDtToFit(int, int, int, int, int);
-    method public int calculateDxToMakeVisible(android.view.View!, int);
-    method public int calculateDyToMakeVisible(android.view.View!, int);
-    method protected float calculateSpeedPerPixel(android.util.DisplayMetrics!);
+    method public int calculateDxToMakeVisible(android.view.View, int);
+    method public int calculateDyToMakeVisible(android.view.View, int);
+    method protected float calculateSpeedPerPixel(android.util.DisplayMetrics);
     method protected int calculateTimeForDeceleration(int);
     method protected int calculateTimeForScrolling(int);
     method protected int getHorizontalSnapPreference();
     method protected int getVerticalSnapPreference();
-    method protected void onSeekTargetStep(int, int, androidx.recyclerview.widget.RecyclerView.State!, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action!);
+    method protected void onSeekTargetStep(int, int, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action);
     method protected void onStart();
     method protected void onStop();
-    method protected void onTargetFound(android.view.View!, androidx.recyclerview.widget.RecyclerView.State!, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action!);
-    method protected void updateActionForInterimTarget(androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action!);
+    method protected void onTargetFound(android.view.View, androidx.recyclerview.widget.RecyclerView.State, androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action);
+    method protected void updateActionForInterimTarget(androidx.recyclerview.widget.RecyclerView.SmoothScroller.Action);
     field public static final int SNAP_TO_ANY = 0; // 0x0
     field public static final int SNAP_TO_END = 1; // 0x1
     field public static final int SNAP_TO_START = -1; // 0xffffffff
@@ -333,7 +333,7 @@ package androidx.recyclerview.widget {
     field protected int mInterimTargetDx;
     field protected int mInterimTargetDy;
     field protected final android.view.animation.LinearInterpolator! mLinearInterpolator;
-    field protected android.graphics.PointF! mTargetVector;
+    field protected android.graphics.PointF? mTargetVector;
   }
 
   public class LinearSnapHelper extends androidx.recyclerview.widget.SnapHelper {
@@ -391,8 +391,8 @@ package androidx.recyclerview.widget {
   public class PagerSnapHelper extends androidx.recyclerview.widget.SnapHelper {
     ctor public PagerSnapHelper();
     method public int[]? calculateDistanceToFinalSnap(androidx.recyclerview.widget.RecyclerView.LayoutManager, android.view.View);
-    method public android.view.View? findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
-    method public int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager!, int, int);
+    method public android.view.View? findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager);
+    method public int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int);
   }
 
   public class RecyclerView extends android.view.ViewGroup implements androidx.core.view.NestedScrollingChild2 androidx.core.view.NestedScrollingChild3 androidx.core.view.ScrollingView {
@@ -989,11 +989,11 @@ package androidx.recyclerview.widget {
     ctor public SnapHelper();
     method public void attachToRecyclerView(androidx.recyclerview.widget.RecyclerView?) throws java.lang.IllegalStateException;
     method public abstract int[]? calculateDistanceToFinalSnap(androidx.recyclerview.widget.RecyclerView.LayoutManager, android.view.View);
-    method public int[]! calculateScrollDistance(int, int);
+    method public int[] calculateScrollDistance(int, int);
     method protected androidx.recyclerview.widget.RecyclerView.SmoothScroller? createScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager);
     method @Deprecated protected androidx.recyclerview.widget.LinearSmoothScroller? createSnapScroller(androidx.recyclerview.widget.RecyclerView.LayoutManager);
-    method public abstract android.view.View? findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
-    method public abstract int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager!, int, int);
+    method public abstract android.view.View? findSnapView(androidx.recyclerview.widget.RecyclerView.LayoutManager);
+    method public abstract int findTargetSnapPosition(androidx.recyclerview.widget.RecyclerView.LayoutManager, int, int);
     method public boolean onFling(int, int);
   }
 

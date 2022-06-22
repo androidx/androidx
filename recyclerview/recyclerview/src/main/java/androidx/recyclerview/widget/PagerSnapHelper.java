@@ -67,7 +67,7 @@ public class PagerSnapHelper extends SnapHelper {
 
     @Nullable
     @Override
-    public View findSnapView(RecyclerView.LayoutManager layoutManager) {
+    public View findSnapView(@NonNull RecyclerView.LayoutManager layoutManager) {
         if (layoutManager.canScrollVertically()) {
             return findCenterView(layoutManager, getVerticalHelper(layoutManager));
         } else if (layoutManager.canScrollHorizontally()) {
@@ -77,8 +77,8 @@ public class PagerSnapHelper extends SnapHelper {
     }
 
     @Override
-    public int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX,
-            int velocityY) {
+    public int findTargetSnapPosition(@NonNull RecyclerView.LayoutManager layoutManager,
+            int velocityX, int velocityY) {
         final int itemCount = layoutManager.getItemCount();
         if (itemCount == 0) {
             return RecyclerView.NO_POSITION;
@@ -173,7 +173,8 @@ public class PagerSnapHelper extends SnapHelper {
         }
         return new LinearSmoothScroller(mRecyclerView.getContext()) {
             @Override
-            protected void onTargetFound(View targetView, RecyclerView.State state, Action action) {
+            protected void onTargetFound(@NonNull View targetView,
+                    @NonNull RecyclerView.State state, @NonNull Action action) {
                 int[] snapDistances = calculateDistanceToFinalSnap(mRecyclerView.getLayoutManager(),
                         targetView);
                 final int dx = snapDistances[0];
@@ -185,7 +186,7 @@ public class PagerSnapHelper extends SnapHelper {
             }
 
             @Override
-            protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
+            protected float calculateSpeedPerPixel(@NonNull DisplayMetrics displayMetrics) {
                 return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
             }
 
