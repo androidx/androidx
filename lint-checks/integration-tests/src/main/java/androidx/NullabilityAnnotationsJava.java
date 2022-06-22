@@ -21,12 +21,8 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Sample class for testing JetBrains nullability annotations.
- *
- * We are purposely using the non-AndroidX versions of @NotNull and @Nullable in this file for
- * testing the annotations lint check.  @SuppressWarnings is used here to bypass the lint check
- * for this test file.
  */
-@SuppressWarnings({"NullabilityAnnotationsDetector", "unused"})
+@SuppressWarnings("unused")
 public class NullabilityAnnotationsJava {
     /**
      * Sample method
