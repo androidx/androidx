@@ -575,8 +575,8 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
             public void run() {
                 mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
                     @Override
-                    public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                            RecyclerView.State state) {
+                    public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                            @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
                         if (view == targetChild[0]) {
                             outRect.set(10, 20, 30, 40);
                         } else {

@@ -150,7 +150,7 @@ package androidx.recyclerview.widget {
   }
 
   public class DividerItemDecoration extends androidx.recyclerview.widget.RecyclerView.ItemDecoration {
-    ctor public DividerItemDecoration(android.content.Context!, int);
+    ctor public DividerItemDecoration(android.content.Context, int);
     method public android.graphics.drawable.Drawable? getDrawable();
     method public void setDrawable(android.graphics.drawable.Drawable);
     method public void setOrientation(int);

@@ -398,8 +398,8 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         if (addPositionCheckItemAnimator) {
             mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
                 @Override
-                public void getItemOffsets(Rect outRect, View view, RecyclerView parent,
-                        RecyclerView.State state) {
+                public void getItemOffsets(@NonNull Rect outRect, @NonNull View view,
+                        @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
                     RecyclerView.ViewHolder vh = parent.getChildViewHolder(view);
                     if (!vh.isRemoved()) {
                         assertNotSame("If getItemOffsets is called, child should have a valid"
