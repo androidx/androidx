@@ -16,6 +16,7 @@
 
 package androidx.appsearch.platformstorage.converter;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -44,6 +45,7 @@ public final class AppSearchResultToPlatformConverter {
      * Converts an {@link android.app.appsearch.AppSearchResult} into a jetpack
      * {@link androidx.appsearch.app.AppSearchResult}.
      */
+    @SuppressLint("WrongConstant")
     @NonNull
     public static <T> AppSearchResult<T> platformAppSearchResultToJetpack(
             @NonNull android.app.appsearch.AppSearchResult<T> platformResult) {
@@ -52,6 +54,9 @@ public final class AppSearchResultToPlatformConverter {
             return AppSearchResult.newSuccessfulResult(platformResult.getResultValue());
         }
         return AppSearchResult.newFailedResult(
+                // Without the SuppressLint annotation on the method, this line causes a
+                // lint error because getResultCode isn't defined as returning a value from
+                // AppSearchResult.ResultCode
                 platformResult.getResultCode(), platformResult.getErrorMessage());
     }
 
@@ -79,6 +84,7 @@ public final class AppSearchResultToPlatformConverter {
      *
      * <p>Each value is translated using the provided {@code valueMapper} function.
      */
+    @SuppressLint("WrongConstant")
     @NonNull
     public static <K, PlatformValue, JetpackValue> AppSearchBatchResult<K, JetpackValue>
             platformAppSearchBatchResultToJetpack(
@@ -96,6 +102,9 @@ public final class AppSearchResultToPlatformConverter {
                 platformResult.getFailures().entrySet()) {
             jetpackResult.setFailure(
                     failure.getKey(),
+                    // Without the SuppressLint annotation on the method, this line causes a
+                    // lint error because getResultCode isn't defined as returning a value from
+                    // AppSearchResult.ResultCode
                     failure.getValue().getResultCode(),
                     failure.getValue().getErrorMessage());
         }
