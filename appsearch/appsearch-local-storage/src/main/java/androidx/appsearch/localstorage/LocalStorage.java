@@ -362,6 +362,9 @@ public class LocalStorage {
             initStatsBuilder = new InitializeStats.Builder();
         }
 
+        // Syncing the current logging level to Icing before creating the AppSearch object, so that
+        // the correct logging level will cover the period of Icing initialization.
+        AppSearchImpl.syncLoggingLevelToIcing();
         mAppSearchImpl = AppSearchImpl.create(
                 icingDir,
                 new UnlimitedLimitConfig(),
