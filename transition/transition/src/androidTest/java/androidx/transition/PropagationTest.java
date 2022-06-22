@@ -33,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.transition.test.R;
@@ -73,7 +74,7 @@ public class PropagationTest extends BaseTransitionTest {
 
         mTransition.setEpicenterCallback(new Transition.EpicenterCallback() {
             @Override
-            public Rect onGetEpicenter(@NonNull Transition transition) {
+            public @Nullable Rect onGetEpicenter(@NonNull Transition transition) {
                 return new Rect(0, 0, redValues.view.getWidth(), redValues.view.getHeight());
             }
         });
@@ -106,7 +107,7 @@ public class PropagationTest extends BaseTransitionTest {
         final SparseArray<Long> startDelays = new SparseArray<>();
         final Fade fade = new Fade(Fade.OUT) {
             @Override
-            public Animator onDisappear(ViewGroup sceneRoot, View view,
+            public Animator onDisappear(@NonNull ViewGroup sceneRoot, @NonNull View view,
                     TransitionValues startValues, TransitionValues endValues) {
                 final Animator anim = super.onDisappear(sceneRoot, view, startValues, endValues);
                 anim.addListener(new AnimatorListenerAdapter() {
