@@ -364,6 +364,7 @@
          <trusted-key id="c2148900bcd3c2af" group="org.jetbrains.trove4j"/>
          <trusted-key id="c29b11246382a4d7" group="com.charleskorn.kaml"/>
          <trusted-key id="c51e6cbc7ff46f0b" group="com.google.auto.service"/>
+         <trusted-key id="c5aa57f4a38eba7b7f9156ddab2da4527f6ffc0b" group="com.squareup" name="kotlinpoet"/>
          <trusted-key id="c6f7d1c804c821f49af3bfc13ad93c3c677a106e" group="io.perfmark" name="perfmark-api"/>
          <trusted-key id="c70b844f002f21f6d2b9c87522e44ac0622b91c3" group="com.beust" name="jcommander"/>
          <trusted-key id="c7be5bcc9fec15518cfda882b0f3710fa64900e7">
