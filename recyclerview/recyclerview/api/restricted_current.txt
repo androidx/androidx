@@ -3,7 +3,7 @@ package androidx.recyclerview.widget {
 
   public final class AdapterListUpdateCallback implements androidx.recyclerview.widget.ListUpdateCallback {
     ctor public AdapterListUpdateCallback(androidx.recyclerview.widget.RecyclerView.Adapter);
-    method public void onChanged(int, int, Object!);
+    method public void onChanged(int, int, Object?);
     method public void onInserted(int, int);
     method public void onMoved(int, int);
     method public void onRemoved(int, int);

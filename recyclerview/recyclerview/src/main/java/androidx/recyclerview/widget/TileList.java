@@ -18,6 +18,8 @@ package androidx.recyclerview.widget;
 
 import android.util.SparseArray;
 
+import androidx.annotation.NonNull;
+
 import java.lang.reflect.Array;
 
 /**
@@ -96,7 +98,7 @@ class TileList<T> {
         public int mItemCount;
         Tile<T> mNext;  // Used only for pooling recycled tiles.
 
-        public Tile(Class<T> klass, int size) {
+        Tile(@NonNull Class<T> klass, int size) {
             @SuppressWarnings("unchecked")
             T[] items = (T[]) Array.newInstance(klass, size);
             mItems = items;
