@@ -16,6 +16,9 @@
 
 package androidx.test.uiautomator;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * Generated in test runs when a {@link UiSelector} selector could not be matched
  * to any UI element displayed.
@@ -28,21 +31,21 @@ public class UiObjectNotFoundException extends Exception {
     /**
      * @since API Level 16
      **/
-    public UiObjectNotFoundException(String msg) {
+    public UiObjectNotFoundException(@NonNull String msg) {
         super(msg);
     }
 
     /**
      * @since API Level 16
      **/
-    public UiObjectNotFoundException(String detailMessage, Throwable throwable) {
+    public UiObjectNotFoundException(@NonNull String detailMessage, @Nullable Throwable throwable) {
         super(detailMessage, throwable);
     }
 
     /**
      * @since API Level 16
      **/
-    public UiObjectNotFoundException(Throwable throwable) {
+    public UiObjectNotFoundException(@Nullable Throwable throwable) {
         super(throwable);
     }
 }

@@ -94,7 +94,7 @@ package androidx.test.uiautomator {
   }
 
   public enum Direction {
-    method public static androidx.test.uiautomator.Direction! reverse(androidx.test.uiautomator.Direction!);
+    method public static androidx.test.uiautomator.Direction reverse(androidx.test.uiautomator.Direction);
     enum_constant public static final androidx.test.uiautomator.Direction DOWN;
     enum_constant public static final androidx.test.uiautomator.Direction LEFT;
     enum_constant public static final androidx.test.uiautomator.Direction RIGHT;
@@ -106,7 +106,7 @@ package androidx.test.uiautomator {
   }
 
   public interface IAutomationSupport {
-    method public void sendStatus(int, android.os.Bundle!);
+    method public void sendStatus(int, android.os.Bundle);
   }
 
   public abstract class SearchCondition<R> {
@@ -132,11 +132,11 @@ package androidx.test.uiautomator {
   }
 
   public class UiCollection extends androidx.test.uiautomator.UiObject {
-    ctor public UiCollection(androidx.test.uiautomator.UiSelector!);
-    method public androidx.test.uiautomator.UiObject! getChildByDescription(androidx.test.uiautomator.UiSelector!, String!) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiObject! getChildByInstance(androidx.test.uiautomator.UiSelector!, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiObject! getChildByText(androidx.test.uiautomator.UiSelector!, String!) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public int getChildCount(androidx.test.uiautomator.UiSelector!);
+    ctor public UiCollection(androidx.test.uiautomator.UiSelector);
+    method public androidx.test.uiautomator.UiObject getChildByDescription(androidx.test.uiautomator.UiSelector, String) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public androidx.test.uiautomator.UiObject getChildByInstance(androidx.test.uiautomator.UiSelector, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public androidx.test.uiautomator.UiObject getChildByText(androidx.test.uiautomator.UiSelector, String) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public int getChildCount(androidx.test.uiautomator.UiSelector);
   }
 
   public class UiDevice {
@@ -314,9 +314,9 @@ package androidx.test.uiautomator {
   }
 
   public class UiObjectNotFoundException extends java.lang.Exception {
-    ctor public UiObjectNotFoundException(String!);
-    ctor public UiObjectNotFoundException(String!, Throwable!);
-    ctor public UiObjectNotFoundException(Throwable!);
+    ctor public UiObjectNotFoundException(String);
+    ctor public UiObjectNotFoundException(String, Throwable?);
+    ctor public UiObjectNotFoundException(Throwable?);
   }
 
   public class UiScrollable extends androidx.test.uiautomator.UiCollection {
