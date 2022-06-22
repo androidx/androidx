@@ -82,6 +82,11 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
                     val snapshotVersion = findSnapshotVersion(requested.group, requested.name)
                     details.useVersion(snapshotVersion)
                 }
+                if (requested.group == "androidx.tracing" &&
+                    requested.name == "tracing-perfetto-binary"
+                ) {
+                    details.useVersion("1.0.0-alpha01")
+                }
             }
         }
     }
