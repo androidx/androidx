@@ -3,44 +3,44 @@ package androidx.remotecallback {
 
   public class AppWidgetProviderWithCallbacks<T extends androidx.remotecallback.CallbackReceiver> extends android.appwidget.AppWidgetProvider implements androidx.remotecallback.CallbackBase<T> androidx.remotecallback.CallbackReceiver<T> {
     ctor public AppWidgetProviderWithCallbacks();
-    method public T! createRemoteCallback(android.content.Context!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback! toRemoteCallback(Class<T!>!, android.content.Context!, String!, android.os.Bundle!, String!);
+    method public T createRemoteCallback(android.content.Context);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String?, android.os.Bundle, String);
   }
 
   public abstract class BroadcastReceiverWithCallbacks<T extends androidx.remotecallback.CallbackReceiver> extends android.content.BroadcastReceiver implements androidx.remotecallback.CallbackBase<T> androidx.remotecallback.CallbackReceiver<T> {
     ctor public BroadcastReceiverWithCallbacks();
-    method public T! createRemoteCallback(android.content.Context!);
+    method public T createRemoteCallback(android.content.Context);
     method public void onReceive(android.content.Context!, android.content.Intent!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback! toRemoteCallback(Class<T!>!, android.content.Context!, String!, android.os.Bundle!, String!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String?, android.os.Bundle, String);
     field public static final String ACTION_BROADCAST_CALLBACK = "androidx.remotecallback.action.BROADCAST_CALLBACK";
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface CallbackBase<T> {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback! toRemoteCallback(Class<T!>!, android.content.Context!, String!, android.os.Bundle!, String!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String, android.os.Bundle, String);
   }
 
   public class CallbackHandlerRegistry {
     ctor public CallbackHandlerRegistry();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T extends androidx.remotecallback.CallbackReceiver> T! getAndResetStub(Class<? extends androidx.remotecallback.CallbackReceiver>!, android.content.Context!, String!);
-    method public <T extends androidx.remotecallback.CallbackReceiver> void invokeCallback(android.content.Context!, T!, android.content.Intent!);
-    method public <T extends androidx.remotecallback.CallbackReceiver> void invokeCallback(android.content.Context!, T!, android.os.Bundle!);
-    method public static <T extends androidx.remotecallback.CallbackReceiver> void registerCallbackHandler(Class<T!>!, String!, androidx.remotecallback.CallbackHandlerRegistry.CallbackHandler<T!>!);
-    method public static androidx.remotecallback.RemoteCallback! stubToRemoteCallback(androidx.remotecallback.CallbackReceiver!, Class<? extends androidx.remotecallback.CallbackReceiver>!, android.os.Bundle!, String!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T extends androidx.remotecallback.CallbackReceiver> T getAndResetStub(Class<? extends androidx.remotecallback.CallbackReceiver>, android.content.Context, String?);
+    method public <T extends androidx.remotecallback.CallbackReceiver> void invokeCallback(android.content.Context, T!, android.content.Intent);
+    method public <T extends androidx.remotecallback.CallbackReceiver> void invokeCallback(android.content.Context, T!, android.os.Bundle);
+    method public static <T extends androidx.remotecallback.CallbackReceiver> void registerCallbackHandler(Class<T!>, String, androidx.remotecallback.CallbackHandlerRegistry.CallbackHandler<T!>?);
+    method public static androidx.remotecallback.RemoteCallback? stubToRemoteCallback(androidx.remotecallback.CallbackReceiver, Class<? extends androidx.remotecallback.CallbackReceiver>, android.os.Bundle, String?);
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final androidx.remotecallback.CallbackHandlerRegistry! sInstance;
   }
 
   public static interface CallbackHandlerRegistry.CallbackHandler<T extends androidx.remotecallback.CallbackReceiver> {
-    method public void executeCallback(android.content.Context!, T!, android.os.Bundle!);
+    method public void executeCallback(android.content.Context, T!, android.os.Bundle);
   }
 
   public interface CallbackReceiver<T> {
-    method public T! createRemoteCallback(android.content.Context!);
+    method public T createRemoteCallback(android.content.Context);
   }
 
   public abstract class ContentProviderWithCallbacks<T extends androidx.remotecallback.ContentProviderWithCallbacks> extends android.content.ContentProvider implements androidx.remotecallback.CallbackBase<T> androidx.remotecallback.CallbackReceiver<T> {
     ctor public ContentProviderWithCallbacks();
-    method public T! createRemoteCallback(android.content.Context!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback! toRemoteCallback(Class<T!>!, android.content.Context!, String!, android.os.Bundle!, String!);
+    method public T createRemoteCallback(android.content.Context);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.remotecallback.RemoteCallback toRemoteCallback(Class<T!>, android.content.Context, String?, android.os.Bundle, String);
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @java.lang.annotation.Target(java.lang.annotation.ElementType.PARAMETER) public @interface ExternalInput {
