@@ -1024,7 +1024,7 @@ package androidx.recyclerview.widget {
   }
 
   public static class SortedList.BatchedCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
-    ctor public SortedList.BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2!>!);
+    ctor public SortedList.BatchedCallback(androidx.recyclerview.widget.SortedList.Callback<T2!>);
     method public boolean areContentsTheSame(T2!, T2!);
     method public boolean areItemsTheSame(T2!, T2!);
     method public int compare(T2!, T2!);
@@ -1042,7 +1042,7 @@ package androidx.recyclerview.widget {
     method public abstract int compare(T2!, T2!);
     method public Object? getChangePayload(T2!, T2!);
     method public abstract void onChanged(int, int);
-    method public void onChanged(int, int, Object!);
+    method public void onChanged(int, int, Object?);
   }
 
   public abstract class SortedListAdapterCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
