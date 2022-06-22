@@ -60,7 +60,8 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
     }
 
     @Override
-    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
+    public void init(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics) {
     }
 
     @Override
@@ -98,8 +99,9 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
     }
 
     @Override
-    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
-            Context context) {
+    public void onInit(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull Context context) {
 
     }
 
@@ -154,6 +156,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         return null;
     }
 
+    @SuppressWarnings("ConstantConditions") // Super method is nullable.
     @Nullable
     @Override
     public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize) {
@@ -166,7 +169,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         private ImageWriter mImageWriter;
 
         @Override
-        public void onOutputSurface(Surface surface, int imageFormat) {
+        public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
             mImageWriter = ImageWriter.newInstance(surface, 1);
         }
 
@@ -200,7 +203,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         }
 
         @Override
-        public void onResolutionUpdate(Size size) {
+        public void onResolutionUpdate(@NonNull Size size) {
 
         }
 
@@ -216,11 +219,13 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         }
     }
 
+    @NonNull
     @Override
     public List<CaptureRequest.Key> getAvailableCaptureRequestKeys() {
         return null;
     }
 
+    @NonNull
     @Override
     public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
         return null;

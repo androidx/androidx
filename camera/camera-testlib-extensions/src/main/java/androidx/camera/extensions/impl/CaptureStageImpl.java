@@ -19,6 +19,7 @@ package androidx.camera.extensions.impl;
 import android.hardware.camera2.CaptureRequest;
 import android.util.Pair;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import java.util.List;
@@ -37,5 +38,6 @@ public interface CaptureStageImpl {
      * Returns the set of {@link CaptureRequest.Key} and the corresponding values that will be
      * set for a single {@link CaptureRequest}.
      */
+    @NonNull
     List<Pair<CaptureRequest.Key, Object>> getParameters();
 }

@@ -49,7 +49,8 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
     public BokehPreviewExtenderImpl() {}
 
     @Override
-    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {
+    public void init(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics) {
         mCaptureStage = new SettableCaptureStage(DEFAULT_STAGE_ID);
         mCaptureStage.addCaptureRequestParameters(CaptureRequest.CONTROL_EFFECT_MODE,
                 CaptureRequest.CONTROL_EFFECT_MODE_OFF);
@@ -67,18 +68,21 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
         return CameraCharacteristicAvailability.isEffectAvailable(cameraCharacteristics, EFFECT);
     }
 
+    @NonNull
     @Override
     public CaptureStageImpl getCaptureStage() {
         return mCaptureStage;
     }
 
+    @NonNull
     @Override
     public ProcessorType getProcessorType() {
         return ProcessorType.PROCESSOR_TYPE_REQUEST_UPDATE_ONLY;
     }
 
     // Switches effect every 90 frames
-    private RequestUpdateProcessorImpl mRequestUpdateProcessor = new RequestUpdateProcessorImpl() {
+    private final RequestUpdateProcessorImpl mRequestUpdateProcessor =
+            new RequestUpdateProcessorImpl() {
         private int mFrameCount = 0;
         private Integer mEffectMode = CaptureRequest.CONTROL_EFFECT_MODE_OFF;
 
@@ -105,29 +109,32 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
         }
 
         @Override
-        public void onOutputSurface(Surface surface, int imageFormat) {}
+        public void onOutputSurface(@NonNull Surface surface, int imageFormat) {}
 
         @Override
-        public void onResolutionUpdate(Size size) {}
+        public void onResolutionUpdate(@NonNull Size size) {}
 
         @Override
         public void onImageFormatUpdate(int imageFormat) {}
     };
 
-
+    @SuppressWarnings("ConstantConditions") // Super method is nullable.
+    @Nullable
     @Override
     public ProcessorImpl getProcessor() {
         return mRequestUpdateProcessor;
     }
 
+    @Nullable
     @Override
     public List<Pair<Integer, Size[]>> getSupportedResolutions() {
         return null;
     }
 
     @Override
-    public void onInit(String cameraId, CameraCharacteristics cameraCharacteristics,
-            Context context) {
+    public void onInit(@NonNull String cameraId,
+            @NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull Context context) {
 
     }
 
@@ -136,6 +143,7 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
 
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onPresetSession() {
         // The CaptureRequest parameters will be set via SessionConfiguration#setSessionParameters
@@ -152,6 +160,8 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
         return captureStage;
     }
 
+    @SuppressWarnings("ConstantConditions") // Super method is nullable.
+    @Nullable
     @Override
     public CaptureStageImpl onEnableSession() {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
@@ -162,6 +172,8 @@ public final class BokehPreviewExtenderImpl implements PreviewExtenderImpl {
         return captureStage;
     }
 
+    @SuppressWarnings("ConstantConditions") // Super method is nullable.
+    @Nullable
     @Override
     public CaptureStageImpl onDisableSession() {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some

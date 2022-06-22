@@ -20,6 +20,7 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -32,10 +33,10 @@ class RequestUpdateProcessorImpls {
                 }
 
                 @Override
-                public void onOutputSurface(Surface surface, int imageFormat) {}
+                public void onOutputSurface(@NonNull Surface surface, int imageFormat) {}
 
                 @Override
-                public void onResolutionUpdate(Size size) {}
+                public void onResolutionUpdate(@NonNull Size size) {}
 
                 @Override
                 public void onImageFormatUpdate(int imageFormat) {}
