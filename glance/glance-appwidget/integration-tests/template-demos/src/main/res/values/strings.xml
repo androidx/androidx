@@ -26,4 +26,10 @@
     <string name="template_data_saved_message">Saved</string>
     <string name="background_error_high">Value out of range, using max</string>
     <string name="background_error_low">Value out of range, using min</string>
+
+    <!-- Styles of the List Template widgets -->
+    <string name="list_style_with_header_action">List Template with header and action demo</string>
+    <string name="list_style_with_header">List Template with header demo</string>
+    <string name="list_style_no_header">List Template with no header demo</string>
+    <string name="list_style_brief">List Template with no header demo in brief info</string>
 </resources>
