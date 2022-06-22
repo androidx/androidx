@@ -138,7 +138,7 @@ package androidx.preference {
 
   public class MultiSelectListPreferenceDialogFragmentCompat extends androidx.preference.PreferenceDialogFragmentCompat {
     ctor public MultiSelectListPreferenceDialogFragmentCompat();
-    method public static androidx.preference.MultiSelectListPreferenceDialogFragmentCompat newInstance(String!);
+    method public static androidx.preference.MultiSelectListPreferenceDialogFragmentCompat newInstance(String);
     method public void onDialogClosed(boolean);
   }
 
