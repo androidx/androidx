@@ -25,6 +25,7 @@ import androidx.annotation.Px
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
+import androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE
 import androidx.annotation.WorkerThread
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.data.ComplicationData
@@ -78,7 +79,7 @@ public class ComplicationSlotsManager(
      *
      * @hide
      */
-    @VisibleForTesting
+    @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public lateinit var watchState: WatchState
 

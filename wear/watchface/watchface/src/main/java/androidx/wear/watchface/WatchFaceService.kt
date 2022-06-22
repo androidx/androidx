@@ -25,6 +25,7 @@ import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Rect
 import android.os.Build
+import android.os.Build.VERSION.SDK_INT
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -2441,7 +2442,9 @@ public abstract class WatchFaceService : WallpaperService() {
         indentingPrintWriter.println("AndroidX WatchFaceService $packageName")
         InteractiveInstanceManager.dump(indentingPrintWriter)
         EditorService.globalEditorService.dump(indentingPrintWriter)
-        HeadlessWatchFaceImpl.dump(indentingPrintWriter)
+        if (SDK_INT >= 27) {
+            HeadlessWatchFaceImpl.dump(indentingPrintWriter)
+        }
         indentingPrintWriter.flush()
     }
 
