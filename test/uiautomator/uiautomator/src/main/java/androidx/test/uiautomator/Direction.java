@@ -16,6 +16,8 @@
 
 package androidx.test.uiautomator;
 
+import androidx.annotation.NonNull;
+
 /** An enumeration used to specify the primary direction of certain gestures. */
 @SuppressWarnings("ImmutableEnumChecker")
 public enum Direction {
@@ -30,7 +32,8 @@ public enum Direction {
     }
 
     /** Returns the reverse of the given direction. */
-    public static Direction reverse(Direction direction) {
+    @NonNull
+    public static Direction reverse(@NonNull Direction direction) {
         return direction.mOpposite;
     }
 }

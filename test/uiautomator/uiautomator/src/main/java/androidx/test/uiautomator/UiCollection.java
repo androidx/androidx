@@ -16,6 +16,8 @@
 
 package androidx.test.uiautomator;
 
+import androidx.annotation.NonNull;
+
 /**
  * Used to enumerate a container's UI elements for the purpose of counting,
  * or targeting a sub elements by a child's text or description.
@@ -29,7 +31,7 @@ public class UiCollection extends UiObject {
      * @param selector
      * @since API Level 16
      */
-    public UiCollection(UiSelector selector) {
+    public UiCollection(@NonNull UiSelector selector) {
         super(selector);
     }
 
@@ -48,7 +50,8 @@ public class UiCollection extends UiObject {
      * @throws UiObjectNotFoundException
      * @since API Level 16
      */
-    public UiObject getChildByDescription(UiSelector childPattern, String text)
+    @NonNull
+    public UiObject getChildByDescription(@NonNull UiSelector childPattern, @NonNull String text)
             throws UiObjectNotFoundException {
         Tracer.trace(childPattern, text);
         if (text != null) {
@@ -82,7 +85,8 @@ public class UiCollection extends UiObject {
      * @return {@link UiObject} pointing at and instance of <code>childPattern</code>
      * @since API Level 16
      */
-    public UiObject getChildByInstance(UiSelector childPattern, int instance)
+    @NonNull
+    public UiObject getChildByInstance(@NonNull UiSelector childPattern, int instance)
             throws UiObjectNotFoundException {
         Tracer.trace(childPattern, instance);
         UiSelector patternSelector = UiSelector.patternBuilder(getSelector(),
@@ -106,7 +110,8 @@ public class UiCollection extends UiObject {
      * @throws UiObjectNotFoundException
      * @since API Level 16
      */
-    public UiObject getChildByText(UiSelector childPattern, String text)
+    @NonNull
+    public UiObject getChildByText(@NonNull UiSelector childPattern, @NonNull String text)
             throws UiObjectNotFoundException {
         Tracer.trace(childPattern, text);
         if (text != null) {
@@ -137,7 +142,7 @@ public class UiCollection extends UiObject {
      * @return the number of matched childPattern under the current {@link UiCollection}
      * @since API Level 16
      */
-    public int getChildCount(UiSelector childPattern) {
+    public int getChildCount(@NonNull UiSelector childPattern) {
         Tracer.trace(childPattern);
         UiSelector patternSelector =
                 UiSelector.patternBuilder(getSelector(), UiSelector.patternBuilder(childPattern));
