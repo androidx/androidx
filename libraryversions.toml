@@ -111,6 +111,7 @@ TEXT = "1.0.0-alpha01"
 TRACING = "1.2.0-alpha01"
 TRACING_PERFETTO = "1.0.0-alpha01"
 TRANSITION = "1.5.0-alpha01"
+TV = "1.0.0-alpha01"
 TVPROVIDER = "1.1.0-alpha02"
 VECTORDRAWABLE = "1.2.0-beta02"
 VECTORDRAWABLE_ANIMATED = "1.2.0-beta01"
@@ -220,6 +221,7 @@ TEST_UIAUTOMATOR = { group = "androidx.test.uiautomator", atomicGroupVersion = "
 TEXT = { group = "androidx.text", atomicGroupVersion = "versions.TEXT" }
 TRACING = { group = "androidx.tracing", atomicGroupVersion = "versions.TRACING" }
 TRANSITION = { group = "androidx.transition", atomicGroupVersion = "versions.TRANSITION" }
+TV = { group = "androidx.tv", atomicGroupVersion = "versions.TV" }
 TVPROVIDER = { group = "androidx.tvprovider", atomicGroupVersion = "versions.TVPROVIDER" }
 VECTORDRAWABLE = { group = "androidx.vectordrawable" }
 VERSIONEDPARCELABLE = { group = "androidx.versionedparcelable" }

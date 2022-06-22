@@ -1735,3 +1735,8 @@ w: Cached libraries will not be used with experimental memory model
 # This warning is printed from: https://github.com/JetBrains/kotlin/blob/bc853e45e8982eff74e3263b0197c1af6086615d/native/commonizer/src/org/jetbrains/kotlin/commonizer/konan/LibraryCommonizer.kt#L41
 Warning\: No libraries found for target macos_arm[0-9]+\. This target will be excluded from commonization\.
 Warning\: No libraries found for target macos_x[0-9]+\. This target will be excluded from commonization\.
+# > Task :tv:tv-foundation:processDebugManifest
+# > Task :tv:tv-material:processDebugManifest
+# > Task :tv:tv-material:processReleaseManifest
+# > Task :tv:tv-foundation:processReleaseManifest
+package="androidx\.tv\..*" found in source AndroidManifest\.xml: \$OUT_DIR/androidx/tv/tv\-[a-z]+/build/intermediates/tmp/ProcessLibraryManifest/[a-z]+/tempAndroidManifest[0-9]+\.xml\.
