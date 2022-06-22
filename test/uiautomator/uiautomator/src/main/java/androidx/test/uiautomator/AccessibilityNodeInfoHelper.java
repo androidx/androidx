@@ -26,6 +26,8 @@ import android.view.accessibility.AccessibilityNodeInfo;
  */
 class AccessibilityNodeInfoHelper {
 
+    private AccessibilityNodeInfoHelper() {}
+
     /**
      * Returns the node's bounds clipped to the size of the display
      *
