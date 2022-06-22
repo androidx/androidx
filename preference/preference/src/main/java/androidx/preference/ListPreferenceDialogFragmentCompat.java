@@ -36,7 +36,7 @@ public class ListPreferenceDialogFragmentCompat extends PreferenceDialogFragment
     private CharSequence[] mEntryValues;
 
     @NonNull
-    public static ListPreferenceDialogFragmentCompat newInstance(String key) {
+    public static ListPreferenceDialogFragmentCompat newInstance(@NonNull String key) {
         final ListPreferenceDialogFragmentCompat fragment =
                 new ListPreferenceDialogFragmentCompat();
         final Bundle b = new Bundle(1);
