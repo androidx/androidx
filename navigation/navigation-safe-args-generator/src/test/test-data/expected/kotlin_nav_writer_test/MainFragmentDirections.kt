@@ -9,7 +9,7 @@ import kotlin.String
 public class MainFragmentDirections private constructor() {
   private data class Next(
     public val main: String,
-    public val optional: String = "bla"
+    public val optional: String = "bla",
   ) : NavDirections {
     public override val actionId: Int = R.id.next
 
