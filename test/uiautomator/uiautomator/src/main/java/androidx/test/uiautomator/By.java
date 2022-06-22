@@ -16,6 +16,8 @@
 
 package androidx.test.uiautomator;
 
+import androidx.annotation.NonNull;
+
 import java.util.regex.Pattern;
 
 /**
@@ -36,7 +38,7 @@ public class By {
     /**
      * Constructs a new {@link BySelector} and copies the criteria from {@code original}.
      */
-    public static BySelector copy(BySelector original) {
+    public static @NonNull BySelector copy(@NonNull BySelector original) {
         return new BySelector(original);
     }
 
@@ -45,7 +47,7 @@ public class By {
      *
      * @see BySelector#clazz(String)
      */
-    public static BySelector clazz(String className) {
+    public static @NonNull BySelector clazz(@NonNull String className) {
         return new BySelector().clazz(className);
     }
 
@@ -54,7 +56,8 @@ public class By {
      *
      * @see BySelector#clazz(String, String)
      */
-    public static BySelector clazz(String packageName, String className) {
+    public static @NonNull BySelector clazz(@NonNull String packageName,
+            @NonNull String className) {
         return new BySelector().clazz(packageName, className);
     }
 
@@ -63,7 +66,7 @@ public class By {
      *
      * @see BySelector#clazz(Class)
      */
-    public static BySelector clazz(Class clazz) {
+    public static @NonNull BySelector clazz(@NonNull Class clazz) {
         return new BySelector().clazz(clazz);
     }
 
@@ -72,7 +75,7 @@ public class By {
      *
      * @see BySelector#clazz(Pattern)
      */
-    public static BySelector clazz(Pattern className) {
+    public static @NonNull BySelector clazz(@NonNull Pattern className) {
         return new BySelector().clazz(className);
     }
 
@@ -81,7 +84,7 @@ public class By {
      *
      * @see BySelector#desc(String)
      */
-    public static BySelector desc(String contentDescription) {
+    public static @NonNull BySelector desc(@NonNull String contentDescription) {
         return new BySelector().desc(contentDescription);
     }
 
@@ -90,7 +93,7 @@ public class By {
      *
      * @see BySelector#descContains(String)
      */
-    public static BySelector descContains(String substring) {
+    public static @NonNull BySelector descContains(@NonNull String substring) {
         return new BySelector().descContains(substring);
     }
 
@@ -99,7 +102,7 @@ public class By {
      *
      * @see BySelector#descStartsWith(String)
      */
-    public static BySelector descStartsWith(String substring) {
+    public static @NonNull BySelector descStartsWith(@NonNull String substring) {
         return new BySelector().descStartsWith(substring);
     }
 
@@ -108,7 +111,7 @@ public class By {
      *
      * @see BySelector#descEndsWith(String)
      */
-    public static BySelector descEndsWith(String substring) {
+    public static @NonNull BySelector descEndsWith(@NonNull String substring) {
         return new BySelector().descEndsWith(substring);
     }
 
@@ -117,7 +120,7 @@ public class By {
      *
      * @see BySelector#desc(Pattern)
      */
-    public static BySelector desc(Pattern contentDescription) {
+    public static @NonNull BySelector desc(@NonNull Pattern contentDescription) {
         return new BySelector().desc(contentDescription);
     }
 
@@ -126,7 +129,7 @@ public class By {
      *
      * @see BySelector#pkg(String)
      */
-    public static BySelector pkg(String applicationPackage) {
+    public static @NonNull BySelector pkg(@NonNull String applicationPackage) {
         return new BySelector().pkg(applicationPackage);
     }
 
@@ -135,7 +138,7 @@ public class By {
      *
      * @see BySelector#pkg(Pattern)
      */
-    public static BySelector pkg(Pattern applicationPackage) {
+    public static @NonNull BySelector pkg(@NonNull Pattern applicationPackage) {
         return new BySelector().pkg(applicationPackage);
     }
 
@@ -144,7 +147,7 @@ public class By {
      *
      * @see BySelector#res(String)
      */
-    public static BySelector res(String resourceName) {
+    public static @NonNull BySelector res(@NonNull String resourceName) {
         return new BySelector().res(resourceName);
     }
 
@@ -153,7 +156,8 @@ public class By {
      *
      * @see BySelector#res(String, String)
      */
-    public static BySelector res(String resourcePackage, String resourceId) {
+    public static @NonNull BySelector res(@NonNull String resourcePackage,
+            @NonNull String resourceId) {
         return new BySelector().res(resourcePackage, resourceId);
     }
 
@@ -162,7 +166,7 @@ public class By {
      *
      * @see BySelector#res(Pattern)
      */
-    public static BySelector res(Pattern resourceName) {
+    public static @NonNull BySelector res(@NonNull Pattern resourceName) {
         return new BySelector().res(resourceName);
     }
 
@@ -171,7 +175,7 @@ public class By {
      *
      * @see BySelector#text(String)
      */
-    public static BySelector text(String text) {
+    public static @NonNull BySelector text(@NonNull String text) {
         return new BySelector().text(text);
     }
 
@@ -180,7 +184,7 @@ public class By {
      *
      * @see BySelector#textContains(String)
      */
-    public static BySelector textContains(String substring) {
+    public static @NonNull BySelector textContains(@NonNull String substring) {
         return new BySelector().textContains(substring);
     }
 
@@ -189,7 +193,7 @@ public class By {
      *
      * @see BySelector#textStartsWith(String)
      */
-    public static BySelector textStartsWith(String substring) {
+    public static @NonNull BySelector textStartsWith(@NonNull String substring) {
         return new BySelector().textStartsWith(substring);
     }
 
@@ -198,7 +202,7 @@ public class By {
      *
      * @see BySelector#textEndsWith(String)
      */
-    public static BySelector textEndsWith(String substring) {
+    public static @NonNull BySelector textEndsWith(@NonNull String substring) {
         return new BySelector().textEndsWith(substring);
     }
 
@@ -207,7 +211,7 @@ public class By {
      *
      * @see BySelector#text(Pattern)
      */
-    public static BySelector text(Pattern regex) {
+    public static @NonNull BySelector text(@NonNull Pattern regex) {
         return new BySelector().text(regex);
     }
 
@@ -216,7 +220,7 @@ public class By {
      *
      * @see BySelector#checkable(boolean)
      */
-    public static BySelector checkable(boolean isCheckable) {
+    public static @NonNull BySelector checkable(boolean isCheckable) {
         return new BySelector().checkable(isCheckable);
     }
 
@@ -225,7 +229,7 @@ public class By {
      *
      * @see BySelector#checked(boolean)
      */
-    public static BySelector checked(boolean isChecked) {
+    public static @NonNull BySelector checked(boolean isChecked) {
         return new BySelector().checked(isChecked);
     }
 
@@ -234,7 +238,7 @@ public class By {
      *
      * @see BySelector#clickable(boolean)
      */
-    public static BySelector clickable(boolean isClickable) {
+    public static @NonNull BySelector clickable(boolean isClickable) {
         return new BySelector().clickable(isClickable);
     }
 
@@ -243,7 +247,7 @@ public class By {
      *
      * @see BySelector#enabled(boolean)
      */
-    public static BySelector enabled(boolean isEnabled) {
+    public static @NonNull BySelector enabled(boolean isEnabled) {
         return new BySelector().enabled(isEnabled);
     }
 
@@ -252,7 +256,7 @@ public class By {
      *
      * @see BySelector#focusable(boolean)
      */
-    public static BySelector focusable(boolean isFocusable) {
+    public static @NonNull BySelector focusable(boolean isFocusable) {
         return new BySelector().focusable(isFocusable);
     }
 
@@ -261,7 +265,7 @@ public class By {
      *
      * @see BySelector#focused(boolean)
      */
-    public static BySelector focused(boolean isFocused) {
+    public static @NonNull BySelector focused(boolean isFocused) {
         return new BySelector().focused(isFocused);
     }
 
@@ -270,7 +274,7 @@ public class By {
      *
      * @see BySelector#longClickable(boolean)
      */
-    public static BySelector longClickable(boolean isLongClickable) {
+    public static @NonNull BySelector longClickable(boolean isLongClickable) {
         return new BySelector().longClickable(isLongClickable);
     }
 
@@ -279,7 +283,7 @@ public class By {
      *
      * @see BySelector#scrollable(boolean)
      */
-    public static BySelector scrollable(boolean isScrollable) {
+    public static @NonNull BySelector scrollable(boolean isScrollable) {
         return new BySelector().scrollable(isScrollable);
     }
 
@@ -288,14 +292,14 @@ public class By {
      *
      * @see BySelector#selected(boolean)
      */
-    public static BySelector selected(boolean isSelected) {
+    public static @NonNull BySelector selected(boolean isSelected) {
         return new BySelector().selected(isSelected);
     }
 
     /**
      * Constructs a new {@link BySelector} and sets the depth criteria.
      */
-    public static BySelector depth(int depth) {
+    public static @NonNull BySelector depth(int depth) {
         return new BySelector().depth(depth);
     }
 
@@ -304,7 +308,7 @@ public class By {
      *
      * @see BySelector#hasChild(BySelector)
      */
-    public static BySelector hasChild(BySelector childSelector) {
+    public static @NonNull BySelector hasChild(@NonNull BySelector childSelector) {
         return new BySelector().hasChild(childSelector);
     }
 
@@ -313,7 +317,7 @@ public class By {
      *
      * @see BySelector#hasDescendant(BySelector)
      */
-    public static BySelector hasDescendant(BySelector descendantSelector) {
+    public static @NonNull BySelector hasDescendant(@NonNull BySelector descendantSelector) {
         return new BySelector().hasDescendant(descendantSelector);
     }
 
@@ -322,7 +326,8 @@ public class By {
      *
      * @see BySelector#hasDescendant(BySelector, int)
      */
-    public static BySelector hasDescendant(BySelector descendantSelector, int maxDepth) {
+    public static @NonNull BySelector hasDescendant(@NonNull BySelector descendantSelector,
+            int maxDepth) {
         return new BySelector().hasDescendant(descendantSelector, maxDepth);
     }
 
