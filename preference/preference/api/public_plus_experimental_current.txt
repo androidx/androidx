@@ -72,7 +72,7 @@ package androidx.preference {
 
   public class EditTextPreferenceDialogFragmentCompat extends androidx.preference.PreferenceDialogFragmentCompat {
     ctor public EditTextPreferenceDialogFragmentCompat();
-    method public static androidx.preference.EditTextPreferenceDialogFragmentCompat newInstance(String!);
+    method public static androidx.preference.EditTextPreferenceDialogFragmentCompat newInstance(String);
     method public void onDialogClosed(boolean);
   }
 
