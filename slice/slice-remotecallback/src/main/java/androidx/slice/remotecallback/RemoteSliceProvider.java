@@ -83,7 +83,7 @@ public abstract class RemoteSliceProvider<T extends RemoteSliceProvider> extends
     @Override
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public RemoteCallback toRemoteCallback(@NonNull Class<T> cls, @NonNull Context context,
-            @NonNull String authority, @NonNull Bundle args, @Nullable String method) {
+            @NonNull String authority, @NonNull Bundle args, @NonNull String method) {
         if (authority == null) {
             throw new IllegalStateException(
                     "ContentProvider must be attached before creating callbacks");
