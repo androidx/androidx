@@ -15,6 +15,7 @@
  */
 package androidx.appsearch.platformstorage;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -57,6 +58,7 @@ class SearchResultsImpl implements SearchResults {
         mExecutor = Preconditions.checkNotNull(executor);
     }
 
+    @SuppressLint("WrongConstant")
     @Override
     @NonNull
     @BuildCompat.PrereleaseSdkCheck
@@ -93,6 +95,9 @@ class SearchResultsImpl implements SearchResults {
                 future.set(jetpackResults);
             } else {
                 future.setException(
+                        // Without the SuppressLint annotation on the method, this line causes a
+                        // lint error because getResultCode isn't defined as returning a value from
+                        // AppSearchResult.ResultCode
                         new AppSearchException(result.getResultCode(), result.getErrorMessage()));
             }
         });
