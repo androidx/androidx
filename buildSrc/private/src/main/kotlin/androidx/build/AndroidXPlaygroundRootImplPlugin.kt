@@ -27,6 +27,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import java.net.URI
 import java.net.URL
+import org.gradle.kotlin.dsl.getByType
 
 /**
  * This plugin is used in Playground projects and adds functionality like resolving to snapshot
@@ -82,10 +83,14 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
                     val snapshotVersion = findSnapshotVersion(requested.group, requested.name)
                     details.useVersion(snapshotVersion)
                 }
+                // tracing perfetto binaries are not published
                 if (requested.group == "androidx.tracing" &&
                     requested.name == "tracing-perfetto-binary"
                 ) {
-                    details.useVersion("1.0.0-alpha01")
+                    val version = project.extensions.getByType<AndroidXExtension>()
+                        .LibraryVersions.get("TRACING_PERFETTO")
+                        ?: error("Cannot find version for TRACING_PERFETTO")
+                    details.useVersion(version.toString())
                 }
             }
         }

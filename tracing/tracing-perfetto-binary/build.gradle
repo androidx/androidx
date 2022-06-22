@@ -41,7 +41,7 @@ plugins {
 
 def reusePrebuiltsAar = Boolean.parseBoolean(
         System.getProperty("TRACING_PERFETTO_REUSE_PREBUILTS_AAR", "true")
-) && !androidx.build.StudioType.isPlayground(project)
+)
 def prebuiltsAarVersion = androidx.LibraryVersions.TRACING_PERFETTO
 def unzippedPrebuiltsAarDir = "$buildDir/unzipped-aar"
 
