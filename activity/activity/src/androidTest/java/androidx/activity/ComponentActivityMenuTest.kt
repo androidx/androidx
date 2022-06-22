@@ -46,7 +46,8 @@ import java.util.concurrent.TimeUnit
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR2) // b/229013665
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O) // Previous SDK levels have issues passing
+// null menu that causes leak canary to crash to we don't want to run on those devices
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityMenuTest {
