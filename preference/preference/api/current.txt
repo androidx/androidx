@@ -108,7 +108,7 @@ package androidx.preference {
 
   public class ListPreferenceDialogFragmentCompat extends androidx.preference.PreferenceDialogFragmentCompat {
     ctor public ListPreferenceDialogFragmentCompat();
-    method public static androidx.preference.ListPreferenceDialogFragmentCompat newInstance(String!);
+    method public static androidx.preference.ListPreferenceDialogFragmentCompat newInstance(String);
     method public void onDialogClosed(boolean);
   }
 
