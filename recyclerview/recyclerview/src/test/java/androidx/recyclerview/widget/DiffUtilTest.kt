@@ -500,7 +500,7 @@ class DiffUtilTest {
                     item.newItem,
                     `is`(true)
                 )
-            } else if (duplicateDiffs.getOrDefault(after[index].id, 0) > 0 && item.newItem) {
+            } else if (duplicateDiffs.getOrElse(after[index].id) { 0 } > 0 && item.newItem) {
                 // a duplicated item might come as a new item, be OK with it
                 duplicateDiffs[after[index].id] = duplicateDiffs[after[index].id]!! - 1
             } else if (after[index].changed) {
@@ -546,10 +546,10 @@ class DiffUtilTest {
         // we might create list w/ duplicates.
         val duplicateDiffs = mutableMapOf<Long, Int>() // id to count
         after.filterNot { it.newItem }.forEach {
-            duplicateDiffs[it.id] = 1 + duplicateDiffs.getOrDefault(it.id, 1)
+            duplicateDiffs[it.id] = 1 + duplicateDiffs.getOrElse(it.id) { 1 }
         }
         before.forEach {
-            duplicateDiffs[it.id] = -1 + duplicateDiffs.getOrDefault(it.id, 0)
+            duplicateDiffs[it.id] = -1 + duplicateDiffs.getOrElse(it.id) { 0 }
         }
         return duplicateDiffs
     }
