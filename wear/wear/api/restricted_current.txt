@@ -318,7 +318,7 @@ package androidx.wear.widget {
     method public void setAlpha(int);
     method public void setBackgroundColor(@ColorInt int);
     method public void setClipEnabled(boolean);
-    method public void setColorFilter(android.graphics.ColorFilter!);
+    method public void setColorFilter(android.graphics.ColorFilter?);
     method public void setDrawable(android.graphics.drawable.Drawable?);
     method public void setRadius(int);
   }
