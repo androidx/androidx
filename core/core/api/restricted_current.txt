@@ -1918,11 +1918,14 @@ package androidx.core.location {
     method public static int getGnssYearOfHardware(android.location.LocationManager);
     method public static boolean hasProvider(android.location.LocationManager, String);
     method public static boolean isLocationEnabled(android.location.LocationManager);
+    method @RequiresApi(android.os.Build.VERSION_CODES.N) @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssMeasurementsCallback(android.location.LocationManager, android.location.GnssMeasurementsEvent.Callback, android.os.Handler);
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssMeasurementsCallback(android.location.LocationManager, java.util.concurrent.Executor, android.location.GnssMeasurementsEvent.Callback);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback, android.os.Handler);
     method @RequiresPermission(android.Manifest.permission.ACCESS_FINE_LOCATION) public static boolean registerGnssStatusCallback(android.location.LocationManager, java.util.concurrent.Executor, androidx.core.location.GnssStatusCompat.Callback);
     method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void removeUpdates(android.location.LocationManager, androidx.core.location.LocationListenerCompat);
     method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void requestLocationUpdates(android.location.LocationManager, String, androidx.core.location.LocationRequestCompat, java.util.concurrent.Executor, androidx.core.location.LocationListenerCompat);
     method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void requestLocationUpdates(android.location.LocationManager, String, androidx.core.location.LocationRequestCompat, androidx.core.location.LocationListenerCompat, android.os.Looper);
+    method @RequiresApi(android.os.Build.VERSION_CODES.N) public static void unregisterGnssMeasurementsCallback(android.location.LocationManager, android.location.GnssMeasurementsEvent.Callback);
     method public static void unregisterGnssStatusCallback(android.location.LocationManager, androidx.core.location.GnssStatusCompat.Callback);
   }
 
