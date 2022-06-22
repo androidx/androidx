@@ -38,7 +38,9 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assume.assumeTrue;
 
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -61,6 +63,7 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.versionedparcelable.ParcelUtils;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,6 +86,15 @@ import java.util.concurrent.atomic.AtomicReference;
 @LargeTest
 public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     private static final String TAG = "MediaBrowserCallbackTest";
+
+    @Before
+    @Override
+    public void setUp() throws Exception {
+        // b/230354064
+        assumeTrue(Build.VERSION.SDK_INT != 17);
+
+        super.setUp();
+    }
 
     @Override
     MediaController onCreateController(@NonNull final SessionToken token,
