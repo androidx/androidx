@@ -23,6 +23,7 @@ plugins {
 
 dependencies {
     implementation(libs.junit)
+    implementation project(path: ':annotation:annotation')
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
