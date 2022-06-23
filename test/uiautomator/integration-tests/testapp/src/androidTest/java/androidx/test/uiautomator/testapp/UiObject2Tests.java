@@ -19,8 +19,10 @@ package androidx.test.uiautomator.testapp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.SystemClock;
 
@@ -32,16 +34,92 @@ import androidx.test.uiautomator.Until;
 
 import org.junit.Test;
 
+import java.util.List;
+
 public class UiObject2Tests extends BaseTest {
 
     @Test
-    public void testHasObject() {
+    public void testClearTextField() {
+        launchTestActivity(UiObject2TestClearTextActivity.class);
+
+        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "edit_text"));
+        // Verify the text field has text before clear()
+        assertEquals("sample_text", object.getText());
+        object.clear();
+        // Verify the text field does not have txt after clear()
+        assertNull(object.getText());
+    }
+
+    @Test
+    public void testClickButton() {
+        launchTestActivity(UiObject2TestClickActivity.class);
+
+        // Find the button and verify its initial state
+        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
+        assertEquals("Click Me!", button.getText());
+        SystemClock.sleep(1000);
+
+        // Click on the button and verify that the text has changed
+        button.click();
+        button.wait(Until.textEquals("I've been clicked!"), 10000);
+        assertEquals("I've been clicked!", button.getText());
+    }
+
+    @Test
+    public void testClickCheckBox() {
+        launchTestActivity(UiObject2TestClickActivity.class);
+
+        // Find the checkbox and verify its initial state
+        UiObject2 checkbox = mDevice.findObject(By.res(TEST_APP, "check_box"));
+        assertFalse(checkbox.isChecked());
+
+        // Click on the checkbox and verify that it is now checked
+        checkbox.click();
+        checkbox.wait(Until.checked(true), 10000);
+        assertTrue(checkbox.isChecked());
+    }
+
+    @Test
+    public void testClickAndWaitForNewWindow() {
+        launchTestActivity(UiObject2TestClickAndWaitActivity.class);
+
+        // Click the button and wait for a new window
+        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
+        button.clickAndWait(Until.newWindow(), 5000);
+    }
+
+    @Test
+    public void testFindObject() {
+        launchTestActivity(MainActivity.class);
+
+        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "example_id"));
+        assertNotNull(object.findObject(By.res(TEST_APP, "example_id")));
+        assertNull(object.findObject(By.res(TEST_APP, "")));
+    }
+
+    @Test
+    public void testFindObjects() {
+        launchTestActivity(MainActivity.class);
+
+        UiObject2 nestedObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
+        List<UiObject2> listWithMultipleObjectsFound = nestedObject.findObjects(By.res(""));
+        assertEquals(5, listWithMultipleObjectsFound.size());
+
+        List<UiObject2> listWithOneObjectFound = nestedObject.findObjects(By.text("First Level"));
+        assertEquals(1, listWithOneObjectFound.size());
+        assertEquals("First Level", listWithOneObjectFound.get(0).getText());
+
+        List<UiObject2> listWithNoObjectsFound = nestedObject.findObjects(By.res(TEST_APP,
+                "button"));
+        assertTrue(listWithNoObjectsFound.isEmpty());
+    }
+
+    @Test
+    public void testGetApplicationPackage() {
         launchTestActivity(MainActivity.class);
 
         UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
-
-        assertTrue(object.hasObject(By.text("Text View 1")));
-        assertFalse(object.hasObject(By.text("")));
+        assertEquals(TEST_APP, object.getApplicationPackage());
     }
 
     @Test
@@ -56,27 +134,19 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
-    public void testGetVisibleBounds() {
+    public void testGetChildren() {
         launchTestActivity(MainActivity.class);
 
-        UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
-        Rect bounds = object.getVisibleBounds();
-        int top = bounds.top;
-        int bottom = bounds.bottom;
-        int left = bounds.left;
-        int right = bounds.right;
-        int boundsHeight = bounds.height();
-        int boundsWidth = bounds.width();
-        int displayHeight = mDevice.getDisplayHeight();
-        int displayWidth = mDevice.getDisplayWidth();
-        // Test the lower bounds
-        assertTrue(0 <= top);
-        assertTrue(0 <= left);
-        assertTrue(top < bottom);
-        assertTrue(left < right);
-        // Test the upper bounds
-        assertTrue(boundsHeight < displayHeight);
-        assertTrue(boundsWidth < displayWidth);
+        UiObject2 nestedObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
+        List<UiObject2> children = nestedObject.getChildren();
+        assertEquals(2, children.size());
+        UiObject2 object1 = children.get(0);
+        assertEquals("android.widget.TextView", object1.getClassName());
+        UiObject2 object2 = children.get(1);
+        assertEquals("android.widget.LinearLayout", object2.getClassName());
+
+        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "example_id"));
+        assertTrue(object.getChildren().isEmpty());
     }
 
     @Test
@@ -159,72 +229,97 @@ public class UiObject2Tests extends BaseTest {
         assertEquals("android.widget.ToggleButton", object.getClassName());
     }
 
-    /* TODO(b/235841473): Implement more tests
-    public void testGetContentDescription() {}
-
-    public void testGetApplicationPackage() {}
-
-    public void testGetResourceName() {}
-
-    public void testGetText() {}
-
-    public void testIsCheckable() {}
-
-    public void testIsChecked() {}
-
-    public void testIsClickable() {}
-
-    public void testIsEnabled() {}
-
-    public void testIsFocusable() {}
-
-    public void testIsFocused() {}
-
-    public void testIsLongClickable() {}
-
-    public void testIsScrollable() {}
-
-    public void testIsSelected() {}
-
-    public void testClearTextField() {}
-    */
-
     @Test
-    public void testClickButton() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+    public void testGetContentDescription() {
+        launchTestActivity(MainActivity.class);
 
-        // Find the button and verify its initial state
-        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
-        assertEquals("Click Me!", button.getText());
-        SystemClock.sleep(1000);
+        UiObject2 buttonObject = mDevice.findObject(By.text("Accessible button"));
+        assertEquals("I'm accessible!", buttonObject.getContentDescription());
 
-        // Click on the button and verify that the text has changed
-        button.click();
-        button.wait(Until.textEquals("I've been clicked!"), 10000);
-        assertEquals("I've been clicked!", button.getText());
+        UiObject2 textViewObject = mDevice.findObject(By.text("Text View 1"));
+        assertNull(textViewObject.getContentDescription());
     }
 
     @Test
-    public void testClickCheckBox() {
-        launchTestActivity(UiObject2TestClickActivity.class);
+    public void testGetParent() {
+        launchTestActivity(MainActivity.class);
 
-        // Find the checkbox and verify its initial state
-        UiObject2 checkbox = mDevice.findObject(By.res(TEST_APP, "check_box"));
-        assertFalse(checkbox.isChecked());
-
-        // Click on the checkbox and verify that it is now checked
-        checkbox.click();
-        checkbox.wait(Until.checked(true), 10000);
-        assertTrue(checkbox.isChecked());
+        UiObject2 objectAtDepth1 = mDevice.findObject(By.depth(1));
+        UiObject2 objectAtDepth0 = objectAtDepth1.getParent();
+        assertNotNull(objectAtDepth0);
+        assertNull(objectAtDepth0.getParent());
     }
 
     @Test
-    public void testClickAndWaitForNewWindow() {
-        launchTestActivity(UiObject2TestClickAndWaitActivity.class);
+    public void testGetResourceName() {
+        launchTestActivity(MainActivity.class);
 
-        // Click the button and wait for a new window
-        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
-        button.clickAndWait(Until.newWindow(), 5000);
+        UiObject2 textViewWithAnId = mDevice.findObject(By.res(TEST_APP, "example_id"));
+        assertEquals("androidx.test.uiautomator.testapp:id/example_id",
+                textViewWithAnId.getResourceName());
+
+        UiObject2 textViewObjectWithoutAnId = mDevice.findObject(By.text("Text View 1"));
+        assertNull(textViewObjectWithoutAnId.getResourceName());
+    }
+
+    @Test
+    public void testGetText() {
+        launchTestActivity(MainActivity.class);
+
+        UiObject2 object = mDevice.findObject(By.text("Sample text"));
+        assertEquals("Sample text", object.getText());
+
+        UiObject2 nestedObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
+        assertNull(nestedObject.getText());
+    }
+
+    @Test
+    public void testGetVisibleBounds() {
+        launchTestActivity(MainActivity.class);
+
+        UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
+        Rect bounds = object.getVisibleBounds();
+        int top = bounds.top;
+        int bottom = bounds.bottom;
+        int left = bounds.left;
+        int right = bounds.right;
+        int boundsHeight = bounds.height();
+        int boundsWidth = bounds.width();
+        int displayHeight = mDevice.getDisplayHeight();
+        int displayWidth = mDevice.getDisplayWidth();
+        // Test the lower bounds
+        assertTrue(0 <= top);
+        assertTrue(0 <= left);
+        assertTrue(top < bottom);
+        assertTrue(left < right);
+        // Test the upper bounds
+        assertTrue(boundsHeight < displayHeight);
+        assertTrue(boundsWidth < displayWidth);
+    }
+
+    @Test
+    public void testGetVisibleCenter() {
+        launchTestActivity(MainActivity.class);
+
+        UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
+        Rect bounds = object.getVisibleBounds();
+        Point center = object.getVisibleCenter();
+        int top = bounds.top;
+        int bottom = bounds.bottom;
+        int left = bounds.left;
+        int right = bounds.right;
+        assertEquals((left + right) / 2, center.x);
+        assertEquals((top + bottom) / 2, center.y);
+    }
+
+    @Test
+    public void testHasObject() {
+        launchTestActivity(MainActivity.class);
+
+        UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
+
+        assertTrue(object.hasObject(By.text("Text View 1")));
+        assertFalse(object.hasObject(By.text("")));
     }
 
     @Test
@@ -355,5 +450,31 @@ public class UiObject2Tests extends BaseTest {
     public void testWaitForExists() {}
 
     public void testWaitForGone() {}
+    */
+
+    /* TODO(b/235841473): Implement more tests
+    public void testDrag() {}
+
+    public void testEquals() {}
+
+    public void testFling() {}
+
+    public void testIsCheckable() {}
+
+    public void testIsChecked() {}
+
+    public void testIsClickable() {}
+
+    public void testIsEnabled() {}
+
+    public void testIsFocusable() {}
+
+    public void testIsFocused() {}
+
+    public void testIsLongClickable() {}
+
+    public void testIsScrollable() {}
+
+    public void testIsSelected() {}
     */
 }

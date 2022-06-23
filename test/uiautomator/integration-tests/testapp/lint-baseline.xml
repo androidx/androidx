@@ -89,6 +89,17 @@
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
         <location
+            file="src/main/java/androidx/test/uiautomator/testapp/UiObject2TestClearTextActivity.java"
+            line="27"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onCreate(Bundle savedInstanceState) {"
+        errorLine2="                         ~~~~~~">
+        <location
             file="src/main/java/androidx/test/uiautomator/testapp/UiObject2TestClickActivity.java"
             line="30"
             column="26"/>
