@@ -16,16 +16,45 @@
 
 package androidx.camera.integration.uiwidgets.compose
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.camera.integration.uiwidgets.compose.ui.ComposeCameraApp
+import androidx.camera.integration.uiwidgets.compose.ui.PermissionsUI
+import androidx.core.content.ContextCompat
 
 class ComposeCameraActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            ComposeCameraApp()
+            PermissionsUI(
+                permissions = REQUIRED_PERMISSIONS,
+                checkAllPermissionGranted = {
+                    checkAllPermissionsGranted(it)
+                }
+            ) {
+                ComposeCameraApp()
+            }
         }
+    }
+
+    private fun checkAllPermissionsGranted(permissions: Array<String>): Boolean {
+        return permissions.all {
+            ContextCompat.checkSelfPermission(baseContext, it) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    companion object {
+        val REQUIRED_PERMISSIONS = mutableListOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.RECORD_AUDIO
+        ).apply {
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+                add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+        }.toTypedArray()
     }
 }
