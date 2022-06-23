@@ -45,6 +45,14 @@ public final class OutputConfigurationCompat {
      */
     public static final int SURFACE_GROUP_ID_NONE = -1;
 
+    /**
+     * Invalid stream use case value.
+     *
+     * <p>An OutputConfiguration with this value indicates that the associated stream
+     * doesn't support stream use case.</p>
+     */
+    public static final int STREAM_USE_CASE_NONE = -1;
+
     private final OutputConfigurationCompatImpl mImpl;
 
     public OutputConfigurationCompat(@NonNull Surface surface) {
@@ -335,6 +343,31 @@ public final class OutputConfigurationCompat {
     }
 
     /**
+     * Set the stream use case associated with this {@link OutputConfigurationCompat}.
+     *
+     * <p> Stream use case is a API 33 and above concept for optimizing image process pipeline
+     * for a given stream session. If not set,{@value #SURFACE_GROUP_ID_NONE} is used.
+     * </p>
+     *
+     * @param streamUseCase Stream use case for the stream session associated with this
+     *                      configuration.
+     */
+    public void setStreamUseCase(long streamUseCase) {
+        mImpl.setStreamUseCase(streamUseCase);
+    }
+
+    /**
+     * Set the stream use case associated with this {@link OutputConfigurationCompat}.
+     *
+     * @return the stream use case associated with this {@link OutputConfigurationCompat}.
+     * The default value is
+     * {@value #SURFACE_GROUP_ID_NONE}.
+     */
+    public long getStreamUseCase() {
+        return mImpl.getStreamUseCase();
+    }
+
+    /**
      * Check if this {@link OutputConfigurationCompat} is equal to another
      * {@link OutputConfigurationCompat}.
      *
@@ -387,6 +420,10 @@ public final class OutputConfigurationCompat {
         void removeSurface(@NonNull Surface surface);
 
         int getMaxSharedSurfaceCount();
+
+        void setStreamUseCase(long streamUseCase);
+
+        long getStreamUseCase();
 
         @Nullable
         Surface getSurface();

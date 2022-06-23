@@ -82,6 +82,22 @@ class OutputConfigurationCompatBaseImpl implements
     }
 
     /**
+     * Set stream use case for this OutputConfiguration.
+     */
+    @Override
+    public void setStreamUseCase(long streamUseCase) {
+        //No-op
+    }
+
+    /**
+     * Get the current stream use case for this OutputConfiguration.
+     */
+    @Override
+    public long getStreamUseCase() {
+        return OutputConfigurationCompat.STREAM_USE_CASE_NONE;
+    }
+
+    /**
      * Add a surface to this OutputConfiguration.
      *
      * <p>Since surface sharing is not supported in on API &lt;= 25, this will always throw.
