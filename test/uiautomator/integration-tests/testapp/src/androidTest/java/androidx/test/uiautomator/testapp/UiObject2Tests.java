@@ -331,7 +331,7 @@ public class UiObject2Tests extends BaseTest {
     */
 
     @Test
-    @FlakyTest
+    @FlakyTest(bugId = 235841959)
     public void testScrollDownToEnd() {
         launchTestActivity(UiObject2TestVerticalScrollActivity.class);
 
