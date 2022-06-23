@@ -27,6 +27,7 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 
 import androidx.media2.session.MediaSessionService;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 
 import org.junit.After;
@@ -78,6 +79,7 @@ public class MediaBrowserCompatWithMediaSessionServiceTest extends MediaSessionT
                 BROWSER_COMPAT_CONNECT_TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
+    @FlakyTest(bugId = 236961183)
     @Test
     public void connect() throws InterruptedException {
         connectAndWait();
