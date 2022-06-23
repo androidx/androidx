@@ -26,6 +26,7 @@ import androidx.camera.integration.extensions.util.ExtensionsTestUtil.STRESS_TES
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.waitForIdle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -58,6 +59,9 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
+
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
 
     @get:Rule
     val repeatRule = RepeatRule()
@@ -93,6 +97,7 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
         }
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     @RepeatRule.Repeat(times = ExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
     fun switchModeTenTimes_canCaptureImageInEachTime() {
@@ -115,6 +120,7 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
         }
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     @RepeatRule.Repeat(times = ExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
     fun canCaptureImage_afterSwitchModeTenTimes() {
