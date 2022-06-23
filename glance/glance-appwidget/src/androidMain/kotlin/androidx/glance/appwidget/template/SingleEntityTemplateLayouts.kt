@@ -56,7 +56,7 @@ fun SingleEntityTemplate(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WidgetLayoutCollapsed(data: SingleEntityTemplateData) {
-    var modifier = GlanceModifier.fillMaxSize().padding(16.dp)
+    var modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.White)
 
     data.image?.let { image ->
         modifier = modifier.background(image.image, ContentScale.Crop)
@@ -70,7 +70,7 @@ private fun WidgetLayoutCollapsed(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WidgetLayoutVertical(data: SingleEntityTemplateData) {
-    Column(modifier = GlanceModifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.White)) {
         data.headerIcon?.let { AppWidgetTemplateHeader(it, data.header) }
         Spacer(modifier = GlanceModifier.height(16.dp))
         data.image?.let { image ->
@@ -92,7 +92,7 @@ private fun WidgetLayoutVertical(data: SingleEntityTemplateData) {
 
 @Composable
 private fun WidgetLayoutHorizontal(data: SingleEntityTemplateData) {
-    Row(modifier = GlanceModifier.fillMaxSize().padding(16.dp)) {
+    Row(modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.White)) {
         Column(
             modifier =
             GlanceModifier.fillMaxHeight().background(Color.Transparent).defaultWeight()
