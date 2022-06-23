@@ -38,6 +38,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.GLUtil
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
@@ -70,6 +71,9 @@ class BindUnbindUseCasesStressTest(
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
+
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
 
     @get:Rule
     val repeatRule = RepeatRule()
@@ -141,6 +145,7 @@ class BindUnbindUseCasesStressTest(
             get() = ExtensionsTestUtil.getAllCameraIdModeCombinations()
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun bindUnbindUseCasesTenTimes_canCaptureImageInEachTime(): Unit = runBlocking {
@@ -198,6 +203,7 @@ class BindUnbindUseCasesStressTest(
         }
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun canCaptureImage_afterBindUnbindUseCasesTenTimes(): Unit = runBlocking {
