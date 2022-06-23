@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,8 +55,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Button
-import androidx.wear.compose.material.ChipDefaults
-import androidx.wear.compose.material.CompactChip
 import androidx.wear.compose.material.Icon
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.Picker
@@ -267,6 +264,10 @@ public fun TimePickerWith12HourClock(
         initialNumberOfOptions = 60,
         initiallySelectedOption = time.minute
     )
+    val periodState = rememberPickerState(
+        initialNumberOfOptions = 2,
+        initiallySelectedOption = time[ChronoField.AMPM_OF_DAY]
+    )
     val hoursContentDescription by remember {
         derivedStateOf { "${hourState.selectedOption + 1} hours" }
     }
@@ -274,43 +275,38 @@ public fun TimePickerWith12HourClock(
         derivedStateOf { "${minuteState.selectedOption} minutes" }
     }
 
-    var amPm by remember { mutableStateOf(time[ChronoField.AMPM_OF_DAY]) }
     val amString = remember {
         LocalTime.of(6, 0).format(DateTimeFormatter.ofPattern("a"))
     }
     val pmString = remember {
         LocalTime.of(18, 0).format(DateTimeFormatter.ofPattern("a"))
     }
+    val periodContentDescription by remember {
+        derivedStateOf { if (periodState.selectedOption == 0) amString else pmString }
+    }
 
     MaterialTheme(typography = typography) {
         var selectedColumn by remember { mutableStateOf(0) }
-        val textStyle = MaterialTheme.typography.display1
+        val textStyle = MaterialTheme.typography.display3
         val focusRequester1 = remember { FocusRequester() }
         val focusRequester2 = remember { FocusRequester() }
+        val focusRequester3 = remember { FocusRequester() }
 
         Column(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(8.dp))
-            CompactChip(
-                onClick = { amPm = 1 - amPm },
-                modifier = Modifier.size(width = 50.dp, height = 24.dp),
-                label = {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = if (amPm == 0) amString else pmString,
-                            color = MaterialTheme.colors.onPrimary,
-                            style = MaterialTheme.typography.button,
-                        )
-                    }
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = when (selectedColumn) {
+                    0 -> "Hour"
+                    1 -> "Minute"
+                    else -> ""
                 },
-                colors = ChipDefaults.chipColors(backgroundColor = MaterialTheme.colors.secondary),
-                contentPadding = PaddingValues(vertical = 0.dp),
+                color = MaterialTheme.colors.secondary,
+                style = MaterialTheme.typography.button,
+                maxLines = 1,
             )
             Spacer(
                 Modifier
@@ -327,8 +323,7 @@ public fun TimePickerWith12HourClock(
                     readOnly = selectedColumn != 0,
                     state = hourState,
                     focusRequester = focusRequester1,
-                    modifier = Modifier.size(64.dp, 100.dp),
-                    readOnlyLabel = { LabelText("Hour") },
+                    modifier = Modifier.size(48.dp, 100.dp),
                     onSelected = { selectedColumn = 0 },
                     contentDescription = hoursContentDescription,
                 ) { hour: Int ->
@@ -339,14 +334,12 @@ public fun TimePickerWith12HourClock(
                         style = textStyle,
                     )
                 }
-                Separator(8.dp, textStyle)
-
+                Separator(2.dp, textStyle)
                 PickerWithRSB(
                     readOnly = selectedColumn != 1,
                     state = minuteState,
                     focusRequester = focusRequester2,
-                    modifier = Modifier.size(64.dp, 100.dp),
-                    readOnlyLabel = { LabelText("Min") },
+                    modifier = Modifier.size(48.dp, 100.dp),
                     onSelected = { selectedColumn = 1 },
                     contentDescription = minutesContentDescription,
                 ) { minute: Int ->
@@ -357,7 +350,22 @@ public fun TimePickerWith12HourClock(
                         style = textStyle,
                     )
                 }
-                Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(6.dp))
+                PickerWithRSB(
+                    readOnly = selectedColumn != 2,
+                    state = periodState,
+                    focusRequester = focusRequester3,
+                    modifier = Modifier.size(64.dp, 100.dp),
+                    onSelected = { selectedColumn = 2 },
+                    contentDescription = periodContentDescription,
+                ) { period: Int ->
+                    TimePiece(
+                        selected = selectedColumn == 2,
+                        onSelected = { selectedColumn = 2 },
+                        text = if (period == 0) amString else pmString,
+                        style = textStyle,
+                    )
+                }
             }
             Spacer(
                 Modifier
@@ -369,7 +377,7 @@ public fun TimePickerWith12HourClock(
                     hourState.selectedOption + 1,
                     minuteState.selectedOption,
                     0
-                ).with(ChronoField.AMPM_OF_DAY, amPm.toLong())
+                ).with(ChronoField.AMPM_OF_DAY, periodState.selectedOption.toLong())
                 onTimeConfirm(confirmedTime)
             }) {
                 Icon(
@@ -382,7 +390,8 @@ public fun TimePickerWith12HourClock(
             }
             Spacer(Modifier.height(8.dp))
             LaunchedEffect(selectedColumn) {
-                listOf(focusRequester1, focusRequester2)[selectedColumn].requestFocus()
+                listOf(focusRequester1, focusRequester2, focusRequester3)[selectedColumn]
+                    .requestFocus()
             }
         }
     }
@@ -459,7 +468,7 @@ public fun DatePicker(
             "${yearState.selectedOption + 1}"
         } }
         val monthContentDescription by remember { derivedStateOf {
-            "${monthNames[monthState.selectedOption]}"
+            monthNames[monthState.selectedOption]
         } }
         val dayContentDescription by remember { derivedStateOf {
             "${dayState.selectedOption + 1}"
@@ -626,18 +635,6 @@ internal fun TimePiece(
             },
         )
     }
-}
-
-@Composable
-private fun BoxScope.LabelText(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.caption1,
-        color = MaterialTheme.colors.onSurfaceVariant,
-        modifier = Modifier
-            .align(Alignment.TopCenter)
-            .offset(y = 8.dp)
-    )
 }
 
 @Composable
