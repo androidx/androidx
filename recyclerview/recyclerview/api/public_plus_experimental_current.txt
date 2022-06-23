@@ -1043,7 +1043,7 @@ package androidx.recyclerview.widget {
   }
 
   public abstract class SortedListAdapterCallback<T2> extends androidx.recyclerview.widget.SortedList.Callback<T2> {
-    ctor public SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter!);
+    ctor public SortedListAdapterCallback(androidx.recyclerview.widget.RecyclerView.Adapter<?>);
     method public void onChanged(int, int);
     method public void onInserted(int, int);
     method public void onMoved(int, int);
