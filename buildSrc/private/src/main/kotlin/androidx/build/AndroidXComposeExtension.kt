@@ -14,26 +14,10 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
+package androidx.build
 
-plugins {
-    id("AndroidXPlugin")
-    id("com.android.library")
-    id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
-}
+import org.gradle.api.Project
 
-dependencies {
-    implementation(libs.kotlinStdlib)
-}
-
-androidx {
-    name = "Lifecycle Runtime Compose Demos"
-    publish = Publish.NONE
-    inceptionYear = "2022"
-    description = "This is a project for Lifecycle Runtime Compose demos."
-}
-
-android {
-    namespace "androidx.lifecycle.runtime.compose.demos"
+open class AndroidXComposeExtension(@Suppress("UNUSED_PARAMETER") project: Project) {
+    var composeCompilerPluginEnabled = true
 }

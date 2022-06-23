@@ -26,7 +26,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     api projectOrArtifact(":lifecycle:lifecycle-common-java8")
     api projectOrArtifact(":lifecycle:lifecycle-viewmodel-ktx")

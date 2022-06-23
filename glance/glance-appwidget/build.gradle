@@ -40,7 +40,6 @@ dependencies {
             path: ":glance:glance-appwidget-proto",
             configuration: "export"
     ))
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(project(":glance:glance"))
     api("androidx.annotation:annotation:1.1.0")

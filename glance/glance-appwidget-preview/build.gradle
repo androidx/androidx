@@ -28,7 +28,6 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(libs.kotlinStdlib)
     api(libs.kotlinReflect)

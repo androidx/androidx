@@ -26,7 +26,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
     api("androidx.compose.foundation:foundation:1.0.5")

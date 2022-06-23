@@ -47,7 +47,6 @@ android {
 }
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     implementation("androidx.wear:wear:1.1.0")
 
