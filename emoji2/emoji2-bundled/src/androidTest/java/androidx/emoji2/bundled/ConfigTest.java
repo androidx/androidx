@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.graphics.Color;
 
+import androidx.annotation.RequiresApi;
 import androidx.emoji2.bundled.util.Emoji;
 import androidx.emoji2.bundled.util.EmojiMatcher;
 import androidx.emoji2.bundled.util.TestString;
@@ -58,18 +59,21 @@ public class ConfigTest {
     }
 
     @Test(expected = NullPointerException.class)
+    @SdkSuppress(minSdkVersion = 19)
     public void testConstructor_throwsExceptionIfMetadataLoaderNull() {
         //noinspection ConstantConditions
         new TestConfigBuilder.TestConfig(null);
     }
 
     @Test(expected = NullPointerException.class)
+    @SdkSuppress(minSdkVersion = 19)
     public void testInitCallback_throwsExceptionIfNull() {
         //noinspection ConstantConditions
         new ValidTestConfig().registerInitCallback(null);
     }
 
     @Test(expected = NullPointerException.class)
+    @SdkSuppress(minSdkVersion = 19)
     public void testUnregisterInitCallback_throwsExceptionIfNull() {
         //noinspection ConstantConditions
         new ValidTestConfig().unregisterInitCallback(null);
@@ -90,6 +94,7 @@ public class ConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testInitCallback_callsSuccessCallback() {
         final EmojiCompat.InitCallback initCallback1 = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.InitCallback initCallback2 = mock(EmojiCompat.InitCallback.class);
@@ -123,6 +128,7 @@ public class ConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testBuild_withEmojiSpanIndicator() {
         EmojiCompat.Config config = new ValidTestConfig();
         EmojiCompat emojiCompat = EmojiCompat.reset(config);
@@ -136,6 +142,7 @@ public class ConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testBuild_withEmojiSpanIndicatorColor() {
         EmojiCompat.Config config = new ValidTestConfig();
         EmojiCompat emojiCompat = EmojiCompat.reset(config);
@@ -149,6 +156,7 @@ public class ConfigTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19)
     public void testBuild_defaultEmojiSpanIndicatorColor() {
         final EmojiCompat.Config config = new ValidTestConfig().setEmojiSpanIndicatorEnabled(true);
         final EmojiCompat emojiCompat = EmojiCompat.reset(config);
@@ -210,6 +218,7 @@ public class ConfigTest {
     }
 
     private static class ValidTestConfig extends EmojiCompat.Config {
+        @RequiresApi(19)
         ValidTestConfig() {
             super(new TestConfigBuilder.TestEmojiDataLoader());
         }
