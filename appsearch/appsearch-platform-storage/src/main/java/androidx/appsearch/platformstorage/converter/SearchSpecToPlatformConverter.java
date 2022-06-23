@@ -16,6 +16,7 @@
 
 package androidx.appsearch.platformstorage.converter;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -39,6 +40,9 @@ public final class SearchSpecToPlatformConverter {
     }
 
     /** Translates from Jetpack to Platform version of {@link SearchSpec}. */
+    // Most jetpackSearchSpec.get calls cause WrongConstant lint errors because the methods are not
+    // defined as returning the same constants as the corresponding setter expects, but they do
+    @SuppressLint("WrongConstant")
     @NonNull
     public static android.app.appsearch.SearchSpec toPlatformSearchSpec(
             @NonNull SearchSpec jetpackSearchSpec) {
