@@ -82,8 +82,14 @@ public final class SchemaChangeInfo {
 
     @Override
     public boolean equals(@Nullable Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SchemaChangeInfo)) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof SchemaChangeInfo)) {
+            return false;
+        }
+
         SchemaChangeInfo that = (SchemaChangeInfo) o;
         return mPackageName.equals(that.mPackageName)
                 && mDatabaseName.equals(that.mDatabaseName)

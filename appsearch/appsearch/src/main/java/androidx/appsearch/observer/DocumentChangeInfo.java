@@ -107,8 +107,14 @@ public final class DocumentChangeInfo {
 
     @Override
     public boolean equals(@Nullable Object o) {
-        if (this == o) return true;
-        if (!(o instanceof DocumentChangeInfo)) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (!(o instanceof DocumentChangeInfo)) {
+            return false;
+        }
+
         DocumentChangeInfo that = (DocumentChangeInfo) o;
         return mPackageName.equals(that.mPackageName)
                 && mDatabase.equals(that.mDatabase)
