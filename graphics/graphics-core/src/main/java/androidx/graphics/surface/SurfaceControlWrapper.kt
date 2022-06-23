@@ -159,25 +159,14 @@ internal class SurfaceControlWrapper internal constructor(
          * Sets the callback that is invoked once the updates from this transaction are
          * presented.
          *
-         * @param executor The executor that the callback should be invoked on.
-         * This value cannot be null. Callback and listener events are dispatched
-         * through this Executor, providing an easy way to control which thread is used.
-         *
          * @param listener The callback that will be invoked when the transaction has
          * been completed. This value cannot be null.
          */
         @Suppress("PairedRegistration")
         internal fun addTransactionCompletedListener(
-            executor: Executor,
             listener: SurfaceControlCompat.TransactionCompletedListener
         ): Transaction {
-            val listenerWrapper = object : SurfaceControlCompat.TransactionCompletedListener {
-                override fun onTransactionCompleted() {
-                    executor.execute { (listener::onTransactionCompleted)() }
-                }
-            }
-
-            JniBindings.nTransactionSetOnComplete(mNativeSurfaceTransaction, listenerWrapper)
+            JniBindings.nTransactionSetOnComplete(mNativeSurfaceTransaction, listener)
             return this
         }
 
