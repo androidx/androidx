@@ -19,6 +19,7 @@ package androidx.recyclerview.selection;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.core.util.Preconditions.checkArgument;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -163,6 +164,7 @@ public abstract class SelectionTracker<K> {
      * Sets the selected state of the specified items if permitted after consulting
      * SelectionPredicate.
      */
+    @SuppressLint("LambdaLast")
     public abstract boolean setItemsSelected(@NonNull Iterable<K> keys, boolean selected);
 
     /**
