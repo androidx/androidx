@@ -33,6 +33,7 @@ import androidx.camera.integration.extensions.utils.CameraSelectorUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeLifecycleOwner
 import androidx.lifecycle.Observer
@@ -65,6 +66,9 @@ class OpenCloseCameraStressTest(
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
+
+    @get:Rule
+    val labTest: LabTestRule = LabTestRule()
 
     @get:Rule
     val repeatRule = RepeatRule()
@@ -139,6 +143,7 @@ class OpenCloseCameraStressTest(
             get() = ExtensionsTestUtil.getAllCameraIdModeCombinations()
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun openCloseCameraStressTest(): Unit = runBlocking {

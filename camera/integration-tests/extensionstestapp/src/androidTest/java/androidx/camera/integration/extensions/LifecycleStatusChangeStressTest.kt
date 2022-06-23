@@ -26,6 +26,7 @@ import androidx.camera.integration.extensions.util.ExtensionsTestUtil.STRESS_TES
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.waitForIdle
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.RESUMED
@@ -67,6 +68,9 @@ class LifecycleStatusChangeStressTest(
     )
 
     @get:Rule
+    val labTest: LabTestRule = LabTestRule()
+
+    @get:Rule
     val repeatRule = RepeatRule()
 
     @get:Rule
@@ -102,6 +106,7 @@ class LifecycleStatusChangeStressTest(
         }
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     @RepeatRule.Repeat(times = ExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
     fun pauseResumeActivityTenTimes_canCaptureImageInEachTime() {
@@ -123,6 +128,7 @@ class LifecycleStatusChangeStressTest(
         }
     }
 
+    @LabTestRule.LabTestOnly
     @Test
     @RepeatRule.Repeat(times = ExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT)
     fun canCaptureImage_afterPauseResumeActivityTenTimes() {
