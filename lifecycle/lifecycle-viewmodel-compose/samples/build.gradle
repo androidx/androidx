@@ -25,7 +25,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
     compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
     implementation(libs.kotlinStdlib)
     implementation projectOrArtifact(":lifecycle:lifecycle-common-java8")

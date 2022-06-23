@@ -28,7 +28,6 @@ plugins {
 AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */false)
 
 dependencies {
-    kotlinPlugin(project(":compose:compiler:compiler"))
 
     api(project(":glance:glance"))
     api("androidx.compose.runtime:runtime:1.1.0-beta01")

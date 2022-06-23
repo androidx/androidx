@@ -25,7 +25,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     implementation(libs.kotlinStdlib)
     implementation("androidx.compose.foundation:foundation-layout:1.0.1")
