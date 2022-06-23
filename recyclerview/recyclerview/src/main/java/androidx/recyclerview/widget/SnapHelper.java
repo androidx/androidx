@@ -133,6 +133,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      * @return array holding the calculated distances in x and y directions
      * respectively.
      */
+    @NonNull
     public int[] calculateScrollDistance(int velocityX, int velocityY) {
         int[] outDist = new int[2];
         mGravityScroller.fling(0, 0, velocityX, velocityY,
@@ -286,7 +287,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      */
     @SuppressWarnings("WeakerAccess")
     @Nullable
-    public abstract View findSnapView(RecyclerView.LayoutManager layoutManager);
+    public abstract View findSnapView(@NonNull RecyclerView.LayoutManager layoutManager);
 
     /**
      * Override to provide a particular adapter target position for snapping.
@@ -299,6 +300,7 @@ public abstract class SnapHelper extends RecyclerView.OnFlingListener {
      * @return the target adapter position to you want to snap or {@link RecyclerView#NO_POSITION}
      *         if no snapping should happen
      */
-    public abstract int findTargetSnapPosition(RecyclerView.LayoutManager layoutManager, int velocityX,
+    public abstract int findTargetSnapPosition(@NonNull RecyclerView.LayoutManager layoutManager,
+            int velocityX,
             int velocityY);
 }
