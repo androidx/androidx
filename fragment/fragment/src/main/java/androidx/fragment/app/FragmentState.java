@@ -37,6 +37,8 @@ final class FragmentState implements Parcelable {
     final boolean mDetached;
     final boolean mHidden;
     final int mMaxLifecycleState;
+    final String mTargetWho;
+    final int mTargetRequestCode;
 
     Bundle mSavedFragmentState;
 
@@ -52,6 +54,8 @@ final class FragmentState implements Parcelable {
         mDetached = frag.mDetached;
         mHidden = frag.mHidden;
         mMaxLifecycleState = frag.mMaxState.ordinal();
+        mTargetWho = frag.mTargetWho;
+        mTargetRequestCode = frag.mTargetRequestCode;
     }
 
     FragmentState(Parcel in) {
@@ -67,6 +71,8 @@ final class FragmentState implements Parcelable {
         mHidden = in.readInt() != 0;
         mSavedFragmentState = in.readBundle();
         mMaxLifecycleState = in.readInt();
+        mTargetWho = in.readString();
+        mTargetRequestCode = in.readInt();
     }
 
     /**
@@ -88,6 +94,8 @@ final class FragmentState implements Parcelable {
         fragment.mDetached = mDetached;
         fragment.mHidden = mHidden;
         fragment.mMaxState = Lifecycle.State.values()[mMaxLifecycleState];
+        fragment.mTargetWho = mTargetWho;
+        fragment.mTargetRequestCode = mTargetRequestCode;
 
         // When restoring a Fragment, always ensure we have a
         // non-null Bundle so that developers have a signal for
@@ -135,6 +143,12 @@ final class FragmentState implements Parcelable {
         if (mHidden) {
             sb.append(" hidden");
         }
+        if (mTargetWho != null) {
+            sb.append(" targetWho=");
+            sb.append(mTargetWho);
+            sb.append(" targetRequestCode=");
+            sb.append(mTargetRequestCode);
+        }
         return sb.toString();
     }
 
@@ -157,6 +171,8 @@ final class FragmentState implements Parcelable {
         dest.writeInt(mHidden ? 1 : 0);
         dest.writeBundle(mSavedFragmentState);
         dest.writeInt(mMaxLifecycleState);
+        dest.writeString(mTargetWho);
+        dest.writeInt(mTargetRequestCode);
     }
 
     public static final Parcelable.Creator<FragmentState> CREATOR =
