@@ -22,7 +22,6 @@ import androidx.camera.integration.uiwidgets.compose.ui.screen.components.Compos
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -56,9 +55,4 @@ fun ComposeCameraApp() {
             )
         }
     }
-}
-
-@Composable
-fun Greeting() {
-    Text("Hello")
 }
