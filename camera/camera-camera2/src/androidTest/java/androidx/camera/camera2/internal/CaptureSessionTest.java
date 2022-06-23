@@ -263,6 +263,20 @@ public final class CaptureSessionTest {
         return false;
     }
 
+    // Set stream use case is not supported before API 33
+    @SdkSuppress(maxSdkVersion = 32)
+    @Test
+    public void setStreamUseCaseNotSupported() {
+        ImageReader imageReader0 = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+        OutputConfigurationCompat outputConfigurationCompat =
+                new OutputConfigurationCompat(imageReader0.getSurface());
+        assertTrue(outputConfigurationCompat.getStreamUseCase()
+                == OutputConfigurationCompat.STREAM_USE_CASE_NONE);
+        outputConfigurationCompat.setStreamUseCase(1);
+        assertTrue(outputConfigurationCompat.getStreamUseCase()
+                == OutputConfigurationCompat.STREAM_USE_CASE_NONE);
+    }
+
     // Sharing surface of YUV format is supported since API 28
     @SdkSuppress(minSdkVersion = 28)
     @Test
