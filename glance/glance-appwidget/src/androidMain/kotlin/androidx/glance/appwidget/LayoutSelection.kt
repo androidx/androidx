@@ -380,7 +380,7 @@ internal fun RemoteViews.insertContainerView(
     val childLayout = selectLayout33(type, modifier)
         ?: generatedContainers[ContainerSelector(
             type,
-            if (Build.VERSION.SDK_INT >= 33) 0 else numChildren,
+            numChildren,
             horizontalAlignment,
             verticalAlignment
         )]?.layoutId
@@ -389,6 +389,7 @@ internal fun RemoteViews.insertContainerView(
         ?: throw IllegalArgumentException("Cannot find generated children for $type")
     return insertViewInternal(translationContext, childLayout, modifier)
         .copy(children = childrenMapping)
+        .also { if (Build.VERSION.SDK_INT >= 33) removeAllViews(it.mainViewId) }
 }
 
 private fun Dimension.toSpecSize(): LayoutSize =
