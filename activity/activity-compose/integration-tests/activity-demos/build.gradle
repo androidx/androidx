@@ -24,7 +24,6 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin projectOrArtifact(":compose:compiler:compiler")
     implementation(libs.kotlinStdlib)
     implementation projectOrArtifact(":activity:activity-compose")
     implementation projectOrArtifact(":activity:activity-compose:activity-compose-samples")

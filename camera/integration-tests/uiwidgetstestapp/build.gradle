@@ -60,7 +60,6 @@ android {
 }
 
 dependencies {
-    kotlinPlugin(projectOrArtifact(":compose:compiler:compiler"))
 
     // Internal library
     implementation(libs.kotlinStdlib)
