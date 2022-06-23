@@ -37,8 +37,6 @@ import androidx.lifecycle.ViewModelStoreOwner;
 class FragmentStateManager {
     private static final String TAG = FragmentManager.TAG;
 
-    private static final String TARGET_REQUEST_CODE_STATE_TAG = "android:target_req_state";
-    private static final String TARGET_STATE_TAG = "android:target_state";
     private static final String VIEW_STATE_TAG = "android:view_state";
     private static final String VIEW_REGISTRY_STATE_TAG = "android:view_registry_state";
     private static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
@@ -429,12 +427,8 @@ class FragmentStateManager {
                     VIEW_STATE_TAG);
             mFragment.mSavedViewRegistryState = fs.mSavedFragmentState.getBundle(
                     VIEW_REGISTRY_STATE_TAG);
-            mFragment.mTargetWho = fs.mSavedFragmentState.getString(
-                    TARGET_STATE_TAG);
-            if (mFragment.mTargetWho != null) {
-                mFragment.mTargetRequestCode = fs.mSavedFragmentState.getInt(
-                        TARGET_REQUEST_CODE_STATE_TAG, 0);
-            }
+            mFragment.mTargetWho = fs.mTargetWho;
+            mFragment.mTargetRequestCode = fs.mTargetRequestCode;
             if (mFragment.mSavedUserVisibleHint != null) {
                 mFragment.mUserVisibleHint = mFragment.mSavedUserVisibleHint;
                 mFragment.mSavedUserVisibleHint = null;
@@ -688,20 +682,6 @@ class FragmentStateManager {
 
         if (mFragment.mState > Fragment.INITIALIZING && fs.mSavedFragmentState == null) {
             fs.mSavedFragmentState = saveBasicState();
-
-            if (mFragment.mTargetWho != null) {
-                if (fs.mSavedFragmentState == null) {
-                    fs.mSavedFragmentState = new Bundle();
-                }
-                fs.mSavedFragmentState.putString(
-                        TARGET_STATE_TAG,
-                        mFragment.mTargetWho);
-                if (mFragment.mTargetRequestCode != 0) {
-                    fs.mSavedFragmentState.putInt(
-                            TARGET_REQUEST_CODE_STATE_TAG,
-                            mFragment.mTargetRequestCode);
-                }
-            }
         } else {
             if (mFragment.mSavedFragmentState != null) {
                 FragmentState savedFragmentState =
