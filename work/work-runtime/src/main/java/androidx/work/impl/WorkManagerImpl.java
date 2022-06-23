@@ -311,7 +311,32 @@ public class WorkManagerImpl extends WorkManager {
             @NonNull WorkDatabase workDatabase,
             @NonNull List<Scheduler> schedulers,
             @NonNull Processor processor) {
-        mTrackers = new Trackers(context.getApplicationContext(), workTaskExecutor);
+        this(context, configuration, workTaskExecutor, workDatabase, schedulers, processor,
+                new Trackers(context.getApplicationContext(), workTaskExecutor));
+    }
+
+    /**
+     * Create an instance of {@link WorkManagerImpl}.
+     *
+     * @param context          The application {@link Context}
+     * @param configuration    The {@link Configuration} configuration
+     * @param workTaskExecutor The {@link TaskExecutor} for running "processing" jobs, such as
+     *                         enqueueing, scheduling, cancellation, etc.
+     * @param workDatabase     The {@link WorkDatabase} instance
+     * @param processor        The {@link Processor} instance
+     * @param trackers         Trackers
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public WorkManagerImpl(
+            @NonNull Context context,
+            @NonNull Configuration configuration,
+            @NonNull TaskExecutor workTaskExecutor,
+            @NonNull WorkDatabase workDatabase,
+            @NonNull List<Scheduler> schedulers,
+            @NonNull Processor processor,
+            @NonNull Trackers trackers) {
+        mTrackers = trackers;
         internalInit(context, configuration, workTaskExecutor, workDatabase, schedulers, processor);
     }
 
@@ -628,6 +653,12 @@ public class WorkManagerImpl extends WorkManager {
                 StatusRunnable.forWorkQuerySpec(this, workQuery);
         mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
         return runnable.getFuture();
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<UpdateResult> updateWork(@NonNull WorkRequest request) {
+        return WorkerUpdater.updateWorkImpl(this, request);
     }
 
     LiveData<List<WorkInfo>> getWorkInfosById(@NonNull List<String> workSpecIds) {
