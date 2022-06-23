@@ -39,6 +39,7 @@ final class FragmentState implements Parcelable {
     final int mMaxLifecycleState;
     final String mTargetWho;
     final int mTargetRequestCode;
+    final boolean mUserVisibleHint;
 
     Bundle mSavedFragmentState;
 
@@ -56,6 +57,7 @@ final class FragmentState implements Parcelable {
         mMaxLifecycleState = frag.mMaxState.ordinal();
         mTargetWho = frag.mTargetWho;
         mTargetRequestCode = frag.mTargetRequestCode;
+        mUserVisibleHint = frag.mUserVisibleHint;
     }
 
     FragmentState(Parcel in) {
@@ -73,6 +75,7 @@ final class FragmentState implements Parcelable {
         mMaxLifecycleState = in.readInt();
         mTargetWho = in.readString();
         mTargetRequestCode = in.readInt();
+        mUserVisibleHint = in.readInt() != 0;
     }
 
     /**
@@ -96,6 +99,7 @@ final class FragmentState implements Parcelable {
         fragment.mMaxState = Lifecycle.State.values()[mMaxLifecycleState];
         fragment.mTargetWho = mTargetWho;
         fragment.mTargetRequestCode = mTargetRequestCode;
+        fragment.mUserVisibleHint = mUserVisibleHint;
 
         // When restoring a Fragment, always ensure we have a
         // non-null Bundle so that developers have a signal for
@@ -149,6 +153,9 @@ final class FragmentState implements Parcelable {
             sb.append(" targetRequestCode=");
             sb.append(mTargetRequestCode);
         }
+        if (mUserVisibleHint) {
+            sb.append(" userVisibleHint");
+        }
         return sb.toString();
     }
 
@@ -173,6 +180,7 @@ final class FragmentState implements Parcelable {
         dest.writeInt(mMaxLifecycleState);
         dest.writeString(mTargetWho);
         dest.writeInt(mTargetRequestCode);
+        dest.writeInt(mUserVisibleHint ? 1 : 0);
     }
 
     public static final Parcelable.Creator<FragmentState> CREATOR =

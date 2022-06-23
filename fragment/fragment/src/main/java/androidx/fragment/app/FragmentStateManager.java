@@ -39,7 +39,6 @@ class FragmentStateManager {
 
     private static final String VIEW_STATE_TAG = "android:view_state";
     private static final String VIEW_REGISTRY_STATE_TAG = "android:view_registry_state";
-    private static final String USER_VISIBLE_HINT_TAG = "android:user_visible_hint";
 
     private final FragmentLifecycleCallbacksDispatcher mDispatcher;
     private final FragmentStore mFragmentStore;
@@ -433,8 +432,7 @@ class FragmentStateManager {
                 mFragment.mUserVisibleHint = mFragment.mSavedUserVisibleHint;
                 mFragment.mSavedUserVisibleHint = null;
             } else {
-                mFragment.mUserVisibleHint = fs.mSavedFragmentState.getBoolean(
-                        USER_VISIBLE_HINT_TAG, true);
+                mFragment.mUserVisibleHint = fs.mUserVisibleHint;
             }
         }
         if (!mFragment.mUserVisibleHint) {
@@ -731,13 +729,6 @@ class FragmentStateManager {
                 result = new Bundle();
             }
             result.putBundle(VIEW_REGISTRY_STATE_TAG, mFragment.mSavedViewRegistryState);
-        }
-        if (!mFragment.mUserVisibleHint) {
-            if (result == null) {
-                result = new Bundle();
-            }
-            // Only add this if it's not the default value
-            result.putBoolean(USER_VISIBLE_HINT_TAG, mFragment.mUserVisibleHint);
         }
 
         return result;
