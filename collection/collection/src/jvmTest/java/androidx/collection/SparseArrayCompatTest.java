@@ -290,4 +290,26 @@ public class SparseArrayCompatTest {
             assertEquals(source.valueAt(i), dest.valueAt(i));
         }
     }
+
+    @Test
+    public void valueAt_nullValue() {
+        SparseArrayCompat<String> source = new SparseArrayCompat<>(10);
+        assertEquals(0, source.size());
+
+        // Succeeds since it is within initialCapacity of SparseArrayCompat.
+        assertNull(source.valueAt(9));
+    }
+
+    @Test
+    public void valueAt_outOfBounds() {
+        SparseArrayCompat<String> source = new SparseArrayCompat<>(10);
+        assertEquals(0, source.size());
+
+        try {
+            // Throws ArrayIndexOutOfBoundsException.
+            source.valueAt(10000);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // Expected
+        }
+    }
 }
