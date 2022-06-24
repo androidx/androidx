@@ -2904,19 +2904,19 @@ package androidx.leanback.widget {
   }
 
   public class TitleView extends android.widget.FrameLayout implements androidx.leanback.widget.TitleViewAdapter.Provider {
-    ctor public TitleView(android.content.Context!);
-    ctor public TitleView(android.content.Context!, android.util.AttributeSet!);
-    ctor public TitleView(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public TitleView(android.content.Context);
+    ctor public TitleView(android.content.Context, android.util.AttributeSet?);
+    ctor public TitleView(android.content.Context, android.util.AttributeSet?, int);
     method public void enableAnimation(boolean);
-    method public android.graphics.drawable.Drawable! getBadgeDrawable();
-    method public androidx.leanback.widget.SearchOrbView.Colors! getSearchAffordanceColors();
-    method public android.view.View! getSearchAffordanceView();
-    method public CharSequence! getTitle();
-    method public androidx.leanback.widget.TitleViewAdapter! getTitleViewAdapter();
-    method public void setBadgeDrawable(android.graphics.drawable.Drawable!);
-    method public void setOnSearchClickedListener(android.view.View.OnClickListener!);
-    method public void setSearchAffordanceColors(androidx.leanback.widget.SearchOrbView.Colors!);
-    method public void setTitle(CharSequence!);
+    method public android.graphics.drawable.Drawable? getBadgeDrawable();
+    method public androidx.leanback.widget.SearchOrbView.Colors? getSearchAffordanceColors();
+    method public android.view.View getSearchAffordanceView();
+    method public CharSequence? getTitle();
+    method public androidx.leanback.widget.TitleViewAdapter getTitleViewAdapter();
+    method public void setBadgeDrawable(android.graphics.drawable.Drawable?);
+    method public void setOnSearchClickedListener(android.view.View.OnClickListener?);
+    method public void setSearchAffordanceColors(androidx.leanback.widget.SearchOrbView.Colors);
+    method public void setTitle(CharSequence?);
     method public void updateComponentsVisibility(int);
   }
 

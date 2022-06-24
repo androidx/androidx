@@ -26,6 +26,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 
 /**
@@ -91,15 +93,15 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
         }
     };
 
-    public TitleView(Context context) {
+    public TitleView(@NonNull Context context) {
         this(context, null);
     }
 
-    public TitleView(Context context, AttributeSet attrs) {
+    public TitleView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.browseTitleViewStyle);
     }
 
-    public TitleView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public TitleView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -116,7 +118,7 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
     /**
      * Sets the title text.
      */
-    public void setTitle(CharSequence titleText) {
+    public void setTitle(@Nullable CharSequence titleText) {
         mTextView.setText(titleText);
         updateBadgeVisibility();
     }
@@ -124,6 +126,7 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
     /**
      * Returns the title text.
      */
+    @Nullable
     public CharSequence getTitle() {
         return mTextView.getText();
     }
@@ -132,7 +135,7 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
      * Sets the badge drawable.
      * If non-null, the drawable is displayed instead of the title text.
      */
-    public void setBadgeDrawable(Drawable drawable) {
+    public void setBadgeDrawable(@Nullable Drawable drawable) {
         mBadgeView.setImageDrawable(drawable);
         updateBadgeVisibility();
     }
@@ -140,6 +143,7 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
     /**
      * Returns the badge drawable.
      */
+    @Nullable
     public Drawable getBadgeDrawable() {
         return mBadgeView.getDrawable();
     }
@@ -147,7 +151,7 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
     /**
      * Sets the listener to be called when the search affordance is clicked.
      */
-    public void setOnSearchClickedListener(View.OnClickListener listener) {
+    public void setOnSearchClickedListener(@Nullable OnClickListener listener) {
         mHasSearchListener = listener != null;
         mSearchOrbView.setOnOrbClickedListener(listener);
         updateSearchOrbViewVisiblity();
@@ -156,6 +160,7 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
     /**
      *  Returns the view for the search affordance.
      */
+    @NonNull
     public View getSearchAffordanceView() {
         return mSearchOrbView;
     }
@@ -163,13 +168,14 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
     /**
      * Sets the {@link SearchOrbView.Colors} used to draw the search affordance.
      */
-    public void setSearchAffordanceColors(SearchOrbView.Colors colors) {
+    public void setSearchAffordanceColors(@NonNull SearchOrbView.Colors colors) {
         mSearchOrbView.setOrbColors(colors);
     }
 
     /**
      * Returns the {@link SearchOrbView.Colors} used to draw the search affordance.
      */
+    @Nullable
     public SearchOrbView.Colors getSearchAffordanceColors() {
         return mSearchOrbView.getOrbColors();
     }
@@ -220,6 +226,7 @@ public class TitleView extends FrameLayout implements TitleViewAdapter.Provider 
     }
 
     @Override
+    @NonNull
     public TitleViewAdapter getTitleViewAdapter() {
         return mTitleViewAdapter;
     }
