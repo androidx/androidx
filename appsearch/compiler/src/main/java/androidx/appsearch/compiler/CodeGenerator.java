@@ -94,7 +94,7 @@ class CodeGenerator {
         TypeSpec.Builder genClass = TypeSpec
                 .classBuilder(genClassName)
                 .addOriginatingElement(mModel.getClassElement())
-                .addModifiers(Modifier.PUBLIC)
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
                 .addSuperinterface(factoryType);
 
         // Add the @Generated annotation to avoid static analysis running on these files
