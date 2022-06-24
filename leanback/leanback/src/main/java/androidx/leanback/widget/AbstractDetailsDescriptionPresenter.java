@@ -22,6 +22,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.R;
 
 /**
@@ -54,7 +55,7 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
         final int mTitleMaxLines;
         private ViewTreeObserver.OnPreDrawListener mPreDrawListener;
 
-        public ViewHolder(final View view) {
+        public ViewHolder(final @NonNull View view) {
             super(view);
             mTitle = (TextView) view.findViewById(R.id.lb_details_description_title);
             mSubtitle = (TextView) view.findViewById(R.id.lb_details_description_subtitle);
@@ -129,14 +130,17 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
             }
         }
 
+        @NonNull
         public TextView getTitle() {
             return mTitle;
         }
 
+        @NonNull
         public TextView getSubtitle() {
             return mSubtitle;
         }
 
+        @NonNull
         public TextView getBody() {
             return mBody;
         }
@@ -150,14 +154,18 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
     }
 
     @Override
-    public final ViewHolder onCreateViewHolder(ViewGroup parent) {
+    @NonNull
+    public final ViewHolder onCreateViewHolder(@NonNull ViewGroup parent) {
         View v = LayoutInflater.from(parent.getContext())
             .inflate(R.layout.lb_details_description, parent, false);
         return new ViewHolder(v);
     }
 
     @Override
-    public final void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+    public final void onBindViewHolder(
+            @NonNull Presenter.ViewHolder viewHolder,
+            @NonNull Object item
+    ) {
         ViewHolder vh = (ViewHolder) viewHolder;
         onBindDescription(vh, item);
 
@@ -213,13 +221,13 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
      * @param vh The ViewHolder for this details description view.
      * @param item The item being presented.
      */
-    protected abstract void onBindDescription(ViewHolder vh, Object item);
+    protected abstract void onBindDescription(@NonNull ViewHolder vh, @NonNull Object item);
 
     @Override
-    public void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {}
+    public void onUnbindViewHolder(@NonNull Presenter.ViewHolder viewHolder) {}
 
     @Override
-    public void onViewAttachedToWindow(Presenter.ViewHolder holder) {
+    public void onViewAttachedToWindow(@NonNull Presenter.ViewHolder holder) {
         // In case predraw listener was removed in detach, make sure
         // we have the proper layout.
         ViewHolder vh = (ViewHolder) holder;
@@ -228,7 +236,7 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
     }
 
     @Override
-    public void onViewDetachedFromWindow(Presenter.ViewHolder holder) {
+    public void onViewDetachedFromWindow(@NonNull Presenter.ViewHolder holder) {
         ViewHolder vh = (ViewHolder) holder;
         vh.removePreDrawListener();
         super.onViewDetachedFromWindow(holder);

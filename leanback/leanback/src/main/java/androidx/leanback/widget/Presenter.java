@@ -16,6 +16,7 @@ package androidx.leanback.widget;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.collection.ArrayMap;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -121,12 +122,13 @@ public abstract class Presenter implements FacetProvider {
     /**
      * Creates a new {@link View}.
      */
-    public abstract ViewHolder onCreateViewHolder(ViewGroup parent);
+    @NonNull
+    public abstract ViewHolder onCreateViewHolder(@NonNull ViewGroup parent);
 
     /**
      * Binds a {@link View} to an item.
      */
-    public abstract void onBindViewHolder(ViewHolder viewHolder, Object item);
+    public abstract void onBindViewHolder(@NonNull ViewHolder viewHolder, @NonNull Object item);
 
     /**
      * Binds a {@link View} to an item with a list of payloads.
@@ -136,7 +138,11 @@ public abstract class Presenter implements FacetProvider {
      * @param payloads    A non-null list of merged payloads. Can be empty list if requires full
      *                    update.
      */
-    public void onBindViewHolder(ViewHolder viewHolder, Object item, List<Object> payloads) {
+    public void onBindViewHolder(
+            @NonNull ViewHolder viewHolder,
+            @NonNull Object item,
+            @NonNull List<Object> payloads
+    ) {
         onBindViewHolder(viewHolder, item);
     }
 
@@ -145,7 +151,7 @@ public abstract class Presenter implements FacetProvider {
      * released here, and any fields that are not bound for every item should be
      * cleared here.
      */
-    public abstract void onUnbindViewHolder(ViewHolder viewHolder);
+    public abstract void onUnbindViewHolder(@NonNull ViewHolder viewHolder);
 
     /**
      * Called when a view created by this presenter has been attached to a window.
@@ -157,7 +163,7 @@ public abstract class Presenter implements FacetProvider {
      *
      * @param holder Holder of the view being attached
      */
-    public void onViewAttachedToWindow(ViewHolder holder) {
+    public void onViewAttachedToWindow(@NonNull ViewHolder holder) {
     }
 
     /**
@@ -172,7 +178,7 @@ public abstract class Presenter implements FacetProvider {
      *
      * @param holder Holder of the view being detached
      */
-    public void onViewDetachedFromWindow(ViewHolder holder) {
+    public void onViewDetachedFromWindow(@NonNull ViewHolder holder) {
         // If there are view property animations running then RecyclerView won't recycle.
         cancelAnimationsRecursive(holder.view);
     }

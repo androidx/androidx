@@ -325,8 +325,8 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
         final AbstractDetailsDescriptionPresenter detailsPresenter =
                 new AbstractDetailsDescriptionPresenter() {
                     @Override
-                    protected void onBindDescription(ViewHolder
-                            viewHolder, Object object) {
+                    protected void onBindDescription(@NonNull ViewHolder
+                            viewHolder, @NonNull Object object) {
                         PlaybackBannerControlGlue glue = (PlaybackBannerControlGlue) object;
                         viewHolder.getTitle().setText(glue.getTitle());
                         viewHolder.getSubtitle().setText(glue.getSubtitle());
