@@ -2,126 +2,10 @@
 # Comments and blank lines are ignored.
 # Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead.
 # Messages that only sometimes appear in stdout/stderr should be exempted in message-flakes.ignore, because this file (messages.ignore) may be automatically garbage collected whereas that one will not be.
-# > Task :docs-runner:dokkaJavaPublicDocs
-(logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
-.*\.kotlin_module: error: module was compiled with an incompatible version of Kotlin\. The binary version of its metadata is [0-9]+\.[0-9]+\.[0-9]+, expected version is [0-9]+\.[0-9]+\.[0-9]+\.
+# b/237544244
 WARN: Attempt to load key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' for not yet loaded registry
-No docs found on supertype with \{@inheritDoc\} method .*
-Can't find node by signature .*
-Exception while resolving link to Module: Package:androidx\.datastore\.core GroupNode:IOException
-java\.lang\.IllegalStateException: Unsupported Receiver
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlUriProvider\$DefaultImpls\.mainUri\(JavaLayoutHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.mainUri\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlUriProvider\$DefaultImpls\.linkTo\(JavaLayoutHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.linkTo\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
-at jdk\.internal\.reflect\.GeneratedMethodAccessor[0-9]+\.invoke\(Unknown Source\)
-at com\.google\.inject\.internal\.DelegatingInvocationHandler\.invoke\(DelegatingInvocationHandler\.java:[0-9]+\)
 at jdk\.proxy[0-9]+/jdk\.proxy[0-9]+\.\$Proxy[0-9]+\.linkTo\(Unknown Source\)
 at jdk\.proxy[0-9]+/jdk\.proxy[0-9]+\.\$Proxy[0-9]+\.generate\(Unknown Source\)
-at com\.sun\.proxy\.\$Proxy[0-9]+\.linkTo\(Unknown Source\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.a\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.a\$default\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.contentNodeToMarkup\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.contentNodesToMarkup\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$contentNodeToMarkup\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at kotlinx\.html\.ApiKt\.visit\(api\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tag_groupsKt\.p\(gen\-tag\-groups\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.nodeSummary\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLikeSummaryRow\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tags_tKt\.td\(gen\-tags\-t\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tags_tKt\.td\$default\(gen\-tags\-t\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLikeSummaryRow\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tags_tKt\.tr\(gen\-tags\-t\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tags_tKt\.tr\$default\(gen\-tags\-t\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.functionLikeSummaryRow\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$classLikeSummaries\$\$inlined\$with\$lambda\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$groupedRow\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tags_tKt\.tbody\(gen\-tags\-t\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tags_tKt\.tbody\$default\(gen\-tags\-t\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$groupedRow\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tag_groupsKt\.table\(gen\-tag\-groups\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tag_groupsKt\.table\$default\(gen\-tag\-groups\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$groupedRow\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$groupedRow\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.groupedRow\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.extensionRow\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$classLikeSummaries\$\$inlined\$with\$lambda\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.summaryNodeGroup\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.classLikeSummaries\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$generateClassLike\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteHtmlTemplateService\$composePage\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tags_hKt\.body\(gen\-tags\-h\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tags_hKt\.body\$default\(gen\-tags\-h\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteHtmlTemplateService\$composePage\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at kotlinx\.html\.ApiKt\.visitAndFinalize\(api\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_consumer_tagsKt\.html\(gen\-consumer\-tags\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteHtmlTemplateService\.composePage\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.generateClassLike\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.generatePage\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.buildClass\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.buildPackage\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatGenerator\.buildPages\(JavaLayoutHtmlGenerator\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.GeneratorKt\.buildAll\(Generator\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.DokkaGenerator\.generate\(DokkaGenerator\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.DokkaBootstrapImpl\.generate\(DokkaBootstrapImpl\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.DelegatedInvocationHandler\.invoke\(ProxyUtils\.kt:[0-9]+\)
-at com\.sun\.proxy\.\$Proxy[0-9]+\.generate\(Unknown Source\)
-at org\.jetbrains\.dokka\.gradle\.DokkaTask\.generate\(main\.kt:[0-9]+\)
-Exception while resolving link to Module: Package:androidx\.compose\.animation\.core Class:KeyframesSpec Class:KeyframesSpecConfig Function:at Receiver:<this>
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.nodeContent\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tag_groupsKt\.div\(gen\-tag\-groups\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.fullMemberDocs\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.fullMemberDocs\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.classLikeFullMemberDocs\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.metaMarkup\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.metaMarkup\$default\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\$[0-9]+\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\$[0-9]+\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$fullMemberDocs\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroupForExtensions\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroupForExtensions\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroupForExtensions\$[0-9]+\$\$special\$\$inlined\$forEach\$lambda\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$summaryNodeGroupForExtensions\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tag_groupsKt\.div\$default\(gen\-tag\-groups\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.summaryNodeGroupForExtensions\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.access\$summaryNodeGroupForExtensions\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$generatePackage\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\.generatePackage\(DacHtmlFormat\.kt:[0-9]+\)
-Exception while resolving link to Module: Package:androidx\.compose\.runtime\.snapshots Function:readable Receiver:<this>
-Exception while resolving link to Module: Package:androidx\.compose\.ui\.geometry ExternalClass:kotlin\.Double Function:times Receiver:<this>
-Exception while resolving link to Module: Package:androidx\.compose\.ui\.geometry ExternalClass:kotlin\.Float Function:times Receiver:<this>
-Exception while resolving link to Module: Package:androidx\.compose\.ui\.geometry ExternalClass:kotlin\.Int Function:times Receiver:<this>
-Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:Shader
-Exception while resolving link to Module: Package:androidx\.compose\.ui\.input\.key GroupNode:NativeKeyEvent
-java\.lang\.IllegalStateException: Unsupported GroupNode
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.renderedSignature\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$generateClassLike\$[0-9]+\$\$special\$\$inlined\$with\$lambda\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.DevsiteLayoutHtmlFormatOutputBuilder\$generatePackage\$[0-9]+\$[0-9]+\.invoke\(DacHtmlFormat\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$summaryNodeGroup\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.summaryNodeGroup\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.shortFunctionParametersList\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLikeSummaryRow\$[0-9]+\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tag_unionsKt\.code\(gen\-tag\-unions\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tag_unionsKt\.code\$default\(gen\-tag\-unions\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$functionLikeSummaryRow\$[0-9]+\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics Function:compositeOver Receiver:<this>
-Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:NativeCanvas
-at kotlinx\.html\.Gen_tag_groupsKt\.pre\(gen\-tag\-groups\.kt:[0-9]+\)
-at kotlinx\.html\.Gen_tag_groupsKt\.pre\$default\(gen\-tag\-groups\.kt:[0-9]+\)
-Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics GroupNode:NativePaint
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$propertyLikeSummaryRow\$[0-9]+\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\$propertyLikeSummaryRow\$[0-9]+\.invoke\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.propertyLikeSummaryRow\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-at org\.jetbrains\.dokka\.Formats\.JavaLayoutHtmlFormatOutputBuilder\.propertyLikeSummaryRow\$default\(JavaLayoutHtmlFormatOutputBuilder\.kt:[0-9]+\)
-Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics\.vector Function:group Receiver:<this>
-Exception while resolving link to Module: Package:androidx\.compose\.ui\.graphics\.vector Function:path Receiver:<this>
-Exception while resolving link to Module: Package:androidx\.compose\.ui\.unit ExternalClass:kotlin\.Int Function:times Receiver:<this>
-Exception while resolving link to Module: Package:androidx.lifecycle ExternalClass:kotlinx.coroutines.flow.Flow Function:flowWithLifecycle Receiver:<this>
 # > Task :icing:extractIncludeDebugAndroidTestProto
 proto file '[^ ]*' directly specified in configuration\. It's likely you specified files\('path/to/foo\.proto'\) or fileTree\('path/to/directory'\) in protobuf or compile configuration\. This makes you vulnerable to https://github\.com/google/protobuf\-gradle\-plugin/issues/[0-9][0-9]*\. Please use files\('path/to/directory'\) instead\.
 OUT_DIR=\$OUT_DIR
@@ -195,8 +79,6 @@ Html results of .* zipped into.*\.zip
 # https://youtrack.jetbrains.com/issue/KT-52694/
 \- Task `:listTaskOutputs` of type `androidx\.build\.ListTaskOutputsTask`: invocation of 'Task\.project' at execution time is unsupported\.
 See https://docs\.gradle\.org/[0-9]+\.[0-9]+.*/userguide/configuration_cache\.html\#config_cache:requirements:use_project_during_execution
-\- Task `:docs\-public:dokkaKotlinDocs` of type `org\.jetbrains\.dokka\.gradle\.DokkaAndroidTask`: invocation of 'Task\.project' at execution time is unsupported\.
-\- Task `:docs\-tip\-of\-tree:dokkaKotlinDocs` of type `org\.jetbrains\.dokka\.gradle\.DokkaAndroidTask`: invocation of 'Task\.project' at execution time is unsupported\.
 # https://youtrack.jetbrains.com/issue/KT-52694
 \- Task \`:[:A-Za-z0-9#\-]+` of type \`org\.jetbrains\.kotlin\.gradle\.tooling\.BuildKotlinToolingMetadataTask\$FromKotlinExtension\`\: invocation of \'Task\.project\' at execution time is unsupported\.
 plus [0-9]+ more problems\. Please see the report for details\.
@@ -211,58 +93,6 @@ Namespace 'androidx\..*' used in: tempFile[0-9]+ProcessTestManifest[0-9]+\.xml, 
 A fine\-grained performance profile is available\: use the \-\-scan option\.
 # > Task :viewpager2:viewpager2:compileDebugAndroidTestKotlin
 w\: \$SUPPORT\/viewpager[0-9]+\/viewpager[0-9]+\/src\/androidTest\/java\/androidx\/viewpager[0-9]+\/widget\/HostFragmentBackStackTest\.kt\: \([0-9]+\, [0-9]+\)\: \'enableDebugLogging\(Boolean\)\: Unit\' is deprecated\. Deprecated in Java
-# > Task :docs-public:dokkaKotlinDocs
-No documentation for .*
-Found an unresolved type in androidx\.compose\.ui\.test\$pressKey\(androidx\.compose\.ui\.test\.KeyInjectionScope, androidx\.compose\.ui\.input\.key\.Key, kotlin\.Int, kotlin\.Long, kotlin\.Long\) \(KeyInjectionScope\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.ui\.test\$pressKeys\(androidx\.compose\.ui\.test\.KeyInjectionScope, kotlin\.collections\.List\(\(androidx\.compose\.ui\.input\.key\.Key\)\), kotlin\.Long, kotlin\.Long\) \(KeyInjectionScope\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$add\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\) \(SnapshotStateList\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$addAll\(kotlin\.collections\.Collection\(\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\)\)\) \(SnapshotStateList\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$remove\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\) \(SnapshotStateList\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\.snapshots\.SnapshotStateList\$removeAll\(kotlin\.collections\.Collection\(\(androidx\.compose\.runtime\.snapshots\.SnapshotStateList\.T\)\)\) \(SnapshotStateList\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.animation\.AnimatedContentScope\$using\(androidx\.compose\.animation\.ContentTransform, androidx\.compose\.animation\.SizeTransform\) \(AnimatedContent\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\.BroadcastFrameClock\$cancel\(\) \(BroadcastFrameClock\.kt:[0-9]+\)
-Found an unresolved type in androidx\.datastore\.rxjava[0-9]+\.RxDataStore\$dispose\(\) \(RxDataStore\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\.Updater\$set\(androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, androidx\.compose\.runtime\.Updater\.set\.V, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\.Updater\$update\(kotlin\.Int, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, kotlin\.Int, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\.Updater\$update\(androidx\.compose\.runtime\.Updater\.update\.V, kotlin\.Function[0-9]+\(\(androidx\.compose\.runtime\.Updater\.T, androidx\.compose\.runtime\.Updater\.update\.V, kotlin\.Unit\)\)\) \(Composer\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\.snapshots\.Snapshot\.Companion\$openSnapshotCount\(\) \(Snapshot\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.ui\.geometry\.Offset\$getDistance\(\) \(Offset\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$rotate\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$scale\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, kotlin\.Float, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$scale\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$clipRect\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, androidx\.compose\.ui\.graphics\.ClipOp, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$clipPath\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, androidx\.compose\.ui\.graphics\.Path, androidx\.compose\.ui\.graphics\.ClipOp, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.ui\.graphics\.drawscope\$withTransform\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawTransform, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.drawscope\.DrawScope, kotlin\.Unit\)\)\) \(DrawScope\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.ui\.graphics\.vector\$group\(androidx\.compose\.ui\.graphics\.vector\.ImageVector\.Builder, kotlin\.String, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.Float, kotlin\.collections\.List\(\(androidx\.compose\.ui\.graphics\.vector\.PathNode\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.graphics\.vector\.ImageVector\.Builder, kotlin\.Unit\)\)\) \(ImageVector\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.ui\.unit\$constrainWidth\(androidx\.compose\.ui\.unit\.Constraints, kotlin\.Int\) \(Constraints\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.ui\.unit\$constrainHeight\(androidx\.compose\.ui\.unit\.Constraints, kotlin\.Int\) \(Constraints\.kt:[0-9]+\)
-Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setInitialLoadKey\(androidx\.paging\.RxPagedListBuilder\.Key\) \(RxPagedListBuilder\.kt:[0-9]+\)
-Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.RxPagedListBuilder\.Value\)\)\) \(RxPagedListBuilder\.kt:[0-9]+\)
-Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setNotifyScheduler\(io\.reactivex\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
-Found an unresolved type in androidx\.paging\.RxPagedListBuilder\$setFetchScheduler\(io\.reactivex\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
-Found an unresolved type in androidx\.security\.crypto\$EncryptedFile\(android\.content\.Context, java\.io\.File, androidx\.security\.crypto\.MasterKey, androidx\.security\.crypto\.EncryptedFile\.FileEncryptionScheme, kotlin\.String, kotlin\.String\) \(EncryptedFile\.kt:[0-9]+\)
-Found an unresolved type in androidx\.slice\.builders\$list\(android\.content\.Context, android\.net\.Uri, kotlin\.Long, kotlin\.Function[0-9]+\(\(androidx\.slice\.builders\.ListBuilderDsl, kotlin\.Unit\)\)\) \(ListBuilder\.kt:[0-9]+\)
-# See b/180023439 for hiltNavGraphViewModel warning.
-Unresolved link to .*
-Found an unresolved type in androidx\.core\.view\$removeItemAt\(android\.view\.Menu, kotlin\.Int\) \(Menu\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.foundation\.MutatorMutex\$mutate\(androidx\.compose\.foundation\.MutatePriority, kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.MutatorMutex\.mutate\.R\)\)\) \(MutatorMutex\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.foundation\.MutatorMutex\$mutateWith\(androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.T, androidx\.compose\.foundation\.MutatePriority, kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.T, androidx\.compose\.foundation\.MutatorMutex\.mutateWith\.R\)\)\) \(MutatorMutex\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.foundation\.gestures\$detectTapGestures\(androidx\.compose\.ui\.input\.pointer\.PointerInputScope, kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.coroutines\.SuspendFunction[0-9]+\(\(androidx\.compose\.foundation\.gestures\.PressGestureScope, androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\), kotlin\.Function[0-9]+\(\(androidx\.compose\.ui\.geometry\.Offset, kotlin\.Unit\)\)\) \(TapGestureDetector\.kt:[0-9]+\)
-Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setInitialLoadKey\(androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\.Key\) \(RxPagedListBuilder\.kt:[0-9]+\)
-Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\.Value\)\)\) \(RxPagedListBuilder\.kt:[0-9]+\)
-Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setNotifyScheduler\(io\.reactivex\.rxjava[0-9]+\.core\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
-Found an unresolved type in androidx\.paging\.rxjava[0-9]+\.RxPagedListBuilder\$setFetchScheduler\(io\.reactivex\.rxjava[0-9]+\.core\.Scheduler\) \(RxPagedListBuilder\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\$mutableStateListOf\(kotlin\.Array\(\(androidx\.compose\.runtime\.mutableStateListOf\.T\)\)\) \(SnapshotState\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\$toMutableStateList\(kotlin\.collections\.Collection\(\(androidx\.compose\.runtime\.toMutableStateList\.T\)\)\) \(SnapshotState\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\$mutableStateMapOf\(kotlin\.Array\(\(kotlin\.Pair\(\(androidx\.compose\.runtime\.mutableStateMapOf\.K, androidx\.compose\.runtime\.mutableStateMapOf\.V\)\)\)\)\) \(SnapshotState\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\$toMutableStateMap\(kotlin\.collections\.Iterable\(\(kotlin\.Pair\(\(androidx\.compose\.runtime\.toMutableStateMap\.K, androidx\.compose\.runtime\.toMutableStateMap\.V\)\)\)\)\) \(SnapshotState\.kt:[0-9]+\)
-Found an unresolved type in androidx\.compose\.runtime\.collection\.MutableVector\$sortWith\(\(\(androidx\.compose\.runtime\.collection\.MutableVector\.T\)\)\) \(MutableVector\.kt:[0-9]+\)
-Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setCoroutineScope\(kotlinx\.coroutines\.CoroutineScope\) \(LivePagedListBuilder\.kt:[0-9]+\)
-Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setInitialLoadKey\(androidx\.paging\.LivePagedListBuilder\.Key\) \(LivePagedListBuilder\.kt:[0-9]+\)
-Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setBoundaryCallback\(androidx\.paging\.PagedList\.BoundaryCallback\(\(androidx\.paging\.LivePagedListBuilder\.Value\)\)\) \(LivePagedListBuilder\.kt:[0-9]+\)
-Found an unresolved type in androidx\.paging\.LivePagedListBuilder\$setFetchExecutor\(java\.util\.concurrent\.Executor\) \(LivePagedListBuilder\.kt:[0-9]+\)
-Found an unresolved type in androidx\.constraintlayout\.compose\.DesignElements\$define\(kotlin\.String, kotlin\.Function[0-9]+\(\(kotlin\.String, \(\(, \)\), kotlin.Unit\)\)\) \(ConstraintLayout.kt:[0-9]+\)
 # > Task :docs-public:dackkaDocs
 ERROR: An attempt to write .*
 WARN: Unable to find what is referred to by

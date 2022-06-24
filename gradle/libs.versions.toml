@@ -104,7 +104,6 @@ dokkaAndroidDocumentation = { module = "org.jetbrains.dokka:android-documentatio
 dokkaAllModules = { module = "org.jetbrains.dokka:all-modules-page-plugin", version.ref = "dokka" }
 dokkaBase = { module = "org.jetbrains.dokka:dokka-base", version.ref = "dokka" }
 dokkaTemplating = { module = "org.jetbrains.dokka:templating-plugin", version.ref = "dokka" }
-dokkaGradlePluginz = { module = "org.jetbrains.dokka:dokka-android-gradle-plugin", version = "0.9.17-g014" }
 dom4j = { module = "org.dom4j:dom4j", version = "2.1.3" }
 espressoContribInternal = { module = "androidx.test.espresso:espresso-contrib", version.ref = "espresso" }
 espressoCore = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
