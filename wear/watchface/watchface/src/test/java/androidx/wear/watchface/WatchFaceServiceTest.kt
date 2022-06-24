@@ -3285,7 +3285,7 @@ public class WatchFaceServiceTest {
         assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
 
         // When going interactive a frame should be rendered immediately.
-        engineWrapper.setWatchUiState(WatchUiState(false, 0))
+        engineWrapper.setWatchUiState(WatchUiState(false, 0), fromSysUi = true)
         assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(2000L)
 
         // And we should be producing frames.
@@ -3321,7 +3321,7 @@ public class WatchFaceServiceTest {
         assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(992L)
 
         // After going ambient we should render immediately and then stop.
-        engineWrapper.setWatchUiState(WatchUiState(true, 0))
+        engineWrapper.setWatchUiState(WatchUiState(true, 0), fromSysUi = true)
         runPostedTasksFor(5000L)
         assertThat(renderer.lastOnDrawZonedDateTime!!.toInstant().toEpochMilli()).isEqualTo(1000L)
 
@@ -5252,6 +5252,16 @@ public class WatchFaceServiceTest {
 
         watchFaceImpl.broadcastsObserver.onActionScreenOn()
         assertThat(watchState.isAmbient.value).isFalse()
+
+        // After SysUI has sent WatchUiState onActionScreenOff/onActionScreenOn should be ignored.
+        engineWrapper.setWatchUiState(WatchUiState(false, 0), fromSysUi = true)
+
+        watchFaceImpl.broadcastsObserver.onActionScreenOff()
+        assertThat(watchState.isAmbient.value).isFalse()
+
+        engineWrapper.setWatchUiState(WatchUiState(true, 0), fromSysUi = true)
+        watchFaceImpl.broadcastsObserver.onActionScreenOn()
+        assertThat(watchState.isAmbient.value).isTrue()
     }
 
     @Test
