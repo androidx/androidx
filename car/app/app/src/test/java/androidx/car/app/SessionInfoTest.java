@@ -18,10 +18,15 @@ package androidx.car.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.car.app.model.Template;
+import androidx.car.app.versioning.CarAppApiLevels;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.internal.DoNotInstrument;
+
+import java.util.Set;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -34,5 +39,37 @@ public class SessionInfoTest {
 
         assertThat(result.getSessionId()).isEqualTo(TEST_SESSION_ID);
         assertThat(result.getDisplayType()).isEqualTo(SessionInfo.DISPLAY_TYPE_MAIN);
+    }
+
+    @Test
+    public void getSupportedTemplates_displayTypeMain() {
+        SessionInfo sessionInfo = new SessionInfo(SessionInfo.DISPLAY_TYPE_MAIN, TEST_SESSION_ID);
+
+        Set<Class<? extends Template>> result =
+                sessionInfo.getSupportedTemplates(CarAppApiLevels.LEVEL_5);
+
+        assertThat(result).isNull();
+    }
+
+    @Test
+    public void getSupportedTemplates_displayTypeCluster() {
+        SessionInfo sessionInfo =
+                new SessionInfo(SessionInfo.DISPLAY_TYPE_CLUSTER, TEST_SESSION_ID);
+
+        Set<Class<? extends Template>> result =
+                sessionInfo.getSupportedTemplates(CarAppApiLevels.LEVEL_5);
+
+        assertThat(result).isNotEmpty();
+    }
+
+    @Test
+    public void getSupportedTemplates_displayTypeCluster_apiLessThan5() {
+        SessionInfo sessionInfo =
+                new SessionInfo(SessionInfo.DISPLAY_TYPE_CLUSTER, TEST_SESSION_ID);
+
+        Set<Class<? extends Template>> result =
+                sessionInfo.getSupportedTemplates(CarAppApiLevels.LEVEL_4);
+
+        assertThat(result).isEmpty();
     }
 }
