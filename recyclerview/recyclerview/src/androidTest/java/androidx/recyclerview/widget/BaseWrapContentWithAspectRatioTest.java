@@ -20,11 +20,13 @@ import static androidx.recyclerview.widget.LinearLayoutManager.VERTICAL;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.util.Pair;
 
 import org.hamcrest.BaseMatcher;
@@ -70,6 +72,7 @@ abstract public class BaseWrapContentWithAspectRatioTest extends BaseRecyclerVie
             super(context, attrs, defStyleAttr);
         }
 
+        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         public LoggingView(Context context, AttributeSet attrs, int defStyleAttr,
                 int defStyleRes) {
             super(context, attrs, defStyleAttr, defStyleRes);
