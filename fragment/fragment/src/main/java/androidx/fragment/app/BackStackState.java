@@ -63,7 +63,8 @@ class BackStackState implements Parcelable {
             Bundle stateBundle = fm.getFragmentStore().setSavedState(fWho, null);
             if (stateBundle != null) {
                 ClassLoader classLoader = fm.getHost().getContext().getClassLoader();
-                FragmentState fs = stateBundle.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
+                FragmentState fs = stateBundle.getParcelable(
+                        FragmentStateManager.FRAGMENT_STATE_KEY);
                 Fragment fragment = fs.instantiate(fm.getFragmentFactory(), classLoader);
                 fragment.mSavedFragmentState = stateBundle;
 
@@ -71,14 +72,14 @@ class BackStackState implements Parcelable {
                 // non-null Bundle so that developers have a signal for
                 // when the Fragment is being restored
                 if (fragment.mSavedFragmentState.getBundle(
-                        FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG) == null) {
+                        FragmentStateManager.SAVED_INSTANCE_STATE_KEY) == null) {
                     fragment.mSavedFragmentState.putBundle(
-                            FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
+                            FragmentStateManager.SAVED_INSTANCE_STATE_KEY,
                             new Bundle());
                 }
 
                 // Instantiate the fragment's arguments
-                Bundle arguments = stateBundle.getBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG);
+                Bundle arguments = stateBundle.getBundle(FragmentStateManager.ARGUMENTS_KEY);
                 if (arguments != null) {
                     arguments.setClassLoader(classLoader);
                 }

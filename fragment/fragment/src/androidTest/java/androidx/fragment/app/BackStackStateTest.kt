@@ -76,7 +76,7 @@ class BackStackStateTest {
         }
 
         val stateBundle = Bundle()
-        stateBundle.putParcelable(FragmentManager.FRAGMENT_STATE_TAG, FragmentState(fragment))
+        stateBundle.putParcelable(FragmentStateManager.FRAGMENT_STATE_KEY, FragmentState(fragment))
         fragmentManager.fragmentStore.setSavedState(fragment.mWho, stateBundle)
         val backStackState = BackStackState(
             listOf(fragment.mWho),

@@ -1981,7 +1981,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     void restoreChildFragmentState() {
         if (mSavedFragmentState != null) {
             Bundle childFragmentManagerState = mSavedFragmentState.getBundle(
-                    FragmentManager.FRAGMENT_CHILD_FRAGMENT_MANAGER_TAG);
+                    FragmentStateManager.CHILD_FRAGMENT_MANAGER_KEY);
             if (childFragmentManagerState != null) {
                 mChildFragmentManager.restoreSaveStateInternal(childFragmentManagerState);
                 mChildFragmentManager.dispatchCreate();
@@ -3084,7 +3084,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             });
         }
         Bundle savedStateRegistryState = mSavedFragmentState != null
-                ? mSavedFragmentState.getBundle(FragmentManager.FRAGMENT_REGISTRY_STATE_TAG)
+                ? mSavedFragmentState.getBundle(FragmentStateManager.REGISTRY_STATE_KEY)
                 : null;
         mSavedStateRegistryController.performRestore(savedStateRegistryState);
         onCreate(savedInstanceState);
@@ -3128,7 +3128,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         Bundle savedInstanceState = null;
         if (mSavedFragmentState != null) {
             savedInstanceState = mSavedFragmentState.getBundle(
-                    FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG);
+                    FragmentStateManager.SAVED_INSTANCE_STATE_KEY);
         }
         onViewCreated(mView, savedInstanceState);
         mChildFragmentManager.dispatchViewCreated();
@@ -3157,7 +3157,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             Bundle savedInstanceState = null;
             if (mSavedFragmentState != null) {
                 savedInstanceState = mSavedFragmentState.getBundle(
-                        FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG);
+                        FragmentStateManager.SAVED_INSTANCE_STATE_KEY);
             }
             restoreViewState(savedInstanceState);
         }

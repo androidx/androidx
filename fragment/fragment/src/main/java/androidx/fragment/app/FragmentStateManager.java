@@ -37,6 +37,14 @@ import androidx.lifecycle.ViewModelStoreOwner;
 class FragmentStateManager {
     private static final String TAG = FragmentManager.TAG;
 
+    static final String FRAGMENT_STATE_KEY = "state";
+    static final String SAVED_INSTANCE_STATE_KEY = "savedInstanceState";
+    static final String REGISTRY_STATE_KEY = "registryState";
+    static final String CHILD_FRAGMENT_MANAGER_KEY = "childFragmentManager";
+    static final String VIEW_STATE_KEY = "viewState";
+    static final String VIEW_REGISTRY_STATE_KEY = "viewRegistryState";
+    static final String ARGUMENTS_KEY = "arguments";
+
     private final FragmentLifecycleCallbacksDispatcher mDispatcher;
     private final FragmentStore mFragmentStore;
     @NonNull
@@ -79,12 +87,12 @@ class FragmentStateManager {
         mFragmentStore = fragmentStore;
 
         // Instantiate the fragment's library states in FragmentState
-        FragmentState fs = state.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
+        FragmentState fs = state.getParcelable(FRAGMENT_STATE_KEY);
         mFragment = fs.instantiate(fragmentFactory, classLoader);
         mFragment.mSavedFragmentState = state;
 
         // Instantiate the fragment's arguments
-        Bundle arguments = state.getBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG);
+        Bundle arguments = state.getBundle(ARGUMENTS_KEY);
         if (arguments != null) {
             arguments.setClassLoader(classLoader);
         }
@@ -121,7 +129,7 @@ class FragmentStateManager {
         mFragment.mTarget = null;
 
         mFragment.mSavedFragmentState = state;
-        mFragment.mArguments = state.getBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG);
+        mFragment.mArguments = state.getBundle(ARGUMENTS_KEY);
     }
 
     @NonNull
@@ -391,7 +399,7 @@ class FragmentStateManager {
             Bundle savedInstanceState = null;
             if (mFragment.mSavedFragmentState != null) {
                 savedInstanceState = mFragment.mSavedFragmentState.getBundle(
-                        FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG);
+                        SAVED_INSTANCE_STATE_KEY);
             }
             mFragment.performCreateView(mFragment.performGetLayoutInflater(
                     savedInstanceState), null, savedInstanceState);
@@ -414,23 +422,22 @@ class FragmentStateManager {
         }
         mFragment.mSavedFragmentState.setClassLoader(classLoader);
         Bundle savedInstanceState = mFragment.mSavedFragmentState.getBundle(
-                FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG);
+                SAVED_INSTANCE_STATE_KEY);
         if (savedInstanceState == null) {
             // When restoring a Fragment, always ensure we have a
             // non-null Bundle so that developers have a signal for
             // when the Fragment is being restored
-            mFragment.mSavedFragmentState.putBundle(
-                    FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
+            mFragment.mSavedFragmentState.putBundle(SAVED_INSTANCE_STATE_KEY,
                     new Bundle());
         }
 
         mFragment.mSavedViewState = mFragment.mSavedFragmentState.getSparseParcelableArray(
-                FragmentManager.FRAGMENT_VIEW_STATE_TAG);
+                VIEW_STATE_KEY);
         mFragment.mSavedViewRegistryState = mFragment.mSavedFragmentState.getBundle(
-                FragmentManager.FRAGMENT_VIEW_REGISTRY_STATE_TAG);
+                VIEW_REGISTRY_STATE_KEY);
 
         FragmentState fs =
-                mFragment.mSavedFragmentState.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
+                mFragment.mSavedFragmentState.getParcelable(FRAGMENT_STATE_KEY);
         if (fs != null) {
             mFragment.mTargetWho = fs.mTargetWho;
             mFragment.mTargetRequestCode = fs.mTargetRequestCode;
@@ -490,8 +497,7 @@ class FragmentStateManager {
         }
         Bundle savedInstanceState = null;
         if (mFragment.mSavedFragmentState != null) {
-            savedInstanceState = mFragment.mSavedFragmentState.getBundle(
-                    FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG);
+            savedInstanceState = mFragment.mSavedFragmentState.getBundle(SAVED_INSTANCE_STATE_KEY);
         }
         if (!mFragment.mIsCreated) {
             mDispatcher.dispatchOnFragmentPreCreated(mFragment, savedInstanceState, false);
@@ -516,8 +522,7 @@ class FragmentStateManager {
         }
         Bundle savedInstanceState = null;
         if (mFragment.mSavedFragmentState != null) {
-            savedInstanceState = mFragment.mSavedFragmentState.getBundle(
-                    FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG);
+            savedInstanceState = mFragment.mSavedFragmentState.getBundle(SAVED_INSTANCE_STATE_KEY);
         }
         LayoutInflater layoutInflater = mFragment.performGetLayoutInflater(savedInstanceState);
         ViewGroup container = null;
@@ -606,8 +611,7 @@ class FragmentStateManager {
         }
         Bundle savedInstanceState = null;
         if (mFragment.mSavedFragmentState != null) {
-            savedInstanceState = mFragment.mSavedFragmentState.getBundle(
-                    FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG);
+            savedInstanceState = mFragment.mSavedFragmentState.getBundle(SAVED_INSTANCE_STATE_KEY);
         }
         mFragment.performActivityCreated(savedInstanceState);
         mDispatcher.dispatchOnFragmentActivityCreated(
@@ -686,47 +690,42 @@ class FragmentStateManager {
 
         // Save the library state associated with the Fragment
         FragmentState fs = new FragmentState(mFragment);
-        stateBundle.putParcelable(FragmentManager.FRAGMENT_STATE_TAG, fs);
+        stateBundle.putParcelable(FRAGMENT_STATE_KEY, fs);
 
         // Save the user state associated with the Fragment
         if (mFragment.mState > Fragment.INITIALIZING) {
             Bundle savedInstanceState = new Bundle();
             mFragment.performSaveInstanceState(savedInstanceState);
             if (!savedInstanceState.isEmpty()) {
-                stateBundle.putBundle(FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
-                        savedInstanceState);
+                stateBundle.putBundle(SAVED_INSTANCE_STATE_KEY, savedInstanceState);
             }
             mDispatcher.dispatchOnFragmentSaveInstanceState(mFragment, savedInstanceState, false);
 
             Bundle savedStateRegistryState = new Bundle();
             mFragment.mSavedStateRegistryController.performSave(savedStateRegistryState);
             if (!savedStateRegistryState.isEmpty()) {
-                stateBundle.putBundle(FragmentManager.FRAGMENT_REGISTRY_STATE_TAG,
-                        savedStateRegistryState);
+                stateBundle.putBundle(REGISTRY_STATE_KEY, savedStateRegistryState);
             }
 
             Bundle childFragmentManagerState =
                     mFragment.mChildFragmentManager.saveAllStateInternal();
             if (!childFragmentManagerState.isEmpty()) {
-                stateBundle.putBundle(FragmentManager.FRAGMENT_CHILD_FRAGMENT_MANAGER_TAG,
-                        childFragmentManagerState);
+                stateBundle.putBundle(CHILD_FRAGMENT_MANAGER_KEY, childFragmentManagerState);
             }
 
             if (mFragment.mView != null) {
                 saveViewState();
             }
             if (mFragment.mSavedViewState != null) {
-                stateBundle.putSparseParcelableArray(FragmentManager.FRAGMENT_VIEW_STATE_TAG,
-                        mFragment.mSavedViewState);
+                stateBundle.putSparseParcelableArray(VIEW_STATE_KEY, mFragment.mSavedViewState);
             }
             if (mFragment.mSavedViewRegistryState != null) {
-                stateBundle.putBundle(FragmentManager.FRAGMENT_VIEW_REGISTRY_STATE_TAG,
-                        mFragment.mSavedViewRegistryState);
+                stateBundle.putBundle(VIEW_REGISTRY_STATE_KEY, mFragment.mSavedViewRegistryState);
             }
         }
 
         if (mFragment.mArguments != null) {
-            stateBundle.putBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG, mFragment.mArguments);
+            stateBundle.putBundle(ARGUMENTS_KEY, mFragment.mArguments);
         }
         return stateBundle;
     }
