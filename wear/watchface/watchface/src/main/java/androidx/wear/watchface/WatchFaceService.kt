@@ -951,7 +951,8 @@ public abstract class WatchFaceService : WallpaperService() {
                         Constants.EXTRA_INTERRUPTION_FILTER,
                         engineWrapper.mutableWatchState.interruptionFilter.getValueOr(0)
                     )
-                )
+                ),
+                fromSysUi = true
             )
 
             pendingBackgroundAction = null
@@ -1324,7 +1325,7 @@ public abstract class WatchFaceService : WallpaperService() {
         }
 
         @UiThread
-        internal fun setWatchUiState(watchUiState: WatchUiState) {
+        internal fun setWatchUiState(watchUiState: WatchUiState, fromSysUi: Boolean) {
             if (firstSetWatchUiState ||
                 watchUiState.inAmbientMode != mutableWatchState.isAmbient.value
             ) {
@@ -1338,6 +1339,11 @@ public abstract class WatchFaceService : WallpaperService() {
             }
 
             firstSetWatchUiState = false
+
+            if (fromSysUi) {
+                systemHasSentWatchUiState = true
+                getWatchFaceImplOrNull()?.broadcastsObserver?.onSysUiHasSentWatchUiState()
+            }
         }
 
         @UiThread
@@ -1832,7 +1838,7 @@ public abstract class WatchFaceService : WallpaperService() {
             require(!mutableWatchState.isHeadless)
 
             setImmutableSystemState(params.deviceConfig)
-            setWatchUiState(params.watchUiState)
+            setWatchUiState(params.watchUiState, fromSysUi = false)
             initialUserStyle = params.userStyle
 
             mutableWatchState.watchFaceInstanceId.value = sanitizeWatchFaceId(params.instanceId)
