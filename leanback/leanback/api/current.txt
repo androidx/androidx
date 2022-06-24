@@ -2995,35 +2995,35 @@ package androidx.leanback.widget.picker {
   }
 
   public class Picker extends android.widget.FrameLayout {
-    ctor public Picker(android.content.Context!, android.util.AttributeSet!);
-    ctor public Picker(android.content.Context!, android.util.AttributeSet!, int);
-    method public void addOnValueChangedListener(androidx.leanback.widget.picker.Picker.PickerValueListener!);
+    ctor public Picker(android.content.Context, android.util.AttributeSet?);
+    ctor public Picker(android.content.Context, android.util.AttributeSet?, int);
+    method public void addOnValueChangedListener(androidx.leanback.widget.picker.Picker.PickerValueListener);
     method public float getActivatedVisibleItemCount();
-    method public androidx.leanback.widget.picker.PickerColumn! getColumnAt(int);
+    method public androidx.leanback.widget.picker.PickerColumn? getColumnAt(int);
     method public int getColumnsCount();
     method protected int getPickerItemHeightPixels();
     method @LayoutRes public final int getPickerItemLayoutId();
     method @IdRes public final int getPickerItemTextViewId();
     method public int getSelectedColumn();
     method @Deprecated public final CharSequence! getSeparator();
-    method public final java.util.List<java.lang.CharSequence!>! getSeparators();
+    method public final java.util.List<java.lang.CharSequence!> getSeparators();
     method public float getVisibleItemCount();
     method public void onColumnValueChanged(int, int);
-    method public void removeOnValueChangedListener(androidx.leanback.widget.picker.Picker.PickerValueListener!);
+    method public void removeOnValueChangedListener(androidx.leanback.widget.picker.Picker.PickerValueListener);
     method public void setActivatedVisibleItemCount(float);
-    method public void setColumnAt(int, androidx.leanback.widget.picker.PickerColumn!);
+    method public void setColumnAt(int, androidx.leanback.widget.picker.PickerColumn);
     method public void setColumnValue(int, int, boolean);
-    method public void setColumns(java.util.List<androidx.leanback.widget.picker.PickerColumn!>!);
+    method public void setColumns(java.util.List<androidx.leanback.widget.picker.PickerColumn!>);
     method public final void setPickerItemLayoutId(@LayoutRes int);
     method public final void setPickerItemTextViewId(@IdRes int);
     method public void setSelectedColumn(int);
-    method public final void setSeparator(CharSequence!);
-    method public final void setSeparators(java.util.List<java.lang.CharSequence!>!);
+    method public final void setSeparator(CharSequence);
+    method public final void setSeparators(java.util.List<java.lang.CharSequence!>);
     method public void setVisibleItemCount(float);
   }
 
   public static interface Picker.PickerValueListener {
-    method public void onValueChanged(androidx.leanback.widget.picker.Picker!, int);
+    method public void onValueChanged(androidx.leanback.widget.picker.Picker, int);
   }
 
   public class PickerColumn {
