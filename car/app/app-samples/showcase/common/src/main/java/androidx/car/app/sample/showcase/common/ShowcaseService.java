@@ -22,6 +22,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.car.app.CarAppService;
 import androidx.car.app.Session;
+import androidx.car.app.SessionInfo;
 import androidx.car.app.validation.HostValidator;
 
 /**
@@ -51,7 +52,14 @@ public final class ShowcaseService extends CarAppService {
 
     @Override
     @NonNull
+    @SuppressWarnings("deprecation")
     public Session onCreateSession() {
+        return onCreateSession(SessionInfo.DEFAULT_SESSION_INFO);
+    }
+
+    @NonNull
+    @Override
+    public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
         return new ShowcaseSession();
     }
 

@@ -26,6 +26,7 @@ import androidx.car.app.CarAppService;
 import androidx.car.app.Screen;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.Session;
+import androidx.car.app.SessionInfo;
 import androidx.car.app.validation.HostValidator;
 
 /**
@@ -36,9 +37,16 @@ import androidx.car.app.validation.HostValidator;
  * Cars Library developer guide</a>.
  */
 public class PlacesCarAppService extends CarAppService {
+    @NonNull
+    @Override
+    @SuppressWarnings("deprecation")
+    public Session onCreateSession() {
+        return onCreateSession(SessionInfo.DEFAULT_SESSION_INFO);
+    }
+
     @Override
     @NonNull
-    public Session onCreateSession() {
+    public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
         return new Session() {
             @Override
             @NonNull

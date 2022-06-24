@@ -15,15 +15,12 @@
  */
 package androidx.car.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
@@ -63,11 +60,9 @@ public class SessionInfo {
     /**
      * A default {@link SessionInfo} for the main display, used when the host is on a version
      * that doesn't support this new class.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY)
-    static final SessionInfo DEFAULT_SESSION_INFO = new SessionInfo(
+    @NonNull
+    public static final SessionInfo DEFAULT_SESSION_INFO = new SessionInfo(
             DISPLAY_TYPE_MAIN, "main");
 
     /** A string identifier unique per physical display. */

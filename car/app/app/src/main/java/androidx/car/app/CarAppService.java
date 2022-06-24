@@ -234,9 +234,34 @@ public abstract class CarAppService extends Service {
      * <p>Called by the system, do not call this method directly.
      *
      * @see CarContext#startCarApp(Intent)
+     * @deprecated this method continues to exist for backwards compatibility; however, is
+     * succeeded by {@link #onCreateSession(SessionInfo)}. Prefer to implement {@link
+     * #onCreateSession(SessionInfo)} and use {@link SessionInfo#DEFAULT_SESSION_INFO} to forward
+     * this method to the new one.
      */
     @NonNull
+    @Deprecated
     public abstract Session onCreateSession();
+
+
+    // TODO(b/236140507): Link AndroidManifest.xml documentation or equivalent in this javadoc
+    /**
+     * Creates a new {@link Session}.
+     *
+     * <p>This method is invoked once per app-supported physical display with a unique
+     * {@link SessionInfo} identifying the type of display. Support for displays is declared within
+     * the AndroidManifest.xml. This method can also be invoked if the previous instance has been
+     * destroyed (ie. due to memory pressure) and the system has not yet destroyed this service.
+     *
+     * <p>This method is called by the system and should not be called directly.
+     *
+     * @see CarContext#startCarApp(Intent)
+     */
+    @NonNull
+    @SuppressWarnings("deprecation")
+    public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
+        return onCreateSession();
+    }
 
     @Override
     @CallSuper
