@@ -540,7 +540,11 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
     }
 
     @Override
-    public void onDrawOver(Canvas c, RecyclerView parent, RecyclerView.State state) {
+    public void onDrawOver(
+            @NonNull Canvas c,
+            @NonNull RecyclerView parent,
+            @NonNull RecyclerView.State state
+    ) {
         float dx = 0, dy = 0;
         if (mSelected != null) {
             getSelectedDxDy(mTmpPosition);
@@ -1802,6 +1806,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * moved to.
          */
         @SuppressWarnings("WeakerAccess")
+        @Nullable
         public ViewHolder chooseDropTarget(@NonNull ViewHolder selected,
                 @NonNull List<ViewHolder> dropTargets, int curX, int curY) {
             int right = curX + selected.itemView.getWidth();
@@ -2105,7 +2110,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration
          * boolean)
          */
         public void onChildDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView,
-                ViewHolder viewHolder,
+                @NonNull ViewHolder viewHolder,
                 float dX, float dY, int actionState, boolean isCurrentlyActive) {
             ItemTouchUIUtilImpl.INSTANCE.onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY,
                     actionState, isCurrentlyActive);
