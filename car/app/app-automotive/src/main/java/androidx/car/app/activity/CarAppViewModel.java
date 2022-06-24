@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.SessionInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IRendererCallback;
@@ -56,9 +57,12 @@ public class CarAppViewModel extends AndroidViewModel implements
     private final MutableLiveData<ErrorHandler.ErrorType> mError = new MutableLiveData<>();
     private final MutableLiveData<State> mState = new MutableLiveData<>(State.IDLE);
     private ServiceConnectionManager mServiceConnectionManager;
-    @Nullable private IRendererCallback mIRendererCallback;
-    @Nullable private IInsetsListener mIInsetsListener;
-    @Nullable private Insets mInsets = Insets.NONE;
+    @Nullable
+    private IRendererCallback mIRendererCallback;
+    @Nullable
+    private IInsetsListener mIInsetsListener;
+    @Nullable
+    private Insets mInsets = Insets.NONE;
     private static WeakReference<Activity> sActivity = new WeakReference<>(null);
 
     /** Possible view states */
@@ -73,14 +77,17 @@ public class CarAppViewModel extends AndroidViewModel implements
         ERROR,
     }
 
-    public CarAppViewModel(@NonNull Application application, @NonNull ComponentName componentName) {
+    public CarAppViewModel(@NonNull Application application,
+            @NonNull ComponentName componentName, @NonNull SessionInfo sessionInfo) {
         super(application);
 
-        mServiceConnectionManager = new ServiceConnectionManager(application, componentName, this);
+        mServiceConnectionManager = new ServiceConnectionManager(application, componentName,
+                sessionInfo, this);
     }
 
     @VisibleForTesting
-    @NonNull ServiceConnectionManager getServiceConnectionManager() {
+    @NonNull
+    ServiceConnectionManager getServiceConnectionManager() {
         return mServiceConnectionManager;
     }
 
@@ -89,7 +96,8 @@ public class CarAppViewModel extends AndroidViewModel implements
         mServiceConnectionManager = serviceConnectionManager;
     }
 
-    @NonNull ServiceDispatcher getServiceDispatcher() {
+    @NonNull
+    ServiceDispatcher getServiceDispatcher() {
         return mServiceConnectionManager.getServiceDispatcher();
     }
 

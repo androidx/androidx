@@ -16,10 +16,16 @@
 
 package androidx.car.app;
 
+import static androidx.car.app.SessionInfo.DEFAULT_SESSION_INFO;
 import static androidx.car.app.SessionInfo.DISPLAY_TYPE_CLUSTER;
 import static androidx.car.app.SessionInfo.DISPLAY_TYPE_MAIN;
+import static androidx.car.app.SessionInfo.EXTRA_SESSION_INFO;
 
 import static com.google.common.truth.Truth.assertThat;
+
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.os.Build;
 
 import androidx.car.app.model.Template;
 import androidx.car.app.versioning.CarAppApiLevels;
@@ -27,6 +33,7 @@ import androidx.car.app.versioning.CarAppApiLevels;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.Set;
@@ -120,6 +127,52 @@ public class SessionInfoTest {
 
         assertThat(displayTypeMainSessionId.toString()).isEqualTo(
                 anotherDisplayTypeMainSessionId.toString());
+    }
+
+    @Test
+    public void bind_insertsExtra() {
+        Intent intent = new Intent();
+        SessionInfo.setBindData(intent, DEFAULT_SESSION_INFO);
+
+        assertThat(intent.hasExtra(EXTRA_SESSION_INFO));
+    }
+
+    @Test
+    public void bind_from_returnsExpectedValue() {
+        Intent intent = new Intent();
+        SessionInfo.setBindData(intent, DEFAULT_SESSION_INFO);
+
+        SessionInfo info = new SessionInfo(intent);
+
+        assertThat(info).isEqualTo(DEFAULT_SESSION_INFO);
+
+    }
+
+    @SuppressLint("NewApi")
+    @Test
+    @Config(sdk = Build.VERSION_CODES.Q)
+    public void setBindData() {
+        SessionInfo testSessionInfo =
+                new SessionInfo(DISPLAY_TYPE_CLUSTER, "a-unique-session-id");
+        Intent intent = new Intent();
+        SessionInfo.setBindData(intent, testSessionInfo);
+
+        SessionInfo resultSessionInfo = new SessionInfo(intent);
+        assertThat(resultSessionInfo).isEqualTo(testSessionInfo);
+        assertThat(intent.getIdentifier()).isEqualTo(testSessionInfo.toString());
+    }
+
+    @Test
+    @Config(sdk = Build.VERSION_CODES.P)
+    public void setBindData_belowQ() {
+        SessionInfo testSessionInfo =
+                new SessionInfo(DISPLAY_TYPE_CLUSTER, "a-unique-session-id");
+        Intent intent = new Intent();
+        SessionInfo.setBindData(intent, testSessionInfo);
+
+        SessionInfo resultSessionInfo = new SessionInfo(intent);
+        assertThat(resultSessionInfo).isEqualTo(testSessionInfo);
+        assertThat(intent.getDataString()).isEqualTo(testSessionInfo.toString());
     }
 
 }

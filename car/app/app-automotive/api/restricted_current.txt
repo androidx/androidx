@@ -3,7 +3,7 @@ package androidx.car.app.activity {
 
   public abstract class BaseCarAppActivity extends androidx.fragment.app.FragmentActivity {
     ctor public BaseCarAppActivity();
-    method public void bindToViewModel();
+    method public void bindToViewModel(androidx.car.app.SessionInfo);
     method public android.content.ComponentName? retrieveServiceComponentName();
   }
 

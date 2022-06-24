@@ -40,6 +40,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.car.app.SessionInfo;
 import androidx.car.app.activity.renderer.ICarAppActivity;
 import androidx.car.app.activity.renderer.IInsetsListener;
 import androidx.car.app.activity.renderer.IRendererCallback;
@@ -252,7 +253,7 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
     /**
      * Binds the {@link BaseCarAppActivity} and it's view against the view model.
      */
-    public void bindToViewModel() {
+    public void bindToViewModel(@NonNull SessionInfo sessionInfo) {
         ComponentName serviceComponentName = retrieveServiceComponentName();
         if (serviceComponentName == null) {
             Log.e(LogTags.TAG, "Unspecified service class name");
@@ -261,7 +262,7 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
         }
 
         CarAppViewModelFactory factory = CarAppViewModelFactory.getInstance(getApplication(),
-                serviceComponentName);
+                serviceComponentName, sessionInfo);
         mViewModel = new ViewModelProvider(this, factory).get(CarAppViewModel.class);
         mViewModel.setActivity(this);
         mViewModel.resetState();
@@ -329,9 +330,7 @@ public abstract class BaseCarAppActivity extends FragmentActivity {
     }
 
     private void onErrorChanged(@Nullable ErrorHandler.ErrorType errorType) {
-        ThreadUtils.runOnMain(() -> {
-            mErrorMessageView.setError(errorType);
-        });
+        ThreadUtils.runOnMain(() -> mErrorMessageView.setError(errorType));
     }
 
     private void onStateChanged(@NonNull CarAppViewModel.State state) {
