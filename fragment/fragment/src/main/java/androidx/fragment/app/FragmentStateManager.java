@@ -683,8 +683,13 @@ class FragmentStateManager {
 
         // Save the user state associated with the Fragment
         if (mFragment.mState > Fragment.INITIALIZING) {
-            stateBundle.putBundle(FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
-                    saveBasicState());
+            Bundle savedInstanceState = new Bundle();
+            mFragment.performSaveInstanceState(savedInstanceState);
+            if (!savedInstanceState.isEmpty()) {
+                stateBundle.putBundle(FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
+                        savedInstanceState);
+            }
+            mDispatcher.dispatchOnFragmentSaveInstanceState(mFragment, savedInstanceState, false);
 
             Bundle savedStateRegistryState = new Bundle();
             mFragment.mSavedStateRegistryController.performSave(savedStateRegistryState);
@@ -722,7 +727,9 @@ class FragmentStateManager {
             }
         }
 
-        stateBundle.putBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG, mFragment.mArguments);
+        if (mFragment.mArguments != null) {
+            stateBundle.putBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG, mFragment.mArguments);
+        }
         return stateBundle;
     }
 
@@ -732,19 +739,6 @@ class FragmentStateManager {
             return new Fragment.SavedState(saveState());
         }
         return null;
-    }
-
-    @Nullable
-    private Bundle saveBasicState() {
-        Bundle result = new Bundle();
-
-        mFragment.performSaveInstanceState(result);
-        mDispatcher.dispatchOnFragmentSaveInstanceState(mFragment, result, false);
-        if (result.isEmpty()) {
-            result = null;
-        }
-
-        return result;
     }
 
     void saveViewState() {
