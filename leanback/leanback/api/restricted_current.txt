@@ -2081,13 +2081,13 @@ package androidx.leanback.widget {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class GuidedActionAdapterGroup {
     ctor public GuidedActionAdapterGroup();
-    method public void addAdpter(androidx.leanback.widget.GuidedActionAdapter!, androidx.leanback.widget.GuidedActionAdapter!);
-    method public void closeIme(android.view.View!);
-    method public void fillAndGoNext(androidx.leanback.widget.GuidedActionAdapter!, android.widget.TextView!);
-    method public void fillAndStay(androidx.leanback.widget.GuidedActionAdapter!, android.widget.TextView!);
-    method public androidx.leanback.widget.GuidedActionAdapter! getNextAdapter(androidx.leanback.widget.GuidedActionAdapter!);
-    method public void openIme(androidx.leanback.widget.GuidedActionAdapter!, androidx.leanback.widget.GuidedActionsStylist.ViewHolder!);
-    method public void setEditListener(androidx.leanback.widget.GuidedActionAdapter.EditListener!);
+    method public void addAdpter(androidx.leanback.widget.GuidedActionAdapter?, androidx.leanback.widget.GuidedActionAdapter?);
+    method public void closeIme(android.view.View);
+    method public void fillAndGoNext(androidx.leanback.widget.GuidedActionAdapter, android.widget.TextView);
+    method public void fillAndStay(androidx.leanback.widget.GuidedActionAdapter, android.widget.TextView);
+    method public androidx.leanback.widget.GuidedActionAdapter? getNextAdapter(androidx.leanback.widget.GuidedActionAdapter);
+    method public void openIme(androidx.leanback.widget.GuidedActionAdapter, androidx.leanback.widget.GuidedActionsStylist.ViewHolder);
+    method public void setEditListener(androidx.leanback.widget.GuidedActionAdapter.EditListener?);
   }
 
   public interface GuidedActionAutofillSupport {
