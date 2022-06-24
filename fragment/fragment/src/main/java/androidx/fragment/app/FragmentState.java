@@ -17,7 +17,6 @@
 package androidx.fragment.app;
 
 import android.annotation.SuppressLint;
-import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -40,8 +39,6 @@ final class FragmentState implements Parcelable {
     final String mTargetWho;
     final int mTargetRequestCode;
     final boolean mUserVisibleHint;
-
-    Bundle mSavedFragmentState;
 
     FragmentState(Fragment frag) {
         mClassName = frag.getClass().getName();
@@ -71,7 +68,6 @@ final class FragmentState implements Parcelable {
         mRemoving = in.readInt() != 0;
         mDetached = in.readInt() != 0;
         mHidden = in.readInt() != 0;
-        mSavedFragmentState = in.readBundle();
         mMaxLifecycleState = in.readInt();
         mTargetWho = in.readString();
         mTargetRequestCode = in.readInt();
@@ -100,18 +96,6 @@ final class FragmentState implements Parcelable {
         fragment.mTargetWho = mTargetWho;
         fragment.mTargetRequestCode = mTargetRequestCode;
         fragment.mUserVisibleHint = mUserVisibleHint;
-
-        // When restoring a Fragment, always ensure we have a
-        // non-null Bundle so that developers have a signal for
-        // when the Fragment is being restored
-        if (mSavedFragmentState == null) {
-            mSavedFragmentState = new Bundle();
-        }
-        // Construct a new Bundle of all of the information we have
-        // restored from this FragmentState object
-        Bundle savedFragmentState = new Bundle();
-        savedFragmentState.putParcelable(FragmentManager.FRAGMENT_STATE_TAG, this);
-        fragment.mSavedFragmentState = savedFragmentState;
         return fragment;
     }
 
@@ -176,7 +160,6 @@ final class FragmentState implements Parcelable {
         dest.writeInt(mRemoving ? 1 : 0);
         dest.writeInt(mDetached ? 1 : 0);
         dest.writeInt(mHidden ? 1 : 0);
-        dest.writeBundle(mSavedFragmentState);
         dest.writeInt(mMaxLifecycleState);
         dest.writeString(mTargetWho);
         dest.writeInt(mTargetRequestCode);
