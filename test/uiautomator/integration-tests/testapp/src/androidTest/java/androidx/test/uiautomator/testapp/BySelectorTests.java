@@ -19,7 +19,6 @@ package androidx.test.uiautomator.testapp;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.fail;
 
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -37,8 +36,6 @@ import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.UiObject2;
 
 import org.junit.Test;
-
-import java.util.regex.Pattern;
 
 public class BySelectorTests extends BaseTest {
 
@@ -178,43 +175,6 @@ public class BySelectorTests extends BaseTest {
         assertNull(mDevice.findObject(By.clazz(".NonExistentClass")));
     }
 
-    @Test
-    public void testClazzNull() {
-        // clazz(String)
-        try {
-            mDevice.findObject(By.clazz((String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // clazz(String, String)
-        try {
-            mDevice.findObject(By.clazz((String) null, "foo"));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        try {
-            mDevice.findObject(By.clazz("foo", (String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // clazz(Class)
-        try {
-            mDevice.findObject(By.clazz((Class) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // clazz(Pattern)
-        try {
-            mDevice.findObject(By.clazz((Pattern) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-    }
-
     // TODO(b/235841286): Implement these for clazz():
     // 1. Custom class
     // 2. Patterns
@@ -244,23 +204,6 @@ public class BySelectorTests extends BaseTest {
         assertNull(mDevice.findObject(By.desc("No element has this Content Description")));
     }
 
-    @Test
-    public void testDescNull() {
-        // desc(String)
-        try {
-            mDevice.findObject(By.desc((String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // desc(Pattern)
-        try {
-            mDevice.findObject(By.desc((Pattern) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-    }
-
     // TODO(b/235841286): Implement these for desc():
     // 1. Patterns
     // 2. Runtime Widgets
@@ -271,23 +214,6 @@ public class BySelectorTests extends BaseTest {
 
         // Full match with string argument
         assertNotNull(mDevice.findObject(By.pkg(TEST_APP)));
-    }
-
-    @Test
-    public void testPkgNull() {
-        // pkg(String)
-        try {
-            mDevice.findObject(By.pkg((String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // pkg(Pattern)
-        try {
-            mDevice.findObject(By.pkg((Pattern) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
     }
 
     @Test
@@ -311,36 +237,6 @@ public class BySelectorTests extends BaseTest {
     }
 
     @Test
-    public void testResNull() {
-        // res(String)
-        try {
-            mDevice.findObject(By.res((String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // res(String, String)
-        try {
-            mDevice.findObject(By.res((String) null, "foo"));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        try {
-            mDevice.findObject(By.res("foo", (String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // res(Pattern)
-        try {
-            mDevice.findObject(By.res((Pattern) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-    }
-
-    @Test
     public void testTextUnique() {
         launchTestActivity(BySelectorTestTextActivity.class);
 
@@ -355,23 +251,6 @@ public class BySelectorTests extends BaseTest {
         // Common Text
         assertNotNull(mDevice.findObject(By.text("Common Text")));
         assertEquals(2, mDevice.findObjects(By.text("Common Text")).size());
-    }
-
-    @Test
-    public void testTextNull() {
-        // text(String)
-        try {
-            mDevice.findObject(By.text((String) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
-
-        // text(Pattern)
-        try {
-            mDevice.findObject(By.text((Pattern) null));
-            fail();
-        } catch (NullPointerException expected) {
-        }
     }
 
     @Test
