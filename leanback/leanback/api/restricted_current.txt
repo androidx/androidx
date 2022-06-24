@@ -1758,22 +1758,22 @@ package androidx.leanback.widget {
 
   public class DetailsOverviewLogoPresenter extends androidx.leanback.widget.Presenter {
     ctor public DetailsOverviewLogoPresenter();
-    method public boolean isBoundToImage(androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder!, androidx.leanback.widget.DetailsOverviewRow!);
-    method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!, Object!);
-    method public android.view.View! onCreateView(android.view.ViewGroup!);
-    method public androidx.leanback.widget.Presenter.ViewHolder! onCreateViewHolder(android.view.ViewGroup!);
-    method public void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!);
-    method public void setContext(androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder!, androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder!, androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter!);
+    method public boolean isBoundToImage(androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder, androidx.leanback.widget.DetailsOverviewRow?);
+    method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object);
+    method public android.view.View onCreateView(android.view.ViewGroup);
+    method public androidx.leanback.widget.Presenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
+    method public void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder);
+    method public void setContext(androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder, androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder?, androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter?);
   }
 
   public static class DetailsOverviewLogoPresenter.ViewHolder extends androidx.leanback.widget.Presenter.ViewHolder {
-    ctor public DetailsOverviewLogoPresenter.ViewHolder(android.view.View!);
-    method public androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter! getParentPresenter();
-    method public androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder! getParentViewHolder();
+    ctor public DetailsOverviewLogoPresenter.ViewHolder(android.view.View);
+    method public androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter? getParentPresenter();
+    method public androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder? getParentViewHolder();
     method public boolean isSizeFromDrawableIntrinsic();
     method public void setSizeFromDrawableIntrinsic(boolean);
-    field protected androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter! mParentPresenter;
-    field protected androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder! mParentViewHolder;
+    field protected androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter? mParentPresenter;
+    field protected androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder? mParentViewHolder;
   }
 
   public class DetailsOverviewRow extends androidx.leanback.widget.Row {
