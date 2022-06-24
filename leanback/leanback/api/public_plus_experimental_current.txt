@@ -2764,19 +2764,19 @@ package androidx.leanback.widget {
   }
 
   public class SearchOrbView extends android.widget.FrameLayout implements android.view.View.OnClickListener {
-    ctor public SearchOrbView(android.content.Context!);
-    ctor public SearchOrbView(android.content.Context!, android.util.AttributeSet!);
-    ctor public SearchOrbView(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public SearchOrbView(android.content.Context);
+    ctor public SearchOrbView(android.content.Context, android.util.AttributeSet?);
+    ctor public SearchOrbView(android.content.Context, android.util.AttributeSet?, int);
     method public void enableOrbColorAnimation(boolean);
     method @ColorInt public int getOrbColor();
-    method public androidx.leanback.widget.SearchOrbView.Colors! getOrbColors();
-    method public android.graphics.drawable.Drawable! getOrbIcon();
+    method public androidx.leanback.widget.SearchOrbView.Colors? getOrbColors();
+    method public android.graphics.drawable.Drawable? getOrbIcon();
     method public void onClick(android.view.View!);
-    method public void setOnOrbClickedListener(android.view.View.OnClickListener!);
+    method public void setOnOrbClickedListener(android.view.View.OnClickListener?);
     method public void setOrbColor(int);
     method @Deprecated public void setOrbColor(@ColorInt int, @ColorInt int);
-    method public void setOrbColors(androidx.leanback.widget.SearchOrbView.Colors!);
-    method public void setOrbIcon(android.graphics.drawable.Drawable!);
+    method public void setOrbColors(androidx.leanback.widget.SearchOrbView.Colors);
+    method public void setOrbIcon(android.graphics.drawable.Drawable);
   }
 
   public static class SearchOrbView.Colors {

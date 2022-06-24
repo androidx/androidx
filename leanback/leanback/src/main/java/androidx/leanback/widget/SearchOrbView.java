@@ -33,6 +33,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 
@@ -145,16 +147,16 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
         ViewCompat.setZ(mSearchOrbView, mUnfocusedZ + fraction * (mFocusedZ - mUnfocusedZ));
     }
 
-    public SearchOrbView(Context context) {
+    public SearchOrbView(@NonNull Context context) {
         this(context, null);
     }
 
-    public SearchOrbView(Context context, AttributeSet attrs) {
+    public SearchOrbView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, R.attr.searchOrbViewStyle);
     }
 
     @SuppressLint("CustomViewStyleable")
-    public SearchOrbView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public SearchOrbView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         final Resources res = context.getResources();
@@ -240,7 +242,11 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     }
 
     @Override
-    protected void onFocusChanged(boolean gainFocus, int direction, Rect previouslyFocusedRect) {
+    protected void onFocusChanged(
+            boolean gainFocus,
+            int direction,
+            @Nullable Rect previouslyFocusedRect
+    ) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
         animateOnFocus(gainFocus);
     }
@@ -257,7 +263,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
      *
      * @param icon the drawable to be used as the icon
      */
-    public void setOrbIcon(Drawable icon) {
+    public void setOrbIcon(@NonNull Drawable icon) {
         mIconDrawable = icon;
         mIcon.setImageDrawable(mIconDrawable);
     }
@@ -267,6 +273,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
      *
      * @return the drawable used as the icon
      */
+    @Nullable
     public Drawable getOrbIcon() {
         return mIconDrawable;
     }
@@ -276,7 +283,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
      *
      * @param listener The listener.
      */
-    public void setOnOrbClickedListener(OnClickListener listener) {
+    public void setOnOrbClickedListener(@Nullable OnClickListener listener) {
         mListener = listener;
     }
 
@@ -314,7 +321,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     /**
      * Sets the {@link Colors} used to display the search orb.
      */
-    public void setOrbColors(Colors colors) {
+    public void setOrbColors(@NonNull Colors colors) {
         mColors = colors;
         mIcon.setColorFilter(mColors.iconColor);
 
@@ -328,6 +335,7 @@ public class SearchOrbView extends FrameLayout implements View.OnClickListener {
     /**
      * Returns the {@link Colors} used to display the search orb.
      */
+    @Nullable
     public Colors getOrbColors() {
         return mColors;
     }
