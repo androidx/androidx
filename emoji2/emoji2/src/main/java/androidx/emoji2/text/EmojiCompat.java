@@ -1303,7 +1303,7 @@ public class EmojiCompat {
         @LoadStrategy int mMetadataLoadStrategy = LOAD_STRATEGY_DEFAULT;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         @NonNull
-        GlyphChecker mGlyphChecker = new EmojiProcessor.DefaultGlyphChecker();
+        GlyphChecker mGlyphChecker = new DefaultGlyphChecker();
 
         /**
          * Default constructor.
