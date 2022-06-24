@@ -676,6 +676,13 @@ class FragmentStateManager {
     @NonNull
     Bundle saveState() {
         Bundle stateBundle = new Bundle();
+        if (mFragment.mState == Fragment.INITIALIZING) {
+            // We never even got to ATTACHED, but we could still have some state
+            // set by setInitialSavedState so we'll add that to our initial Bundle
+            if (mFragment.mSavedFragmentState != null) {
+                stateBundle.putAll(mFragment.mSavedFragmentState);
+            }
+        }
 
         // Save the library state associated with the Fragment
         FragmentState fs = new FragmentState(mFragment);
@@ -715,15 +722,6 @@ class FragmentStateManager {
             if (mFragment.mSavedViewRegistryState != null) {
                 stateBundle.putBundle(FragmentManager.FRAGMENT_VIEW_REGISTRY_STATE_TAG,
                         mFragment.mSavedViewRegistryState);
-            }
-        } else {
-            if (mFragment.mSavedFragmentState != null) {
-                Bundle previouslySavedState = mFragment.mSavedFragmentState.getBundle(
-                        FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG);
-                if (previouslySavedState != null) {
-                    stateBundle.putBundle(FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
-                            previouslySavedState);
-                }
             }
         }
 
