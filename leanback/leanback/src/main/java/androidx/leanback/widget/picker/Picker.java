@@ -31,6 +31,8 @@ import android.widget.TextView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 import androidx.leanback.widget.OnChildViewHolderSelectedListener;
@@ -73,7 +75,7 @@ public class Picker extends FrameLayout {
          * @param picker View whose value has changed.
          * @param column Column whose value has changed.
          */
-        void onValueChanged(Picker picker, int column);
+        void onValueChanged(@NonNull Picker picker, int column);
     }
 
     private ViewGroup mPickerView;
@@ -111,7 +113,7 @@ public class Picker extends FrameLayout {
      *
      * @param separator Separator String between Picker columns.
      */
-    public final void setSeparator(CharSequence separator) {
+    public final void setSeparator(@NonNull CharSequence separator) {
         setSeparators(Arrays.asList(separator));
     }
 
@@ -120,6 +122,7 @@ public class Picker extends FrameLayout {
      *
      * @return The list of separators populated between the picker column fields.
      */
+    @NonNull
     public final List<CharSequence> getSeparators() {
         return mSeparators;
     }
@@ -136,7 +139,7 @@ public class Picker extends FrameLayout {
      *
      * @param separators The list of separators to be populated between the Picker columns.
      */
-    public final void setSeparators(List<CharSequence> separators) {
+    public final void setSeparators(@NonNull List<CharSequence> separators) {
         mSeparators.clear();
         mSeparators.addAll(separators);
     }
@@ -186,15 +189,15 @@ public class Picker extends FrameLayout {
     /**
      * Creates a Picker widget.
      */
-    public Picker(Context context, AttributeSet attributeSet) {
+    public Picker(@NonNull Context context, @Nullable AttributeSet attributeSet) {
         this(context, attributeSet, R.attr.pickerStyle);
     }
 
     /**
      * Creates a Picker widget.
-     */
+      */
     @SuppressLint("CustomViewStyleable")
-    public Picker(Context context, AttributeSet attrs, int defStyleAttr) {
+    public Picker(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         final TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.lbPicker, defStyleAttr, 0);
@@ -229,6 +232,7 @@ public class Picker extends FrameLayout {
      * @param colIndex Index of PickerColumn.
      * @return PickerColumn at colIndex or null if {@link #setColumns(List)} is not called yet.
      */
+    @Nullable
     public PickerColumn getColumnAt(int colIndex) {
         if (mColumns == null) {
             return null;
@@ -255,7 +259,7 @@ public class Picker extends FrameLayout {
      *                takes more than one value (e.g. for a DatePicker, day, month, and year fields
      *                and for TimePicker, hour, minute, and am/pm fields form the columns).
      */
-    public void setColumns(List<PickerColumn> columns) {
+    public void setColumns(@NonNull List<PickerColumn> columns) {
         if (mSeparators.size() == 0) {
             throw new IllegalStateException("Separators size is: " + mSeparators.size()
                     + ". At least one separator must be provided");
@@ -330,7 +334,7 @@ public class Picker extends FrameLayout {
      * @param columnIndex Index of column to update.
      * @param column      New column to update.
      */
-    public void setColumnAt(int columnIndex, PickerColumn column) {
+    public void setColumnAt(int columnIndex, @NonNull PickerColumn column) {
         mColumns.set(columnIndex, column);
         VerticalGridView columnView = mColumnViews.get(columnIndex);
         PickerScrollArrayAdapter adapter = (PickerScrollArrayAdapter) columnView.getAdapter();
@@ -377,7 +381,7 @@ public class Picker extends FrameLayout {
      *
      * @param listener The callback to ad
      */
-    public void addOnValueChangedListener(PickerValueListener listener) {
+    public void addOnValueChangedListener(@NonNull PickerValueListener listener) {
         if (mListeners == null) {
             mListeners = new ArrayList<>();
         }
@@ -389,7 +393,7 @@ public class Picker extends FrameLayout {
      *
      * @param listener The callback to remove.
      */
-    public void removeOnValueChangedListener(PickerValueListener listener) {
+    public void removeOnValueChangedListener(@NonNull PickerValueListener listener) {
         if (mListeners != null) {
             mListeners.remove(listener);
         }
