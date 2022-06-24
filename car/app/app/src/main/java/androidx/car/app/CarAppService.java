@@ -19,8 +19,6 @@ package androidx.car.app;
 import static androidx.car.app.utils.LogTags.TAG;
 import static androidx.car.app.utils.ThreadUtils.runOnMain;
 
-import static java.util.Objects.requireNonNull;
-
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -132,12 +130,6 @@ public abstract class CarAppService extends Service {
 
     @Override
     @CallSuper
-    public void onCreate() {
-        mBinder = new CarAppBinder(this);
-    }
-
-    @Override
-    @CallSuper
     public void onDestroy() {
         if (mBinder != null) {
             mBinder.destroy();
@@ -157,7 +149,9 @@ public abstract class CarAppService extends Service {
     @CallSuper
     @NonNull
     public final IBinder onBind(@NonNull Intent intent) {
-        return requireNonNull(mBinder);
+        CarAppBinder response = new CarAppBinder(this, SessionInfo.DEFAULT_SESSION_INFO);
+        mBinder = response;
+        return response;
     }
 
     /**

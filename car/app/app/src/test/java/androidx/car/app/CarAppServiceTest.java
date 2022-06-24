@@ -100,6 +100,13 @@ public final class CarAppServiceTest {
     }
 
     @Test
+    public void onBind() {
+        CarAppBinder result = (CarAppBinder) mCarAppService.onBind(new Intent());
+
+        assertThat(result.getCurrentSessionInfo()).isEqualTo(SessionInfo.DEFAULT_SESSION_INFO);
+    }
+
+    @Test
     public void onCreateSession_withoutNewOnCreateSession_usesOldOnCreateSession() {
         ServiceController<? extends CarAppService> serviceController =
                 Robolectric.buildService(TestCarAppServiceWithoutNewOnCreateSession.class);
