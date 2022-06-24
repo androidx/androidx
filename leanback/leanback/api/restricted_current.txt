@@ -993,13 +993,13 @@ package androidx.leanback.app {
 
   public class VerticalGridSupportFragment extends androidx.leanback.app.BaseSupportFragment {
     ctor public VerticalGridSupportFragment();
-    method public androidx.leanback.widget.ObjectAdapter! getAdapter();
-    method public androidx.leanback.widget.VerticalGridPresenter! getGridPresenter();
-    method public androidx.leanback.widget.OnItemViewClickedListener! getOnItemViewClickedListener();
-    method public void setAdapter(androidx.leanback.widget.ObjectAdapter!);
-    method public void setGridPresenter(androidx.leanback.widget.VerticalGridPresenter!);
-    method public void setOnItemViewClickedListener(androidx.leanback.widget.OnItemViewClickedListener!);
-    method public void setOnItemViewSelectedListener(androidx.leanback.widget.OnItemViewSelectedListener!);
+    method public androidx.leanback.widget.ObjectAdapter? getAdapter();
+    method public androidx.leanback.widget.VerticalGridPresenter? getGridPresenter();
+    method public androidx.leanback.widget.OnItemViewClickedListener? getOnItemViewClickedListener();
+    method public void setAdapter(androidx.leanback.widget.ObjectAdapter?);
+    method public void setGridPresenter(androidx.leanback.widget.VerticalGridPresenter);
+    method public void setOnItemViewClickedListener(androidx.leanback.widget.OnItemViewClickedListener?);
+    method public void setOnItemViewSelectedListener(androidx.leanback.widget.OnItemViewSelectedListener?);
     method public void setSelectedPosition(int);
   }
 
