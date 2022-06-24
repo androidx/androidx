@@ -3083,7 +3083,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 }
             });
         }
-        mSavedStateRegistryController.performRestore(savedInstanceState);
+        Bundle savedStateRegistryState = mSavedFragmentState != null
+                ? mSavedFragmentState.getBundle(FragmentManager.FRAGMENT_REGISTRY_STATE_TAG)
+                : null;
+        mSavedStateRegistryController.performRestore(savedStateRegistryState);
         onCreate(savedInstanceState);
         mIsCreated = true;
         if (!mCalled) {
@@ -3298,7 +3301,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     void performSaveInstanceState(Bundle outState) {
         onSaveInstanceState(outState);
-        mSavedStateRegistryController.performSave(outState);
     }
 
     @SuppressWarnings("ConstantConditions")

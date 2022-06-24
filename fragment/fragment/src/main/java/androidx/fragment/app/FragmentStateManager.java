@@ -686,6 +686,13 @@ class FragmentStateManager {
             stateBundle.putBundle(FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
                     saveBasicState());
 
+            Bundle savedStateRegistryState = new Bundle();
+            mFragment.mSavedStateRegistryController.performSave(savedStateRegistryState);
+            if (!savedStateRegistryState.isEmpty()) {
+                stateBundle.putBundle(FragmentManager.FRAGMENT_REGISTRY_STATE_TAG,
+                        savedStateRegistryState);
+            }
+
             Bundle childFragmentManagerState =
                     mFragment.mChildFragmentManager.saveAllStateInternal();
             if (!childFragmentManagerState.isEmpty()) {
