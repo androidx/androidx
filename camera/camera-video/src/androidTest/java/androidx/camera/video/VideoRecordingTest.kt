@@ -732,6 +732,35 @@ class VideoRecordingTest(
         }
     }
 
+    @Test
+    fun canReuseRecorder() {
+        val recorder = Recorder.Builder().build()
+        val videoCapture1 = VideoCapture.withOutput(recorder)
+        val videoCapture2 = VideoCapture.withOutput(recorder)
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture1)
+        }
+
+        val file1 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        performRecording(videoCapture1, file1, true)
+
+        instrumentation.runOnMainSync {
+            cameraProvider.unbindAll()
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture2)
+        }
+
+        performRecording(videoCapture2, file2, true)
+
+        verifyRecordingResult(file1, true)
+        verifyRecordingResult(file2, true)
+
+        file1.delete()
+        file2.delete()
+    }
+
     private fun performRecording(
         videoCapture: VideoCapture<Recorder>,
         file: File,
