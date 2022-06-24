@@ -37,9 +37,6 @@ import androidx.lifecycle.ViewModelStoreOwner;
 class FragmentStateManager {
     private static final String TAG = FragmentManager.TAG;
 
-    private static final String VIEW_STATE_TAG = "android:view_state";
-    private static final String VIEW_REGISTRY_STATE_TAG = "android:view_registry_state";
-
     private final FragmentLifecycleCallbacksDispatcher mDispatcher;
     private final FragmentStore mFragmentStore;
     @NonNull
@@ -418,12 +415,7 @@ class FragmentStateManager {
         mFragment.mSavedFragmentState.setClassLoader(classLoader);
         Bundle savedInstanceState = mFragment.mSavedFragmentState.getBundle(
                 FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG);
-        if (savedInstanceState != null) {
-            mFragment.mSavedViewState = savedInstanceState.getSparseParcelableArray(
-                    VIEW_STATE_TAG);
-            mFragment.mSavedViewRegistryState = savedInstanceState.getBundle(
-                    VIEW_REGISTRY_STATE_TAG);
-        } else {
+        if (savedInstanceState == null) {
             // When restoring a Fragment, always ensure we have a
             // non-null Bundle so that developers have a signal for
             // when the Fragment is being restored
@@ -431,6 +423,12 @@ class FragmentStateManager {
                     FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
                     new Bundle());
         }
+
+        mFragment.mSavedViewState = mFragment.mSavedFragmentState.getSparseParcelableArray(
+                FragmentManager.FRAGMENT_VIEW_STATE_TAG);
+        mFragment.mSavedViewRegistryState = mFragment.mSavedFragmentState.getBundle(
+                FragmentManager.FRAGMENT_VIEW_REGISTRY_STATE_TAG);
+
         FragmentState fs =
                 mFragment.mSavedFragmentState.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
         if (fs != null) {
@@ -685,6 +683,18 @@ class FragmentStateManager {
         if (mFragment.mState > Fragment.INITIALIZING) {
             stateBundle.putBundle(FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
                     saveBasicState());
+
+            if (mFragment.mView != null) {
+                saveViewState();
+            }
+            if (mFragment.mSavedViewState != null) {
+                stateBundle.putSparseParcelableArray(FragmentManager.FRAGMENT_VIEW_STATE_TAG,
+                        mFragment.mSavedViewState);
+            }
+            if (mFragment.mSavedViewRegistryState != null) {
+                stateBundle.putBundle(FragmentManager.FRAGMENT_VIEW_REGISTRY_STATE_TAG,
+                        mFragment.mSavedViewRegistryState);
+            }
         } else {
             if (mFragment.mSavedFragmentState != null) {
                 Bundle previouslySavedState = mFragment.mSavedFragmentState.getBundle(
@@ -708,6 +718,7 @@ class FragmentStateManager {
         return null;
     }
 
+    @Nullable
     private Bundle saveBasicState() {
         Bundle result = new Bundle();
 
@@ -715,23 +726,6 @@ class FragmentStateManager {
         mDispatcher.dispatchOnFragmentSaveInstanceState(mFragment, result, false);
         if (result.isEmpty()) {
             result = null;
-        }
-
-        if (mFragment.mView != null) {
-            saveViewState();
-        }
-        if (mFragment.mSavedViewState != null) {
-            if (result == null) {
-                result = new Bundle();
-            }
-            result.putSparseParcelableArray(
-                    VIEW_STATE_TAG, mFragment.mSavedViewState);
-        }
-        if (mFragment.mSavedViewRegistryState != null) {
-            if (result == null) {
-                result = new Bundle();
-            }
-            result.putBundle(VIEW_REGISTRY_STATE_TAG, mFragment.mSavedViewRegistryState);
         }
 
         return result;
