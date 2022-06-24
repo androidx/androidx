@@ -24,6 +24,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
 import androidx.leanback.widget.Action;
@@ -280,8 +281,8 @@ public abstract class PlaybackControlGlue extends PlaybackGlue
             final AbstractDetailsDescriptionPresenter detailsPresenter =
                     new AbstractDetailsDescriptionPresenter() {
                         @Override
-                        protected void onBindDescription(ViewHolder
-                                viewHolder, Object object) {
+                        protected void onBindDescription(@NonNull ViewHolder
+                                viewHolder, @NonNull Object object) {
                             PlaybackControlGlue glue = (PlaybackControlGlue) object;
                             if (glue.hasValidMedia()) {
                                 viewHolder.getTitle().setText(glue.getMediaTitle());

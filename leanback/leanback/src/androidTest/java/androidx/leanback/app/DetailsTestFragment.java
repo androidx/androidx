@@ -23,6 +23,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.test.R;
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
 import androidx.leanback.widget.Action;
@@ -91,7 +92,7 @@ public class DetailsTestFragment extends androidx.leanback.app.DetailsFragment {
                 new FullWidthDetailsOverviewRowPresenter(new AbstractDetailsDescriptionPresenter() {
                     @Override
                     protected void onBindDescription(
-                            AbstractDetailsDescriptionPresenter.ViewHolder vh, Object item) {
+                            @NonNull AbstractDetailsDescriptionPresenter.ViewHolder vh, @NonNull Object item) {
                         vh.getTitle().setText("Funny Movie");
                         vh.getSubtitle().setText("Android TV Production Inc.");
                         vh.getBody().setText("What a great movie!");
