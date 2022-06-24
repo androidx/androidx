@@ -22,6 +22,8 @@ import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.PARAMETER;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
+import androidx.annotation.NonNull;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.ArrayList;
@@ -111,29 +113,29 @@ public class ItemAnimatorTestDouble extends SimpleItemAnimator {
     }
 
     @Override
-    public boolean animateRemove(RecyclerView.ViewHolder holder) {
+    public boolean animateRemove(@NonNull RecyclerView.ViewHolder holder) {
         mRemoves.add(holder);
         dispatchRemoveStarting(holder);
         return false;
     }
 
     @Override
-    public boolean animateAdd(RecyclerView.ViewHolder holder) {
+    public boolean animateAdd(@NonNull RecyclerView.ViewHolder holder) {
         mAdds.add(holder);
         dispatchAddStarting(holder);
         return false;
     }
 
     @Override
-    public boolean animateMove(RecyclerView.ViewHolder holder, int fromX, int fromY, int toX,
-            int toY) {
+    public boolean animateMove(@NonNull RecyclerView.ViewHolder holder, int fromX, int fromY,
+            int toX, int toY) {
         mMoves.add(holder);
         dispatchMoveStarting(holder);
         return false;
     }
 
     @Override
-    public boolean animateChange(RecyclerView.ViewHolder oldHolder,
+    public boolean animateChange(@NonNull RecyclerView.ViewHolder oldHolder,
             RecyclerView.ViewHolder newHolder, int fromLeft, int fromTop, int toLeft, int toTop) {
         mChangesOld.add(oldHolder);
         mChangesNew.add(newHolder);
@@ -221,7 +223,7 @@ public class ItemAnimatorTestDouble extends SimpleItemAnimator {
     }
 
     @Override
-    public void endAnimation(RecyclerView.ViewHolder item) {
+    public void endAnimation(@NonNull RecyclerView.ViewHolder item) {
         if (mAdds.remove(item)) {
             dispatchAddFinished(item);
         } else if (mRemoves.remove(item)) {
