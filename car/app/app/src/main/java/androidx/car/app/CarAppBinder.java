@@ -105,7 +105,7 @@ final class CarAppBinder extends ICarApp.Stub {
             Session session = mCurrentSession;
             if (session == null
                     || session.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
-                session = service.onCreateSession();
+                session = service.onCreateSession(SessionInfo.DEFAULT_SESSION_INFO);
                 mCurrentSession = session;
             }
 
