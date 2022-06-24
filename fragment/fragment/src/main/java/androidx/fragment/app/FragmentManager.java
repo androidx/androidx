@@ -109,6 +109,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     static final String RESULT_NAME_PREFIX = "result_";
     static final String FRAGMENT_STATE_TAG = "state";
     static final String FRAGMENT_NAME_PREFIX = "fragment_";
+    static final String FRAGMENT_SAVED_INSTANCE_STATE_TAG = "savedInstanceState";
     static final String FRAGMENT_ARGUMENTS_TAG = "arguments";
     private static boolean DEBUG = false;
 
