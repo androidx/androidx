@@ -64,21 +64,27 @@ class BackStackState implements Parcelable {
             if (stateBundle != null) {
                 ClassLoader classLoader = fm.getHost().getContext().getClassLoader();
                 FragmentState fs = stateBundle.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
-                if (fs != null) {
-                    Fragment fragment = fs.instantiate(fm.getFragmentFactory(), classLoader);
+                Fragment fragment = fs.instantiate(fm.getFragmentFactory(), classLoader);
+                fragment.mSavedFragmentState = stateBundle;
 
-                    // Instantiate the fragment's arguments
-                    Bundle state = fm.getFragmentStore().getSavedState(fragment.mWho);
-                    Bundle arguments = state != null
-                            ? state.getBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG)
-                            : null;
-                    if (arguments != null) {
-                        arguments.setClassLoader(classLoader);
-                    }
-                    fragment.setArguments(arguments);
-
-                    fragments.put(fragment.mWho, fragment);
+                // When restoring a Fragment, always ensure we have a
+                // non-null Bundle so that developers have a signal for
+                // when the Fragment is being restored
+                if (fragment.mSavedFragmentState.getBundle(
+                        FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG) == null) {
+                    fragment.mSavedFragmentState.putBundle(
+                            FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
+                            new Bundle());
                 }
+
+                // Instantiate the fragment's arguments
+                Bundle arguments = stateBundle.getBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG);
+                if (arguments != null) {
+                    arguments.setClassLoader(classLoader);
+                }
+                fragment.setArguments(arguments);
+
+                fragments.put(fragment.mWho, fragment);
             }
         }
 

@@ -1982,16 +1982,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @SuppressWarnings("deprecation")
     void restoreChildFragmentState(@Nullable Bundle savedInstanceState) {
-        if (savedInstanceState != null && mSavedFragmentState != null) {
-            FragmentState fs =
-                    mSavedFragmentState.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
-            if (fs != null) {
-                Parcelable p = fs.mSavedFragmentState.getParcelable(
-                        FragmentManager.SAVED_STATE_TAG);
-                if (p != null) {
-                    mChildFragmentManager.restoreSaveStateInternal(p);
-                    mChildFragmentManager.dispatchCreate();
-                }
+        if (savedInstanceState != null) {
+            Parcelable p = savedInstanceState.getParcelable(FragmentManager.SAVED_STATE_TAG);
+            if (p != null) {
+                mChildFragmentManager.restoreSaveStateInternal(p);
+                mChildFragmentManager.dispatchCreate();
             }
         }
     }
@@ -3126,17 +3121,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
     }
 
-    @SuppressWarnings("deprecation")
     void performViewCreated() {
         // since calling super.onViewCreated() is not required, we do not need to set and check the
         // `mCalled` flag
-        Bundle basicState = null;
+        Bundle savedInstanceState = null;
         if (mSavedFragmentState != null) {
-            FragmentState fs = mSavedFragmentState.getParcelable(
-                    FragmentManager.FRAGMENT_STATE_TAG);
-            basicState = fs != null ? fs.mSavedFragmentState : null;
+            savedInstanceState = mSavedFragmentState.getBundle(
+                    FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG);
         }
-        onViewCreated(mView, basicState);
+        onViewCreated(mView, savedInstanceState);
         mChildFragmentManager.dispatchViewCreated();
     }
 
@@ -3160,13 +3153,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             Log.d(FragmentManager.TAG, "moveto RESTORE_VIEW_STATE: " + this);
         }
         if (mView != null) {
-            Bundle basicBundle = null;
+            Bundle savedInstanceState = null;
             if (mSavedFragmentState != null) {
-                FragmentState fs =
-                        mSavedFragmentState.getParcelable(FragmentManager.FRAGMENT_STATE_TAG);
-                basicBundle = fs != null ? fs.mSavedFragmentState : null;
+                savedInstanceState = mSavedFragmentState.getBundle(
+                        FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG);
             }
-            restoreViewState(basicBundle);
+            restoreViewState(savedInstanceState);
         }
         mSavedFragmentState = null;
     }
