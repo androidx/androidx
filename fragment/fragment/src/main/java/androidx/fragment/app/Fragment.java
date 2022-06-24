@@ -1962,7 +1962,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mCalled = true;
-        restoreChildFragmentState(savedInstanceState);
+        restoreChildFragmentState();
         if (!mChildFragmentManager.isStateAtLeast(Fragment.CREATED)) {
             mChildFragmentManager.dispatchCreate();
         }
@@ -1977,15 +1977,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <p><strong>Postcondition:</strong> if there were child fragments to restore,
      * the child FragmentManager will be instantiated and brought to the {@link #CREATED} state.
      * </p>
-     *
-     * @param savedInstanceState the savedInstanceState potentially containing fragment info
      */
-    @SuppressWarnings("deprecation")
-    void restoreChildFragmentState(@Nullable Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            Parcelable p = savedInstanceState.getParcelable(FragmentManager.SAVED_STATE_TAG);
-            if (p != null) {
-                mChildFragmentManager.restoreSaveStateInternal(p);
+    void restoreChildFragmentState() {
+        if (mSavedFragmentState != null) {
+            Bundle childFragmentManagerState = mSavedFragmentState.getBundle(
+                    FragmentManager.FRAGMENT_CHILD_FRAGMENT_MANAGER_TAG);
+            if (childFragmentManagerState != null) {
+                mChildFragmentManager.restoreSaveStateInternal(childFragmentManagerState);
                 mChildFragmentManager.dispatchCreate();
             }
         }
@@ -3301,10 +3299,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     void performSaveInstanceState(Bundle outState) {
         onSaveInstanceState(outState);
         mSavedStateRegistryController.performSave(outState);
-        Parcelable p = mChildFragmentManager.saveAllStateInternal();
-        if (p != null) {
-            outState.putParcelable(FragmentManager.SAVED_STATE_TAG, p);
-        }
     }
 
     @SuppressWarnings("ConstantConditions")

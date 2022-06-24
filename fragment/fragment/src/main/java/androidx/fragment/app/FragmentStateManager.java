@@ -498,8 +498,10 @@ class FragmentStateManager {
             mFragment.performCreate(savedInstanceState);
             mDispatcher.dispatchOnFragmentCreated(mFragment, savedInstanceState, false);
         } else {
-            mFragment.restoreChildFragmentState(savedInstanceState);
+            // The retained fragment has already gone through onCreate()
+            // so we move up its state first, then restore any childFragmentManager state
             mFragment.mState = Fragment.CREATED;
+            mFragment.restoreChildFragmentState();
         }
     }
 
@@ -683,6 +685,13 @@ class FragmentStateManager {
         if (mFragment.mState > Fragment.INITIALIZING) {
             stateBundle.putBundle(FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
                     saveBasicState());
+
+            Bundle childFragmentManagerState =
+                    mFragment.mChildFragmentManager.saveAllStateInternal();
+            if (!childFragmentManagerState.isEmpty()) {
+                stateBundle.putBundle(FragmentManager.FRAGMENT_CHILD_FRAGMENT_MANAGER_TAG,
+                        childFragmentManagerState);
+            }
 
             if (mFragment.mView != null) {
                 saveViewState();
