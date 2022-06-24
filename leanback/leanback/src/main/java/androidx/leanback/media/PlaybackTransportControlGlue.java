@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.widget.AbstractDetailsDescriptionPresenter;
 import androidx.leanback.widget.Action;
 import androidx.leanback.widget.ArrayObjectAdapter;
@@ -142,8 +143,8 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter>
         final AbstractDetailsDescriptionPresenter detailsPresenter =
                 new AbstractDetailsDescriptionPresenter() {
                     @Override
-                    protected void onBindDescription(ViewHolder
-                            viewHolder, Object obj) {
+                    protected void onBindDescription(@NonNull ViewHolder
+                            viewHolder, @NonNull Object obj) {
                         PlaybackBaseControlGlue glue = (PlaybackBaseControlGlue) obj;
                         viewHolder.getTitle().setText(glue.getTitle());
                         viewHolder.getSubtitle().setText(glue.getSubtitle());

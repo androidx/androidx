@@ -1543,17 +1543,17 @@ package androidx.leanback.widget {
 
   public abstract class AbstractDetailsDescriptionPresenter extends androidx.leanback.widget.Presenter {
     ctor public AbstractDetailsDescriptionPresenter();
-    method protected abstract void onBindDescription(androidx.leanback.widget.AbstractDetailsDescriptionPresenter.ViewHolder!, Object!);
-    method public final void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!, Object!);
-    method public final androidx.leanback.widget.AbstractDetailsDescriptionPresenter.ViewHolder! onCreateViewHolder(android.view.ViewGroup!);
-    method public void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!);
+    method protected abstract void onBindDescription(androidx.leanback.widget.AbstractDetailsDescriptionPresenter.ViewHolder, Object);
+    method public final void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object);
+    method public final androidx.leanback.widget.AbstractDetailsDescriptionPresenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
+    method public void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder);
   }
 
   public static class AbstractDetailsDescriptionPresenter.ViewHolder extends androidx.leanback.widget.Presenter.ViewHolder {
-    ctor public AbstractDetailsDescriptionPresenter.ViewHolder(android.view.View!);
-    method public android.widget.TextView! getBody();
-    method public android.widget.TextView! getSubtitle();
-    method public android.widget.TextView! getTitle();
+    ctor public AbstractDetailsDescriptionPresenter.ViewHolder(android.view.View);
+    method public android.widget.TextView getBody();
+    method public android.widget.TextView getSubtitle();
+    method public android.widget.TextView getTitle();
   }
 
   public abstract class AbstractMediaItemPresenter extends androidx.leanback.widget.RowPresenter {
@@ -2818,12 +2818,12 @@ package androidx.leanback.widget {
     ctor public Presenter();
     method protected static void cancelAnimationsRecursive(android.view.View!);
     method public final Object! getFacet(Class<?>!);
-    method public abstract void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!, Object!);
-    method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!, Object!, java.util.List<java.lang.Object!>!);
-    method public abstract androidx.leanback.widget.Presenter.ViewHolder! onCreateViewHolder(android.view.ViewGroup!);
-    method public abstract void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!);
-    method public void onViewAttachedToWindow(androidx.leanback.widget.Presenter.ViewHolder!);
-    method public void onViewDetachedFromWindow(androidx.leanback.widget.Presenter.ViewHolder!);
+    method public abstract void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object);
+    method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object, java.util.List<java.lang.Object!>);
+    method public abstract androidx.leanback.widget.Presenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
+    method public abstract void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder);
+    method public void onViewAttachedToWindow(androidx.leanback.widget.Presenter.ViewHolder);
+    method public void onViewDetachedFromWindow(androidx.leanback.widget.Presenter.ViewHolder);
     method public final void setFacet(Class<?>!, Object!);
     method public void setOnClickListener(androidx.leanback.widget.Presenter.ViewHolder!, android.view.View.OnClickListener!);
   }
