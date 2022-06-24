@@ -47,6 +47,9 @@ import java.util.Set;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SessionConfig {
+    /** The value represents an unset or unsupported stream use case. */
+    private static final long STREAM_USE_CASE_NONE = -1;
+
     /** The set of {@link OutputConfig} that data from the camera will be put into. */
     private final List<OutputConfig> mOutputConfigs;
     /** The state callback for a {@link CameraDevice}. */
@@ -58,6 +61,8 @@ public final class SessionConfig {
     private final List<ErrorListener> mErrorListeners;
     /** The configuration for building the {@link CaptureRequest} used for repeating requests. */
     private final CaptureConfig mRepeatingCaptureConfig;
+    /** The stream use case for the capture session. */
+    private final long mStreamUseCase;
 
     /**
      * Immutable class to store an input configuration that is used to create a reprocessable
@@ -173,6 +178,7 @@ public final class SessionConfig {
      * @param repeatingCaptureConfig The configuration for building the {@link CaptureRequest}.
      * @param inputConfiguration     The input configuration to create a reprocessable capture
      *                               session.
+     * @param streamUseCase          The value of stream use case for the capture session.
      */
     SessionConfig(
             List<OutputConfig> outputConfigs,
@@ -181,7 +187,8 @@ public final class SessionConfig {
             List<CameraCaptureCallback> singleCameraCaptureCallbacks,
             List<ErrorListener> errorListeners,
             CaptureConfig repeatingCaptureConfig,
-            @Nullable InputConfiguration inputConfiguration) {
+            @Nullable InputConfiguration inputConfiguration,
+            long streamUseCase) {
         mOutputConfigs = outputConfigs;
         mDeviceStateCallbacks = Collections.unmodifiableList(deviceStateCallbacks);
         mSessionStateCallbacks = Collections.unmodifiableList(sessionStateCallbacks);
@@ -190,6 +197,7 @@ public final class SessionConfig {
         mErrorListeners = Collections.unmodifiableList(errorListeners);
         mRepeatingCaptureConfig = repeatingCaptureConfig;
         mInputConfiguration = inputConfiguration;
+        mStreamUseCase = streamUseCase;
     }
 
     /** Returns an instance of a session configuration with minimal configurations. */
@@ -202,7 +210,8 @@ public final class SessionConfig {
                 new ArrayList<CameraCaptureCallback>(0),
                 new ArrayList<>(0),
                 new CaptureConfig.Builder().build(),
-                /* inputConfiguration */ null);
+                /* inputConfiguration */ null,
+                /* streamUseCase */ STREAM_USE_CASE_NONE);
     }
 
     @Nullable
@@ -239,6 +248,10 @@ public final class SessionConfig {
 
     public int getTemplateType() {
         return mRepeatingCaptureConfig.getTemplateType();
+    }
+
+    public long getStreamUseCase() {
+        return mStreamUseCase;
     }
 
     /** Obtains all registered {@link CameraDevice.StateCallback} callbacks. */
@@ -614,7 +627,8 @@ public final class SessionConfig {
                     mSingleCameraCaptureCallbacks,
                     mErrorListeners,
                     mCaptureConfigBuilder.build(),
-                    mInputConfiguration);
+                    mInputConfiguration,
+                    /* streamUseCase */ STREAM_USE_CASE_NONE);
         }
     }
 
@@ -637,6 +651,11 @@ public final class SessionConfig {
         private final SurfaceSorter mSurfaceSorter = new SurfaceSorter();
         private boolean mValid = true;
         private boolean mTemplateSet = false;
+        private long mStreamUseCase = STREAM_USE_CASE_NONE;
+
+        public void setStreamUseCase(long streamUseCase) {
+            mStreamUseCase = streamUseCase;
+        }
 
         /**
          * Add the SessionConfig to the set of SessionConfig that have been aggregated by the
@@ -738,7 +757,8 @@ public final class SessionConfig {
                     mSingleCameraCaptureCallbacks,
                     mErrorListeners,
                     mCaptureConfigBuilder.build(),
-                    mInputConfiguration);
+                    mInputConfiguration,
+                    mStreamUseCase);
         }
 
         private int selectTemplateType(int type1, int type2) {

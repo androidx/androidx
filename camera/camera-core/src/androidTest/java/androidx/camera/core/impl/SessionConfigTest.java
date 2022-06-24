@@ -26,6 +26,7 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.view.Surface;
 
+import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.VideoCapture;
@@ -281,6 +282,15 @@ public class SessionConfigTest {
 
         assertThat(validatingBuilder.build().getTemplateType()).isEqualTo(
                 CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG);
+    }
+
+    @Test
+    public void setStreamUseCase() {
+        SessionConfig.ValidatingBuilder validatingBuilder = new SessionConfig.ValidatingBuilder();
+        assertThat(validatingBuilder.build().getStreamUseCase()
+                == OutputConfigurationCompat.STREAM_USE_CASE_NONE);
+        validatingBuilder.setStreamUseCase(1);
+        assertThat(validatingBuilder.build().getStreamUseCase() == 1);
     }
 
     @Test
