@@ -32,12 +32,15 @@ import androidx.car.app.versioning.CarAppApiLevels;
 import com.google.common.collect.ImmutableSet;
 
 import java.lang.annotation.Retention;
+import java.util.Objects;
 import java.util.Set;
 
 /** Information about a {@link Session}, such as the physical display and the session ID. */
 @RequiresCarApi(5)
 @CarProtocol
 public class SessionInfo {
+    private static final char DIVIDER = '/';
+
     /** The primary infotainment display usually in the center column of the vehicle. */
     public static final int DISPLAY_TYPE_MAIN = 0;
 
@@ -122,5 +125,32 @@ public class SessionInfo {
         }
 
         return null;
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return String.valueOf(mDisplayType) + DIVIDER + mSessionId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mSessionId, mDisplayType);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (!(obj instanceof SessionInfo)) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        SessionInfo object = (SessionInfo) obj;
+        return this.getSessionId().equals(object.getSessionId())
+                && this.getDisplayType() == object.getDisplayType();
     }
 }
