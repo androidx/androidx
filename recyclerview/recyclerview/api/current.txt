@@ -110,11 +110,11 @@ package androidx.recyclerview.widget {
 
   public class DefaultItemAnimator extends androidx.recyclerview.widget.SimpleItemAnimator {
     ctor public DefaultItemAnimator();
-    method public boolean animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
-    method public boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder!, androidx.recyclerview.widget.RecyclerView.ViewHolder!, int, int, int, int);
-    method public boolean animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder!, int, int, int, int);
-    method public boolean animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
-    method public void endAnimation(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
+    method public boolean animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder?, int, int, int, int);
+    method public boolean animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int);
+    method public boolean animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder);
+    method public void endAnimation(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public void endAnimations();
     method public boolean isRunning();
     method public void runPendingAnimations();
@@ -957,21 +957,21 @@ package androidx.recyclerview.widget {
 
   public abstract class SimpleItemAnimator extends androidx.recyclerview.widget.RecyclerView.ItemAnimator {
     ctor public SimpleItemAnimator();
-    method public abstract boolean animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
+    method public abstract boolean animateAdd(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public boolean animateAppearance(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo?, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
     method public boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
-    method public abstract boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder!, androidx.recyclerview.widget.RecyclerView.ViewHolder!, int, int, int, int);
+    method public abstract boolean animateChange(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ViewHolder?, int, int, int, int);
     method public boolean animateDisappearance(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo?);
-    method public abstract boolean animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder!, int, int, int, int);
+    method public abstract boolean animateMove(androidx.recyclerview.widget.RecyclerView.ViewHolder, int, int, int, int);
     method public boolean animatePersistence(androidx.recyclerview.widget.RecyclerView.ViewHolder, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo, androidx.recyclerview.widget.RecyclerView.ItemAnimator.ItemHolderInfo);
-    method public abstract boolean animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
+    method public abstract boolean animateRemove(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public final void dispatchAddFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
     method public final void dispatchAddStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
     method public final void dispatchChangeFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder!, boolean);
     method public final void dispatchChangeStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder!, boolean);
     method public final void dispatchMoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
     method public final void dispatchMoveStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
-    method public final void dispatchRemoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
+    method public final void dispatchRemoveFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder);
     method public final void dispatchRemoveStarting(androidx.recyclerview.widget.RecyclerView.ViewHolder!);
     method public boolean getSupportsChangeAnimations();
     method public void onAddFinished(androidx.recyclerview.widget.RecyclerView.ViewHolder!);

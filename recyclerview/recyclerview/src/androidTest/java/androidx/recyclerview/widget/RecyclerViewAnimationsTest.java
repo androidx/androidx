@@ -853,20 +853,20 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         final View[] testView = new View[1];
         mRecyclerView.setItemAnimator(new DefaultItemAnimator() {
             @Override
-            public boolean animateAdd(RecyclerView.ViewHolder holder) {
+            public boolean animateAdd(@NonNull RecyclerView.ViewHolder holder) {
                 addVH.add(holder);
                 return true;
             }
 
             @Override
-            public boolean animateRemove(RecyclerView.ViewHolder holder) {
+            public boolean animateRemove(@NonNull RecyclerView.ViewHolder holder) {
                 removeVH.add(holder);
                 return true;
             }
 
             @Override
-            public boolean animateMove(RecyclerView.ViewHolder holder, int fromX, int fromY,
-                    int toX, int toY) {
+            public boolean animateMove(@NonNull RecyclerView.ViewHolder holder, int fromX,
+                    int fromY, int toX, int toY) {
                 moveVH.add(holder);
                 return true;
             }
@@ -1821,7 +1821,7 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
                 = new ArrayList<RecyclerView.ViewHolder>();
         DefaultItemAnimator animator = new DefaultItemAnimator() {
             @Override
-            public boolean animateRemove(RecyclerView.ViewHolder holder) {
+            public boolean animateRemove(@NonNull RecyclerView.ViewHolder holder) {
                 animateRemoveList.add(holder);
                 return super.animateRemove(holder);
             }
