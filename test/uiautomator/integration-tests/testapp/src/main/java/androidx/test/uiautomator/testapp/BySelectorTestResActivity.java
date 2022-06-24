@@ -18,14 +18,12 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 public class BySelectorTestResActivity extends Activity {
-
-    private static final String TAG = BySelectorTestResActivity.class.getSimpleName();
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.byselector_testres_activity);

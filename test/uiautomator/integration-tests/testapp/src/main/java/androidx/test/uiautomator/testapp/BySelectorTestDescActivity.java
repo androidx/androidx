@@ -18,15 +18,13 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Button;
 
+import androidx.annotation.Nullable;
+
 public class BySelectorTestDescActivity extends Activity {
-
-    private static final String TAG = BySelectorTestDescActivity.class.getSimpleName();
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.byselector_testdesc_activity);

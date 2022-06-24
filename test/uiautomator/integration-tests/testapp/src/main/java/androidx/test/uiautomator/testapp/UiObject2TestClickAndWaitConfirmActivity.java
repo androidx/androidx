@@ -18,14 +18,13 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
+
+import androidx.annotation.Nullable;
 
 public class UiObject2TestClickAndWaitConfirmActivity extends Activity {
 
-    private static final String TAG = UiObject2TestClickActivity.class.getSimpleName();
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.uiobject2_testclickandwaitconfirm_activity);
