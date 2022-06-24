@@ -17,6 +17,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.app.HeadersFragment;
 import androidx.leanback.graphics.ColorOverlayDimmer;
 
@@ -296,6 +297,7 @@ public abstract class RowPresenter extends Presenter {
          * Return {@link ViewHolder} of currently selected item inside a row ViewHolder.
          * @return The selected item's ViewHolder.
          */
+        @Nullable
         public Presenter.ViewHolder getSelectedItemViewHolder() {
             return null;
         }
@@ -304,6 +306,7 @@ public abstract class RowPresenter extends Presenter {
          * Return currently selected item inside a row ViewHolder.
          * @return The selected item.
          */
+        @Nullable
         public Object getSelectedItem() {
             return null;
         }

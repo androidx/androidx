@@ -2380,19 +2380,19 @@ package androidx.leanback.widget {
   public static class ListRowPresenter.SelectItemViewHolderTask extends androidx.leanback.widget.Presenter.ViewHolderTask {
     ctor public ListRowPresenter.SelectItemViewHolderTask(int);
     method public int getItemPosition();
-    method public androidx.leanback.widget.Presenter.ViewHolderTask! getItemTask();
+    method public androidx.leanback.widget.Presenter.ViewHolderTask? getItemTask();
     method public boolean isSmoothScroll();
     method public void setItemPosition(int);
-    method public void setItemTask(androidx.leanback.widget.Presenter.ViewHolderTask!);
+    method public void setItemTask(androidx.leanback.widget.Presenter.ViewHolderTask?);
     method public void setSmoothScroll(boolean);
   }
 
   public static class ListRowPresenter.ViewHolder extends androidx.leanback.widget.RowPresenter.ViewHolder {
-    ctor public ListRowPresenter.ViewHolder(android.view.View!, androidx.leanback.widget.HorizontalGridView!, androidx.leanback.widget.ListRowPresenter!);
-    method public final androidx.leanback.widget.ItemBridgeAdapter! getBridgeAdapter();
-    method public final androidx.leanback.widget.HorizontalGridView! getGridView();
-    method public androidx.leanback.widget.Presenter.ViewHolder! getItemViewHolder(int);
-    method public final androidx.leanback.widget.ListRowPresenter! getListRowPresenter();
+    ctor public ListRowPresenter.ViewHolder(android.view.View, androidx.leanback.widget.HorizontalGridView, androidx.leanback.widget.ListRowPresenter);
+    method public final androidx.leanback.widget.ItemBridgeAdapter getBridgeAdapter();
+    method public final androidx.leanback.widget.HorizontalGridView getGridView();
+    method public androidx.leanback.widget.Presenter.ViewHolder? getItemViewHolder(int);
+    method public final androidx.leanback.widget.ListRowPresenter getListRowPresenter();
     method public int getSelectedPosition();
   }
 
@@ -2962,8 +2962,8 @@ package androidx.leanback.widget {
     method public final androidx.leanback.widget.Row! getRow();
     method public final Object! getRowObject();
     method public final float getSelectLevel();
-    method public Object! getSelectedItem();
-    method public androidx.leanback.widget.Presenter.ViewHolder! getSelectedItemViewHolder();
+    method public Object? getSelectedItem();
+    method public androidx.leanback.widget.Presenter.ViewHolder? getSelectedItemViewHolder();
     method public final boolean isExpanded();
     method public final boolean isSelected();
     method public final void setActivated(boolean);
