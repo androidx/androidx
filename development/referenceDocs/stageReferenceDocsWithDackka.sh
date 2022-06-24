@@ -136,9 +136,25 @@ if [ "$FLAGS_sourceDir" == "" ]; then
     androidxDackkaDocsZip="dackka-public-docs-${FLAGS_buildId}.zip"
   fi
 
-  /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxJavaDocsZip
-  /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxKotlinDocsZip
-  /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxDackkaDocsZip
+  if (( "${FLAGS_buildId::1}" == "P" )); then
+    /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx_incremental incremental/$androidxJavaDocsZip
+    /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx_incremental incremental/$androidxKotlinDocsZip
+    /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx_incremental incremental/$androidxDackkaDocsZip
+  else
+    /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxJavaDocsZip
+    /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxKotlinDocsZip
+    /google/data/ro/projects/android/fetch_artifact --bid $FLAGS_buildId --target androidx $androidxDackkaDocsZip
+  fi
+
+  # Let's double check we succeeded before continuing
+  if [[ -f "$androidxJavaDocsZip" ]] && [[ -f "$androidxKotlinDocsZip" ]] && [[ -f "$androidxDackkaDocsZip" ]]; then
+    echo "Download completed"
+  else
+    printf "\n"
+    printf "=================================================================== \n"
+    echo "Failed to download doc zip files. Please double check your build ID and try again."
+    exit 1
+  fi
 
   printf "\n"
   printf "=================================================================== \n"
