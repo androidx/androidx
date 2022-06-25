@@ -676,6 +676,13 @@ class FragmentStateManager {
     @NonNull
     Bundle saveState() {
         Bundle stateBundle = new Bundle();
+        if (mFragment.mState == Fragment.INITIALIZING) {
+            // We never even got to ATTACHED, but we could still have some state
+            // set by setInitialSavedState so we'll add that to our initial Bundle
+            if (mFragment.mSavedFragmentState != null) {
+                stateBundle.putAll(mFragment.mSavedFragmentState);
+            }
+        }
 
         // Save the library state associated with the Fragment
         FragmentState fs = new FragmentState(mFragment);
@@ -683,8 +690,20 @@ class FragmentStateManager {
 
         // Save the user state associated with the Fragment
         if (mFragment.mState > Fragment.INITIALIZING) {
-            stateBundle.putBundle(FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
-                    saveBasicState());
+            Bundle savedInstanceState = new Bundle();
+            mFragment.performSaveInstanceState(savedInstanceState);
+            if (!savedInstanceState.isEmpty()) {
+                stateBundle.putBundle(FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
+                        savedInstanceState);
+            }
+            mDispatcher.dispatchOnFragmentSaveInstanceState(mFragment, savedInstanceState, false);
+
+            Bundle savedStateRegistryState = new Bundle();
+            mFragment.mSavedStateRegistryController.performSave(savedStateRegistryState);
+            if (!savedStateRegistryState.isEmpty()) {
+                stateBundle.putBundle(FragmentManager.FRAGMENT_REGISTRY_STATE_TAG,
+                        savedStateRegistryState);
+            }
 
             Bundle childFragmentManagerState =
                     mFragment.mChildFragmentManager.saveAllStateInternal();
@@ -704,18 +723,11 @@ class FragmentStateManager {
                 stateBundle.putBundle(FragmentManager.FRAGMENT_VIEW_REGISTRY_STATE_TAG,
                         mFragment.mSavedViewRegistryState);
             }
-        } else {
-            if (mFragment.mSavedFragmentState != null) {
-                Bundle previouslySavedState = mFragment.mSavedFragmentState.getBundle(
-                        FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG);
-                if (previouslySavedState != null) {
-                    stateBundle.putBundle(FragmentManager.FRAGMENT_SAVED_INSTANCE_STATE_TAG,
-                            previouslySavedState);
-                }
-            }
         }
 
-        stateBundle.putBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG, mFragment.mArguments);
+        if (mFragment.mArguments != null) {
+            stateBundle.putBundle(FragmentManager.FRAGMENT_ARGUMENTS_TAG, mFragment.mArguments);
+        }
         return stateBundle;
     }
 
@@ -725,19 +737,6 @@ class FragmentStateManager {
             return new Fragment.SavedState(saveState());
         }
         return null;
-    }
-
-    @Nullable
-    private Bundle saveBasicState() {
-        Bundle result = new Bundle();
-
-        mFragment.performSaveInstanceState(result);
-        mDispatcher.dispatchOnFragmentSaveInstanceState(mFragment, result, false);
-        if (result.isEmpty()) {
-            result = null;
-        }
-
-        return result;
     }
 
     void saveViewState() {
