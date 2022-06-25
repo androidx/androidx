@@ -16,6 +16,9 @@ package androidx.leanback.widget;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 
 /**
@@ -48,7 +51,7 @@ public class Action {
      * @param id The id of the Action.
      * @param label The label to display for the Action.
      */
-    public Action(long id, CharSequence label) {
+    public Action(long id, @Nullable CharSequence label) {
         this(id, label, null);
     }
 
@@ -59,7 +62,7 @@ public class Action {
      * @param label1 The label to display on the first line of the Action.
      * @param label2 The label to display on the second line of the Action.
      */
-    public Action(long id, CharSequence label1, CharSequence label2) {
+    public Action(long id, @Nullable CharSequence label1, @Nullable CharSequence label2) {
         this(id, label1, label2, null);
     }
 
@@ -71,7 +74,12 @@ public class Action {
      * @param label2 The label to display on the second line of the Action.
      * @param icon The icon to display for the Action.
      */
-    public Action(long id, CharSequence label1, CharSequence label2, Drawable icon) {
+    public Action(
+            long id,
+            @Nullable CharSequence label1,
+            @Nullable CharSequence label2,
+            @Nullable Drawable icon
+    ) {
         setId(id);
         setLabel1(label1);
         setLabel2(label2);
@@ -95,13 +103,14 @@ public class Action {
     /**
      * Sets the first line label for this Action.
      */
-    public final void setLabel1(CharSequence label) {
+    public final void setLabel1(@Nullable CharSequence label) {
         mLabel1 = label;
     }
 
     /**
      * Returns the first line label for this Action.
      */
+    @Nullable
     public final CharSequence getLabel1() {
         return mLabel1;
     }
@@ -109,13 +118,14 @@ public class Action {
     /**
      * Sets the second line label for this Action.
      */
-    public final void setLabel2(CharSequence label) {
+    public final void setLabel2(@Nullable CharSequence label) {
         mLabel2 = label;
     }
 
     /**
      * Returns the second line label for this Action.
      */
+    @Nullable
     public final CharSequence getLabel2() {
         return mLabel2;
     }
@@ -123,13 +133,14 @@ public class Action {
     /**
      * Sets the icon drawable for this Action.
      */
-    public final void setIcon(Drawable icon) {
+    public final void setIcon(@Nullable Drawable icon) {
         mIcon = icon;
     }
 
     /**
      * Returns the icon drawable for this Action.
      */
+    @Nullable
     public final Drawable getIcon() {
         return mIcon;
     }
@@ -156,6 +167,7 @@ public class Action {
     }
 
     @Override
+    @NonNull
     public String toString(){
         StringBuilder sb = new StringBuilder();
         if (!TextUtils.isEmpty(mLabel1)) {
