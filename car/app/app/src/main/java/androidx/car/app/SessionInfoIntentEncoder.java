@@ -84,6 +84,16 @@ public class SessionInfoIntentEncoder {
         }
     }
 
+    /** Returns whether or not the given {@code intent} contains an encoded {@link SessionInfo}. */
+    public static boolean containsSessionInfo(@NonNull Intent intent) {
+        Bundle extras = intent.getExtras();
+        if (extras == null) {
+            return false;
+        }
+
+        return extras.containsKey(EXTRA_SESSION_INFO);
+    }
+
     /** Android Q method calls wrapped in a {@link RequiresApi} class to appease the compiler. */
     @RequiresApi(Build.VERSION_CODES.Q)
     private static class Api29 {

@@ -38,7 +38,9 @@ public class SessionInfoIntentEncoderTest {
     @Test
     public void encode_insertsExtra() {
         Intent intent = new Intent();
+
         SessionInfoIntentEncoder.encode(DEFAULT_SESSION_INFO, intent);
+
         assertThat(intent.hasExtra(EXTRA_SESSION_INFO));
     }
 
@@ -46,7 +48,9 @@ public class SessionInfoIntentEncoderTest {
     public void decode() {
         Intent intent = new Intent();
         SessionInfoIntentEncoder.encode(DEFAULT_SESSION_INFO, intent);
+
         SessionInfo info = SessionInfoIntentEncoder.decode(intent);
+
         assertThat(info).isEqualTo(DEFAULT_SESSION_INFO);
     }
 
@@ -58,7 +62,9 @@ public class SessionInfoIntentEncoderTest {
                 new SessionInfo(DISPLAY_TYPE_CLUSTER, "a-unique-session-id");
         Intent intent = new Intent();
         SessionInfoIntentEncoder.encode(testSessionInfo, intent);
+
         SessionInfo resultSessionInfo = SessionInfoIntentEncoder.decode(intent);
+
         assertThat(resultSessionInfo).isEqualTo(testSessionInfo);
         assertThat(intent.getIdentifier()).isEqualTo(testSessionInfo.toString());
     }
@@ -70,8 +76,33 @@ public class SessionInfoIntentEncoderTest {
                 new SessionInfo(DISPLAY_TYPE_CLUSTER, "a-unique-session-id");
         Intent intent = new Intent();
         SessionInfoIntentEncoder.encode(testSessionInfo, intent);
+
         SessionInfo resultSessionInfo = SessionInfoIntentEncoder.decode(intent);
+
         assertThat(resultSessionInfo).isEqualTo(testSessionInfo);
         assertThat(intent.getDataString()).isEqualTo(testSessionInfo.toString());
+    }
+
+    @Test
+    public void containsSessionInfo_returnsFalse_whenNoExtras() {
+        Intent intent = new Intent();
+
+        assertThat(SessionInfoIntentEncoder.containsSessionInfo(intent)).isFalse();
+    }
+
+    @Test
+    public void containsSessionInfo_returnsFalse_whenSessionInfoExtraNotSet() {
+        Intent intent = new Intent();
+        intent.putExtra("test extra", 1);
+
+        assertThat(SessionInfoIntentEncoder.containsSessionInfo(intent)).isFalse();
+    }
+
+    @Test
+    public void containsSessionInfo() {
+        Intent intent = new Intent();
+        intent.putExtra(EXTRA_SESSION_INFO, "test");
+
+        assertThat(SessionInfoIntentEncoder.containsSessionInfo(intent)).isTrue();
     }
 }

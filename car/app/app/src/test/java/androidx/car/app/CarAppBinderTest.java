@@ -16,6 +16,7 @@
 
 package androidx.car.app;
 
+import static androidx.car.app.SessionInfo.DEFAULT_SESSION_INFO;
 import static androidx.lifecycle.Lifecycle.Event.ON_CREATE;
 import static androidx.lifecycle.Lifecycle.Event.ON_DESTROY;
 
@@ -101,8 +102,8 @@ public class CarAppBinderTest {
         AppInfo appInfo = new AppInfo(CarAppApiLevels.getOldest(), CarAppApiLevels.getLatest(),
                 "blah");
         mCarAppService.setAppInfo(appInfo);
-        mCarAppBinder = new CarAppBinder(mCarAppService, SessionInfo.DEFAULT_SESSION_INFO);
-        mCarAppService.setCarAppbinder(mCarAppBinder);
+        mCarAppBinder = new CarAppBinder(mCarAppService, DEFAULT_SESSION_INFO);
+        mCarAppService.setBinder(DEFAULT_SESSION_INFO, mCarAppBinder);
 
         // Sets default handshake and host info. OnAppCreate depends on these being non-null.
         String hostPackageName = "com.google.projection.gearhead";

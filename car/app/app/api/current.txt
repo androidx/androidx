@@ -29,8 +29,9 @@ package androidx.car.app {
     ctor public CarAppService();
     method public abstract androidx.car.app.validation.HostValidator createHostValidator();
     method @CallSuper public final void dump(java.io.FileDescriptor, java.io.PrintWriter, String![]?);
-    method public final androidx.car.app.Session? getCurrentSession();
+    method @Deprecated public final androidx.car.app.Session? getCurrentSession();
     method public final androidx.car.app.HostInfo? getHostInfo();
+    method public final androidx.car.app.Session? getSession(androidx.car.app.SessionInfo);
     method @CallSuper public final android.os.IBinder onBind(android.content.Intent);
     method @Deprecated public androidx.car.app.Session onCreateSession();
     method public androidx.car.app.Session onCreateSession(androidx.car.app.SessionInfo);
@@ -167,6 +168,7 @@ package androidx.car.app {
   }
 
   public class SessionInfoIntentEncoder {
+    method public static boolean containsSessionInfo(android.content.Intent);
     method public static androidx.car.app.SessionInfo decode(android.content.Intent);
     method public static void encode(androidx.car.app.SessionInfo, android.content.Intent);
   }
