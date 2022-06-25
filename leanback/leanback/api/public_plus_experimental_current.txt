@@ -2479,19 +2479,19 @@ package androidx.leanback.widget {
   }
 
   public class PlaybackControlsRowPresenter extends androidx.leanback.widget.PlaybackRowPresenter {
-    ctor public PlaybackControlsRowPresenter(androidx.leanback.widget.Presenter!);
+    ctor public PlaybackControlsRowPresenter(androidx.leanback.widget.Presenter?);
     ctor public PlaybackControlsRowPresenter();
     method public boolean areSecondaryActionsHidden();
-    method protected androidx.leanback.widget.RowPresenter.ViewHolder! createRowViewHolder(android.view.ViewGroup!);
+    method protected androidx.leanback.widget.RowPresenter.ViewHolder createRowViewHolder(android.view.ViewGroup);
     method @ColorInt public int getBackgroundColor();
-    method public androidx.leanback.widget.OnActionClickedListener! getOnActionClickedListener();
+    method public androidx.leanback.widget.OnActionClickedListener? getOnActionClickedListener();
     method @ColorInt public int getProgressColor();
     method public void setBackgroundColor(@ColorInt int);
-    method public void setOnActionClickedListener(androidx.leanback.widget.OnActionClickedListener!);
+    method public void setOnActionClickedListener(androidx.leanback.widget.OnActionClickedListener?);
     method public void setProgressColor(@ColorInt int);
     method public void setSecondaryActionsHidden(boolean);
-    method public void showBottomSpace(androidx.leanback.widget.PlaybackControlsRowPresenter.ViewHolder!, boolean);
-    method public void showPrimaryActions(androidx.leanback.widget.PlaybackControlsRowPresenter.ViewHolder!);
+    method public void showBottomSpace(androidx.leanback.widget.PlaybackControlsRowPresenter.ViewHolder, boolean);
+    method public void showPrimaryActions(androidx.leanback.widget.PlaybackControlsRowPresenter.ViewHolder);
   }
 
   public class PlaybackControlsRowPresenter.ViewHolder extends androidx.leanback.widget.PlaybackRowPresenter.ViewHolder {
@@ -2500,7 +2500,7 @@ package androidx.leanback.widget {
 
   public abstract class PlaybackRowPresenter extends androidx.leanback.widget.RowPresenter {
     ctor public PlaybackRowPresenter();
-    method public void onReappear(androidx.leanback.widget.RowPresenter.ViewHolder!);
+    method public void onReappear(androidx.leanback.widget.RowPresenter.ViewHolder);
   }
 
   public static class PlaybackRowPresenter.ViewHolder extends androidx.leanback.widget.RowPresenter.ViewHolder {
@@ -2657,7 +2657,7 @@ package androidx.leanback.widget {
 
   public abstract class RowPresenter extends androidx.leanback.widget.Presenter {
     ctor public RowPresenter();
-    method protected abstract androidx.leanback.widget.RowPresenter.ViewHolder! createRowViewHolder(android.view.ViewGroup!);
+    method protected abstract androidx.leanback.widget.RowPresenter.ViewHolder createRowViewHolder(android.view.ViewGroup);
     method protected void dispatchItemSelectedListener(androidx.leanback.widget.RowPresenter.ViewHolder!, boolean);
     method public void freeze(androidx.leanback.widget.RowPresenter.ViewHolder!, boolean);
     method public final androidx.leanback.widget.RowHeaderPresenter! getHeaderPresenter();
@@ -2668,19 +2668,19 @@ package androidx.leanback.widget {
     method protected void initializeRowViewHolder(androidx.leanback.widget.RowPresenter.ViewHolder!);
     method protected boolean isClippingChildren();
     method public boolean isUsingDefaultSelectEffect();
-    method protected void onBindRowViewHolder(androidx.leanback.widget.RowPresenter.ViewHolder!, Object!);
+    method protected void onBindRowViewHolder(androidx.leanback.widget.RowPresenter.ViewHolder, Object);
     method public final void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!, Object!);
     method public final androidx.leanback.widget.Presenter.ViewHolder! onCreateViewHolder(android.view.ViewGroup!);
-    method protected void onRowViewAttachedToWindow(androidx.leanback.widget.RowPresenter.ViewHolder!);
-    method protected void onRowViewDetachedFromWindow(androidx.leanback.widget.RowPresenter.ViewHolder!);
+    method protected void onRowViewAttachedToWindow(androidx.leanback.widget.RowPresenter.ViewHolder);
+    method protected void onRowViewDetachedFromWindow(androidx.leanback.widget.RowPresenter.ViewHolder);
     method protected void onRowViewExpanded(androidx.leanback.widget.RowPresenter.ViewHolder!, boolean);
-    method protected void onRowViewSelected(androidx.leanback.widget.RowPresenter.ViewHolder!, boolean);
+    method protected void onRowViewSelected(androidx.leanback.widget.RowPresenter.ViewHolder, boolean);
     method protected void onSelectLevelChanged(androidx.leanback.widget.RowPresenter.ViewHolder!);
-    method protected void onUnbindRowViewHolder(androidx.leanback.widget.RowPresenter.ViewHolder!);
+    method protected void onUnbindRowViewHolder(androidx.leanback.widget.RowPresenter.ViewHolder);
     method public final void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!);
     method public final void onViewAttachedToWindow(androidx.leanback.widget.Presenter.ViewHolder!);
     method public final void onViewDetachedFromWindow(androidx.leanback.widget.Presenter.ViewHolder!);
-    method public void setEntranceTransitionState(androidx.leanback.widget.RowPresenter.ViewHolder!, boolean);
+    method public void setEntranceTransitionState(androidx.leanback.widget.RowPresenter.ViewHolder, boolean);
     method public final void setHeaderPresenter(androidx.leanback.widget.RowHeaderPresenter!);
     method public final void setRowViewExpanded(androidx.leanback.widget.Presenter.ViewHolder!, boolean);
     method public final void setRowViewSelected(androidx.leanback.widget.Presenter.ViewHolder!, boolean);
