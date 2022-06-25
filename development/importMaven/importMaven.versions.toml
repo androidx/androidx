@@ -1,0 +1,20 @@
+# extra dependencies that are used in importMaven
+
+[versions]
+okio = "3.1.0"
+ktor = "2.0.2"
+log4j = "2.17.2"
+[libraries]
+
+okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+okioFakeFilesystem = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio"}
+ktorServerCoreJvm = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor" }
+ktorServerNettyJvm = { module = "io.ktor:ktor-server-netty-jvm", version.ref = "ktor" }
+ktorClientOkHttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+clikt = { module = "com.github.ajalt.clikt:clikt", version = "3.4.2"}
+log4jApi = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j"}
+log4jCore = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j"}
+log4jKotlin = { module = "org.apache.logging.log4j:log4j-api-kotlin", version = "1.1.0" }
+[bundles]
+ktorServer = ["ktorServerCoreJvm", "ktorServerNettyJvm" ]
+log4j = ["log4jApi", "log4jCore", "log4jKotlin"]

@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-pluginManagement {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-        google()
-    }
-}
+package androidx.build.importMaven
 
-dependencyResolutionManagement {
-    repositories {
-        mavenCentral()
-        google()
-        gradlePluginPortal()
-    }
-    versionCatalogs {
-        create("importMavenLibs") {
-            from(files("importMaven.versions.toml"))
-        }
-    }
+/**
+ * Interface that gets notified each time a file is downloaded from an artifactory.
+ *
+ * @see LocalMavenRepoDownloader
+ */
+fun interface DownloadObserver {
+    /**
+     * Called when a file is downloaded from an artifactory.
+     *
+     * @param path The path of the file relative to the artifactory URL
+     * @param bytes The contents of the file
+     */
+    fun onDownload(path: String, bytes: ByteArray)
 }
