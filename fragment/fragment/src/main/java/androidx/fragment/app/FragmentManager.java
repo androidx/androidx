@@ -112,6 +112,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     static final String FRAGMENT_SAVED_INSTANCE_STATE_TAG = "savedInstanceState";
     static final String FRAGMENT_VIEW_STATE_TAG = "viewState";
     static final String FRAGMENT_VIEW_REGISTRY_STATE_TAG = "viewRegistryState";
+    static final String FRAGMENT_CHILD_FRAGMENT_MANAGER_TAG = "childFragmentManager";
     static final String FRAGMENT_ARGUMENTS_TAG = "arguments";
     private static boolean DEBUG = false;
 
