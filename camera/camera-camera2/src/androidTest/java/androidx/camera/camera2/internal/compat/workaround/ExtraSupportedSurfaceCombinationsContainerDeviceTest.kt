@@ -350,19 +350,19 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         }
     }
 
-    private class FakePreviewCaptureProcessor() : CaptureProcessor {
-        override fun onOutputSurface(surface: Surface?, imageFormat: Int) {
+    private class FakePreviewCaptureProcessor : CaptureProcessor {
+        override fun onOutputSurface(surface: Surface, imageFormat: Int) {
             // No-op
         }
 
-        override fun process(bundle: ImageProxyBundle?) {
-            bundle!!.captureIds.forEach {
+        override fun process(bundle: ImageProxyBundle) {
+            bundle.captureIds.forEach {
                 val image = bundle.getImageProxy(it).get()
                 image.close()
             }
         }
 
-        override fun onResolutionUpdate(size: Size?) {
+        override fun onResolutionUpdate(size: Size) {
             // No-op
         }
     }
