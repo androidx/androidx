@@ -1,49 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
-        errorLine1="    public boolean isZslSupported() {"
-        errorLine2="                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/Camera2CameraInfoImpl.java"
-            line="358"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
-        errorLine1="        return Build.VERSION.SDK_INT >= 23"
-        errorLine2="               ^">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/Camera2CameraInfoImpl.java"
-            line="359"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
-        errorLine1="                        captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/Camera2UseCaseConfigFactory.java"
-            line="69"
-            column="53"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
-        errorLine1="                        captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG"
-        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/internal/Camera2UseCaseConfigFactory.java"
-            line="97"
-            column="53"/>
-    </issue>
+<issues format="6" by="lint 7.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha05)" variant="all" version="7.4.0-alpha05">
 
     <issue
         id="NewApi"
@@ -133,6 +89,42 @@
         errorLine2="                                                                           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/internal/AndroidRZoomImpl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="    public boolean isZslSupported() {"
+        errorLine2="                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/Camera2CameraInfoImpl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="        return Build.VERSION.SDK_INT >= 23 &amp;&amp; isPrivateReprocessingSupported();"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/Camera2CameraInfoImpl.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="                        captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/Camera2UseCaseConfigFactory.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with&#xA;&apos;@androidx.camera.core.ExperimentalZeroShutterLag&apos; or &apos;@OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)&apos;"
+        errorLine1="                        captureMode == ImageCapture.CAPTURE_MODE_ZERO_SHUTTER_LAG"
+        errorLine2="                                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/Camera2UseCaseConfigFactory.java"/>
     </issue>
 
     <issue

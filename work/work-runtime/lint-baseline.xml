@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.3.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (7.3.0-alpha07)" variant="all" version="7.3.0-alpha07">
+<issues format="6" by="lint 7.4.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha05)" variant="all" version="7.4.0-alpha05">
+
     <issue
         id="BanSynchronizedMethods"
         message="Use of synchronized methods is not recommended"
@@ -71,4 +72,5 @@
         <location
             file="src/main/java/androidx/work/impl/utils/futures/SettableFuture.java"/>
     </issue>
+
 </issues>
