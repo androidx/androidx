@@ -106,32 +106,35 @@ public class TestCasesGenerator {
         testCases.put(
                 "default_chip_maintext_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setPrimaryTextContent(mainText)
-                        .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
+                        .setPrimaryLabelContent(mainText)
                         .build());
         testCases.put(
                 "default_chip_maintextlabeltext_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setPrimaryTextLabelContent(mainText, labelText)
+                        .setPrimaryLabelContent(mainText)
+                        .setSecondaryLabelContent(labelText)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
                         .build());
         testCases.put(
                 "default_chip_maintexticon_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setPrimaryTextIconContent(mainText, ICON_ID)
+                        .setPrimaryLabelContent(mainText)
+                        .setIconContent(ICON_ID)
                         .build());
         testCases.put(
                 "secondary_chip_maintext_centered_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
                         .setChipColors(ChipDefaults.SECONDARY_COLORS)
-                        .setPrimaryTextContent(mainText)
+                        .setPrimaryLabelContent(mainText)
                         .build());
         testCases.put(
                 "custom_chip_all_overflows_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setWidth(130)
-                        .setPrimaryTextLabelIconContent(mainText, labelText, ICON_ID)
+                        .setPrimaryLabelContent(mainText)
+                        .setSecondaryLabelContent(labelText)
+                        .setIconContent(ICON_ID)
                         .setChipColors(
                                 new ChipColors(Color.YELLOW, Color.GREEN, Color.BLACK, Color.GRAY))
                         .build());
@@ -139,18 +142,23 @@ public class TestCasesGenerator {
                 "default_chip_all_centered_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
-                        .setPrimaryTextLabelIconContent(mainText, labelText, ICON_ID)
+                        .setPrimaryLabelContent(mainText)
+                        .setSecondaryLabelContent(labelText)
+                        .setIconContent(ICON_ID)
                         .build());
         testCases.put(
                 "default_chip_all_rigthalign_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_END)
-                        .setPrimaryTextLabelIconContent(mainText, labelText, ICON_ID)
+                        .setPrimaryLabelContent(mainText)
+                        .setSecondaryLabelContent(labelText)
+                        .setIconContent(ICON_ID)
                         .build());
         testCases.put(
                 "custom_chip_icon_primary_overflows_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setPrimaryTextIconContent(mainText, ICON_ID)
+                        .setPrimaryLabelContent(mainText)
+                        .setIconContent(ICON_ID)
                         .setWidth(150)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
                         .setChipColors(
@@ -193,7 +201,7 @@ public class TestCasesGenerator {
         testCases.put(
                 "chip_2lines_primary_overflows_golden" + goldenSuffix,
                 new Chip.Builder(context, clickable, deviceParameters)
-                        .setPrimaryTextContent("abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde")
+                        .setPrimaryLabelContent("abcdeabcdeabcdeabcdeabcdeabcdeabcdeabcde")
                         .build());
 
         // Different text lengths to test expanding the width based on the size of text. If it's

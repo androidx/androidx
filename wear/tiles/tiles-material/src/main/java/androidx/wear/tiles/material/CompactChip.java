@@ -130,9 +130,9 @@ public class CompactChip implements LayoutElement {
                             .setHeight(COMPACT_HEIGHT)
                             .setMaxLines(1)
                             .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING)
-                            .setPrimaryTextContent(mText)
-                            .setPrimaryTextTypography(Typography.TYPOGRAPHY_CAPTION1)
-                            .setIsPrimaryTextScalable(false);
+                            .setPrimaryLabelContent(mText)
+                            .setPrimaryLabelTypography(Typography.TYPOGRAPHY_CAPTION1)
+                            .setIsPrimaryLabelScalable(false);
 
             return new CompactChip(chipBuilder.build());
         }
@@ -153,7 +153,7 @@ public class CompactChip implements LayoutElement {
     /** Returns text content of this Chip. */
     @NonNull
     public String getText() {
-        return checkNotNull(mElement.getPrimaryTextContent());
+        return checkNotNull(mElement.getPrimaryLabelContent());
     }
 
     /** Returns metadata tag set to this CompactChip, which should be {@link #METADATA_TAG}. */

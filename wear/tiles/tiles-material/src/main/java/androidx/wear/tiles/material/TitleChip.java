@@ -165,9 +165,9 @@ public class TitleChip implements LayoutElement {
                             .setHeight(TITLE_HEIGHT)
                             .setMaxLines(1)
                             .setHorizontalPadding(TITLE_HORIZONTAL_PADDING)
-                            .setPrimaryTextContent(mText)
-                            .setPrimaryTextTypography(Typography.TYPOGRAPHY_TITLE2)
-                            .setIsPrimaryTextScalable(false);
+                            .setPrimaryLabelContent(mText)
+                            .setPrimaryLabelTypography(Typography.TYPOGRAPHY_TITLE2)
+                            .setIsPrimaryLabelScalable(false);
 
             if (mWidth != null) {
                 chipBuilder.setWidth(mWidth);
@@ -198,7 +198,7 @@ public class TitleChip implements LayoutElement {
     /** Returns text content of this Chip. */
     @NonNull
     public String getText() {
-        return checkNotNull(mElement.getPrimaryTextContent());
+        return checkNotNull(mElement.getPrimaryLabelContent());
     }
 
     /** Returns the horizontal alignment of the content in this Chip. */
