@@ -174,7 +174,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
                                 }
 
                                 @Override
-                                public void onFailure(Throwable t) {
+                                public void onFailure(@NonNull Throwable t) {
                                     throw new IllegalStateException("SurfaceReleaseFuture did not "
                                             + "complete nicely.", t);
                                 }

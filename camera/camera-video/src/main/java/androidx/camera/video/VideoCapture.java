@@ -628,7 +628,7 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 if (!(t instanceof CancellationException)) {
                     Logger.e(TAG, "Surface update completed with unexpected exception", t);
                 }

@@ -1336,7 +1336,7 @@ public final class ImageCapture extends UseCase {
                                 }
 
                                 @Override
-                                public void onFailure(Throwable throwable) {
+                                public void onFailure(@NonNull Throwable throwable) {
                                     unlockFlashMode();
 
                                     completer.setException(throwable);
@@ -1515,7 +1515,7 @@ public final class ImageCapture extends UseCase {
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(@NonNull Throwable t) {
                         synchronized (mLock) {
                             if (t instanceof CancellationException) {
                                 // Do not trigger callback which should be done in cancelRequests()

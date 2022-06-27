@@ -556,7 +556,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
             @ExecutedBy("mExecutor")
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 // Don't reset the internal release future as we want to keep track of the error
                 // TODO: The camera should be put into an error state at this point
             }
@@ -1139,7 +1139,7 @@ final class Camera2CameraImpl implements CameraInternal {
 
             @Override
             @ExecutedBy("mExecutor")
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 if (t instanceof DeferrableSurface.SurfaceClosedException) {
                     SessionConfig sessionConfig =
                             findSessionConfigForSurface(
