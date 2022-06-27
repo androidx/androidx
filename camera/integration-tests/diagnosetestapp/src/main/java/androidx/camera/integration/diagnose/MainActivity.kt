@@ -24,12 +24,16 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
+import android.util.Size
+import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.view.CameraController
 import androidx.camera.view.CameraController.IMAGE_CAPTURE
 import androidx.camera.view.CameraController.VIDEO_CAPTURE
 import androidx.camera.view.LifecycleCameraController
@@ -43,20 +47,39 @@ import androidx.core.content.ContextCompat
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.Executor
+import androidx.camera.mlkit.vision.MlKitAnalyzer
+import androidx.camera.view.CameraController.IMAGE_ANALYSIS
+import com.google.android.material.tabs.TabLayout
+import com.google.mlkit.vision.barcode.BarcodeScanner
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import java.io.IOException
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var cameraController: LifecycleCameraController
     private lateinit var previewView: PreviewView
+    private lateinit var overlayView: OverlayView
     private lateinit var executor: Executor
+    private lateinit var tabLayout: TabLayout
+    private lateinit var diagnosis: Diagnosis
+    private lateinit var barcodeScanner: BarcodeScanner
+    private lateinit var analyzer: MlKitAnalyzer
+    private lateinit var diagnoseBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         previewView = findViewById(R.id.preview_view)
+        overlayView = findViewById(R.id.overlay_view)
+        overlayView.visibility = View.INVISIBLE
         cameraController = LifecycleCameraController(this)
         previewView.controller = cameraController
         executor = ContextCompat.getMainExecutor(this)
+        tabLayout = findViewById(R.id.tabLayout_view)
+        diagnosis = Diagnosis()
+        barcodeScanner = BarcodeScanning.getClient()
+        diagnoseBtn = findViewById(R.id.diagnose_btn)
+
         // Request CAMERA permission and fail gracefully if not granted.
         if (allPermissionsGranted()) {
             startCamera()
@@ -65,15 +88,50 @@ class MainActivity : AppCompatActivity() {
                 this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS
             )
         }
-        // Setup UI events
-        findViewById<Button>(R.id.image_capture).setOnClickListener {
-            Log.d(TAG, "image button clicked")
-            takePhoto()
-        }
 
-        findViewById<Button>(R.id.video_capture).setOnClickListener {
-            Log.d(TAG, "video button clicked")
-            captureVideo()
+        // Setting up Tabs
+        val photoTab = tabLayout.newTab().setText("Photo")
+        photoTab.view.id = R.id.image_capture
+        tabLayout.addTab(photoTab)
+        val videoTab = tabLayout.newTab().setText("Video")
+        videoTab.view.id = R.id.video_capture
+        tabLayout.addTab(videoTab)
+        val diagnoseTab = tabLayout.newTab().setText("Diagnose")
+        diagnoseTab.view.id = R.id.diagnose
+        tabLayout.addTab(diagnoseTab)
+
+        // Setup UI events
+        // TODO: switch TabItems to TabLayout.Tab for selecting on id
+        tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                Log.d(TAG, "tab selected id:${tab?.view?.id}")
+                selectMode(tab?.view?.id)
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+                Log.d(TAG, "tab reselected:${tab?.view?.id}")
+                selectMode(tab?.view?.id)
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+                Log.d(TAG, "tab unselected:${tab?.view?.id}")
+                if (tab?.view?.id == R.id.diagnose) {
+                    // disable overlay
+                    overlayView.visibility = View.INVISIBLE
+                    // unbind MLKit analyzer
+                    cameraController.clearImageAnalysisAnalyzer()
+                }
+            }
+        })
+
+        diagnoseBtn.setOnClickListener {
+            try {
+                diagnosis.collectDeviceInfo(baseContext)
+            } catch (e: IOException) {
+                val msg = "Failed to collect information"
+                Toast.makeText(baseContext, msg, Toast.LENGTH_SHORT).show()
+                Log.e(TAG, "IOException caught: ${e.message}")
+            }
         }
     }
 
@@ -104,6 +162,14 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "started camera")
     }
 
+    private fun selectMode(id: Int?) {
+        when (id) {
+            R.id.image_capture -> takePhoto()
+            R.id.video_capture -> captureVideo()
+            R.id.diagnose -> diagnose()
+        }
+    }
+
     private fun takePhoto() {
         cameraController.setEnabledUseCases(IMAGE_CAPTURE)
 
@@ -119,9 +185,11 @@ class MainActivity : AppCompatActivity() {
 
         // Create output options object which contains file + metadata
         val outputOptions = ImageCapture.OutputFileOptions
-            .Builder(contentResolver,
+            .Builder(
+                contentResolver,
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues)
+                contentValues
+            )
             .build()
 
         // Set up image capture listener, which is triggered after photo has
@@ -169,9 +237,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             val outputFileOptions = OutputFileOptions
-                .builder(contentResolver,
+                .builder(
+                    contentResolver,
                     MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                    contentValues)
+                    contentValues
+                )
                 .build()
             Log.d(TAG, "finished composing video name")
 
@@ -203,6 +273,34 @@ class MainActivity : AppCompatActivity() {
                 Log.e(TAG, "Video failed to record: " + exception.message)
             }
         }
+    }
+
+    private fun diagnose() {
+        // enable overlay and diagnose button
+        overlayView.visibility = View.VISIBLE
+        // enable image analysis use case
+        cameraController.setEnabledUseCases(IMAGE_ANALYSIS)
+
+        val calibrate = Calibration(
+            Size(previewView.width, previewView.height))
+
+        analyzer = MlKitAnalyzer(
+            listOf(barcodeScanner),
+            CameraController.COORDINATE_SYSTEM_VIEW_REFERENCED,
+            CameraXExecutors.mainThreadExecutor()
+        ) { result ->
+            val barcodes = result.getValue(barcodeScanner)
+            if (barcodes != null && barcodes.size > 0) {
+                calibrate.analyze(barcodes)
+                // gives overlayView access to Calibration
+                overlayView.setCalibrationResult(calibrate)
+                // enable diagnose button when alignment is successful
+                diagnoseBtn.isEnabled = calibrate.isAligned
+                overlayView.invalidate()
+            }
+        }
+        cameraController.setImageAnalysisAnalyzer(
+            CameraXExecutors.mainThreadExecutor(), analyzer)
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
