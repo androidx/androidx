@@ -10,6 +10,8 @@
  */
 package androidx.core.i18n.messageformat_icu.simple;
 
+import android.content.Context;
+
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.text.AttributedCharacterIterator;
@@ -36,6 +38,9 @@ import java.util.Map;
 import java.util.Set;
 
 import androidx.annotation.RestrictTo;
+import androidx.core.i18n.DateTimeFormatter;
+import androidx.core.i18n.DateTimeFormatterJdkStyleOptions;
+import androidx.core.i18n.DateTimeFormatterSkeletonOptions;
 import androidx.core.i18n.messageformat_icu.impl.PatternProps;
 import androidx.core.i18n.messageformat_icu.simple.PluralRules.PluralType;
 import androidx.core.i18n.messageformat_icu.text.MessagePattern;
@@ -98,7 +103,7 @@ import androidx.core.i18n.messageformat_icu.util.ICUUncheckedIOException;
  * A numbered pattern argument is matched with a map key that contains that number
  * as an ASCII-decimal-digit string (without leading zero).
  *
- * <h4><a name="patterns">Patterns and Their Interpretation</a></h4>
+ * <h3><a name="patterns">Patterns and Their Interpretation</a></h3>
  *
  * <code>MessageFormat</code> uses patterns of the following form:
  * <blockquote><pre>
@@ -122,14 +127,16 @@ import androidx.core.i18n.messageformat_icu.util.ICUUncheckedIOException;
  * argNumber = '0' | ('1'..'9' ('0'..'9')*)
  *
  * argType = "number" | "date" | "time" | "spellout" | "ordinal" | "duration"
- * argStyle = "short" | "medium" | "long" | "full" | "integer" | "currency" | "percent" | argStyleText
+ * argStyle = "short" | "medium" | "long" | "full" | "integer" | "currency" | "percent" | argStyleText | "::" argSkeletonText
  * </pre></blockquote>
  *
  * <ul>
+ *   <li>{@code ::argSkeletonText} is only supported for {@code date} and {@code time},
+ *       not {@code number}</li>
  *   <li>messageText can contain quoted literal strings including syntax characters.
  *       A quoted literal string begins with an ASCII apostrophe and a syntax character
  *       (usually a {curly brace}) and continues until the next single apostrophe.
- *       A double ASCII apostrohpe inside or outside of a quoted string represents
+ *       A double ASCII apostrophe inside or outside of a quoted string represents
  *       one literal apostrophe.
  *   <li>Quotable syntax characters are the {curly braces} in all messageText parts,
  *       plus the '#' sign in a messageText immediately inside a pluralStyle,
@@ -139,8 +146,8 @@ import androidx.core.i18n.messageformat_icu.util.ICUUncheckedIOException;
  *       and unquoted {curly braces} must occur in matched pairs.
  * </ul>
  *
- * <p>Recommendation: Use the real apostrophe (single quote) character \u2019 for
- * human-readable text, and use the ASCII apostrophe (\u0027 ' )
+ * <p>Recommendation: Use the real apostrophe (single quote) character \\u2019 for
+ * human-readable text, and use the ASCII apostrophe (\\u0027 ' )
  * only in program syntax, like quoting in MessageFormat.
  * See the annotations for U+0027 Apostrophe in The Unicode Standard.
  *
@@ -154,7 +161,7 @@ import androidx.core.i18n.messageformat_icu.util.ICUUncheckedIOException;
  * shown in the table are illegal. Any <code>argStyleText</code> must
  * be a valid pattern string for the Format subclass used.
  *
- * <p><table border=1>
+ * <table border=1>
  *    <tr>
  *       <th>argType
  *       <th>argStyle
@@ -179,7 +186,7 @@ import androidx.core.i18n.messageformat_icu.util.ICUUncheckedIOException;
  *       <td><i>argStyleText</i>
  *       <td><code>new DecimalFormat(argStyleText, new DecimalFormatSymbols(getLocale()))</code>
  *    <tr>
- *       <td rowspan=6><code>date</code>
+ *       <td rowspan=7><code>date</code>
  *       <td><i>(none)</i>
  *       <td><code>DateFormat.getDateInstance(DateFormat.DEFAULT, getLocale())</code>
  *    <tr>
@@ -196,7 +203,10 @@ import androidx.core.i18n.messageformat_icu.util.ICUUncheckedIOException;
  *       <td><code>DateFormat.getDateInstance(DateFormat.FULL, getLocale())</code>
  *    <tr>
  *       <td><i>argStyleText</i>
- *       <td><code>new SimpleDateFormat(argStyleText, getLocale())
+ *       <td><code>new SimpleDateFormat(argStyleText, getLocale())</code>
+ *    <tr>
+ *       <td><i>argSkeletonText</i>
+ *       <td><code>DateFormat.getInstanceForSkeleton(argSkeletonText, getLocale())</code>
  *    <tr>
  *       <td rowspan=6><code>time</code>
  *       <td><i>(none)</i>
@@ -215,24 +225,23 @@ import androidx.core.i18n.messageformat_icu.util.ICUUncheckedIOException;
  *       <td><code>DateFormat.getTimeInstance(DateFormat.FULL, getLocale())</code>
  *    <tr>
  *       <td><i>argStyleText</i>
- *       <td><code>new SimpleDateFormat(argStyleText, getLocale())
+ *       <td><code>new SimpleDateFormat(argStyleText, getLocale())</code>
  *    <tr>
  *       <td><code>spellout</code>
  *       <td><i>argStyleText (optional)</i>
  *       <td><code>new RuleBasedNumberFormat(getLocale(), RuleBasedNumberFormat.SPELLOUT)
- *           <br/>&nbsp;&nbsp;&nbsp;&nbsp;.setDefaultRuleset(argStyleText);</code>
+ *           <br>&nbsp;&nbsp;&nbsp;&nbsp;.setDefaultRuleset(argStyleText);</code>
  *    <tr>
  *       <td><code>ordinal</code>
  *       <td><i>argStyleText (optional)</i>
  *       <td><code>new RuleBasedNumberFormat(getLocale(), RuleBasedNumberFormat.ORDINAL)
- *           <br/>&nbsp;&nbsp;&nbsp;&nbsp;.setDefaultRuleset(argStyleText);</code>
+ *           <br>&nbsp;&nbsp;&nbsp;&nbsp;.setDefaultRuleset(argStyleText);</code>
  *    <tr>
  *       <td><code>duration</code>
  *       <td><i>argStyleText (optional)</i>
  *       <td><code>new RuleBasedNumberFormat(getLocale(), RuleBasedNumberFormat.DURATION)
- *           <br/>&nbsp;&nbsp;&nbsp;&nbsp;.setDefaultRuleset(argStyleText);</code>
+ *           <br>&nbsp;&nbsp;&nbsp;&nbsp;.setDefaultRuleset(argStyleText);</code>
  * </table>
- * <p>
  *
  * <h4><a name="diffsjdk">Differences from java.text.MessageFormat</a></h4>
  *
@@ -253,6 +262,28 @@ import androidx.core.i18n.messageformat_icu.util.ICUUncheckedIOException;
  * The JDK MessageFormat does create and use a ChoiceFormat object
  * (<code>new ChoiceFormat(argStyleText)</code>).
  * The JDK does not support plural and select arguments at all.
+
+ * <p>Both the ICU and the JDK <code>MessageFormat</code> can control the argument
+ * formats by using <code>argStyle</code>. But the JDK <code>MessageFormat</code> only
+ * supports predefined formats and number / date / time pattern strings (which would need
+ * to be localized).<br>
+ * ICU supports everything the JDK does, and also number / date / time <b>skeletons</b> using the
+ * <code>::</code> prefix (which automatically yield output appropriate for the
+ * <code>MessageFormat</code> locale).</p>
+ *
+ * <h4>Argument formatting</h4>
+ *
+ * <p>Arguments are formatted according to their type, using the default
+ * ICU formatters for those types, unless otherwise specified.
+ * For unknown types, <code>MessageFormat</code> will call <code>toString()</code>.</p>
+ *
+ * <p>There are also several ways to control the formatting.</p>
+ *
+ * <p>We recommend you use default styles, predefined style values, skeletons,
+ * or preformatted values, but not pattern strings or custom format objects.</p>
+ *
+ * <p>For more details, see the
+ * <a href="https://unicode-org.github.io/icu/userguide/format_parse/messages">ICU User Guide</a>.</p>
  *
  * <h4>Usage Information</h4>
  *
@@ -266,10 +297,10 @@ import androidx.core.i18n.messageformat_icu.util.ICUUncheckedIOException;
  * };
  *
  * String result = MessageFormat.format(
- *     "At {1,time} on {1,date}, there was {2} on planet {0,number,integer}.",
+ *     "At {1,time,::jmm} on {1,date,::dMMMM}, there was {2} on planet {0,number,integer}.",
  *     arguments);
  *
- * <em>output</em>: At 12:30 PM on Jul 3, 2053, there was a disturbance
+ * <em>output</em>: At 4:34 PM on March 23, there was a disturbance
  *           in the Force on planet 7.
  *
  * </pre>
@@ -308,7 +339,7 @@ import androidx.core.i18n.messageformat_icu.util.ICUUncheckedIOException;
  * System.out.println(msgFmt.format(args));
  * args.put("num_files", 3);
  * System.out.println(msgFmt.format(args));
- * 
+ *
  * <em>output</em>:
  * There are no files on disk "MyDisk".
  * There are 3 files on "MyDisk".
@@ -349,9 +380,10 @@ public class MessageFormat extends Format {
      * @param msg an ICU-MessageFormat-syntax string
      * @param nameValuePairs (argument name, argument value) pairs
      */
-    public static final String formatNamedArgs(Locale locale, String msg, Object... nameValuePairs) {
+    public static final String formatNamedArgs(Context context, Locale locale,
+                                               String msg, Object... nameValuePairs) {
         StringBuilder result = new StringBuilder(msg.length());
-        new MessageFormat(msg, locale).format(0, null, null, null, nameValuePairs,
+        new MessageFormat(context, msg, locale).format(0, null, null, null, nameValuePairs,
                 new AppendableWrapper(result), null);
         return result.toString();
     }
@@ -366,8 +398,9 @@ public class MessageFormat extends Format {
      * @see Category#FORMAT
      * icu_annot::stable ICU 3.0
      */
-    public MessageFormat(String pattern) {
+    public MessageFormat(Context context, String pattern) {
         locale_ = Locale.getDefault();  // Category.FORMAT
+        context_ = context;
         applyPattern(pattern);
     }
 
@@ -381,8 +414,9 @@ public class MessageFormat extends Format {
      * @exception IllegalArgumentException if the pattern is invalid
      * icu_annot::stable ICU 3.0
      */
-    public MessageFormat(String pattern, Locale locale) {
+    public MessageFormat(Context context, String pattern, Locale locale) {
         locale_ = locale;
+        context_ = context;
         applyPattern(pattern);
     }
 
@@ -446,7 +480,7 @@ public class MessageFormat extends Format {
     }
 
     /**
-     * {icu_annot::icu} 
+     * {icu_annot::icu}
      * @return this instance's ApostropheMode.
      * icu_annot::stable ICU 4.8
      */
@@ -748,7 +782,7 @@ public class MessageFormat extends Format {
                     "This method is not available in MessageFormat objects " +
                     "that use alphanumeric argument names.");
         }
-        ArrayList<Format> list = new ArrayList<Format>();
+        ArrayList<Format> list = new ArrayList<>();
         for (int partIndex = 0; (partIndex = nextTopLevelArgStart(partIndex)) >= 0;) {
             int argNumber = msgPattern.getPart(partIndex + 1).getValue();
             while (argNumber >= list.size()) {
@@ -781,7 +815,7 @@ public class MessageFormat extends Format {
      * icu_annot::stable ICU 3.0
      */
     public Format[] getFormats() {
-        ArrayList<Format> list = new ArrayList<Format>();
+        ArrayList<Format> list = new ArrayList<>();
         for (int partIndex = 0; (partIndex = nextTopLevelArgStart(partIndex)) >= 0;) {
             list.add(cachedFormatters == null ? null : cachedFormatters.get(partIndex));
         }
@@ -795,7 +829,7 @@ public class MessageFormat extends Format {
      * icu_annot::stable ICU 4.8
      */
     public Set<String> getArgumentNames() {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         for (int partIndex = 0; (partIndex = nextTopLevelArgStart(partIndex)) >= 0;) {
             result.add(getArgName(partIndex + 1));
         }
@@ -837,7 +871,7 @@ public class MessageFormat extends Format {
      * argument is <i>unavailable</i> if <code>arguments</code> is
      * <code>null</code> or has fewer than argumentIndex+1 elements.  When
      * an argument is unavailable no substitution is performed.
-     * <p>
+     *
      * <table border=1>
      *    <tr>
      *       <th>argType or Format
@@ -909,7 +943,7 @@ public class MessageFormat extends Format {
      * <p>
      * The text substituted for the individual format elements is derived from
      * the current subformat of the format element and the
-     * <code>arguments</code> value corresopnding to the format element's
+     * <code>arguments</code> value corresponding to the format element's
      * argument name.
      * <p>
      * A numbered pattern argument is matched with a map key that contains that number
@@ -952,8 +986,8 @@ public class MessageFormat extends Format {
      * @throws IllegalArgumentException if this format uses named arguments
      * icu_annot::stable ICU 3.0
      */
-    public static String format(String pattern, Object... arguments) {
-        MessageFormat temp = new MessageFormat(pattern);
+    public static String format(Context context, String pattern, Object... arguments) {
+        MessageFormat temp = new MessageFormat(context, pattern);
         return temp.format(arguments);
     }
 
@@ -970,8 +1004,8 @@ public class MessageFormat extends Format {
      * @see #format(String, Object[])
      * icu_annot::stable ICU 3.8
      */
-    public static String format(String pattern, Map<String, Object> arguments) {
-        MessageFormat temp = new MessageFormat(pattern);
+    public static String format(Context context, String pattern, Map<String, Object> arguments) {
+        MessageFormat temp = new MessageFormat(context, pattern);
         return temp.format(arguments);
     }
 
@@ -1007,7 +1041,7 @@ public class MessageFormat extends Format {
      * @throws IllegalArgumentException if an argument in
      *         <code>arguments</code> is not of the type
      *         expected by the format element(s) that use it
-     * @throws IllegalArgumentException if <code>arguments<code> is
+     * @throws IllegalArgumentException if <code>arguments</code> is
      *         an array of Object and this format uses named arguments
      * icu_annot::stable ICU 3.0
      */
@@ -1108,7 +1142,7 @@ public class MessageFormat extends Format {
                     "This method is not available in MessageFormat objects " +
                     "that use named argument.");
         }
-        
+
         // Count how many slots we need in the array.
         int maxArgId = -1;
         for (int partIndex = 0; (partIndex = nextTopLevelArgStart(partIndex)) >= 0;) {
@@ -1127,7 +1161,7 @@ public class MessageFormat extends Format {
 
         return resultArray;
     }
-    
+
     /**
      * {icu_annot::icu} Parses the string, returning the results in a Map.
      * This is similar to the version that returns an array
@@ -1142,15 +1176,15 @@ public class MessageFormat extends Format {
      * icu_annot::stable ICU 3.8
      */
     public Map<String, Object> parseToMap(String source, ParsePosition pos)  {
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         int backupStartPos = pos.getIndex();
         parse(0, source, pos, null, result);
         if (pos.getIndex() == backupStartPos) {
             return null;
         }
-        return result;        
+        return result;
     }
-    
+
     /**
      * Parses text from the beginning of the given string to produce an object
      * array.
@@ -1226,7 +1260,7 @@ public class MessageFormat extends Format {
             // We do not support parsing Plural formats. (No REPLACE_NUMBER here.)
             assert type==Part.Type.ARG_START : "Unexpected Part "+part+" in parsed message.";
             int argLimit=msgPattern.getLimitPartIndex(i);
-            
+
             ArgType argType=part.getArgType();
             part=msgPattern.getPart(++i);
             // Compute the argId, so we can use it as a key.
@@ -1330,7 +1364,7 @@ public class MessageFormat extends Format {
      */
     public Map<String, Object> parseToMap(String source) throws ParseException {
         ParsePosition pos = new ParsePosition(0);
-        Map<String, Object> result = new HashMap<String, Object>();
+        Map<String, Object> result = new HashMap<>();
         parse(0, source, pos, null, result);
         if (pos.getIndex() == 0) // unchanged, returned object is null
             throw new ParseException("MessageFormat parse error!",
@@ -1385,10 +1419,10 @@ public class MessageFormat extends Format {
         if (obj == null || getClass() != obj.getClass())
             return false;
         MessageFormat other = (MessageFormat) obj;
-        return Utility.objectEquals(ulocale, other.ulocale)
-                && Utility.objectEquals(msgPattern, other.msgPattern)
-                && Utility.objectEquals(cachedFormatters, other.cachedFormatters)
-                && Utility.objectEquals(customFormatArgStarts, other.customFormatArgStarts);
+        return Objects.equals(ulocale, other.ulocale)
+                && Objects.equals(msgPattern, other.msgPattern)
+                && Objects.equals(cachedFormatters, other.cachedFormatters)
+                && Objects.equals(customFormatArgStarts, other.customFormatArgStarts);
         // Note: It might suffice to only compare custom formatters
         // rather than all formatters.
     }
@@ -1468,6 +1502,11 @@ public class MessageFormat extends Format {
      * The locale to use for formatting numbers and dates.
      */
     private transient Locale locale_;
+
+    /**
+     * The Android Context to used to access user preferences and other Android functionality.
+     */
+    private transient Context context_;
 
     /**
      * The MessagePattern which contains the parsed structure of the pattern string.
@@ -1745,7 +1784,7 @@ public class MessageFormat extends Format {
      * as soon as it finds an argument, or it reaches the end of the string.
      * @param from Index in the pattern string to start from.
      * @return A substring from the pattern string representing the longest possible
-     *         substring with no arguments. 
+     *         substring with no arguments.
      */
     private String getLiteralStringUntilNextArgument(int from) {
         StringBuilder b = new StringBuilder();
@@ -2102,6 +2141,19 @@ public class MessageFormat extends Format {
         DATE_MODIFIER_LONG = 3,
         DATE_MODIFIER_FULL = 4;
 
+    Format dateTimeFormatForPatternOrSkeleton(String style) {
+        // Ignore leading whitespace when looking for "::", the skeleton signal sequence
+        int i = PatternProps.skipWhiteSpace(style, 0);
+        if (style.regionMatches(i, "::", 0, 2)) { // Skeleton
+            DateTimeFormatter df = new DateTimeFormatter(context_,
+                DateTimeFormatterSkeletonOptions.fromString(style.substring(i + 2)),
+                locale_);
+            return new DateTimeFormatterAsFormat(df);
+        } else { // Pattern
+            return new SimpleDateFormat(style, locale_);
+        }
+    }
+
     // Creates an appropriate Format object for the type and style passed.
     // Both arguments cannot be null.
     private Format createAppropriateFormat(String type, String style) {
@@ -2131,44 +2183,74 @@ public class MessageFormat extends Format {
         case TYPE_DATE:
             switch (findKeyword(style, dateModifierList)) {
             case DATE_MODIFIER_EMPTY:
-                newFormat = DateFormat.getDateInstance(DateFormat.DEFAULT, locale_);
+                newFormat = new DateTimeFormatterAsFormat(
+                    new DateTimeFormatter(
+                            DateTimeFormatterJdkStyleOptions.createDateInstance(DateFormat.DEFAULT),
+                                locale_));
                 break;
             case DATE_MODIFIER_SHORT:
-                newFormat = DateFormat.getDateInstance(DateFormat.SHORT, locale_);
+                newFormat = new DateTimeFormatterAsFormat(
+                    new DateTimeFormatter(
+                        DateTimeFormatterJdkStyleOptions.createDateInstance(DateFormat.SHORT),
+                        locale_));
                 break;
             case DATE_MODIFIER_MEDIUM:
-                newFormat = DateFormat.getDateInstance(DateFormat.DEFAULT, locale_);
+                newFormat = new DateTimeFormatterAsFormat(
+                    new DateTimeFormatter(
+                        DateTimeFormatterJdkStyleOptions.createDateInstance(DateFormat.DEFAULT),
+                        locale_));
                 break;
             case DATE_MODIFIER_LONG:
-                newFormat = DateFormat.getDateInstance(DateFormat.LONG, locale_);
+                newFormat = new DateTimeFormatterAsFormat(
+                    new DateTimeFormatter(
+                        DateTimeFormatterJdkStyleOptions.createDateInstance(DateFormat.LONG),
+                        locale_));
                 break;
             case DATE_MODIFIER_FULL:
-                newFormat = DateFormat.getDateInstance(DateFormat.FULL, locale_);
+                newFormat = new DateTimeFormatterAsFormat(
+                    new DateTimeFormatter(
+                        DateTimeFormatterJdkStyleOptions.createDateInstance(DateFormat.FULL),
+                        locale_));
                 break;
-            default:
-                newFormat = new SimpleDateFormat(style, locale_);
+            default: // pattern or skeleton
+                newFormat = dateTimeFormatForPatternOrSkeleton(style);
                 break;
             }
             break;
         case TYPE_TIME:
             switch (findKeyword(style, dateModifierList)) {
             case DATE_MODIFIER_EMPTY:
-                newFormat = DateFormat.getTimeInstance(DateFormat.DEFAULT, locale_);
+                newFormat = new DateTimeFormatterAsFormat(
+                    new DateTimeFormatter(
+                        DateTimeFormatterJdkStyleOptions.createTimeInstance(DateFormat.DEFAULT),
+                        locale_));
                 break;
             case DATE_MODIFIER_SHORT:
-                newFormat = DateFormat.getTimeInstance(DateFormat.SHORT, locale_);
+                newFormat = new DateTimeFormatterAsFormat(
+                    new DateTimeFormatter(
+                        DateTimeFormatterJdkStyleOptions.createTimeInstance(DateFormat.SHORT),
+                        locale_));
                 break;
             case DATE_MODIFIER_MEDIUM:
-                newFormat = DateFormat.getTimeInstance(DateFormat.DEFAULT, locale_);
+                newFormat = new DateTimeFormatterAsFormat(
+                    new DateTimeFormatter(
+                        DateTimeFormatterJdkStyleOptions.createTimeInstance(DateFormat.DEFAULT),
+                        locale_));
                 break;
             case DATE_MODIFIER_LONG:
-                newFormat = DateFormat.getTimeInstance(DateFormat.LONG, locale_);
+                newFormat = new DateTimeFormatterAsFormat(
+                    new DateTimeFormatter(
+                        DateTimeFormatterJdkStyleOptions.createTimeInstance(DateFormat.LONG),
+                        locale_));
                 break;
             case DATE_MODIFIER_FULL:
-                newFormat = DateFormat.getTimeInstance(DateFormat.FULL, locale_);
+                newFormat = new DateTimeFormatterAsFormat(
+                    new DateTimeFormatter(
+                        DateTimeFormatterJdkStyleOptions.createTimeInstance(DateFormat.FULL),
+                        locale_));
                 break;
-            default:
-                newFormat = new SimpleDateFormat(style, locale_);
+            default: // pattern or skeleton
+                newFormat = dateTimeFormatForPatternOrSkeleton(style);
                 break;
             }
             break;
@@ -2276,7 +2358,7 @@ public class MessageFormat extends Format {
      */
     private void setArgStartFormat(int argStart, Format formatter) {
         if (cachedFormatters == null) {
-            cachedFormatters = new HashMap<Integer, Format>();
+            cachedFormatters = new HashMap<>();
         }
         cachedFormatters.put(argStart, formatter);
     }
@@ -2288,7 +2370,7 @@ public class MessageFormat extends Format {
     private void setCustomArgStartFormat(int argStart, Format formatter) {
         setArgStartFormat(argStart, formatter);
         if (customFormatArgStarts == null) {
-            customFormatArgStarts = new HashSet<Integer>();
+            customFormatArgStarts = new HashSet<>();
         }
         customFormatArgStarts.add(argStart);
     }
@@ -2306,12 +2388,12 @@ public class MessageFormat extends Format {
      * {icu_annot::icu} Converts an 'apostrophe-friendly' pattern into a standard
      * pattern.
      * <em>This is obsolete for ICU 4.8 and higher MessageFormat pattern strings.</em>
-     * It can still be useful together with the JDK MessageFormat.
+     * It can still be useful together with {@link java.text.MessageFormat}.
      *
      * <p>See the class description for more about apostrophes and quoting,
-     * and differences between ICU and the JDK.
+     * and differences between ICU and {@link java.text.MessageFormat}.
      *
-     * <p>The JDK MessageFormat and ICU 4.6 and earlier MessageFormat
+     * <p>{@link java.text.MessageFormat} and ICU 4.6 and earlier MessageFormat
      * treat all ASCII apostrophes as
      * quotes, which is problematic in some languages, e.g.
      * French, where apostrophe is commonly used.  This utility
@@ -2415,7 +2497,7 @@ public class MessageFormat extends Format {
         }
 
         public void useAttributes() {
-            attributes = new ArrayList<AttributeAndPosition>();
+            attributes = new ArrayList<>();
         }
 
         public void append(CharSequence s) {
