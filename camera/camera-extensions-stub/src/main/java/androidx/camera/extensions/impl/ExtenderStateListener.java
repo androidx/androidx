@@ -17,10 +17,14 @@
 package androidx.camera.extensions.impl;
 
 import android.content.Context;
+import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.SessionConfiguration;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Provides interfaces that the OEM needs to implement to handle the state change.
@@ -39,7 +43,8 @@ public interface ExtenderStateListener {
      * @param cameraCharacteristics The {@link CameraCharacteristics} of the camera.
      * @param context The {@link Context} used for CameraX.
      */
-    void onInit(String cameraId, CameraCharacteristics cameraCharacteristics, Context context);
+    void onInit(@NonNull String cameraId, @NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull Context context);
 
     /**
      * Notify to de-initialize the extension. This callback will be invoked after unbind.
@@ -50,7 +55,7 @@ public interface ExtenderStateListener {
 
     /**
      * This will be invoked before creating a
-     * {@link android.hardware.camera2.CameraCaptureSession}. The {@link CaptureRequest}
+     * {@link CameraCaptureSession}. The {@link CaptureRequest}
      * parameters returned via {@link CaptureStageImpl} will be passed to the camera device as
      * part of the capture session initialization via
      * {@link SessionConfiguration#setSessionParameters(CaptureRequest)} which only supported from
@@ -58,10 +63,11 @@ public interface ExtenderStateListener {
      *
      * @return The request information to set the session wide camera parameters.
      */
+    @Nullable
     CaptureStageImpl onPresetSession();
 
     /**
-     * This will be invoked once after the {@link android.hardware.camera2.CameraCaptureSession}
+     * This will be invoked once after the {@link CameraCaptureSession}
      * has been created. The {@link CaptureRequest} parameters returned via
      * {@link CaptureStageImpl} will be used to generate a single request to the current
      * configured {@link CameraDevice}. The generated request will be submitted to camera before
@@ -69,15 +75,17 @@ public interface ExtenderStateListener {
      *
      * @return The request information to create a single capture request to camera device.
      */
+    @Nullable
     CaptureStageImpl onEnableSession();
 
     /**
-     * This will be invoked before the {@link android.hardware.camera2.CameraCaptureSession} is
+     * This will be invoked before the {@link CameraCaptureSession} is
      * closed. The {@link CaptureRequest} parameters returned via {@link CaptureStageImpl} will
      * be used to generate a single request to the currently configured {@link CameraDevice}. The
      * generated request will be submitted to camera before the CameraCaptureSession is closed.
      *
      * @return The request information to customize the session.
      */
+    @Nullable
     CaptureStageImpl onDisableSession();
 }
