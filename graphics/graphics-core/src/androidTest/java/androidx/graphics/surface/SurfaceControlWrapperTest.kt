@@ -31,6 +31,7 @@ import androidx.hardware.SyncFenceCompat
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -561,6 +562,7 @@ class SurfaceControlWrapperTest {
         }
     }
 
+    @FlakyTest(bugId = 236991365)
     @Test
     fun testTransactionSetLayer_positive() {
         val listener = TransactionOnCompleteListener()
@@ -671,6 +673,7 @@ class SurfaceControlWrapperTest {
         }
     }
 
+    @FlakyTest(bugId = 236991365)
     @Test
     fun testTransactionSetDamageRegion_all() {
         val listener = TransactionOnCompleteListener()
