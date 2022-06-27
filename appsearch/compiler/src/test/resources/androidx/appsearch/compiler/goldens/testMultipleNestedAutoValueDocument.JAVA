@@ -9,7 +9,7 @@ import java.lang.String;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
-public class $$__AppSearch__AutoValue_Gift_A implements DocumentClassFactory<Gift.A> {
+public final class $$__AppSearch__AutoValue_Gift_A implements DocumentClassFactory<Gift.A> {
   public static final String SCHEMA_NAME = "A";
 
   @Override
