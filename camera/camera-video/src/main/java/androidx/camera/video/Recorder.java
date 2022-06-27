@@ -2251,7 +2251,7 @@ public final class Recorder implements VideoOutput {
         if (needsConfigure) {
             configureInternal(mLatestSurfaceRequest, mVideoSourceTimebase);
         } else if (needsReset) {
-            requestReset(error, errorCause);
+            reset();
         } else if (recordingToStart != null) {
             // A pending recording will only be started if we're not waiting for a new surface.
             // Otherwise the recording will be started after receiving a new surface request.

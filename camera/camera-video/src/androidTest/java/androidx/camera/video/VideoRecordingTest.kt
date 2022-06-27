@@ -733,7 +733,7 @@ class VideoRecordingTest(
     }
 
     @Test
-    fun canReuseRecorder() {
+    fun canReuseRecorder_explicitlyStop() {
         val recorder = Recorder.Builder().build()
         val videoCapture1 = VideoCapture.withOutput(recorder)
         val videoCapture2 = VideoCapture.withOutput(recorder)
@@ -758,6 +758,50 @@ class VideoRecordingTest(
         verifyRecordingResult(file2, true)
 
         file1.delete()
+        file2.delete()
+    }
+
+    @Test
+    fun canReuseRecorder_sourceInactive() {
+        val recorder = Recorder.Builder().build()
+        val videoCapture1 = VideoCapture.withOutput(recorder)
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture1)
+        }
+
+        val file1 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        videoCapture1.output.prepareRecording(context, FileOutputOptions.Builder(file1).build())
+            .withAudioEnabled()
+            .start(CameraXExecutors.directExecutor(), mockVideoRecordEventConsumer).use {
+                mockVideoRecordEventConsumer.verifyRecordingStartSuccessfully()
+
+                // Unbind use case should stop the in-progress recording.
+                instrumentation.runOnMainSync {
+                    cameraProvider.unbindAll()
+                }
+
+                mockVideoRecordEventConsumer.verifyAcceptCall(
+                    VideoRecordEvent.Finalize::class.java,
+                    true,
+                    GENERAL_TIMEOUT
+                )
+            }
+
+        verifyRecordingResult(file1, true)
+        file1.delete()
+
+        val videoCapture2 = VideoCapture.withOutput(recorder)
+
+        val file2 = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, videoCapture2)
+        }
+
+        performRecording(videoCapture2, file2, true)
+        verifyRecordingResult(file2, true)
         file2.delete()
     }
 
