@@ -362,17 +362,17 @@ public class TestCasesGenerator {
         Button largeButton1 =
                 new Button.Builder(context, clickable)
                         .setTextContent("1")
-                        .setSize(ButtonDefaults.LARGE_BUTTON_SIZE)
+                        .setSize(ButtonDefaults.LARGE_SIZE)
                         .build();
         Button largeButton2 =
                 new Button.Builder(context, clickable)
                         .setTextContent("2")
-                        .setSize(ButtonDefaults.LARGE_BUTTON_SIZE)
+                        .setSize(ButtonDefaults.LARGE_SIZE)
                         .build();
         Button extraLargeButton =
                 new Button.Builder(context, clickable)
                         .setTextContent("1")
-                        .setSize(ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE)
+                        .setSize(ButtonDefaults.EXTRA_LARGE_SIZE)
                         .build();
         testCases.put(
                 "multibutton_layout_1button_golden" + goldenSuffix,

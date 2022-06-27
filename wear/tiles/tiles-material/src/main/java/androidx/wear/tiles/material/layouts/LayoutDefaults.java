@@ -105,15 +105,15 @@ public class LayoutDefaults {
      * The default size of button in case when there are 3 or more buttons in the {@link
      * MultiButtonLayout}.
      */
-    static final DpProp MULTI_BUTTON_3_PLUS_SIZE = ButtonDefaults.DEFAULT_BUTTON_SIZE;
+    static final DpProp MULTI_BUTTON_3_PLUS_SIZE = ButtonDefaults.DEFAULT_SIZE;
 
     /** The default size of button in case when there 2 buttons in the {@link MultiButtonLayout}. */
-    static final DpProp MULTI_BUTTON_2_SIZE = ButtonDefaults.LARGE_BUTTON_SIZE;
+    static final DpProp MULTI_BUTTON_2_SIZE = ButtonDefaults.LARGE_SIZE;
 
     /**
      * The default size of button in case when there is 1 button in the {@link MultiButtonLayout}.
      */
-    static final DpProp MULTI_BUTTON_1_SIZE = ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE;
+    static final DpProp MULTI_BUTTON_1_SIZE = ButtonDefaults.EXTRA_LARGE_SIZE;
 
     /** The default width for vertical spacer between buttons in the {@link MultiButtonLayout}. */
     static final DpProp MULTI_BUTTON_SPACER_WIDTH = dp(8);

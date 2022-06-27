@@ -40,11 +40,11 @@ package androidx.wear.tiles.material {
   public class ButtonDefaults {
     method public static androidx.wear.tiles.DimensionBuilders.DpProp recommendedIconSize(androidx.wear.tiles.DimensionBuilders.DpProp);
     method public static androidx.wear.tiles.DimensionBuilders.DpProp recommendedIconSize(@Dimension(unit=androidx.annotation.Dimension.DP) float);
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_BUTTON_SIZE;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp EXTRA_LARGE_BUTTON_SIZE;
-    field public static final androidx.wear.tiles.DimensionBuilders.DpProp LARGE_BUTTON_SIZE;
-    field public static final androidx.wear.tiles.material.ButtonColors PRIMARY_BUTTON_COLORS;
-    field public static final androidx.wear.tiles.material.ButtonColors SECONDARY_BUTTON_COLORS;
+    field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_SIZE;
+    field public static final androidx.wear.tiles.DimensionBuilders.DpProp EXTRA_LARGE_SIZE;
+    field public static final androidx.wear.tiles.DimensionBuilders.DpProp LARGE_SIZE;
+    field public static final androidx.wear.tiles.material.ButtonColors PRIMARY_COLORS;
+    field public static final androidx.wear.tiles.material.ButtonColors SECONDARY_COLORS;
   }
 
   public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {

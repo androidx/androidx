@@ -73,22 +73,22 @@ public class TestCasesGenerator {
         testCases.put(
                 "extralarge_secondary_icon_after_button_golden" + NORMAL_SCALE_SUFFIX,
                 new Button.Builder(context, clickable)
-                        .setButtonColors(ButtonDefaults.SECONDARY_BUTTON_COLORS)
+                        .setButtonColors(ButtonDefaults.SECONDARY_COLORS)
                         .setIconContent(ICON_ID)
-                        .setSize(ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE)
+                        .setSize(ButtonDefaults.EXTRA_LARGE_SIZE)
                         .build());
         testCases.put(
                 "large_secondary_icon_40size_button_golden" + NORMAL_SCALE_SUFFIX,
                 new Button.Builder(context, clickable)
-                        .setSize(ButtonDefaults.LARGE_BUTTON_SIZE)
-                        .setButtonColors(ButtonDefaults.SECONDARY_BUTTON_COLORS)
+                        .setSize(ButtonDefaults.LARGE_SIZE)
+                        .setButtonColors(ButtonDefaults.SECONDARY_COLORS)
                         .setIconContent(ICON_ID, dp(40))
                         .build());
         testCases.put(
                 "extralarge_custom_text_custom_sizefont_button_golden" + goldenSuffix,
                 new Button.Builder(context, clickable)
                         .setButtonColors(new ButtonColors(Color.YELLOW, Color.GREEN))
-                        .setSize(ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE)
+                        .setSize(ButtonDefaults.EXTRA_LARGE_SIZE)
                         .setCustomContent(
                                 new Text.Builder(context, "ABC")
                                         .setTypography(Typography.TYPOGRAPHY_DISPLAY1)
