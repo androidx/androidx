@@ -19,7 +19,7 @@ import android.content.Context
 import androidx.core.i18n.messageformat_icu.simple.MessageFormat
 import java.util.Locale
 
-class MessageFormat {
+class MessageFormat private constructor() {
     companion object {
         /**
          * Formats a message pattern string with a variable number of name/value pair arguments.
@@ -29,16 +29,18 @@ class MessageFormat {
          * @param context Android context object. Used to retrieve user preferences.
          * @param locale Locale for number formatting and plural selection etc.
          * @param msg an ICU-MessageFormat-syntax string
-         * @param nameValuePairs (argument name, argument value) pairs
+         * @param namedArguments map of argument name to argument value
          */
         @JvmStatic @JvmOverloads
-        fun formatNamedArgs(
+        fun format(
             context: Context,
             locale: Locale = Locale.getDefault(),
             msg: String,
-            vararg nameValuePairs: Any?
+            namedArguments: Map<String, Any>
         ): String {
-            return MessageFormat.formatNamedArgs(context, locale, msg, *nameValuePairs)
+            val result: StringBuffer = StringBuffer()
+            return MessageFormat(context, msg, locale)
+                .format(namedArguments, result, null).toString()
         }
 
         /**
@@ -49,14 +51,14 @@ class MessageFormat {
          *
          * @param context Android context object
          * @param id Android string resource ID representing ICU-MessageFormat-syntax string
-         * @param nameValuePairs (argument name, argument value) pairs
+         * @param namedArguments map of argument name to argument value
          */
         @JvmStatic
-        fun formatNamedArgs(context: Context, id: Int, vararg nameValuePairs: Any?): String {
-            return formatNamedArgs(
+        fun format(context: Context, id: Int, namedArguments: Map<String, Any>): String {
+            return format(
                 context,
                 Locale.getDefault(),
-                context.resources.getString(id), *nameValuePairs
+                context.resources.getString(id), namedArguments
             )
         }
     }
