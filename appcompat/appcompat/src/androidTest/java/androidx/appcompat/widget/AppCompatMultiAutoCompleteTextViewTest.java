@@ -36,7 +36,6 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.ColorUtils;
 import androidx.core.widget.TextViewCompat;
 import androidx.test.annotation.UiThreadTest;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
@@ -137,7 +136,6 @@ public class AppCompatMultiAutoCompleteTextViewTest
                 TextViewCompat.getCompoundDrawableTintList(textView));
     }
 
-    @FlakyTest(bugId = 236861901)
     @Test
     public void testCompoundDrawablesTintList() {
         // Given an ACTV with a white drawableLeftCompat and a ColorStateList drawableTint set
