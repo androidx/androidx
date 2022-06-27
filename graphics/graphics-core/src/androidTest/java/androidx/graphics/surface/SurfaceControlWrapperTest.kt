@@ -16,12 +16,10 @@
 
 package androidx.graphics.surface
 
-import android.app.Instrumentation
-import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.ColorSpace
 import android.graphics.Region
 import android.hardware.HardwareBuffer
-import android.graphics.ColorSpace
 import android.os.Build
 import android.os.SystemClock
 import android.view.Surface
@@ -31,10 +29,8 @@ import androidx.hardware.SyncFenceCompat
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors
@@ -347,10 +343,11 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assertTrue(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.BLACK, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.BLACK == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
@@ -403,10 +400,11 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assertTrue(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.RED == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
@@ -455,10 +453,11 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assertTrue(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.RED == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
@@ -500,10 +499,11 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assertTrue(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.BLACK, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.BLACK == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
@@ -555,14 +555,14 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.RED == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
-    @FlakyTest(bugId = 236991365)
     @Test
     fun testTransactionSetLayer_positive() {
         val listener = TransactionOnCompleteListener()
@@ -611,10 +611,11 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.RED == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
@@ -666,14 +667,14 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.RED == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
-    @FlakyTest(bugId = 236991365)
     @Test
     fun testTransactionSetDamageRegion_all() {
         val listener = TransactionOnCompleteListener()
@@ -712,10 +713,11 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.RED == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
@@ -757,10 +759,11 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.RED == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
@@ -799,10 +802,11 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.RED == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
@@ -842,10 +846,11 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.RED == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
@@ -886,10 +891,11 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.BLACK, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.BLACK == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
@@ -927,22 +933,30 @@ class SurfaceControlWrapperTest {
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
 
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val fConnector: ColorSpace.Connector = ColorSpace.connect(
-                ColorSpace.get(ColorSpace.Named.SRGB),
-                bitmap.colorSpace!!
-            )
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
 
-            val red = fConnector.transform(1.0f, 0.0f, 0.0f)
-            val black = fConnector.transform(0.0f, 0.0f, 0.0f)
-            val expectedResult = Color.valueOf(red[0], red[1], red[2], 0.5f)
-                .compositeOver(Color.valueOf(black[0], black[1], black[2], 1.0f))
+                val fConnector: ColorSpace.Connector = ColorSpace.connect(
+                    ColorSpace.get(ColorSpace.Named.SRGB),
+                    bitmap.colorSpace!!
+                )
 
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(expectedResult.red(), bitmap.getColor(coord[0], coord[1]).red(), 2e-3f)
-            assertEquals(expectedResult.green(), bitmap.getColor(coord[0], coord[1]).green(), 2e-3f)
-            assertEquals(expectedResult.blue(), bitmap.getColor(coord[0], coord[1]).blue(), 2e-3f)
+                val red = fConnector.transform(1.0f, 0.0f, 0.0f)
+                val black = fConnector.transform(0.0f, 0.0f, 0.0f)
+                val expectedResult = Color.valueOf(red[0], red[1], red[2], 0.5f)
+                    .compositeOver(Color.valueOf(black[0], black[1], black[2], 1.0f))
+
+                (Math.abs(
+                    expectedResult.red() - bitmap.getColor(coord[0], coord[1]).red()
+                ) < 2e-3f) &&
+                    (Math.abs(
+                        expectedResult.green() - bitmap.getColor(coord[0], coord[1]).green()
+                    ) < 2e-3f) &&
+                    (Math.abs(
+                        expectedResult.blue() - bitmap.getColor(coord[0], coord[1]).blue()
+                    ) < 2e-3f)
+            }
         }
     }
 
@@ -979,10 +993,11 @@ class SurfaceControlWrapperTest {
 
         scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
             assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
-            val bitmap = getScreenshot(InstrumentationRegistry.getInstrumentation())
-            val coord = intArrayOf(0, 0)
-            it.mSurfaceView.getLocationOnScreen(coord)
-            assertEquals(Color.RED, bitmap.getPixel(coord[0], coord[1]))
+            SurfaceControlUtils.validateOutput { bitmap ->
+                val coord = intArrayOf(0, 0)
+                it.mSurfaceView.getLocationOnScreen(coord)
+                Color.RED == bitmap.getPixel(coord[0], coord[1])
+            }
         }
     }
 
@@ -1011,12 +1026,6 @@ class SurfaceControlWrapperTest {
 
     private fun getSolidBuffer(width: Int, height: Int, color: Int): HardwareBuffer {
         return nGetSolidBuffer(width, height, color)
-    }
-
-    private fun getScreenshot(instrumentation: Instrumentation): Bitmap {
-        val uiAutomation = instrumentation.uiAutomation
-        val screenshot = uiAutomation.takeScreenshot()
-        return screenshot
     }
 
     companion object {
