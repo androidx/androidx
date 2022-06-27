@@ -124,6 +124,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Locale;
@@ -540,6 +541,11 @@ public final class ImageCapture extends UseCase {
         sessionConfigBuilder.addNonRepeatingSurface(mDeferrableSurface);
 
         sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
+            // Get the unfinished requests before re-create the pipeline
+            List<ImageCaptureRequest> pendingRequests = (mImageCaptureRequestProcessor != null)
+                    ? mImageCaptureRequestProcessor.pullOutUnfinishedRequests()
+                    : Collections.emptyList();
+
             clearPipeline();
             // Ensure the attached camera has not changed before resetting.
             // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
@@ -547,6 +553,14 @@ public final class ImageCapture extends UseCase {
             if (isCurrentCamera(cameraId)) {
                 // Only reset the pipeline when the bound camera is the same.
                 mSessionConfigBuilder = createPipeline(cameraId, config, resolution);
+
+                if (mImageCaptureRequestProcessor != null) {
+                    // Restore the unfinished requests to the created pipeline
+                    for (ImageCaptureRequest request: pendingRequests) {
+                        mImageCaptureRequestProcessor.sendRequest(request);
+                    }
+                }
+
                 updateSessionConfig(mSessionConfigBuilder.build());
                 notifyReset();
             }
@@ -563,6 +577,7 @@ public final class ImageCapture extends UseCase {
         CameraConfig cameraConfig = getCamera().getExtendedConfig();
         return cameraConfig == null ? false : cameraConfig.getSessionProcessor(null) != null;
     }
+
     /**
      * Clear the internal pipeline so that the pipeline can be set up again.
      */
@@ -1418,6 +1433,36 @@ public final class ImageCapture extends UseCase {
             for (ImageCaptureRequest request : pendingRequests) {
                 request.notifyCallbackError(getError(throwable), throwable.getMessage(), throwable);
             }
+        }
+
+        /**
+         * Removes and returns all unfinished requests.
+         *
+         * <p>The unfinished requests include:
+         * <ul>
+         *     <li>Current running request if it is not complete yet.</li>
+         *     <li>All pending requests.</li>
+         * </ul>
+         *
+         * @return list of the remaining requests
+         */
+        @NonNull
+        public List<ImageCaptureRequest> pullOutUnfinishedRequests() {
+            List<ImageCaptureRequest> remainingRequests;
+            synchronized (mLock) {
+                remainingRequests = new ArrayList<>(mPendingRequests);
+                // Clear the pending requests before canceling the mCurrentRequestFuture.
+                mPendingRequests.clear();
+
+                ImageCaptureRequest currentRequest = mCurrentRequest;
+                mCurrentRequest = null;
+                if (currentRequest != null && mCurrentRequestFuture != null
+                        && mCurrentRequestFuture.cancel(true)) {
+                    remainingRequests.add(0, currentRequest);
+                }
+            }
+
+            return remainingRequests;
         }
 
         @Override
