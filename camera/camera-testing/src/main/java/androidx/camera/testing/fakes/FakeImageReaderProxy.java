@@ -47,6 +47,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     private int mImageFormat = ImageFormat.JPEG;
     private final int mMaxImages;
 
+    @Nullable
     private Surface mSurface;
 
     @Nullable
@@ -59,11 +60,11 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
             BlockingQueue<ListenableFuture<Void>> mImageProxyBlockingQueue;
 
     // Queue of ImageProxys which have not yet been acquired.
-    private BlockingQueue<ImageProxy> mImageProxyAcquisitionQueue;
+    private final BlockingQueue<ImageProxy> mImageProxyAcquisitionQueue;
 
     // List of all ImageProxy which have been acquired. Close them all once the ImageReader is
     // closed
-    private List<ImageProxy> mOutboundImageProxy = new ArrayList<>();
+    private final List<ImageProxy> mOutboundImageProxy = new ArrayList<>();
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
@@ -88,6 +89,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
      *
      * @param maxImages The maximum number of images that can be acquired at once
      */
+    @SuppressWarnings("unused")
     @NonNull
     public static FakeImageReaderProxy newInstance(int width, int height, int format,
             int maxImages, long usage) {
@@ -192,7 +194,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         mExecutor = null;
     }
 
-    public void setSurface(Surface surface) {
+    public void setSurface(@Nullable Surface surface) {
         mSurface = surface;
     }
 
@@ -211,6 +213,7 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
      * ImageProxy have been triggered without a {@link #acquireLatestImage()} or {@link
      * #acquireNextImage()} being called.
      */
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public void triggerImageAvailable(@NonNull TagBundle tagBundle,
             long timestamp) throws InterruptedException {
         FakeImageProxy fakeImageProxy = generateFakeImageProxy(tagBundle, timestamp);

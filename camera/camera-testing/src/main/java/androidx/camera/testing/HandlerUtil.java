@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.MessageQueue;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.testing.compat.LooperCompat;
 
@@ -35,25 +36,19 @@ public final class HandlerUtil {
      * @throws RuntimeException if unable to obtain the {@link MessageQueue} for the {@link
      * Handler}.
      */
-    public static void waitForLooperToIdle(Handler handler) throws InterruptedException {
+    public static void waitForLooperToIdle(@NonNull Handler handler) throws InterruptedException {
         final Looper looper = handler.getLooper();
         final Semaphore semaphore = new Semaphore(0);
 
         // Post a message that will add the idle handler. This will ensure the handler is not
         // already idle before setting the idle handler, causing the idle handler to never be
         // called.
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                MessageQueue messageQueue = LooperCompat.getQueue(looper);
-                messageQueue.addIdleHandler(new MessageQueue.IdleHandler() {
-                    @Override
-                    public boolean queueIdle() {
-                        semaphore.release();
-                        return false;
-                    }
-                });
-            }
+        handler.post(() -> {
+            MessageQueue messageQueue = LooperCompat.getQueue(looper);
+            messageQueue.addIdleHandler(() -> {
+                semaphore.release();
+                return false;
+            });
         });
 
         // Wait for idle
