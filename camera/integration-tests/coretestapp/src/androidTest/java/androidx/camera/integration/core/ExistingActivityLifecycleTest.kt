@@ -56,8 +56,7 @@ private const val ROTATE_TIMEOUT_MS = 2000L
 @RunWith(AndroidJUnit4::class)
 @LargeTest
 class ExistingActivityLifecycleTest {
-    private val mDevice =
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
@@ -65,7 +64,7 @@ class ExistingActivityLifecycleTest {
     )
 
     @get:Rule
-    val mPermissionRule: GrantPermissionRule =
+    val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO
@@ -99,16 +98,16 @@ class ExistingActivityLifecycleTest {
         // recreated unexpectedly. This will also freeze the sensors until
         // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
         // explicitly initiated from within the test.
-        mDevice.setOrientationNatural()
+        device.setOrientationNatural()
     }
 
     @After
     fun tearDown() {
         // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
         // to other tests :)
-        mDevice.unfreezeRotation()
-        mDevice.pressHome()
-        mDevice.waitForIdle(HOME_TIMEOUT_MS)
+        device.unfreezeRotation()
+        device.pressHome()
+        device.waitForIdle(HOME_TIMEOUT_MS)
     }
 
     // Check if Preview screen is updated or not, after Destroy-Create lifecycle.
@@ -122,6 +121,27 @@ class ExistingActivityLifecycleTest {
                 // Destroy previous activity, launch new activity and check for view idle.
                 recreate()
                 waitForViewfinderIdle()
+            }
+        }
+    }
+
+    // Check ImageCapture to take pictures successfully, after the Destroy-Create lifecycle.
+    @Test
+    @RepeatRule.Repeat(times = 5)
+    fun checkImageCaptureAfterDestroyRecreate() {
+        with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
+            use {
+                // Arrange.
+                // Ensure ActivityScenario is cleaned up properly
+                // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
+                waitForViewfinderIdle()
+
+                // Act. Destroy previous activity, launch new activity and check for view idle.
+                recreate()
+                waitForViewfinderIdle()
+
+                // Assert.
+                takePictureAndWaitForImageSavedIdle()
             }
         }
     }
@@ -151,6 +171,29 @@ class ExistingActivityLifecycleTest {
                 moveToState(RESUMED)
 
                 waitForViewfinderIdle()
+            }
+        }
+    }
+
+    // Check ImageCapture to take pictures successfully, after Stop-Resume lifecycle.
+    @Test
+    @RepeatRule.Repeat(times = 5)
+    fun checkImageCaptureAfterStopResume() {
+        with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
+            use {
+                // Arrange.
+                // Ensure ActivityScenario is cleaned up properly
+                // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
+                waitForViewfinderIdle()
+
+                for (i in 0..1) {
+                    // Act. Go through pause/resume then check.
+                    moveToState(CREATED)
+                    moveToState(RESUMED)
+
+                    // Assert.
+                    takePictureAndWaitForImageSavedIdle()
+                }
             }
         }
     }
@@ -189,6 +232,42 @@ class ExistingActivityLifecycleTest {
         }
     }
 
+    // Check ImageCapture to take pictures successfully, after toggling camera,
+    // then a Destroy-Create lifecycle.
+    @Test
+    @RepeatRule.Repeat(times = 5)
+    fun checkImageCaptureAfterToggleCameraAndStopResume() = runBlocking {
+        // check have front camera
+        Assume.assumeTrue(
+            CameraUtil.hasCameraWithLensFacing(
+                CameraSelector.LENS_FACING_FRONT
+            )
+        )
+
+        with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
+            use {
+                // Arrange.
+                // Ensure ActivityScenario is cleaned up properly
+                // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
+                waitForViewfinderIdle()
+
+                // Act. Switch camera.
+                Espresso.onView(ViewMatchers.withId(R.id.direction_toggle))
+                    .perform(ViewActions.click())
+
+                // Assert.
+                takePictureAndWaitForImageSavedIdle()
+
+                // Act. Go through pause/resume then check again.
+                moveToState(CREATED)
+                moveToState(RESUMED)
+
+                // Assert.
+                takePictureAndWaitForImageSavedIdle()
+            }
+        }
+    }
+
     // Check if Preview screen is updated or not, after rotate device, and Stop-Resume lifecycle.
     @Test
     @RepeatRule.Repeat(times = 5)
@@ -214,13 +293,43 @@ class ExistingActivityLifecycleTest {
         }
     }
 
+    // Check ImageCapture to take pictures successfully, after rotate device, and Stop-Resume
+    // lifecycle.
+    @Test
+    @RepeatRule.Repeat(times = 5)
+    fun checkImageCaptureAfterRotateDeviceAndStopResume() {
+        with(ActivityScenario.launch(CameraXActivity::class.java)) { // Launch activity.
+            use {
+                // Arrange.
+                // Ensure ActivityScenario is cleaned up properly
+                // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
+                waitForViewfinderIdle()
+
+                // Act.
+                // Rotate to the orientation left of natural and wait for the activity to be
+                // recreated.
+                rotateDeviceLeftAndWait()
+
+                // Get idling from the re-created activity.
+                withActivity { resetViewIdlingResource() }
+                waitForViewfinderIdle()
+                // Go through pause/resume then check again.
+                moveToState(CREATED)
+                moveToState(RESUMED)
+
+                // Assert.
+                takePictureAndWaitForImageSavedIdle()
+            }
+        }
+    }
+
     private fun rotateDeviceLeftAndWait() {
         // Create an ActivityMonitor to explicitly wait for the activity to be recreated after
         // rotating the device.
         val monitor =
             Instrumentation.ActivityMonitor(CameraXActivity::class.java.name, null, false)
         InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
-        mDevice.setOrientationLeft()
+        device.setOrientationLeft()
         // Wait for the rotation to complete
         InstrumentationRegistry.getInstrumentation().waitForMonitorWithTimeout(
             monitor,

@@ -646,12 +646,6 @@ public class CameraXActivity extends AppCompatActivity {
                                     @Override
                                     public void onError(@NonNull ImageCaptureException exception) {
                                         Log.e(TAG, "Failed to save image.", exception.getCause());
-                                        try {
-                                            mImageSavedIdlingResource.decrement();
-                                        } catch (IllegalStateException e) {
-                                            Log.e(TAG, "Error: unexpected onImageSaved "
-                                                    + "callback received. Continuing.");
-                                        }
                                     }
                                 });
                     }

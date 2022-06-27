@@ -481,9 +481,10 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
         // completed. On some devices, AE precapture triggered in submitStillCaptures may not
         // work properly if the repeating request to change the flash mode is not completed.
         int flashMode = getFlashMode();
-        return FutureChain.from(mFlashModeChangeSessionUpdateFuture).transformAsync(
-                v -> mCamera2CapturePipeline.submitStillCaptures(
-                        captureConfigs, captureMode, flashMode, flashType), mExecutor);
+        return FutureChain.from(Futures.nonCancellationPropagating(
+                mFlashModeChangeSessionUpdateFuture)).transformAsync(
+                    v -> mCamera2CapturePipeline.submitStillCaptures(captureConfigs, captureMode,
+                        flashMode, flashType), mExecutor);
     }
 
     /** {@inheritDoc} */
