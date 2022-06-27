@@ -56,8 +56,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private final int mSensorRotation;
     @CameraSelector.LensFacing
     private final int mLensFacing;
-    private final boolean mHasFlashUnit = true;
-    private MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
+    private final MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
     private final MutableLiveData<ZoomState> mZoomLiveData;
     private MutableLiveData<CameraState> mCameraStateLiveData;
     private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
@@ -92,6 +91,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         mZoomLiveData = new MutableLiveData<>(ImmutableZoomState.create(1.0f, 4.0f, 1.0f, 0.0f));
     }
 
+    @SuppressWarnings("ConstantConditions") // Super method is nullable.
     @Nullable
     @Override
     public Integer getLensFacing() {
@@ -125,7 +125,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     @Override
     public boolean hasFlashUnit() {
-        return mHasFlashUnit;
+        return true;
     }
 
     @NonNull
@@ -202,6 +202,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     }
 
     /** Adds a quirk to the list of this camera's quirks. */
+    @SuppressWarnings("unused")
     public void addCameraQuirk(@NonNull final Quirk quirk) {
         mCameraQuirks.add(quirk);
     }
