@@ -12,10 +12,9 @@ public APIs and an overview of the constraints placed on changes.
 
 ## Workstation setup {#setup}
 
-You will need to install the
-[`repo`](https://source.android.com/setup/develop#repo) tool, which is used for
-Git branch and commit management. If you want to learn more about `repo`, see
-the [Repo Command Reference](https://source.android.com/setup/develop/repo).
+This section will help you install the `repo` tool, which is used for Git branch
+and commit management. If you want to learn more about `repo`, see the
+[Repo Command Reference](https://source.android.com/setup/develop/repo).
 
 ### Linux and MacOS {#setup-linux-mac}
 
