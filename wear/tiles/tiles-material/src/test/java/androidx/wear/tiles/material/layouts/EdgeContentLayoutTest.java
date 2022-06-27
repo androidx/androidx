@@ -41,7 +41,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
-public class ProgressIndicatorLayoutTest {
+public class EdgeContentLayoutTest {
     private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
     private static final DeviceParameters DEVICE_PARAMETERS =
             new DeviceParameters.Builder().setScreenWidthDp(192).setScreenHeightDp(192).build();
@@ -54,10 +54,10 @@ public class ProgressIndicatorLayoutTest {
         LayoutElement content = new Box.Builder().build();
         CircularProgressIndicator progressIndicator =
                 new CircularProgressIndicator.Builder().build();
-        ProgressIndicatorLayout layout =
-                new ProgressIndicatorLayout.Builder(DEVICE_PARAMETERS)
+        EdgeContentLayout layout =
+                new EdgeContentLayout.Builder(DEVICE_PARAMETERS)
                         .setContent(content)
-                        .setProgressIndicatorContent(progressIndicator)
+                        .setEdgeContent(progressIndicator)
                         .setPrimaryLabelTextContent(PRIMARY_LABEL)
                         .setSecondaryLabelTextContent(SECONDARY_LABEL)
                         .build();
@@ -68,8 +68,8 @@ public class ProgressIndicatorLayoutTest {
     @Test
     public void testContentOnly() {
         LayoutElement content = new Box.Builder().build();
-        ProgressIndicatorLayout layout =
-                new ProgressIndicatorLayout.Builder(DEVICE_PARAMETERS).setContent(content).build();
+        EdgeContentLayout layout =
+                new EdgeContentLayout.Builder(DEVICE_PARAMETERS).setContent(content).build();
 
         assertLayout(layout, null, content, null, null);
     }
@@ -78,9 +78,9 @@ public class ProgressIndicatorLayoutTest {
     public void testIndicatorOnly() {
         CircularProgressIndicator progressIndicator =
                 new CircularProgressIndicator.Builder().build();
-        ProgressIndicatorLayout layout =
-                new ProgressIndicatorLayout.Builder(DEVICE_PARAMETERS)
-                        .setProgressIndicatorContent(progressIndicator)
+        EdgeContentLayout layout =
+                new EdgeContentLayout.Builder(DEVICE_PARAMETERS)
+                        .setEdgeContent(progressIndicator)
                         .build();
 
         assertLayout(layout, progressIndicator, null, null, null);
@@ -88,8 +88,7 @@ public class ProgressIndicatorLayoutTest {
 
     @Test
     public void testEmpty() {
-        ProgressIndicatorLayout layout =
-                new ProgressIndicatorLayout.Builder(DEVICE_PARAMETERS).build();
+        EdgeContentLayout layout = new EdgeContentLayout.Builder(DEVICE_PARAMETERS).build();
 
         assertLayout(layout, null, null, null, null);
     }
@@ -98,53 +97,53 @@ public class ProgressIndicatorLayoutTest {
     public void testWrongElement() {
         Column box = new Column.Builder().build();
 
-        assertThat(ProgressIndicatorLayout.fromLayoutElement(box)).isNull();
+        assertThat(EdgeContentLayout.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongBox() {
         Box box = new Box.Builder().build();
 
-        assertThat(ProgressIndicatorLayout.fromLayoutElement(box)).isNull();
+        assertThat(EdgeContentLayout.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongTag() {
         Box box =
                 new Box.Builder()
-                    .setModifiers(
-                        new Modifiers.Builder()
-                            .setMetadata(
-                                new ElementMetadata.Builder()
-                                    .setTagData("test".getBytes(UTF_8))
-                                    .build())
-                            .build())
-                    .build();
+                        .setModifiers(
+                                new Modifiers.Builder()
+                                        .setMetadata(
+                                                new ElementMetadata.Builder()
+                                                        .setTagData("test".getBytes(UTF_8))
+                                                        .build())
+                                        .build())
+                        .build();
 
-        assertThat(ProgressIndicatorLayout.fromLayoutElement(box)).isNull();
+        assertThat(EdgeContentLayout.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongLengthTag() {
         Box box =
                 new Box.Builder()
-                    .setModifiers(
-                        new Modifiers.Builder()
-                            .setMetadata(
-                                new ElementMetadata.Builder()
-                                    .setTagData(
-                                        ProgressIndicatorLayout
-                                            .METADATA_TAG_PREFIX
-                                            .getBytes(UTF_8))
-                                    .build())
-                            .build())
-                    .build();
+                        .setModifiers(
+                                new Modifiers.Builder()
+                                        .setMetadata(
+                                                new ElementMetadata.Builder()
+                                                        .setTagData(
+                                                                EdgeContentLayout
+                                                                        .METADATA_TAG_PREFIX
+                                                                        .getBytes(UTF_8))
+                                                        .build())
+                                        .build())
+                        .build();
 
-        assertThat(ProgressIndicatorLayout.fromLayoutElement(box)).isNull();
+        assertThat(EdgeContentLayout.fromLayoutElement(box)).isNull();
     }
 
     private void assertLayout(
-            @NonNull ProgressIndicatorLayout actualLayout,
+            @NonNull EdgeContentLayout actualLayout,
             @Nullable LayoutElement expectedProgressIndicator,
             @Nullable LayoutElement expectedContent,
             @Nullable LayoutElement expectedPrimaryLabel,
@@ -158,8 +157,7 @@ public class ProgressIndicatorLayoutTest {
 
         Box box = new Box.Builder().addContent(actualLayout).build();
 
-        ProgressIndicatorLayout newLayout =
-                ProgressIndicatorLayout.fromLayoutElement(box.getContents().get(0));
+        EdgeContentLayout newLayout = EdgeContentLayout.fromLayoutElement(box.getContents().get(0));
 
         assertThat(newLayout).isNotNull();
         assertLayoutIsEqual(
@@ -169,26 +167,26 @@ public class ProgressIndicatorLayoutTest {
                 expectedPrimaryLabel,
                 expectedSecondaryLabel);
 
-        assertThat(ProgressIndicatorLayout.fromLayoutElement(actualLayout)).isEqualTo(actualLayout);
+        assertThat(EdgeContentLayout.fromLayoutElement(actualLayout)).isEqualTo(actualLayout);
     }
 
     private void assertLayoutIsEqual(
-            @NonNull ProgressIndicatorLayout actualLayout,
+            @NonNull EdgeContentLayout actualLayout,
             @Nullable LayoutElement expectedProgressIndicator,
             @Nullable LayoutElement expectedContent,
             @Nullable LayoutElement expectedPrimaryLabel,
             @Nullable LayoutElement expectedSecondaryLabel) {
-        byte[] expectedMetadata = ProgressIndicatorLayout.METADATA_TAG_BASE.clone();
+        byte[] expectedMetadata = EdgeContentLayout.METADATA_TAG_BASE.clone();
 
         if (expectedProgressIndicator == null) {
-            assertThat(actualLayout.getProgressIndicatorContent()).isNull();
+            assertThat(actualLayout.getEdgeContent()).isNull();
         } else {
-            assertThat(actualLayout.getProgressIndicatorContent().toLayoutElementProto())
+            assertThat(actualLayout.getEdgeContent().toLayoutElementProto())
                     .isEqualTo(expectedProgressIndicator.toLayoutElementProto());
-            expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX] =
+            expectedMetadata[EdgeContentLayout.FLAG_INDEX] =
                     (byte)
-                            (expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX]
-                                    | ProgressIndicatorLayout.PROGRESS_INDICATOR_PRESENT);
+                            (expectedMetadata[EdgeContentLayout.FLAG_INDEX]
+                                    | EdgeContentLayout.EDGE_CONTENT_PRESENT);
         }
 
         if (expectedContent == null) {
@@ -196,10 +194,10 @@ public class ProgressIndicatorLayoutTest {
         } else {
             assertThat(actualLayout.getContent().toLayoutElementProto())
                     .isEqualTo(expectedContent.toLayoutElementProto());
-            expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX] =
+            expectedMetadata[EdgeContentLayout.FLAG_INDEX] =
                     (byte)
-                            (expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX]
-                                    | ProgressIndicatorLayout.CONTENT_PRESENT);
+                            (expectedMetadata[EdgeContentLayout.FLAG_INDEX]
+                                    | EdgeContentLayout.CONTENT_PRESENT);
         }
 
         if (expectedPrimaryLabel == null) {
@@ -207,10 +205,10 @@ public class ProgressIndicatorLayoutTest {
         } else {
             assertThat(actualLayout.getPrimaryLabelTextContent().toLayoutElementProto())
                     .isEqualTo(expectedPrimaryLabel.toLayoutElementProto());
-            expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX] =
+            expectedMetadata[EdgeContentLayout.FLAG_INDEX] =
                     (byte)
-                            (expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX]
-                                    | ProgressIndicatorLayout.PRIMARY_LABEL_PRESENT);
+                            (expectedMetadata[EdgeContentLayout.FLAG_INDEX]
+                                    | EdgeContentLayout.PRIMARY_LABEL_PRESENT);
         }
 
         if (expectedSecondaryLabel == null) {
@@ -218,10 +216,10 @@ public class ProgressIndicatorLayoutTest {
         } else {
             assertThat(actualLayout.getSecondaryLabelTextContent().toLayoutElementProto())
                     .isEqualTo(expectedSecondaryLabel.toLayoutElementProto());
-            expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX] =
+            expectedMetadata[EdgeContentLayout.FLAG_INDEX] =
                     (byte)
-                            (expectedMetadata[ProgressIndicatorLayout.FLAG_INDEX]
-                                    | ProgressIndicatorLayout.SECONDARY_LABEL_PRESENT);
+                            (expectedMetadata[EdgeContentLayout.FLAG_INDEX]
+                                    | EdgeContentLayout.SECONDARY_LABEL_PRESENT);
         }
 
         assertThat(actualLayout.getMetadataTag()).isEqualTo(expectedMetadata);

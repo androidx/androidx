@@ -24,10 +24,10 @@ import static androidx.wear.tiles.material.Helper.getMetadataTagBytes;
 import static androidx.wear.tiles.material.Helper.getTagBytes;
 import static androidx.wear.tiles.material.Helper.isRoundDevice;
 import static androidx.wear.tiles.material.ProgressIndicatorDefaults.DEFAULT_PADDING;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.PROGRESS_INDICATOR_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP;
+import static androidx.wear.tiles.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -53,10 +53,10 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Tiles layout that represents the suggested layout style for Material Tiles with the progress
- * indicator around the edges of the screen and the given content inside of it and the recommended
- * margin and padding applied. Optional primary or secondary label can be added above and below the
- * main content, respectively.
+ * Tiles layout that represents the suggested layout style for Material Tiles, which has content
+ * around the edge of the screen (e.g. a ProgressIndicator) and the given content inside of it with
+ * the recommended margin and padding applied. Optional primary or secondary label can be added
+ * above and below the main content, respectively.
  *
  * <p>For additional examples and suggested layouts see <a
  * href="/training/wearables/design/tiles-design-system">Tiles Design System</a>.
@@ -65,28 +65,28 @@ import java.util.List;
  * casted back to the original type, i.e.:
  *
  * <pre>{@code
- * ProgressIndicatorLayout pil = new ProgressIndicatorLayout...
- * Box box = new Box.Builder().addContent(pil).build();
+ * EdgeContentLayout ecl = new EdgeContentLayout...
+ * Box box = new Box.Builder().addContent(ecl).build();
  *
- * ProgressIndicatorLayout myPil = (ProgressIndicatorLayout) box.getContents().get(0);
+ * EdgeContentLayout myEcl = (EdgeContentLayout) box.getContents().get(0);
  * }</pre>
  *
  * will fail.
  *
- * <p>To be able to get {@link ProgressIndicatorLayout} object from any layout element, {@link
+ * <p>To be able to get {@link EdgeContentLayout} object from any layout element, {@link
  * #fromLayoutElement} method should be used, i.e.:
  *
  * <pre>{@code
- * ProgressIndicatorLayout myPil =
- *   ProgressIndicatorLayout.fromLayoutElement(box.getContents().get(0));
+ * EdgeContentLayout myEcl =
+ *   EdgeContentLayout.fromLayoutElement(box.getContents().get(0));
  * }</pre>
  */
-public class ProgressIndicatorLayout implements LayoutElement {
+public class EdgeContentLayout implements LayoutElement {
     /**
      * Prefix tool tag for Metadata in Modifiers, so we know that Box is actually a
-     * ProgressIndicatorLayout.
+     * EdgeContentLayout.
      */
-    static final String METADATA_TAG_PREFIX = "PIL_";
+    static final String METADATA_TAG_PREFIX = "ECL_";
 
     /**
      * Index for byte array that contains bits to check whether the content and indicator are
@@ -95,17 +95,17 @@ public class ProgressIndicatorLayout implements LayoutElement {
     static final int FLAG_INDEX = METADATA_TAG_PREFIX.length();
 
     /**
-     * Base tool tag for Metadata in Modifiers, so we know that Box is actually a
-     * ProgressIndicatorLayout and what optional content is added.
+     * Base tool tag for Metadata in Modifiers, so we know that Box is actually a EdgeContentLayout
+     * and what optional content is added.
      */
     static final byte[] METADATA_TAG_BASE =
             Arrays.copyOf(getTagBytes(METADATA_TAG_PREFIX), FLAG_INDEX + 1);
 
     /**
      * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
-     * the progress indicator is present or not.
+     * the edge content is present or not.
      */
-    static final int PROGRESS_INDICATOR_PRESENT = 0x1;
+    static final int EDGE_CONTENT_PRESENT = 0x1;
     /**
      * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
      * the primary label is present or not.
@@ -128,7 +128,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
     @IntDef(
             flag = true,
             value = {
-                PROGRESS_INDICATOR_PRESENT,
+                EDGE_CONTENT_PRESENT,
                 PRIMARY_LABEL_PRESENT,
                 CONTENT_PRESENT,
                 SECONDARY_LABEL_PRESENT
@@ -137,40 +137,42 @@ public class ProgressIndicatorLayout implements LayoutElement {
 
     @NonNull private final Box mImpl;
 
-    // This contains inner columns and progress indicator.
+    // This contains inner columns and edge content.
     @NonNull private final List<LayoutElement> mContents;
 
     // This contains optional labels, spacers and main content.
     @NonNull private final List<LayoutElement> mInnerColumn;
 
-    ProgressIndicatorLayout(@NonNull Box layoutElement) {
+    EdgeContentLayout(@NonNull Box layoutElement) {
         this.mImpl = layoutElement;
         this.mContents = mImpl.getContents();
         this.mInnerColumn = ((Column) ((Box) mContents.get(0)).getContents().get(0)).getContents();
     }
 
-    /** Builder class for {@link ProgressIndicatorLayout}. */
+    /** Builder class for {@link EdgeContentLayout}. */
     public static final class Builder implements LayoutElement.Builder {
         @NonNull private final DeviceParameters mDeviceParameters;
-        @Nullable private LayoutElement mProgressIndicator = null;
+        @Nullable private LayoutElement mEdgeContent = null;
         @Nullable private LayoutElement mPrimaryLabelText = null;
         @Nullable private LayoutElement mSecondaryLabelText = null;
         @Nullable private LayoutElement mContent = null;
         private byte mMetadataContentByte = 0;
 
         /**
-         * Creates a builder for the {@link ProgressIndicatorLayout}t. Custom content inside of it
-         * can later be set with ({@link #setContent}.
+         * Creates a builder for the {@link EdgeContentLayout}t. Custom content inside of it can
+         * later be set with ({@link #setContent}.
          */
         public Builder(@NonNull DeviceParameters deviceParameters) {
             this.mDeviceParameters = deviceParameters;
         }
 
-        /** Sets the progress indicator which will be around the edges. */
+        /**
+         * Sets the content to be around the edges. This can be {@link CircularProgressIndicator}.
+         */
         @NonNull
-        public Builder setProgressIndicatorContent(@NonNull LayoutElement progressIndicator) {
-            this.mProgressIndicator = progressIndicator;
-            mMetadataContentByte = (byte) (mMetadataContentByte | PROGRESS_INDICATOR_PRESENT);
+        public Builder setEdgeContent(@NonNull LayoutElement edgeContent) {
+            this.mEdgeContent = edgeContent;
+            mMetadataContentByte = (byte) (mMetadataContentByte | EDGE_CONTENT_PRESENT);
             return this;
         }
 
@@ -201,23 +203,18 @@ public class ProgressIndicatorLayout implements LayoutElement {
             return this;
         }
 
-        /**
-         * Constructs and returns {@link ProgressIndicatorLayout} with the provided content and
-         * look.
-         */
+        /** Constructs and returns {@link EdgeContentLayout} with the provided content and look. */
         @NonNull
         @Override
-        public ProgressIndicatorLayout build() {
+        public EdgeContentLayout build() {
             float thicknessDp =
-                    mProgressIndicator instanceof CircularProgressIndicator
-                            ? ((CircularProgressIndicator) mProgressIndicator)
-                                    .getStrokeWidth()
-                                    .getValue()
+                    mEdgeContent instanceof CircularProgressIndicator
+                            ? ((CircularProgressIndicator) mEdgeContent).getStrokeWidth().getValue()
                             : 0;
             float horizontalPaddingDp =
                     isRoundDevice(mDeviceParameters)
-                            ? PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP
-                            : PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
+                            ? EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP
+                            : EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
             float indicatorWidth = 2 * (thicknessDp + DEFAULT_PADDING.getValue());
             float mainContentHeightDp = mDeviceParameters.getScreenHeightDp() - indicatorWidth;
             float mainContentWidthDp = mDeviceParameters.getScreenWidthDp() - indicatorWidth;
@@ -258,8 +255,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
                 innerContentBuilder.addContent(mPrimaryLabelText);
                 innerContentBuilder.addContent(
                         new Spacer.Builder()
-                                .setHeight(
-                                        dp(PROGRESS_INDICATOR_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP))
+                                .setHeight(dp(EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP))
                                 .build());
             }
 
@@ -274,8 +270,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
             if (mSecondaryLabelText != null) {
                 innerContentBuilder.addContent(
                         new Spacer.Builder()
-                                .setHeight(
-                                        dp(PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP))
+                                .setHeight(dp(EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP))
                                 .build());
                 innerContentBuilder.addContent(mSecondaryLabelText);
             }
@@ -290,11 +285,11 @@ public class ProgressIndicatorLayout implements LayoutElement {
                             .addContent(innerContentBuilder.build())
                             .build());
 
-            if (mProgressIndicator != null) {
-                mainBoxBuilder.addContent(mProgressIndicator);
+            if (mEdgeContent != null) {
+                mainBoxBuilder.addContent(mEdgeContent);
             }
 
-            return new ProgressIndicatorLayout(mainBoxBuilder.build());
+            return new EdgeContentLayout(mainBoxBuilder.build());
         }
     }
 
@@ -302,7 +297,7 @@ public class ProgressIndicatorLayout implements LayoutElement {
         return (getMetadataTag()[FLAG_INDEX] & elementFlag) == elementFlag;
     }
 
-    /** Returns metadata tag set to this ProgressIndicatorLayout. */
+    /** Returns metadata tag set to this EdgeContentLayout. */
     @NonNull
     byte[] getMetadataTag() {
         return getMetadataTagBytes(checkNotNull(checkNotNull(mImpl.getModifiers()).getMetadata()));
@@ -340,24 +335,24 @@ public class ProgressIndicatorLayout implements LayoutElement {
         return mInnerColumn.get(mInnerColumn.size() - 1);
     }
 
-    /** Returns the progress indicator content from this layout. */
+    /** Returns the edge content from this layout. */
     @Nullable
-    public LayoutElement getProgressIndicatorContent() {
-        if (areElementsPresent(PROGRESS_INDICATOR_PRESENT)) {
+    public LayoutElement getEdgeContent() {
+        if (areElementsPresent(EDGE_CONTENT_PRESENT)) {
             return mContents.get(1);
         }
         return null;
     }
 
     /**
-     * Returns ProgressIndicatorLayout object from the given LayoutElement (e.g. one retrieved from
-     * a container's content with {@code container.getContents().get(index)}) if that element can be
-     * converted to ProgressIndicatorLayout. Otherwise, it will return null.
+     * Returns EdgeContentLayout object from the given LayoutElement (e.g. one retrieved from a
+     * container's content with {@code container.getContents().get(index)}) if that element can be
+     * converted to EdgeContentLayout. Otherwise, it will return null.
      */
     @Nullable
-    public static ProgressIndicatorLayout fromLayoutElement(@NonNull LayoutElement element) {
-        if (element instanceof ProgressIndicatorLayout) {
-            return (ProgressIndicatorLayout) element;
+    public static EdgeContentLayout fromLayoutElement(@NonNull LayoutElement element) {
+        if (element instanceof EdgeContentLayout) {
+            return (EdgeContentLayout) element;
         }
         if (!(element instanceof Box)) {
             return null;
@@ -366,8 +361,8 @@ public class ProgressIndicatorLayout implements LayoutElement {
         if (!checkTag(boxElement.getModifiers(), METADATA_TAG_PREFIX, METADATA_TAG_BASE)) {
             return null;
         }
-        // Now we are sure that this element is a ProgressIndicatorLayout.
-        return new ProgressIndicatorLayout(boxElement);
+        // Now we are sure that this element is a EdgeContentLayout.
+        return new EdgeContentLayout(boxElement);
     }
 
     /** @hide */
