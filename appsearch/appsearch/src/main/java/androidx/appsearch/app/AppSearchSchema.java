@@ -127,7 +127,7 @@ public final class AppSearchSchema {
     public List<PropertyConfig> getProperties() {
         ArrayList<Bundle> propertyBundles =
                 mBundle.getParcelableArrayList(AppSearchSchema.PROPERTIES_FIELD);
-        if (propertyBundles.isEmpty()) {
+        if (propertyBundles == null || propertyBundles.isEmpty()) {
             return Collections.emptyList();
         }
         List<PropertyConfig> ret = new ArrayList<>(propertyBundles.size());
