@@ -17,10 +17,10 @@ package androidx.health.platform.client.impl.data
 
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.health.platform.client.proto.ByteString
+import androidx.health.platform.client.proto.BytesValue
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import com.google.protobuf.ByteString
-import com.google.protobuf.BytesValue
 import org.junit.Test
 import org.junit.runner.RunWith
 

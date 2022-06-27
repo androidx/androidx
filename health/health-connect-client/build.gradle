@@ -14,22 +14,31 @@
  * limitations under the License.
  */
 
+import androidx.build.BundleInsideHelper
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.google.protobuf")
     id("org.jetbrains.kotlin.android")
 }
+
+BundleInsideHelper.forInsideAar(
+        project,
+        /* from = */ "com.google.protobuf",
+        /* to =   */ "androidx.health.platform.client.proto"
+)
 
 dependencies {
     api(libs.kotlinStdlib)
     // Add dependencies here
     api("androidx.activity:activity:1.2.0")
     api("androidx.annotation:annotation:1.2.0")
-    implementation(libs.protobufLite)
+    bundleInside(project(
+            path: ":health:health-connect-client-proto",
+            configuration: "export"
+    ))
     implementation(libs.guavaListenableFuture)
     implementation(libs.guavaAndroid)
     implementation(libs.kotlinCoroutinesAndroid)
@@ -58,25 +67,6 @@ android {
     }
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.health.connect.client"
-}
-
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-
-    // Generates the java proto-lite code for the protos in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
-    generateProtoTasks {
-        all().each { task ->
-                task.builtins {
-                    java {
-                        option 'lite'
-                    }
-                }
-        }
-    }
 }
 
 androidx {

@@ -21,7 +21,7 @@ import android.os.Parcelable
 import android.os.Parcelable.Creator
 import android.os.SharedMemory
 import androidx.annotation.RestrictTo
-import com.google.protobuf.MessageLite
+import androidx.health.platform.client.proto.MessageLite
 
 /**
  * Base class for parcelables backed by protos.
