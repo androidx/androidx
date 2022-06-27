@@ -673,18 +673,34 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // inspects the last-seen configuration. Otherwise, we'll recurse back to this method.
         mEffectiveConfiguration = new Configuration(mContext.getResources().getConfiguration());
 
-        // Re-apply Day/Night and locales with the new configuration but disable recreations.
+        // Re-apply Day/Night with the new configuration but disable recreations.
         // Since this configuration change has only just happened we can safely just update the
         // resources now.
-        applyApplicationSpecificConfig(false);
+        // For locales, no re-application is required since locales must have already been applied
+        // to the configuration when AppCompatDelegate.setApplicationLocales() is called.
+        // Also, in the case where an invalid locale is passed at the top position in the input
+        // locales, framework re-adjusts the list to bring forward the most suitable locale in
+        // the configuration. Therefore if we apply the new locales here again, the code will get
+        // stuck in a loop of attempted re-application since the configuration locales are never
+        // the same as we applied. The same thing is valid during the case when configChanges are
+        // handled by the application.
+        applyApplicationSpecificConfig(false,
+                /* isLocalesApplicationRequired */ false);
     }
 
     @Override
     public void onStart() {
         // This will apply day/night if the time has changed, it will also call through to
-        // setupAutoNightModeIfNeeded(). Also, this will make sure that the latest
-        // app-specific locales are applied and activity is recreated if needed.
-        applyApplicationSpecificConfig(true);
+        // setupAutoNightModeIfNeeded().
+        // For locales, no re-application is required since the requested locales must have
+        // already been updated before this point in activity lifecycle.
+        // Also, in the case where an invalid locale is passed at the top position in the input
+        // locales, framework re-adjusts the list to bring forward the most suitable locale in
+        // the configuration. Therefore if we apply the new locales here again, the code will get
+        // stuck in a loop of attempted re-application since the configuration locales are never
+        // the same as we applied.
+        applyApplicationSpecificConfig(true,
+                /* isLocalesApplicationRequired */false);
     }
 
     @Override
@@ -2406,8 +2422,23 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         return applyApplicationSpecificConfig(true);
     }
 
-    @SuppressWarnings("deprecation")
+    /**
+     * Applies application configuration to the activity.
+     */
     private boolean applyApplicationSpecificConfig(final boolean allowRecreation) {
+        return applyApplicationSpecificConfig(allowRecreation,
+                /* isLocalesApplicationRequired */ true);
+    }
+
+    /**
+     * Applies application configuration to the activity.
+     *
+     * <p>By passing appropriate values to the input parameter {@param isLocalesApplicationRequired}
+     * application of locales config on the current activity can be triggered or suppressed.</p>
+     */
+    @SuppressWarnings("deprecation")
+    private boolean applyApplicationSpecificConfig(final boolean allowRecreation,
+            final boolean isLocalesApplicationRequired) {
         if (mDestroyed) {
             if (DEBUG) {
                 Log.d(TAG, "applyApplicationSpecificConfig. Skipping because host is "
@@ -2423,6 +2454,15 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         LocaleListCompat localesToBeApplied = null;
         if (Build.VERSION.SDK_INT < 33) {
             localesToBeApplied = calculateApplicationLocales(mContext);
+        }
+
+        if (!isLocalesApplicationRequired && localesToBeApplied != null) {
+            // Reaching here would mean that the requested locales has already been applied and
+            // no modification is required. Hence, localesToBeApplied is kept same as the current
+            // configuration locales.
+            localesToBeApplied =
+                    getConfigurationLocales(mContext.getResources()
+                            .getConfiguration());
         }
 
         final boolean applied = updateAppConfiguration(modeToApply, localesToBeApplied,
@@ -2724,7 +2764,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         if (handled && newLocales != null) {
-            setDefaultLocalesForLocaleList(newLocales);
+            // LocaleListCompat's default locales are updated here using the configuration
+            // locales to keep default locales in sync with application locales and also to cover
+            // the case where framework re-adjusts input locales by bringing forward the most
+            // suitable locale.
+            setDefaultLocalesForLocaleList(getConfigurationLocales(
+                    mContext.getResources().getConfiguration()));
         }
         return handled;
     }
