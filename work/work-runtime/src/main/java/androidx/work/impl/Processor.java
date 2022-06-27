@@ -382,6 +382,26 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
         }
     }
 
+    /**
+     * Returns a spec of the running worker by the given id
+     *
+     * @param workSpecId id of running worker
+     */
+    @Nullable
+    public WorkSpec getRunningWorkSpec(@NonNull String workSpecId) {
+        synchronized (mLock) {
+            WorkerWrapper workerWrapper = mForegroundWorkMap.get(workSpecId);
+            if (workerWrapper == null) {
+                workerWrapper = mEnqueuedWorkMap.get(workSpecId);
+            }
+            if (workerWrapper != null) {
+                return workerWrapper.getWorkSpec();
+            } else {
+                return null;
+            }
+        }
+    }
+
     private void runOnExecuted(@NonNull final WorkGenerationalId id, boolean needsReschedule) {
         mWorkTaskExecutor.getMainThreadExecutor().execute(
                 () -> onExecuted(id, needsReschedule)
