@@ -299,8 +299,8 @@ public class TestCasesGenerator {
                         .build();
         testCases.put(
                 "default_text_progressindicatorlayout_golden" + goldenSuffix,
-                new ProgressIndicatorLayout.Builder(deviceParameters)
-                        .setProgressIndicatorContent(progressIndicatorBuilder.build())
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setEdgeContent(progressIndicatorBuilder.build())
                         .setPrimaryLabelTextContent(
                                 new Text.Builder(context, "Primary label")
                                         .setTypography(Typography.TYPOGRAPHY_CAPTION1)
@@ -315,14 +315,14 @@ public class TestCasesGenerator {
                         .build());
         testCases.put(
                 "default_empty_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
-                new ProgressIndicatorLayout.Builder(deviceParameters)
-                        .setProgressIndicatorContent(progressIndicatorBuilder.build())
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setEdgeContent(progressIndicatorBuilder.build())
                         .build());
         testCases.put(
                 "custom_progressindicatorlayout_golden" + goldenSuffix,
-                new ProgressIndicatorLayout.Builder(deviceParameters)
+                new EdgeContentLayout.Builder(deviceParameters)
                         .setContent(textContent)
-                        .setProgressIndicatorContent(
+                        .setEdgeContent(
                                 progressIndicatorBuilder
                                         .setCircularProgressIndicatorColors(
                                                 new ProgressIndicatorColors(
@@ -331,8 +331,8 @@ public class TestCasesGenerator {
                         .build());
         testCases.put(
                 "coloredbox_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
-                new ProgressIndicatorLayout.Builder(deviceParameters)
-                        .setProgressIndicatorContent(
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setEdgeContent(
                                 progressIndicatorBuilder
                                         .setCircularProgressIndicatorColors(
                                                 ProgressIndicatorDefaults.DEFAULT_COLORS)

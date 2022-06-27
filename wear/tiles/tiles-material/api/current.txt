@@ -223,12 +223,29 @@ package androidx.wear.tiles.material {
 
 package androidx.wear.tiles.material.layouts {
 
+  public class EdgeContentLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
+    method public static androidx.wear.tiles.material.layouts.EdgeContentLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getEdgeContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
+    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
+  }
+
+  public static final class EdgeContentLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
+    ctor public EdgeContentLayout.Builder(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
+    method public androidx.wear.tiles.material.layouts.EdgeContentLayout build();
+    method public androidx.wear.tiles.material.layouts.EdgeContentLayout.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.material.layouts.EdgeContentLayout.Builder setEdgeContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.material.layouts.EdgeContentLayout.Builder setPrimaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+    method public androidx.wear.tiles.material.layouts.EdgeContentLayout.Builder setSecondaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
+  }
+
   public class LayoutDefaults {
     field public static final androidx.wear.tiles.DimensionBuilders.DpProp DEFAULT_VERTICAL_SPACER_HEIGHT;
+    field public static final float EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6.0f;
+    field public static final float EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8.0f;
     field public static final int MULTI_BUTTON_MAX_NUMBER = 7; // 0x7
     field public static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH;
-    field public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6.0f;
-    field public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8.0f;
   }
 
   public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
@@ -276,23 +293,6 @@ package androidx.wear.tiles.material.layouts {
     method public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setPrimaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setSecondaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
     method public androidx.wear.tiles.material.layouts.PrimaryLayout.Builder setVerticalSpacerHeight(@Dimension(unit=androidx.annotation.Dimension.DP) float);
-  }
-
-  public class ProgressIndicatorLayout implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement {
-    method public static androidx.wear.tiles.material.layouts.ProgressIndicatorLayout? fromLayoutElement(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getContent();
-    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getPrimaryLabelTextContent();
-    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getProgressIndicatorContent();
-    method public androidx.wear.tiles.LayoutElementBuilders.LayoutElement? getSecondaryLabelTextContent();
-  }
-
-  public static final class ProgressIndicatorLayout.Builder implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
-    ctor public ProgressIndicatorLayout.Builder(androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters);
-    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout build();
-    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout.Builder setContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout.Builder setPrimaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout.Builder setProgressIndicatorContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
-    method public androidx.wear.tiles.material.layouts.ProgressIndicatorLayout.Builder setSecondaryLabelTextContent(androidx.wear.tiles.LayoutElementBuilders.LayoutElement);
   }
 
 }
