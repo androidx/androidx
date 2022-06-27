@@ -16,6 +16,7 @@
 
 package androidx.sqlite.db;
 
+import android.content.ContentProvider;
 import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -75,11 +76,12 @@ public interface SupportSQLiteOpenHelper extends Closeable {
      *
      * <p class="caution">Database upgrade may take a long time, you
      * should not call this method from the application main thread, including
-     * from {@link android.content.ContentProvider#onCreate ContentProvider.onCreate()}.
+     * from {@link ContentProvider#onCreate ContentProvider.onCreate()}.
      *
      * @return a read/write database object valid until {@link #close} is called
      * @throws SQLiteException if the database cannot be opened for writing
      */
+    @NonNull
     SupportSQLiteDatabase getWritableDatabase();
 
     /**
@@ -94,12 +96,13 @@ public interface SupportSQLiteOpenHelper extends Closeable {
      * <p class="caution">Like {@link #getWritableDatabase}, this method may
      * take a long time to return, so you should not call it from the
      * application main thread, including from
-     * {@link android.content.ContentProvider#onCreate ContentProvider.onCreate()}.
+     * {@link ContentProvider#onCreate ContentProvider.onCreate()}.
      *
      * @return a database object valid until {@link #getWritableDatabase}
      * or {@link #close} is called.
      * @throws SQLiteException if the database cannot be opened
      */
+    @NonNull
     SupportSQLiteDatabase getReadableDatabase();
 
     /**

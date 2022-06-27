@@ -265,7 +265,7 @@ internal class AutoClosingRoomOpenHelper(
         @RequiresApi(api = Build.VERSION_CODES.N)
         override fun query(
             query: SupportSQLiteQuery,
-            cancellationSignal: CancellationSignal
+            cancellationSignal: CancellationSignal?
         ): Cursor {
             val result = try {
                 autoCloser.incrementCountAndEnsureDbIsOpen().query(query, cancellationSignal)
@@ -286,7 +286,7 @@ internal class AutoClosingRoomOpenHelper(
             }
         }
 
-        override fun delete(table: String, whereClause: String, whereArgs: Array<Any>): Int {
+        override fun delete(table: String, whereClause: String?, whereArgs: Array<Any>?): Int {
             return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
                 db.delete(
                     table,
@@ -300,8 +300,8 @@ internal class AutoClosingRoomOpenHelper(
             table: String,
             conflictAlgorithm: Int,
             values: ContentValues,
-            whereClause: String,
-            whereArgs: Array<Any>
+            whereClause: String?,
+            whereArgs: Array<Any>?
         ): Int {
             return autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
                 db.update(
@@ -348,7 +348,7 @@ internal class AutoClosingRoomOpenHelper(
             }
         }
 
-        override fun getPath(): String {
+        override fun getPath(): String? {
             return autoCloser.executeRefCountingFunction { obj: SupportSQLiteDatabase ->
                 obj.path
             }
@@ -402,7 +402,7 @@ internal class AutoClosingRoomOpenHelper(
             }
         }
 
-        override fun getAttachedDbs(): List<Pair<String, String>> {
+        override fun getAttachedDbs(): List<Pair<String, String>>? {
             return autoCloser.executeRefCountingFunction {
                     obj: SupportSQLiteDatabase -> obj.attachedDbs
             }
@@ -552,7 +552,7 @@ internal class AutoClosingRoomOpenHelper(
             }
         }
 
-        override fun simpleQueryForString(): String {
+        override fun simpleQueryForString(): String? {
             return executeSqliteStatementWithRefCount { obj: SupportSQLiteStatement ->
                 obj.simpleQueryForString()
             }

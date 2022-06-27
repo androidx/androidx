@@ -108,9 +108,8 @@ class OpenHelperRecoveryTest {
     @Test
     fun allowDataLossOnRecovery_onUpgradeError() {
         // Create DB at version 1, open and close it
-        FrameworkSQLiteOpenHelper(context, dbName, EmptyCallback(1), false, true).let {
-            it.writableDatabase.close()
-        }
+        FrameworkSQLiteOpenHelper(context, dbName, EmptyCallback(1), false, true)
+            .writableDatabase.close()
 
         // A callback to open DB at version 2, it has a bad migration.
         val badCallback = object : SupportSQLiteOpenHelper.Callback(2) {

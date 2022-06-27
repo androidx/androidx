@@ -16,6 +16,7 @@
 
 package androidx.sqlite.db;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
@@ -33,7 +34,7 @@ public final class SimpleSQLiteQuery implements SupportSQLiteQuery {
      * @param query    The query string, can include bind arguments (.e.g ?).
      * @param bindArgs The bind argument value that will replace the placeholders in the query.
      */
-    public SimpleSQLiteQuery(String query, @Nullable Object[] bindArgs) {
+    public SimpleSQLiteQuery(@NonNull String query, @Nullable Object[] bindArgs) {
         mQuery = query;
         mBindArgs = bindArgs;
     }
@@ -43,17 +44,18 @@ public final class SimpleSQLiteQuery implements SupportSQLiteQuery {
      *
      * @param query The SQL query to execute. Cannot include bind parameters.
      */
-    public SimpleSQLiteQuery(String query) {
+    public SimpleSQLiteQuery(@NonNull String query) {
         this(query, null);
     }
 
+    @NonNull
     @Override
     public String getSql() {
         return mQuery;
     }
 
     @Override
-    public void bindTo(SupportSQLiteProgram statement) {
+    public void bindTo(@NonNull SupportSQLiteProgram statement) {
         bind(statement, mBindArgs);
     }
 
@@ -68,7 +70,7 @@ public final class SimpleSQLiteQuery implements SupportSQLiteQuery {
      * @param statement The sqlite statement
      * @param bindArgs  The list of bind arguments
      */
-    public static void bind(SupportSQLiteProgram statement, Object[] bindArgs) {
+    public static void bind(@NonNull SupportSQLiteProgram statement, @Nullable Object[] bindArgs) {
         if (bindArgs == null) {
             return;
         }
