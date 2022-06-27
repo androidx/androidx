@@ -1094,7 +1094,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
     */
 
-    @FlakyTest(bugId = 187340262)
+    @Ignore("b/213625878")
     @Test
     @LargeTest
     public void playbackRate() throws Exception {
