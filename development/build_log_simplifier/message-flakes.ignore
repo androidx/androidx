@@ -31,10 +31,21 @@ Remote build cache is disabled when running with \-\-offline\.
 [0-9]+ actionable task: [0-9]+ executed
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache, [0-9]+ up\-to\-date
 The remote build cache was disabled during the build due to errors\.
+The build is running offline\. A build scan will not be published at this time, but it can be published if you run the buildScanPublishPrevious task in the next build\.
+Calculating task graph as configuration cache cannot be reused because environment variable '.*' has changed\.
+Calculating task graph as configuration cache cannot be reused because file '[^ ]*' has changed\.
+Calculating task graph as no configuration cache is available for tasks:.*
+Reusing configuration cache\.
+Calculating task graph as configuration cache cannot be reused because an input to task '[^ ]*' has changed\.
+See the profiling report at\: file\:\/\/\$OUT_DIR\/buildSrc\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # Some messages that encode the number of a certain type of other error
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warnings filtered by baseline lint\-baseline\.xml\)
 [0-9]+ errors, [0-9]+ warnings \([0-9]+ warning filtered by baseline lint\-baseline\.xml\)
 [0-9]+ problems were found reusing the configuration cache, [0-9]+ of which seems unique\.
+[0-9]+ problems were found storing the configuration cache, [0-9]+ of which seems unique\.
+[0-9]+ problems were found reusing the configuration cache\.
+[0-9]+ problem was found reusing the configuration cache\.
+Configuration cache entry reused with [0-9]+ problem\.
 # > Task :webkit:integration-tests:testapp:compileReleaseJavaWithJavac
 \[ant\:jacocoReport\] Note\: Some input files use or override a deprecated API\.
 \[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:deprecation for details\.
