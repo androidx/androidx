@@ -28,13 +28,13 @@ public class ButtonDefaults {
     private ButtonDefaults() {}
 
     /** The default size for standard {@link Button}. */
-    @NonNull public static final DpProp DEFAULT_BUTTON_SIZE = dp(52);
+    @NonNull public static final DpProp DEFAULT_SIZE = dp(52);
 
     /** The recommended size for large {@link Button}. */
-    @NonNull public static final DpProp LARGE_BUTTON_SIZE = dp(60);
+    @NonNull public static final DpProp LARGE_SIZE = dp(60);
 
     /** The recommended size for extra large {@link Button}. */
-    @NonNull public static final DpProp EXTRA_LARGE_BUTTON_SIZE = dp(88);
+    @NonNull public static final DpProp EXTRA_LARGE_SIZE = dp(88);
 
     /** Returns the recommended icon size for the given size of a {@link Button}. */
     @NonNull
@@ -50,11 +50,11 @@ public class ButtonDefaults {
 
     /** The recommended colors for a primary {@link Button}. */
     @NonNull
-    public static final ButtonColors PRIMARY_BUTTON_COLORS =
+    public static final ButtonColors PRIMARY_COLORS =
             ButtonColors.primaryButtonColors(Colors.DEFAULT);
 
     /** The recommended colors for a secondary {@link Button}. */
     @NonNull
-    public static final ButtonColors SECONDARY_BUTTON_COLORS =
+    public static final ButtonColors SECONDARY_COLORS =
             ButtonColors.secondaryButtonColors(Colors.DEFAULT);
 }

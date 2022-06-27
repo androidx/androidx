@@ -74,23 +74,23 @@ public class LayoutDefaults {
     /** The default spacer height for primary chip in the {@link PrimaryLayout}. */
     static final DpProp PRIMARY_LAYOUT_SPACER_HEIGHT = dp(12);
 
-    /** The default horizontal margin in the {@link ProgressIndicatorLayout}. */
-    static final float PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP = 14;
+    /** The default horizontal margin in the {@link EdgeContentLayout}. */
+    static final float EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP = 14;
 
-    /** The default horizontal margin in the {@link ProgressIndicatorLayout}. */
-    static final float PROGRESS_INDICATOR_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP = 16;
+    /** The default horizontal margin in the {@link EdgeContentLayout}. */
+    static final float EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP = 16;
 
     /**
      * The recommended padding that should be above the main content (text) in the {@link
-     * ProgressIndicatorLayout}.
+     * EdgeContentLayout}.
      */
-    public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6;
+    public static final float EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP = 6;
 
     /**
      * The recommended padding that should be below the main content (text) in the {@link
-     * ProgressIndicatorLayout}.
+     * EdgeContentLayout}.
      */
-    public static final float PROGRESS_INDICATOR_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8;
+    public static final float EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP = 8;
 
     /** The default spacer width for slots in a {@link MultiSlotLayout}. */
     public static final DpProp MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH = dp(8);
@@ -105,15 +105,15 @@ public class LayoutDefaults {
      * The default size of button in case when there are 3 or more buttons in the {@link
      * MultiButtonLayout}.
      */
-    static final DpProp MULTI_BUTTON_3_PLUS_SIZE = ButtonDefaults.DEFAULT_BUTTON_SIZE;
+    static final DpProp MULTI_BUTTON_3_PLUS_SIZE = ButtonDefaults.DEFAULT_SIZE;
 
     /** The default size of button in case when there 2 buttons in the {@link MultiButtonLayout}. */
-    static final DpProp MULTI_BUTTON_2_SIZE = ButtonDefaults.LARGE_BUTTON_SIZE;
+    static final DpProp MULTI_BUTTON_2_SIZE = ButtonDefaults.LARGE_SIZE;
 
     /**
      * The default size of button in case when there is 1 button in the {@link MultiButtonLayout}.
      */
-    static final DpProp MULTI_BUTTON_1_SIZE = ButtonDefaults.EXTRA_LARGE_BUTTON_SIZE;
+    static final DpProp MULTI_BUTTON_1_SIZE = ButtonDefaults.EXTRA_LARGE_SIZE;
 
     /** The default width for vertical spacer between buttons in the {@link MultiButtonLayout}. */
     static final DpProp MULTI_BUTTON_SPACER_WIDTH = dp(8);
