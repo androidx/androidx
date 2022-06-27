@@ -59,6 +59,7 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueArgument
 import com.google.devtools.ksp.symbol.KSValueParameter
 import javax.annotation.processing.Filer
@@ -191,6 +192,9 @@ object XConverters {
     fun XAnnotationValue.toKS(): KSValueArgument = (this as KspAnnotationValue).valueArgument
 
     @JvmStatic
+    fun XType.toKS(): KSType = (this as KspType).ksType
+
+    @JvmStatic
     fun KSClassDeclaration.toXProcessing(env: XProcessingEnv): XTypeElement =
         (env as KspProcessingEnv).wrapClassDeclaration(this)
 
@@ -220,6 +224,10 @@ object XConverters {
             this
         )
     }
+
+    @JvmStatic
+    fun KSType.toXProcessing(env: XProcessingEnv): XType =
+        (env as KspProcessingEnv).wrap(this, true)
 
     @Deprecated("This will be removed in a future version of XProcessing.")
     @JvmStatic
