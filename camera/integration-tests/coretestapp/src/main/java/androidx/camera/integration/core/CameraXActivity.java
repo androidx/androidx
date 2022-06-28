@@ -974,6 +974,12 @@ public class CameraXActivity extends AppCompatActivity {
         // Clear listening frame update before unbind all.
         mPreviewRenderer.clearFrameUpdateListener();
 
+        // Remove ZoomState observer from old CameraInfo to prevent from receiving event from old
+        // CameraInfo
+        if (mCamera != null) {
+            mCamera.getCameraInfo().getZoomState().removeObservers(this);
+        }
+
         // Stop video recording if exists.
         if (mRecordUi.getState() == RecordUi.State.RECORDING
                 || mRecordUi.getState() == RecordUi.State.PAUSED) {
