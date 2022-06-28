@@ -19,14 +19,11 @@ package androidx.datastore.core
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import java.io.File
 
 /**
  * Public factory for creating DataStore instances.
  */
-public object DataStoreFactory {
+public actual object DataStoreFactory {
     /**
      * Create an instance of SingleProcessDataStore. Never create more than one instance of
      * DataStore for a given file; doing so can break all DataStore functionality. You should
@@ -40,7 +37,7 @@ public object DataStoreFactory {
      * https://developers.google.com/protocol-buffers/docs/javatutorial - which provides
      * immutability guarantees, a simple API and efficient serialization.
      *
-     * @param serializer Serializer for the type T used with DataStore. The type T must be immutable.
+     * @param storage Storage for the type T used with DataStore. The type T must be immutable.
      * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
      * [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
      * serializers when data can not be de-serialized.
@@ -53,17 +50,14 @@ public object DataStoreFactory {
      *
      * @return a new DataStore instance with the provided configuration
      */
-    @JvmOverloads // Generate constructors for default params for java users.
-    public fun <T> create(
-        serializer: Serializer<T>,
-        corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
-        migrations: List<DataMigration<T>> = listOf(),
-        scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
-        produceFile: () -> File
+    public actual fun <T> create(
+        storage: Storage<T>,
+        corruptionHandler: ReplaceFileCorruptionHandler<T>?,
+        migrations: List<DataMigration<T>>,
+        scope: CoroutineScope,
     ): DataStore<T> =
         SingleProcessDataStore(
-            produceFile = produceFile,
-            serializer = serializer,
+            storage = storage,
             corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
             initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
             scope = scope

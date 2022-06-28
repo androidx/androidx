@@ -20,6 +20,7 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import java.io.File
 import java.io.IOException
+import kotlin.random.Random
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlin.test.Test
 import kotlin.test.BeforeTest
@@ -288,7 +289,7 @@ class FileStorageTest {
     @Test
     fun writeToDirFails() = testScope.runTest {
         val directoryFile =
-            File(getTempFolder(), "/this/is/a/directory")
+            File(getTempFolder(), "/this/is/a${Random.nextInt()}}/directory")
         directoryFile.mkdirs()
 
         val connection = FileStorage(testingSerializer) { directoryFile }
