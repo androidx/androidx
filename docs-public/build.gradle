@@ -222,7 +222,7 @@ dependencies {
     docs("androidx.print:print:1.1.0-beta01")
     docs("androidx.profileinstaller:profileinstaller:1.2.0-rc01")
     docs("androidx.recommendation:recommendation:1.0.0")
-    docs("androidx.recyclerview:recyclerview:1.3.0-alpha02")
+    docs("androidx.recyclerview:recyclerview:1.3.0-beta01")
     docs("androidx.recyclerview:recyclerview-selection:2.0.0-alpha01")
     docs("androidx.remotecallback:remotecallback:1.0.0-alpha02")
     docs("androidx.resourceinspection:resourceinspection-annotation:1.0.1")
