@@ -1160,6 +1160,7 @@ package androidx.car.app.model {
   }
 
   @androidx.car.app.annotations.CarProtocol public final class Row implements androidx.car.app.model.Item {
+    method public java.util.List<androidx.car.app.model.Action!> getActions();
     method public androidx.car.app.model.CarIcon? getImage();
     method public androidx.car.app.model.Metadata? getMetadata();
     method public androidx.car.app.model.OnClickDelegate? getOnClickDelegate();
@@ -1178,6 +1179,7 @@ package androidx.car.app.model {
 
   public static final class Row.Builder {
     ctor public Row.Builder();
+    method public androidx.car.app.model.Row.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.model.Row.Builder addText(CharSequence);
     method public androidx.car.app.model.Row.Builder addText(androidx.car.app.model.CarText);
     method public androidx.car.app.model.Row build();
