@@ -135,7 +135,8 @@ internal class HeadlessWatchFaceImpl(
                         watchFaceService = null
                     }
                 }
-            }
+                engineCopy
+            }.cancelCoroutineScopes()
         }
     }
 }

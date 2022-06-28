@@ -651,6 +651,8 @@ public abstract class WatchFaceService : WallpaperService() {
         }
     }
 
+    internal open fun cancelCoroutineScopesInOnDestroy() = true
+
     /**
      * This is open for use by tests, it allows them to inject a custom [SurfaceHolder].
      * @hide
@@ -1564,8 +1566,8 @@ public abstract class WatchFaceService : WallpaperService() {
             }
 
             // NB user code could throw an exception so do this last.
-            runBlocking {
-                try {
+            try {
+                runBlocking {
                     // The WatchFaceImpl is created on the UiThread so if we get here and it's not
                     // created we can be sure it'll never be created hence we don't need to destroy
                     // it.
@@ -1576,15 +1578,32 @@ public abstract class WatchFaceService : WallpaperService() {
                         watchFaceInitDetails
                             .await().watchFace.renderer.onDestroy()
                     }
-                } catch (e: Exception) {
-                    // Throwing an exception here leads to a cascade of errors, log instead.
-                    Log.e(
-                        TAG,
-                        "WatchFace exception observed in onDestroy (may have occurred during init)",
-                        e
-                    )
+                }
+            } catch (e: Exception) {
+                // Throwing an exception here leads to a cascade of errors, log instead.
+                Log.e(
+                    TAG,
+                    "WatchFace exception observed in onDestroy (may have occurred during init)",
+                    e
+                )
+            } finally {
+                if (this@EngineWrapper::ambientUpdateWakelock.isInitialized) {
+                    // Make sure the WakeLock doesn't retain the WatchFaceService.
+                    ambientUpdateWakelock.release()
+                }
+
+                // StateFlows may retain WatchFaceService via the coroutineScope. Call cancel to
+                // ensure resources are released. Headless watch faces call cancelCoroutineScopes
+                // themselves since they call onDestroy from a coroutine context.
+                if (cancelCoroutineScopesInOnDestroy() && !mutableWatchState.isHeadless) {
+                    cancelCoroutineScopes()
                 }
             }
+        }
+
+        internal fun cancelCoroutineScopes() {
+            uiThreadCoroutineScope.cancel()
+            backgroundThreadCoroutineScope.cancel()
         }
 
         override fun onSurfaceDestroyed(holder: SurfaceHolder) {
