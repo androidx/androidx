@@ -30,6 +30,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ImageAnalysisConfig;
@@ -71,6 +72,9 @@ import java.util.concurrent.TimeoutException;
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class ImageAnalysisTest {
+
+    private static final Size APP_RESOLUTION = new Size(100, 200);
+    private static final Size ANALYZER_RESOLUTION = new Size(300, 400);
 
     private static final int QUEUE_DEPTH = 8;
     private static final int IMAGE_TAG = 0;
@@ -135,15 +139,33 @@ public class ImageAnalysisTest {
     }
 
     @Test
-    public void setAnalyzerWithResolution_overridesUseCaseResolution() {
+    public void setAnalyzerWithResolution_doesNotOverridesUseCaseResolution() {
+        assertThat(getMergedAnalyzerResolution(APP_RESOLUTION, ANALYZER_RESOLUTION)).isEqualTo(
+                APP_RESOLUTION);
+    }
+
+    @Test
+    public void setAnalyzerWithResolution_usedAsDefaultUseCaseResolution() {
+        assertThat(getMergedAnalyzerResolution(null, ANALYZER_RESOLUTION)).isEqualTo(
+                ANALYZER_RESOLUTION);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void noAppOrAnalyzerResolution_noMergedOption() {
+        getMergedAnalyzerResolution(null, null);
+    }
+
+    @NonNull
+    private Size getMergedAnalyzerResolution(
+            @Nullable Size appResolution,
+            @Nullable Size analyzerResolution) {
         // Arrange: set up ImageAnalysis with target resolution.
-        Size appResolution = new Size(100, 200);
-        ImageAnalysis.Builder builder =
-                new ImageAnalysis.Builder().setTargetResolution(appResolution).setImageQueueDepth(
-                        QUEUE_DEPTH);
+        ImageAnalysis.Builder builder = new ImageAnalysis.Builder().setImageQueueDepth(QUEUE_DEPTH);
+        if (appResolution != null) {
+            builder.setTargetResolution(appResolution);
+        }
         mImageAnalysis = builder.build();
         // Analyzer that overrides the resolution.
-        Size analyzerResolution = new Size(300, 400);
         ImageAnalysis.Analyzer analyzer = new ImageAnalysis.Analyzer() {
             @Override
             public void analyze(@NonNull ImageProxy image) {
@@ -151,7 +173,7 @@ public class ImageAnalysisTest {
             }
 
             @Override
-            public Size getTargetResolutionOverride() {
+            public Size getDefaultTargetResolution() {
                 return analyzerResolution;
             }
         };
@@ -162,8 +184,9 @@ public class ImageAnalysisTest {
         // Assert: only the target resolution is overridden.
         ImageAnalysisConfig mergedConfig = (ImageAnalysisConfig) mImageAnalysis.mergeConfigs(
                 new FakeCameraInfoInternal(), null, null);
-        assertThat(mergedConfig.getTargetResolution()).isEqualTo(analyzerResolution);
+
         assertThat(mergedConfig.getImageQueueDepth()).isEqualTo(QUEUE_DEPTH);
+        return mergedConfig.getTargetResolution();
     }
 
     @Test
