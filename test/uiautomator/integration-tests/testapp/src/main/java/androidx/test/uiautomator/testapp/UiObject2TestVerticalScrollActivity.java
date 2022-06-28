@@ -17,7 +17,6 @@
 package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -25,26 +24,18 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.widget.TextView;
 
-public class UiObject2TestVerticalScrollActivity extends Activity {
+import androidx.annotation.Nullable;
 
-    private static final String TAG = UiObject2TestVerticalScrollActivity.class.getSimpleName();
+public class UiObject2TestVerticalScrollActivity extends Activity {
 
     private GestureDetector mGestureDetector;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.uiobject2_testverticalscroll_activity);
 
-        /*
-        final TextView topText = (TextView)findViewById(R.id.top_text);
-        Log.d("FOO", String.format("top_text: %s, %s, %s, %s", topText.getLeft(), topText.getTop(), topText.getRight(), topText.getBottom()));
-        final TextView fromTop5000 = (TextView)findViewById(R.id.from_top_5000);
-        Log.d("FOO", String.format("from_top_5000: %s, %s, %s, %s", fromTop5000.getLeft(), fromTop5000.getTop(), fromTop5000.getRight(), fromTop5000.getBottom()));
-        final TextView fromTop10000 = (TextView)findViewById(R.id.from_top_10000);
-        final TextView fromTop15000 = (TextView)findViewById(R.id.from_top_15000);
-*/
         final TextView flingDetected = (TextView)findViewById(R.id.fling_detected);
 
         mGestureDetector = new GestureDetector(this, new SimpleOnGestureListener() {

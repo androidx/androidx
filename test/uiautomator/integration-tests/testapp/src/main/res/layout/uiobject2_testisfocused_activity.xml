@@ -19,13 +19,30 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context=".UiObject2TestClearTextActivity">
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        tools:context=".UiObject2TestIsFocusedActivity">
 
-    <EditText
-            android:id="@+id/edit_text"
+    <Button
+            android:id="@+id/button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="button" />
+
+    <TextView
+            android:id="@+id/focusable_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:text="sample_text" />
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:text="focusable_text_view" />
+
+    <TextView
+            android:id="@+id/non_focusable_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
+            android:text="non_focusable_text_view" />
 
 </LinearLayout>

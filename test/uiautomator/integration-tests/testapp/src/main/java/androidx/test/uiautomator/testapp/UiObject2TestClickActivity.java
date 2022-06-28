@@ -18,22 +18,22 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public class UiObject2TestClickActivity extends Activity {
 
-    private static final String TAG = UiObject2TestClickActivity.class.getSimpleName();
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.uiobject2_testclick_activity);
     }
 
-    public void onButtonClick(View v) {
+    public void onButtonClick(@NonNull View v) {
         ((Button)v).setText("I've been clicked!");
     }
 }
