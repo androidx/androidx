@@ -92,6 +92,7 @@ import androidx.health.connect.client.units.kilograms
 import androidx.health.connect.client.units.liters
 import androidx.health.connect.client.units.meters
 import androidx.health.connect.client.units.millimetersOfMercury
+import androidx.health.connect.client.units.percent
 import androidx.health.connect.client.units.watts
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -198,7 +199,7 @@ class AllRecordsConverterTest {
     fun testBodyFat() {
         val data =
             BodyFatRecord(
-                percentage = 1,
+                percentage = 1.percent,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
@@ -522,7 +523,7 @@ class AllRecordsConverterTest {
     fun testOxygenSaturation() {
         val data =
             OxygenSaturationRecord(
-                percentage = 1,
+                percentage = 1.percent,
                 time = START_TIME,
                 zoneOffset = END_ZONE_OFFSET,
                 metadata = TEST_METADATA
