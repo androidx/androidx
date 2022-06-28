@@ -847,7 +847,7 @@ public abstract class CameraController {
      * <p>Setting an analyzer function replaces any previous analyzer. Only one analyzer can be
      * set at any time.
      *
-     * <p> If the {@link ImageAnalysis.Analyzer#getTargetResolutionOverride()} returns a non-null
+     * <p> If the {@link ImageAnalysis.Analyzer#getDefaultTargetResolution()} returns a non-null
      * value, calling this method will reconfigure the camera which might cause additional
      * latency. To avoid this, set the value before controller is bound to the lifecycle.
      *
@@ -875,7 +875,7 @@ public abstract class CameraController {
      *
      * <p>This will stop data from streaming to the {@link ImageAnalysis}.
      *
-     * <p> If the current {@link ImageAnalysis.Analyzer#getTargetResolutionOverride()} returns
+     * <p> If the current {@link ImageAnalysis.Analyzer#getDefaultTargetResolution()} returns
      * non-null value, calling this method will reconfigure the camera which might cause additional
      * latency. To avoid this, call this method when the lifecycle is not active.
      *
@@ -895,9 +895,9 @@ public abstract class CameraController {
             @Nullable ImageAnalysis.Analyzer oldAnalyzer,
             @Nullable ImageAnalysis.Analyzer newAnalyzer) {
         Size oldResolution = oldAnalyzer == null ? null :
-                oldAnalyzer.getTargetResolutionOverride();
+                oldAnalyzer.getDefaultTargetResolution();
         Size newResolution = newAnalyzer == null ? null :
-                newAnalyzer.getTargetResolutionOverride();
+                newAnalyzer.getDefaultTargetResolution();
         if (!Objects.equals(oldResolution, newResolution)) {
             // Rebind ImageAnalysis to reconfigure target resolution.
             unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(),
@@ -1089,7 +1089,6 @@ public abstract class CameraController {
         }
         if (outputTransform == null) {
             mAnalysisAnalyzer.updateTransform(null);
-
         } else if (mAnalysisAnalyzer.getTargetCoordinateSystem()
                 == COORDINATE_SYSTEM_VIEW_REFERENCED) {
             mAnalysisAnalyzer.updateTransform(outputTransform.getMatrix());

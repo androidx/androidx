@@ -63,7 +63,7 @@ class MlKitAnalyzerTest {
             directExecutor()
         ) {}
 
-        assertThat(mlKitAnalyzer.targetResolutionOverride).isEqualTo(Size(1280, 720))
+        assertThat(mlKitAnalyzer.defaultTargetResolution).isEqualTo(Size(1280, 720))
     }
 
     @Test
