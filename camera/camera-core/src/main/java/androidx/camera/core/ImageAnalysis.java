@@ -163,6 +163,10 @@ public final class ImageAnalysis extends UseCase {
      * <p>All {@link ImageProxy} sent to {@link Analyzer#analyze(ImageProxy)} will have
      * format {@link android.graphics.PixelFormat#RGBA_8888}
      *
+     * <p>The output order is a single-plane with the order of R, G, B, A in increasing byte index
+     * in the {@link java.nio.ByteBuffer}. The {@link java.nio.ByteBuffer} is retrieved from
+     * {@link ImageProxy.PlaneProxy#getBuffer()}.
+     *
      * @see Builder#setOutputImageFormat(int)
      */
     public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2;
