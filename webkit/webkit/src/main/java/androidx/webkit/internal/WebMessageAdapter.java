@@ -43,6 +43,11 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
         return mWebMessageCompat.getData();
     }
 
+    @SuppressWarnings("MissingOverride")
+    InvocationHandler getMessagePayload() {
+        throw new UnsupportedOperationException("This method is not yet supported");
+    }
+
     @Override
     @Nullable
     public InvocationHandler[] getPorts() {
