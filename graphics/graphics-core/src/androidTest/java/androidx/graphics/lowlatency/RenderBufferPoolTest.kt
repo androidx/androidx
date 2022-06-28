@@ -20,6 +20,7 @@ import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.graphics.opengl.egl.EglManager
 import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.supportsNativeAndroidFence
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -130,7 +131,9 @@ internal class RenderBufferPoolTest {
     ) {
         with(EglManager()) {
             initialize()
-            block(eglSpec)
+            if (supportsNativeAndroidFence()) {
+                block(eglSpec)
+            }
             release()
         }
     }

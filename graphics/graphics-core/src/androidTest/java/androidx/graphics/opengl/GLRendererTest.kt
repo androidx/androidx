@@ -41,8 +41,9 @@ import androidx.graphics.lowlatency.RenderBuffer
 import androidx.graphics.lowlatency.RenderFence
 import androidx.graphics.opengl.egl.EglManager
 import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.opengl.egl.deviceSupportsNativeAndroidFence
+import androidx.graphics.opengl.egl.supportsNativeAndroidFence
 import androidx.lifecycle.Lifecycle.State
-import androidx.opengl.EGLExt
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -721,10 +722,6 @@ class GLRendererTest {
         assertEquals(0, destroyCount.get())
     }
 
-    private fun EglManager.supportsNativeAndroidFence(): Boolean =
-        isExtensionSupported(EGLExt.EGL_KHR_FENCE_SYNC) &&
-            isExtensionSupported(EGLExt.EGL_ANDROID_NATIVE_FENCE_SYNC)
-
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testRenderBufferTarget() {
@@ -868,13 +865,6 @@ class GLRendererTest {
             }
             assertTrue(teardownLatch.await(3000, TimeUnit.MILLISECONDS))
         }
-    }
-
-    private fun deviceSupportsNativeAndroidFence(): Boolean {
-        val eglManager = EglManager().apply { initialize() }
-        val supportsAndroidFence = eglManager.supportsNativeAndroidFence()
-        eglManager.release()
-        return supportsAndroidFence
     }
 
     /**

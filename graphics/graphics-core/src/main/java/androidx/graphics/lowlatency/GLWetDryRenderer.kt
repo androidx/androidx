@@ -455,7 +455,7 @@ class GLWetDryRenderer @JvmOverloads constructor(
         // Even though it is introduced in Android T, not all devices may support
         // this flag so we query a sample HardwareBuffer of 1 x 1 pixels with
         // the RGBA_8888 format along with the USAGE_FRONT_BUFFER flag to see if it is
-            // compatible
+        // compatible
             HardwareBuffer.isSupported(
                 1, // width
                 1, // height

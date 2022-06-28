@@ -23,6 +23,7 @@ import android.os.Build
 import android.view.SurfaceControl
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EglManager
+import androidx.graphics.opengl.egl.deviceSupportsNativeAndroidFence
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -46,6 +47,11 @@ class GLWetDryRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun testWetLayerRender() {
+        if (!deviceSupportsNativeAndroidFence()) {
+            // If the Android device does not support the corresponding extensions to create
+            // a file descriptor from an EGLSync object then skip the test
+            return
+        }
         val renderLatch = CountDownLatch(1)
         val callbacks = object : GLWetDryRenderer.Callback {
             override fun onDrawWetLayer(eglManager: EglManager, param: Any?) {
@@ -110,6 +116,12 @@ class GLWetDryRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun testDryLayerRender() {
+        if (!deviceSupportsNativeAndroidFence()) {
+            // If the Android device does not support the corresponding extensions to create
+            // a file descriptor from an EGLSync object then skip the test
+            return
+        }
+
         val renderLatch = CountDownLatch(1)
         val callbacks = object : GLWetDryRenderer.Callback {
             override fun onDrawWetLayer(eglManager: EglManager, param: Any?) {
