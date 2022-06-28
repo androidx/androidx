@@ -1793,16 +1793,16 @@ package androidx.leanback.widget {
     ctor protected GuidedAction();
     method public String![]! getAutofillHints();
     method public int getCheckSetId();
-    method public CharSequence! getDescription();
+    method public CharSequence? getDescription();
     method public int getDescriptionEditInputType();
     method public int getDescriptionInputType();
-    method public CharSequence! getEditDescription();
+    method public CharSequence? getEditDescription();
     method public int getEditInputType();
-    method public CharSequence! getEditTitle();
+    method public CharSequence? getEditTitle();
     method public int getInputType();
-    method public android.content.Intent! getIntent();
-    method public java.util.List<androidx.leanback.widget.GuidedAction!>! getSubActions();
-    method public CharSequence! getTitle();
+    method public android.content.Intent? getIntent();
+    method public java.util.List<androidx.leanback.widget.GuidedAction!>? getSubActions();
+    method public CharSequence? getTitle();
     method public boolean hasEditableActivatorView();
     method public boolean hasMultilineDescription();
     method public boolean hasNext();
@@ -1816,17 +1816,17 @@ package androidx.leanback.widget {
     method public boolean isEditable();
     method public boolean isEnabled();
     method public boolean isFocusable();
-    method public void onRestoreInstanceState(android.os.Bundle!, String!);
-    method public void onSaveInstanceState(android.os.Bundle!, String!);
+    method public void onRestoreInstanceState(android.os.Bundle, String);
+    method public void onSaveInstanceState(android.os.Bundle, String);
     method public void setChecked(boolean);
-    method public void setDescription(CharSequence!);
-    method public void setEditDescription(CharSequence!);
-    method public void setEditTitle(CharSequence!);
+    method public void setDescription(CharSequence?);
+    method public void setEditDescription(CharSequence?);
+    method public void setEditTitle(CharSequence?);
     method public void setEnabled(boolean);
     method public void setFocusable(boolean);
-    method public void setIntent(android.content.Intent!);
-    method public void setSubActions(java.util.List<androidx.leanback.widget.GuidedAction!>!);
-    method public void setTitle(CharSequence!);
+    method public void setIntent(android.content.Intent?);
+    method public void setSubActions(java.util.List<androidx.leanback.widget.GuidedAction!>?);
+    method public void setTitle(CharSequence?);
     field public static final long ACTION_ID_CANCEL = -5L; // 0xfffffffffffffffbL
     field public static final long ACTION_ID_CONTINUE = -7L; // 0xfffffffffffffff9L
     field public static final long ACTION_ID_CURRENT = -3L; // 0xfffffffffffffffdL
@@ -1842,44 +1842,44 @@ package androidx.leanback.widget {
 
   public static class GuidedAction.Builder extends androidx.leanback.widget.GuidedAction.BuilderBase<androidx.leanback.widget.GuidedAction.Builder> {
     ctor @Deprecated public GuidedAction.Builder();
-    ctor public GuidedAction.Builder(android.content.Context!);
-    method public androidx.leanback.widget.GuidedAction! build();
+    ctor public GuidedAction.Builder(android.content.Context?);
+    method public androidx.leanback.widget.GuidedAction build();
   }
 
   public abstract static class GuidedAction.BuilderBase<B extends androidx.leanback.widget.GuidedAction.BuilderBase> {
-    ctor public GuidedAction.BuilderBase(android.content.Context!);
-    method protected final void applyValues(androidx.leanback.widget.GuidedAction!);
+    ctor public GuidedAction.BuilderBase(android.content.Context);
+    method protected final void applyValues(androidx.leanback.widget.GuidedAction);
     method public B! autoSaveRestoreEnabled(boolean);
     method public B! autofillHints(java.lang.String!...);
     method public B! checkSetId(int);
     method public B! checked(boolean);
     method public B! clickAction(long);
-    method public B! description(CharSequence!);
+    method public B! description(CharSequence?);
     method public B! description(@StringRes int);
     method public B! descriptionEditInputType(int);
     method public B! descriptionEditable(boolean);
     method public B! descriptionInputType(int);
-    method public B! editDescription(CharSequence!);
+    method public B! editDescription(CharSequence?);
     method public B! editDescription(@StringRes int);
     method public B! editInputType(int);
-    method public B! editTitle(CharSequence!);
+    method public B! editTitle(CharSequence?);
     method public B! editTitle(@StringRes int);
     method public B! editable(boolean);
     method public B! enabled(boolean);
     method public B! focusable(boolean);
-    method public android.content.Context! getContext();
+    method public android.content.Context getContext();
     method public B! hasEditableActivatorView(boolean);
     method public B! hasNext(boolean);
-    method public B! icon(android.graphics.drawable.Drawable!);
+    method public B! icon(android.graphics.drawable.Drawable?);
     method public B! icon(@DrawableRes int);
     method @Deprecated public B! iconResourceId(@DrawableRes int, android.content.Context!);
     method public B! id(long);
     method public B! infoOnly(boolean);
     method public B! inputType(int);
-    method public B! intent(android.content.Intent!);
+    method public B! intent(android.content.Intent?);
     method public B! multilineDescription(boolean);
-    method public B! subActions(java.util.List<androidx.leanback.widget.GuidedAction!>!);
-    method public B! title(CharSequence!);
+    method public B! subActions(java.util.List<androidx.leanback.widget.GuidedAction!>?);
+    method public B! title(CharSequence?);
     method public B! title(@StringRes int);
   }
 
