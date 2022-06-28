@@ -145,3 +145,5 @@ Could not read index from network cache: null
 Using custom version .* of AGP due to GRADLE_PLUGIN_VERSION being set\.
 Using custom version .* of Lint due to LINT_VERSION being set\.
 Using custom version .* of metalava due to METALAVA_VERSION being set\.
+Publishing build scan\.\.\.
+https://ge\.androidx\.dev/s/.*
