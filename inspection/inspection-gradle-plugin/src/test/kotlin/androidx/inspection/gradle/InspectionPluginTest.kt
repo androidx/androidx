@@ -20,6 +20,7 @@ import androidx.testutils.gradle.ProjectSetupRule
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,6 +51,7 @@ class InspectionPluginTest {
             .withPluginClasspath()
     }
 
+    @Ignore // b/193918205
     @Test
     fun applyInspection() {
         File(projectSetup.rootDir, "settings.gradle")
