@@ -142,8 +142,8 @@ public abstract class CarAppService extends Service {
      *
      * <p>This method is final to ensure this car app's lifecycle is handled properly.
      *
-     * <p>Use {@link #onCreateSession()} and {@link Session#onNewIntent} instead to handle incoming
-     * {@link Intent}s.
+     * <p>Use {@link #onCreateSession(SessionInfo)} and {@link Session#onNewIntent} instead to
+     * handle incoming {@link Intent}s.
      */
     @Override
     @CallSuper
@@ -230,12 +230,14 @@ public abstract class CarAppService extends Service {
      * @see CarContext#startCarApp(Intent)
      * @deprecated this method continues to exist for backwards compatibility; however, is
      * succeeded by {@link #onCreateSession(SessionInfo)}. Prefer to implement {@link
-     * #onCreateSession(SessionInfo)} and use {@link SessionInfo#DEFAULT_SESSION_INFO} to forward
-     * this method to the new one.
+     * #onCreateSession(SessionInfo)}.
      */
     @NonNull
     @Deprecated
-    public abstract Session onCreateSession();
+    public Session onCreateSession() {
+        throw new RuntimeException(
+                "Please override and implement CarAppService#onCreateSession(SessionInfo).");
+    }
 
 
     // TODO(b/236140507): Link AndroidManifest.xml documentation or equivalent in this javadoc
