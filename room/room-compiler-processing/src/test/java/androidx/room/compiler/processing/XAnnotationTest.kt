@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing
 
+import androidx.room.compiler.processing.compat.XConverters.toJavac
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithEnum
 import androidx.room.compiler.processing.testcode.JavaAnnotationWithEnumArray
@@ -37,6 +38,7 @@ import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
 import androidx.room.compiler.processing.util.typeName
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -115,6 +117,30 @@ class XAnnotationTest(
             assertThat(annotation1.annotationValues).hasSize(1)
             assertThat(annotation1.annotationValues.first().name).isEqualTo("bar")
             assertThat(annotation1.annotationValues.first().value).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun annotationSpec() {
+        val source = Source.java(
+            "test.MyClass",
+            """
+            package test;
+            import androidx.room.compiler.processing.testcode.TestSuppressWarnings;
+            @TestSuppressWarnings("test")
+            public class MyClass {}
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(source),
+        ) { invocation ->
+            val element = invocation.processingEnv.requireTypeElement("test.MyClass")
+            val annotation =
+                element.requireAnnotation(ClassName.get(TestSuppressWarnings::class.java))
+            if (!invocation.isKsp) {
+                assertThat(annotation.toAnnotationSpec())
+                    .isEqualTo(AnnotationSpec.get(annotation.toJavac()))
+            }
         }
     }
 
