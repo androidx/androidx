@@ -61,6 +61,8 @@ class GlanceAppWidgetManagerTest {
             runBlocking {
                 val glanceIds = manager.getGlanceIds(TestGlanceAppWidget::class.java)
                 assertThat(glanceIds).hasSize(1)
+                val glanceId = manager.getGlanceIdBy((glanceIds[0] as AppWidgetId).appWidgetId)
+                assertThat(glanceId).isEqualTo(glanceIds[0])
                 val sizes = manager.getAppWidgetSizes(glanceIds[0])
                 assertThat(sizes).containsExactly(
                     mHostRule.portraitSize,

@@ -68,7 +68,10 @@ package androidx.glance.appwidget {
 
   public final class GlanceAppWidgetManager {
     ctor public GlanceAppWidgetManager(android.content.Context context);
+    method public int getAppWidgetId(androidx.glance.GlanceId glanceId);
     method public suspend Object? getAppWidgetSizes(androidx.glance.GlanceId glanceId, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.compose.ui.unit.DpSize>>);
+    method public androidx.glance.GlanceId getGlanceIdBy(int appWidgetId);
+    method public androidx.glance.GlanceId? getGlanceIdBy(android.content.Intent configurationIntent);
     method public suspend <T extends androidx.glance.appwidget.GlanceAppWidget> Object? getGlanceIds(Class<T> provider, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.glance.GlanceId>>);
   }
 
