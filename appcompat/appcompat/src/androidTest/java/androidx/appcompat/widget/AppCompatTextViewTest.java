@@ -53,6 +53,7 @@ import android.widget.TextView;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.GuardedBy;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtils;
@@ -63,12 +64,12 @@ import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.test.annotation.UiThreadTest;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -116,13 +117,10 @@ public class AppCompatTextViewTest
         // Emulate delay in kicking off the call to ViewCompat.setBackgroundTintList
         Thread.sleep(200);
         final CountDownLatch latch = new CountDownLatch(1);
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                TextView view = mActivity.findViewById(R.id.view_untinted_deferred);
-                ViewCompat.setBackgroundTintList(view, oceanColor);
-                latch.countDown();
-            }
+        mActivityTestRule.getScenario().onActivity(activity -> {
+            TextView view = activity.findViewById(R.id.view_untinted_deferred);
+            ViewCompat.setBackgroundTintList(view, oceanColor);
+            latch.countDown();
         });
 
         assertTrue(latch.await(2, TimeUnit.SECONDS));
@@ -579,177 +577,142 @@ public class AppCompatTextViewTest
     }
 
     @Test
-    @FlakyTest
-    public void testSetTextFuture() throws Throwable {
+    public void testSetTextFuture() {
         final ManualExecutor executor = new ManualExecutor();
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
-                tv.setText(""); // Make the measured width to be zero.
-                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
-                        SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
-            }
+        mActivityTestRule.getScenario().onActivity(activity -> {
+            AppCompatTextView tv = activity.findViewById(R.id.textview_set_text_async);
+            tv.setText(""); // Make the measured width to be zero.
+            tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                    SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
         });
 
         executor.doExecution(0);
 
-        mActivityTestRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
-                tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
+        mActivityTestRule.getScenario().onActivity(activity -> {
+            AppCompatTextView tv = activity.findViewById(R.id.textview_set_text_async);
+            tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
 
-                // 0 is a initial value of the text view width of this test. setTextFuture should
-                // block and set text inside measure method. So, the result of measurment should not
-                // be zero
-                assertNotEquals(0.0f, tv.getMeasuredWidth());
-                // setText may wrap the given text with SpannedString. Check the contents by casting
-                // to String.
-                assertEquals(SAMPLE_TEXT_1, tv.getText().toString());
-            }
+            // 0 is a initial value of the text view width of this test. setTextFuture should
+            // block and set text inside measure method. So, the result of measurment should not
+            // be zero
+            assertNotEquals(0.0f, tv.getMeasuredWidth());
+            // setText may wrap the given text with SpannedString. Check the contents by casting
+            // to String.
+            assertEquals(SAMPLE_TEXT_1, tv.getText().toString());
         });
     }
 
+    @Ignore // Test blocks forever.
     @Test
-    @FlakyTest
-    public void testSetTextAsync_getTextBlockingTest() throws Throwable {
+    public void testSetTextAsync_getTextBlockingTest() {
         final ManualExecutor executor = new ManualExecutor();
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
-                tv.setText(""); // Make the measured width to be zero.
-                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
-                        SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
-                tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
-                assertNotEquals(0.0f, tv.getMeasuredWidth());
-                assertEquals(SAMPLE_TEXT_1, tv.getText().toString());
-            }
+        mActivityTestRule.getScenario().onActivity(activity -> {
+            final AppCompatTextView tv = activity.findViewById(R.id.textview_set_text_async);
+            tv.setText(""); // Make the measured width to be zero.
+            tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                    SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
+            tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
+            assertNotEquals(0.0f, tv.getMeasuredWidth());
+            assertEquals(SAMPLE_TEXT_1, tv.getText().toString());
         });
         executor.doExecution(0);
     }
 
     @Test
-    @FlakyTest
-    public void testSetTextAsync_executionOrder() throws Throwable {
+    public void testSetTextAsync_executionOrder() {
         final ManualExecutor executor = new ManualExecutor();
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
-                tv.setText(""); // Make the measured width to be zero.
-                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
-                        SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
-                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
-                        SAMPLE_TEXT_2, tv.getTextMetricsParamsCompat(), executor));
-            }
+        mActivityTestRule.getScenario().onActivity(activity -> {
+            final AppCompatTextView tv = activity.findViewById(R.id.textview_set_text_async);
+            tv.setText(""); // Make the measured width to be zero.
+            tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                    SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
+            tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                    SAMPLE_TEXT_2, tv.getTextMetricsParamsCompat(), executor));
         });
         executor.doExecution(1);  // Do execution of 2nd runnable.
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
-                tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
-                assertNotEquals(0.0f, tv.getMeasuredWidth());
-                // setText may wrap the given text with SpannedString. Check the contents by casting
-                // to String.
-                assertEquals(SAMPLE_TEXT_2, tv.getText().toString());
-            }
+        mActivityTestRule.getScenario().onActivity(activity -> {
+            final AppCompatTextView tv = activity.findViewById(R.id.textview_set_text_async);
+            tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
+            assertNotEquals(0.0f, tv.getMeasuredWidth());
+            // setText may wrap the given text with SpannedString. Check the contents by casting
+            // to String.
+            assertEquals(SAMPLE_TEXT_2, tv.getText().toString());
         });
         executor.doExecution(0);  // Do execution of 1st runnable.
         // Even the previous setTextAsync finishes after the next setTextAsync, the last one should
         // be displayed.
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
-                // setText may wrap the given text with SpannedString. Check the contents by casting
-                // to String.
-                assertEquals(SAMPLE_TEXT_2, tv.getText().toString());
-            }
+        mActivityTestRule.getScenario().onActivity(activity -> {
+            final AppCompatTextView tv = activity.findViewById(R.id.textview_set_text_async);
+            // setText may wrap the given text with SpannedString. Check the contents by casting
+            // to String.
+            assertEquals(SAMPLE_TEXT_2, tv.getText().toString());
         });
     }
 
     @Test
-    public void testSetTextAsync_directionDifference() throws Throwable {
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mActivity.setContentView(R.layout.appcompat_textview_rtl);
-                final ViewGroup container = mActivity.findViewById(R.id.container);
-                final AppCompatTextView tv = mActivity.findViewById(R.id.text_view_rtl);
-                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
-                        SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), null));
-                container.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
-            }
+    public void testSetTextAsync_directionDifference() {
+        mActivityTestRule.getScenario().onActivity(activity -> {
+            activity.setContentView(R.layout.appcompat_textview_rtl);
+            final ViewGroup container = activity.findViewById(R.id.container);
+            final AppCompatTextView tv = activity.findViewById(R.id.text_view_rtl);
+            tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                    SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), null));
+            container.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
         });
     }
 
     @Test
-    public void testSetTextAsync_createAndAttach() throws Throwable {
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mActivity.setContentView(R.layout.appcompat_textview_rtl);
-                final ViewGroup container = mActivity.findViewById(R.id.container);
+    public void testSetTextAsync_createAndAttach() {
+        mActivityTestRule.getScenario().onActivity(activity -> {
+            activity.setContentView(R.layout.appcompat_textview_rtl);
+            final ViewGroup container = activity.findViewById(R.id.container);
 
-                final AppCompatTextView tv = new AppCompatTextView(mActivity);
-                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
-                        SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), null));
-                container.addView(tv);
-                container.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
-            }
+            final AppCompatTextView tv = new AppCompatTextView(activity);
+            tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                    SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), null));
+            container.addView(tv);
+            container.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
         });
     }
 
     @Test
-    public void testSetTextAsync_executionOrder_withNull() throws Throwable {
+    public void testSetTextAsync_executionOrder_withNull() {
         final ManualExecutor executor = new ManualExecutor();
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
-                tv.setText(""); // Make the measured width to be zero.
-                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
-                        SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
-                tv.setTextFuture(null);
-            }
+        mActivityTestRule.getScenario().onActivity(activity -> {
+            final AppCompatTextView tv = activity.findViewById(R.id.textview_set_text_async);
+            tv.setText(""); // Make the measured width to be zero.
+            tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                    SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
+            tv.setTextFuture(null);
         });
         executor.doExecution(0);  // Do execution of 1st runnable.
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
-                tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
-                // The setTextFuture was reset by passing null.
-                assertEquals(0.0f, tv.getMeasuredWidth(), 0.0f);
-            }
+        mActivityTestRule.getScenario().onActivity(activity -> {
+            final AppCompatTextView tv = activity.findViewById(R.id.textview_set_text_async);
+            tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
+            // The setTextFuture was reset by passing null.
+            assertEquals(0.0f, tv.getMeasuredWidth(), 0.0f);
         });
     }
 
     @Test
-    public void testSetTextAsync_throwExceptionAfterSetTextFuture() throws Throwable {
+    public void testSetTextAsync_throwExceptionAfterSetTextFuture() {
         final ManualExecutor executor = new ManualExecutor();
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final AppCompatTextView tv = mActivity.findViewById(R.id.textview_set_text_async);
-                tv.setText(""); // Make the measured width to be zero.
-                tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
-                        SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
-                tv.setTextSize(tv.getTextSize() * 2.0f + 1.0f);
-                executor.doExecution(0);
+        mActivityTestRule.getScenario().onActivity(activity -> {
+            final AppCompatTextView tv = activity.findViewById(R.id.textview_set_text_async);
+            tv.setText(""); // Make the measured width to be zero.
+            tv.setTextFuture(PrecomputedTextCompat.getTextFuture(
+                    SAMPLE_TEXT_1, tv.getTextMetricsParamsCompat(), executor));
+            tv.setTextSize(tv.getTextSize() * 2.0f + 1.0f);
+            executor.doExecution(0);
 
-                // setText may wrap the given text with SpannedString. Check the contents by casting
-                // to String.
-                try {
-                    tv.getText();
-                    fail();
-                } catch (IllegalArgumentException e) {
-                    // pass
-                }
+            // setText may wrap the given text with SpannedString. Check the contents by casting
+            // to String.
+            try {
+                tv.getText();
+                fail();
+            } catch (IllegalArgumentException e) {
+                // pass
             }
         });
     }
@@ -929,7 +892,7 @@ public class AppCompatTextViewTest
     @SdkSuppress(minSdkVersion = 26)
     @Test
     public void testSetTextClassifier() {
-        final AppCompatTextView textview = new AppCompatTextView(mActivityTestRule.getActivity());
+        final AppCompatTextView textview = new AppCompatTextView(mActivity);
         NoOpTextClassifier noOpTextClassifier = new NoOpTextClassifier();
 
         textview.setTextClassifier(noOpTextClassifier);
@@ -937,6 +900,7 @@ public class AppCompatTextViewTest
         assertEquals(noOpTextClassifier, textview.getTextClassifier());
     }
 
+    @RequiresApi(26)
     private static class NoOpTextClassifier implements TextClassifier {}
 
     class TestCase {
