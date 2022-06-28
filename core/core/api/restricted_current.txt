@@ -1660,7 +1660,7 @@ package androidx.core.graphics.drawable {
     method public static boolean setLayoutDirection(android.graphics.drawable.Drawable, int);
     method public static void setTint(android.graphics.drawable.Drawable, @ColorInt int);
     method public static void setTintList(android.graphics.drawable.Drawable, android.content.res.ColorStateList?);
-    method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode);
+    method public static void setTintMode(android.graphics.drawable.Drawable, android.graphics.PorterDuff.Mode?);
     method public static <T extends android.graphics.drawable.Drawable> T! unwrap(android.graphics.drawable.Drawable);
     method public static android.graphics.drawable.Drawable wrap(android.graphics.drawable.Drawable);
   }
