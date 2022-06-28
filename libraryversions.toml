@@ -139,7 +139,7 @@ WORK = "2.8.0-alpha03"
 ACTIVITY = { group = "androidx.activity", atomicGroupVersion = "versions.ACTIVITY" }
 ADS = { group = "androidx.ads" }
 ANNOTATION = { group = "androidx.annotation" }
-APPCOMPAT = { group = "androidx.appcompat" }
+APPCOMPAT = { group = "androidx.appcompat", atomicGroupVersion = "versions.APPCOMPAT" }
 APPSEARCH = { group = "androidx.appsearch", atomicGroupVersion = "versions.APPSEARCH" }
 ARCH_CORE = { group = "androidx.arch.core", atomicGroupVersion = "versions.ARCH_CORE" }
 ASYNCLAYOUTINFLATER = { group = "androidx.asynclayoutinflater", atomicGroupVersion = "versions.ASYNCLAYOUTINFLATER" }

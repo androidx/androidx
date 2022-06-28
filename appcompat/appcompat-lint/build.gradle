@@ -35,7 +35,6 @@ dependencies {
 androidx {
     name = "AppCompat Lint Checks"
     type = LibraryType.LINT
-    mavenVersion = LibraryVersions.APPCOMPAT
     mavenGroup = LibraryGroups.APPCOMPAT
     inceptionYear = "2019"
     description = "AppCompat Lint Checks"
