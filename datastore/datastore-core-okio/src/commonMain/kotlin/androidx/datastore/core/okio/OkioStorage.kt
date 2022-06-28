@@ -89,33 +89,18 @@ internal class OkioStorageConnection<T>(
     private val transactionMutex = Mutex()
 
     override suspend fun <R> readTransaction(
-        lockType: StorageConnection.ReadLockType,
         block: suspend ReadScope<T>.() -> R
     ): R {
         checkNotClosed()
-        return when (lockType) {
-            StorageConnection.ReadLockType.TRY_LOCK -> {
-                val lock = transactionMutex.tryLock()
-                try {
-                    OkioReadScope(fileSystem, path, serializer, lock).use {
-                        block(it)
-                    }
-                } finally {
-                    if (lock) {
-                        transactionMutex.unlock()
-                    }
-                }
+
+        val lock = transactionMutex.tryLock()
+        try {
+            OkioReadScope(fileSystem, path, serializer).use {
+                return block(it)
             }
-            StorageConnection.ReadLockType.NO_LOCK ->
-                OkioReadScope(fileSystem, path, serializer, false).use {
-                    block(it)
-                }
-            StorageConnection.ReadLockType.LOCK -> {
-                transactionMutex.withLock {
-                    OkioReadScope(fileSystem, path, serializer, true).use {
-                        block(it)
-                    }
-                }
+        } finally {
+            if (lock) {
+                transactionMutex.unlock()
             }
         }
     }
@@ -166,8 +151,7 @@ internal class OkioStorageConnection<T>(
 internal open class OkioReadScope<T>(
     protected val fileSystem: FileSystem,
     protected val path: Path,
-    protected val serializer: OkioSerializer<T>,
-    override val lockAcquired: Boolean
+    protected val serializer: OkioSerializer<T>
 ) : ReadScope<T> {
 
     private var closed by atomic(false)
@@ -202,7 +186,7 @@ internal class OkioWriteScope<T>(
     path: Path,
     serializer: OkioSerializer<T>
 ) :
-    OkioReadScope<T>(fileSystem, path, serializer, true), WriteScope<T> {
+    OkioReadScope<T>(fileSystem, path, serializer), WriteScope<T> {
 
     override suspend fun writeData(value: T) {
         checkClose()
