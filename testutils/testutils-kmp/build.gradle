@@ -14,15 +14,22 @@
  * limitations under the License.
  */
 
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
 }
 
+def enableNative = KmpPlatformsKt.enableNative(project)
+
 androidXMultiplatform {
     jvm {}
-
+    if (enableNative) {
+        macosX64()
+        linuxX64()
+        macosArm64()
+    }
     sourceSets {
         commonMain {
             dependencies {
