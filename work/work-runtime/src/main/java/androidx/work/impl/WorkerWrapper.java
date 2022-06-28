@@ -148,6 +148,11 @@ public class WorkerWrapper implements Runnable {
         runWorker();
     }
 
+    @NonNull
+    public WorkSpec getWorkSpec() {
+        return mWorkSpec;
+    }
+
     private void runWorker() {
         if (tryCheckForInterruptionAndResolve()) {
             return;
