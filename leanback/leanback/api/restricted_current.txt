@@ -1088,26 +1088,26 @@ package androidx.leanback.graphics {
 
   public class CompositeDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback {
     ctor public CompositeDrawable();
-    method public void addChildDrawable(android.graphics.drawable.Drawable!);
-    method public void draw(android.graphics.Canvas!);
-    method public androidx.leanback.graphics.CompositeDrawable.ChildDrawable! getChildAt(int);
+    method public void addChildDrawable(android.graphics.drawable.Drawable);
+    method public void draw(android.graphics.Canvas);
+    method public androidx.leanback.graphics.CompositeDrawable.ChildDrawable getChildAt(int);
     method public int getChildCount();
-    method public android.graphics.drawable.Drawable! getDrawable(int);
+    method public android.graphics.drawable.Drawable getDrawable(int);
     method public int getOpacity();
-    method public void invalidateDrawable(android.graphics.drawable.Drawable!);
+    method public void invalidateDrawable(android.graphics.drawable.Drawable);
     method public void removeChild(int);
-    method public void removeDrawable(android.graphics.drawable.Drawable!);
-    method public void scheduleDrawable(android.graphics.drawable.Drawable!, Runnable!, long);
+    method public void removeDrawable(android.graphics.drawable.Drawable);
+    method public void scheduleDrawable(android.graphics.drawable.Drawable, Runnable, long);
     method public void setAlpha(int);
-    method public void setChildDrawableAt(int, android.graphics.drawable.Drawable!);
-    method public void setColorFilter(android.graphics.ColorFilter!);
-    method public void unscheduleDrawable(android.graphics.drawable.Drawable!, Runnable!);
+    method public void setChildDrawableAt(int, android.graphics.drawable.Drawable);
+    method public void setColorFilter(android.graphics.ColorFilter?);
+    method public void unscheduleDrawable(android.graphics.drawable.Drawable, Runnable);
   }
 
   public static final class CompositeDrawable.ChildDrawable {
-    ctor public CompositeDrawable.ChildDrawable(android.graphics.drawable.Drawable!, androidx.leanback.graphics.CompositeDrawable!);
-    method public androidx.leanback.graphics.BoundsRule! getBoundsRule();
-    method public android.graphics.drawable.Drawable! getDrawable();
+    ctor public CompositeDrawable.ChildDrawable(android.graphics.drawable.Drawable, androidx.leanback.graphics.CompositeDrawable);
+    method public androidx.leanback.graphics.BoundsRule getBoundsRule();
+    method public android.graphics.drawable.Drawable getDrawable();
     method public void recomputeBounds();
     field public static final android.util.Property<androidx.leanback.graphics.CompositeDrawable.ChildDrawable!,java.lang.Integer!>! BOTTOM_ABSOLUTE;
     field public static final android.util.Property<androidx.leanback.graphics.CompositeDrawable.ChildDrawable!,java.lang.Float!>! BOTTOM_FRACTION;
