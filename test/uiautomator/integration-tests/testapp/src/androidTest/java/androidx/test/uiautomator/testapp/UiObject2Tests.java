@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.os.SystemClock;
 
 import androidx.test.filters.FlakyTest;
 import androidx.test.uiautomator.By;
@@ -37,9 +36,10 @@ import org.junit.Test;
 import java.util.List;
 
 public class UiObject2Tests extends BaseTest {
+    private static final int TIMEOUT_MS = 10_000;
 
     @Test
-    public void testClearTextField() {
+    public void testClear() {
         launchTestActivity(UiObject2TestClearTextActivity.class);
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "edit_text"));
@@ -51,23 +51,17 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
-    public void testClickButton() {
+    public void testClick() {
         launchTestActivity(UiObject2TestClickActivity.class);
 
         // Find the button and verify its initial state
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
         assertEquals("Click Me!", button.getText());
-        SystemClock.sleep(1000);
 
         // Click on the button and verify that the text has changed
         button.click();
-        button.wait(Until.textEquals("I've been clicked!"), 10000);
+        button.wait(Until.textEquals("I've been clicked!"), TIMEOUT_MS);
         assertEquals("I've been clicked!", button.getText());
-    }
-
-    @Test
-    public void testClickCheckBox() {
-        launchTestActivity(UiObject2TestClickActivity.class);
 
         // Find the checkbox and verify its initial state
         UiObject2 checkbox = mDevice.findObject(By.res(TEST_APP, "check_box"));
@@ -75,17 +69,17 @@ public class UiObject2Tests extends BaseTest {
 
         // Click on the checkbox and verify that it is now checked
         checkbox.click();
-        checkbox.wait(Until.checked(true), 10000);
+        checkbox.wait(Until.checked(true), TIMEOUT_MS);
         assertTrue(checkbox.isChecked());
     }
 
     @Test
-    public void testClickAndWaitForNewWindow() {
+    public void testClickAndWait() {
         launchTestActivity(UiObject2TestClickAndWaitActivity.class);
 
         // Click the button and wait for a new window
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
-        button.clickAndWait(Until.newWindow(), 5000);
+        assertTrue(button.clickAndWait(Until.newWindow(), TIMEOUT_MS));
     }
 
     @Test
@@ -150,83 +144,14 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
-    public void testGetClassNameButton() {
+    public void testGetClassName() {
         launchTestActivity(UiObject2TestGetClassNameActivity.class);
 
-        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "button"));
-        assertEquals("android.widget.Button", object.getClassName());
-    }
+        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
+        assertEquals("android.widget.Button", button.getClassName());
 
-    @Test
-    public void testGetClassNameCheckBox() {
-        launchTestActivity(UiObject2TestGetClassNameActivity.class);
-
-        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "check_box"));
-        assertEquals("android.widget.CheckBox", object.getClassName());
-    }
-
-    @Test
-    public void testGetClassNameEditText() {
-        launchTestActivity(UiObject2TestGetClassNameActivity.class);
-
-        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "edit_text"));
-        assertEquals("android.widget.EditText", object.getClassName());
-    }
-
-    @Test
-    public void testGetClassNameProgressBar() {
-        launchTestActivity(UiObject2TestGetClassNameActivity.class);
-
-        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "progress_bar"));
-        assertEquals("android.widget.ProgressBar", object.getClassName());
-    }
-
-    @Test
-    public void testGetClassNameRadioButton() {
-        launchTestActivity(UiObject2TestGetClassNameActivity.class);
-
-        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "radio_button"));
-        assertEquals("android.widget.RadioButton", object.getClassName());
-    }
-
-    @Test
-    public void testGetClassNameRatingBar() {
-        launchTestActivity(UiObject2TestGetClassNameActivity.class);
-
-        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "rating_bar"));
-        assertEquals("android.widget.RatingBar", object.getClassName());
-    }
-
-    @Test
-    public void testGetClassNameSeekBar() {
-        launchTestActivity(UiObject2TestGetClassNameActivity.class);
-
-        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "seek_bar"));
-        assertEquals("android.widget.SeekBar", object.getClassName());
-    }
-
-    @Test
-    public void testGetClassNameSwitch() {
-        launchTestActivity(UiObject2TestGetClassNameActivity.class);
-
-        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "switch_toggle"));
-        assertEquals("android.widget.Switch", object.getClassName());
-    }
-
-    @Test
-    public void testGetClassNameTextView() {
-        launchTestActivity(UiObject2TestGetClassNameActivity.class);
-
-        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "text_view"));
-        assertEquals("android.widget.TextView", object.getClassName());
-    }
-
-    @Test
-    public void testGetClassNameToggleButton() {
-        launchTestActivity(UiObject2TestGetClassNameActivity.class);
-
-        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "toggle_button"));
-        assertEquals("android.widget.ToggleButton", object.getClassName());
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "text_view"));
+        assertEquals("android.widget.TextView", textView.getClassName());
     }
 
     @Test
@@ -323,6 +248,106 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
+    public void testIsCheckable() {
+        launchTestActivity(UiObject2TestClickActivity.class);
+
+        // CheckBox objects are checkable by default.
+        UiObject2 checkBox = mDevice.findObject(By.res(TEST_APP, "check_box"));
+        assertTrue(checkBox.isCheckable());
+        // Button objects are not checkable by default.
+        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
+        assertFalse(button.isCheckable());
+    }
+
+    @Test
+    public void testIsChecked() {
+        launchTestActivity(UiObject2TestClickActivity.class);
+
+        UiObject2 checkBox = mDevice.findObject(By.res(TEST_APP, "check_box"));
+        assertFalse(checkBox.isChecked());
+        checkBox.click();
+        assertTrue(checkBox.isChecked());
+    }
+
+    @Test
+    public void testIsClickable() {
+        launchTestActivity(MainActivity.class);
+
+        // TextView objects are not clickable by default.
+        UiObject2 textView = mDevice.findObject(By.text("Sample text"));
+        assertFalse(textView.isClickable());
+        // Button objects are clickable by default.
+        UiObject2 button = mDevice.findObject(By.text("Accessible button"));
+        assertTrue(button.isClickable());
+    }
+
+    @Test
+    public void testIsEnabled() {
+        launchTestActivity(UiObject2TestIsEnabledActivity.class);
+
+        UiObject2 disabledObject = mDevice.findObject(By.res(TEST_APP, "disabled_text_view"));
+        assertFalse(disabledObject.isEnabled());
+        UiObject2 enabledObject = mDevice.findObject(By.res(TEST_APP, "enabled_text_view"));
+        assertTrue(enabledObject.isEnabled());
+    }
+
+    @Test
+    public void testIsFocusable() {
+        launchTestActivity(UiObject2TestIsFocusedActivity.class);
+
+        UiObject2 nonFocusableTextView = mDevice.findObject(By.res(TEST_APP,
+                "non_focusable_text_view"));
+        assertFalse(nonFocusableTextView.isFocusable());
+        UiObject2 focusableTextView = mDevice.findObject(By.res(TEST_APP, "focusable_text_view"));
+        assertTrue(focusableTextView.isFocusable());
+    }
+
+    @Test
+    public void testIsFocused() {
+        launchTestActivity(UiObject2TestIsFocusedActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "focusable_text_view"));
+        assertFalse(textView.isFocused());
+        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
+        button.click();
+        assertTrue(textView.isFocused());
+    }
+
+    @Test
+    public void testIsLongClickable() {
+        launchTestActivity(UiObject2TestIsLongClickableActivity.class);
+
+        UiObject2 longClickableButton = mDevice.findObject(By.res(TEST_APP,
+                "long_clickable_button"));
+        assertTrue(longClickableButton.isLongClickable());
+        UiObject2 nonLongClickableButton = mDevice.findObject(By.res(TEST_APP,
+                "non_long_clickable_button"));
+        assertFalse(nonLongClickableButton.isLongClickable());
+    }
+
+    @Test
+    public void testIsScrollable() {
+        launchTestActivity(UiObject2TestVerticalScrollActivity.class);
+
+        // ScrollView objects are scrollable by default.
+        UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
+        assertTrue(scrollView.isScrollable());
+        // TextView objects are not scrollable by default.
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "top_text"));
+        assertFalse(textView.isScrollable());
+    }
+
+    @Test
+    public void testIsSelected() {
+        launchTestActivity(UiObject2TestIsSelectedActivity.class);
+
+        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "selected_button"));
+        button.click();
+        UiObject2 textView = mDevice.findObject(By.res(TEST_APP, "selected_target"));
+        assertTrue(textView.isSelected());
+    }
+
+    @Test
     public void testLongClickButton() {
         launchTestActivity(UiObject2TestLongClickActivity.class);
 
@@ -332,7 +357,7 @@ public class UiObject2Tests extends BaseTest {
 
         // Click on the button and verify that the text has changed
         button.longClick();
-        button.wait(Until.textEquals("I've been long clicked!"), 10000);
+        button.wait(Until.textEquals("I've been long clicked!"), TIMEOUT_MS);
         assertEquals("I've been long clicked!", button.getText());
     }
 
@@ -435,7 +460,7 @@ public class UiObject2Tests extends BaseTest {
 
         // Scroll as much as we can
         UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
-        scrollView.wait(Until.scrollable(true), 5000);
+        scrollView.wait(Until.scrollable(true), TIMEOUT_MS);
         while (scrollView.scroll(Direction.DOWN, 1.0f)) {
             // Continue until bottom.
         }
@@ -444,37 +469,27 @@ public class UiObject2Tests extends BaseTest {
         assertNotNull(mDevice.findObject(By.res(TEST_APP, "bottom_text")));
     }
 
+    @Test
+    public void testSetText() {
+        launchTestActivity(UiObject2TestClearTextActivity.class);
+
+        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "edit_text"));
+        // Verify the text field has "sample_text" before setText()
+        assertEquals("sample_text", object.getText());
+        object.setText("new_text");
+        // Verify the text field has "new_text" after setText()
+        assertEquals("new_text", object.getText());
+    }
+
     /* TODO(b/235841473): Implement these tests
-    public void testSetText() {}
-
-    public void testWaitForExists() {}
-
-    public void testWaitForGone() {}
-    */
-
-    /* TODO(b/235841473): Implement more tests
     public void testDrag() {}
 
     public void testEquals() {}
 
     public void testFling() {}
 
-    public void testIsCheckable() {}
+    public void testWaitForExists() {}
 
-    public void testIsChecked() {}
-
-    public void testIsClickable() {}
-
-    public void testIsEnabled() {}
-
-    public void testIsFocusable() {}
-
-    public void testIsFocused() {}
-
-    public void testIsLongClickable() {}
-
-    public void testIsScrollable() {}
-
-    public void testIsSelected() {}
+    public void testWaitForGone() {}
     */
 }

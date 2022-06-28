@@ -19,13 +19,20 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context=".UiObject2TestClearTextActivity">
+        tools:context=".UiObject2TestIsEnabledActivity">
 
-    <EditText
-            android:id="@+id/edit_text"
+    <TextView
+            android:id="@+id/disabled_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="text"
-            android:text="sample_text" />
+            android:enabled="false"
+            android:text="Disabled Text View" />
+
+    <TextView
+            android:id="@+id/enabled_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="true"
+            android:text="Enabled Text View" />
 
 </LinearLayout>

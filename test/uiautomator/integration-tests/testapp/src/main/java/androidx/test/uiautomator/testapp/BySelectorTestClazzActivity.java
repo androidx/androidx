@@ -19,12 +19,11 @@ package androidx.test.uiautomator.testapp;
 import android.app.Activity;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
+
 public class BySelectorTestClazzActivity extends Activity {
-
-    private static final String TAG = BySelectorTestClazzActivity.class.getSimpleName();
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.byselector_testclazz_activity);
