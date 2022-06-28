@@ -117,7 +117,7 @@ internal object ArtifactResolver {
             logger.info {
                 """
                     Starting artifact resolution
-                    Resolving artifacts: ${artifacts.joinToString(" ")}"
+                    Resolving artifacts: ${artifacts.joinToString(" ")}
                     Local repositories: ${localRepositories.joinToString(" ")}
                     High priority repositories: ${additionalPriorityRepositories.joinToString(" ")}
                 """.trimIndent()
@@ -214,10 +214,11 @@ internal object ArtifactResolver {
                     val copy = configuration.copyRecursive().also {
                         it.resolutionStrategy.disableDependencyVerification()
                     }
-                    logger.warn(verificationException) {
+                    logger.warn {
                         """
                             Failed key verification for public servers, will retry without
                             verification.
+                            ${verificationException.message}
                         """.trimIndent()
                     }
                     resolveArtifacts(copy, disableVerificationOnFailure = false)
