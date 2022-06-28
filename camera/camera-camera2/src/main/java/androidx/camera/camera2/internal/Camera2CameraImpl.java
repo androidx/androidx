@@ -1122,6 +1122,9 @@ final class Camera2CameraImpl implements CameraInternal {
             debugLog("Unable to create capture session due to conflicting configurations");
             return;
         }
+        validatingBuilder.setStreamUseCase(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(
+                mUseCaseAttachState.getAttachedUseCaseConfigs(),
+                mUseCaseAttachState.getAttachedSessionConfigs()));
 
         CaptureSessionInterface captureSession = mCaptureSession;
         ListenableFuture<Void> openCaptureSession = captureSession.open(validatingBuilder.build(),
