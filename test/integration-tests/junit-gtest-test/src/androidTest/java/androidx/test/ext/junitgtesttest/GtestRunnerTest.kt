@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.test.ext.junitgtest
+package androidx.test.ext.junitgtesttest
 
+import androidx.test.ext.junitgtest.GtestRunner
+import androidx.test.ext.junitgtest.TargetLibrary
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.Description
@@ -24,6 +26,15 @@ import org.junit.runner.notification.Failure
 import org.junit.runner.notification.RunListener
 import org.junit.runner.notification.RunNotifier
 
+/**
+ * Tests the GtestRunner
+ *
+ * These specific tests would be more appropriate to put in junit-gtest itself, and have an
+ * integration test app run the tests more like an actual app consuming the library would (basically
+ * the [NativeTests] class), but due to b/236913987 it is currently difficult or impossible to
+ * make the test libraries ('apptest') available to the tests without including them in the release
+ * AAR.
+ */
 class GtestRunnerTest {
     private val runListener = CountingRunListener()
     private val runNotifier = RunNotifier().apply {
@@ -51,8 +62,8 @@ class GtestRunnerTest {
         runner.run(runNotifier)
         assertThat(runListener.descriptions.map { it.displayName }).isEqualTo(
             listOf(
-                "adder_pass(androidx.test.ext.junitgtest.GtestRunnerTest\$NativeTests)",
-                "foo_fail(androidx.test.ext.junitgtest.GtestRunnerTest\$NativeTests)")
+                "adder_pass(androidx.test.ext.junitgtesttest.GtestRunnerTest\$NativeTests)",
+                "foo_fail(androidx.test.ext.junitgtesttest.GtestRunnerTest\$NativeTests)")
 
         )
     }
