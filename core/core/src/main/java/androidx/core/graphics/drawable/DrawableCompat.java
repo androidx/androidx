@@ -161,7 +161,7 @@ public final class DrawableCompat {
      * @param drawable The Drawable against which to invoke the method.
      * @param tintMode A Porter-Duff blending mode
      */
-    public static void setTintMode(@NonNull Drawable drawable, @NonNull PorterDuff.Mode tintMode) {
+    public static void setTintMode(@NonNull Drawable drawable, @Nullable PorterDuff.Mode tintMode) {
         if (Build.VERSION.SDK_INT >= 21) {
             Api21Impl.setTintMode(drawable, tintMode);
         } else if (drawable instanceof TintAwareDrawable) {
