@@ -104,6 +104,17 @@ public class XmlSchemaAndComplicationSlotsDefinition(
         val boundingArc: BoundingArc?
     ) {
         companion object {
+            private val typesMap by lazy(LazyThreadSafetyMode.NONE) {
+                mapOf(
+                    "SHORT_TEXT" to ComplicationType.SHORT_TEXT,
+                    "LONG_TEXT" to ComplicationType.LONG_TEXT,
+                    "RANGED_VALUE" to ComplicationType.RANGED_VALUE,
+                    "MONOCHROMATIC_IMAGE" to ComplicationType.MONOCHROMATIC_IMAGE,
+                    "SMALL_IMAGE" to ComplicationType.SMALL_IMAGE,
+                    "PHOTO_IMAGE" to ComplicationType.PHOTO_IMAGE
+                )
+            }
+
             fun inflate(
                 resources: Resources,
                 parser: XmlResourceParser
@@ -142,25 +153,11 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                     "A ComplicationSlot must have a supportedTypes attribute"
                 }
                 val supportedTypes =
-                    parser.getAttributeIntValue(NAMESPACE_APP, "supportedTypes", 0)
-                val supportedTypesList = ArrayList<ComplicationType>()
-                if ((supportedTypes and 0x1) != 0) {
-                    supportedTypesList.add(ComplicationType.SHORT_TEXT)
-                }
-                if ((supportedTypes and 0x2) != 0) {
-                    supportedTypesList.add(ComplicationType.LONG_TEXT)
-                }
-                if ((supportedTypes and 0x4) != 0) {
-                    supportedTypesList.add(ComplicationType.RANGED_VALUE)
-                }
-                if ((supportedTypes and 0x8) != 0) {
-                    supportedTypesList.add(ComplicationType.MONOCHROMATIC_IMAGE)
-                }
-                if ((supportedTypes and 0x10) != 0) {
-                    supportedTypesList.add(ComplicationType.SMALL_IMAGE)
-                }
-                if ((supportedTypes and 0x20) != 0) {
-                    supportedTypesList.add(ComplicationType.PHOTO_IMAGE)
+                    parser.getAttributeValue(NAMESPACE_APP, "supportedTypes").split('|')
+                val supportedTypesList = supportedTypes.map {
+                    typesMap[it] ?: throw IllegalArgumentException(
+                        "Unrecognised type $it for ComplicationSlot $slotId"
+                    )
                 }
 
                 val defaultComplicationDataSourcePolicy =

@@ -46,7 +46,7 @@
         app:name="@string/complication_name_one"
         app:screenReaderName="@string/complication_screen_reader_name_one"
         app:boundsType="ROUND_RECT"
-        app:supportedTypes="SHORT_TEXT|RANGED_VALUE|SMALL_IMAGE"
+        app:supportedTypes="RANGED_VALUE|SHORT_TEXT|SMALL_IMAGE"
         app:systemDataSourceFallback="DATA_SOURCE_WATCH_BATTERY"
         app:systemDataSourceFallbackDefaultType="RANGED_VALUE">
         <ComplicationSlotBounds app:left="0.3" app:top="0.7" app:right="0.7" app:bottom="0.9"/>
