@@ -54,6 +54,7 @@ class SurfaceOutputImplTest {
     lateinit var fakeSurface: Surface
     lateinit var fakeSurfaceTexture: SurfaceTexture
     private val surfacesToCleanup = mutableListOf<SettableSurface>()
+    private val surfaceOutputsToCleanup = mutableListOf<SurfaceOutputImpl>()
 
     @Before
     fun setUp() {
@@ -68,17 +69,20 @@ class SurfaceOutputImplTest {
         surfacesToCleanup.forEach {
             it.close()
         }
+        surfaceOutputsToCleanup.forEach {
+            it.close()
+        }
     }
 
     @Test(expected = java.lang.IllegalStateException::class)
     fun createWithIncompleteFuture_throwsException() {
-        SurfaceOutputImpl(createIncompleteSettableSurface(), IDENTITY_MATRIX)
+        createFakeSurfaceOutputImpl(settableSurface = createIncompleteSettableSurface())
     }
 
     @Test
     fun requestClose_receivesOnCloseRequested() {
         // Arrange.
-        val surfaceOutImpl = SurfaceOutputImpl(createCompleteSettableSurface(), IDENTITY_MATRIX)
+        val surfaceOutImpl = createFakeSurfaceOutputImpl()
         var hasRequestedClose = false
         surfaceOutImpl.getSurface(mainThreadExecutor()) {
             hasRequestedClose = true
@@ -93,7 +97,7 @@ class SurfaceOutputImplTest {
     @Test
     fun closedSurface_noLongerReceivesCloseRequest() {
         // Arrange.
-        val surfaceOutImpl = SurfaceOutputImpl(createCompleteSettableSurface(), IDENTITY_MATRIX)
+        val surfaceOutImpl = createFakeSurfaceOutputImpl()
         var hasRequestedClose = false
         surfaceOutImpl.getSurface(mainThreadExecutor()) {
             hasRequestedClose = true
@@ -116,7 +120,7 @@ class SurfaceOutputImplTest {
             Matrix.setIdentityM(this, 0)
             Matrix.scaleM(this, 0, 2F, 1F, 1F)
         }
-        val surfaceOut = SurfaceOutputImpl(createCompleteSettableSurface(), scale2x)
+        val surfaceOut = createFakeSurfaceOutputImpl(transform = scale2x)
 
         // Act: apply the 2x scaling on top of the 90° rotation.
         // 90° clockwise rotation around (0, 0).
@@ -161,5 +165,12 @@ class SurfaceOutputImplTest {
         }
         surfacesToCleanup.add(settableSurface)
         return settableSurface
+    }
+
+    private fun createFakeSurfaceOutputImpl(
+        settableSurface: SettableSurface = createCompleteSettableSurface(),
+        transform: FloatArray = IDENTITY_MATRIX
+    ) = SurfaceOutputImpl(settableSurface, transform).apply {
+        surfaceOutputsToCleanup.add(this)
     }
 }
