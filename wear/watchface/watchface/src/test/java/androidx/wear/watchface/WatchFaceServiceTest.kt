@@ -45,6 +45,7 @@ import android.view.Choreographer
 import android.view.Surface
 import android.view.SurfaceHolder
 import android.view.WindowInsets
+import android.view.accessibility.AccessibilityManager
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
@@ -125,6 +126,7 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.validateMockitoUsage
 import org.mockito.Mockito.verify
 import org.robolectric.annotation.Config
+import org.robolectric.Shadows.shadowOf
 
 private const val INTERACTIVE_UPDATE_RATE_MS = 16L
 private const val LEFT_COMPLICATION_ID = 1000
@@ -577,7 +579,8 @@ public class WatchFaceServiceTest {
         complicationSlots: List<ComplicationSlot>,
         userStyleSchema: UserStyleSchema,
         wallpaperInteractiveWatchFaceInstanceParams: WallpaperInteractiveWatchFaceInstanceParams,
-        complicationCache: MutableMap<String, ByteArray>? = null
+        complicationCache: MutableMap<String, ByteArray>? = null,
+        preAndroidR: Boolean = false
     ) {
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
@@ -595,7 +598,7 @@ public class WatchFaceServiceTest {
             watchState,
             handler,
             null,
-            false,
+            preAndroidR,
             null,
             choreographer,
             mockSystemTimeMillis = looperTimeMillis,
@@ -1006,7 +1009,7 @@ public class WatchFaceServiceTest {
     public fun lowestIdComplicationSelectedWhenMarginsOverlap() {
         val complication100 =
             ComplicationSlot.createRoundRectComplicationSlotBuilder(
-            100,
+                100,
                 { watchState, listener ->
                     CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
                 },
@@ -3817,6 +3820,67 @@ public class WatchFaceServiceTest {
         ).isEqualTo("Example")
 
         assertThat(engineWrapper.contentDescriptionLabels[1].tapAction).isEqualTo(pendingIntent)
+    }
+
+    @Test
+    public fun onAccessibilityStateChanged_preAndroidR() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "TestID",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                emptyList()
+            ),
+            preAndroidR = true
+        )
+
+        engineWrapper.systemViewOfContentDescriptionLabelsIsStale = true
+        val shadowAccessibilityManager =
+            shadowOf(context.getSystemService(AccessibilityManager::class.java))
+
+        // Pre-R nothing should happen when the AccessibilityManager is enabled.
+        shadowAccessibilityManager.setEnabled(true)
+        assertThat(engineWrapper.systemViewOfContentDescriptionLabelsIsStale).isTrue()
+    }
+
+    @Test
+    public fun onAccessibilityStateChanged_androidR_or_above() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                "TestID",
+                DeviceConfig(
+                    false,
+                    false,
+                    0,
+                    0
+                ),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                emptyList()
+            ),
+            preAndroidR = false
+        )
+
+        engineWrapper.systemViewOfContentDescriptionLabelsIsStale = true
+        val shadowAccessibilityManager =
+            shadowOf(context.getSystemService(AccessibilityManager::class.java))
+
+        // From R enabling the AccessibilityManager should trigger a broadcast and reset
+        // systemViewOfContentDescriptionLabelsIsStale.
+        shadowAccessibilityManager.setEnabled(true)
+        assertThat(engineWrapper.systemViewOfContentDescriptionLabelsIsStale).isFalse()
     }
 
     @Test
