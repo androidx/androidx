@@ -18,8 +18,10 @@ package androidx.test.uiautomator.testapp;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Point;
@@ -37,6 +39,7 @@ import java.util.List;
 
 public class UiObject2Tests extends BaseTest {
     private static final int TIMEOUT_MS = 10_000;
+    private static final int SPEED_MS = 100;
 
     @Test
     public void testClear() {
@@ -80,6 +83,18 @@ public class UiObject2Tests extends BaseTest {
         // Click the button and wait for a new window
         UiObject2 button = mDevice.findObject(By.res(TEST_APP, "new_window_button"));
         assertTrue(button.clickAndWait(Until.newWindow(), TIMEOUT_MS));
+    }
+
+    @Test
+    public void testEquals() {
+        launchTestActivity(MainActivity.class);
+
+        // Get the same textView object via different methods.
+        UiObject2 textView1 = mDevice.findObject(By.res(TEST_APP, "example_id"));
+        UiObject2 textView2 = mDevice.findObject(By.text("TextView with an id"));
+        assertTrue(textView1.equals(textView2));
+        UiObject2 linearLayout = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
+        assertFalse(textView1.equals(linearLayout));
     }
 
     @Test
@@ -238,6 +253,21 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
+    public void testHashCode() {
+        launchTestActivity(MainActivity.class);
+
+        // Get the same textView object via different methods.
+        // The same object should have the same hash code.
+        UiObject2 textView1 = mDevice.findObject(By.res(TEST_APP, "example_id"));
+        UiObject2 textView2 = mDevice.findObject(By.text("TextView with an id"));
+        assertEquals(textView1.hashCode(), textView2.hashCode());
+
+        // Different objects should have different hash codes.
+        UiObject2 linearLayout = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
+        assertNotEquals(textView1.hashCode(), linearLayout.hashCode());
+    }
+
+    @Test
     public void testHasObject() {
         launchTestActivity(MainActivity.class);
 
@@ -362,47 +392,70 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
-    public void testPinchIn100Percent() {
+    public void testPinchClose() {
         launchTestActivity(UiObject2TestPinchActivity.class);
 
-        // Find the area to pinch
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
-        pinchArea.pinchClose(1.0f, 100);
-        scaleText.wait(Until.textNotEquals("1.0f"), 1000);
+        pinchArea.pinchClose(1f);
+        scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
+        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
+                        + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
     }
 
     @Test
-    public void testPinchIn75Percent() {
+    public void testPinchClose_withSpeed() {
         launchTestActivity(UiObject2TestPinchActivity.class);
 
-        // Find the area to pinch
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
-        pinchArea.pinchClose(.75f, 100);
-        scaleText.wait(Until.textNotEquals("1.0f"), 1000);
+        pinchArea.pinchClose(.75f, SPEED_MS);
+        scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
+        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
+                + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
     }
 
     @Test
-    public void testPinchIn50Percent() {
+    public void testPinchOpen() {
         launchTestActivity(UiObject2TestPinchActivity.class);
 
-        // Find the area to pinch
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
-        pinchArea.pinchClose(.5f, 100);
-        scaleText.wait(Until.textNotEquals("1.0f"), 1000);
+        pinchArea.pinchOpen(.5f);
+        scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
+        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        assertTrue(String.format("Expected scale text to be greater than 1f after pinchOpen(), "
+                + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch > 1f);
     }
 
     @Test
-    public void testPinchIn25Percent() {
+    public void testPinchOpen_withSpeed() {
         launchTestActivity(UiObject2TestPinchActivity.class);
 
-        // Find the area to pinch
         UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
         UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
-        pinchArea.pinchClose(.25f, 100);
-        scaleText.wait(Until.textNotEquals("1.0f"), 1000);
+        pinchArea.pinchOpen(.25f, SPEED_MS);
+        scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
+        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        assertTrue(String.format("Expected scale text to be greater than 1f after pinchOpen(), "
+                + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch > 1f);
+    }
+
+    @Test
+    public void testRecycle() {
+        launchTestActivity(MainActivity.class);
+
+        UiObject2 textView = mDevice.findObject(By.text("Sample text"));
+        textView.recycle();
+        // Attributes of a recycled object cannot be accessed.
+        IllegalStateException e = assertThrows(
+                "Expected testView.getText() to throw IllegalStateException, but it didn't.",
+                IllegalStateException.class,
+                () -> textView.getText()
+        );
+        assertEquals("This object has already been recycled", e.getMessage());
     }
 
     @Test
@@ -470,6 +523,62 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
+    public void testSetGestureMargin() {
+        launchTestActivity(UiObject2TestPinchActivity.class);
+
+        UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
+        UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
+
+        // Set the gesture's margins to a large number (greater than the width or height of the UI
+        // object's visible bounds).
+        // The gesture's bounds cannot form a rectangle and no action can be performed.
+        pinchArea.setGestureMargin(1_000);
+        pinchArea.pinchClose(1f);
+        scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
+        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        assertEquals(String.format("Expected scale value to be equal to 1f after pinchClose(), "
+                + "but got [%f]", scaleValueAfterPinch), 1f, scaleValueAfterPinch, 0f);
+
+        // Set the gesture's margins to a small number (smaller than the width or height of the UI
+        // object's visible bounds).
+        // The gesture's bounds form a rectangle and action can be performed.
+        pinchArea.setGestureMargin(1);
+        pinchArea.pinchClose(1f);
+        scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
+        scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
+                + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
+    }
+
+    @Test
+    public void testSetGestureMargins() {
+        launchTestActivity(UiObject2TestPinchActivity.class);
+
+        UiObject2 pinchArea = mDevice.findObject(By.res(TEST_APP, "pinch_area"));
+        UiObject2 scaleText = pinchArea.findObject(By.res(TEST_APP, "scale_factor"));
+
+        // Set the gesture's margins to large numbers (greater than the width or height of the UI
+        // object's visible bounds).
+        // The gesture's bounds cannot form a rectangle and no action can be performed.
+        pinchArea.setGestureMargins(1, 1, 1_000, 1_000);
+        pinchArea.pinchClose(1f);
+        scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
+        float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        assertEquals(String.format("Expected scale value to be equal to 1f after pinchClose(), "
+                + "but got [%f]", scaleValueAfterPinch), 1f, scaleValueAfterPinch, 0f);
+
+        // Set the gesture's margins to small numbers (smaller than the width or height of the UI
+        // object's visible bounds).
+        // The gesture's bounds form a rectangle and action can be performed.
+        pinchArea.setGestureMargins(1, 1, 1, 1);
+        pinchArea.pinchClose(1f);
+        scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
+        scaleValueAfterPinch = Float.valueOf(scaleText.getText());
+        assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
+                + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
+    }
+
+    @Test
     public void testSetText() {
         launchTestActivity(UiObject2TestClearTextActivity.class);
 
@@ -484,9 +593,9 @@ public class UiObject2Tests extends BaseTest {
     /* TODO(b/235841473): Implement these tests
     public void testDrag() {}
 
-    public void testEquals() {}
-
     public void testFling() {}
+
+    public void testSwipe() {}
 
     public void testWaitForExists() {}
 
