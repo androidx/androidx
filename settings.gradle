@@ -611,6 +611,7 @@ includeProject(":glance:glance-wear-tiles:integration-tests:template-demos", [Bu
 includeProject(":glance:glance-wear-tiles", [BuildType.MAIN, BuildType.GLANCE])
 includeProject(":gridlayout:gridlayout", [BuildType.MAIN])
 includeProject(":health:health-connect-client", [BuildType.MAIN])
+includeProject(":health:health-connect-client-proto", [BuildType.MAIN])
 includeProject(":health:health-services-client", [BuildType.MAIN])
 includeProject(":heifwriter:heifwriter", [BuildType.MAIN])
 includeProject(":graphics:graphics-core", [BuildType.MAIN])
