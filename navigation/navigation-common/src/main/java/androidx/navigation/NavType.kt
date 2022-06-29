@@ -68,7 +68,10 @@ public abstract class NavType<T>(
 
     /**
      * Parse a value of this type from a String and then combine that
-     * parsed value with the given previousValue of the same type.
+     * parsed value with the given previousValue of the same type to
+     * provide a new value that contains both the new and previous value.
+     *
+     * By default, the given value will replace the previousValue.
      *
      * @param value string representation of a value of this type
      * @param previousValue previously parsed value of this type
