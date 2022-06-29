@@ -82,32 +82,46 @@ public class BySelectorTests extends BaseTest {
     }
 
     @Test
-    public void testDescSetFromResource() {
+    public void testDesc() {
         launchTestActivity(BySelectorTestDescActivity.class);
 
-        // Content Description from resource
-        assertNotNull(mDevice.findObject(By.desc("Content Description Set From Layout")));
+        // Content description from source code.
+        assertNotNull(mDevice.findObject(By.desc("This button desc contains some text.")));
+
+        // Content description set at runtime.
+        assertNotNull(mDevice.findObject(By.desc("Content description set at runtime.")));
+
+        // No element has this content description.
+        assertNull(mDevice.findObject(By.desc("No element has this content description.")));
+
+        // Pattern of the content description.
+        assertNotNull(mDevice.findObject(By.desc(Pattern.compile(".*contains.*"))));
+        assertNull(mDevice.findObject(By.desc(Pattern.compile(".*NonExistent.*"))));
     }
 
     @Test
-    public void testDescSetAtRuntime() {
+    public void testDescContains() {
         launchTestActivity(BySelectorTestDescActivity.class);
 
-        // Content Description set at runtime
-        assertNotNull(mDevice.findObject(By.desc("Content Description Set At Runtime")));
+        assertNotNull(mDevice.findObject(By.descContains("contains")));
+        assertNull(mDevice.findObject(By.descContains("not-containing")));
     }
 
     @Test
-    public void testDescNotFound() {
+    public void testDescStartsWith() {
         launchTestActivity(BySelectorTestDescActivity.class);
 
-        // No element has this content description
-        assertNull(mDevice.findObject(By.desc("No element has this Content Description")));
+        assertNotNull(mDevice.findObject(By.descStartsWith("This")));
+        assertNull(mDevice.findObject(By.descStartsWith("NotThis")));
     }
 
-    // TODO(b/235841286): Implement these for desc():
-    // 1. Patterns
-    // 2. Runtime Widgets
+    @Test
+    public void testDescEndsWith() {
+        launchTestActivity(BySelectorTestDescActivity.class);
+
+        assertNotNull(mDevice.findObject(By.descEndsWith(" text.")));
+        assertNull(mDevice.findObject(By.descEndsWith(" not.")));
+    }
 
     @Test
     public void testPackage() {
