@@ -16,8 +16,13 @@
 package androidx.build.importMaven
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.core.Context
+import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.convert
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
@@ -28,21 +33,24 @@ import okio.Path.Companion.toPath
 import org.apache.logging.log4j.kotlin.logger
 import kotlin.system.exitProcess
 
-internal class Cli : CliktCommand() {
-    override fun run() = Unit
-}
-
 /**
  * Base class for all commands which only reads the support repo folder.
  */
 internal abstract class BaseCommand(
-    help: String
-) : CliktCommand(help) {
+    help: String,
+    treatUnknownOptionsAsArgs: Boolean = false,
+    invokeWithoutSubcommand: Boolean = false,
+) : CliktCommand(
+    help = help,
+    invokeWithoutSubcommand = invokeWithoutSubcommand,
+    treatUnknownOptionsAsArgs = treatUnknownOptionsAsArgs
+) {
+    private var interceptor: ((Context) -> Unit)? = null
     protected val logger by lazy {
         // make this lazy so that it can be created after root logger config is changed.
         logger("main")
     }
-    private val supportRepoFolder by option(
+    internal val supportRepoFolder by option(
         help = """
             Path to the support repository (frameworks/support).
             By default, it is inherited from the build of import maven itself.
@@ -50,7 +58,7 @@ internal abstract class BaseCommand(
         envvar = "SUPPORT_REPO"
     )
 
-    private val verbose by option(
+    internal val verbose by option(
         names = arrayOf("-v", "--verbose"),
         help = """
             Enables verbose logging
@@ -73,13 +81,27 @@ internal abstract class BaseCommand(
         }
     }
 
+    /**
+     * Disables executing the command, which is useful for testing.
+     */
+    fun intercept(interceptor: (Context) -> Unit) {
+        this.interceptor = interceptor
+        registeredSubcommands().forEach {
+            (it as BaseCommand).intercept(interceptor)
+        }
+    }
+
     final override fun run() {
         if (verbose) {
             enableVerboseLogs()
         } else {
             enableInfoLogs()
         }
-        execute()
+        if (interceptor != null) {
+            interceptor!!.invoke(currentContext)
+        } else {
+            execute()
+        }
     }
 
     abstract fun execute()
@@ -89,42 +111,47 @@ internal abstract class BaseCommand(
  * Base class to import maven artifacts.
  */
 internal abstract class BaseImportMavenCommand(
+    invokeWithoutSubcommand: Boolean = false,
     help: String
-) : BaseCommand(help) {
-    private val prebuiltsFolder by option(
+) : BaseCommand(
+    help = help,
+    invokeWithoutSubcommand = invokeWithoutSubcommand,
+    treatUnknownOptionsAsArgs = true,
+) {
+    internal val prebuiltsFolder by option(
         help = """
             Path to the prebuilts folder. Can be relative to the current working
             directory.
             By default, inherited from the support-repo root folder.
         """.trimIndent()
     )
-    private val androidXBuildId by option(
+    internal val androidXBuildId by option(
         names = arrayOf("--androidx-build-id"),
         help = """
             The build id of https://ci.android.com/builds/branches/aosp-androidx-main/grid?
             to use for fetching androidx prebuilts.
         """.trimIndent()
     ).int()
-    private val metalavaBuildId by option(
+    internal val metalavaBuildId by option(
         help = """
             The build id of https://androidx.dev/metalava/builds to fetch metalava from.
         """.trimIndent()
     ).int()
-    private val allowJetbrainsDev by option(
+    internal val allowJetbrainsDev by option(
         help = """
             Whether or not to allow artifacts to be fetched from Jetbrains' dev repository
             E.g. https://maven.pkg.jetbrains.space/kotlin/p/kotlin/dev
         """.trimIndent()
     ).flag()
 
-    private val redownload by option(
+    internal val redownload by option(
         help = """
             If set to true, local repositories will be ignored while resolving artifacts so
             all of them will be redownloaded.
         """.trimIndent()
     ).flag(default = false)
 
-    private val repositories by option(
+    internal val repositories by option(
         help = """
             Comma separated list of additional repositories.
         """.trimIndent()
@@ -132,7 +159,7 @@ internal abstract class BaseImportMavenCommand(
         it.split(',')
     }
 
-    private val cleanLocalRepo by option(
+    internal val cleanLocalRepo by option(
         help = """
             This flag tries to remove unnecessary / bad files from the local maven repository.
             It must be used with the `redownload` flag.
@@ -141,7 +168,7 @@ internal abstract class BaseImportMavenCommand(
         """.trimIndent()
     ).flag(default = false)
 
-    private val explicitlyFetchInheritedDependencies by option(
+    internal val explicitlyFetchInheritedDependencies by option(
         help = """
             If set, all inherited dependencies will be fetched individually, with their own
             dependencies.
@@ -164,6 +191,11 @@ internal abstract class BaseImportMavenCommand(
     abstract fun artifacts(): List<String>
 
     override fun execute() {
+        if (currentContext.invokedSubcommand != null) {
+            // skip, invoking a sub command instead
+            return
+        }
+        val artifactsToBeResolved = artifacts()
         val extraRepositories = mutableListOf<String>()
         androidXBuildId?.let {
             extraRepositories.add(ArtifactResolver.createAndroidXRepo(it))
@@ -194,7 +226,7 @@ internal abstract class BaseImportMavenCommand(
             extraRepositories.addAll(it)
         }
         val resolvedArtifacts = ArtifactResolver.resolveArtifacts(
-            artifacts = artifacts(),
+            artifacts = artifactsToBeResolved,
             additionalRepositories = extraRepositories,
             explicitlyFetchInheritedDependencies = explicitlyFetchInheritedDependencies,
             localRepositories = if (redownload) {
@@ -239,17 +271,52 @@ internal abstract class BaseImportMavenCommand(
  * Imports the maven artifacts in the [artifacts] parameter.
  */
 internal class ImportArtifact : BaseImportMavenCommand(
-    help = "Imports given artifacts"
+    help = "Imports given artifacts",
+    invokeWithoutSubcommand = true
 ) {
+    private val args by argument(
+        help = """
+            The dependency notation of the artifact you want to add to the prebuilts folder.
+            Can be passed multiple times.
+            E.g. android.arch.work:work-runtime-ktx:1.0.0-alpha07
+        """.trimIndent()
+    ).multiple(
+        required = false,
+        default = emptyList()
+    )
     private val artifacts by option(
         help = """
             The dependency notation of the artifact you want to add to the prebuilts folder.
             E.g. android.arch.work:work-runtime-ktx:1.0.0-alpha07
             Multiple artifacts can be provided with a `,` in between them.
         """.trimIndent()
-    ).required()
+    ).default("")
 
-    override fun artifacts(): List<String> = artifacts.split(',')
+    override fun artifacts(): List<String> {
+        // artifacts passed via --artifacts
+        val optionArtifacts = artifacts.split(',')
+        // artficats passed as command line argument
+        val argArtifacts = args.flatMap { it.split(',') }
+        val artifactsToBeResolved = (optionArtifacts + argArtifacts).distinct()
+            .filter {
+                it.isNotBlank()
+            }
+        if (artifactsToBeResolved.isEmpty()) {
+            // since we run this command as the default one, we cannot enforce arguments.
+            // instead, we check them in first access
+            throw UsageError(
+                text = """
+                        Missing artifact coordinates.
+                        You can either pass them as arguments or explicitly via --artifacts option.
+                        e.g. ./importMaven.sh foo:bar:baz:123
+                             ./importMaven.sh --artifacts foo:bar:baz:123
+                        help:
+                        ${getFormattedHelp()}
+                    """.trimIndent()
+            )
+        }
+        return artifactsToBeResolved
+    }
 }
 
 /**
@@ -258,14 +325,14 @@ internal class ImportArtifact : BaseImportMavenCommand(
 internal class ImportKonanBinariesCommand : BaseCommand(
     help = "Downloads konan binaries"
 ) {
-    private val konanPrebuiltsFolder by option(
+    internal val konanPrebuiltsFolder by option(
         help = """
             Path to the prebuilts folder. Can be relative to the current working
             directory.
             By default, inherited from the support-repo root folder.
         """.trimIndent()
     )
-    private val konanCompilerVersion by option(
+    internal val konanCompilerVersion by option(
         help = """
             Konan compiler version to download. This is usually your kotlin version.
         """.trimIndent()
@@ -291,7 +358,7 @@ internal class ImportKonanBinariesCommand : BaseCommand(
 internal class ImportToml : BaseImportMavenCommand(
     help = "Downloads all artifacts declared in the project's toml file"
 ) {
-    private val tomlFile by option(
+    internal val tomlFile by option(
         help = """
             Path to the toml file. If not provided, main androidx toml file is obtained from the
             supportRepoFolder argument.
@@ -309,9 +376,12 @@ internal class ImportToml : BaseImportMavenCommand(
     }
 }
 
+internal fun createCliCommands() = ImportArtifact()
+    .subcommands(
+        ImportKonanBinariesCommand(), ImportToml()
+    )
+
 fun main(args: Array<String>) {
-    Cli()
-        .subcommands(ImportArtifact(), ImportKonanBinariesCommand(), ImportToml())
-        .main(args)
+    createCliCommands().main(args)
     exitProcess(0)
 }

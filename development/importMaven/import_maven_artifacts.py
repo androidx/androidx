@@ -66,7 +66,7 @@ def main():
     parse_result = parser.parse_args()
     artifact_name = parse_result.name
 
-    command = 'importMaven.sh import-artifact --artifacts %s' % (artifact_name)
+    command = 'importMaven.sh %s' % (artifact_name)
     # AndroidX Build Id
     androidx_build_id = parse_result.androidx_build_id
     if (androidx_build_id):
