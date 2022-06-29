@@ -18,7 +18,7 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.widget.Button;
+import android.widget.RatingBar;
 
 import androidx.annotation.Nullable;
 
@@ -29,7 +29,7 @@ public class BySelectorTestDescActivity extends Activity {
 
         setContentView(R.layout.byselector_testdesc_activity);
 
-        Button button = (Button)findViewById(R.id.button_with_runtime_description);
-        button.setContentDescription("Content Description Set At Runtime");
+        RatingBar rating_bar = (RatingBar) findViewById(R.id.rating_bar);
+        rating_bar.setContentDescription("Content description set at runtime.");
     }
 }
