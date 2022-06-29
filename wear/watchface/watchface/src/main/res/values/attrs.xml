@@ -101,15 +101,10 @@
             <enum name="EDGE" value="2" />
         </attr>
 
-        <!-- Required. The ComplicationTypes accepted by this complication slot. -->
-        <attr name="supportedTypes">
-            <flag name="SHORT_TEXT" value="0x1" />
-            <flag name="LONG_TEXT" value="0x2" />
-            <flag name="RANGED_VALUE" value="0x4" />
-            <flag name="MONOCHROMATIC_IMAGE" value="0x8" />
-            <flag name="SMALL_IMAGE" value="0x10" />
-            <flag name="PHOTO_IMAGE" value="0x20" />
-        </attr>
+        <!-- Required. The ComplicationTypes accepted by this complication slot.
+        Can be list of SHORT_TEXT, LONG_TEXT, RANGED_VALUE, MONOCHROMATIC_IMAGE,
+        SMALL_IMAGE and PHOTO_IMAGE with | delimiter. -->
+        <attr name="supportedTypes" format="string"/>
 
         <attr name="primaryDataSource"/>
         <attr name="primaryDataSourceDefaultType"/>
