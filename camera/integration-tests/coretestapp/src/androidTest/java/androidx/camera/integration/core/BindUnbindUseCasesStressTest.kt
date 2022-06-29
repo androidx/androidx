@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.extensions
+package androidx.camera.integration.core
 
 import android.content.Context
 import android.graphics.SurfaceTexture
 import android.os.Handler
 import android.os.HandlerThread
+import android.util.Log
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.Camera
@@ -28,23 +29,30 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.integration.extensions.util.ExtensionsTestUtil
-import androidx.camera.integration.extensions.util.ExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
-import androidx.camera.integration.extensions.util.ExtensionsTestUtil.STRESS_TEST_REPEAT_COUNT
-import androidx.camera.integration.extensions.utils.CameraSelectorUtil
+import androidx.camera.core.UseCase
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
+import androidx.camera.integration.core.util.StressTestUtil.STRESS_TEST_REPEAT_COUNT
+import androidx.camera.integration.core.util.StressTestUtil.createCameraSelectorById
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.GLUtil
 import androidx.camera.testing.LabTestRule
 import androidx.camera.testing.SurfaceTextureProvider
 import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.video.FileOutputOptions
+import androidx.camera.video.Recorder
+import androidx.camera.video.Recording
+import androidx.camera.video.VideoCapture
+import androidx.camera.video.VideoRecordEvent
+import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.RepeatRule
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -59,6 +67,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
+private const val VIDEO_TIMEOUT_SEC = 10L
+private const val TAG = "BindUnbindUseCasesStressTest"
 private const val INVALID_TEX_ID = -1
 private var texId = INVALID_TEX_ID
 
@@ -66,12 +76,11 @@ private var texId = INVALID_TEX_ID
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class BindUnbindUseCasesStressTest(
-    private val cameraId: String,
-    private val extensionMode: Int
+    private val cameraId: String
 ) {
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
-        PreTestCameraIdList(Camera2Config.defaultConfig())
+        CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 
     @get:Rule
@@ -83,35 +92,52 @@ class BindUnbindUseCasesStressTest(
     private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private lateinit var cameraProvider: ProcessCameraProvider
-    private lateinit var extensionsManager: ExtensionsManager
     private lateinit var camera: Camera
-    private lateinit var baseCameraSelector: CameraSelector
-    private lateinit var extensionCameraSelector: CameraSelector
+    private lateinit var cameraIdCameraSelector: CameraSelector
     private lateinit var preview: Preview
     private lateinit var imageCapture: ImageCapture
     private lateinit var lifecycleOwner: FakeLifecycleOwner
 
+    private lateinit var latchForVideoSaved: CountDownLatch
+    private lateinit var latchForVideoRecording: CountDownLatch
+
+    private lateinit var finalize: VideoRecordEvent.Finalize
+
+    private val videoRecordEventListener = Consumer<VideoRecordEvent> {
+        when (it) {
+            is VideoRecordEvent.Start -> {
+                // Recording start.
+                Log.d(TAG, "Recording start")
+            }
+            is VideoRecordEvent.Finalize -> {
+                // Recording stop.
+                Log.d(TAG, "Recording finalize")
+                finalize = it
+                latchForVideoSaved.countDown()
+            }
+            is VideoRecordEvent.Status -> {
+                // Make sure the recording proceed for a while.
+                latchForVideoRecording.countDown()
+            }
+            is VideoRecordEvent.Pause, is VideoRecordEvent.Resume -> {
+                // no op for this test, skip these event now.
+            }
+            else -> {
+                throw IllegalStateException()
+            }
+        }
+    }
+
     @Before
     fun setUp(): Unit = runBlocking {
-        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        extensionsManager = ExtensionsManager.getInstanceAsync(
-            context,
-            cameraProvider
-        )[10000, TimeUnit.MILLISECONDS]
 
-        baseCameraSelector = CameraSelectorUtil.createCameraSelectorById(cameraId)
-        assumeTrue(extensionsManager.isExtensionAvailable(baseCameraSelector, extensionMode))
-
-        extensionCameraSelector = extensionsManager.getExtensionEnabledCameraSelector(
-            baseCameraSelector,
-            extensionMode
-        )
+        cameraIdCameraSelector = createCameraSelectorById(cameraId)
 
         camera = withContext(Dispatchers.Main) {
             lifecycleOwner = FakeLifecycleOwner()
             lifecycleOwner.startAndResume()
-            cameraProvider.bindToLifecycle(lifecycleOwner, extensionCameraSelector)
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraIdCameraSelector)
         }
 
         preview = Preview.Builder().build()
@@ -126,17 +152,13 @@ class BindUnbindUseCasesStressTest(
                 cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
             }
         }
-
-        if (::extensionsManager.isInitialized) {
-            extensionsManager.shutdown()[10000, TimeUnit.MILLISECONDS]
-        }
     }
 
     companion object {
         @JvmStatic
-        @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
-        val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
+        @get:Parameterized.Parameters(name = "cameraId = {0}")
+        val parameters: Collection<String>
+            get() = CameraUtil.getBackwardCompatibleCameraIdListOrThrow()
     }
 
     @LabTestRule.LabTestOnly
@@ -153,20 +175,58 @@ class BindUnbindUseCasesStressTest(
     fun bindUnbindUseCasesTenTimes_canCaptureImageInEachTime_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
         val imageAnalysis = ImageAnalysis.Builder().build()
-        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-        bindUseCases_checkOutput_thenUnbindAll_repeatedly(preview, imageCapture, imageAnalysis)
+        bindUseCases_checkOutput_thenUnbindAll_repeatedly(
+            preview,
+            imageCapture,
+            imageAnalysis = imageAnalysis
+        )
+    }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
+    fun bindUnbindUseCasesTenTimes_canCaptureImageInEachTime_withPreviewVideoCapture(): Unit =
+        runBlocking {
+            val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+            bindUseCases_checkOutput_thenUnbindAll_repeatedly(preview, videoCapture = videoCapture)
+        }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
+    fun bindUnbindUseCasesTenTimes_canCaptureImageInEachTime_withPreviewVideoCaptureImageCapture():
+        Unit = runBlocking {
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, videoCapture))
+        bindUseCases_checkOutput_thenUnbindAll_repeatedly(preview, imageCapture, videoCapture)
+    }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
+    fun bindUnbindUseCasesTenTimes_canCaptureImageInEachTime_withPreviewVideoCaptureImageAnalysis():
+        Unit = runBlocking {
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+        val imageAnalysis = ImageAnalysis.Builder().build()
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageAnalysis))
+        bindUseCases_checkOutput_thenUnbindAll_repeatedly(
+            preview,
+            videoCapture = videoCapture,
+            imageAnalysis = imageAnalysis
+        )
     }
 
     /**
      * Repeatedly binds use cases, checks the input use cases' capture functions can work well, and
      * unbind all use cases.
      *
-     * <p>This function checks the nullability of the input ImageAnalysis to determine whether it
-     * will be bound together to run the test.
+     * <p>This function checks the nullabilities of the input ImageCapture, VideoCapture and
+     * ImageAnalysis to determine whether the use cases will be bound together to run the test.
      */
     private fun bindUseCases_checkOutput_thenUnbindAll_repeatedly(
         preview: Preview,
-        imageCapture: ImageCapture,
+        imageCapture: ImageCapture? = null,
+        videoCapture: VideoCapture<Recorder>? = null,
         imageAnalysis: ImageAnalysis? = null,
         repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT
     ): Unit = runBlocking {
@@ -174,6 +234,13 @@ class BindUnbindUseCasesStressTest(
             // Arrange.
             // Sets up Preview frame available monitor
             val previewFrameAvailableMonitor = PreviewFrameAvailableMonitor()
+
+            // Sets up the necessary objects for VideoCapture part if videCapture is non-null
+            var newVideoCapture: VideoCapture<Recorder>? = null
+            videoCapture?.let {
+                // VideoCapture needs to be recreated everytime until b/212654991 is fixed
+                newVideoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+            }
 
             // Act: binds use cases
             withContext(Dispatchers.Main) {
@@ -183,10 +250,20 @@ class BindUnbindUseCasesStressTest(
                     )
                 )
 
+                val useCases = mutableListOf<UseCase>(preview)
+                imageCapture?.let { useCases.add(it) }
+                newVideoCapture?.let { useCases.add(it) }
+                imageAnalysis?.let { useCases.add(it) }
+
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
-                    extensionCameraSelector,
-                    *listOfNotNull(preview, imageCapture, imageAnalysis).toTypedArray()
+                    cameraIdCameraSelector,
+                    *listOfNotNull(
+                        preview,
+                        imageCapture,
+                        newVideoCapture,
+                        imageAnalysis
+                    ).toTypedArray()
                 )
             }
 
@@ -194,14 +271,29 @@ class BindUnbindUseCasesStressTest(
             previewFrameAvailableMonitor.awaitSurfaceTextureReadyAndAssert()
             previewFrameAvailableMonitor.awaitAvailableFramesAndAssert()
 
-            val imageCaptureCaptureSuccessMonitor = ImageCaptureCaptureSuccessMonitor()
-            imageCapture.takePicture(
-                Executors.newSingleThreadExecutor(),
-                imageCaptureCaptureSuccessMonitor.createCaptureCallback()
-            )
-
             // Assert: checks that the captured image of ImageCapture can be received
-            imageCaptureCaptureSuccessMonitor.awaitCaptureSuccessAndAssert()
+            imageCapture?.let {
+                val imageCaptureCaptureSuccessMonitor = ImageCaptureCaptureSuccessMonitor()
+
+                it.takePicture(
+                    Executors.newSingleThreadExecutor(),
+                    imageCaptureCaptureSuccessMonitor.createCaptureCallback()
+                )
+
+                imageCaptureCaptureSuccessMonitor.awaitCaptureSuccessAndAssert()
+            }
+
+            // Assert: checks that a video can be recorded by VideoCapture
+            newVideoCapture?.let {
+                latchForVideoSaved = CountDownLatch(1)
+                latchForVideoRecording = CountDownLatch(5)
+                val videoFile = File.createTempFile("camerax-video", ".tmp").apply {
+                    deleteOnExit()
+                }
+
+                completeVideoRecording(it, videoFile)
+                videoFile.delete()
+            }
 
             // Assert: checks that images can be received by the ImageAnalysis.Analyzer
             imageAnalysis?.let {
@@ -210,6 +302,7 @@ class BindUnbindUseCasesStressTest(
                     Executors.newSingleThreadExecutor(),
                     analyzerFrameAvailableMonitor.createAnalyzer()
                 )
+                analyzerFrameAvailableMonitor.awaitAvailableFramesAndAssert()
             }
 
             // Clean it up.
@@ -232,30 +325,76 @@ class BindUnbindUseCasesStressTest(
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
     fun canCaptureImage_afterBindUnbindUseCasesTenTimes_withPreviewImageCaptureImageAnalysis():
         Unit = runBlocking {
-            val imageAnalysis = ImageAnalysis.Builder().build()
-            assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-        bindUseCases_unbindAll_repeatedly_thenCheckOutput(preview, imageCapture, imageAnalysis)
+        val imageAnalysis = ImageAnalysis.Builder().build()
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
+        bindUseCases_unbindAll_repeatedly_thenCheckOutput(
+            preview,
+            imageCapture,
+            imageAnalysis = imageAnalysis
+        )
+    }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
+    fun canCaptureImage_afterBindUnbindUseCasesTenTimes_withPreviewVideoCapture(): Unit =
+        runBlocking {
+            val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+            bindUseCases_unbindAll_repeatedly_thenCheckOutput(preview, videoCapture = videoCapture)
         }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
+    fun canCaptureImage_afterBindUnbindUseCasesTenTimes_withPreviewVideoCaptureImageCapture():
+        Unit = runBlocking {
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, videoCapture))
+        bindUseCases_unbindAll_repeatedly_thenCheckOutput(preview, imageCapture, videoCapture)
+    }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
+    fun canCaptureImage_afterBindUnbindUseCasesTenTimes_withPreviewVideoCaptureImageAnalysis():
+        Unit = runBlocking {
+        val videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+        val imageAnalysis = ImageAnalysis.Builder().build()
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, videoCapture, imageAnalysis))
+        bindUseCases_unbindAll_repeatedly_thenCheckOutput(
+            preview,
+            videoCapture = videoCapture,
+            imageAnalysis = imageAnalysis
+        )
+    }
 
     /**
      * Repeatedly binds use cases and unbind all, then checks the input use cases' capture
      * functions can work well.
      *
-     * <p>This function checks the nullability of the input ImageAnalysis to determine whether it
-     * will be bound together to run the test.
+     * <p>This function checks the nullabilities of the input ImageCapture, VideoCapture and
+     * ImageAnalysis to determine whether the use cases will be bound together to run the test.
      */
     private fun bindUseCases_unbindAll_repeatedly_thenCheckOutput(
         preview: Preview,
-        imageCapture: ImageCapture,
+        imageCapture: ImageCapture? = null,
+        videoCapture: VideoCapture<Recorder>? = null,
         imageAnalysis: ImageAnalysis? = null,
         repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT
     ): Unit = runBlocking {
         lateinit var previewFrameAvailableMonitor: PreviewFrameAvailableMonitor
+        var newVideoCapture: VideoCapture<Recorder>? = null
 
         for (i in 1..repeatCount) {
             // Arrange.
             // Sets up Preview frame available monitor
             previewFrameAvailableMonitor = PreviewFrameAvailableMonitor()
+
+            // Sets up the necessary objects for VideoCapture part if videCapture is non-null
+            videoCapture?.let {
+                // VideoCapture needs to be recreated everytime until b/212654991 is fixed
+                newVideoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+            }
 
             // Act: binds use cases
             withContext(Dispatchers.Main) {
@@ -265,10 +404,20 @@ class BindUnbindUseCasesStressTest(
                     )
                 )
 
+                val useCases = mutableListOf<UseCase>(preview)
+                imageCapture?.let { useCases.add(it) }
+                newVideoCapture?.let { useCases.add(it) }
+                imageAnalysis?.let { useCases.add(it) }
+
                 cameraProvider.bindToLifecycle(
                     lifecycleOwner,
-                    extensionCameraSelector,
-                    *listOfNotNull(preview, imageCapture, imageAnalysis).toTypedArray()
+                    cameraIdCameraSelector,
+                    *listOfNotNull(
+                        preview,
+                        imageCapture,
+                        newVideoCapture,
+                        imageAnalysis
+                    ).toTypedArray()
                 )
 
                 // Clean it up: do not unbind at the last time
@@ -282,25 +431,68 @@ class BindUnbindUseCasesStressTest(
         previewFrameAvailableMonitor.awaitSurfaceTextureReadyAndAssert()
         previewFrameAvailableMonitor.awaitAvailableFramesAndAssert()
 
-        val imageCaptureCaptureSuccessMonitor = ImageCaptureCaptureSuccessMonitor()
-        imageCapture.takePicture(
-            Executors.newSingleThreadExecutor(),
-            imageCaptureCaptureSuccessMonitor.createCaptureCallback()
-        )
-
         // Assert: checks that the captured image of ImageCapture can be received
-        imageCaptureCaptureSuccessMonitor.awaitCaptureSuccessAndAssert()
+        imageCapture?.let {
+            val imageCaptureCaptureSuccessMonitor = ImageCaptureCaptureSuccessMonitor()
 
+            it.takePicture(
+                Executors.newSingleThreadExecutor(),
+                imageCaptureCaptureSuccessMonitor.createCaptureCallback()
+            )
+
+            imageCaptureCaptureSuccessMonitor.awaitCaptureSuccessAndAssert()
+        }
+
+        // Assert: checks that a video can be recorded by VideoCapture
+        newVideoCapture?.let {
+            latchForVideoSaved = CountDownLatch(1)
+            latchForVideoRecording = CountDownLatch(5)
+            val videoFile = File.createTempFile("camerax-video", ".tmp").apply {
+                deleteOnExit()
+            }
+
+            completeVideoRecording(it, videoFile)
+            videoFile.delete()
+        }
+        // Assert: checks that images can be received by the ImageAnalysis.Analyzer
         imageAnalysis?.let {
             val analyzerFrameAvailableMonitor = ImageAnalysisImageAvailableMonitor()
             it.setAnalyzer(
                 Executors.newSingleThreadExecutor(),
                 analyzerFrameAvailableMonitor.createAnalyzer()
             )
-
-            // Assert: checks that images can be received by the ImageAnalysis.Analyzer
             analyzerFrameAvailableMonitor.awaitAvailableFramesAndAssert()
         }
+    }
+
+    private fun startVideoRecording(videoCapture: VideoCapture<Recorder>, file: File):
+        Recording {
+        val recording = videoCapture.output
+            .prepareRecording(context, FileOutputOptions.Builder(file).build())
+            .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+
+        try {
+            // Waits for status event to proceed recording for a while.
+            assertThat(latchForVideoRecording.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS))
+                .isTrue()
+        } catch (ex: Exception) {
+            recording.stop()
+            throw ex
+        }
+
+        return recording
+    }
+
+    private fun completeVideoRecording(videoCapture: VideoCapture<Recorder>, file: File) {
+        val recording = startVideoRecording(videoCapture, file)
+
+        recording.stop()
+        // Waits for finalize event to saved file.
+        assertThat(latchForVideoSaved.await(VIDEO_TIMEOUT_SEC, TimeUnit.SECONDS)).isTrue()
+
+        // Checks if any error after recording finalized
+        Truth.assertWithMessage(TAG + "Finalize with error: ${finalize.error}, ${finalize.cause}.")
+            .that(finalize.hasError()).isFalse()
     }
 
     private class PreviewFrameAvailableMonitor {
@@ -314,9 +506,6 @@ class BindUnbindUseCasesStressTest(
             private var complete = false
 
             override fun onFrameAvailable(surfaceTexture: SurfaceTexture): Unit = runBlocking {
-                if (complete) {
-                    return@runBlocking
-                }
 
                 withContext(Dispatchers.Main) {
                     synchronized(isSurfaceTextureReleasedLock) {
