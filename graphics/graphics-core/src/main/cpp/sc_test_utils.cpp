@@ -69,7 +69,7 @@ bool createSolidBuffer(JNIEnv *env, jobject thiz, int32_t width, int32_t height,
 
 extern "C"
 JNIEXPORT jobject JNICALL
-Java_androidx_graphics_surface_SurfaceControlWrapperTest_00024Companion_nGetSolidBuffer(JNIEnv *env,
+Java_androidx_graphics_surface_SurfaceControlUtils_00024Companion_nGetSolidBuffer(JNIEnv *env,
                                                                                         jobject thiz,
                                                                                         jint width,
                                                                                         jint height,

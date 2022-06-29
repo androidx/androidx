@@ -16,8 +16,8 @@ package androidx.graphics.lowlatency {
   public static interface GLWetDryRenderer.Callback {
     method @WorkerThread public void onDrawDryLayer(androidx.graphics.opengl.egl.EglManager eglManager, java.util.Collection<?> params);
     method @WorkerThread public void onDrawWetLayer(androidx.graphics.opengl.egl.EglManager eglManager, Object? param);
-    method @WorkerThread public default void onDryLayerRenderComplete(android.view.SurfaceControl wetLayerSurfaceControl, android.view.SurfaceControl.Transaction transaction);
-    method @WorkerThread public default void onWetLayerRenderComplete(android.view.SurfaceControl wetLayerSurfaceControl, android.view.SurfaceControl.Transaction transaction);
+    method @WorkerThread public default void onDryLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat wetLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
+    method @WorkerThread public default void onWetLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat wetLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
   }
 
   public static final class GLWetDryRenderer.Companion {
@@ -185,6 +185,44 @@ package androidx.graphics.opengl.egl {
   }
 
   public static final class EglVersion.Companion {
+  }
+
+}
+
+package androidx.graphics.surface {
+
+  @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class SurfaceControlCompat {
+    method public boolean isValid();
+    method public void release();
+  }
+
+  public static final class SurfaceControlCompat.Builder {
+    ctor public SurfaceControlCompat.Builder();
+    method public androidx.graphics.surface.SurfaceControlCompat build();
+    method public androidx.graphics.surface.SurfaceControlCompat.Builder setName(String name);
+    method public androidx.graphics.surface.SurfaceControlCompat.Builder setParent(android.view.SurfaceView surfaceView);
+  }
+
+  public static final class SurfaceControlCompat.Transaction {
+    ctor public SurfaceControlCompat.Transaction();
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction addTransactionCommittedListener(java.util.concurrent.Executor executor, androidx.graphics.surface.SurfaceControlCompat.TransactionCommittedListener listener);
+    method public void close();
+    method public void commit();
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void commitTransactionOnDraw(android.view.AttachedSurfaceControl attachedSurfaceControl);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction reparent(androidx.graphics.surface.SurfaceControlCompat surfaceControl, androidx.graphics.surface.SurfaceControlCompat? newParent);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction reparent(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.view.SurfaceView surfaceView);
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public androidx.graphics.surface.SurfaceControlCompat.Transaction reparent(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.view.AttachedSurfaceControl attachedSurfaceControl);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setAlpha(androidx.graphics.surface.SurfaceControlCompat surfaceControl, float alpha);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer buffer, optional kotlin.jvm.functions.Function0<kotlin.Unit>? releaseCallback);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setBuffer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.hardware.HardwareBuffer buffer);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setDamageRegion(androidx.graphics.surface.SurfaceControlCompat surfaceControl, android.graphics.Region? region);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setLayer(androidx.graphics.surface.SurfaceControlCompat surfaceControl, int z);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setOpaque(androidx.graphics.surface.SurfaceControlCompat surfaceControl, boolean isOpaque);
+    method public androidx.graphics.surface.SurfaceControlCompat.Transaction setVisibility(androidx.graphics.surface.SurfaceControlCompat surfaceControl, boolean visible);
+  }
+
+  public static interface SurfaceControlCompat.TransactionCommittedListener {
+    method public void onTransactionCommitted();
   }
 
 }

@@ -16,17 +16,16 @@
 
 package androidx.graphics.lowlatency
 
-import android.graphics.PixelFormat
 import android.hardware.HardwareBuffer
 import android.os.Build
 import android.util.Log
-import android.view.SurfaceControl
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EglManager
 import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.surface.SurfaceControlCompat
 import java.util.Collections
 import java.util.concurrent.ConcurrentLinkedQueue
 
@@ -41,8 +40,8 @@ import java.util.concurrent.ConcurrentLinkedQueue
  * @param surfaceView Target SurfaceView to act as the parent rendering layer for dry
  *  content
  * @param callback Callbacks used to render into wet and dry layers as well as
- *  configuring [SurfaceControl.Transaction]s for controlling these layers in addition to
- *  other [SurfaceControl] instances that must be updated atomically within the user
+ *  configuring [SurfaceControlCompat.Transaction]s for controlling these layers in addition to
+ *  other [SurfaceControlCompat] instances that must be updated atomically within the user
  *  interface. These callbacks are invoked on the backing GL Thread.
  * @param glRenderer Optional [GLRenderer] instance that this [GLWetDryRenderer] should use
  *  for coordinating requests to render content. If this parameter is specified, the caller
@@ -67,8 +66,8 @@ class GLWetDryRenderer @JvmOverloads constructor(
     /**
      * Callbacks invoked to render into the wet and dry layers in addition to providing consumers
      * an opportunity to specify any potential additional interactions that must be synchronized
-     * with the [SurfaceControl.Transaction] to show/hide visibility of the wet layer as well as
-     * updating dry layers
+     * with the [SurfaceControlCompat.Transaction] to show/hide visibility of the wet layer as well
+     * as updating dry layers
      */
     private val mCallback = callback
 
@@ -110,7 +109,7 @@ class GLWetDryRenderer @JvmOverloads constructor(
         override fun obtainDryLayerParams(): MutableCollection<Any?> =
             mParentBufferParamQueue
 
-        override fun getWetLayerSurfaceControl(): SurfaceControl? =
+        override fun getWetLayerSurfaceControl(): SurfaceControlCompat? =
             mWetLayerSurfaceControl
 
         override fun getRenderBufferPool(): RenderBufferPool? =
@@ -134,8 +133,9 @@ class GLWetDryRenderer @JvmOverloads constructor(
     /**
      * [RenderBuffer] used for rendering into the wet layer. This buffer is persisted across
      * frames as part of front buffered rendering and is not expected to be released again
-     * after the corresponding [SurfaceControl.Transaction] that submits this buffer is applied
-     * as per the implementation of "scan line racing" that is done for front buffered rendering
+     * after the corresponding [SurfaceControlCompat.Transaction] that submits this buffer is
+     * applied as per the implementation of "scan line racing" that is done for front buffered
+     * rendering
      */
     private var mWetLayerBuffer: RenderBuffer? = null
 
@@ -152,9 +152,9 @@ class GLWetDryRenderer @JvmOverloads constructor(
     private var mWetLayerRenderer: HardwareBufferRenderer? = null
 
     /**
-     * [SurfaceControl] used to configure buffers and visibility of the wet layer
+     * [SurfaceControlCompat] used to configure buffers and visibility of the wet layer
      */
-    private var mWetLayerSurfaceControl: SurfaceControl? = null
+    private var mWetLayerSurfaceControl: SurfaceControlCompat? = null
 
     /**
      * Width of the layers to render. Only if the size changes to we re-initialize the internal
@@ -220,11 +220,8 @@ class GLWetDryRenderer @JvmOverloads constructor(
         if (mWidth != width || mHeight != height) {
             mWetLayerSurfaceControl?.release()
 
-            val wetLayerSurfaceControl = SurfaceControl.Builder()
-                .setBufferSize(width, height)
-                .setOpaque(false)
+            val wetLayerSurfaceControl = SurfaceControlCompat.Builder()
                 .setName("WetLayerSurfaceControl")
-                .setFormat(PixelFormat.RGBA_8888)
                 .build()
 
             val bufferPool = RenderBufferPool(
@@ -357,10 +354,9 @@ class GLWetDryRenderer @JvmOverloads constructor(
                 clearParamQueues()
 
                 wetLayerSurfaceControl?.let {
-                    val transaction = SurfaceControl.Transaction()
-                        .reparent(it, null)
+                    val transaction = SurfaceControlCompat.Transaction().reparent(it, null)
                     mParentRenderLayer.release(transaction)
-                    transaction.apply()
+                    transaction.commit()
                     it.release()
                 }
 
@@ -388,7 +384,7 @@ class GLWetDryRenderer @JvmOverloads constructor(
     }
 
     private fun createWetLayerRenderer(
-        wetLayerSurfaceControl: SurfaceControl
+        wetLayerSurfaceControl: SurfaceControlCompat
     ) = HardwareBufferRenderer(
         object : HardwareBufferRenderer.RenderCallbacks {
 
@@ -411,14 +407,14 @@ class GLWetDryRenderer @JvmOverloads constructor(
 
             @WorkerThread
             override fun onDrawComplete(renderBuffer: RenderBuffer) {
-                val transaction = SurfaceControl.Transaction()
+                val transaction = SurfaceControlCompat.Transaction()
                     // Make this layer the top most layer
                     .setLayer(wetLayerSurfaceControl, Integer.MAX_VALUE)
-                    .setBuffer(wetLayerSurfaceControl, renderBuffer.hardwareBuffer)
+                    .setBuffer(wetLayerSurfaceControl, renderBuffer.hardwareBuffer, null)
                     .setVisibility(wetLayerSurfaceControl, true)
                 mParentRenderLayer.buildReparentTransaction(wetLayerSurfaceControl, transaction)
                 mCallback.onWetLayerRenderComplete(wetLayerSurfaceControl, transaction)
-                transaction.apply()
+                transaction.commit()
             }
         }
     )
@@ -473,7 +469,7 @@ class GLWetDryRenderer @JvmOverloads constructor(
 
     /**
      * Provides callbacks for consumers to draw into the wet and dry layers as well as provide
-     * opportunities to synchronize [SurfaceControl.Transaction]s to submit the layers to the
+     * opportunities to synchronize [SurfaceControlCompat.Transaction]s to submit the layers to the
      * hardware compositor
      */
     interface Callback {
@@ -523,19 +519,19 @@ class GLWetDryRenderer @JvmOverloads constructor(
          * Optional callback invoked when rendering to the wet layer is complete but before
          * the wet layer buffers are submitted to the hardware compositor.
          * This provides consumers a mechanism for synchronizing the transaction with other
-         * [SurfaceControl] objects that maybe rendered within the scene.
+         * [SurfaceControlCompat] objects that maybe rendered within the scene.
          *
-         * @param wetLayerSurfaceControl Handle to the [SurfaceControl] where the wet layer
+         * @param wetLayerSurfaceControl Handle to the [SurfaceControlCompat] where the wet layer
          * content is drawn. This can be used to configure various properties of the
-         * [SurfaceControl] like z-ordering or visibility with the corresponding
-         * [SurfaceControl.Transaction].
-         * @param transaction Current [SurfaceControl.Transaction] to apply updated buffered content
-         * to the wet layer.
+         * [SurfaceControlCompat] like z-ordering or visibility with the corresponding
+         * [SurfaceControlCompat.Transaction].
+         * @param transaction Current [SurfaceControlCompat.Transaction] to apply updated buffered
+         * content to the wet layer.
          */
         @WorkerThread
         fun onWetLayerRenderComplete(
-            wetLayerSurfaceControl: SurfaceControl,
-            transaction: SurfaceControl.Transaction
+            wetLayerSurfaceControl: SurfaceControlCompat,
+            transaction: SurfaceControlCompat.Transaction
         ) {
             // Default implementation is a no-op
         }
@@ -544,19 +540,19 @@ class GLWetDryRenderer @JvmOverloads constructor(
          * Optional callback invoked when rendering to the dry layer is complete but before
          * the dry layer buffers are submitted to the hardware compositor.
          * This provides consumers a mechanism for synchronizing the transaction with other
-         * [SurfaceControl] objects that maybe rendered within the scene.
+         * [SurfaceControlCompat] objects that maybe rendered within the scene.
          *
          * @param wetLayerSurfaceControl Handle to the [SurfaceControl] where the wet layer
          * content is drawn. This can be used to configure various properties of the
-         * [SurfaceControl] like z-ordering or visibility with the corresponding
-         * [SurfaceControl.Transaction].
-         * @param transaction Current [SurfaceControl.Transaction] to apply updated buffered content
-         * to the dry or double buffered layer.
+         * [SurfaceControlCompat] like z-ordering or visibility with the corresponding
+         * [SurfaceControlCompat.Transaction].
+         * @param transaction Current [SurfaceControlCompat.Transaction] to apply updated buffered
+         * content to the dry or double buffered layer.
          */
         @WorkerThread
         fun onDryLayerRenderComplete(
-            wetLayerSurfaceControl: SurfaceControl,
-            transaction: SurfaceControl.Transaction
+            wetLayerSurfaceControl: SurfaceControlCompat,
+            transaction: SurfaceControlCompat.Transaction
         ) {
             // Default implementation is a no-op
         }

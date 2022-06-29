@@ -187,13 +187,8 @@ public:
 
     void callback(ASurfaceTransactionStats *stats) override {
         JNIEnv *env = getEnv();
-        int64_t latchTime = ASurfaceTransactionStats_getLatchTime(stats);
-        uint64_t presentTime = getSystemTime();
-
         env->CallVoidMethod(mCallbackObject,
-                            gTransactionCompletedListenerClassInfo.onComplete,
-                            latchTime,
-                            presentTime);
+                            gTransactionCompletedListenerClassInfo.onComplete);
     }
 };
 
@@ -210,13 +205,8 @@ public:
 
     void callback(ASurfaceTransactionStats *stats) override {
         JNIEnv *env = getEnv();
-        int64_t latchTime = ASurfaceTransactionStats_getLatchTime(stats);
-        uint64_t presentTime = getSystemTime();
-
         env->CallVoidMethod(mCallbackObject,
-                            gTransactionCommittedListenerClassInfo.onCommit,
-                            latchTime,
-                            presentTime);
+                            gTransactionCommittedListenerClassInfo.onCommit);
     }
 };
 
@@ -226,12 +216,12 @@ void setupTransactionCompletedListenerClassInfo(JNIEnv *env) {
         //setup transactionCompleteListenerClassInfo for test usage
         jclass transactionCompletedListenerClazz =
                 env->FindClass(
-                    "androidx/graphics/surface/SurfaceControlWrapper$TransactionCompletedListener");
+                "androidx/graphics/surface/SurfaceControlCompat$TransactionCompletedListener");
         gTransactionCompletedListenerClassInfo.clazz =
                 static_cast<jclass>(env->NewGlobalRef(transactionCompletedListenerClazz));
         gTransactionCompletedListenerClassInfo.onComplete =
-                env->GetMethodID(transactionCompletedListenerClazz, "onComplete",
-                                 "(JJ)V");
+                env->GetMethodID(transactionCompletedListenerClazz, "onTransactionCompleted",
+                                 "()V");
 
         gTransactionCompletedListenerClassInfo.CLASS_INFO_INITIALIZED = true;
     }
@@ -244,12 +234,12 @@ void setupTransactionCommittedListenerClassInfo(JNIEnv *env) {
         //setup transactionCommittedListenerClassInfo for test usage
         jclass transactionCommittedListenerClazz =
                 env->FindClass(
-                    "androidx/graphics/surface/SurfaceControlWrapper$TransactionCommittedListener");
+                "androidx/graphics/surface/SurfaceControlCompat$TransactionCommittedListener");
         gTransactionCommittedListenerClassInfo.clazz =
                 static_cast<jclass>(env->NewGlobalRef(transactionCommittedListenerClazz));
         gTransactionCommittedListenerClassInfo.onCommit =
-                env->GetMethodID(transactionCommittedListenerClazz, "onCommit",
-                                 "(JJ)V");
+                env->GetMethodID(transactionCommittedListenerClazz, "onTransactionCommitted",
+                                 "()V");
 
         gTransactionCommittedListenerClassInfo.CLASS_INFO_INITIALIZED = true;
     }
@@ -296,8 +286,8 @@ int extract_fence_fd(JNIEnv *env, jobject syncFence) {
 extern "C"
 JNIEXPORT jint JNICALL
 Java_androidx_graphics_surface_JniBindings_00024Companion_nExtractFenceFd(JNIEnv *env,
-                                                                         jobject thiz,
-                                                                         jobject syncFence) {
+                                                                          jobject thiz,
+                                                                          jobject syncFence) {
     return extract_fence_fd(env, syncFence);
 }
 
@@ -410,8 +400,8 @@ Java_androidx_graphics_surface_JniBindings_00024Companion_nSetBufferAlpha(
         jlong surfaceTransaction, jlong surfaceControl, jfloat alpha)  {
     if (android_get_device_api_level() >= 29) {
         ASurfaceTransaction_setBufferAlpha(
-        reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction),
-        reinterpret_cast<ASurfaceControl *>(surfaceControl),
-        alpha);
+                reinterpret_cast<ASurfaceTransaction *>(surfaceTransaction),
+                reinterpret_cast<ASurfaceControl *>(surfaceControl),
+                alpha);
     }
 }

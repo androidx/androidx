@@ -19,19 +19,18 @@ package androidx.graphics.lowlatency
 import android.opengl.GLES20
 import android.os.Build
 import android.util.Log
-import android.view.SurfaceControl
-import android.view.SurfaceControl.Transaction
 import android.view.SurfaceHolder
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.opengl.egl.EglManager
 import androidx.graphics.opengl.egl.EglSpec
+import androidx.graphics.surface.SurfaceControlCompat
 import java.util.Collections
 
 /**
- * [ParentRenderLayer] instance that leverages a [SurfaceView]'s [SurfaceControl] as the
- * parent [SurfaceControl] for the wet and dry layers
+ * [ParentRenderLayer] instance that leverages a [SurfaceView]'s [SurfaceControlCompat] as the
+ * parent [SurfaceControlCompat] for the wet and dry layers
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : ParentRenderLayer {
@@ -39,13 +38,17 @@ internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : Pa
     private var mLayerCallback: ParentRenderLayer.Callback? = null
     private var mHardwareBufferRenderer: HardwareBufferRenderer? = null
     private var mRenderTarget: GLRenderer.RenderTarget? = null
-    private var mParentSurfaceControl: SurfaceControl? = null
+    private var mParentSurfaceControl: SurfaceControlCompat? = null
+
+    init {
+        surfaceView.hostToken
+    }
 
     override fun buildReparentTransaction(
-        child: SurfaceControl,
-        transaction: SurfaceControl.Transaction
+        child: SurfaceControlCompat,
+        transaction: SurfaceControlCompat.Transaction
     ) {
-        transaction.reparent(child, surfaceView.surfaceControl)
+        transaction.reparent(child, surfaceView)
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -80,10 +83,10 @@ internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : Pa
                             mParentSurfaceControl = it
                         }
                     if (wetLayerSurfaceControl != null) {
-                        val transaction = SurfaceControl.Transaction()
+                        val transaction = SurfaceControlCompat.Transaction()
                             .setVisibility(wetLayerSurfaceControl, false)
                             .setVisibility(sc, true)
-                            .setBuffer(sc, renderBuffer.hardwareBuffer, null) {
+                            .setBuffer(sc, renderBuffer.hardwareBuffer) {
                                 mLayerCallback?.getRenderBufferPool()?.release(renderBuffer)
                             }
 
@@ -91,7 +94,7 @@ internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : Pa
                             wetLayerSurfaceControl,
                             transaction
                         )
-                        transaction.apply()
+                        transaction.commit()
                     } else {
                         Log.e(TAG, "Error, no wet SurfaceControl available to synchronize " +
                             "transaction with")
@@ -125,12 +128,10 @@ internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : Pa
         return renderTarget
     }
 
-    internal fun createDrySurfaceControl(): SurfaceControl =
-        SurfaceControl.Builder()
-            .setBufferSize(surfaceView.width, surfaceView.height)
-            .setParent(surfaceView.surfaceControl)
+    internal fun createDrySurfaceControl(): SurfaceControlCompat =
+        SurfaceControlCompat.Builder()
+            .setParent(surfaceView)
             .setName("DryLayer")
-            .setOpaque(false)
             .build()
 
     override fun setParentLayerCallbacks(callback: ParentRenderLayer.Callback?) {
@@ -143,7 +144,7 @@ internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : Pa
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    override fun release(transaction: Transaction) {
+    override fun release(transaction: SurfaceControlCompat.Transaction) {
         mParentSurfaceControl?.let {
             transaction.reparent(it, null)
             it.release()
