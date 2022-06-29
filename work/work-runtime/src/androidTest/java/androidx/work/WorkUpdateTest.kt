@@ -75,9 +75,10 @@ class WorkUpdateTest {
     val workManager = WorkManagerImpl(
         context, configuration, taskExecutor, db, schedulers, processor, trackers
     )
+    val greedyScheduler = GreedyScheduler(context, configuration, trackers, workManager)
 
     init {
-        schedulers.add(GreedyScheduler(context, configuration, trackers, workManager))
+        schedulers.add(greedyScheduler)
         WorkManagerImpl.setDelegate(workManager)
     }
 
@@ -164,6 +165,34 @@ class WorkUpdateTest {
         val info = workManager.getWorkInfoById(oneTimeWorkRequest.id).get()
         assertThat(info.tags).contains("test")
         assertThat(info.tags).doesNotContain("previous")
+    }
+
+    @Test
+    @MediumTest
+    fun updateTagsWhileRunning() {
+        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setConstraints(Constraints(requiresCharging = true))
+            .addTag("original").build()
+        workManager.enqueue(request).result.get()
+        val serialExecutorBlocker = CountDownLatch(1)
+        // stop any execution on serialTaskExecutor
+        taskExecutor.serialTaskExecutor.execute {
+            serialExecutorBlocker.await()
+        }
+        // will add startWork task to the serialTaskExecutor queue
+        greedyScheduler.onAllConstraintsMet(listOf(request.workSpec))
+        val updatedRequest = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setConstraints(Constraints(requiresCharging = true))
+            .setId(request.id)
+            .addTag("updated")
+            .build()
+        // will add update task to the serialTaskExecutor queue
+        val updateResult = workManager.updateWork(updatedRequest)
+        serialExecutorBlocker.countDown()
+        val worker = workerFactory.awaitWorker(request.id)
+        assertThat(worker.tags).contains("original")
+        assertThat(worker.tags).doesNotContain("updated")
+        assertThat(updateResult.get()).isEqualTo(APPLIED_FOR_NEXT_RUN)
     }
 
     @Test
