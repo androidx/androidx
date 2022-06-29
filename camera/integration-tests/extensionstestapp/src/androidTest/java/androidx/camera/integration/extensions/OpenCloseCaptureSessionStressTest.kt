@@ -29,8 +29,8 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraConfig
-import androidx.camera.core.impl.CameraConfigs
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
@@ -102,9 +102,7 @@ class OpenCloseCaptureSessionStressTest(
 
     @Before
     fun setUp(): Unit = runBlocking {
-        if (extensionMode != ExtensionMode.NONE) {
-            assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
-        }
+        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
@@ -153,12 +151,39 @@ class OpenCloseCaptureSessionStressTest(
     @LabTestRule.LabTestOnly
     @Test
     @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
-    fun openCloseCaptureSessionStressTest(): Unit = runBlocking {
-        for (i in 1..STRESS_TEST_OPERATION_REPEAT_COUNT) {
+    fun openCloseCaptureSessionStressTest_withPreviewImageCapture(): Unit = runBlocking {
+        bindUseCase_unbindAll_toCheckCameraEvent_repeatedly(preview, imageCapture)
+    }
+
+    @LabTestRule.LabTestOnly
+    @Test
+    @RepeatRule.Repeat(times = STRESS_TEST_REPEAT_COUNT)
+    fun openCloseCaptureSessionStressTest_withPreviewImageCaptureImageAnalysis(): Unit =
+        runBlocking {
+            val imageAnalysis = ImageAnalysis.Builder().build()
+            assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
+            bindUseCase_unbindAll_toCheckCameraEvent_repeatedly(
+                preview,
+                imageCapture,
+                imageAnalysis
+            )
+        }
+
+    /**
+     * Repeatedly binds use cases, unbind all to check whether the capture session can be opened
+     * and closed successfully by monitoring the CameraEvent callbacks.
+     */
+    private fun bindUseCase_unbindAll_toCheckCameraEvent_repeatedly(
+        vararg useCases: UseCase,
+        repeatCount: Int = STRESS_TEST_OPERATION_REPEAT_COUNT
+    ): Unit = runBlocking {
+        for (i in 1..repeatCount) {
+            // Arrange: resets the camera event monitor
             cameraEventMonitor.reset()
 
             withContext(Dispatchers.Main) {
-                // Retrieves the camera selector which allows to monitor camera event callbacks
+                // Arrange: retrieves the camera selector which allows to monitor camera event
+                // callbacks
                 val extensionEnabledCameraEventMonitorCameraSelector =
                     getExtensionsCameraEventMonitorCameraSelector(
                         extensionsManager,
@@ -166,30 +191,23 @@ class OpenCloseCaptureSessionStressTest(
                         baseCameraSelector
                     )
 
-                if (isImageAnalysisSupported) {
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner,
-                        extensionEnabledCameraEventMonitorCameraSelector,
-                        preview,
-                        imageCapture,
-                        imageAnalysis
-                    )
-                } else {
-                    cameraProvider.bindToLifecycle(
-                        lifecycleOwner,
-                        extensionEnabledCameraEventMonitorCameraSelector,
-                        preview,
-                        imageCapture
-                    )
-                }
+                // Act: binds use cases
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner,
+                    extensionEnabledCameraEventMonitorCameraSelector,
+                    *useCases
+                )
             }
 
+            // Assert: checks the CameraEvent#onEnableSession callback function is called
             cameraEventMonitor.awaitSessionEnabledAndAssert()
 
+            // Act: unbinds all use cases
             withContext(Dispatchers.Main) {
                 cameraProvider.unbindAll()
             }
 
+            // Assert: checks the CameraEvent#onSessionDisabled callback function is called
             cameraEventMonitor.awaitSessionDisabledAndAssert()
         }
     }
@@ -198,7 +216,7 @@ class OpenCloseCaptureSessionStressTest(
         @JvmStatic
         @get:Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllCameraIdModeCombinations()
+            get() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
 
         /**
          * Retrieves the default extended camera config provider id string
@@ -210,7 +228,6 @@ class OpenCloseCaptureSessionStressTest(
                 ExtensionMode.NIGHT -> "EXTENSION_MODE_NIGHT"
                 ExtensionMode.FACE_RETOUCH -> "EXTENSION_MODE_FACE_RETOUCH"
                 ExtensionMode.AUTO -> "EXTENSION_MODE_AUTO"
-                ExtensionMode.NONE -> "EXTENSION_MODE_NONE"
                 else -> throw IllegalArgumentException("Invalid extension mode!")
             }.let {
                 return ":camera:camera-extensions-$it"
@@ -268,17 +285,9 @@ class OpenCloseCaptureSessionStressTest(
         val cameraEventConfigProviderId =
             Identifier.create(getCameraEventMonitorCameraConfigProviderId(extensionMode))
 
-        if (extensionMode != ExtensionMode.NONE) {
-            // Calls the ExtensionsManager#getExtensionEnabledCameraSelector() function to add the
-            // default extended camera config provider to ExtendedCameraConfigProviderStore
-            extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
-        } else {
-            // Inserts an empty camera config for normal mode so that the camera event monitor
-            // can be attached by the same flow.
-            ExtendedCameraConfigProviderStore.addConfig(defaultConfigProviderId) {
-                    _, _ -> CameraConfigs.emptyConfig()
-            }
-        }
+        // Calls the ExtensionsManager#getExtensionEnabledCameraSelector() function to add the
+        // default extended camera config provider to ExtendedCameraConfigProviderStore
+        extensionsManager.getExtensionEnabledCameraSelector(baseCameraSelector, extensionMode)
 
         // Injects the new camera config provider which will keep the original extensions needed
         // configs and also add additional CameraEventMonitor to monitor the camera event callbacks.
@@ -364,7 +373,8 @@ class OpenCloseCaptureSessionStressTest(
         ): Config {
             // Retrieves the config from the default ExtensionsUseCaseConfigFactory
             val mutableOptionsBundle = useCaseConfigFactory?.getConfig(
-                captureType, captureMode)?.let {
+                captureType, captureMode
+            )?.let {
                 MutableOptionsBundle.from(it)
             } ?: MutableOptionsBundle.create()
 
