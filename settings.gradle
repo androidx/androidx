@@ -1,4 +1,6 @@
 import groovy.transform.Field
+import androidx.build.gradle.gcpbuildcache.GcpBuildCache
+import androidx.build.gradle.gcpbuildcache.GcpBuildCacheServiceFactory
 
 pluginManagement {
     repositories {
@@ -70,6 +72,7 @@ apply(plugin: "com.gradle.enterprise")
 apply(plugin: "com.gradle.common-custom-user-data-gradle-plugin")
 apply(plugin: "androidx.build.gradle.gcpbuildcache")
 
+def BUILD_NUMBER = System.getenv("BUILD_NUMBER")
 gradleEnterprise {
     server = "https://ge.androidx.dev"
 
@@ -81,10 +84,9 @@ gradleEnterprise {
             hostname { host -> "unset" }
             ipAddresses { addresses -> addresses.collect { address -> "0.0.0.0"} }
         }
-        def buildNumber = System.getenv("BUILD_NUMBER")
-        if (buildNumber != null) {
-            value("BUILD_NUMBER", buildNumber)
-            link("ci.android.com build", "https://ci.android.com/builds/branches/aosp-androidx-main/grid?head=$buildNumber&tail=$buildNumber")
+        if (BUILD_NUMBER != null) {
+            value("BUILD_NUMBER", BUILD_NUMBER)
+            link("ci.android.com build", "https://ci.android.com/builds/branches/aosp-androidx-main/grid?head=$BUILD_NUMBER&tail=$BUILD_NUMBER")
         }
         value("androidx.compose.multiplatformEnabled", isMultiplatformEnabled().toString())
         value("androidx.projects", getRequestedProjectSubsetName() ?: "Unset")
@@ -93,6 +95,37 @@ gradleEnterprise {
         publishAlways()
         publishIfAuthenticated()
     }
+}
+
+def cacheSetting = System.getenv("USE_ANDROIDX_REMOTE_BUILD_CACHE")
+switch (cacheSetting) {
+    case ["true", "uplink"]: // legacy build cache
+        logger.warn("\u001B[31m\nYou are using legacy USE_ANDROIDX_REMOTE_BUILD_CACHE=$cacheSetting " +
+                "type, this cache has been turned down, so you are *not* using a remote cache. " +
+                "Please move to the new cache using http://go/androidx-dev#remote-build-cache\u001B[0m\n")
+        break
+    case "gcp":
+        buildCache {
+            registerBuildCacheService(GcpBuildCache, GcpBuildCacheServiceFactory)
+        }
+        settings.buildCache {
+            remote(GcpBuildCache) {
+                projectId = "androidx-ge"
+                bucketName = "androidx-gradle-remote-cache"
+                push = (BUILD_NUMBER != null && !BUILD_NUMBER.startsWith("P"))
+            }
+        }
+        break
+    case "false":
+        break
+    default:
+        def uplinkLinux = new File("/usr/bin/uplink-helper")
+        def uplinkMac = new File("/usr/local/bin/uplink-helper")
+        if (uplinkLinux.exists() || uplinkMac.exists()) {
+            logger.warn("\u001B[31m\nIt looks like you are a Googler running without remote build "
+                    + "cache. Enable it for faster builds, see " +
+                    "http://go/androidx-dev#remote-build-cache\u001B[0m\n")
+        }
 }
 
 rootProject.name = "androidx"
@@ -973,11 +1006,3 @@ if (isAllProjects()) {
 includeProject(":placeholder-tests")
 
 includeProject(":fakeannotations")
-
-/////////////////////////////
-//
-// Remote build cache set up
-//
-/////////////////////////////
-
-apply from: new File("buildSrc/remoteBuildCache.gradle")
