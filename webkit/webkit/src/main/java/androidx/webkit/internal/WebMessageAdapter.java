@@ -37,6 +37,7 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
         this.mWebMessageCompat = webMessage;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @Nullable
     public String getData() {
