@@ -21,13 +21,13 @@
         android:orientation="vertical"
         tools:context=".BySelectorTestDescActivity">
 
-    <Button android:id="@+id/button_with_layout_description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="Content Description Set From Layout" />
+    <Button android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="This button desc contains some text." />
 
-    <Button android:id="@+id/button_with_runtime_description"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <RatingBar android:id="@+id/rating_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
