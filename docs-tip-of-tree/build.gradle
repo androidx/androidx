@@ -3,6 +3,10 @@ plugins {
     id("AndroidXDocsPlugin")
 }
 
+android {
+    namespace "androidx.docs.tipoftree"
+}
+
 dependencies {
     docs(project(":activity:activity"))
     docs(project(":activity:activity-compose"))

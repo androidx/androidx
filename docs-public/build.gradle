@@ -3,6 +3,10 @@ plugins {
     id("AndroidXDocsPlugin")
 }
 
+android {
+    namespace "androidx.docs.publicdocs"
+}
+
 dependencies {
     docs("androidx.activity:activity:1.6.0-alpha05")
     docs("androidx.activity:activity-compose:1.6.0-alpha05")
