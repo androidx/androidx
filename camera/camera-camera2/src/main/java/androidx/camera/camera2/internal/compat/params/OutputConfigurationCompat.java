@@ -60,7 +60,9 @@ public final class OutputConfigurationCompat {
     }
 
     public OutputConfigurationCompat(int surfaceGroupId, @NonNull Surface surface) {
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            mImpl = new OutputConfigurationCompatApi33Impl(surfaceGroupId, surface);
+        } else if (Build.VERSION.SDK_INT >= 28) {
             mImpl = new OutputConfigurationCompatApi28Impl(surfaceGroupId, surface);
         } else if (Build.VERSION.SDK_INT >= 26) {
             mImpl = new OutputConfigurationCompatApi26Impl(surfaceGroupId, surface);
@@ -105,7 +107,9 @@ public final class OutputConfigurationCompat {
     public <T> OutputConfigurationCompat(@NonNull Size surfaceSize, @NonNull Class<T> klass) {
         OutputConfiguration deferredConfig =
                 ApiCompat.Api26Impl.newOutputConfiguration(surfaceSize, klass);
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            mImpl = OutputConfigurationCompatApi33Impl.wrap(deferredConfig);
+        } else if (Build.VERSION.SDK_INT >= 28) {
             mImpl = OutputConfigurationCompatApi28Impl.wrap(deferredConfig);
         } else {
             mImpl = OutputConfigurationCompatApi26Impl.wrap(deferredConfig);
@@ -134,7 +138,10 @@ public final class OutputConfigurationCompat {
         }
 
         OutputConfigurationCompatImpl outputConfigurationCompatImpl = null;
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            outputConfigurationCompatImpl = OutputConfigurationCompatApi33Impl.wrap(
+                    (OutputConfiguration) outputConfiguration);
+        } else if (Build.VERSION.SDK_INT >= 28) {
             outputConfigurationCompatImpl = OutputConfigurationCompatApi28Impl.wrap(
                     (OutputConfiguration) outputConfiguration);
         } else if (Build.VERSION.SDK_INT >= 26) {
@@ -344,6 +351,31 @@ public final class OutputConfigurationCompat {
 
     /**
      * Set the stream use case associated with this {@link OutputConfigurationCompat}.
+     *
+     * Stream use case is used to describe the purpose of the stream, whether it's for live
+     * preview, still image capture, video recording, or their combinations. This flag is
+     * useful
+     * for scenarios where the immediate consumer target isn't sufficient to indicate the
+     * stream's usage.
+     *
+     * The main difference between stream use case and capture intent is that the former
+     * enables
+     * the camera device to optimize camera hardware and software pipelines based on user
+     * scenarios for each stream, whereas the latter is mainly a hint to camera to decide
+     * optimal
+     * 3A strategy that's applicable to the whole session. The camera device carries out
+     * configurations such as selecting tuning parameters, choosing camera sensor mode, and
+     * constructing image processing pipeline based on the streams's use cases. Capture
+     * intents
+     * are then used to fine tune 3A behaviors such as adjusting AE/AF convergence speed, and
+     * capture intents may change during the lifetime of a session. For example, for a
+     * session
+     * with a PREVIEW_VIDEO_STILL use case stream and a STILL_CAPTURE use case stream, the
+     * capture intents may be PREVIEW with fast 3A convergence speed and flash metering with
+     * automatic control for live preview, STILL_CAPTURE with best 3A parameters for still
+     * photo
+     * capture, or VIDEO_RECORD with slower 3A convergence speed for better video playback
+     * experience.
      *
      * <p> Stream use case is a API 33 and above concept for optimizing image process pipeline
      * for a given stream session. If not set,{@value #SURFACE_GROUP_ID_NONE} is used.
