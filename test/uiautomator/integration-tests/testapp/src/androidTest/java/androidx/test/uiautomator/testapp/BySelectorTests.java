@@ -20,22 +20,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RatingBar;
-import android.widget.SeekBar;
-import android.widget.Switch;
-import android.widget.TextView;
-import android.widget.ToggleButton;
+import android.widget.VideoView;
 
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.BySelector;
 import androidx.test.uiautomator.UiObject2;
 
 import org.junit.Test;
+
+import java.util.regex.Pattern;
 
 public class BySelectorTests extends BaseTest {
 
@@ -56,129 +51,35 @@ public class BySelectorTests extends BaseTest {
     }
 
     @Test
-    public void testClazzButton() {
+    public void testClazz() {
         launchTestActivity(BySelectorTestClazzActivity.class);
 
-        // Button
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "Button")));
+        // Single string combining package name and class name.
         assertNotNull(mDevice.findObject(By.clazz("android.widget.Button")));
-        assertNotNull(mDevice.findObject(By.clazz(".Button")));
-        assertNotNull(mDevice.findObject(By.clazz(Button.class)));
-    }
-
-    @Test
-    public void testClazzCheckBox() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // CheckBox
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "CheckBox")));
         assertNotNull(mDevice.findObject(By.clazz("android.widget.CheckBox")));
-        assertNotNull(mDevice.findObject(By.clazz(".CheckBox")));
-        assertNotNull(mDevice.findObject(By.clazz(CheckBox.class)));
-    }
-
-    @Test
-    public void testClazzEditText() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // EditText
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "EditText")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.EditText")));
-        assertNotNull(mDevice.findObject(By.clazz(".EditText")));
-        assertNotNull(mDevice.findObject(By.clazz(EditText.class)));
-    }
-
-    @Test
-    public void testClazzProgressBar() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // ProgressBar
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "ProgressBar")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.ProgressBar")));
-        assertNotNull(mDevice.findObject(By.clazz(".ProgressBar")));
-        assertNotNull(mDevice.findObject(By.clazz(ProgressBar.class)));
-    }
-
-    @Test
-    public void testClazzRadioButton() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // RadioButton
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "RadioButton")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.RadioButton")));
-        assertNotNull(mDevice.findObject(By.clazz(".RadioButton")));
-        assertNotNull(mDevice.findObject(By.clazz(RadioButton.class)));
-    }
-
-    @Test
-    public void testClazzRatingBar() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // RatingBar
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "RatingBar")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.RatingBar")));
-        assertNotNull(mDevice.findObject(By.clazz(".RatingBar")));
-        assertNotNull(mDevice.findObject(By.clazz(RatingBar.class)));
-    }
-
-    @Test
-    public void testClazzSeekBar() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // SeekBar
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "SeekBar")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.SeekBar")));
-        assertNotNull(mDevice.findObject(By.clazz(".SeekBar")));
-        assertNotNull(mDevice.findObject(By.clazz(SeekBar.class)));
-    }
-
-    @Test
-    public void testClazzSwitch() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // Switch
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "Switch")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.Switch")));
-        assertNotNull(mDevice.findObject(By.clazz(".Switch")));
-        assertNotNull(mDevice.findObject(By.clazz(Switch.class)));
-    }
-
-    @Test
-    public void testClazzTextView() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // TextView
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "TextView")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.TextView")));
-        assertNotNull(mDevice.findObject(By.clazz(".TextView")));
-        assertNotNull(mDevice.findObject(By.clazz(TextView.class)));
-    }
-
-    @Test
-    public void testClazzToggleButton() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // ToggleButton
-        assertNotNull(mDevice.findObject(By.clazz("android.widget", "ToggleButton")));
-        assertNotNull(mDevice.findObject(By.clazz("android.widget.ToggleButton")));
-        assertNotNull(mDevice.findObject(By.clazz(".ToggleButton")));
-        assertNotNull(mDevice.findObject(By.clazz(ToggleButton.class)));
-    }
-
-    @Test
-    public void testClazzNotFound() {
-        launchTestActivity(BySelectorTestClazzActivity.class);
-
-        // Non-existent class
-        assertNull(mDevice.findObject(By.clazz("android.widget", "NonExistentClass")));
         assertNull(mDevice.findObject(By.clazz("android.widget.NonExistentClass")));
-        assertNull(mDevice.findObject(By.clazz(".NonExistentClass")));
-    }
 
-    // TODO(b/235841286): Implement these for clazz():
-    // 1. Custom class
-    // 2. Patterns
-    // 3. Runtime Widgets
+        // Single string as partial class name, starting with a dot.
+        // The package will be assumed as `android.widget`.
+        assertNotNull(mDevice.findObject(By.clazz(".SeekBar")));
+        assertNotNull(mDevice.findObject(By.clazz(".Switch")));
+        assertNull(mDevice.findObject(By.clazz(".NonExistentClass")));
+
+        // Two separate strings as package name and class name.
+        assertNotNull(mDevice.findObject(By.clazz("android.widget", "EditText")));
+        assertNotNull(mDevice.findObject(By.clazz("android.widget", "ProgressBar")));
+        assertNull(mDevice.findObject(By.clazz("android.widget", "NonExistentClass")));
+
+        // Class directly.
+        assertNotNull(mDevice.findObject(By.clazz(RadioButton.class)));
+        assertNotNull(mDevice.findObject(By.clazz(RatingBar.class)));
+        assertNull(mDevice.findObject(By.clazz(VideoView.class)));
+
+        // Pattern of the class name.
+        assertNotNull(mDevice.findObject(By.clazz(Pattern.compile(".*TextView"))));
+        assertNotNull(mDevice.findObject(By.clazz(Pattern.compile(".*get\\.C.*"))));
+        assertNull(mDevice.findObject(By.clazz(Pattern.compile(".*TextView.+"))));
+    }
 
     @Test
     public void testDescSetFromResource() {
