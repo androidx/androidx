@@ -1064,35 +1064,35 @@ package androidx.health.connect.client.records {
     field public static final String UNKNOWN = "unknown";
   }
 
-  public final class Speed {
-    ctor public Speed(java.time.Instant time, @FloatRange(from=0.0, to=1000000.0) double metersPerSecond);
-    method public double getMetersPerSecond();
-    method public java.time.Instant getTime();
-    property public final double metersPerSecond;
-    property public final java.time.Instant time;
-  }
-
   public final class SpeedRecord implements androidx.health.connect.client.records.Record {
-    ctor public SpeedRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.Speed> samples, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    ctor public SpeedRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.SpeedRecord.Sample> samples, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
     method public java.time.ZoneOffset? getEndZoneOffset();
     method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
-    method public java.util.List<androidx.health.connect.client.records.Speed> getSamples();
+    method public java.util.List<androidx.health.connect.client.records.SpeedRecord.Sample> getSamples();
     method public java.time.Instant getStartTime();
     method public java.time.ZoneOffset? getStartZoneOffset();
     property public java.time.Instant endTime;
     property public java.time.ZoneOffset? endZoneOffset;
     property public androidx.health.connect.client.records.metadata.Metadata metadata;
-    property public java.util.List<androidx.health.connect.client.records.Speed> samples;
+    property public java.util.List<androidx.health.connect.client.records.SpeedRecord.Sample> samples;
     property public java.time.Instant startTime;
     property public java.time.ZoneOffset? startZoneOffset;
     field public static final androidx.health.connect.client.records.SpeedRecord.Companion Companion;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SPEED_AVG;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SPEED_MAX;
-    field public static final androidx.health.connect.client.aggregate.AggregateMetric<java.lang.Double> SPEED_MIN;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Velocity> SPEED_AVG;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Velocity> SPEED_MAX;
+    field public static final androidx.health.connect.client.aggregate.AggregateMetric<androidx.health.connect.client.units.Velocity> SPEED_MIN;
   }
 
   public static final class SpeedRecord.Companion {
+  }
+
+  public static final class SpeedRecord.Sample {
+    ctor public SpeedRecord.Sample(java.time.Instant time, androidx.health.connect.client.units.Velocity speed);
+    method public androidx.health.connect.client.units.Velocity getSpeed();
+    method public java.time.Instant getTime();
+    property public final androidx.health.connect.client.units.Velocity speed;
+    property public final java.time.Instant time;
   }
 
   public final class StepsCadence {
@@ -1554,6 +1554,29 @@ package androidx.health.connect.client.units {
   }
 
   public final class TemperatureKt {
+  }
+
+  public final class Velocity implements java.lang.Comparable<androidx.health.connect.client.units.Velocity> {
+    method public int compareTo(androidx.health.connect.client.units.Velocity other);
+    method public double getKilometersPerHour();
+    method public double getMetersPerSecond();
+    method public double getMilesPerHour();
+    method public static androidx.health.connect.client.units.Velocity kilometersPerHour(double value);
+    method public static androidx.health.connect.client.units.Velocity metersPerSecond(double value);
+    method public static androidx.health.connect.client.units.Velocity milesPerHour(double value);
+    property public final double inKilometersPerHour;
+    property public final double inMetersPerSecond;
+    property public final double inMilesPerHour;
+    field public static final androidx.health.connect.client.units.Velocity.Companion Companion;
+  }
+
+  public static final class Velocity.Companion {
+    method public androidx.health.connect.client.units.Velocity kilometersPerHour(double value);
+    method public androidx.health.connect.client.units.Velocity metersPerSecond(double value);
+    method public androidx.health.connect.client.units.Velocity milesPerHour(double value);
+  }
+
+  public final class VelocityKt {
   }
 
   public final class Volume implements java.lang.Comparable<androidx.health.connect.client.units.Volume> {
