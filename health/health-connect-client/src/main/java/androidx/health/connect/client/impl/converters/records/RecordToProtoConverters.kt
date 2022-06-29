@@ -254,7 +254,7 @@ fun Record.toProto(): DataProto.DataPoint =
         is SpeedRecord ->
             toProto(dataTypeName = "SpeedSeries") { sample ->
                 DataProto.SeriesValue.newBuilder()
-                    .putValues("speed", doubleVal(sample.metersPerSecond))
+                    .putValues("speed", doubleVal(sample.speed.inMetersPerSecond))
                     .setInstantTimeMillis(sample.time.toEpochMilli())
                     .build()
             }

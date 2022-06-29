@@ -69,7 +69,6 @@ import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.SleepStageRecord
 import androidx.health.connect.client.records.SleepStageRecord.StageType
-import androidx.health.connect.client.records.Speed
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadence
 import androidx.health.connect.client.records.StepsCadenceRecord
@@ -91,6 +90,7 @@ import androidx.health.connect.client.units.kilocaloriesPerDay
 import androidx.health.connect.client.units.kilograms
 import androidx.health.connect.client.units.liters
 import androidx.health.connect.client.units.meters
+import androidx.health.connect.client.units.metersPerSecond
 import androidx.health.connect.client.units.millimetersOfMercury
 import androidx.health.connect.client.units.percent
 import androidx.health.connect.client.units.watts
@@ -611,13 +611,13 @@ class AllRecordsConverterTest {
                 endZoneOffset = END_ZONE_OFFSET,
                 samples =
                     listOf(
-                        Speed(
+                        SpeedRecord.Sample(
                             time = START_TIME,
-                            metersPerSecond = 1.0,
+                            speed = 1.metersPerSecond,
                         ),
-                        Speed(
+                        SpeedRecord.Sample(
                             time = START_TIME,
-                            metersPerSecond = 2.0,
+                            speed = 2.metersPerSecond,
                         ),
                     ),
                 metadata = TEST_METADATA,
