@@ -106,6 +106,10 @@
             android:name="androidx.core.widget.EdgeEffectCompatTest$EdgeEffectCompatTestActivity"
             android:exported="true" />
         <activity
+            android:name="androidx.core.app.ComponentActivity"
+            android:exported="true" />
+
+        <activity
             android:name="androidx.core.view.WindowCompatActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Light.NoTitleBar" />
