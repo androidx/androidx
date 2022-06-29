@@ -266,6 +266,7 @@ package androidx.appsearch.app {
   public final class GetByDocumentIdRequest {
     method public java.util.Set<java.lang.String!> getIds();
     method public String getNamespace();
+    method public java.util.Map<java.lang.String!,java.util.List<androidx.appsearch.app.PropertyPath!>!> getProjectionPaths();
     method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getProjections();
     field public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
   }
@@ -275,6 +276,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.GetByDocumentIdRequest.Builder addIds(java.lang.String!...);
     method public androidx.appsearch.app.GetByDocumentIdRequest.Builder addIds(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.GetByDocumentIdRequest.Builder addProjection(String, java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.GetByDocumentIdRequest.Builder addProjectionPaths(String, java.util.Collection<androidx.appsearch.app.PropertyPath!>);
     method public androidx.appsearch.app.GetByDocumentIdRequest build();
   }
 
@@ -445,6 +447,7 @@ package androidx.appsearch.app {
     method public java.util.List<java.lang.String!> getFilterSchemas();
     method public int getMaxSnippetSize();
     method public int getOrder();
+    method public java.util.Map<java.lang.String!,java.util.List<androidx.appsearch.app.PropertyPath!>!> getProjectionPaths();
     method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getProjections();
     method public int getRankingStrategy();
     method public int getResultCountPerPage();
@@ -481,6 +484,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec.Builder addFilterSchemas(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addFilterSchemas(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addProjection(String, java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.SearchSpec.Builder addProjectionPaths(String, java.util.Collection<androidx.appsearch.app.PropertyPath!>);
     method public androidx.appsearch.app.SearchSpec build();
     method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(@IntRange(from=0, to=0x2710) int);
     method public androidx.appsearch.app.SearchSpec.Builder setOrder(int);
