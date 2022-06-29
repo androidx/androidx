@@ -25,6 +25,7 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinStdlib)
+    implementation("androidx.core:core:1.7.0")
 
     api "androidx.annotation:annotation:1.2.0"
 
@@ -32,7 +33,6 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
 
-    androidTestImplementation("androidx.core:core:1.5.0-rc02")
     androidTestImplementation(project(":compose:ui:ui-test-font"))
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
