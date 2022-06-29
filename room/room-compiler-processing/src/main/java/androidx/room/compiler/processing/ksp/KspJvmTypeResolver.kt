@@ -45,13 +45,19 @@ internal class KspJvmTypeResolver(
             KSTypeVarianceResolver.WildcardMode.PREFERRED
         }
 
-        // use the jvm type of the declaration so that it also gets its jvm wildcards resolved.
-        val declarationJvmType = (scope.findDeclarationType() as? KspType)?.jvmWildcardTypeOrSelf
-
+        val declarationType = scope.findDeclarationType() as? KspType
         return env.resolveWildcards(
             ksType = delegate.ksType,
             wildcardMode = wildcardMode,
-            declarationType = declarationJvmType?.ksType
+            // See KSTypeVarianceResolver#applyTypeVariance: "If the ksType is from the original
+            // declaration, declarationType should be null".
+            declarationType = if (declarationType == delegate) {
+                null
+            } else {
+                // use the jvm type of the declaration so that it also gets its jvm wildcards
+                // resolved.
+                declarationType?.jvmWildcardTypeOrSelf?.ksType
+            }
         ).let {
             env.wrap(
                 ksType = it,
