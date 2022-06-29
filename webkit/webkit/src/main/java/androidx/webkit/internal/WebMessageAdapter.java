@@ -44,7 +44,8 @@ public class WebMessageAdapter implements WebMessageBoundaryInterface {
     }
 
     @SuppressWarnings("MissingOverride")
-    InvocationHandler getMessagePayload() {
+    @Nullable
+    public InvocationHandler getMessagePayload() {
         throw new UnsupportedOperationException("This method is not yet supported");
     }
 
