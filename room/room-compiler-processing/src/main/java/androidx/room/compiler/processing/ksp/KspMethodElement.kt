@@ -93,15 +93,16 @@ internal sealed class KspMethodElement(
      * If this method is declared in the containing class (or in a file), it will be null.
      */
     val declarationMethodType: XMethodType? by lazy {
-        val declaredIn = declaration.closestClassDeclaration()
-        if (declaredIn == null || declaredIn == containing.declaration) {
-            null
-        } else {
-            create(
-                env = env,
-                containing = env.wrapClassDeclaration(declaredIn),
-                declaration = declaration
-            ).executableType
+        declaration.closestClassDeclaration()?.let { declaredIn ->
+            if (declaredIn == containing.declaration) {
+                executableType
+            } else {
+                create(
+                    env = env,
+                    containing = env.wrapClassDeclaration(declaredIn),
+                    declaration = declaration
+                ).executableType
+            }
         }
     }
 
