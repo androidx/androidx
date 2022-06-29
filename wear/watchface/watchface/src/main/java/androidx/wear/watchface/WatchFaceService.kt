@@ -330,8 +330,10 @@ public abstract class WatchFaceService : WallpaperService() {
         internal const val MAX_REASONABLE_SCHEMA_WIRE_SIZE_BYTES = 50000
 
         /** The maximum reasonable wire size for an Icon in a [UserStyleSchema] in pixels. */
-        @Px internal const val MAX_REASONABLE_SCHEMA_ICON_WIDTH = 400
-        @Px internal const val MAX_REASONABLE_SCHEMA_ICON_HEIGHT = 400
+        @Px
+        internal const val MAX_REASONABLE_SCHEMA_ICON_WIDTH = 400
+        @Px
+        internal const val MAX_REASONABLE_SCHEMA_ICON_HEIGHT = 400
 
         /** @hide */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -407,19 +409,20 @@ public abstract class WatchFaceService : WallpaperService() {
 
     private val
         xmlSchemaAndComplicationSlotsDefinition: XmlSchemaAndComplicationSlotsDefinition by lazy {
-            val resourceId = getXmlWatchFaceResourceId()
-            if (resourceId == 0) {
-                XmlSchemaAndComplicationSlotsDefinition(
-                    schema = null,
-                    complicationSlots = emptyList(),
-                    flavors = null)
-            } else {
-                XmlSchemaAndComplicationSlotsDefinition.inflate(
-                    resources,
-                    resources.getXml(resourceId)
-                )
-            }
+        val resourceId = getXmlWatchFaceResourceId()
+        if (resourceId == 0) {
+            XmlSchemaAndComplicationSlotsDefinition(
+                schema = null,
+                complicationSlots = emptyList(),
+                flavors = null
+            )
+        } else {
+            XmlSchemaAndComplicationSlotsDefinition.inflate(
+                resources,
+                resources.getXml(resourceId)
+            )
         }
+    }
 
     /**
      * If the WatchFaceService's manifest doesn't define a
@@ -473,8 +476,10 @@ public abstract class WatchFaceService : WallpaperService() {
      */
     @Deprecated(
         "Use the version with currentUserStyleRepository argument instead",
-        ReplaceWith("getComplicationSlotInflationFactory" +
-            "(currentUserStyleRepository: CurrentUserStyleRepository)")
+        ReplaceWith(
+            "getComplicationSlotInflationFactory" +
+                "(currentUserStyleRepository: CurrentUserStyleRepository)"
+        )
     )
     @WorkerThread
     protected open fun getComplicationSlotInflationFactory(): ComplicationSlotInflationFactory? =
@@ -501,7 +506,8 @@ public abstract class WatchFaceService : WallpaperService() {
         getComplicationSlotInflationFactory()
             ?: throw NotImplementedError(
                 "You must override WatchFaceService.getComplicationSlotInflationFactory " +
-                "to provide additional details needed to inflate ComplicationSlotsManager")
+                    "to provide additional details needed to inflate ComplicationSlotsManager"
+            )
 
     /**
      * If the WatchFaceService's manifest doesn't define a
@@ -609,8 +615,7 @@ public abstract class WatchFaceService : WallpaperService() {
                     "WatchFaceBackground",
                     Process.THREAD_PRIORITY_FOREGROUND // The user is waiting on WF init.
                 ).apply {
-                    uncaughtExceptionHandler = Thread.UncaughtExceptionHandler {
-                            _, throwable ->
+                    uncaughtExceptionHandler = Thread.UncaughtExceptionHandler { _, throwable ->
                         Log.e(TAG, "Uncaught exception on watch face background thread", throwable)
                     }
                     start()
@@ -1068,7 +1073,9 @@ public abstract class WatchFaceService : WallpaperService() {
         private val uiThreadHandler: Handler,
         private val backgroundThreadHandler: Handler,
         headless: Boolean
-    ) : WallpaperService.Engine(), WatchFaceHostApi {
+    ) : WallpaperService.Engine(),
+        WatchFaceHostApi,
+        AccessibilityManager.AccessibilityStateChangeListener {
         internal val backgroundThreadCoroutineScope =
             CoroutineScope(backgroundThreadHandler.asCoroutineDispatcher().immediate)
 
@@ -1125,6 +1132,7 @@ public abstract class WatchFaceService : WallpaperService() {
         internal var destroyed = false
         internal var surfaceDestroyed = false
         internal var pendingComplicationDataCacheWrite = false
+        internal var systemViewOfContentDescriptionLabelsIsStale = false
 
         internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
 
@@ -1564,6 +1572,7 @@ public abstract class WatchFaceService : WallpaperService() {
             if (this::interactiveInstanceId.isInitialized) {
                 InteractiveInstanceManager.deleteInstance(interactiveInstanceId)
             }
+            stopListeningForAccessibilityStateChanges()
 
             // NB user code could throw an exception so do this last.
             try {
@@ -2031,11 +2040,13 @@ public abstract class WatchFaceService : WallpaperService() {
                 !isPreAndroidR()
             )
 
-            // There's no point creating BroadcastsReceiver for headless instances.
+            // There's no point creating BroadcastsReceiver or listening for Accessibility state
+            // changes if this is a headless instance.
             val broadcastsReceiver = TraceEvent("create BroadcastsReceiver").use {
                 if (watchState.isHeadless) {
                     null
                 } else {
+                    startListeningForAccessibilityStateChanges()
                     BroadcastsReceiver(_context, broadcastsObserver).apply {
                         processBatteryStatus(
                             IntentFilter(Intent.ACTION_BATTERY_CHANGED).let { iFilter ->
@@ -2321,6 +2332,24 @@ public abstract class WatchFaceService : WallpaperService() {
             wslFlow.setActiveComplications(complicationSlotIds)
         }
 
+        internal fun startListeningForAccessibilityStateChanges() {
+            val accessibilityManager =
+                getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager
+            accessibilityManager.addAccessibilityStateChangeListener(this)
+        }
+
+        internal fun stopListeningForAccessibilityStateChanges() {
+            val accessibilityManager =
+                getSystemService(ACCESSIBILITY_SERVICE) as AccessibilityManager
+            accessibilityManager.removeAccessibilityStateChangeListener(this)
+        }
+
+        override fun onAccessibilityStateChanged(isEnabled: Boolean) {
+            if (systemViewOfContentDescriptionLabelsIsStale && isEnabled) {
+                maybeSendContentDescriptionLabelsBroadcast()
+            }
+        }
+
         @UiThread
         override fun updateContentDescriptionLabels() {
             val labels = mutableListOf<Pair<Int, ContentDescriptionLabel>>()
@@ -2399,17 +2428,23 @@ public abstract class WatchFaceService : WallpaperService() {
                     contentDescriptionLabels =
                         labels.sortedBy { it.first }.map { it.second }.toTypedArray()
 
-                    // From Android R Let SysUI know the labels have changed if the accessibility
-                    // manager is enabled.
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
-                        getAccessibilityManager().isEnabled
-                    ) {
-                        // TODO(alexclarke): This should require a permission. See http://b/184717802
-                        _context.sendBroadcast(
-                            Intent(Constants.ACTION_WATCH_FACE_REFRESH_A11Y_LABELS)
-                        )
-                    }
+                    systemViewOfContentDescriptionLabelsIsStale = true
+                    maybeSendContentDescriptionLabelsBroadcast()
                 }
+            }
+        }
+
+        /**
+         * From Android R lets SysUI know the labels have changed, if the AccessibilityManager is
+         * enabled.
+         */
+        private fun maybeSendContentDescriptionLabelsBroadcast() {
+            if (!isPreAndroidR() && getAccessibilityManager().isEnabled) {
+                // TODO(alexclarke): This should require a permission. See http://b/184717802
+                _context.sendBroadcast(
+                    Intent(Constants.ACTION_WATCH_FACE_REFRESH_A11Y_LABELS)
+                )
+                systemViewOfContentDescriptionLabelsIsStale = false
             }
         }
 
@@ -2445,6 +2480,10 @@ public abstract class WatchFaceService : WallpaperService() {
             writer.println("createdBy=$createdBy")
             writer.println("watchFaceInitStarted=$wslFlow.watchFaceInitStarted")
             writer.println("asyncWatchFaceConstructionPending=$asyncWatchFaceConstructionPending")
+            writer.println(
+                "systemViewOfContentDescriptionLabelsIsStale=" +
+                    systemViewOfContentDescriptionLabelsIsStale
+            )
 
             if (this::interactiveInstanceId.isInitialized) {
                 writer.println("interactiveInstanceId=$interactiveInstanceId")
