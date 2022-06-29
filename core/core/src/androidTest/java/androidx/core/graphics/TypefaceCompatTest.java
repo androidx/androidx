@@ -48,6 +48,7 @@ import androidx.core.test.R;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.testutils.WeightStyleFont;
 
 import com.google.common.truth.Truth;
 
@@ -537,12 +538,15 @@ public class TypefaceCompatTest {
     @Test
     @SdkSuppress(minSdkVersion = 18) // API 14-20 backport fails on 17
     public void testTypeFaceCompatCreateWithExactStyle_upright() {
+        doTypefaceCreate(false);
+    }
+
+    private void doTypefaceCreate(boolean italic) {
         final Typeface family = ResourcesCompat.getFont(mContext, R.font.weighttestfont);
         assertNotNull(family);
 
-        final int[] weights = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
+        final int[] weights = new int[]{100, 400, 900};
         final float[] widths = new float[weights.length];
-        final boolean[] italics = new boolean[weights.length];
 
         Paint p = new Paint();
         p.setTextSize(120);
@@ -551,96 +555,36 @@ public class TypefaceCompatTest {
         for (int i = 0, size = weights.length; i < size; i++) {
             final int weight = weights[i];
             final Typeface t = TypefaceCompat.create(mContext, family, weight, false);
+            char wideChar = new WeightStyleFont().getWideCharacter(weight, italic);
             p.setTypeface(t);
-            widths[i] = p.measureText("W");
-            italics[i] = t.isItalic();
+            widths[i] = p.measureText("" + wideChar);
         }
 
+        float expectedWeight = italic ? 120.0f : 360.0f;
         Truth.assertThat(widths).usingTolerance(0.1)
-                .containsExactly(98, 98, 98, 106, 106, 106, 106, 115, 115, 115, 115);
-        Truth.assertThat(italics).asList()
-                .doesNotContain(true);
+                .containsExactly(expectedWeight, expectedWeight, expectedWeight);
+        // check the test validity by matching a never-matching char
+        Truth.assertThat(p.measureText("" + WeightStyleFont.SkinnyChar)).isNotWithin(0.1f)
+                .of(expectedWeight);
     }
 
     @Test
     @SdkSuppress(maxSdkVersion = 16) // API 14-20 backport fails on 17
     public void testTypeFaceCompatCreateWithExactStyle_upright_api14_to_16() {
-        final Typeface family = ResourcesCompat.getFont(mContext, R.font.weighttestfont);
-        assertNotNull(family);
-
-        final int[] weights = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
-        final float[] widths = new float[weights.length];
-        final boolean[] italics = new boolean[weights.length];
-
-        Paint p = new Paint();
-        p.setTextSize(120);
-
-        // Normal font style
-        for (int i = 0, size = weights.length; i < size; i++) {
-            final int weight = weights[i];
-            final Typeface t = TypefaceCompat.create(mContext, family, weight, false);
-            p.setTypeface(t);
-            widths[i] = p.measureText("W");
-            italics[i] = t.isItalic();
-        }
-
-        Truth.assertThat(widths).usingTolerance(0.1)
-                .containsExactly(98, 98, 98, 106, 106, 106, 106, 115, 115, 115, 115);
-        Truth.assertThat(italics).asList()
-                .doesNotContain(true);
+        doTypefaceCreate(false);
     }
 
 
     @Test
     @SdkSuppress(minSdkVersion = 18) // API 14-20 backport is too flakey for CI
     public void testTypeFaceCompatCreateWithExactStyle_italic() {
-        final Typeface family = ResourcesCompat.getFont(mContext, R.font.weighttestfont);
-        final int[] weights = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
-        final float[] widths = new float[weights.length];
-        final boolean[] italics = new boolean[weights.length];
-
-        Paint p = new Paint();
-        p.setTextSize(120);
-
-        // Italic font style
-        for (int i = 0, size = weights.length; i < size; i++) {
-            final int weight = weights[i];
-            final Typeface t = TypefaceCompat.create(mContext, family, weight, true);
-            p.setTypeface(t);
-            widths[i] = p.measureText("W");
-            italics[i] = t.isItalic();
-        }
-
-        Truth.assertThat(widths).usingTolerance(0.1)
-                .containsExactly(97, 97, 97, 104, 104, 104, 104, 110, 110, 110, 110);
-        Truth.assertThat(italics).asList()
-                .doesNotContain(false);
+        doTypefaceCreate(true);
     }
 
     @Test
     @SdkSuppress(maxSdkVersion = 16) // API 14-20 backport is too flakey for CI
     public void testTypeFaceCompatCreateWithExactStyle_italic_api14_to_16() {
-        final Typeface family = ResourcesCompat.getFont(mContext, R.font.weighttestfont);
-        final int[] weights = new int[]{1, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000};
-        final float[] widths = new float[weights.length];
-        final boolean[] italics = new boolean[weights.length];
-
-        Paint p = new Paint();
-        p.setTextSize(120);
-
-        // Italic font style
-        for (int i = 0, size = weights.length; i < size; i++) {
-            final int weight = weights[i];
-            final Typeface t = TypefaceCompat.create(mContext, family, weight, true);
-            p.setTypeface(t);
-            widths[i] = p.measureText("W");
-            italics[i] = t.isItalic();
-        }
-
-        Truth.assertThat(widths).usingTolerance(0.1)
-                .containsExactly(97, 97, 97, 104, 104, 104, 104, 110, 110, 110, 110);
-        Truth.assertThat(italics).asList()
-                .doesNotContain(false);
+        doTypefaceCreate(true);
     }
 
     @Test
