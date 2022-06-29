@@ -23,12 +23,6 @@ dependencies {
 }
 
 android {
-    sourceSets {
-        main {
-            // We use a non-standard manifest path.
-            manifest.srcFile 'AndroidManifest.xml'
-        }
-    }
     namespace "androidx.emoji2.viewsintegration"
 }
 

@@ -29,6 +29,7 @@ android {
         multiDexEnabled = true
     }
     testOptions.unitTests.includeAndroidResources = true
+    namespace "androidx.camera.effects"
 }
 androidx {
     name = "Jetpack Camera Effects Library"
