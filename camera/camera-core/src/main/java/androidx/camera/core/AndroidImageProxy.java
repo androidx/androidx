@@ -31,10 +31,12 @@ import java.nio.ByteBuffer;
 /** An {@link ImageProxy} which wraps around an {@link Image}. */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class AndroidImageProxy implements ImageProxy {
-    @GuardedBy("this")
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
     private final Image mImage;
 
-    @GuardedBy("this")
+    @GuardedBy("mLock")
     private final PlaneProxy[] mPlanes;
 
     private final ImageInfo mImageInfo;
@@ -66,45 +68,61 @@ final class AndroidImageProxy implements ImageProxy {
     }
 
     @Override
-    public synchronized void close() {
-        mImage.close();
+    public void close() {
+        synchronized (mLock) {
+            mImage.close();
+        }
     }
 
     @Override
     @NonNull
-    public synchronized Rect getCropRect() {
-        return mImage.getCropRect();
+    public Rect getCropRect() {
+        synchronized (mLock) {
+            return mImage.getCropRect();
+        }
     }
 
     @Override
-    public synchronized void setCropRect(@Nullable Rect rect) {
-        mImage.setCropRect(rect);
+    public void setCropRect(@Nullable Rect rect) {
+        synchronized (mLock) {
+            mImage.setCropRect(rect);
+        }
     }
 
     @Override
-    public synchronized int getFormat() {
-        return mImage.getFormat();
+    public int getFormat() {
+        synchronized (mLock) {
+            return mImage.getFormat();
+        }
     }
 
     @Override
-    public synchronized int getHeight() {
-        return mImage.getHeight();
+    public int getHeight() {
+        synchronized (mLock) {
+            return mImage.getHeight();
+        }
     }
 
     @Override
-    public synchronized int getWidth() {
-        return mImage.getWidth();
+    public int getWidth() {
+        synchronized (mLock) {
+            return mImage.getWidth();
+        }
     }
 
     @Override
     @NonNull
-    public synchronized ImageProxy.PlaneProxy[] getPlanes() {
-        return mPlanes;
+    public ImageProxy.PlaneProxy[] getPlanes() {
+        synchronized (mLock) {
+            return mPlanes;
+        }
     }
 
     /** An {@link ImageProxy.PlaneProxy} which wraps around an {@link Image.Plane}. */
     private static final class PlaneProxy implements ImageProxy.PlaneProxy {
-        @GuardedBy("this")
+        private final Object mLock = new Object();
+
+        @GuardedBy("mLock")
         private final Image.Plane mPlane;
 
         PlaneProxy(Image.Plane plane) {
@@ -112,19 +130,25 @@ final class AndroidImageProxy implements ImageProxy {
         }
 
         @Override
-        public synchronized int getRowStride() {
-            return mPlane.getRowStride();
+        public int getRowStride() {
+            synchronized (mLock) {
+                return mPlane.getRowStride();
+            }
         }
 
         @Override
-        public synchronized int getPixelStride() {
-            return mPlane.getPixelStride();
+        public int getPixelStride() {
+            synchronized (mLock) {
+                return mPlane.getPixelStride();
+            }
         }
 
         @Override
         @NonNull
-        public synchronized ByteBuffer getBuffer() {
-            return mPlane.getBuffer();
+        public ByteBuffer getBuffer() {
+            synchronized (mLock) {
+                return mPlane.getBuffer();
+            }
         }
     }
 
@@ -136,7 +160,9 @@ final class AndroidImageProxy implements ImageProxy {
 
     @Override
     @ExperimentalGetImage
-    public synchronized Image getImage() {
-        return mImage;
+    public Image getImage() {
+        synchronized (mLock) {
+            return mImage;
+        }
     }
 }
