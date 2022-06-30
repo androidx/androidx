@@ -70,12 +70,21 @@
             </intent-filter>
         </activity>
 
-
         <activity
             android:name=".BackgroundWorkActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="androidx.benchmark.integration.macrobenchmark.target.BACKGROUND_WORK_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".SingleColorActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
+            <intent-filter>
+                <action android:name="androidx.benchmark.integration.macrobenchmark.target.SINGLE_COLOR_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
