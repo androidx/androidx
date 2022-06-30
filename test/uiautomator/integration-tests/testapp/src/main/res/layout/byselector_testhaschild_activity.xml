@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
  * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,57 +14,65 @@
  * limitations under the License.
  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".BySelectorTestClazzActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".BySelectorTestClazzActivity">
 
-    <LinearLayout android:id="@+id/toplevel1"
+    <LinearLayout
+        android:id="@+id/toplevel1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/toplevel1_child1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Top-Level1 Child1" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/toplevel2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/toplevel2_child1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Top-Level2 Child1" />
+
+        <TextView
+            android:id="@+id/toplevel2_child2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Top-Level2 Child2" />
+
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/toplevel3"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/toplevel3_container1"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-        <TextView android:id="@+id/toplevel1_child1"
+            <TextView
+                android:id="@+id/toplevel3_container1_child1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Top-Level1 Child1" />
-
-    </LinearLayout>
-
-
-    <LinearLayout android:id="@+id/toplevel2"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView android:id="@+id/toplevel2_child1"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="Top-Level2 Child1" />
-
-            <TextView android:id="@+id/toplevel2_child2"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="Top-Level2 Child2" />
-
-    </LinearLayout>
-
-
-    <RelativeLayout android:id="@+id/toplevel3"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-        <LinearLayout android:id="@+id/toplevel3_container1"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-            <TextView android:id="@+id/toplevel3_container1_child1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Top-Level3, Container 1, Child 1" />
+                android:text="Top-Level3, Container 1, Child 1" />
 
         </LinearLayout>
 

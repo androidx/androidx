@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
  * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,21 +14,23 @@
  * limitations under the License.
  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".UiObject2TestIsLongClickableActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".UiObject2TestIsLongClickableActivity">
 
-    <Button android:id="@+id/long_clickable_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:longClickable="true"
-            android:text="long_clickable_button" />
+    <Button
+        android:id="@+id/long_clickable_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:longClickable="true"
+        android:text="long_clickable_button" />
 
-    <Button android:id="@+id/non_long_clickable_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="non_long_clickable_button" />
+    <Button
+        android:id="@+id/non_long_clickable_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="non_long_clickable_button" />
 
 </LinearLayout>

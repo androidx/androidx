@@ -35,7 +35,9 @@ import androidx.test.uiautomator.Until;
 
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class UiObject2Tests extends BaseTest {
     private static final int TIMEOUT_MS = 10_000;
@@ -149,10 +151,11 @@ public class UiObject2Tests extends BaseTest {
         UiObject2 nestedObject = mDevice.findObject(By.res(TEST_APP, "nested_elements"));
         List<UiObject2> children = nestedObject.getChildren();
         assertEquals(2, children.size());
-        UiObject2 object1 = children.get(0);
-        assertEquals("android.widget.TextView", object1.getClassName());
-        UiObject2 object2 = children.get(1);
-        assertEquals("android.widget.LinearLayout", object2.getClassName());
+        Set<String> childrenClassNames = new HashSet<String>();
+        childrenClassNames.add(children.get(0).getClassName());
+        childrenClassNames.add(children.get(1).getClassName());
+        assertTrue(childrenClassNames.contains("android.widget.TextView"));
+        assertTrue(childrenClassNames.contains("android.widget.LinearLayout"));
 
         UiObject2 object = mDevice.findObject(By.res(TEST_APP, "example_id"));
         assertTrue(object.getChildren().isEmpty());
@@ -271,9 +274,9 @@ public class UiObject2Tests extends BaseTest {
     public void testHasObject() {
         launchTestActivity(MainActivity.class);
 
-        UiObject2 object = mDevice.findObject(By.pkg(TEST_APP));
+        UiObject2 object = mDevice.findObject(By.res(TEST_APP, "example_id"));
 
-        assertTrue(object.hasObject(By.text("Text View 1")));
+        assertTrue(object.hasObject(By.text("TextView with an id")));
         assertFalse(object.hasObject(By.text("")));
     }
 
@@ -459,7 +462,7 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
-    @FlakyTest
+    @FlakyTest(bugId = 235841959)
     public void testScrollDown() {
         launchTestActivity(UiObject2TestVerticalScrollActivity.class);
 
