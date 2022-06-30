@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.app.OnboardingSupportFragment;
 
 import java.util.ArrayList;
@@ -80,13 +81,15 @@ public class OnboardingDemoSupportFragment extends OnboardingSupportFragment {
     }
 
     @Override
-    protected View onCreateBackgroundView(LayoutInflater layoutInflater, ViewGroup viewGroup) {
+    protected View onCreateBackgroundView(
+            @NonNull LayoutInflater layoutInflater, @NonNull ViewGroup viewGroup) {
         mBackgroundView = layoutInflater.inflate(R.layout.onboarding_image, viewGroup, false);
         return mBackgroundView;
     }
 
     @Override
-    protected View onCreateContentView(LayoutInflater layoutInflater, ViewGroup viewGroup) {
+    protected View onCreateContentView(
+            @NonNull LayoutInflater layoutInflater, @NonNull ViewGroup viewGroup) {
         mContentView = layoutInflater.inflate(R.layout.onboarding_content, viewGroup, false);
         mContentBackgroundView = (ImageView) mContentView.findViewById(R.id.background_image);
         mContentAnimationView = (ImageView) mContentView.findViewById(R.id.animation_image);
@@ -94,7 +97,8 @@ public class OnboardingDemoSupportFragment extends OnboardingSupportFragment {
     }
 
     @Override
-    protected View onCreateForegroundView(LayoutInflater layoutInflater, ViewGroup viewGroup) {
+    protected View onCreateForegroundView(
+            @NonNull LayoutInflater layoutInflater, @NonNull ViewGroup viewGroup) {
         return null;
     }
 

@@ -1,5 +1,6 @@
 package androidx.leanback.app;
 
+import androidx.annotation.Nullable;
 import androidx.leanback.widget.ObjectAdapter;
 import androidx.leanback.widget.Row;
 
@@ -71,7 +72,7 @@ class ListRowDataAdapter extends ObjectAdapter {
     }
 
     @Override
-    public Object get(int index) {
+    public @Nullable Object get(int index) {
         return mAdapter.get(index);
     }
 

@@ -144,7 +144,7 @@ public class DetailsOverviewLogoPresenter extends Presenter {
      * @param item DetailsOverviewRow object to bind.
      */
     @Override
-    public void onBindViewHolder(@NonNull Presenter.ViewHolder viewHolder, @NonNull Object item) {
+    public void onBindViewHolder(@NonNull Presenter.ViewHolder viewHolder, @Nullable Object item) {
         DetailsOverviewRow row = (DetailsOverviewRow) item;
         ImageView imageView = ((ImageView) viewHolder.view);
         imageView.setImageDrawable(row.getImageDrawable());
