@@ -36,7 +36,6 @@ dependencies {
 
 android {
     namespace 'androidx.graphics.core'
-    testNamespace 'androidx.graphics.core.test'
 
     defaultConfig {
         minSdkVersion 17
