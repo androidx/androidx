@@ -509,10 +509,10 @@ package androidx.leanback.app {
     method public void notifyActionChanged(int);
     method public void notifyButtonActionChanged(int);
     method protected void onAddSharedElementTransition(androidx.fragment.app.FragmentTransaction, androidx.leanback.app.GuidedStepSupportFragment);
-    method public void onCreateActions(java.util.List<androidx.leanback.widget.GuidedAction!>, android.os.Bundle);
+    method public void onCreateActions(java.util.List<androidx.leanback.widget.GuidedAction!>, android.os.Bundle?);
     method public androidx.leanback.widget.GuidedActionsStylist onCreateActionsStylist();
     method public android.view.View? onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup?, android.os.Bundle?);
-    method public void onCreateButtonActions(java.util.List<androidx.leanback.widget.GuidedAction!>, android.os.Bundle);
+    method public void onCreateButtonActions(java.util.List<androidx.leanback.widget.GuidedAction!>, android.os.Bundle?);
     method public androidx.leanback.widget.GuidedActionsStylist onCreateButtonActionsStylist();
     method public androidx.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle);
     method public androidx.leanback.widget.GuidanceStylist onCreateGuidanceStylist();
