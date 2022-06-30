@@ -18,18 +18,14 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.widget.RatingBar;
 
 import androidx.annotation.Nullable;
 
-public class BySelectorTestDescActivity extends Activity {
+public class BySelectorTreeTestActivity extends Activity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.byselector_testdesc_activity);
-
-        RatingBar rating_bar = (RatingBar) findViewById(R.id.rating_bar);
-        rating_bar.setContentDescription("Content description set at runtime.");
+        setContentView(R.layout.byselector_tree_test_activity);
     }
 }

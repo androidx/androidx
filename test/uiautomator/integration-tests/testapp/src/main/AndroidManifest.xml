@@ -27,6 +27,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".BySelectorTestActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Holo.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+            </intent-filter>
+        </activity>
         <activity android:name=".BySelectorTestClazzActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">
@@ -34,28 +41,7 @@
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
-        <activity android:name=".BySelectorTestDescActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.Holo.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".BySelectorTestResActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.Holo.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".BySelectorTestTextActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.Holo.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".BySelectorTestHasChildActivity"
+        <activity android:name=".BySelectorTreeTestActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Holo.NoActionBar">
             <intent-filter>
