@@ -20,6 +20,8 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 import androidx.leanback.system.Settings;
 import androidx.leanback.transition.TransitionHelper;
@@ -67,7 +69,11 @@ public class ListRowPresenter extends RowPresenter {
         final int mPaddingLeft;
         final int mPaddingRight;
 
-        public ViewHolder(View rootView, HorizontalGridView gridView, ListRowPresenter p) {
+        public ViewHolder(
+                @NonNull View rootView,
+                @NonNull HorizontalGridView gridView,
+                @NonNull ListRowPresenter p
+        ) {
             super(rootView);
             mGridView = gridView;
             mListRowPresenter = p;
@@ -81,6 +87,7 @@ public class ListRowPresenter extends RowPresenter {
          * Gets ListRowPresenter that creates this ViewHolder.
          * @return ListRowPresenter that creates this ViewHolder.
          */
+        @NonNull
         public final ListRowPresenter getListRowPresenter() {
             return mListRowPresenter;
         }
@@ -89,6 +96,7 @@ public class ListRowPresenter extends RowPresenter {
          * Gets HorizontalGridView that shows a list of items.
          * @return HorizontalGridView that shows a list of items.
          */
+        @NonNull
         public final HorizontalGridView getGridView() {
             return mGridView;
         }
@@ -97,6 +105,7 @@ public class ListRowPresenter extends RowPresenter {
          * Gets ItemBridgeAdapter that creates the list of items.
          * @return ItemBridgeAdapter that creates the list of items.
          */
+        @NonNull
         public final ItemBridgeAdapter getBridgeAdapter() {
             return mItemBridgeAdapter;
         }
@@ -115,6 +124,7 @@ public class ListRowPresenter extends RowPresenter {
          * @param position Position of the item in adapter.
          * @return ViewHolder bounds to the item.
          */
+        @Nullable
         public Presenter.ViewHolder getItemViewHolder(int position) {
             ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) mGridView
                     .findViewHolderForAdapterPosition(position);
@@ -124,11 +134,13 @@ public class ListRowPresenter extends RowPresenter {
             return ibvh.getViewHolder();
         }
 
+        @Nullable
         @Override
         public Presenter.ViewHolder getSelectedItemViewHolder() {
             return getItemViewHolder(getSelectedPosition());
         }
 
+        @Nullable
         @Override
         public Object getSelectedItem() {
             ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) mGridView
@@ -191,6 +203,7 @@ public class ListRowPresenter extends RowPresenter {
          * Returns optional task to run when the item is selected, null for no task.
          * @return Optional task to run when the item is selected, null for no task.
          */
+        @Nullable
         public Presenter.ViewHolderTask getItemTask() {
             return mItemTask;
         }
@@ -199,12 +212,12 @@ public class ListRowPresenter extends RowPresenter {
          * Sets task to run when the item is selected, null for no task.
          * @param itemTask Optional task to run when the item is selected, null for no task.
          */
-        public void setItemTask(Presenter.ViewHolderTask itemTask) {
+        public void setItemTask(@Nullable ViewHolderTask itemTask) {
             mItemTask = itemTask;
         }
 
         @Override
-        public void run(Presenter.ViewHolder holder) {
+        public void run(@Nullable Presenter.ViewHolder holder) {
             if (holder instanceof ListRowPresenter.ViewHolder) {
                 HorizontalGridView gridView = ((ListRowPresenter.ViewHolder) holder).getGridView();
                 androidx.leanback.widget.ViewHolderTask task = null;
@@ -212,7 +225,7 @@ public class ListRowPresenter extends RowPresenter {
                     task = new androidx.leanback.widget.ViewHolderTask() {
                         final Presenter.ViewHolderTask itemTask = mItemTask;
                         @Override
-                        public void run(RecyclerView.ViewHolder rvh) {
+                        public void run(@NonNull RecyclerView.ViewHolder rvh) {
                             ItemBridgeAdapter.ViewHolder ibvh = (ItemBridgeAdapter.ViewHolder) rvh;
                             itemTask.run(ibvh.getViewHolder());
                         }
