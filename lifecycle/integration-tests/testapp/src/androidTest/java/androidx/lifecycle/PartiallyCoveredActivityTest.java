@@ -29,8 +29,8 @@ import static androidx.lifecycle.TestUtils.flatMap;
 import static androidx.lifecycle.testapp.TestEvent.LIFECYCLE_EVENT;
 import static androidx.lifecycle.testapp.TestEvent.OWNER_CALLBACK;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -46,7 +46,6 @@ import androidx.lifecycle.testapp.CollectingSupportFragment;
 import androidx.lifecycle.testapp.NavigationDialogActivity;
 import androidx.lifecycle.testapp.TestEvent;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -58,7 +57,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import kotlin.Pair;
 
@@ -127,7 +125,6 @@ public class PartiallyCoveredActivityTest {
         runTest(activity);
     }
 
-    @FlakyTest(bugId = 206645367)
     @Test
     public void coveredWithDialog_fragment() throws Throwable {
         CollectingSupportFragment fragment = new CollectingSupportFragment();
@@ -151,12 +148,12 @@ public class PartiallyCoveredActivityTest {
         FragmentActivity dialog = launchDialog();
         assertStateSaving();
         waitForIdle();
-        assertThat(owner.copyCollectedEvents(), is(EXPECTED[0]));
+        assertThat(owner.copyCollectedEvents()).isEqualTo(EXPECTED[0]);
         List<Pair<TestEvent, Lifecycle.Event>> expected;
         if (mDismissDialog) {
             dialog.finish();
             TestUtils.waitTillResumed(activityRule.getActivity(), activityRule);
-            assertThat(owner.copyCollectedEvents(), is(flatMap(EXPECTED[0], EXPECTED[1])));
+            assertThat(owner.copyCollectedEvents()).isEqualTo(flatMap(EXPECTED[0], EXPECTED[1]));
             expected = flatMap(EXPECTED[0], EXPECTED[1], EXPECTED[2]);
         } else {
             expected = flatMap(CREATE, START, RESUME, PAUSE, STOP, DESTROY);
@@ -164,22 +161,22 @@ public class PartiallyCoveredActivityTest {
         CollectingSupportActivity activity = activityRule.getActivity();
         activityRule.finishActivity();
         TestUtils.waitTillDestroyed(activity, activityRule);
-        assertThat(owner.copyCollectedEvents(), is(expected));
+        assertThat(owner.copyCollectedEvents()).isEqualTo(expected);
     }
 
     // test sanity
-    private void assertStateSaving() throws ExecutionException, InterruptedException {
+    private void assertStateSaving() throws InterruptedException {
         final CollectingSupportActivity activity = activityRule.getActivity();
         if (sShouldSave) {
             // state should be saved. wait for it to be saved
-            assertThat("test sanity",
-                    activity.waitForStateSave(20), is(true));
-            assertThat("test sanity", activity.getSupportFragmentManager()
-                    .isStateSaved(), is(true));
+            assertWithMessage("activity failed to call saveInstanceState")
+                    .that(activity.waitForStateSave(20)).isTrue();
+            assertWithMessage("the state should have been saved")
+                    .that(activity.getSupportFragmentManager().isStateSaved()).isTrue();
         } else {
             // should should not be saved
-            assertThat("test sanity", activity.getSupportFragmentManager()
-                    .isStateSaved(), is(false));
+            assertWithMessage("the state should not be saved")
+                    .that(activity.getSupportFragmentManager().isStateSaved()).isFalse();
         }
     }
 
