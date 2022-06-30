@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 import android.graphics.Point;
 import android.graphics.Rect;
 
-import androidx.test.filters.FlakyTest;
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.Direction;
 import androidx.test.uiautomator.UiObject2;
@@ -42,6 +41,7 @@ import java.util.Set;
 public class UiObject2Tests extends BaseTest {
     private static final int TIMEOUT_MS = 10_000;
     private static final int SPEED_MS = 100;
+    private static final int SCROLL_MARGIN = 50;
 
     @Test
     public void testClear() {
@@ -462,67 +462,41 @@ public class UiObject2Tests extends BaseTest {
     }
 
     @Test
-    @FlakyTest(bugId = 235841959)
-    public void testScrollDown() {
+    public void testScroll() {
         launchTestActivity(UiObject2TestVerticalScrollActivity.class);
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
 
-        // Make sure we're at the top
-        assertNotNull(mDevice.findObject(By.res(TEST_APP, "top_text")));
-
+        // Scroll down to bottom (20000px) in increments of 5000px.
         UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
+        scrollView.setGestureMargin(SCROLL_MARGIN); // Avoid touching too close to the edges.
         Rect bounds = scrollView.getVisibleBounds();
-        float distance = 50000 / (bounds.height() - 2 * 10);
-
-        //scrollView.scroll(Direction.DOWN, 1.0f);
-        //assertNull(mDevice.findObject(By.res(TEST_APP, "top_text")));
-        //while (scrollView.scroll(Direction.DOWN, 1.0f)) {
-        //}
-        scrollView.scroll(Direction.DOWN, distance);
-        assertNotNull(mDevice.findObject(By.res(TEST_APP, "bottom_text")));
+        float percent = 5_000f / (bounds.height() - 2 * SCROLL_MARGIN);
+        // Scroll to an element 5000px from the top.
+        scrollView.scroll(Direction.DOWN, percent);
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "from_top_5000")));
+        // Scroll to an element 10000px from the top.
+        scrollView.scroll(Direction.DOWN, percent);
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "from_top_10000")));
+        // Scroll to an element 15000px from the top.
+        scrollView.scroll(Direction.DOWN, percent);
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "from_top_15000")));
+        // Scroll to the bottom element 20000px from the top.
+        scrollView.scroll(Direction.DOWN, percent);
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
     }
-
-    /* TODO(b/235841473): Fix this test
-    public void testScrollDistance() {
-        launchTestActivity(UiObject2TestVerticalScrollActivity.class);
-
-        // Make sure we're at the top
-        assertNotNull(mDevice.findObject(By.res(TEST_APP, "top_text")));
-        int MARGIN = 1;
-
-        // Scroll to an element 5000px from the top
-        UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
-        Rect bounds = scrollView.getVisibleBounds();
-        float distance = 5000.0f / (float)(bounds.height() - 2*MARGIN);
-        scrollView.scroll(Direction.DOWN, distance);
-        assertNotNull(mDevice.findObject(By.res(TEST_APP, "from_top_5000")));
-
-        // Scroll to an element 10000px from the top
-        scrollView.scroll(Direction.DOWN, distance);
-        assertNotNull(mDevice.findObject(By.res(TEST_APP, "from_top_10000")));
-
-        // Scroll to an element 15000px from the top
-        scrollView.scroll(Direction.DOWN, distance);
-        assertNotNull(mDevice.findObject(By.res(TEST_APP, "from_top_15000")));
-    }
-    */
 
     @Test
-    @FlakyTest(bugId = 235841959)
-    public void testScrollDownToEnd() {
+    public void testScroll_untilEnd() {
         launchTestActivity(UiObject2TestVerticalScrollActivity.class);
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "top_text"))); // Initially at top.
 
-        // Make sure we're at the top
-        assertNotNull(mDevice.findObject(By.res(TEST_APP, "top_text")));
-
-        // Scroll as much as we can
+        // Scroll until end (scroll method returns false).
         UiObject2 scrollView = mDevice.findObject(By.res(TEST_APP, "scroll_view"));
-        scrollView.wait(Until.scrollable(true), TIMEOUT_MS);
+        scrollView.setGestureMargin(SCROLL_MARGIN); // Avoid touching too close to the edges.
         while (scrollView.scroll(Direction.DOWN, 1.0f)) {
             // Continue until bottom.
         }
-
-        // Make sure we're at the bottom
-        assertNotNull(mDevice.findObject(By.res(TEST_APP, "bottom_text")));
+        assertTrue(mDevice.hasObject(By.res(TEST_APP, "bottom_text")));
     }
 
     @Test
