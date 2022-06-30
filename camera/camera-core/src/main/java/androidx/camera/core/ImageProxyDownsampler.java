@@ -237,18 +237,18 @@ final class ImageProxyDownsampler {
         }
 
         @Override
-        public synchronized int getWidth() {
+        public int getWidth() {
             return mDownsampledWidth;
         }
 
         @Override
-        public synchronized int getHeight() {
+        public int getHeight() {
             return mDownsampledHeight;
         }
 
         @Override
         @NonNull
-        public synchronized PlaneProxy[] getPlanes() {
+        public PlaneProxy[] getPlanes() {
             return mDownsampledPlanes;
         }
     }
