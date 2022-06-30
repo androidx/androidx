@@ -122,7 +122,8 @@ class WorkerWrapperForegroundTest {
             taskExecutor,
             foregroundProcessor,
             workDatabase,
-            workDatabase.workSpecDao().getWorkSpec(request.stringId)!!
+            workDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
+            emptyList()
         ).build()
 
         wrapper.run()
@@ -144,7 +145,8 @@ class WorkerWrapperForegroundTest {
             taskExecutor,
             foregroundProcessor,
             workDatabase,
-            workDatabase.workSpecDao().getWorkSpec(request.stringId)!!
+            workDatabase.workSpecDao().getWorkSpec(request.stringId)!!,
+            emptyList()
         ).build()
 
         wrapper.run()
