@@ -1103,6 +1103,8 @@ public final class AppSearchImpl implements Closeable {
                     throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND);
                 }
             } catch (AppSearchException e) {
+                // Not passing cause in AppSearchException as that violates privacy guarantees as
+                // user could differentiate between document not existing and not having access.
                 throw new AppSearchException(AppSearchResult.RESULT_NOT_FOUND,
                         "Document (" + namespace + ", " + id + ") not found.");
             }
@@ -1611,7 +1613,7 @@ public final class AppSearchImpl implements Closeable {
                 if (tokens != null) {
                     tokens.remove(nextPageToken);
                 } else {
-                    Log.wtf(TAG, "Failed to invalidate token " + nextPageToken + ": tokens are not "
+                    Log.e(TAG, "Failed to invalidate token " + nextPageToken + ": tokens are not "
                             + "cached.");
                 }
             }
