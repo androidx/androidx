@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
  * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,25 +14,28 @@
  * limitations under the License.
  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".BySelectorTestTextActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".BySelectorTestTextActivity">
 
-    <TextView android:id="@+id/unique_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Unique Text" />
+    <TextView
+        android:id="@+id/unique_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Unique Text" />
 
-    <TextView android:id="@+id/common_text1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Common Text" />
+    <TextView
+        android:id="@+id/common_text1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Common Text" />
 
-    <TextView android:id="@+id/common_text2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Common Text" />
+    <TextView
+        android:id="@+id/common_text2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Common Text" />
 
 </LinearLayout>

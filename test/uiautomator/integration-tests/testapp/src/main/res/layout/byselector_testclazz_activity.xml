@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
  * Copyright (C) 2014 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,59 +14,70 @@
  * limitations under the License.
  -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".BySelectorTestClazzActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".BySelectorTestClazzActivity">
 
-    <Button android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Button Instance" />
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Button Instance" />
 
-    <CheckBox android:id="@+id/check_box"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="CheckBox Instance" />
+    <CheckBox
+        android:id="@+id/check_box"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="CheckBox Instance" />
 
-    <EditText android:id="@+id/edit_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="EditText Instance" />
+    <EditText
+        android:id="@+id/edit_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="EditText Instance" />
 
-    <ProgressBar android:id="@+id/progress_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-    <RadioButton android:id="@+id/radio_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="RadioButton Instance" />
+    <RadioButton
+        android:id="@+id/radio_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="RadioButton Instance" />
 
-    <RatingBar android:id="@+id/rating_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <RatingBar
+        android:id="@+id/rating_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-    <SeekBar android:id="@+id/seek_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <SeekBar
+        android:id="@+id/seek_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-    <Switch android:id="@+id/switch_toggle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <Switch
+        android:id="@+id/switch_toggle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-    <TextClock android:id="@+id/text_clock"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <TextClock
+        android:id="@+id/text_clock"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-    <TextView android:id="@+id/text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TextView Instance" />
+    <TextView
+        android:id="@+id/text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView Instance" />
 
-    <ToggleButton android:id="@+id/toggle_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+    <ToggleButton
+        android:id="@+id/toggle_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
