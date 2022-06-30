@@ -136,7 +136,7 @@ class SignalGeneratorViewModelTest {
     @Test
     fun initialSignalGenerator_canMakeGeneratorReady() = runTest {
         val beepFrequency = 1500
-        viewModel.initialSignalGenerator(beepFrequency)
+        viewModel.initialSignalGenerator(context, beepFrequency)
         advanceUntilIdle()
 
         assertThat(viewModel.isGeneratorReady).isTrue()
@@ -149,7 +149,7 @@ class SignalGeneratorViewModelTest {
         val latch = CountDownLatch(5)
 
         // Act.
-        viewModel.initialSignalGenerator(beepFrequency)
+        viewModel.initialSignalGenerator(context, beepFrequency)
         viewModel.startSignalGeneration()
         countActiveFlagChangeBlocking(latch)
 
@@ -164,7 +164,7 @@ class SignalGeneratorViewModelTest {
         val latch = CountDownLatch(5)
 
         // Act.
-        viewModel.initialSignalGenerator(beepFrequency)
+        viewModel.initialSignalGenerator(context, beepFrequency)
         viewModel.startSignalGeneration()
         viewModel.stopSignalGeneration()
         countActiveFlagChangeBlocking(latch)
