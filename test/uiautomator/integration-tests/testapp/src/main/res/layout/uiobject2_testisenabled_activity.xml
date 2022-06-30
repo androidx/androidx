@@ -15,24 +15,24 @@
   -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".UiObject2TestIsEnabledActivity">
+
+    <TextView
+        android:id="@+id/disabled_text_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:context=".UiObject2TestIsEnabledActivity">
+        android:layout_height="wrap_content"
+        android:enabled="false"
+        android:text="Disabled Text View" />
 
     <TextView
-            android:id="@+id/disabled_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:enabled="false"
-            android:text="Disabled Text View" />
-
-    <TextView
-            android:id="@+id/enabled_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:enabled="true"
-            android:text="Enabled Text View" />
+        android:id="@+id/enabled_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:enabled="true"
+        android:text="Enabled Text View" />
 
 </LinearLayout>
