@@ -26,7 +26,7 @@ internal abstract class InternalXAnnotationValue : XAnnotationValue {
      * distinguish between `String` and `String[]` you can check `valueType.isArray()`.
      */
     private enum class Kind {
-        BOOLEAN, INT, SHORT, LONG, FLOAT, DOUBLE, BYTE, STRING, ENUM, ANNOTATION, TYPE;
+        BOOLEAN, INT, SHORT, LONG, FLOAT, DOUBLE, BYTE, CHAR, STRING, ENUM, ANNOTATION, TYPE;
         companion object {
             fun of(type: XType): Kind {
                 if (type.isArray()) {
@@ -40,6 +40,7 @@ internal abstract class InternalXAnnotationValue : XAnnotationValue {
                     type.typeName == TypeName.FLOAT -> FLOAT
                     type.typeName == TypeName.DOUBLE -> DOUBLE
                     type.typeName == TypeName.BYTE -> BYTE
+                    type.typeName == TypeName.CHAR -> CHAR
                     type.typeName == InternalXAnnotationValue.STRING -> STRING
                     type.typeName.rawTypeName() == CLASS -> TYPE
                     type.typeName.rawTypeName() == KCLASS -> TYPE
@@ -119,6 +120,12 @@ internal abstract class InternalXAnnotationValue : XAnnotationValue {
 
     /** Returns true if the value is a list of [Double] */
     final override fun hasDoubleListValue() = kind == Kind.DOUBLE && hasListValue()
+
+    /** Returns true if the value is an [Char] */
+    final override fun hasCharValue() = kind == Kind.CHAR && !hasListValue()
+
+    /** Returns true if the value is a list of [Char] */
+    final override fun hasCharListValue() = kind == Kind.CHAR && hasListValue()
 
     /** Returns true if the value is an [Byte] */
     final override fun hasByteValue() = kind == Kind.BYTE && !hasListValue()
