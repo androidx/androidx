@@ -150,8 +150,8 @@ class GlanceTileServiceTest {
         val tile = tileFuture.await()
 
         val resourcesIds = arrayOf(
-            "android_" + ovalBitmapHashCode,
-            "android_" + R.drawable.ic_launcher_background
+            "android_" + R.drawable.ic_launcher_background,
+            "android_" + ovalBitmapHashCode
         )
 
         val resourcesVersion = Arrays.hashCode(resourcesIds).toString()
