@@ -17,7 +17,6 @@
 package androidx.glance.appwidget.template
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -27,7 +26,6 @@ import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.LocalSize
 import androidx.glance.action.clickable
-import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
@@ -35,6 +33,7 @@ import androidx.glance.layout.Spacer
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.width
+import androidx.glance.template.LocalTemplateColors
 import androidx.glance.template.TemplateButton
 import androidx.glance.template.TemplateImageButton
 import androidx.glance.template.TemplateImageWithDescription
@@ -60,7 +59,7 @@ internal fun AppWidgetTemplateHeader(
     if (headerIcon == null && header == null && actionButton == null) return
 
     Row(
-        modifier = GlanceModifier.fillMaxWidth().background(Color.Transparent),
+        modifier = GlanceModifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
         headerIcon?.let {
@@ -79,7 +78,9 @@ internal fun AppWidgetTemplateHeader(
             Text(
                 modifier = GlanceModifier.defaultWeight(),
                 text = header.text,
-                style = TextStyle(fontSize = size),
+                style = TextStyle(
+                    fontSize = size,
+                    color = LocalTemplateColors.current.onSurface),
                 maxLines = 1
             )
         }
@@ -102,14 +103,13 @@ internal fun AppWidgetTemplateHeader(
 internal fun AppWidgetTextSection(textList: List<TemplateText>) {
     if (textList.isEmpty()) return
 
-    Column(modifier = GlanceModifier.background(Color.Transparent)) {
+    Column() {
         textList.forEachIndexed { index, item ->
             val size = textSize(item.type, DisplaySize.fromDpSize(LocalSize.current))
             Text(
                 item.text,
-                style = TextStyle(fontSize = size),
-                maxLines = maxLines(item.type),
-                modifier = GlanceModifier.background(Color.Transparent)
+                style = TextStyle(fontSize = size, color = LocalTemplateColors.current.onSurface),
+                maxLines = maxLines(item.type)
             )
             if (index < textList.size - 1) {
                 Spacer(modifier = GlanceModifier.height(8.dp))
@@ -129,6 +129,7 @@ internal fun AppWidgetTemplateButton(
     button: TemplateButton,
     glanceModifier: GlanceModifier = GlanceModifier
 ) {
+    val colors = LocalTemplateColors.current
     when (button) {
         is TemplateImageButton -> {
             // TODO: Specify sizing for image button
@@ -140,7 +141,12 @@ internal fun AppWidgetTemplateButton(
             )
         }
         is TemplateTextButton -> {
-            Button(text = button.text, onClick = button.action, modifier = glanceModifier)
+            Button(
+                text = button.text,
+                onClick = button.action,
+                style = TextStyle(color = colors.onPrimary),
+                modifier = glanceModifier
+            )
         }
     }
 }

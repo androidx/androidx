@@ -38,6 +38,7 @@ dependencies {
     api("androidx.datastore:datastore-preferences:1.0.0")
 
     implementation("androidx.annotation:annotation:1.1.0")
+    implementation("com.google.android.material:material:1.6.0")
     implementation(libs.kotlinStdlib)
     implementation(project(":compose:runtime:runtime"))
 
@@ -60,6 +61,7 @@ dependencies {
 android {
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
+    resourcePrefix "glance_"
     namespace "androidx.glance"
 }
 
