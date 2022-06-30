@@ -38,17 +38,17 @@ import java.util.Set;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 abstract class ForwardingImageProxy implements ImageProxy {
-    @GuardedBy("this")
+    private final Object mLock = new Object();
+
     protected final ImageProxy mImage;
 
-    @GuardedBy("this")
+    @GuardedBy("mLock")
     private final Set<OnImageCloseListener> mOnImageCloseListeners = new HashSet<>();
 
     /**
      * Creates a new instance which wraps the given image.
      *
      * @param image to wrap
-     * @return new {@link AndroidImageProxy} instance
      */
     protected ForwardingImageProxy(ImageProxy image) {
         mImage = image;
@@ -56,53 +56,51 @@ abstract class ForwardingImageProxy implements ImageProxy {
 
     @Override
     public void close() {
-        synchronized (this) {
-            mImage.close();
-        }
+        mImage.close();
         notifyOnImageCloseListeners();
     }
 
     @Override
     @NonNull
-    public synchronized Rect getCropRect() {
+    public Rect getCropRect() {
         return mImage.getCropRect();
     }
 
     @Override
-    public synchronized void setCropRect(@Nullable Rect rect) {
+    public void setCropRect(@Nullable Rect rect) {
         mImage.setCropRect(rect);
     }
 
     @Override
-    public synchronized int getFormat() {
+    public int getFormat() {
         return mImage.getFormat();
     }
 
     @Override
-    public synchronized int getHeight() {
+    public int getHeight() {
         return mImage.getHeight();
     }
 
     @Override
-    public synchronized int getWidth() {
+    public int getWidth() {
         return mImage.getWidth();
     }
 
     @Override
     @NonNull
-    public synchronized ImageProxy.PlaneProxy[] getPlanes() {
+    public ImageProxy.PlaneProxy[] getPlanes() {
         return mImage.getPlanes();
     }
 
     @Override
     @NonNull
-    public synchronized ImageInfo getImageInfo() {
+    public ImageInfo getImageInfo() {
         return mImage.getImageInfo();
     }
 
     @Override
     @ExperimentalGetImage
-    public synchronized Image getImage() {
+    public Image getImage() {
         return mImage.getImage();
     }
 
@@ -111,14 +109,16 @@ abstract class ForwardingImageProxy implements ImageProxy {
      *
      * @param listener to add
      */
-    synchronized void addOnImageCloseListener(OnImageCloseListener listener) {
-        mOnImageCloseListeners.add(listener);
+    void addOnImageCloseListener(OnImageCloseListener listener) {
+        synchronized (mLock) {
+            mOnImageCloseListeners.add(listener);
+        }
     }
 
     /** Notifies the listeners that this image has been closed. */
     protected void notifyOnImageCloseListeners() {
         Set<OnImageCloseListener> onImageCloseListeners;
-        synchronized (this) {
+        synchronized (mLock) {
             // Make a copy for thread safety. We want to synchronize the access for member variables
             // but not the actual callbacks to avoid a deadlock between ForwardingImageProxy and
             // QueuedImageReaderProxy. go/deadlock-in-sharedimagereaderproxy
