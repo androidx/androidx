@@ -476,6 +476,64 @@ class XAnnotationValueTest(
     }
 
     @Test
+    fun testCharValue() {
+        runTest(
+            javaSource = Source.java(
+                "MyClass",
+                """
+                @interface MyAnnotation {
+                    char charParam();
+                    char[] charArrayParam();
+                    char[] charVarArgsParam(); // There's no varargs in java so use array
+                }
+                @MyAnnotation(
+                    charParam = '1',
+                    charArrayParam = {'2', '3', '4'},
+                    charVarArgsParam = {'5', '6', '7'}
+                )
+                class MyClass {}
+                """.trimIndent()
+            ) as Source.JavaSource,
+            kotlinSource = Source.kotlin(
+                "MyClass.kt",
+                """
+                annotation class MyAnnotation(
+                    val charParam: Char,
+                    val charArrayParam: CharArray,
+                    vararg val charVarArgsParam: Char,
+                )
+                @MyAnnotation(
+                    charParam = '1',
+                    charArrayParam = ['2', '3', '4'],
+                    charVarArgsParam = ['5', '6', '7'],
+                )
+                class MyClass
+                """.trimIndent()
+            ) as Source.KotlinSource
+        ) { invocation ->
+            val annotation = invocation.processingEnv.requireTypeElement("MyClass")
+                .getAllAnnotations()
+                .single { it.name == "MyAnnotation" }
+
+            val charParam = annotation.getAnnotationValue("charParam")
+            assertThat(charParam.hasCharValue()).isTrue()
+            assertThat(charParam.asChar()).isEqualTo('1')
+
+            val charArrayParam = annotation.getAnnotationValue("charArrayParam")
+            assertThat(charArrayParam.hasCharListValue()).isTrue()
+            assertThat(charArrayParam.asCharList())
+                .containsExactly('2', '3', '4')
+                .inOrder()
+
+            val charVarArgsParam = annotation.getAnnotationValue("charVarArgsParam")
+            assertThat(charVarArgsParam.hasCharListValue()).isTrue()
+            assertThat(charVarArgsParam.asCharList())
+                .containsExactly('5', '6', '7')
+                .inOrder()
+        }
+    }
+
+    @Test
     fun testStringValue() {
         runTest(
             javaSource = Source.java(
