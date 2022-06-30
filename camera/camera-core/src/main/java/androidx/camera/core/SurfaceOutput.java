@@ -41,22 +41,10 @@ import java.util.concurrent.Executor;
 public interface SurfaceOutput {
 
     /**
-     * Bitmask option to indicate that this Surface will be used by CameraX as the output of the
-     * {@link Preview} {@link UseCase}.
-     */
-    int PREVIEW = 1;
-
-    /**
-     * Bitmask option to indicate that this Surface will be used by CameraX as the output of
-     * video capture {@link UseCase}.
-     */
-    int VIDEO = 1 << 1;
-
-    /**
      * Gets the output {@link Surface} for writing processed frames.
      *
      * <p> If there are multiple calls to the method, only the {@link OnCloseRequestedListener}
-     * from the last call will be triggerd.
+     * from the last call will be triggered.
      *
      * @param executor on which the listener should be invoked.
      * @param listener a listener to notify the implementation about the end-of-life of the
@@ -72,10 +60,13 @@ public interface SurfaceOutput {
     /**
      * This field indicates that what purpose the {@link Surface} will be used for.
      *
-     * - {@link #PREVIEW} if the {@link Surface} will be used for {@link Preview}.
-     * - {@link #VIDEO} if the {@link Surface} will be used for video capture.
-     * - {@code PREVIEW|VIDEO} if the output {@link Surface} will be used for sharing a
-     * single stream for both preview and video capture.
+     * <ul>
+     * <li>{@link SurfaceEffect#PREVIEW} if the {@link Surface} will be used for {@link Preview}.
+     * <li>{@link SurfaceEffect#VIDEO_CAPTURE} if the {@link Surface} will be used for video
+     * capture.
+     * <li>{@link SurfaceEffect#PREVIEW} | {@link SurfaceEffect#VIDEO_CAPTURE} if the output
+     * {@link Surface} will be used for sharing a single stream for both preview and video capture.
+     * </ul>
      */
     int getTargets();
 

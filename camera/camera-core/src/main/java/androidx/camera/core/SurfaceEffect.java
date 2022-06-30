@@ -38,6 +38,18 @@ import androidx.annotation.RestrictTo;
 public interface SurfaceEffect {
 
     /**
+     * Bitmask option to indicate that this Surface will be used by CameraX as the output of the
+     * {@link Preview} {@link UseCase}.
+     */
+    int PREVIEW = 1;
+
+    /**
+     * Bitmask option to indicate that this Surface will be used by CameraX as the output of
+     * video capture {@link UseCase}.
+     */
+    int VIDEO_CAPTURE = 1 << 1;
+
+    /**
      * Invoked when the upstream pipeline requires a {@link Surface} to write to.
      *
      * <p> The implementation is expected t o create a {@link Surface} backed

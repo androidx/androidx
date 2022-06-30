@@ -24,7 +24,7 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.util.Size
 import android.view.Surface
-import androidx.camera.core.SurfaceOutput
+import androidx.camera.core.SurfaceEffect
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants
@@ -288,7 +288,7 @@ class DefaultSurfaceEffectTest {
     private fun createSettableSurface(
         source: DeferrableSurface = ImmediateSurface(mock(Surface::class.java))
     ) = SettableSurface(
-        SurfaceOutput.PREVIEW,
+        SurfaceEffect.PREVIEW,
         Size(WIDTH, HEIGHT),
         ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
         Matrix(),
