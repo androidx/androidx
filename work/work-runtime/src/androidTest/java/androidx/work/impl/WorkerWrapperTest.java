@@ -1228,7 +1228,8 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mWorkTaskExecutor,
                 mMockForegroundProcessor,
                 mDatabase,
-                mWorkSpecDao.getWorkSpec(work.getStringId())
+                mWorkSpecDao.getWorkSpec(work.getStringId()),
+                mDatabase.workTagDao().getTagsForWorkSpecId(work.getStringId())
         ).build();
 
         FutureListener listener = createAndAddFutureListener(workerWrapper);
@@ -1278,7 +1279,9 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mWorkTaskExecutor,
                 mMockForegroundProcessor,
                 mDatabase,
-                mWorkSpecDao.getWorkSpec(work.getStringId())).build();
+                mWorkSpecDao.getWorkSpec(work.getStringId()),
+                mDatabase.workTagDao().getWorkSpecIdsWithTag(work.getStringId())
+                ).build();
 
         workerWrapper.interrupt();
         workerWrapper.run();
@@ -1305,7 +1308,9 @@ public class WorkerWrapperTest extends DatabaseTest {
                 mWorkTaskExecutor,
                 mMockForegroundProcessor,
                 mDatabase,
-                mWorkSpecDao.getWorkSpec(workSpecId));
+                mWorkSpecDao.getWorkSpec(workSpecId),
+                mDatabase.workTagDao().getWorkSpecIdsWithTag(workSpecId)
+        );
     }
 
     private FutureListener createAndAddFutureListener(WorkerWrapper workerWrapper) {

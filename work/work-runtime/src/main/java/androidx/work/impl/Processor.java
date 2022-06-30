@@ -116,8 +116,13 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
             @NonNull StartStopToken startStopToken,
             @Nullable WorkerParameters.RuntimeExtras runtimeExtras) {
         WorkGenerationalId id = startStopToken.getId();
+        String workSpecId = id.getWorkSpecId();
+        ArrayList<String> tags = new ArrayList<>();
         WorkSpec workSpec = mWorkDatabase.runInTransaction(
-                () -> mWorkDatabase.workSpecDao().getWorkSpec(id.getWorkSpecId())
+                () -> {
+                    tags.addAll(mWorkDatabase.workTagDao().getTagsForWorkSpecId(workSpecId));
+                    return mWorkDatabase.workSpecDao().getWorkSpec(workSpecId);
+                }
         );
         if (workSpec == null) {
             Logger.get().warning(TAG, "Didn't find WorkSpec for id " + id);
@@ -128,7 +133,6 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
         synchronized (mLock) {
             // Work may get triggered multiple times if they have passing constraints
             // and new work with those constraints are added.
-            String workSpecId = id.getWorkSpecId();
             if (isEnqueued(workSpecId)) {
                 // there must be another run if it is enqueued.
                 Set<StartStopToken> tokens = mWorkRuns.get(workSpecId);
@@ -164,7 +168,8 @@ public class Processor implements ExecutionListener, ForegroundProcessor {
                             mWorkTaskExecutor,
                             this,
                             mWorkDatabase,
-                            workSpec)
+                            workSpec,
+                            tags)
                             .withSchedulers(mSchedulers)
                             .withRuntimeExtras(runtimeExtras)
                             .build();
