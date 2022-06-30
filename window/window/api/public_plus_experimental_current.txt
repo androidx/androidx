@@ -1,4 +1,13 @@
 // Signature format: 4.0
+package androidx.window {
+
+  public final class WindowProperty {
+    field public static final androidx.window.WindowProperty INSTANCE;
+    field public static final String PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE = "android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE";
+  }
+
+}
+
 package androidx.window.area {
 
   @androidx.window.core.ExperimentalWindowApi public interface WindowAreaController {
