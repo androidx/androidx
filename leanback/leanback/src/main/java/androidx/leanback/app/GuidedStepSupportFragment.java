@@ -337,7 +337,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      */
     public void onCreateActions(
             @NonNull List<GuidedAction> actions,
-            @NonNull Bundle savedInstanceState
+            @Nullable Bundle savedInstanceState
     ) {
     }
 
@@ -349,7 +349,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      */
     public void onCreateButtonActions(
             @NonNull List<GuidedAction> actions,
-            @NonNull Bundle savedInstanceState
+            @Nullable Bundle savedInstanceState
     ) {
     }
 
