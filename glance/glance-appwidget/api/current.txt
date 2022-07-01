@@ -10,6 +10,9 @@ package androidx.glance.appwidget {
     method public static androidx.glance.GlanceModifier appWidgetBackground(androidx.glance.GlanceModifier);
   }
 
+  public final class AppWidgetModifiersKt {
+  }
+
   public final class ApplyModifiersKt {
   }
 

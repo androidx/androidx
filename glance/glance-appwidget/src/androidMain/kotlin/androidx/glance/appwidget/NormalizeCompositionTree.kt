@@ -15,16 +15,21 @@
  */
 package androidx.glance.appwidget
 
+import android.util.Log
+import androidx.compose.ui.unit.dp
 import androidx.glance.AndroidResourceImageProvider
 import androidx.glance.BackgroundModifier
 import androidx.glance.layout.ContentScale
 import androidx.glance.Emittable
+import androidx.glance.EmittableButton
 import androidx.glance.EmittableImage
 import androidx.glance.EmittableWithChildren
+import androidx.glance.ImageProvider
 import androidx.glance.GlanceModifier
 import androidx.glance.appwidget.lazy.EmittableLazyListItem
 import androidx.glance.extractModifier
 import androidx.glance.findModifier
+import androidx.glance.action.ActionModifier
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.EmittableBox
 import androidx.glance.layout.HeightModifier
@@ -32,6 +37,9 @@ import androidx.glance.layout.WidthModifier
 import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.padding
+import androidx.glance.background
+import androidx.glance.text.EmittableText
 import androidx.glance.unit.Dimension
 
 internal fun normalizeCompositionTree(root: RemoteViewsRoot) {
@@ -39,7 +47,7 @@ internal fun normalizeCompositionTree(root: RemoteViewsRoot) {
     root.normalizeSizes()
     root.transformTree { view ->
         if (view is EmittableLazyListItem) normalizeLazyListItem(view)
-        view.transformBackgroundImage()
+        view.transformBackgroundImageAndActionRipple()
     }
 }
 
@@ -99,27 +107,87 @@ private fun normalizeLazyListItem(view: EmittableLazyListItem) {
     view.alignment = Alignment.CenterStart
 }
 
-private fun Emittable.transformBackgroundImage(): Emittable {
-    val (bgModifier, modifier) = modifier.extractModifier<BackgroundModifier>()
-    if (bgModifier?.imageProvider == null ||
-        (bgModifier.imageProvider is AndroidResourceImageProvider &&
-            bgModifier.contentScale == ContentScale.FillBounds)
-    ) {
-        return this
+/**
+ * If this [Emittable] has a background image or a ripple, transform the emittable so that it is
+ * wrapped in an [EmittableBox], with the background and ripple added as [ImageView]s in the
+ * background and foreground.
+ *
+ * If this is an [EmittableButton], we additonally set a clip outline on the wrapper box, and
+ * convert the target emittable to an [EmittableText]
+ */
+private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
+    // EmittableLazyListItem is a wrapper for its immediate only child,
+    // and does not get translated to its own element. We will transform
+    // the child instead.
+    if (this is EmittableLazyListItem) return this
+
+    var target = this
+
+    // We only need to add a background image view if the background is a Bitmap, or a
+    // drawable resource with non-default content scale. Otherwise, we can set the background
+    // directly on the target element in ApplyModifiers.kt.
+    val (bgModifier, notBgModifier) = target.modifier.extractModifier<BackgroundModifier>()
+    val addBackground = bgModifier?.imageProvider != null &&
+        (bgModifier.imageProvider !is AndroidResourceImageProvider ||
+            bgModifier.contentScale != ContentScale.FillBounds)
+
+    // Add a ripple for every element with an action that does not have already have a built in
+    // ripple.
+    notBgModifier.warnIfMultipleClickableActions()
+    val (actionModifier, notBgOrActionModifier) = notBgModifier.extractModifier<ActionModifier>()
+    val addRipple = actionModifier != null && !hasBuiltinRipple()
+    val isButton = target is EmittableButton
+    if (!addBackground && !addRipple && !isButton) return target
+
+    // Hoist the size and action modifiers to the wrapping Box, then set the target element to fill
+    // the given space. doNotUnsetAction() prevents the views within the Box from being made
+    // clickable.
+    val (sizeModifiers, nonSizeModifiers) = notBgOrActionModifier.extractSizeModifiers()
+    val boxModifiers = mutableListOf<GlanceModifier?>(sizeModifiers, actionModifier)
+    val targetModifiers = mutableListOf<GlanceModifier?>(
+        nonSizeModifiers.fillMaxSize().doNotUnsetAction()
+    )
+
+    // If we don't need to emulate the background, add the background modifier back to the target.
+    if (!addBackground) {
+        targetModifiers += bgModifier
     }
-    val split = modifier.extractSizeModifiers()
-    this.modifier = split.nonSizeModifiers.fillMaxSize()
-    return EmittableBox().also { box ->
-        box.modifier = split.sizeModifiers
-        box.children +=
-            EmittableImage().also { image ->
-                image.modifier = GlanceModifier.fillMaxSize()
-                image.provider = bgModifier.imageProvider
-                image.contentScale = bgModifier.contentScale
+
+    // If this is a button, set the necessary modifiers on the wrapping Box.
+    if (target is EmittableButton) {
+        boxModifiers += GlanceModifier
+            .clipToOutline(true)
+            .enabled(target.enabled)
+            .background(ImageProvider(R.drawable.glance_button_outline))
+        target = target.toEmittableText()
+        targetModifiers += GlanceModifier.padding(horizontal = 16.dp, vertical = 8.dp)
+    }
+
+    return EmittableBox().apply {
+        modifier = boxModifiers.collect()
+        if (isButton) contentAlignment = Alignment.Center
+
+        if (addBackground && bgModifier != null) {
+            children += EmittableImage().apply {
+                modifier = GlanceModifier.fillMaxSize().doNotUnsetAction()
+                provider = bgModifier.imageProvider
+                contentScale = bgModifier.contentScale
             }
-        box.children += this
+        }
+        children += target.apply { modifier = targetModifiers.collect() }
+        if (addRipple) {
+            children += EmittableImage().apply {
+                modifier = GlanceModifier.fillMaxSize().doNotUnsetAction()
+                provider = ImageProvider(R.drawable.glance_ripple)
+            }
+        }
     }
 }
+
+private fun Emittable.hasBuiltinRipple() =
+    this is EmittableSwitch ||
+    this is EmittableRadioButton ||
+    this is EmittableCheckBox
 
 private data class ExtractedSizeModifiers(
     val sizeModifiers: GlanceModifier = GlanceModifier,
@@ -142,3 +210,27 @@ private fun GlanceModifier.extractSizeModifiers() =
     } else {
         ExtractedSizeModifiers(nonSizeModifiers = this)
     }
+
+private fun GlanceModifier.warnIfMultipleClickableActions() {
+    val actionCount = foldIn(0) { count, modifier ->
+        if (modifier is ActionModifier) count + 1 else count
+    }
+    if (actionCount > 1) {
+        Log.w(
+            GlanceAppWidgetTag,
+            "More than one clickable defined on the same GlanceModifier, " +
+                "only the last one will be used."
+        )
+    }
+}
+
+private fun MutableList<GlanceModifier?>.collect(): GlanceModifier =
+    fold(GlanceModifier) { acc: GlanceModifier, mod: GlanceModifier? ->
+        mod?.let { acc.then(mod) } ?: acc
+    }
+
+private fun EmittableButton.toEmittableText() = EmittableText().also {
+    it.text = text
+    it.style = style
+    it.maxLines = maxLines
+}
