@@ -33,7 +33,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
 
-    androidTestImplementation(project(":compose:ui:ui-test-font"))
+    androidTestImplementation(project(":internal-testutils-fonts"))
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunit)
