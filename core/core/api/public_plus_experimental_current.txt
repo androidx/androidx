@@ -1366,6 +1366,7 @@ package androidx.core.graphics {
 
   public class TypefaceCompat {
     method public static android.graphics.Typeface create(android.content.Context, android.graphics.Typeface?, int);
+    method public static android.graphics.Typeface create(android.content.Context, android.graphics.Typeface?, @IntRange(from=1, to=1000) int, boolean);
   }
 
 }
