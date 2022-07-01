@@ -21,8 +21,14 @@ plugins {
     id("kotlin")
 }
 
+sourceSets {
+    test.resources.srcDirs(
+        project(":appcompat:appcompat-lint:integration-tests").projectDir.toString() + "/src/main",
+        project(":appcompat:appcompat-lint:integration-tests").projectDir.toString() + "/src/res"
+    )
+}
+
 dependencies {
-    // These checks are only compatible with the latest lint.
     compileOnly(libs.androidLintApi)
     compileOnly(libs.kotlinStdlib)
 
