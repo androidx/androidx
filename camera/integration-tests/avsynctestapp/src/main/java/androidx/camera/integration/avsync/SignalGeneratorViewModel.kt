@@ -17,6 +17,8 @@
 package androidx.camera.integration.avsync
 
 import android.content.Context
+import android.content.Context.AUDIO_SERVICE
+import android.media.AudioManager
 import androidx.camera.integration.avsync.model.AudioGenerator
 import androidx.camera.integration.avsync.model.CameraHelper
 import androidx.compose.runtime.getValue
@@ -38,6 +40,7 @@ import kotlinx.coroutines.withContext
 private const val ACTIVE_LENGTH_SEC: Double = 0.5
 private const val ACTIVE_INTERVAL_SEC: Double = 1.0
 private const val ACTIVE_DELAY_SEC: Double = 0.0
+private const val VOLUME_PERCENTAGE: Double = 0.6
 
 enum class ActivationSignal {
     Active, Inactive
@@ -48,6 +51,8 @@ class SignalGeneratorViewModel : ViewModel() {
     private var signalGenerationJob: Job? = null
     private val audioGenerator = AudioGenerator()
     private val cameraHelper = CameraHelper()
+    private lateinit var audioManager: AudioManager
+    private var originalVolume: Int = 0
 
     var isGeneratorReady: Boolean by mutableStateOf(false)
         private set
@@ -66,7 +71,10 @@ class SignalGeneratorViewModel : ViewModel() {
         }
     }
 
-    suspend fun initialSignalGenerator(beepFrequency: Int) {
+    suspend fun initialSignalGenerator(context: Context, beepFrequency: Int) {
+        audioManager = context.getSystemService(AUDIO_SERVICE) as AudioManager
+        saveOriginalVolume()
+
         withContext(Dispatchers.Default) {
             audioGenerator.initAudioTrack(
                 frequency = beepFrequency,
@@ -76,11 +84,20 @@ class SignalGeneratorViewModel : ViewModel() {
         }
     }
 
+    private fun setVolume(percentage: Double = VOLUME_PERCENTAGE) {
+        Preconditions.checkArgument(percentage in 0.0..1.0)
+
+        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        val targetVolume = (maxVolume * percentage).toInt()
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVolume, 0)
+    }
+
     fun startSignalGeneration() {
         Preconditions.checkState(isGeneratorReady)
 
-        signalGenerationJob?.cancel()
+        setVolume()
 
+        signalGenerationJob?.cancel()
         isSignalGenerating = true
         signalGenerationJob = activationSignalFlow().map { activationSignal ->
             when (activationSignal) {
@@ -95,6 +112,7 @@ class SignalGeneratorViewModel : ViewModel() {
             }
         }.onCompletion {
             stopBeepSound()
+            restoreOriginalVolume()
             isActivePeriod = false
         }.launchIn(viewModelScope)
     }
@@ -119,6 +137,14 @@ class SignalGeneratorViewModel : ViewModel() {
 
         cameraHelper.stopRecording()
         isRecording = false
+    }
+
+    private fun saveOriginalVolume() {
+        originalVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+    }
+
+    private fun restoreOriginalVolume() {
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, originalVolume, 0)
     }
 
     private fun activationSignalFlow() = flow {
