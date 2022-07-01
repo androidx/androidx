@@ -17,6 +17,7 @@
 package androidx.car.app;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.content.Intent;
@@ -125,6 +126,30 @@ public final class CarAppServiceTest {
         assertThat(result).isEqualTo(TEST_SESSION);
     }
 
+    @Test
+    public void onCreateSession_onInvalidCarAppService_throwsException() {
+        ServiceController<? extends CarAppService> serviceController =
+                Robolectric.buildService(TestCarAppServiceNoOnCreateSession.class);
+        serviceController.get().setHostInfo(TEST_HOST_INFO);
+        CarAppService invalidCarAppService = serviceController.create().get();
+
+        try {
+            invalidCarAppService.onCreateSession(SessionInfo.DEFAULT_SESSION_INFO);
+            assertWithMessage("Expected CarAppService to throw an exception about implementing "
+                    + "#onCreateSession(SessionInfo), but it didn't.").fail();
+        } catch (RuntimeException e) {
+            assertThat(e).hasMessageThat().contains("CarAppService#onCreateSession(SessionInfo)");
+        }
+    }
+
+    private static class TestCarAppServiceNoOnCreateSession extends CarAppService {
+        @NonNull
+        @Override
+        public HostValidator createHostValidator() {
+            return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
+        }
+    }
+
     private static class TestCarAppServiceWithoutNewOnCreateSession extends CarAppService {
         @NonNull
         @Override
@@ -145,13 +170,6 @@ public final class CarAppServiceTest {
         @Override
         public HostValidator createHostValidator() {
             return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
-        }
-
-        @NonNull
-        @Override
-        @SuppressWarnings("deprecation")
-        public Session onCreateSession() {
-            throw new IllegalArgumentException("This should not be called");
         }
 
         @NonNull

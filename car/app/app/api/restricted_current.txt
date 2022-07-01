@@ -32,7 +32,7 @@ package androidx.car.app {
     method public final androidx.car.app.Session? getCurrentSession();
     method public final androidx.car.app.HostInfo? getHostInfo();
     method @CallSuper public final android.os.IBinder onBind(android.content.Intent);
-    method @Deprecated public abstract androidx.car.app.Session onCreateSession();
+    method @Deprecated public androidx.car.app.Session onCreateSession();
     method public androidx.car.app.Session onCreateSession(androidx.car.app.SessionInfo);
     method public final boolean onUnbind(android.content.Intent);
     field @Deprecated public static final String CATEGORY_CHARGING_APP = "androidx.car.app.category.CHARGING";
