@@ -655,9 +655,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test(expected = IllegalArgumentException::class)
     fun constructor_withBufferFormatAndCaptureProcessor_throwsException() {
         val captureProcessor = object : CaptureProcessor {
-            override fun onOutputSurface(surface: Surface?, imageFormat: Int) {}
-            override fun process(bundle: ImageProxyBundle?) {}
-            override fun onResolutionUpdate(size: Size?) {}
+            override fun onOutputSurface(surface: Surface, imageFormat: Int) {}
+            override fun process(bundle: ImageProxyBundle) {}
+            override fun onResolutionUpdate(size: Size) {}
         }
         ImageCapture.Builder()
             .setBufferFormat(ImageFormat.RAW_SENSOR)
@@ -712,9 +712,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         val captureBundle = CaptureBundle { captureStages.toList() }
         val captureProcessor = object : CaptureProcessor {
-            override fun onOutputSurface(surface: Surface?, imageFormat: Int) {}
-            override fun process(bundle: ImageProxyBundle?) {}
-            override fun onResolutionUpdate(size: Size?) {}
+            override fun onOutputSurface(surface: Surface, imageFormat: Int) {}
+            override fun process(bundle: ImageProxyBundle) {}
+            override fun onResolutionUpdate(size: Size) {}
         }
         val imageCapture = ImageCapture.Builder()
             .setMaxCaptureStages(1)

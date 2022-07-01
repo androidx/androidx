@@ -27,11 +27,13 @@ import android.util.Rational;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.workaround.MeteringRegionCorrection;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -77,8 +79,8 @@ import java.util.concurrent.TimeUnit;
  * them to all repeating requests and single requests.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@OptIn(markerClass = ExperimentalCamera2Interop.class)
 class FocusMeteringControl {
-    private static final String TAG = "FocusMeteringControl";
     static final long AUTO_FOCUS_TIMEOUT_DURATION = 5000;
     private final Camera2CameraControlImpl mCameraControl;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -166,9 +168,7 @@ class FocusMeteringControl {
         }
 
         Rect cropSensorRegion = mCameraControl.getCropSensorRegion();
-        Rational cropRegionAspectRatio = new Rational(cropSensorRegion.width(),
-                cropSensorRegion.height());
-        return cropRegionAspectRatio;
+        return new Rational(cropSensorRegion.width(), cropSensorRegion.height());
     }
 
     @ExecutedBy("mExecutor")
@@ -729,9 +729,6 @@ class FocusMeteringControl {
                 getMeteringRectangles(action.getMeteringPointsAwb(),
                         mCameraControl.getMaxAwbRegionCount(),
                         defaultAspectRatio, cropSensorRegion, FocusMeteringAction.FLAG_AWB);
-        if (rectanglesAf.isEmpty() && rectanglesAe.isEmpty() && rectanglesAwb.isEmpty()) {
-            return false;
-        }
-        return true;
+        return !rectanglesAf.isEmpty() || !rectanglesAe.isEmpty() || !rectanglesAwb.isEmpty();
     }
 }

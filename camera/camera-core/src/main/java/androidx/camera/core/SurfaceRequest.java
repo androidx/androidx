@@ -152,7 +152,7 @@ public final class SurfaceRequest {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 if (t instanceof RequestCancelledException) {
                     // Cancellation occurred. Notify listeners.
                     Preconditions.checkState(requestCancellationFuture.cancel(false));
@@ -203,7 +203,7 @@ public final class SurfaceRequest {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 // Translate cancellation into a SurfaceRequestCancelledException. Other
                 // exceptions mean either the request was completed via willNotProvideSurface() or a
                 // programming error occurred. In either case, the user will never see the
@@ -322,7 +322,7 @@ public final class SurfaceRequest {
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(@NonNull Throwable t) {
                     Preconditions.checkState(t instanceof RequestCancelledException, "Camera "
                             + "surface session should only fail with request "
                             + "cancellation. Instead failed due to:\n" + t);

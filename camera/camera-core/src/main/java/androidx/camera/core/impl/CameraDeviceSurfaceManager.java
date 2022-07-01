@@ -62,7 +62,8 @@ public interface CameraDeviceSurfaceManager {
      * @param surfaceConfigList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
-    boolean checkSupported(String cameraId, List<SurfaceConfig> surfaceConfigList);
+    boolean checkSupported(@NonNull String cameraId,
+            @Nullable List<SurfaceConfig> surfaceConfigList);
 
     /**
      * Transform to a SurfaceConfig object with cameraId, image format and size info
@@ -72,7 +73,9 @@ public interface CameraDeviceSurfaceManager {
      * @param size        the size info for the surface configuration object
      * @return new {@link SurfaceConfig} object
      */
-    SurfaceConfig transformSurfaceConfig(String cameraId, int imageFormat, Size size);
+    @Nullable
+    SurfaceConfig transformSurfaceConfig(@NonNull String cameraId, int imageFormat,
+            @NonNull Size size);
 
     /**
      * Retrieves a map of suggested resolutions for the given list of use cases.

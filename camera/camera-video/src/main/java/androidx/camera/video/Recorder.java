@@ -1848,7 +1848,7 @@ public final class Recorder implements VideoOutput {
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(@NonNull Throwable t) {
                         Logger.d(TAG, "Encodings end with error: " + t);
                         finalizeInProgressRecording(ERROR_ENCODING_FAILED, t);
                     }

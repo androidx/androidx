@@ -40,9 +40,8 @@ final class AndroidImageProxy implements ImageProxy {
      * Creates a new instance which wraps the given image.
      *
      * @param image to wrap
-     * @return new {@link AndroidImageProxy} instance
      */
-    AndroidImageProxy(Image image) {
+    AndroidImageProxy(@NonNull Image image) {
         mImage = image;
 
         Image.Plane[] originalPlanes = image.getPlanes();

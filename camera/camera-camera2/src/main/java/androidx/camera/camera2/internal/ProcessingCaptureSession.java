@@ -251,7 +251,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                                 }
 
                                 @Override
-                                public void onFailure(Throwable t) {
+                                public void onFailure(@NonNull Throwable t) {
                                     // Close() will invoke appropriate SessionProcessor methods
                                     // to clear up and mark this session as CLOSED.
                                     Logger.e(TAG, "open session failed ", t);

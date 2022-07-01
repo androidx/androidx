@@ -266,6 +266,7 @@ class Camera2CapturePipeline {
          *
          * @param timeout3A in nano seconds
          */
+        @SuppressWarnings("SameParameterValue")
         private void setTimeout3A(long timeout3A) {
             mTimeout3A = timeout3A;
         }
@@ -288,7 +289,7 @@ class Camera2CapturePipeline {
                     }
                     return mPipelineSubTask.preCapture(captureResult);
                 }, mExecutor).transformAsync(is3aConvergeRequired -> {
-                    if (is3aConvergeRequired) {
+                    if (Boolean.TRUE.equals(is3aConvergeRequired)) {
                         return waitForResult(mTimeout3A, mCameraControl,
                                 (result) -> is3AConverged(result, false));
                     }
@@ -301,9 +302,7 @@ class Camera2CapturePipeline {
 
 
             /* Always call postCapture(), it will unlock3A if it was locked in preCapture.*/
-            future.addListener(() -> {
-                mPipelineSubTask.postCapture();
-            }, mExecutor);
+            future.addListener(mPipelineSubTask::postCapture, mExecutor);
 
             return future;
         }
