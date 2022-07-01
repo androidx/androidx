@@ -50,13 +50,6 @@ public final class ShowcaseService extends CarAppService {
         return Uri.fromParts(ShowcaseSession.URI_SCHEME, ShowcaseSession.URI_HOST, deepLinkAction);
     }
 
-    @Override
-    @NonNull
-    @SuppressWarnings("deprecation")
-    public Session onCreateSession() {
-        return onCreateSession(SessionInfo.DEFAULT_SESSION_INFO);
-    }
-
     @NonNull
     @Override
     public Session onCreateSession(@NonNull SessionInfo sessionInfo) {
