@@ -20,7 +20,7 @@ import androidx.glance.appwidget.preview.test.R
 import android.app.Activity
 import android.os.Bundle
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -86,14 +86,12 @@ class GlanceAppWidgetViewAdapterTest {
             val linearLayoutRow = linearLayoutColumn.getChildOfType<LinearLayout>()
             assertNotNull(viewNotFoundMsg("LinearLayout", "Row"), linearLayoutRow)
             // Depending on the API version Button might be wrapped in the RelativeLayout
-            val button1 =
-                linearLayoutRow!!.getChildOfType<Button>()
-                    ?: linearLayoutRow.getChildOfType<RelativeLayout>()!!.getChildOfType<Button>()
-            val button2 =
-                linearLayoutRow.getChildOfType<Button>(1)
-                    ?: linearLayoutRow.getChildOfType<RelativeLayout>(1)!!.getChildOfType<Button>()
-            assertNotNull(viewNotFoundMsg("Button", "Button"), button1)
-            assertNotNull(viewNotFoundMsg("Button", "Button"), button2)
+            val button1 = linearLayoutRow!!.getChildOfType<FrameLayout>()
+                ?: linearLayoutRow.getChildOfType<RelativeLayout>()!!.getChildOfType<FrameLayout>()
+            val button2 = linearLayoutRow.getChildOfType<FrameLayout>(1)
+                ?: linearLayoutRow.getChildOfType<RelativeLayout>(1)!!.getChildOfType<FrameLayout>()
+            assertNotNull(viewNotFoundMsg("FrameLayout", "Button"), button1)
+            assertNotNull(viewNotFoundMsg("FrameLayout", "Button"), button2)
         }
     }
 
