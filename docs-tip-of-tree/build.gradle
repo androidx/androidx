@@ -159,6 +159,7 @@ dependencies {
     docs(project(":graphics:graphics-core"))
     docs(project(":gridlayout:gridlayout"))
     docs(project(":health:health-connect-client"))
+    samples(project(":health:health-connect-client-samples"))
     docs(project(":health:health-services-client"))
     docs(project(":heifwriter:heifwriter"))
     docs(project(":hilt:hilt-common"))

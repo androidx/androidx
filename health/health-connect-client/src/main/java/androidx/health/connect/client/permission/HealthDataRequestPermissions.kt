@@ -34,6 +34,10 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_RE
  *
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
+@Deprecated(
+    "Use PermissionController.createRequestPermissionActivityContract instead",
+    ReplaceWith("PermissionController.createRequestPermissionActivityContract")
+)
 public class HealthDataRequestPermissions(
     private val providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
 ) : ActivityResultContract<Set<Permission>, Set<Permission>>() {
@@ -70,4 +74,11 @@ public class HealthDataRequestPermissions(
     ): SynchronousResult<Set<Permission>>? {
         return null
     }
+}
+
+@Suppress("Deprecation") // Utility to allow usage internally while suppressing deprecation.
+internal fun createHealthDataRequestPermissions(
+    providerPackageName: String
+): ActivityResultContract<Set<Permission>, Set<Permission>> {
+    return HealthDataRequestPermissions(providerPackageName = providerPackageName)
 }

@@ -15,6 +15,7 @@
  */
 package androidx.health.connect.client.impl
 
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregationResult
@@ -36,6 +37,7 @@ import androidx.health.connect.client.impl.converters.request.toReadDataRequestP
 import androidx.health.connect.client.impl.converters.response.toChangesResponse
 import androidx.health.connect.client.impl.converters.response.toReadRecordsResponse
 import androidx.health.connect.client.permission.Permission
+import androidx.health.connect.client.permission.createHealthDataRequestPermissions
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.request.AggregateGroupByDurationRequest
 import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
@@ -59,9 +61,15 @@ import kotlinx.coroutines.guava.await
  *
  * @suppress
  */
-class HealthConnectClientImpl(
+class HealthConnectClientImpl
+internal constructor(
+    private val providerPackageName: String,
     private val delegate: HealthDataAsyncClient,
 ) : HealthConnectClient, PermissionController {
+
+    override fun createRequestPermissionActivityContract():
+        ActivityResultContract<Set<Permission>, Set<Permission>> =
+        createHealthDataRequestPermissions(providerPackageName = providerPackageName)
 
     override suspend fun getGrantedPermissions(permissions: Set<Permission>): Set<Permission> {
         return delegate

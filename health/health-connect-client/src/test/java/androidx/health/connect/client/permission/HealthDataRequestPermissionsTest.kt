@@ -43,6 +43,7 @@ class HealthDataRequestPermissionsTest {
 
     @Test
     fun createIntentTest() {
+        @Suppress("Deprecation")
         val requestPermissionContract = HealthDataRequestPermissions(TEST_PACKAGE)
         val intent =
             requestPermissionContract.createIntent(
@@ -56,7 +57,7 @@ class HealthDataRequestPermissionsTest {
 
     @Test
     fun createIntent_defaultPackage() {
-        val requestPermissionContract = HealthDataRequestPermissions()
+        @Suppress("Deprecation") val requestPermissionContract = HealthDataRequestPermissions()
         val intent =
             requestPermissionContract.createIntent(
                 context,
@@ -69,6 +70,7 @@ class HealthDataRequestPermissionsTest {
 
     @Test
     fun parseIntent_null_fallback() {
+        @Suppress("Deprecation")
         val requestPermissionContract = HealthDataRequestPermissions(TEST_PACKAGE)
         val result = requestPermissionContract.parseResult(0, null)
 
@@ -77,6 +79,7 @@ class HealthDataRequestPermissionsTest {
 
     @Test
     fun parseIntent_emptyIntent() {
+        @Suppress("Deprecation")
         val requestPermissionContract = HealthDataRequestPermissions(TEST_PACKAGE)
         val result = requestPermissionContract.parseResult(0, Intent())
 
@@ -85,6 +88,7 @@ class HealthDataRequestPermissionsTest {
 
     @Test
     fun parseIntent() {
+        @Suppress("Deprecation")
         val requestPermissionContract = HealthDataRequestPermissions(TEST_PACKAGE)
         val intent = Intent()
         intent.putParcelableArrayListExtra(
@@ -105,6 +109,7 @@ class HealthDataRequestPermissionsTest {
 
     @Test
     fun synchronousResult_null() {
+        @Suppress("Deprecation")
         val requestPermissionContract = HealthDataRequestPermissions(TEST_PACKAGE)
         val result =
             requestPermissionContract.getSynchronousResult(
