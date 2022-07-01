@@ -160,7 +160,9 @@ public class ComplicationSlotBounds(
          */
         fun inflate(
             resources: Resources,
-            parser: XmlResourceParser
+            parser: XmlResourceParser,
+            complicationScaleX: Float,
+            complicationScaleY: Float
         ): ComplicationSlotBounds? {
             val perComplicationTypeBounds by lazy { HashMap<ComplicationType, RectF>() }
             val perComplicationTypeMargins by lazy { HashMap<ComplicationType, RectF>() }
@@ -169,16 +171,20 @@ public class ComplicationSlotBounds(
                     NODE_NAME -> {
                         val rect = if (parser.hasValue("left"))
                             RectF(
-                                parser.requireAndGet("left", resources),
-                                parser.requireAndGet("top", resources),
-                                parser.requireAndGet("right", resources),
-                                parser.requireAndGet("bottom", resources)
+                                parser.requireAndGet("left", resources, complicationScaleX),
+                                parser.requireAndGet("top", resources, complicationScaleY),
+                                parser.requireAndGet("right", resources, complicationScaleX),
+                                parser.requireAndGet("bottom", resources, complicationScaleY)
                             )
                         else if (parser.hasValue("center_x")) {
-                            val halfWidth = parser.requireAndGet("size_x", resources) / 2.0f
-                            val halfHeight = parser.requireAndGet("size_y", resources) / 2.0f
-                            val centerX = parser.requireAndGet("center_x", resources)
-                            val centerY = parser.requireAndGet("center_y", resources)
+                            val halfWidth =
+                                parser.requireAndGet("size_x", resources, complicationScaleX) / 2.0f
+                            val halfHeight =
+                                parser.requireAndGet("size_y", resources, complicationScaleY) / 2.0f
+                            val centerX =
+                                parser.requireAndGet("center_x", resources, complicationScaleX)
+                            val centerY =
+                                parser.requireAndGet("center_y", resources, complicationScaleY)
                             RectF(
                                 centerX - halfWidth,
                                 centerY - halfHeight,
@@ -191,10 +197,10 @@ public class ComplicationSlotBounds(
                                 "or center_x, center_y, size_x, size_y should be specified")
                         }
                         val margin = RectF(
-                            parser.get("marginLeft", resources) ?: 0f,
-                            parser.get("marginTop", resources) ?: 0f,
-                            parser.get("marginRight", resources) ?: 0f,
-                            parser.get("marginBottom", resources) ?: 0f
+                            parser.get("marginLeft", resources, complicationScaleX) ?: 0f,
+                            parser.get("marginTop", resources, complicationScaleY) ?: 0f,
+                            parser.get("marginRight", resources, complicationScaleX) ?: 0f,
+                            parser.get("marginBottom", resources, complicationScaleY) ?: 0f
                         )
                         if (null != parser.getAttributeValue(
                                 NAMESPACE_APP,
@@ -244,9 +250,10 @@ public class ComplicationSlotBounds(
 
 internal fun XmlResourceParser.requireAndGet(
     id: String,
-    resources: Resources
+    resources: Resources,
+    scale: Float
 ): Float {
-    val value = get(id, resources)
+    val value = get(id, resources, scale)
     require(value != null) {
         "${ComplicationSlotBounds.NODE_NAME} must define '$id'"
     }
@@ -255,7 +262,8 @@ internal fun XmlResourceParser.requireAndGet(
 
 internal fun XmlResourceParser.get(
     id: String,
-    resources: Resources
+    resources: Resources,
+    scale: Float
 ): Float? {
     val stringValue = getAttributeValue(NAMESPACE_APP, id) ?: return null
     val resId = getAttributeResourceValue(NAMESPACE_APP, id, 0)
@@ -274,10 +282,9 @@ internal fun XmlResourceParser.get(
             resources.displayMetrics
         ) / resources.displayMetrics.widthPixels
     } else {
-        stringValue.toFloat()
+        require(scale > 0) { "scale should be positive" }
+        return stringValue.toFloat() / scale
     }
-
-    return getAttributeFloatValue(NAMESPACE_APP, id, 0f)
 }
 
 fun XmlResourceParser.hasValue(id: String): Boolean {

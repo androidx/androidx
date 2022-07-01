@@ -17,7 +17,12 @@
 <resources>
     <!-- A XmlWatchFace must have a child UserStyleSchema node and optionally ComplicationSlot and
     UserStyleFlavors nodes. -->
-    <declare-styleable name="XmlWatchFace" />
+    <declare-styleable name="XmlWatchFace">
+        <!-- Optional. ComplicationSlotBounds are defined in space of
+        [complicationScaleX x complicationScaleY]. Default is [1.0 x 1.0]. -->
+        <attr name="complicationScaleX" format="float"/>
+        <attr name="complicationScaleY" format="float"/>
+    </declare-styleable>
 
     <!-- A StyleOption or UserStyleFlavor id. Required. -->
     <attr name="id" format="reference|string" />
