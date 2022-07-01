@@ -84,6 +84,12 @@ public abstract class CarAppService extends Service {
     public static final String SERVICE_INTERFACE = "androidx.car.app.CarAppService";
 
     /**
+     * Used to declare that this app supports cluster in the manifest.
+     */
+    public static final String CATEGORY_FEATURE_CLUSTER =
+            "androidx.car.app.category.FEATURE_CLUSTER";
+
+    /**
      * Used to declare that this app is a navigation app in the manifest.
      */
     public static final String CATEGORY_NAVIGATION_APP = "androidx.car.app.category.NAVIGATION";
