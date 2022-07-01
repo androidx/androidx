@@ -53,7 +53,7 @@ fun SignalGeneratorScreen(
 
     LaunchedEffect(true) {
         viewModel.initialRecorder(context, lifecycleOwner)
-        viewModel.initialSignalGenerator(beepFrequency)
+        viewModel.initialSignalGenerator(context, beepFrequency)
     }
 
     MainContent(
