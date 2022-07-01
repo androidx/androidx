@@ -940,6 +940,33 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    public fun computeBounds_does_not_mutate_it() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList())
+        )
+
+        val leftComplication = complicationSlotsManager[LEFT_COMPLICATION_ID]!!
+        val oldLeftBounds = RectF(
+            leftComplication.complicationSlotBounds.perComplicationTypeBounds[
+                leftComplication.complicationData.value.type
+            ]
+        )
+
+        leftComplication.computeBounds(
+            ONE_HUNDRED_BY_ONE_HUNDRED_RECT,
+            applyMargins = true
+        )
+
+        assertThat(
+            leftComplication.complicationSlotBounds.perComplicationTypeBounds[
+                leftComplication.complicationData.value.type
+            ]
+        ).isEqualTo(oldLeftBounds)
+    }
+
+    @Test
     public fun singleTaps_inMargins_correctlyDetected() {
         initEngine(
             WatchFaceType.ANALOG,
@@ -983,7 +1010,7 @@ public class WatchFaceServiceTest {
             )
 
         // Tap bottom right corner of right complication's margin.
-        tapAt(rightComplicationExtendedBounds.right, rightComplicationExtendedBounds.bottom)
+        tapAt(rightComplicationExtendedBounds.right - 1, rightComplicationExtendedBounds.bottom - 1)
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[LEFT_COMPLICATION_ID])
             .isEqualTo(
                 TapEvent(
@@ -995,8 +1022,8 @@ public class WatchFaceServiceTest {
         assertThat(complicationSlotsManager.lastComplicationTapDownEvents[RIGHT_COMPLICATION_ID])
             .isEqualTo(
                 TapEvent(
-                    rightComplicationExtendedBounds.right,
-                    rightComplicationExtendedBounds.bottom,
+                    rightComplicationExtendedBounds.right - 1,
+                    rightComplicationExtendedBounds.bottom - 1,
                     Instant.ofEpochMilli(100)
                 )
             )
