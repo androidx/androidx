@@ -24,7 +24,7 @@ import android.os.Build
 import android.os.Looper
 import android.util.Size
 import android.view.Surface
-import androidx.camera.core.SurfaceOutput
+import androidx.camera.core.SurfaceEffect
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -157,7 +157,7 @@ class SurfaceOutputImplTest {
 
     private fun createFakeSettableSurface(setComplete: Boolean): SettableSurface {
         val settableSurface = SettableSurface(
-            SurfaceOutput.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
+            SurfaceEffect.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
             android.graphics.Matrix(), true, Rect(), 0, false
         )
         if (setComplete) {
