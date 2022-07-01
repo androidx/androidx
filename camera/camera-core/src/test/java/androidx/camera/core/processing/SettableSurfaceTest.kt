@@ -23,10 +23,10 @@ import android.graphics.SurfaceTexture
 import android.os.Build
 import android.util.Size
 import android.view.Surface
+import androidx.camera.core.SurfaceEffect
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.Futures
-import androidx.camera.core.SurfaceOutput
 import androidx.camera.testing.fakes.FakeCamera
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
@@ -101,7 +101,7 @@ class SettableSurfaceTest {
 
     private fun createFakeSettableSurface(): SettableSurface {
         return SettableSurface(
-            SurfaceOutput.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
+            SurfaceEffect.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
             Matrix(), true, Rect(), 0, false
         )
     }
