@@ -29,7 +29,6 @@ final class SingleCloseImageProxy extends ForwardingImageProxy {
      * Creates a new instances which wraps the given image.
      *
      * @param image to wrap
-     * @return new {@link SingleCloseImageProxy} instance
      */
     SingleCloseImageProxy(ImageProxy image) {
         super(image);

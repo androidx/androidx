@@ -426,7 +426,7 @@ public final class AudioSource {
 
                 @ExecutedBy("mExecutor")
                 @Override
-                public void onFailure(Throwable throwable) {
+                public void onFailure(@NonNull Throwable throwable) {
                     if (mBufferProvider != bufferProvider) {
                         Logger.d(TAG, "Unable to get input buffer, the BufferProvider "
                                 + "could be transitioning to INACTIVE state.");

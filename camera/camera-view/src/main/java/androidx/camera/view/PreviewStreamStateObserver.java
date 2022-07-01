@@ -141,7 +141,7 @@ final class PreviewStreamStateObserver implements Observable.Observer<CameraInte
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 mFlowFuture = null;
 
                 if (!callbacksToClear.isEmpty()) {

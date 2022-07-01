@@ -352,7 +352,7 @@ public class CameraControllerFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Throwable t) {
+            public void onFailure(@NonNull Throwable t) {
                 toast(t.getMessage());
             }
         }, CameraXExecutors.mainThreadExecutor());

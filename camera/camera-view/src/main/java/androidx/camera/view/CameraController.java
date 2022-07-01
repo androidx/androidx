@@ -1406,7 +1406,7 @@ public abstract class CameraController {
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(@NonNull Throwable t) {
                         if (t instanceof CameraControl.OperationCanceledException) {
                             Logger.d(TAG, "Tap-to-focus is canceled by new action.");
                             return;

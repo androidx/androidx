@@ -194,7 +194,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
                         }
 
                         @Override
-                        public void onFailure(Throwable t) {
+                        public void onFailure(@NonNull Throwable t) {
                             completer.setException(t);
                         }
                     }, CameraXExecutors.directExecutor());

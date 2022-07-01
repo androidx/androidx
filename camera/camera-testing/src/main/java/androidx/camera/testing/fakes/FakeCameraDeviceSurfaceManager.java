@@ -19,6 +19,7 @@ package androidx.camera.testing.fakes;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.AttachedSurfaceInfo;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
@@ -56,12 +57,12 @@ public final class FakeCameraDeviceSurfaceManager implements CameraDeviceSurface
 
     @Override
     public boolean checkSupported(@NonNull String cameraId,
-            @NonNull List<SurfaceConfig> surfaceConfigList) {
+            @Nullable List<SurfaceConfig> surfaceConfigList) {
         return false;
     }
 
-    @NonNull
     @Override
+    @Nullable
     public SurfaceConfig transformSurfaceConfig(@NonNull String cameraId, int imageFormat,
             @NonNull Size size) {
 
