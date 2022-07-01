@@ -36,15 +36,11 @@ import androidx.health.platform.client.service.HealthDataServiceConstants.KEY_RE
  *
  * @see androidx.activity.ComponentActivity.registerForActivityResult
  */
-@Deprecated(
-    "Use PermissionController.createRequestPermissionActivityContract instead",
-    ReplaceWith("PermissionController.createRequestPermissionActivityContract")
-)
-public class HealthDataRequestPermissions(
+internal class HealthDataRequestPermissions(
     private val providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
-) : ActivityResultContract<Set<Permission>, Set<Permission>>() {
+) : ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>>() {
 
-    override fun createIntent(context: Context, input: Set<Permission>): Intent {
+    override fun createIntent(context: Context, input: Set<HealthPermission>): Intent {
         require(input.isNotEmpty()) { "At least one permission is required!" }
 
         val protoPermissionList =
@@ -61,23 +57,22 @@ public class HealthDataRequestPermissions(
         }
     }
 
-    @Suppress("DEPRECATION")
-    override fun parseResult(resultCode: Int, intent: Intent?): Set<Permission> {
-        val grantedPermissions =
-            intent
-                ?.getParcelableArrayListExtra<ProtoPermission>(KEY_GRANTED_PERMISSIONS_JETPACK)
-                ?.asSequence()
-                ?.map { it.proto.toJetpackPermission() }
-                ?.toSet()
-                ?: emptySet()
+    @Suppress("Deprecation")
+    override fun parseResult(resultCode: Int, intent: Intent?): Set<HealthPermission> {
+        val grantedPermissions = intent
+            ?.getParcelableArrayListExtra<ProtoPermission>(KEY_GRANTED_PERMISSIONS_JETPACK)
+            ?.asSequence()
+            ?.map { it.proto.toJetpackPermission() }
+            ?.toSet()
+            ?: emptySet()
         Logger.debug(HEALTH_CONNECT_CLIENT_TAG, "Granted ${grantedPermissions.size} permissions.")
         return grantedPermissions
     }
 
     override fun getSynchronousResult(
         context: Context,
-        input: Set<Permission>,
-    ): SynchronousResult<Set<Permission>>? {
+        input: Set<HealthPermission>,
+    ): SynchronousResult<Set<HealthPermission>>? {
         return null
     }
 }
@@ -85,6 +80,6 @@ public class HealthDataRequestPermissions(
 @Suppress("Deprecation") // Utility to allow usage internally while suppressing deprecation.
 internal fun createHealthDataRequestPermissions(
     providerPackageName: String
-): ActivityResultContract<Set<Permission>, Set<Permission>> {
+): ActivityResultContract<Set<HealthPermission>, Set<HealthPermission>> {
     return HealthDataRequestPermissions(providerPackageName = providerPackageName)
 }
