@@ -28,6 +28,7 @@ import java.io.File
 object DeviceInfo {
     val isEmulator = Build.FINGERPRINT.startsWith("generic") ||
         Build.FINGERPRINT.startsWith("unknown") ||
+        Build.FINGERPRINT.contains("emulator") ||
         Build.MODEL.contains("google_sdk") ||
         Build.MODEL.contains("Emulator") ||
         Build.MODEL.contains("Android SDK built for x86") ||
