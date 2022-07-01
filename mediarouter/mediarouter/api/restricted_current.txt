@@ -338,29 +338,29 @@ package androidx.mediarouter.media {
   }
 
   public final class MediaRouter {
-    method public void addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback);
-    method public void addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback, int);
-    method public void addProvider(androidx.mediarouter.media.MediaRouteProvider);
-    method public void addRemoteControlClient(Object);
-    method public androidx.mediarouter.media.MediaRouter.RouteInfo? getBluetoothRoute();
-    method public androidx.mediarouter.media.MediaRouter.RouteInfo getDefaultRoute();
-    method public static androidx.mediarouter.media.MediaRouter getInstance(android.content.Context);
+    method @MainThread public void addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback);
+    method @MainThread public void addCallback(androidx.mediarouter.media.MediaRouteSelector, androidx.mediarouter.media.MediaRouter.Callback, int);
+    method @MainThread public void addProvider(androidx.mediarouter.media.MediaRouteProvider);
+    method @MainThread public void addRemoteControlClient(Object);
+    method @MainThread public androidx.mediarouter.media.MediaRouter.RouteInfo? getBluetoothRoute();
+    method @MainThread public androidx.mediarouter.media.MediaRouter.RouteInfo getDefaultRoute();
+    method @MainThread public static androidx.mediarouter.media.MediaRouter getInstance(android.content.Context);
     method public android.support.v4.media.session.MediaSessionCompat.Token? getMediaSessionToken();
-    method public java.util.List<androidx.mediarouter.media.MediaRouter.ProviderInfo!> getProviders();
-    method public androidx.mediarouter.media.MediaRouterParams? getRouterParams();
-    method public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!> getRoutes();
-    method public androidx.mediarouter.media.MediaRouter.RouteInfo getSelectedRoute();
-    method public boolean isRouteAvailable(androidx.mediarouter.media.MediaRouteSelector, int);
-    method public void removeCallback(androidx.mediarouter.media.MediaRouter.Callback);
-    method public void removeProvider(androidx.mediarouter.media.MediaRouteProvider);
-    method public void removeRemoteControlClient(Object);
-    method public void selectRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
-    method public void setMediaSession(Object?);
-    method public void setMediaSessionCompat(android.support.v4.media.session.MediaSessionCompat?);
+    method @MainThread public java.util.List<androidx.mediarouter.media.MediaRouter.ProviderInfo!> getProviders();
+    method @MainThread public androidx.mediarouter.media.MediaRouterParams? getRouterParams();
+    method @MainThread public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!> getRoutes();
+    method @MainThread public androidx.mediarouter.media.MediaRouter.RouteInfo getSelectedRoute();
+    method @MainThread public boolean isRouteAvailable(androidx.mediarouter.media.MediaRouteSelector, int);
+    method @MainThread public void removeCallback(androidx.mediarouter.media.MediaRouter.Callback);
+    method @MainThread public void removeProvider(androidx.mediarouter.media.MediaRouteProvider);
+    method @MainThread public void removeRemoteControlClient(Object);
+    method @MainThread public void selectRoute(androidx.mediarouter.media.MediaRouter.RouteInfo);
+    method @MainThread public void setMediaSession(Object?);
+    method @MainThread public void setMediaSessionCompat(android.support.v4.media.session.MediaSessionCompat?);
     method @MainThread public void setOnPrepareTransferListener(androidx.mediarouter.media.MediaRouter.OnPrepareTransferListener?);
-    method public void setRouterParams(androidx.mediarouter.media.MediaRouterParams?);
-    method public void unselect(int);
-    method public androidx.mediarouter.media.MediaRouter.RouteInfo updateSelectedRoute(androidx.mediarouter.media.MediaRouteSelector);
+    method @MainThread public void setRouterParams(androidx.mediarouter.media.MediaRouterParams?);
+    method @MainThread public void unselect(int);
+    method @MainThread public androidx.mediarouter.media.MediaRouter.RouteInfo updateSelectedRoute(androidx.mediarouter.media.MediaRouteSelector);
     field public static final int AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE = 1; // 0x1
     field public static final int AVAILABILITY_FLAG_REQUIRE_MATCH = 2; // 0x2
     field public static final int CALLBACK_FLAG_FORCE_DISCOVERY = 8; // 0x8
@@ -403,8 +403,8 @@ package androidx.mediarouter.media {
   public static final class MediaRouter.ProviderInfo {
     method public android.content.ComponentName getComponentName();
     method public String getPackageName();
-    method public androidx.mediarouter.media.MediaRouteProvider getProviderInstance();
-    method public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!> getRoutes();
+    method @MainThread public androidx.mediarouter.media.MediaRouteProvider getProviderInstance();
+    method @MainThread public java.util.List<androidx.mediarouter.media.MediaRouter.RouteInfo!> getRoutes();
   }
 
   public static class MediaRouter.RouteInfo {
@@ -419,26 +419,26 @@ package androidx.mediarouter.media {
     method public String getName();
     method public int getPlaybackStream();
     method public int getPlaybackType();
-    method public android.view.Display? getPresentationDisplay();
+    method @MainThread public android.view.Display? getPresentationDisplay();
     method public androidx.mediarouter.media.MediaRouter.ProviderInfo getProvider();
     method public android.content.IntentSender? getSettingsIntent();
     method public int getVolume();
     method public int getVolumeHandling();
     method public int getVolumeMax();
-    method public boolean isBluetooth();
+    method @MainThread public boolean isBluetooth();
     method @Deprecated public boolean isConnecting();
-    method public boolean isDefault();
+    method @MainThread public boolean isDefault();
     method public boolean isDeviceSpeaker();
     method public boolean isEnabled();
-    method public boolean isSelected();
-    method public boolean matchesSelector(androidx.mediarouter.media.MediaRouteSelector);
-    method public void requestSetVolume(int);
-    method public void requestUpdateVolume(int);
-    method public void select();
-    method public void sendControlRequest(android.content.Intent, androidx.mediarouter.media.MediaRouter.ControlRequestCallback?);
-    method public boolean supportsControlAction(String, String);
-    method public boolean supportsControlCategory(String);
-    method public boolean supportsControlRequest(android.content.Intent);
+    method @MainThread public boolean isSelected();
+    method @MainThread public boolean matchesSelector(androidx.mediarouter.media.MediaRouteSelector);
+    method @MainThread public void requestSetVolume(int);
+    method @MainThread public void requestUpdateVolume(int);
+    method @MainThread public void select();
+    method @MainThread public void sendControlRequest(android.content.Intent, androidx.mediarouter.media.MediaRouter.ControlRequestCallback?);
+    method @MainThread public boolean supportsControlAction(String, String);
+    method @MainThread public boolean supportsControlCategory(String);
+    method @MainThread public boolean supportsControlRequest(android.content.Intent);
     field public static final int CONNECTION_STATE_CONNECTED = 2; // 0x2
     field public static final int CONNECTION_STATE_CONNECTING = 1; // 0x1
     field public static final int CONNECTION_STATE_DISCONNECTED = 0; // 0x0
