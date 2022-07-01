@@ -25,32 +25,25 @@ import com.google.auto.value.AutoValue;
 import java.util.List;
 
 /**
- * A data class represents a {@link Node} input that is based on {@link Surface}s.
+ * A data class represents a {@link Node} output that is based on {@link Surface}s.
  */
 @AutoValue
-public abstract class SurfaceIn {
+public abstract class SurfaceEdge {
 
     /**
-     * Instruction on how the buffer should be edited by the {@link Node}, one for each output.
+     * Gets output surfaces.
      *
      * TODO(b/234180399): consider switching to com.google.common.collect.ImmutableList.
      */
     @SuppressWarnings("AutoValueImmutableFields")
     @NonNull
-    public abstract List<SurfaceOption> getOutputOptions();
+    public abstract List<SettableSurface> getSurfaces();
 
     /**
-     * The input surface to read the frame from.
+     * Creates a {@link SurfaceEdge}.
      */
     @NonNull
-    public abstract SettableSurface getSurface();
-
-    /**
-     * Creates an instance of {@link SurfaceIn}.
-     */
-    @NonNull
-    public static SurfaceIn create(@NonNull List<SurfaceOption> surfaceOptions,
-            @NonNull SettableSurface surface) {
-        return new AutoValue_SurfaceIn(surfaceOptions, surface);
+    public static SurfaceEdge create(@NonNull List<SettableSurface> surfaces) {
+        return new AutoValue_SurfaceEdge(surfaces);
     }
 }

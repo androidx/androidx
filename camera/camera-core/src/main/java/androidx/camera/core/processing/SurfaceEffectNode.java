@@ -16,13 +16,14 @@
 
 package androidx.camera.core.processing;
 
+import static androidx.core.util.Preconditions.checkArgument;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.impl.utils.Threads;
-import androidx.core.util.Preconditions;
 
 import java.util.Collections;
 import java.util.concurrent.Executor;
@@ -40,14 +41,20 @@ import java.util.concurrent.Executor;
 @RequiresApi(api = 21)
 // TODO(b/233627260): remove once implemented.
 @SuppressWarnings("UnusedVariable")
-public class SurfaceEffectNode implements Node<SurfaceIn, SurfaceOut> {
+public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
+
     private final SurfaceEffect mSurfaceEffect;
     private final Executor mExecutor;
     // TODO(b/233680187): keep track of the state of the node so that the pipeline can be
     //  recreated without restarting.
-    private SurfaceIn mSurfaceIn;
-    private SurfaceOut mSurfaceOut;
+    private SurfaceEdge mOutputEdge;
+    private SurfaceEdge mInputEdge;
+
     /**
+     * TODO(b/233628734): overload the constructor to pass-in instructions on how the node should
+     *  transform the input. Based on the instructions, we need to calculate the SettableSurface
+     *  in the output edge and the 4x4 matrix passing to the GL renderer.
+     *
      * @param surfaceEffect the interface to wrap around.
      * @param executor      the executor on which the {@link SurfaceEffect} methods are invoked.
      */
@@ -55,20 +62,21 @@ public class SurfaceEffectNode implements Node<SurfaceIn, SurfaceOut> {
         mSurfaceEffect = surfaceEffect;
         mExecutor = executor;
     }
+
     /**
      * {@inheritDoc}
      */
     @Nullable
     @Override
     @MainThread
-    public SurfaceOut transform(@NonNull SurfaceIn surfaceIn) {
+    public SurfaceEdge transform(@NonNull SurfaceEdge inputEdge) {
         Threads.checkMainThread();
-        SettableSurface inputSurface = surfaceIn.getSurface();
+        checkArgument(inputEdge.getSurfaces().size() == 1,
+                "Multiple input stream not supported yet.");
+        mInputEdge = inputEdge;
+        SettableSurface inputSurface = inputEdge.getSurfaces().get(0);
         // TODO(b/233627260): invoke mSurfaceEffect#onInputSurface with the value of inputSurface.
-        Preconditions.checkState(surfaceIn.getOutputOptions().size() == 1);
-        SurfaceOption surfaceOption = surfaceIn.getOutputOptions().get(0);
-        // TODO(b/233628734): calculate SurfaceInfo and outputSurface based on inputSurface and
-        //  outputOption.
+
         // No transform output as placeholder. The correct outputSurface needs to be calculated
         // based on inputSurface and outputOption.
         SettableSurface outputSurface = new SettableSurface(
@@ -76,13 +84,13 @@ public class SurfaceEffectNode implements Node<SurfaceIn, SurfaceOut> {
                 inputSurface.getSize(),
                 inputSurface.getFormat(),
                 inputSurface.getSensorToBufferTransform(),
-                // TODO(b/233628734): the hasEmbeddedTransform value should be false, as
-                //  buffer-copying always removes the value.
-                inputSurface.hasEmbeddedTransform(),
+                // The Surface transform cannot be carried over during buffer copy.
+                /*hasEmbeddedTransform=*/false,
                 inputSurface.getCropRect(),
                 inputSurface.getRotationDegrees(),
                 inputSurface.getMirroring());
         // TODO(b/233627260): invoke mSurfaceEffect#onOutput with the value of outputSurface.
-        return SurfaceOut.create(Collections.singletonList(outputSurface));
+        mOutputEdge = SurfaceEdge.create(Collections.singletonList(outputSurface));
+        return mOutputEdge;
     }
 }
