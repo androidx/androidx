@@ -20,7 +20,6 @@ import android.view.Surface;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureResult;
 
@@ -71,7 +70,7 @@ public interface Node<I, O> {
      * previously allocated buffer, thus no new buffer needs to be allocated. The node will
      * provide the existing buffer for the upstream node to write to.
      */
-    @Nullable
+    @NonNull
     @MainThread
     O transform(@NonNull I i);
 
