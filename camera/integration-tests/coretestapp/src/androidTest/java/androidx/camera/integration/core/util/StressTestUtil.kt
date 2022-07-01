@@ -16,14 +16,119 @@
 
 package androidx.camera.integration.core.util
 
+import android.content.Context
+import android.content.Intent
 import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.Preview
+import androidx.camera.integration.core.CameraXActivity
+import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_ANALYSIS
+import androidx.camera.integration.core.CameraXActivity.BIND_IMAGE_CAPTURE
+import androidx.camera.integration.core.CameraXActivity.BIND_PREVIEW
+import androidx.camera.integration.core.CameraXActivity.BIND_VIDEO_CAPTURE
+import androidx.camera.integration.core.CameraXActivity.INTENT_EXTRA_CAMERA_ID
+import androidx.camera.integration.core.CameraXActivity.INTENT_EXTRA_USE_CASE_COMBINATION
+import androidx.camera.integration.core.waitForViewfinderIdle
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
+import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
+import org.junit.Assume.assumeTrue
+
+private const val CORE_TEST_APP_PACKAGE = "androidx.camera.integration.core"
 
 object StressTestUtil {
+
+    /**
+     * Launches CameraXActivity and wait for the preview ready.
+     *
+     * <p>Test cases can start activity by this function and then add other specific test
+     * operations after the activity is launched.
+     *
+     * <p>If the target camera device can't support the specified use case combination, an
+     * AssumptionViolatedException will be thrown to skip the test.
+     *
+     * @param cameraId Launches the activity with the specified camera id
+     * @param useCaseCombination Launches the activity with the specified use case combination.
+     * [BIND_PREVIEW], [BIND_IMAGE_CAPTURE], [BIND_VIDEO_CAPTURE] and [BIND_IMAGE_ANALYSIS] can be
+     * used to set the combination.
+     */
+    @JvmStatic
+    fun launchCameraXActivityAndWaitForPreviewReady(
+        cameraId: String,
+        useCaseCombination: Int
+    ): ActivityScenario<CameraXActivity> {
+        if (useCaseCombination.and(BIND_PREVIEW) == 0) {
+            throw IllegalArgumentException("Preview must be included!")
+        }
+
+        val intent = ApplicationProvider.getApplicationContext<Context>().packageManager
+            .getLaunchIntentForPackage(CORE_TEST_APP_PACKAGE)!!.apply {
+                putExtra(INTENT_EXTRA_CAMERA_ID, cameraId)
+                putExtra(INTENT_EXTRA_USE_CASE_COMBINATION, useCaseCombination)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+
+        val activityScenario: ActivityScenario<CameraXActivity> = ActivityScenario.launch(intent)
+
+        activityScenario.onActivity {
+            // Checks that the camera id is correct
+            val camera2CameraInfo = Camera2CameraInfo.from(it.camera!!.cameraInfo)
+
+            if (camera2CameraInfo.cameraId != cameraId) {
+                it.finish()
+                throw IllegalArgumentException("The activity is not launched with the correct" +
+                    " camera of expected id.")
+            }
+        }
+
+        // Ensure ActivityScenario is cleaned up properly
+        // Wait for viewfinder to receive enough frames for its IdlingResource to idle.
+        activityScenario.waitForViewfinderIdle()
+
+        return activityScenario
+    }
+
+    /**
+     * Checks and skips the test if the target camera can't support the use case combination.
+     */
+    @JvmStatic
+    fun assumeCameraSupportUseCaseCombination(camera: Camera, useCaseCombination: Int) {
+        val preview = Preview.Builder().build()
+        val imageCapture = if (useCaseCombination.and(BIND_IMAGE_CAPTURE) != 0) {
+            ImageCapture.Builder().build()
+        } else {
+            null
+        }
+        val videoCapture = if (useCaseCombination.and(BIND_VIDEO_CAPTURE) != 0) {
+            VideoCapture.withOutput(Recorder.Builder().build())
+        } else {
+            null
+        }
+        val imageAnalysis = if (useCaseCombination.and(BIND_IMAGE_ANALYSIS) != 0) {
+            ImageAnalysis.Builder().build()
+        } else {
+            null
+        }
+
+        assumeTrue(
+            camera.isUseCasesCombinationSupported(
+                *listOfNotNull(
+                    preview,
+                    imageCapture,
+                    videoCapture,
+                    imageAnalysis
+                ).toTypedArray()
+            )
+        )
+    }
 
     @JvmStatic
     @OptIn(ExperimentalCamera2Interop::class)
@@ -58,4 +163,34 @@ object StressTestUtil {
      *
      */
     const val STRESS_TEST_OPERATION_REPEAT_COUNT = 10
+
+    /**
+     * Timeout duration to wait for idle after pressing HOME key
+     */
+    const val HOME_TIMEOUT_MS = 3000L
+
+    /**
+     * Auto-stop duration for video capture related tests.
+     */
+    const val VIDEO_CAPTURE_AUTO_STOP_LENGTH_MS = 3000L
+
+    /**
+     * Constant to specify that the verification target is [Preview].
+     */
+    const val VERIFICATION_TARGET_PREVIEW = 0x1
+
+    /**
+     * Constant to specify that the verification target is [ImageCapture].
+     */
+    const val VERIFICATION_TARGET_IMAGE_CAPTURE = 0x2
+
+    /**
+     * Constant to specify that the verification target is [VideoCapture].
+     */
+    const val VERIFICATION_TARGET_VIDEO_CAPTURE = 0x4
+
+    /**
+     * Constant to specify that the verification target is [ImageAnalysis].
+     */
+    const val VERIFICATION_TARGET_IMAGE_ANALYSIS = 0x8
 }
