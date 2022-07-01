@@ -306,7 +306,10 @@ interface HealthConnectClient {
             }
             val enabledPackage =
                 packageNames.first { isPackageInstalled(context.packageManager, it) }
-            return HealthConnectClientImpl(HealthDataService.getClient(context, enabledPackage))
+            return HealthConnectClientImpl(
+                enabledPackage,
+                HealthDataService.getClient(context, enabledPackage)
+            )
         }
 
         @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.P)
