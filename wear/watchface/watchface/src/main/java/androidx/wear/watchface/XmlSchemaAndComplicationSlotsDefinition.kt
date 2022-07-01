@@ -51,6 +51,14 @@ public class XmlSchemaAndComplicationSlotsDefinition(
         ): XmlSchemaAndComplicationSlotsDefinition {
             parser.moveToStart("XmlWatchFace")
 
+            val complicationScaleX =
+                parser.getAttributeFloatValue(NAMESPACE_APP, "complicationScaleX", 1.0f)
+            val complicationScaleY =
+                parser.getAttributeFloatValue(NAMESPACE_APP, "complicationScaleY", 1.0f)
+
+            require(complicationScaleX > 0) { "complicationScaleX should be positive" }
+            require(complicationScaleY > 0) { "complicationScaleY should be positive" }
+
             var schema: UserStyleSchema? = null
             var flavors: UserStyleFlavors? = null
             val outerDepth = parser.depth
@@ -63,11 +71,21 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                 if (type == XmlPullParser.START_TAG) {
                     when (parser.name) {
                         "UserStyleSchema" -> {
-                            schema = UserStyleSchema.inflate(resources, parser)
+                            schema = UserStyleSchema.inflate(
+                                resources,
+                                parser,
+                                complicationScaleX,
+                                complicationScaleY
+                            )
                         }
                         "ComplicationSlot" -> {
                             complicationSlots.add(
-                                ComplicationSlotStaticData.inflate(resources, parser)
+                                ComplicationSlotStaticData.inflate(
+                                    resources,
+                                    parser,
+                                    complicationScaleX,
+                                    complicationScaleY
+                                )
                             )
                         }
                         "UserStyleFlavors" -> {
@@ -117,7 +135,9 @@ public class XmlSchemaAndComplicationSlotsDefinition(
 
             fun inflate(
                 resources: Resources,
-                parser: XmlResourceParser
+                parser: XmlResourceParser,
+                complicationScaleX: Float,
+                complicationScaleY: Float
             ): ComplicationSlotStaticData {
                 require(parser.name == "ComplicationSlot") {
                     "Expected a UserStyleSchema node"
@@ -194,7 +214,12 @@ public class XmlSchemaAndComplicationSlotsDefinition(
                 } else {
                     null
                 }
-                val bounds = ComplicationSlotBounds.inflate(resources, parser)
+                val bounds = ComplicationSlotBounds.inflate(
+                    resources,
+                    parser,
+                    complicationScaleX,
+                    complicationScaleY
+                )
                 require(bounds != null) {
                     "ComplicationSlot must have either one ComplicationSlotBounds child node or " +
                         "one per ComplicationType."
