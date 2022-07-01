@@ -1107,7 +1107,8 @@ public class ComplicationSlot
         complicationType: ComplicationType,
         applyMargins: Boolean = false
     ): Rect {
-        val unitSquareBounds = complicationSlotBounds.perComplicationTypeBounds[complicationType]!!
+        val unitSquareBounds =
+            RectF(complicationSlotBounds.perComplicationTypeBounds[complicationType]!!)
         if (applyMargins) {
             val unitSquareMargins =
                 complicationSlotBounds.perComplicationTypeMargins[complicationType]!!
