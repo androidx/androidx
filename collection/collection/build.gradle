@@ -25,20 +25,17 @@ import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.multiplatform")
 }
 
 def enableNative = KmpPlatformsKt.enableNative(project)
 
-kotlin {
+androidXMultiplatform {
     jvm {
         withJava()
     }
-    if (enableNative) {
-        macosX64()
-        macosArm64()
-        linuxX64()
-    }
+    macosX64()
+    macosArm64()
+    linuxX64()
 
     sourceSets {
         commonMain {
@@ -69,28 +66,28 @@ kotlin {
             linuxMain {
                 dependsOn(nativeMain)
             }
+        }
 
-            targets.all { target ->
-                if (target.platformType == KotlinPlatformType.native) {
-                    target.compilations["main"].defaultSourceSet {
-                        if (target.konanTarget.family == Family.OSX) {
-                            dependsOn(darwinMain)
-                        } else if (target.konanTarget.family == Family.LINUX) {
-                            dependsOn(linuxMain)
-                        } else {
-                            throw new GradleException("unknown native target ${target}")
-                        }
-                    }
-                    target.compilations["test"].defaultSourceSet {
-                        dependsOn(nativeTest)
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    if (target.konanTarget.family == Family.OSX) {
+                        dependsOn(darwinMain)
+                    } else if (target.konanTarget.family == Family.LINUX) {
+                        dependsOn(linuxMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
                     }
                 }
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(nativeTest)
+                }
             }
-            // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
-            // Make sure commonization runs before any compilation task.
-            tasks.withType(KotlinNativeCompile).configureEach {
-                it.dependsOn(tasks.named("commonize"))
-            }
+        }
+        // Workaround for https://youtrack.jetbrains.com/issue/KT-51763
+        // Make sure commonization runs before any compilation task.
+        tasks.withType(KotlinNativeCompile).configureEach {
+            it.dependsOn(tasks.named("commonize"))
         }
 
         jvmMain {

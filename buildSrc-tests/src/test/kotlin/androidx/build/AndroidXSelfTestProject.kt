@@ -78,13 +78,12 @@ data class AndroidXSelfTestProject(
                |plugins {
                |  // b/233089408: would prefer to use this syntax, but it fails
                |  // id("AndroidXPlugin")
-               |  id("org.jetbrains.kotlin.multiplatform")
                |}
                |
                |// Workaround for b/233089408
                |apply plugin: androidx.build.AndroidXImplPlugin
                |
-               |kotlin {
+               |androidXMultiplatform {
                |  jvm {
                |    ${if (withJava) "withJava()" else ""}
                |  }
