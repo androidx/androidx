@@ -28,6 +28,7 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.LabTestRule
+import androidx.camera.testing.StressTestRule
 import androidx.camera.testing.waitForIdle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
@@ -42,6 +43,7 @@ import androidx.testutils.RepeatRule
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -78,6 +80,9 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
     private lateinit var takePictureIdlingResource: CountingIdlingResource
 
     companion object {
+        @ClassRule
+        @JvmField val stressTest = StressTestRule()
+
         @Parameterized.Parameters(name = "extensionMode = {0}")
         @JvmStatic
         fun parameters() = arrayOf(
