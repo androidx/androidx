@@ -27,6 +27,7 @@ import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.LabTestRule
+import androidx.camera.testing.StressTestRule
 import androidx.camera.testing.waitForIdle
 import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.Lifecycle.State.RESUMED
@@ -44,6 +45,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.ClassRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -84,6 +86,9 @@ class LifecycleStatusChangeStressTest(
     private lateinit var takePictureIdlingResource: CountingIdlingResource
 
     companion object {
+        @ClassRule
+        @JvmField val stressTest = StressTestRule()
+
         @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         @JvmStatic
         fun parameters() = ExtensionsTestUtil.getAllCameraIdModeCombinations()
