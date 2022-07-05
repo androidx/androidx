@@ -42,7 +42,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * transformation defined in {@link SurfaceOutput#updateTransformMatrix}.
  */
 @RequiresApi(21)
-public class DefaultSurfaceEffect implements SurfaceEffect,
+public class DefaultSurfaceEffect implements SurfaceEffectInternal,
         SurfaceTexture.OnFrameAvailableListener {
     private final OpenGlRenderer mGlRenderer;
     @VisibleForTesting
@@ -112,9 +112,18 @@ public class DefaultSurfaceEffect implements SurfaceEffect,
         );
     }
 
+    @NonNull
+    @Override
+    public Executor getExecutor() {
+        // TODO(b/237702347): remove all the mGlExecutor.execute() call once this class is only
+        //  accessed on the given thread.
+        return mGlExecutor;
+    }
+
     /**
      * Release the DefaultSurfaceEffect
      */
+    @Override
     public void release() {
         if (mIsReleased.getAndSet(true)) {
             return;

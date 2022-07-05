@@ -47,6 +47,7 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
     private final Executor mExecutor;
     // TODO(b/233680187): keep track of the state of the node so that the pipeline can be
     //  recreated without restarting.
+
     private SurfaceEdge mOutputEdge;
     private SurfaceEdge mInputEdge;
 
@@ -92,5 +93,16 @@ public class SurfaceEffectNode implements Node<SurfaceEdge, SurfaceEdge> {
         // TODO(b/233627260): invoke mSurfaceEffect#onOutput with the value of outputSurface.
         mOutputEdge = SurfaceEdge.create(Collections.singletonList(outputSurface));
         return mOutputEdge;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void release() {
+        // TODO: Call #close() on the output SurfaceOut#getSurface
+        if (mSurfaceEffect instanceof SurfaceEffectInternal) {
+            ((SurfaceEffectInternal) mSurfaceEffect).release();
+        }
     }
 }

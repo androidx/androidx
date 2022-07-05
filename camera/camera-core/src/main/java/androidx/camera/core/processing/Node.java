@@ -21,6 +21,7 @@ import android.view.Surface;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureResult;
 
 /**
@@ -28,7 +29,7 @@ import androidx.camera.core.impl.CameraCaptureResult;
  *
  * <p>All CameraX post-processing should be wrapped by this interface to explicitly define the I/O.
  *
- * <p>Both {@link InputSpec} and {@link OutputSpec} should include handlers to buffers that
+ * <p>Both {@link I} and {@link O} should include handlers to buffers that
  * contain camera frames, as well as the callbacks to notify when the frames are updated. One
  * example of such buffer is a {@link Surface}. e.g. {@link Surface} itself is a handler to a
  * {@code GraphicBuffer}, and one can get the callback in the form of {@code SurfaceTexture
@@ -40,7 +41,7 @@ import androidx.camera.core.impl.CameraCaptureResult;
  * responsibility to properly share or merge the streams.
  *
  * <p>Besides the buffers, the I/O usually carry additional information about the buffer, such
- * as dimension, format and transformation. Usually, the {@link InputSpec} includes instructions on
+ * as dimension, format and transformation. Usually, the {@link I} includes instructions on
  * how the buffer should be edited. If there are multiple outputs, there should be one
  * instruction per output streams.
  *
@@ -54,10 +55,10 @@ import androidx.camera.core.impl.CameraCaptureResult;
  * change post-processing effects without reconfiguring the {@link Surface}s for camera output and
  * app display.
  *
- * @param <InputSpec>  input specifications
- * @param <OutputSpec> output specifications
+ * @param <I>  input specifications
+ * @param <O> output specifications
  */
-public interface Node<InputSpec, OutputSpec> {
+public interface Node<I, O> {
 
     /**
      * Transforms an input specification to an output specification.
@@ -72,5 +73,20 @@ public interface Node<InputSpec, OutputSpec> {
      */
     @Nullable
     @MainThread
-    OutputSpec transform(@NonNull InputSpec inputSpec);
+    O transform(@NonNull I i);
+
+    /**
+     * Releases the node.
+     *
+     * <p>Releases all the resources allocated by the node, including threads, buffers, GL context
+     * etc. Once released, the node can never be brought back to life.
+     *
+     * <p>This method is usually called during {@link UseCase#onDetached()}. It also can be called
+     * outside of {@link UseCase#onDetached()}. If the pipeline is rebuilt on-the-fly, e.g.
+     * target rotation is changed by the app, then the node should be released right away. On the
+     * other hand, it's also possible to not release even after {@link UseCase#onDetached()}, if the
+     * node needs to be kept alive across lifecycles. For example, for front/back camera switching
+     * during video recording.
+     */
+    void release();
 }
