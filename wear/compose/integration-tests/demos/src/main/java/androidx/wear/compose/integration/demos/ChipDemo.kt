@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -156,6 +157,21 @@ fun StandardChips() {
             ) { DemoIcon(resourceId = R.drawable.ic_accessibility_24px) }
         }
         item {
+             Chip(
+                 label = {
+                     Text(
+                         text = "Chip with custom shape",
+                         maxLines = 1,
+                         overflow = TextOverflow.Ellipsis
+                     )
+                 },
+                 onClick = {},
+                 colors = chipColors(chipStyle),
+                 enabled = enabled,
+                 shape = CutCornerShape(4.dp)
+             )
+        }
+        item {
             ChipCustomizer(
                 enabled = enabled,
                 chipStyle = chipStyle,
@@ -254,6 +270,20 @@ fun SmallChips() {
                             .wrapContentSize(align = Alignment.Center)
                     )
                 },
+            )
+        }
+        item {
+            CompactChip(
+                onClick = {},
+                colors = chipColors(chipStyle),
+                label = {
+                    Text(
+                        "Compact Chip with custom shape",
+                        maxLines = 1, overflow = TextOverflow.Ellipsis
+                    )
+                },
+                enabled = enabled,
+                shape = CutCornerShape(4.dp)
             )
         }
         item {
@@ -718,7 +748,8 @@ internal fun DemoIconChip(
                 }
             }
         },
-        icon = content, enabled = enabled
+        icon = content,
+        enabled = enabled,
     )
 }
 
