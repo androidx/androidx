@@ -66,6 +66,7 @@ package androidx.car.app {
     field @androidx.car.app.annotations.RequiresCarApi(3) public static final String HARDWARE_SERVICE = "hardware";
     field public static final String NAVIGATION_SERVICE = "navigation";
     field public static final String SCREEN_SERVICE = "screen";
+    field public static final String SUGGESTION_SERVICE = "suggestion";
   }
 
   public final class CarToast {
@@ -1565,6 +1566,36 @@ package androidx.car.app.serialization {
   public class BundlerException extends java.lang.Exception {
     ctor public BundlerException(String?, Throwable);
     ctor public BundlerException(String?);
+  }
+
+}
+
+package androidx.car.app.suggestion {
+
+  @androidx.car.app.annotations.RequiresCarApi(5) public class SuggestionManager implements androidx.car.app.managers.Manager {
+    method @MainThread public void updateSuggestions(java.util.List<androidx.car.app.suggestion.model.Suggestion!>);
+  }
+
+}
+
+package androidx.car.app.suggestion.model {
+
+  @androidx.car.app.annotations.CarProtocol public final class Suggestion {
+    method public android.app.PendingIntent? getAction();
+    method public androidx.car.app.model.CarIcon? getIcon();
+    method public String getIdentifier();
+    method public androidx.car.app.model.CarText? getSubtitle();
+    method public androidx.car.app.model.CarText getTitle();
+  }
+
+  public static final class Suggestion.Builder {
+    ctor public Suggestion.Builder();
+    method public androidx.car.app.suggestion.model.Suggestion build();
+    method public androidx.car.app.suggestion.model.Suggestion.Builder setAction(android.app.PendingIntent);
+    method public androidx.car.app.suggestion.model.Suggestion.Builder setIcon(androidx.car.app.model.CarIcon);
+    method public androidx.car.app.suggestion.model.Suggestion.Builder setIdentifier(String);
+    method public androidx.car.app.suggestion.model.Suggestion.Builder setSubtitle(CharSequence);
+    method public androidx.car.app.suggestion.model.Suggestion.Builder setTitle(CharSequence);
   }
 
 }
