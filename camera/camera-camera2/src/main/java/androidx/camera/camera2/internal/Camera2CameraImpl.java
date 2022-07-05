@@ -178,7 +178,7 @@ final class Camera2CameraImpl implements CameraInternal {
     private final Set<String> mNotifyStateAttachedSet = new HashSet<>();
 
     @NonNull
-    private CameraConfig mCameraConfig;
+    private CameraConfig mCameraConfig = CameraConfigs.emptyConfig();
     final Object mLock = new Object();
     // mSessionProcessor will be used to transform capture session if non-null.
     @GuardedBy("mLock")

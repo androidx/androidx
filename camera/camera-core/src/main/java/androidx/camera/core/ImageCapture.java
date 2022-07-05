@@ -527,7 +527,7 @@ public final class ImageCapture extends UseCase {
         }
 
         mDeferrableSurface = new ImmediateSurface(
-                mImageReader.getSurface(), // TODO: Invalid null argument
+                Objects.requireNonNull(mImageReader.getSurface()),
                 new Size(mImageReader.getWidth(),
                 mImageReader.getHeight()),
                 /* get the surface image format using getImageFormat */
@@ -576,10 +576,7 @@ public final class ImageCapture extends UseCase {
         }
 
         CameraConfig cameraConfig = getCamera().getExtendedConfig();
-        // TODO: cameraConfig should be non-null; however, it is null in
-        //       Camera2CameraControlImplDeviceTest and ImageCaptureLatencyTest
-        //       so this check is required.
-        return cameraConfig == null ? false : cameraConfig.getSessionProcessor(null) != null;
+        return cameraConfig.getSessionProcessor(null) != null;
     }
 
     /**
