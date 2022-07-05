@@ -21,14 +21,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.core.util.Preconditions
 
 private const val KEY_BEEP_FREQUENCY = "beep_frequency"
 private const val DEFAULT_BEEP_FREQUENCY = 1500
+private const val MIN_SCREEN_BRIGHTNESS = 0F
+private const val MAX_SCREEN_BRIGHTNESS = 1F
+private const val DEFAULT_SCREEN_BRIGHTNESS = 0.5F
 
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setScreenBrightness()
         setContent {
             App(getBeepFrequency())
         }
@@ -46,6 +52,14 @@ class MainActivity : ComponentActivity() {
         }
 
         return DEFAULT_BEEP_FREQUENCY
+    }
+
+    private fun setScreenBrightness(brightness: Float = DEFAULT_SCREEN_BRIGHTNESS) {
+        Preconditions.checkArgument(brightness in MIN_SCREEN_BRIGHTNESS..MAX_SCREEN_BRIGHTNESS)
+
+        val layoutParam = window.attributes
+        layoutParam.screenBrightness = brightness
+        window.attributes = layoutParam
     }
 }
 
