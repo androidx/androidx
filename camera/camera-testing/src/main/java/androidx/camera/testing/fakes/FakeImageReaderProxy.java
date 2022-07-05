@@ -17,6 +17,7 @@
 package androidx.camera.testing.fakes;
 
 import android.graphics.ImageFormat;
+import android.media.ImageReader;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -69,6 +70,10 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
     ImageReaderProxy.OnImageAvailableListener mListener;
+
+    // For returning a nonNull surface in case of null check failure.
+    @Nullable
+    ImageReader mImageReader;
 
     /**
      * Create a new {@link FakeImageReaderProxy} instance.
@@ -152,6 +157,10 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         for (ImageProxy imageProxy : mOutboundImageProxy) {
             imageProxy.close();
         }
+        if (mImageReader != null) {
+            mImageReader.close();
+            mImageReader = null;
+        }
         mIsClosed = true;
     }
 
@@ -178,6 +187,10 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
     @Nullable
     @Override
     public Surface getSurface() {
+        if (mSurface == null) {
+            mImageReader = ImageReader.newInstance(mWidth, mHeight, mImageFormat, mMaxImages);
+            mSurface = mImageReader.getSurface();
+        }
         return mSurface;
     }
 
