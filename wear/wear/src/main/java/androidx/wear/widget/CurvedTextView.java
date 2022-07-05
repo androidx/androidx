@@ -208,6 +208,13 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     }
 
     @Override
+    public void setSweepAngleDegrees(
+            @FloatRange(from = 0.0f, to = 360.0f, toInclusive = true) float angleDegrees) {
+        /** We need to be careful because this is also set by {@link #onMeasure} below. */
+        mBackgroundSweepDegrees = angleDegrees;
+    }
+
+    @Override
     @Px
     public int getThickness() {
         return round(mPaint.getFontMetrics().descent - mPaint.getFontMetrics().ascent);
@@ -724,6 +731,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
 
     /**
      * Sets the anchor type for positioning the curved text.
+     *
      * @param value the anchor type,  one of {ANCHOR_START, ANCHOR_CENTER, ANCHOR_END}
      */
     public void setAnchorType(@ArcLayout.AnchorType int value) {
@@ -744,7 +752,9 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
         doRedraw();
     }
 
-    /** Sets the minimum and maximum sweep angle in degrees for rendering the text.
+    /**
+     * Sets the minimum and maximum sweep angle in degrees for rendering the text.
+     *
      * @param minSweep Ensure the text takes at least this angle (in degrees) in the arc. Use 0f if
      *                 you don't want to specify a minimum.
      * @param maxSweep Limit the maximum angle (in degrees) that this curved text can take. Use
@@ -858,6 +868,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     /**
      * Gets the text letter-space value, which determines the spacing between characters. The
      * value returned is in ems. Normally, this value is 0.0.
+     *
      * @return The text letter-space value in ems.
      */
     public float getLetterSpacing() {
@@ -867,6 +878,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     /**
      * Sets text letter-spacing in ems. Typical values for slight expansion will be around 0.05.
      * Negative values tighten text.
+     *
      * @param value A text letter-space value in ems.
      */
     public void setLetterSpacing(float value) {
@@ -877,6 +889,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     /**
      * Returns the font feature settings. The format is the same as the CSS font-feature-settings
      * attribute: https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
+     *
      * @return The currently set font feature settings. Default is null.
      */
     @Nullable
@@ -887,8 +900,9 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
     /**
      * Sets font feature settings. The format is the same as the CSS font-feature-settings
      * attribute: https://www.w3.org/TR/css-fonts-3/#font-feature-settings-prop
+     *
      * @param value Font feature settings represented as CSS compatible string. This value may be
-     *             null.
+     *              null.
      */
     public void setFontFeatureSettings(@Nullable String value) {
         mFontFeatureSettings = value;
@@ -903,6 +917,7 @@ public class CurvedTextView extends View implements ArcLayout.Widget {
 
     /**
      * Sets TrueType or OpenType font variation settings.
+     *
      * @param value Font variation settings. You can pass null or empty string as no variation
      *              settings. This value may be null
      */
