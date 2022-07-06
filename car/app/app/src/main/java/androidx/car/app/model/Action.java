@@ -91,6 +91,7 @@ public final class Action {
             value = {
                     FLAG_PRIMARY,
                     FLAG_IS_PERSISTENT,
+                    FLAG_DEFAULT
             })
     @Retention(RetentionPolicy.SOURCE)
     public @interface ActionFlag {
@@ -138,6 +139,18 @@ public final class Action {
      */
     @RequiresCarApi(5)
     public static final int FLAG_IS_PERSISTENT = 1 << 1;
+
+    /**
+     * Indicates that this action is the default action out of a set of other actions.
+     *
+     * <p>The action with this flag may be treated differently by the host depending on where
+     * they are used. For example, it may be set as the default action to be triggered when the
+     * Alerter times out in the AlertCard. The first action with the FLAG_DEFAULT in an action
+     * list will be treated as the Default Action. See the documentation on where the
+     * {@link Action} is added for more details on any restriction(s) that might apply.
+     */
+    @RequiresCarApi(5)
+    public static final int FLAG_DEFAULT = 1 << 2;
 
     /**
      * A standard action to show the app's icon.
