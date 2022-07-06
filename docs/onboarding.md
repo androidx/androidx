@@ -679,25 +679,59 @@ the latest API changes.
 #### Missing external dependency
 
 If Gradle cannot resolve a dependency listed in your `build.gradle`, you may
-need to import the corresponding artifact into `prebuilts/androidx/external`.
-Our workflow does not automatically download artifacts from the internet to
+need to import the corresponding artifact into one of the prebuilts
+repositories. These repositories are located under `prebuilts/androidx`. Our
+workflow does not automatically download artifacts from the internet to
 facilitate reproducible builds even if remote artifacts are changed.
 
-You can download a dependency by running:
+We use a script to download dependencies, you can learn more about it
+[here](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:development/importMaven/README.md).
 
-```shell
-cd frameworks/support && ./development/importMaven/import_maven_artifacts.py -n 'someGroupId:someArtifactId:someVersion'
-```
-
-This will create a change within the `prebuilts/androidx/external` directory.
-Make sure to upload this change before or concurrently (ex. in the same Gerrit
-topic) with the dependent library code.
+##### Importing dependencies in `libs.versions.toml`
 
 Libraries typically reference dependencies using constants defined in
-[`libs.versions.toml`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:gradle/libs.versions.toml),
-so please update this file to include a constant for the version of the library
-that you have checked in. You will reference this constant in your library's
+[`libs.versions.toml`](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:gradle/libs.versions.toml).
+Update this file to include a constant for the version of the library that you
+want to depend on. You will reference this constant in your library's
 `build.gradle` dependencies.
+
+**After** you update the `libs.versions.toml` file with new dependencies, you
+can download them by running:
+
+```shell
+cd frameworks/support &&\
+development/importMaven/importMaven.sh import-toml
+```
+
+This command will resolve everything declared in the `libs.versions.toml` file
+and download missing artifacts into `prebuilts/androidx/external` or
+`prebuilts/androidx/internal`.
+
+Make sure to upload these changes before or concurrently (ex. in the same Gerrit
+topic) with the dependent library code.
+
+##### Downloading a dependency without changing `libs.versions.toml`
+
+You can also download a dependency without changing `libs.versions.toml` file by
+directly invoking:
+
+```shell
+cd frameworks/support &&\
+./development/importMaven/importMaven.sh someGroupId:someArtifactId:someVersion
+```
+
+##### Missing konan dependencies
+
+Kotlin Multiplatform projects need prebuilts to compile native code, which are
+located under `prebuilts/androidx/konan`. **After** you update the kotlin
+version of AndroidX, you should also download necessary prebuilts via:
+
+```shell
+cd frameworks/support &&\
+development/importMaven/importMaven.sh import-konan-binaries --konan-compiler-version <new-kotlin-version>
+```
+
+Please remember to commit changes in the `prebuilts/androidx/konan` repository.
 
 #### Dependency verification
 
