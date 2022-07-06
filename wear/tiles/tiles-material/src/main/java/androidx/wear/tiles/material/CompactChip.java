@@ -16,12 +16,15 @@
 
 package androidx.wear.tiles.material;
 
+import static androidx.wear.tiles.DimensionBuilders.wrap;
 import static androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_CENTER;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT;
+import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT_TAPPABLE;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HORIZONTAL_PADDING;
 import static androidx.wear.tiles.material.ChipDefaults.COMPACT_PRIMARY_COLORS;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
 import static androidx.wear.tiles.material.Helper.checkTag;
+import static androidx.wear.tiles.material.Helper.getTagBytes;
 
 import android.content.Context;
 
@@ -30,10 +33,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
-import androidx.wear.tiles.DimensionBuilders.WrappedDimensionProp;
+import androidx.wear.tiles.LayoutElementBuilders;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
+import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
+import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.proto.LayoutElementProto;
 
 /**
@@ -70,10 +75,13 @@ public class CompactChip implements LayoutElement {
     /** Tool tag for Metadata in Modifiers, so we know that Box is actually a CompactChip. */
     static final String METADATA_TAG = "CMPCHP";
 
+    @NonNull private final Box mImpl;
     @NonNull private final Chip mElement;
 
-    CompactChip(@NonNull Chip element) {
-        this.mElement = element;
+    CompactChip(@NonNull Box element) {
+        this.mImpl = element;
+        // We know for sure that content of the Box is Chip.
+        this.mElement = new Chip((Box) element.getContents().get(0));
     }
 
     /** Builder class for {@link androidx.wear.tiles.material.CompactChip}. */
@@ -126,7 +134,7 @@ public class CompactChip implements LayoutElement {
                             .setChipColors(mChipColors)
                             .setContentDescription(mText)
                             .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
-                            .setWidth(new WrappedDimensionProp.Builder().build())
+                            .setWidth(wrap())
                             .setHeight(COMPACT_HEIGHT)
                             .setMaxLines(1)
                             .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING)
@@ -134,7 +142,23 @@ public class CompactChip implements LayoutElement {
                             .setPrimaryLabelTypography(Typography.TYPOGRAPHY_CAPTION1)
                             .setIsPrimaryLabelScalable(false);
 
-            return new CompactChip(chipBuilder.build());
+            Box tappableChip =
+                    new Box.Builder()
+                            .setModifiers(
+                                    new Modifiers.Builder()
+                                            .setClickable(mClickable)
+                                            .setMetadata(
+                                                    new ElementMetadata.Builder()
+                                                            .setTagData(getTagBytes(METADATA_TAG))
+                                                            .build())
+                                            .build())
+                            .setWidth(wrap())
+                            .setHeight(COMPACT_HEIGHT_TAPPABLE)
+                            .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
+                            .addContent(chipBuilder.build())
+                            .build();
+
+            return new CompactChip(tappableChip);
         }
     }
 
@@ -179,8 +203,18 @@ public class CompactChip implements LayoutElement {
         if (!checkTag(boxElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
+        // Now to check that inner content of the Box is CompactChip's Chip.
+        LayoutElement innerElement = boxElement.getContents().get(0);
+        if (!(innerElement instanceof Box)) {
+            return null;
+        }
+        Box innerBoxElement = (Box) innerElement;
+        if (!checkTag(innerBoxElement.getModifiers(), METADATA_TAG)) {
+            return null;
+        }
+
         // Now we are sure that this element is a CompactChip.
-        return new CompactChip(new Chip(boxElement));
+        return new CompactChip(boxElement);
     }
 
     /** @hide */
@@ -188,6 +222,6 @@ public class CompactChip implements LayoutElement {
     @NonNull
     @Override
     public LayoutElementProto.LayoutElement toLayoutElementProto() {
-        return mElement.toLayoutElementProto();
+        return mImpl.toLayoutElementProto();
     }
 }
