@@ -20,20 +20,26 @@ import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
+import android.os.Environment
 import android.provider.MediaStore
 import androidx.annotation.MainThread
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Logger
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.video.FileOutputOptions
 import androidx.camera.video.MediaStoreOutputOptions
+import androidx.camera.video.PendingRecording
 import androidx.camera.video.Recorder
 import androidx.camera.video.Recording
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoRecordEvent
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite
 import androidx.concurrent.futures.await
 import androidx.core.content.ContextCompat
 import androidx.core.util.Consumer
 import androidx.lifecycle.LifecycleOwner
+import java.io.File
 
 private const val TAG = "CameraHelper"
 
@@ -67,22 +73,46 @@ class CameraHelper {
     @SuppressLint("MissingPermission")
     fun startRecording(context: Context, eventListener: Consumer<VideoRecordEvent>? = null) {
         activeRecording = videoCapture!!.let {
-            val pendingRecording = it.output.prepareRecording(
-                context,
-                generateVideoMediaStoreOptions(context.contentResolver)
-            )
-
             val listener = eventListener ?: generateVideoRecordEventListener()
-            pendingRecording.withAudioEnabled().start(
+            prepareRecording(context, it.output).withAudioEnabled().start(
                 ContextCompat.getMainExecutor(context),
                 listener
             )
         }
     }
 
+    private fun prepareRecording(context: Context, recorder: Recorder): PendingRecording {
+        return if (canDeviceWriteToMediaStore()) {
+            recorder.prepareRecording(
+                context,
+                generateVideoMediaStoreOptions(context.contentResolver)
+            )
+        } else {
+            recorder.prepareRecording(
+                context,
+                generateVideoFileOutputOptions()
+            )
+        }
+    }
+
+    private fun canDeviceWriteToMediaStore(): Boolean {
+        return DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null
+    }
+
     fun stopRecording() {
         activeRecording!!.stop()
         activeRecording = null
+    }
+
+    private fun generateVideoFileOutputOptions(): FileOutputOptions {
+        val videoFileName = "${generateVideoFileName()}.mp4"
+        val videoFolder = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_MOVIES
+        )
+        if (!videoFolder.exists() && !videoFolder.mkdirs()) {
+            Logger.e(TAG, "Failed to create directory: $videoFolder")
+        }
+        return FileOutputOptions.Builder(File(videoFolder, videoFileName)).build()
     }
 
     private fun generateVideoMediaStoreOptions(
