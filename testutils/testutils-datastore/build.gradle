@@ -18,11 +18,32 @@ import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
 }
+androidXMultiplatform {
+    jvm {}
+    macosX64()
+    linuxX64()
+    macosArm64()
 
-dependencies {
-    implementation(libs.kotlinStdlib)
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(project(":datastore:datastore-core"))
+                api(project(":datastore:datastore-core-okio"))
+                api(libs.kotlinStdlibCommon)
+                api(libs.kotlinTestCommon)
+                api(libs.kotlinCoroutinesCore)
+                api(libs.okio)
+            }
+        }
+
+        jvmMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinTest)
+            }
+        }
+    }
 }
 
 androidx {

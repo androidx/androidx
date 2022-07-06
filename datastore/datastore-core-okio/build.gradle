@@ -58,6 +58,8 @@ androidXMultiplatform {
                 api(libs.kotlinTestCommon)
                 api(libs.kotlinTestAnnotationsCommon)
                 api(libs.kotlinCoroutinesTest)
+                api(project(":internal-testutils-datastore"))
+                api(project(":internal-testutils-kmp"))
             }
         }
         jvmTest {
@@ -65,8 +67,11 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
+                api(project(":internal-testutils-datastore"))
+                api(project(":internal-testutils-kmp"))
             }
         }
+
         if (enableNative) {
             nativeMain {
                 dependencies {

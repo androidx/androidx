@@ -16,11 +16,12 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.TestingSerializerConfig
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
-internal class TestingSerializer(
+class TestingSerializer(
     val config: TestingSerializerConfig = TestingSerializerConfig(),
 ) : Serializer<Byte> {
     override suspend fun readFrom(input: InputStream): Byte {
