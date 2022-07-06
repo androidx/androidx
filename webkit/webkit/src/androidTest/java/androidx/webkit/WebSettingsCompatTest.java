@@ -167,4 +167,22 @@ public class WebSettingsCompatTest {
             Assert.assertEquals("androidx.webkit.test", headerValue);
         }
     }
+
+    @Test
+    public void testEnterpriseAuthenticationAppLinkPolicyEnabled() throws Throwable {
+        WebkitUtils.checkFeature(WebViewFeature.ENTERPRISE_AUTHENTICATION_APP_LINK_POLICY);
+
+        assertTrue(WebSettingsCompat.getEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings()));
+
+        WebSettingsCompat.setEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings(), false);
+        assertFalse(WebSettingsCompat.getEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings()));
+
+        WebSettingsCompat.setEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings(), true);
+        assertTrue(WebSettingsCompat.getEnterpriseAuthenticationAppLinkPolicyEnabled(
+                mWebViewOnUiThread.getSettings()));
+    }
 }
