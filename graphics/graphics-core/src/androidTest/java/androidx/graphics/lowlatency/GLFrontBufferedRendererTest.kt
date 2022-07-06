@@ -20,16 +20,17 @@ import android.graphics.Color
 import android.hardware.HardwareBuffer
 import android.opengl.GLES20
 import android.os.Build
+import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EglManager
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.opengl.egl.deviceSupportsNativeAndroidFence
+import androidx.graphics.surface.SurfaceControlUtils
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -53,8 +54,8 @@ class GLFrontBufferedRendererTest {
             return
         }
         val renderLatch = CountDownLatch(1)
-        val callbacks = object : GLFrontBufferedRenderer.Callback {
-            override fun onDrawFrontBufferedLayer(eglManager: EglManager, param: Any?) {
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(eglManager: EglManager, param: Any) {
                 GLES20.glViewport(
                     0,
                     0,
@@ -67,7 +68,7 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawDoubleBufferedLayer(
                 eglManager: EglManager,
-                params: Collection<Any?>
+                params: Collection<Any>
             ) {
                 GLES20.glViewport(
                     0,
@@ -93,34 +94,33 @@ class GLFrontBufferedRendererTest {
                 )
             }
         }
-        var renderer: GLFrontBufferedRenderer? = null
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: SurfaceView? = null
         try {
             val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
-                    val surfaceView = it.getSurfaceView()
-                    renderer = GLFrontBufferedRenderer(surfaceView, callbacks)
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
                 }
 
             scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
                 renderer?.renderFrontBufferedLayer(Any())
-                assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+            }
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
 
-                val coords = IntArray(2)
-                val width: Int
-                val height: Int
-                with(it.getSurfaceView()) {
-                    getLocationOnScreen(coords)
-                    width = this.width
-                    height = this.height
-                }
+            val coords = IntArray(2)
+            val width: Int
+            val height: Int
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+                width = this.width
+                height = this.height
+            }
 
-                val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-                val bitmap = automation.takeScreenshot()
-                assertEquals(
-                    Color.RED,
+            SurfaceControlUtils.validateOutput { bitmap ->
+                Color.RED ==
                     bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
-                )
             }
         } finally {
             renderer.blockingRelease()
@@ -129,7 +129,7 @@ class GLFrontBufferedRendererTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     @Test
-    fun testDryLayerRender() {
+    fun testDoubleBufferedLayerRender() {
         if (!deviceSupportsNativeAndroidFence()) {
             // If the Android device does not support the corresponding extensions to create
             // a file descriptor from an EGLSync object then skip the test
@@ -137,8 +137,8 @@ class GLFrontBufferedRendererTest {
         }
 
         val renderLatch = CountDownLatch(1)
-        val callbacks = object : GLFrontBufferedRenderer.Callback {
-            override fun onDrawFrontBufferedLayer(eglManager: EglManager, param: Any?) {
+        val callbacks = object : GLFrontBufferedRenderer.Callback<Any> {
+            override fun onDrawFrontBufferedLayer(eglManager: EglManager, param: Any) {
                 GLES20.glViewport(
                     0,
                     0,
@@ -151,7 +151,7 @@ class GLFrontBufferedRendererTest {
 
             override fun onDrawDoubleBufferedLayer(
                 eglManager: EglManager,
-                params: Collection<Any?>
+                params: Collection<Any>
             ) {
                 GLES20.glViewport(
                     0,
@@ -176,35 +176,34 @@ class GLFrontBufferedRendererTest {
                     })
             }
         }
-        var renderer: GLFrontBufferedRenderer? = null
+        var renderer: GLFrontBufferedRenderer<Any>? = null
+        var surfaceView: SurfaceView? = null
         try {
             val scenario = ActivityScenario.launch(FrontBufferedRendererTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
-                    val surfaceView = it.getSurfaceView()
-                    renderer = GLFrontBufferedRenderer(surfaceView, callbacks)
+                    surfaceView = it.getSurfaceView()
+                    renderer = GLFrontBufferedRenderer(surfaceView!!, callbacks)
                 }
 
             scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
                 renderer?.renderFrontBufferedLayer(Any())
                 renderer?.commit()
-                assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+            }
+            assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
 
-                val coords = IntArray(2)
-                val width: Int
-                val height: Int
-                with(it.getSurfaceView()) {
-                    getLocationOnScreen(coords)
-                    width = this.width
-                    height = this.height
-                }
+            val coords = IntArray(2)
+            val width: Int
+            val height: Int
+            with(surfaceView!!) {
+                getLocationOnScreen(coords)
+                width = this.width
+                height = this.height
+            }
 
-                val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
-                val bitmap = automation.takeScreenshot()
-                assertEquals(
-                    Color.BLUE,
+            SurfaceControlUtils.validateOutput { bitmap ->
+                Color.BLUE ==
                     bitmap.getPixel(coords[0] + width / 2, coords[1] + height / 2)
-                )
             }
         } finally {
             renderer.blockingRelease()
@@ -223,7 +222,7 @@ class GLFrontBufferedRendererTest {
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    private fun GLFrontBufferedRenderer?.blockingRelease() {
+    private fun GLFrontBufferedRenderer<*>?.blockingRelease() {
         if (this != null) {
             val destroyLatch = CountDownLatch(1)
             release(false) {
