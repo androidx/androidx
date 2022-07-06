@@ -28,8 +28,8 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 internal class FileStorage<T>(
-    private val produceFile: () -> File,
-    private val serializer: Serializer<T>
+    private val serializer: Serializer<T>,
+    private val produceFile: () -> File
 ) : Storage<T> {
 
     override fun createConnection(): StorageConnection<T> {
@@ -78,33 +78,18 @@ internal class FileStorageConnection<T>(
     private val transactionMutex = Mutex()
 
     override suspend fun <R> readTransaction(
-        lockType: StorageConnection.ReadLockType,
         block: suspend ReadScope<T>.() -> R
     ): R {
         checkNotClosed()
-        return when (lockType) {
-            StorageConnection.ReadLockType.TRY_LOCK -> {
-                val lock = transactionMutex.tryLock()
-                try {
-                    FileReadScope(file, serializer, lock).use {
-                        block(it)
-                    }
-                } finally {
-                    if (lock) {
-                        transactionMutex.unlock()
-                    }
-                }
+
+        val lock = transactionMutex.tryLock()
+        try {
+            return FileReadScope(file, serializer).use {
+                block(it)
             }
-            StorageConnection.ReadLockType.NO_LOCK ->
-                FileReadScope(file, serializer, false).use {
-                    block(it)
-                }
-            StorageConnection.ReadLockType.LOCK -> {
-                transactionMutex.withLock {
-                    FileReadScope(file, serializer, true).use {
-                        block(it)
-                    }
-                }
+        } finally {
+            if (lock) {
+                transactionMutex.unlock()
             }
         }
     }
@@ -159,8 +144,7 @@ internal class FileStorageConnection<T>(
 
 internal open class FileReadScope<T>(
     protected val file: File,
-    protected val serializer: Serializer<T>,
-    override val lockAcquired: Boolean
+    protected val serializer: Serializer<T>
 ) : ReadScope<T> {
 
     private val closed = AtomicBoolean(false)
@@ -188,7 +172,7 @@ internal open class FileReadScope<T>(
 }
 
 internal class FileWriteScope<T>(file: File, serializer: Serializer<T>) :
-    FileReadScope<T>(file, serializer, true), WriteScope<T> {
+    FileReadScope<T>(file, serializer), WriteScope<T> {
 
     override suspend fun writeData(value: T) {
         checkNotClosed()

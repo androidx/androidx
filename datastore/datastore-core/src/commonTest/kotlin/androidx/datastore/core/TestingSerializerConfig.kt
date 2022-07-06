@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.datastore.core.handlers
 
-import androidx.datastore.core.CorruptionHandler
+package androidx.datastore.core
 
-/**
- * Default corruption handler which does nothing but rethrow the exception.
- */
-internal expect class NoOpCorruptionHandler<T> constructor() : CorruptionHandler<T>
+import kotlin.jvm.Volatile
+
+data class TestingSerializerConfig(
+    @Volatile var failReadWithCorruptionException: Boolean = false,
+    @Volatile var failingRead: Boolean = false,
+    @Volatile var failingWrite: Boolean = false,
+    @Volatile var defaultValue: Byte = 0
+)

@@ -18,40 +18,39 @@ package androidx.datastore.core
 
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
-import java.io.File
-import java.io.IOException
-import java.util.concurrent.TimeUnit
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
-import org.junit.rules.Timeout
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class DataMigrationInitializerTest {
-    @get:Rule
-    val timeout = Timeout(10, TimeUnit.SECONDS)
+abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
+    (private val testIO: TestIO<F, IOE>) {
 
-    @get:Rule
-    val tmp = TemporaryFolder()
-
-    private lateinit var serializer: TestingSerializer
-    private lateinit var testFile: File
+    private lateinit var storage: Storage<Byte>
+    private lateinit var testScope: TestScope
+    private lateinit var dataStoreScope: TestScope
 
     @BeforeTest
     fun setUp() {
-        serializer = TestingSerializer()
-        testFile = tmp.newFile()
+        testScope = TestScope(UnconfinedTestDispatcher())
+        dataStoreScope = TestScope(UnconfinedTestDispatcher())
+    }
+
+    fun doTest(test: suspend TestScope.() -> Unit) {
+        testScope.runTest(dispatchTimeoutMs = 10000) {
+            test(testScope)
+        }
     }
 
     @Test
-    fun testMigration() = runTest {
+    fun testMigration() = doTest {
         val migrateTo100 = TestingDataMigration(migration = { 100 })
 
         val store = newDataStore(
@@ -66,7 +65,7 @@ class DataMigrationInitializerTest {
     }
 
     @Test
-    fun testMultipleDataMigrationsExecuted() = runTest {
+    fun testMultipleDataMigrationsExecuted() = doTest {
         val migratePlus2 = TestingDataMigration(migration = { it.inc().inc() })
         val migratePlus3 = TestingDataMigration(migration = { it.inc().inc().inc() })
 
@@ -82,7 +81,7 @@ class DataMigrationInitializerTest {
     }
 
     @Test
-    fun testCleanupRunAfterMigration() = runTest {
+    fun testCleanupRunAfterMigration() = doTest {
         val continueMigration = CompletableDeferred<Byte>()
         val cleanUpFinished = CompletableDeferred<Unit>()
 
@@ -106,7 +105,7 @@ class DataMigrationInitializerTest {
     }
 
     @Test
-    fun testCleanupNotRunAfterFailedMigrate() = runTest {
+    fun testCleanupNotRunAfterFailedMigrate() = doTest {
         val continueMigration = CompletableDeferred<Byte>()
         val cleanUpFinished = CompletableDeferred<Unit>()
 
@@ -121,9 +120,9 @@ class DataMigrationInitializerTest {
             )
         )
 
-        val getData = async { assertThrows<IOException> { store.data.first() } }
+        val getData = async { assertThrows(testIO.ioExceptionClass()) { store.data.first() } }
 
-        continueMigration.completeExceptionally(IOException("Failed migration"))
+        continueMigration.completeExceptionally(testIO.ioException("Failed migration"))
 
         getData.await()
 
@@ -131,7 +130,7 @@ class DataMigrationInitializerTest {
     }
 
     @Test
-    fun testCleanupNotRunAfterFailedUpdate() = runTest {
+    fun testCleanupNotRunAfterFailedUpdate() = doTest {
         val continueMigration = CompletableDeferred<Byte>()
         val cleanUpFinished = CompletableDeferred<Unit>()
 
@@ -140,15 +139,17 @@ class DataMigrationInitializerTest {
             cleanUpFunction = { cleanUpFinished.complete(Unit) }
         )
 
-        serializer.failingWrite = true
+        val storage = testIO.getStorage(
+            TestingSerializerConfig(failingWrite = true)
+        ) { testIO.newTempFile() }
         val store = newDataStore(
             initTasksList = listOf(
                 DataMigrationInitializer.getInitializer(listOf(noOpMigration))
             ),
-            serializer = serializer
+            storage = storage,
         )
 
-        val getData = async { assertThrows<IOException> { store.data.first() } }
+        val getData = async { assertThrows(testIO.ioExceptionClass()) { store.data.first() } }
 
         continueMigration.complete(1)
 
@@ -158,7 +159,7 @@ class DataMigrationInitializerTest {
     }
 
     @Test
-    fun testCleanUpErrorPropagates() = runTest {
+    fun testCleanUpErrorPropagates() = doTest {
         val cleanUpFailingMigration = TestingDataMigration(
             cleanUpFunction = {
                 throw IOException("Clean up failure")
@@ -175,7 +176,7 @@ class DataMigrationInitializerTest {
     }
 
     @Test
-    fun testShouldMigrateUsed() = runTest {
+    fun testShouldMigrateUsed() = doTest {
         val neverRunMigration = TestingDataMigration(shouldMigrate = false, migration = { 99 })
 
         val store = newDataStore(
@@ -187,14 +188,15 @@ class DataMigrationInitializerTest {
         assertThat(store.data.first()).isEqualTo(0)
     }
 
-    private fun CoroutineScope.newDataStore(
+    private fun newDataStore(
         initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
-        serializer: TestingSerializer = TestingSerializer()
+        storage: Storage<Byte> = testIO.getStorage(
+            TestingSerializerConfig()
+        )
     ): DataStore<Byte> {
         return SingleProcessDataStore(
-            { testFile },
-            serializer = serializer,
-            scope = this,
+            storage,
+            scope = dataStoreScope,
             initTasksList = initTasksList
         )
     }
