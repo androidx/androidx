@@ -43,8 +43,6 @@ androidXMultiplatform {
         }
         jvmMain {
             dependencies {
-                api(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
                 api("androidx.annotation:annotation:1.3.0")
             }
         }
@@ -56,6 +54,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.okio)
                 api(project(":datastore:datastore-core-okio"))
+                implementation(project(":internal-testutils-kmp"))
             }
         }
 
@@ -63,7 +62,6 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
                 implementation(project(":internal-testutils-kmp"))
             }
         }
@@ -72,7 +70,6 @@ androidXMultiplatform {
             nativeMain {
                 dependsOn(commonMain)
                 dependencies {
-                    api(libs.kotlinCoroutinesCore)
                     implementation(libs.atomicFu)
                 }
             }

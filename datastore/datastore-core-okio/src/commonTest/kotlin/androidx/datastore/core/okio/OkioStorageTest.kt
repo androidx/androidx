@@ -246,7 +246,7 @@ class OkioStorageTest {
             }
         }
         val async2 = async {
-            testConnection.readTransaction(StorageConnection.ReadLockType.LOCK) {
+            testConnection.readTransaction {
                 hook1.complete(Unit)
                 assertThat(count.incrementAndGet()).isEqualTo(1)
                 yield()

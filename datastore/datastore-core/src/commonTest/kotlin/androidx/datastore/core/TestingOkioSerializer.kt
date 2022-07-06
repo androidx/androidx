@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,23 @@
 
 package androidx.datastore.core
 
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
+import androidx.datastore.core.okio.OkioSerializer
+import okio.BufferedSink
+import okio.BufferedSource
+import okio.EOFException
+import okio.IOException
+import okio.use
 
-internal class TestingSerializer(
-    val config: TestingSerializerConfig = TestingSerializerConfig(),
-) : Serializer<Byte> {
-    override suspend fun readFrom(input: InputStream): Byte {
+// TODO(b/237677833): remove this class when datastore test utils is created
+internal class TestingOkioSerializer(
+    val config: TestingSerializerConfig
+) : OkioSerializer<Byte> {
+
+    override suspend fun readFrom(source: BufferedSource): Byte {
         if (config.failReadWithCorruptionException) {
             throw CorruptionException(
                 "CorruptionException",
-                IOException()
+                IOException("I was asked to fail with corruption on reads")
             )
         }
 
@@ -35,18 +40,23 @@ internal class TestingSerializer(
             throw IOException("I was asked to fail on reads")
         }
 
-        val read = input.read()
-        if (read == -1) {
+        val read = try {
+            source.use {
+                it.readInt()
+            }
+        } catch (eof: EOFException) {
             return 0
         }
         return read.toByte()
     }
 
-    override suspend fun writeTo(t: Byte, output: OutputStream) {
+    override suspend fun writeTo(t: Byte, sink: BufferedSink) {
         if (config.failingWrite) {
             throw IOException("I was asked to fail on writes")
         }
-        output.write(t.toInt())
+        sink.use {
+            it.writeInt(t.toInt())
+        }
     }
 
     override val defaultValue: Byte
