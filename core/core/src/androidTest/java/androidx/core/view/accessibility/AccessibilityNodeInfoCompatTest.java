@@ -276,4 +276,14 @@ public class AccessibilityNodeInfoCompatTest {
         accessibilityNodeInfoCompat.setAvailableExtraData(testData);
         assertThat(accessibilityNodeInfoCompat.getAvailableExtraData(), equalTo(testData));
     }
+
+    @SdkSuppress(minSdkVersion = 33)
+    @SmallTest
+    @Test
+    public void testGetExtraRenderingInfo() {
+        AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
+        assertThat(
+                accessibilityNodeInfoCompat.getExtraRenderingInfo(),
+                equalTo(accessibilityNodeInfoCompat.unwrap().getExtraRenderingInfo()));
+    }
 }
