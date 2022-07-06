@@ -30,7 +30,7 @@ import java.util.Collections
 
 /**
  * [ParentRenderLayer] instance that leverages a [SurfaceView]'s [SurfaceControlCompat] as the
- * parent [SurfaceControlCompat] for the wet and dry layers
+ * parent [SurfaceControlCompat] for the front and double buffered layers
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : ParentRenderLayer {
@@ -54,7 +54,7 @@ internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : Pa
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun createRenderTarget(
         renderer: GLRenderer,
-        renderLayerCallback: GLWetDryRenderer.Callback
+        renderLayerCallback: GLFrontBufferedRenderer.Callback
     ): GLRenderer.RenderTarget {
         val hardwareBufferRenderer = HardwareBufferRenderer(
             object : HardwareBufferRenderer.RenderCallbacks {
@@ -66,38 +66,40 @@ internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : Pa
                 override fun onDraw(eglManager: EglManager) {
                     GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
                     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
-                    val params = mLayerCallback?.obtainDryLayerParams() ?: Collections.EMPTY_LIST
-                    renderLayerCallback.onDrawDryLayer(eglManager, params)
+                    val params = mLayerCallback?.obtainDoubleBufferedLayerParams()
+                        ?: Collections.EMPTY_LIST
+                    renderLayerCallback.onDrawDoubleBufferedLayer(eglManager, params)
                     params?.clear()
                 }
 
                 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
                 override fun onDrawComplete(renderBuffer: RenderBuffer) {
-                    val wetLayerSurfaceControl = mLayerCallback
-                            ?.getWetLayerSurfaceControl()
+                    val frontBufferedLayerSurfaceControl = mLayerCallback
+                            ?.getFrontBufferedLayerSurfaceControl()
                     val sc = mParentSurfaceControl
                         // At this point the parentSurfaceControl should already be created
                         // in the surfaceChanged callback, however, if for whatever reason this
-                        // was not the case, create the dry SurfaceControl now and cache it
-                        ?: createDrySurfaceControl().also {
+                        // was not the case, create the double buffered SurfaceControl now and cache
+                        // it
+                        ?: createDoubleBufferedSurfaceControl().also {
                             mParentSurfaceControl = it
                         }
-                    if (wetLayerSurfaceControl != null) {
+                    if (frontBufferedLayerSurfaceControl != null) {
                         val transaction = SurfaceControlCompat.Transaction()
-                            .setVisibility(wetLayerSurfaceControl, false)
+                            .setVisibility(frontBufferedLayerSurfaceControl, false)
                             .setVisibility(sc, true)
                             .setBuffer(sc, renderBuffer.hardwareBuffer) {
                                 mLayerCallback?.getRenderBufferPool()?.release(renderBuffer)
                             }
 
-                        renderLayerCallback.onDryLayerRenderComplete(
-                            wetLayerSurfaceControl,
+                        renderLayerCallback.onDoubleBufferedLayerRenderComplete(
+                            frontBufferedLayerSurfaceControl,
                             transaction
                         )
                         transaction.commit()
                     } else {
-                        Log.e(TAG, "Error, no wet SurfaceControl available to synchronize " +
-                            "transaction with")
+                        Log.e(TAG, "Error, no front buffered SurfaceControl available to " +
+                            "synchronize transaction with")
                     }
                 }
         })
@@ -115,7 +117,7 @@ internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : Pa
             ) {
                 mParentSurfaceControl?.release()
                 mLayerCallback?.onSizeChanged(width, height)
-                mParentSurfaceControl = createDrySurfaceControl()
+                mParentSurfaceControl = createDoubleBufferedSurfaceControl()
             }
 
             override fun surfaceDestroyed(p0: SurfaceHolder) {
@@ -128,10 +130,10 @@ internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : Pa
         return renderTarget
     }
 
-    internal fun createDrySurfaceControl(): SurfaceControlCompat =
+    internal fun createDoubleBufferedSurfaceControl(): SurfaceControlCompat =
         SurfaceControlCompat.Builder()
             .setParent(surfaceView)
-            .setName("DryLayer")
+            .setName("DoubleBufferedLayer")
             .build()
 
     override fun setParentLayerCallbacks(callback: ParentRenderLayer.Callback?) {

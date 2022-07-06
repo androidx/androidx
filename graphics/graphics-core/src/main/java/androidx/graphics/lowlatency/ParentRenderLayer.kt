@@ -20,14 +20,14 @@ import androidx.graphics.opengl.GLRenderer
 import androidx.graphics.surface.SurfaceControlCompat
 
 /**
- * Interface used to define a parent for rendering dry and wet layers.
+ * Interface used to define a parent for rendering front and double buffered layers.
  * This provides the following facilities:
  *
- * 1) Specifying a parent [SurfaceControlCompat] for a front buffered wet layer
- * 2) Creating a [GLRenderer.RenderTarget] for rendering double buffered dry layer
+ * 1) Specifying a parent [SurfaceControlCompat] for a front buffered layer
+ * 2) Creating a [GLRenderer.RenderTarget] for rendering double buffered layer
  * 3) Providing callbacks for consumers to know when to recreate dependencies based on
  * the size/state of the parent, as well as allowing consumers to provide parameters
- * to implementations of dry/double buffered layers
+ * to implementations of front/double buffered layers
  */
 internal interface ParentRenderLayer {
     /**
@@ -46,7 +46,7 @@ internal interface ParentRenderLayer {
      */
     fun createRenderTarget(
         renderer: GLRenderer,
-        renderLayerCallback: GLWetDryRenderer.Callback
+        renderLayerCallback: GLFrontBufferedRenderer.Callback
     ): GLRenderer.RenderTarget
 
     /**
@@ -57,9 +57,9 @@ internal interface ParentRenderLayer {
     fun setParentLayerCallbacks(callback: Callback?)
 
     /**
-     * Clear the contents of the parent buffer.
-     * This triggers a call to [GLWetDryRenderer.Callback.onDryLayerRenderComplete] to update the
-     * buffer shown for the dry layer as well as hides the wet layer.
+     * Clear the contents of the parent buffer. This triggers a call to
+     * [GLFrontBufferedRenderer.Callback.onDoubleBufferedLayerRenderComplete] to update the
+     * buffer shown for the dry layer as well as hides the front buffered layer.
      */
     fun clear()
 
@@ -71,13 +71,13 @@ internal interface ParentRenderLayer {
     /**
      * Callbacks to be implemented by the consumer of [ParentRenderLayer] to be alerted
      * of size changes or if the [ParentRenderLayer] is destroyed as well as providing a mechanism
-     * to expose parameters for rendering wet/dry layers
+     * to expose parameters for rendering front/double bufferedd layers
      */
     interface Callback {
         /**
          * Callback invoked whenever the size of the [ParentRenderLayer] changes.
-         * Consumers can leverage this to initialize appropriate buffer sizes and [SurfaceControl]
-         * instances
+         * Consumers can leverage this to initialize appropriate buffer sizes and
+         * [SurfaceControlCompat] instances
          */
         fun onSizeChanged(width: Int, height: Int)
 
@@ -90,27 +90,29 @@ internal interface ParentRenderLayer {
 
         /**
          * Callback invoked by the [ParentRenderLayer] to query the next parameters to be used
-         * for rendering wet buffer content
+         * for rendering front buffer content
          */
-        fun pollWetLayerParams(): Any?
+        fun pollFrontLayerParams(): Any?
 
         /**
          * Callback invoked by the [ParentRenderLayer] to query the parameters since the last
          * render to the dry layer. This includes all parameters to each request to render content
-         * to the wet layer since the last time the dry layer was re-rendered.
-         * This is useful for recreating the entire scene when wet layer contents are to be "dried"
+         * to the front buffered layer since the last time the dry layer was re-rendered.
+         * This is useful for recreating the entire scene when front buffered layer contents are to
+         * be committed, that is the entire scene is re-rendered into the double buffered layer.
          */
-        fun obtainDryLayerParams(): MutableCollection<Any?>
+        fun obtainDoubleBufferedLayerParams(): MutableCollection<Any?>
 
         /**
-         * Obtain a handle to the wet layer [SurfaceControlCompat] to be used in transactions to
-         * atomically update dry layer content as well as hiding the visibility of the wet layer
+         * Obtain a handle to the front bufferedd layer [SurfaceControlCompat] to be used in
+         * transactions to atomically update double buffered layer content as well as hiding the
+         * visibility of the front bufferedd layer
          */
-        fun getWetLayerSurfaceControl(): SurfaceControlCompat?
+        fun getFrontBufferedLayerSurfaceControl(): SurfaceControlCompat?
 
         /**
          * Obtain a handle to the [RenderBufferPool] to get [RenderBuffer] instances for
-         * rendering to wet and dry layers
+         * rendering to front and double bufferedd layers
          */
         fun getRenderBufferPool(): RenderBufferPool?
     }
