@@ -17,8 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * A Presenter is used to generate {@link View}s and bind Objects to them on
  * demand. It is closely related to the concept of an {@link
- * RecyclerView.Adapter RecyclerView.Adapter}, but is
+ * androidx.recyclerview.widget.RecyclerView.Adapter RecyclerView.Adapter}, but is
  * not position-based.  The leanback framework implements the adapter concept using
  * {@link ObjectAdapter} which refers to a Presenter (or {@link PresenterSelector}) instance.
  *
@@ -128,7 +128,7 @@ public abstract class Presenter implements FacetProvider {
     /**
      * Binds a {@link View} to an item.
      */
-    public abstract void onBindViewHolder(@NonNull ViewHolder viewHolder, @NonNull Object item);
+    public abstract void onBindViewHolder(@NonNull ViewHolder viewHolder, @Nullable Object item);
 
     /**
      * Binds a {@link View} to an item with a list of payloads.

@@ -37,6 +37,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.leanback.test.R;
 import androidx.leanback.testutils.LeakDetector;
@@ -380,7 +381,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
                             }
 
                             @Override
-                            public Object get(int position) {
+                            public @Nullable Object get(int position) {
                                 return null;
                             }
 
@@ -405,7 +406,7 @@ public class RowsSupportFragmentTest extends SingleSupportFragmentTestBase {
         }
 
         @Override
-        public Object get(int position) {
+        public @Nullable Object get(int position) {
             return mList.get(position);
         }
 

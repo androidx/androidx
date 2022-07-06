@@ -13,12 +13,14 @@
  */
 package androidx.leanback.widget;
 
+import androidx.annotation.Nullable;
+
 /**
  * Used to represent content spanning full page.
  */
 public class PageRow extends Row {
 
-    public PageRow(HeaderItem headerItem) {
+    public PageRow(@Nullable HeaderItem headerItem) {
         super(headerItem);
     }
 

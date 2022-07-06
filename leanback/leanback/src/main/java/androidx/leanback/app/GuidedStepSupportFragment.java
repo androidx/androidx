@@ -325,7 +325,7 @@ public class GuidedStepSupportFragment extends Fragment implements GuidedActionA
      * @param savedInstanceState The saved instance state from onCreateView.
      * @return The Guidance object representing the information used to guide the user.
      */
-    public @NonNull Guidance onCreateGuidance(@NonNull Bundle savedInstanceState) {
+    public @NonNull Guidance onCreateGuidance(@Nullable Bundle savedInstanceState) {
         return new Guidance("", "", "", null);
     }
 

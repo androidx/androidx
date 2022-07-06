@@ -23,6 +23,7 @@ import android.view.ViewTreeObserver;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.R;
 
 /**
@@ -164,7 +165,7 @@ public abstract class AbstractDetailsDescriptionPresenter extends Presenter {
     @Override
     public final void onBindViewHolder(
             @NonNull Presenter.ViewHolder viewHolder,
-            @NonNull Object item
+            @Nullable Object item
     ) {
         ViewHolder vh = (ViewHolder) viewHolder;
         onBindDescription(vh, item);

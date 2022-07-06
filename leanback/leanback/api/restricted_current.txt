@@ -95,21 +95,21 @@ package androidx.leanback.app {
 
   public class BrandedSupportFragment extends androidx.fragment.app.Fragment {
     ctor public BrandedSupportFragment();
-    method public android.graphics.drawable.Drawable! getBadgeDrawable();
+    method public android.graphics.drawable.Drawable? getBadgeDrawable();
     method public int getSearchAffordanceColor();
-    method public androidx.leanback.widget.SearchOrbView.Colors! getSearchAffordanceColors();
-    method public CharSequence! getTitle();
-    method public android.view.View! getTitleView();
-    method public androidx.leanback.widget.TitleViewAdapter! getTitleViewAdapter();
-    method public void installTitleView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+    method public androidx.leanback.widget.SearchOrbView.Colors? getSearchAffordanceColors();
+    method public CharSequence? getTitle();
+    method public android.view.View? getTitleView();
+    method public androidx.leanback.widget.TitleViewAdapter? getTitleViewAdapter();
+    method public void installTitleView(android.view.LayoutInflater, android.view.ViewGroup, android.os.Bundle?);
     method public final boolean isShowingTitle();
-    method public android.view.View! onInflateTitleView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
-    method public void setBadgeDrawable(android.graphics.drawable.Drawable!);
-    method public void setOnSearchClickedListener(android.view.View.OnClickListener!);
+    method public android.view.View onInflateTitleView(android.view.LayoutInflater, android.view.ViewGroup?, android.os.Bundle?);
+    method public void setBadgeDrawable(android.graphics.drawable.Drawable?);
+    method public void setOnSearchClickedListener(android.view.View.OnClickListener?);
     method public void setSearchAffordanceColor(int);
-    method public void setSearchAffordanceColors(androidx.leanback.widget.SearchOrbView.Colors!);
-    method public void setTitle(CharSequence!);
-    method public void setTitleView(android.view.View!);
+    method public void setSearchAffordanceColors(androidx.leanback.widget.SearchOrbView.Colors);
+    method public void setTitle(CharSequence?);
+    method public void setTitleView(android.view.View?);
     method public void showTitle(boolean);
     method public void showTitle(int);
   }
@@ -418,18 +418,18 @@ package androidx.leanback.app {
 
   public class ErrorSupportFragment extends androidx.leanback.app.BrandedSupportFragment {
     ctor public ErrorSupportFragment();
-    method public android.graphics.drawable.Drawable! getBackgroundDrawable();
-    method public android.view.View.OnClickListener! getButtonClickListener();
-    method public String! getButtonText();
-    method public android.graphics.drawable.Drawable! getImageDrawable();
-    method public CharSequence! getMessage();
+    method public android.graphics.drawable.Drawable? getBackgroundDrawable();
+    method public android.view.View.OnClickListener? getButtonClickListener();
+    method public String? getButtonText();
+    method public android.graphics.drawable.Drawable? getImageDrawable();
+    method public CharSequence? getMessage();
     method public boolean isBackgroundTranslucent();
-    method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
-    method public void setButtonClickListener(android.view.View.OnClickListener!);
-    method public void setButtonText(String!);
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable?);
+    method public void setButtonClickListener(android.view.View.OnClickListener?);
+    method public void setButtonText(String?);
     method public void setDefaultBackground(boolean);
-    method public void setImageDrawable(android.graphics.drawable.Drawable!);
-    method public void setMessage(CharSequence!);
+    method public void setImageDrawable(android.graphics.drawable.Drawable?);
+    method public void setMessage(CharSequence?);
   }
 
   @Deprecated public class GuidedStepFragment extends android.app.Fragment implements androidx.leanback.widget.GuidedActionAdapter.FocusListener {
@@ -544,7 +544,7 @@ package androidx.leanback.app {
     method public android.view.View? onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup?, android.os.Bundle?);
     method public void onCreateButtonActions(java.util.List<androidx.leanback.widget.GuidedAction!>, android.os.Bundle?);
     method public androidx.leanback.widget.GuidedActionsStylist onCreateButtonActionsStylist();
-    method public androidx.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle);
+    method public androidx.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle?);
     method public androidx.leanback.widget.GuidanceStylist onCreateGuidanceStylist();
     method public void onGuidedActionClicked(androidx.leanback.widget.GuidedAction);
     method public void onGuidedActionEditCanceled(androidx.leanback.widget.GuidedAction);
@@ -688,20 +688,20 @@ package androidx.leanback.app {
     method public final int getIconResourceId();
     method public final int getLogoResourceId();
     method protected abstract int getPageCount();
-    method protected abstract CharSequence! getPageDescription(int);
-    method protected abstract CharSequence! getPageTitle(int);
-    method public final CharSequence! getStartButtonText();
+    method protected abstract CharSequence? getPageDescription(int);
+    method protected abstract CharSequence? getPageTitle(int);
+    method public final CharSequence? getStartButtonText();
     method @ColorInt public final int getTitleViewTextColor();
     method protected final boolean isLogoAnimationFinished();
     method protected void moveToNextPage();
     method protected void moveToPreviousPage();
-    method protected abstract android.view.View? onCreateBackgroundView(android.view.LayoutInflater!, android.view.ViewGroup!);
-    method protected abstract android.view.View? onCreateContentView(android.view.LayoutInflater!, android.view.ViewGroup!);
-    method protected android.animation.Animator! onCreateDescriptionAnimator();
+    method protected abstract android.view.View? onCreateBackgroundView(android.view.LayoutInflater, android.view.ViewGroup);
+    method protected abstract android.view.View? onCreateContentView(android.view.LayoutInflater, android.view.ViewGroup);
+    method protected android.animation.Animator onCreateDescriptionAnimator();
     method protected android.animation.Animator? onCreateEnterAnimation();
-    method protected abstract android.view.View? onCreateForegroundView(android.view.LayoutInflater!, android.view.ViewGroup!);
+    method protected abstract android.view.View? onCreateForegroundView(android.view.LayoutInflater, android.view.ViewGroup);
     method protected android.animation.Animator? onCreateLogoAnimation();
-    method protected android.animation.Animator! onCreateTitleAnimator();
+    method protected android.animation.Animator onCreateTitleAnimator();
     method protected void onFinishFragment();
     method protected void onLogoAnimationFinished();
     method protected void onPageChanged(int, int);
@@ -712,7 +712,7 @@ package androidx.leanback.app {
     method public void setDotBackgroundColor(@ColorInt int);
     method public final void setIconResouceId(int);
     method public final void setLogoResourceId(int);
-    method public void setStartButtonText(CharSequence!);
+    method public void setStartButtonText(CharSequence?);
     method public void setTitleViewTextColor(@ColorInt int);
     method protected final void startEnterAnimation(boolean);
   }
@@ -1042,20 +1042,20 @@ package androidx.leanback.graphics {
 
   public class BoundsRule {
     ctor public BoundsRule();
-    ctor public BoundsRule(androidx.leanback.graphics.BoundsRule!);
-    method public void calculateBounds(android.graphics.Rect!, android.graphics.Rect!);
-    field public androidx.leanback.graphics.BoundsRule.ValueRule! bottom;
-    field public androidx.leanback.graphics.BoundsRule.ValueRule! left;
-    field public androidx.leanback.graphics.BoundsRule.ValueRule! right;
-    field public androidx.leanback.graphics.BoundsRule.ValueRule! top;
+    ctor public BoundsRule(androidx.leanback.graphics.BoundsRule);
+    method public void calculateBounds(android.graphics.Rect, android.graphics.Rect);
+    field public androidx.leanback.graphics.BoundsRule.ValueRule? bottom;
+    field public androidx.leanback.graphics.BoundsRule.ValueRule? left;
+    field public androidx.leanback.graphics.BoundsRule.ValueRule? right;
+    field public androidx.leanback.graphics.BoundsRule.ValueRule? top;
   }
 
   public static final class BoundsRule.ValueRule {
-    method public static androidx.leanback.graphics.BoundsRule.ValueRule! absoluteValue(int);
+    method public static androidx.leanback.graphics.BoundsRule.ValueRule absoluteValue(int);
     method public int getAbsoluteValue();
     method public float getFraction();
-    method public static androidx.leanback.graphics.BoundsRule.ValueRule! inheritFromParent(float);
-    method public static androidx.leanback.graphics.BoundsRule.ValueRule! inheritFromParentWithOffset(float, int);
+    method public static androidx.leanback.graphics.BoundsRule.ValueRule inheritFromParent(float);
+    method public static androidx.leanback.graphics.BoundsRule.ValueRule inheritFromParentWithOffset(float, int);
     method public void setAbsoluteValue(int);
     method public void setFraction(float);
   }
@@ -1212,12 +1212,12 @@ package androidx.leanback.media {
   }
 
   public class PlaybackBannerControlGlue<T extends androidx.leanback.media.PlayerAdapter> extends androidx.leanback.media.PlaybackBaseControlGlue<T> {
-    ctor public PlaybackBannerControlGlue(android.content.Context!, int[]!, T!);
-    ctor public PlaybackBannerControlGlue(android.content.Context!, int[]!, int[]!, T!);
+    ctor public PlaybackBannerControlGlue(android.content.Context, int[], T!);
+    ctor public PlaybackBannerControlGlue(android.content.Context, int[], int[], T!);
     method public int[] getFastForwardSpeeds();
     method public int[] getRewindSpeeds();
-    method public void onActionClicked(androidx.leanback.widget.Action!);
-    method protected androidx.leanback.widget.PlaybackRowPresenter! onCreateRowPresenter();
+    method public void onActionClicked(androidx.leanback.widget.Action);
+    method protected androidx.leanback.widget.PlaybackRowPresenter onCreateRowPresenter();
     method public boolean onKey(android.view.View!, int, android.view.KeyEvent!);
     field public static final int ACTION_CUSTOM_LEFT_FIRST = 1; // 0x1
     field public static final int ACTION_CUSTOM_RIGHT_FIRST = 4096; // 0x1000
@@ -1240,24 +1240,24 @@ package androidx.leanback.media {
   }
 
   public abstract class PlaybackBaseControlGlue<T extends androidx.leanback.media.PlayerAdapter> extends androidx.leanback.media.PlaybackGlue implements androidx.leanback.widget.OnActionClickedListener android.view.View.OnKeyListener {
-    ctor public PlaybackBaseControlGlue(android.content.Context!, T!);
-    method public android.graphics.drawable.Drawable! getArt();
+    ctor public PlaybackBaseControlGlue(android.content.Context, T!);
+    method public android.graphics.drawable.Drawable? getArt();
     method public final long getBufferedPosition();
-    method public androidx.leanback.widget.PlaybackControlsRow! getControlsRow();
+    method public androidx.leanback.widget.PlaybackControlsRow? getControlsRow();
     method public long getCurrentPosition();
     method public final long getDuration();
-    method public androidx.leanback.widget.PlaybackRowPresenter! getPlaybackRowPresenter();
+    method public androidx.leanback.widget.PlaybackRowPresenter? getPlaybackRowPresenter();
     method public final T! getPlayerAdapter();
-    method public CharSequence! getSubtitle();
+    method public CharSequence? getSubtitle();
     method public long getSupportedActions();
-    method public CharSequence! getTitle();
+    method public CharSequence? getTitle();
     method public boolean isControlsOverlayAutoHideEnabled();
     method public final boolean isPlaying();
     method public final boolean isPrepared();
-    method protected static void notifyItemChanged(androidx.leanback.widget.ArrayObjectAdapter!, Object!);
-    method protected void onCreatePrimaryActions(androidx.leanback.widget.ArrayObjectAdapter!);
-    method protected abstract androidx.leanback.widget.PlaybackRowPresenter! onCreateRowPresenter();
-    method protected void onCreateSecondaryActions(androidx.leanback.widget.ArrayObjectAdapter!);
+    method protected static void notifyItemChanged(androidx.leanback.widget.ArrayObjectAdapter, Object);
+    method protected void onCreatePrimaryActions(androidx.leanback.widget.ArrayObjectAdapter);
+    method protected abstract androidx.leanback.widget.PlaybackRowPresenter onCreateRowPresenter();
+    method protected void onCreateSecondaryActions(androidx.leanback.widget.ArrayObjectAdapter);
     method protected void onMetadataChanged();
     method @CallSuper protected void onPlayCompleted();
     method @CallSuper protected void onPlayStateChanged();
@@ -1266,12 +1266,12 @@ package androidx.leanback.media {
     method @CallSuper protected void onUpdateDuration();
     method @CallSuper protected void onUpdateProgress();
     method public final void seekTo(long);
-    method public void setArt(android.graphics.drawable.Drawable!);
+    method public void setArt(android.graphics.drawable.Drawable?);
     method public void setControlsOverlayAutoHideEnabled(boolean);
-    method public void setControlsRow(androidx.leanback.widget.PlaybackControlsRow!);
-    method public void setPlaybackRowPresenter(androidx.leanback.widget.PlaybackRowPresenter!);
-    method public void setSubtitle(CharSequence!);
-    method public void setTitle(CharSequence!);
+    method public void setControlsRow(androidx.leanback.widget.PlaybackControlsRow);
+    method public void setPlaybackRowPresenter(androidx.leanback.widget.PlaybackRowPresenter?);
+    method public void setSubtitle(CharSequence?);
+    method public void setTitle(CharSequence?);
     field public static final int ACTION_CUSTOM_LEFT_FIRST = 1; // 0x1
     field public static final int ACTION_CUSTOM_RIGHT_FIRST = 4096; // 0x1000
     field public static final int ACTION_FAST_FORWARD = 128; // 0x80
@@ -1335,15 +1335,15 @@ package androidx.leanback.media {
   }
 
   public abstract class PlaybackGlue {
-    ctor public PlaybackGlue(android.content.Context!);
-    method public void addPlayerCallback(androidx.leanback.media.PlaybackGlue.PlayerCallback!);
-    method public android.content.Context! getContext();
-    method public androidx.leanback.media.PlaybackGlueHost! getHost();
-    method protected java.util.List<androidx.leanback.media.PlaybackGlue.PlayerCallback!>! getPlayerCallbacks();
+    ctor public PlaybackGlue(android.content.Context);
+    method public void addPlayerCallback(androidx.leanback.media.PlaybackGlue.PlayerCallback);
+    method public android.content.Context getContext();
+    method public androidx.leanback.media.PlaybackGlueHost? getHost();
+    method protected java.util.List<androidx.leanback.media.PlaybackGlue.PlayerCallback!>? getPlayerCallbacks();
     method public boolean isPlaying();
     method public boolean isPrepared();
     method public void next();
-    method @CallSuper protected void onAttachedToHost(androidx.leanback.media.PlaybackGlueHost!);
+    method @CallSuper protected void onAttachedToHost(androidx.leanback.media.PlaybackGlueHost);
     method @CallSuper protected void onDetachedFromHost();
     method protected void onHostPause();
     method protected void onHostResume();
@@ -1353,15 +1353,15 @@ package androidx.leanback.media {
     method public void play();
     method public void playWhenPrepared();
     method public void previous();
-    method public void removePlayerCallback(androidx.leanback.media.PlaybackGlue.PlayerCallback!);
-    method public final void setHost(androidx.leanback.media.PlaybackGlueHost!);
+    method public void removePlayerCallback(androidx.leanback.media.PlaybackGlue.PlayerCallback);
+    method public final void setHost(androidx.leanback.media.PlaybackGlueHost?);
   }
 
   public abstract static class PlaybackGlue.PlayerCallback {
     ctor public PlaybackGlue.PlayerCallback();
-    method public void onPlayCompleted(androidx.leanback.media.PlaybackGlue!);
-    method public void onPlayStateChanged(androidx.leanback.media.PlaybackGlue!);
-    method public void onPreparedStateChanged(androidx.leanback.media.PlaybackGlue!);
+    method public void onPlayCompleted(androidx.leanback.media.PlaybackGlue);
+    method public void onPlayStateChanged(androidx.leanback.media.PlaybackGlue);
+    method public void onPreparedStateChanged(androidx.leanback.media.PlaybackGlue);
   }
 
   public abstract class PlaybackGlueHost {
@@ -1402,8 +1402,8 @@ package androidx.leanback.media {
     ctor public PlaybackTransportControlGlue(android.content.Context!, T!);
     method public final androidx.leanback.widget.PlaybackSeekDataProvider! getSeekProvider();
     method public final boolean isSeekEnabled();
-    method public void onActionClicked(androidx.leanback.widget.Action!);
-    method protected androidx.leanback.widget.PlaybackRowPresenter! onCreateRowPresenter();
+    method public void onActionClicked(androidx.leanback.widget.Action);
+    method protected androidx.leanback.widget.PlaybackRowPresenter onCreateRowPresenter();
     method public boolean onKey(android.view.View!, int, android.view.KeyEvent!);
     method public final void setSeekEnabled(boolean);
     method public final void setSeekProvider(androidx.leanback.widget.PlaybackSeekDataProvider!);
@@ -1413,21 +1413,21 @@ package androidx.leanback.media {
     ctor public PlayerAdapter();
     method public void fastForward();
     method public long getBufferedPosition();
-    method public final androidx.leanback.media.PlayerAdapter.Callback! getCallback();
+    method public final androidx.leanback.media.PlayerAdapter.Callback? getCallback();
     method public long getCurrentPosition();
     method public long getDuration();
     method public long getSupportedActions();
     method public boolean isPlaying();
     method public boolean isPrepared();
     method public void next();
-    method public void onAttachedToHost(androidx.leanback.media.PlaybackGlueHost!);
+    method public void onAttachedToHost(androidx.leanback.media.PlaybackGlueHost);
     method public void onDetachedFromHost();
     method public abstract void pause();
     method public abstract void play();
     method public void previous();
     method public void rewind();
     method public void seekTo(long);
-    method public final void setCallback(androidx.leanback.media.PlayerAdapter.Callback!);
+    method public final void setCallback(androidx.leanback.media.PlayerAdapter.Callback?);
     method public void setProgressUpdatingEnabled(boolean);
     method public void setRepeatAction(int);
     method public void setShuffleAction(int);
@@ -1435,20 +1435,20 @@ package androidx.leanback.media {
 
   public static class PlayerAdapter.Callback {
     ctor public PlayerAdapter.Callback();
-    method public void onBufferedPositionChanged(androidx.leanback.media.PlayerAdapter!);
-    method public void onBufferingStateChanged(androidx.leanback.media.PlayerAdapter!, boolean);
-    method public void onCurrentPositionChanged(androidx.leanback.media.PlayerAdapter!);
-    method public void onDurationChanged(androidx.leanback.media.PlayerAdapter!);
-    method public void onError(androidx.leanback.media.PlayerAdapter!, int, String!);
-    method public void onMetadataChanged(androidx.leanback.media.PlayerAdapter!);
-    method public void onPlayCompleted(androidx.leanback.media.PlayerAdapter!);
-    method public void onPlayStateChanged(androidx.leanback.media.PlayerAdapter!);
-    method public void onPreparedStateChanged(androidx.leanback.media.PlayerAdapter!);
-    method public void onVideoSizeChanged(androidx.leanback.media.PlayerAdapter!, int, int);
+    method public void onBufferedPositionChanged(androidx.leanback.media.PlayerAdapter);
+    method public void onBufferingStateChanged(androidx.leanback.media.PlayerAdapter, boolean);
+    method public void onCurrentPositionChanged(androidx.leanback.media.PlayerAdapter);
+    method public void onDurationChanged(androidx.leanback.media.PlayerAdapter);
+    method public void onError(androidx.leanback.media.PlayerAdapter, int, String?);
+    method public void onMetadataChanged(androidx.leanback.media.PlayerAdapter);
+    method public void onPlayCompleted(androidx.leanback.media.PlayerAdapter);
+    method public void onPlayStateChanged(androidx.leanback.media.PlayerAdapter);
+    method public void onPreparedStateChanged(androidx.leanback.media.PlayerAdapter);
+    method public void onVideoSizeChanged(androidx.leanback.media.PlayerAdapter, int, int);
   }
 
   public interface SurfaceHolderGlueHost {
-    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback!);
+    method public void setSurfaceHolderCallback(android.view.SurfaceHolder.Callback?);
   }
 
 }
@@ -1510,11 +1510,11 @@ package androidx.leanback.util {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class StateMachine {
     ctor public StateMachine();
-    method public void addState(androidx.leanback.util.StateMachine.State!);
-    method public void addTransition(androidx.leanback.util.StateMachine.State!, androidx.leanback.util.StateMachine.State!, androidx.leanback.util.StateMachine.Event!);
-    method public void addTransition(androidx.leanback.util.StateMachine.State!, androidx.leanback.util.StateMachine.State!, androidx.leanback.util.StateMachine.Condition!);
-    method public void addTransition(androidx.leanback.util.StateMachine.State!, androidx.leanback.util.StateMachine.State!);
-    method public void fireEvent(androidx.leanback.util.StateMachine.Event!);
+    method public void addState(androidx.leanback.util.StateMachine.State);
+    method public void addTransition(androidx.leanback.util.StateMachine.State, androidx.leanback.util.StateMachine.State, androidx.leanback.util.StateMachine.Event);
+    method public void addTransition(androidx.leanback.util.StateMachine.State, androidx.leanback.util.StateMachine.State, androidx.leanback.util.StateMachine.Condition);
+    method public void addTransition(androidx.leanback.util.StateMachine.State, androidx.leanback.util.StateMachine.State);
+    method public void fireEvent(androidx.leanback.util.StateMachine.Event);
     method public void reset();
     method public void start();
     field public static final int STATUS_INVOKED = 1; // 0x1
@@ -1522,12 +1522,12 @@ package androidx.leanback.util {
   }
 
   public static class StateMachine.Condition {
-    ctor public StateMachine.Condition(String!);
+    ctor public StateMachine.Condition(String);
     method public boolean canProceed();
   }
 
   public static class StateMachine.Event {
-    ctor public StateMachine.Event(String!);
+    ctor public StateMachine.Event(String);
   }
 
   public static class StateMachine.State {
@@ -1544,7 +1544,7 @@ package androidx.leanback.widget {
   public abstract class AbstractDetailsDescriptionPresenter extends androidx.leanback.widget.Presenter {
     ctor public AbstractDetailsDescriptionPresenter();
     method protected abstract void onBindDescription(androidx.leanback.widget.AbstractDetailsDescriptionPresenter.ViewHolder, Object);
-    method public final void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object);
+    method public final void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object?);
     method public final androidx.leanback.widget.AbstractDetailsDescriptionPresenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
     method public void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder);
   }
@@ -1631,23 +1631,23 @@ package androidx.leanback.widget {
   }
 
   public class ArrayObjectAdapter extends androidx.leanback.widget.ObjectAdapter {
-    ctor public ArrayObjectAdapter(androidx.leanback.widget.PresenterSelector!);
-    ctor public ArrayObjectAdapter(androidx.leanback.widget.Presenter!);
+    ctor public ArrayObjectAdapter(androidx.leanback.widget.PresenterSelector);
+    ctor public ArrayObjectAdapter(androidx.leanback.widget.Presenter);
     ctor public ArrayObjectAdapter();
-    method public void add(Object!);
-    method public void add(int, Object!);
-    method public void addAll(int, java.util.Collection!);
+    method public void add(Object);
+    method public void add(int, Object);
+    method public void addAll(int, java.util.Collection<?>);
     method public void clear();
-    method public Object! get(int);
-    method public int indexOf(Object!);
+    method public Object? get(int);
+    method public int indexOf(Object);
     method public void move(int, int);
     method public void notifyArrayItemRangeChanged(int, int);
-    method public boolean remove(Object!);
+    method public boolean remove(Object);
     method public int removeItems(int, int);
-    method public void replace(int, Object!);
-    method public void setItems(java.util.List!, androidx.leanback.widget.DiffCallback!);
+    method public void replace(int, Object);
+    method public void setItems(java.util.List, androidx.leanback.widget.DiffCallback?);
     method public int size();
-    method public <E> java.util.List<E!>! unmodifiableList();
+    method public <E> java.util.List<E!> unmodifiableList();
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class BackgroundHelper {
@@ -1698,23 +1698,23 @@ package androidx.leanback.widget {
   }
 
   public class BrowseFrameLayout extends android.widget.FrameLayout {
-    ctor public BrowseFrameLayout(android.content.Context!);
-    ctor public BrowseFrameLayout(android.content.Context!, android.util.AttributeSet!);
-    ctor public BrowseFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
-    method public androidx.leanback.widget.BrowseFrameLayout.OnChildFocusListener! getOnChildFocusListener();
-    method public androidx.leanback.widget.BrowseFrameLayout.OnFocusSearchListener! getOnFocusSearchListener();
-    method public void setOnChildFocusListener(androidx.leanback.widget.BrowseFrameLayout.OnChildFocusListener!);
-    method public void setOnDispatchKeyListener(android.view.View.OnKeyListener!);
-    method public void setOnFocusSearchListener(androidx.leanback.widget.BrowseFrameLayout.OnFocusSearchListener!);
+    ctor public BrowseFrameLayout(android.content.Context);
+    ctor public BrowseFrameLayout(android.content.Context, android.util.AttributeSet?);
+    ctor public BrowseFrameLayout(android.content.Context, android.util.AttributeSet?, int);
+    method public androidx.leanback.widget.BrowseFrameLayout.OnChildFocusListener? getOnChildFocusListener();
+    method public androidx.leanback.widget.BrowseFrameLayout.OnFocusSearchListener? getOnFocusSearchListener();
+    method public void setOnChildFocusListener(androidx.leanback.widget.BrowseFrameLayout.OnChildFocusListener?);
+    method public void setOnDispatchKeyListener(android.view.View.OnKeyListener?);
+    method public void setOnFocusSearchListener(androidx.leanback.widget.BrowseFrameLayout.OnFocusSearchListener?);
   }
 
   public static interface BrowseFrameLayout.OnChildFocusListener {
-    method public void onRequestChildFocus(android.view.View!, android.view.View!);
-    method public boolean onRequestFocusInDescendants(int, android.graphics.Rect!);
+    method public void onRequestChildFocus(android.view.View?, android.view.View?);
+    method public boolean onRequestFocusInDescendants(int, android.graphics.Rect?);
   }
 
   public static interface BrowseFrameLayout.OnFocusSearchListener {
-    method public android.view.View! onFocusSearch(android.view.View!, int);
+    method public android.view.View? onFocusSearch(android.view.View?, int);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class BrowseRowsFrameLayout extends android.widget.FrameLayout {
@@ -1727,12 +1727,12 @@ package androidx.leanback.widget {
     ctor public ClassPresenterSelector();
     method public androidx.leanback.widget.ClassPresenterSelector! addClassPresenter(Class<?>!, androidx.leanback.widget.Presenter!);
     method public androidx.leanback.widget.ClassPresenterSelector! addClassPresenterSelector(Class<?>!, androidx.leanback.widget.PresenterSelector!);
-    method public androidx.leanback.widget.Presenter! getPresenter(Object!);
+    method public androidx.leanback.widget.Presenter? getPresenter(Object?);
   }
 
   public class ControlButtonPresenterSelector extends androidx.leanback.widget.PresenterSelector {
     ctor public ControlButtonPresenterSelector();
-    method public androidx.leanback.widget.Presenter! getPresenter(Object!);
+    method public androidx.leanback.widget.Presenter? getPresenter(Object?);
     method public androidx.leanback.widget.Presenter! getPrimaryPresenter();
     method public androidx.leanback.widget.Presenter! getSecondaryPresenter();
   }
@@ -1743,7 +1743,7 @@ package androidx.leanback.widget {
     ctor public CursorObjectAdapter();
     method public void changeCursor(android.database.Cursor!);
     method public void close();
-    method public Object! get(int);
+    method public Object? get(int);
     method public final android.database.Cursor! getCursor();
     method public final androidx.leanback.database.CursorMapper! getMapper();
     method protected final void invalidateCache(int);
@@ -1759,7 +1759,7 @@ package androidx.leanback.widget {
   public class DetailsOverviewLogoPresenter extends androidx.leanback.widget.Presenter {
     ctor public DetailsOverviewLogoPresenter();
     method public boolean isBoundToImage(androidx.leanback.widget.DetailsOverviewLogoPresenter.ViewHolder, androidx.leanback.widget.DetailsOverviewRow?);
-    method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object);
+    method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object?);
     method public android.view.View onCreateView(android.view.ViewGroup);
     method public androidx.leanback.widget.Presenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
     method public void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder);
@@ -1777,28 +1777,28 @@ package androidx.leanback.widget {
   }
 
   public class DetailsOverviewRow extends androidx.leanback.widget.Row {
-    ctor public DetailsOverviewRow(Object!);
+    ctor public DetailsOverviewRow(Object);
     method @Deprecated public final void addAction(androidx.leanback.widget.Action!);
     method @Deprecated public final void addAction(int, androidx.leanback.widget.Action!);
-    method public androidx.leanback.widget.Action! getActionForKeyCode(int);
+    method public androidx.leanback.widget.Action? getActionForKeyCode(int);
     method @Deprecated public final java.util.List<androidx.leanback.widget.Action!>! getActions();
-    method public final androidx.leanback.widget.ObjectAdapter! getActionsAdapter();
-    method public final android.graphics.drawable.Drawable! getImageDrawable();
-    method public final Object! getItem();
+    method public final androidx.leanback.widget.ObjectAdapter getActionsAdapter();
+    method public final android.graphics.drawable.Drawable? getImageDrawable();
+    method public final Object getItem();
     method public boolean isImageScaleUpAllowed();
     method @Deprecated public final boolean removeAction(androidx.leanback.widget.Action!);
-    method public final void setActionsAdapter(androidx.leanback.widget.ObjectAdapter!);
-    method public final void setImageBitmap(android.content.Context!, android.graphics.Bitmap!);
-    method public final void setImageDrawable(android.graphics.drawable.Drawable!);
+    method public final void setActionsAdapter(androidx.leanback.widget.ObjectAdapter);
+    method public final void setImageBitmap(android.content.Context, android.graphics.Bitmap);
+    method public final void setImageDrawable(android.graphics.drawable.Drawable?);
     method public void setImageScaleUpAllowed(boolean);
-    method public final void setItem(Object!);
+    method public final void setItem(Object);
   }
 
   public static class DetailsOverviewRow.Listener {
     ctor public DetailsOverviewRow.Listener();
-    method public void onActionsAdapterChanged(androidx.leanback.widget.DetailsOverviewRow!);
-    method public void onImageDrawableChanged(androidx.leanback.widget.DetailsOverviewRow!);
-    method public void onItemChanged(androidx.leanback.widget.DetailsOverviewRow!);
+    method public void onActionsAdapterChanged(androidx.leanback.widget.DetailsOverviewRow);
+    method public void onImageDrawableChanged(androidx.leanback.widget.DetailsOverviewRow);
+    method public void onItemChanged(androidx.leanback.widget.DetailsOverviewRow);
   }
 
   @Deprecated public class DetailsOverviewRowPresenter extends androidx.leanback.widget.RowPresenter {
@@ -1830,15 +1830,15 @@ package androidx.leanback.widget {
     ctor public DiffCallback();
     method public abstract boolean areContentsTheSame(Value, Value);
     method public abstract boolean areItemsTheSame(Value, Value);
-    method public Object! getChangePayload(Value, Value);
+    method public Object? getChangePayload(Value, Value);
   }
 
   public class DividerPresenter extends androidx.leanback.widget.Presenter {
     ctor public DividerPresenter();
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public DividerPresenter(int);
-    method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!, Object!);
-    method public androidx.leanback.widget.Presenter.ViewHolder! onCreateViewHolder(android.view.ViewGroup!);
-    method public void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!);
+    method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object?);
+    method public androidx.leanback.widget.Presenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
+    method public void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder);
   }
 
   public class DividerRow extends androidx.leanback.widget.Row {
@@ -1932,11 +1932,11 @@ package androidx.leanback.widget {
 
   public class GuidanceStylist implements androidx.leanback.widget.FragmentAnimationProvider {
     ctor public GuidanceStylist();
-    method public android.widget.TextView! getBreadcrumbView();
-    method public android.widget.TextView! getDescriptionView();
-    method public android.widget.ImageView! getIconView();
-    method public android.widget.TextView! getTitleView();
-    method public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, androidx.leanback.widget.GuidanceStylist.Guidance!);
+    method public android.widget.TextView? getBreadcrumbView();
+    method public android.widget.TextView? getDescriptionView();
+    method public android.widget.ImageView? getIconView();
+    method public android.widget.TextView? getTitleView();
+    method public android.view.View onCreateView(android.view.LayoutInflater, android.view.ViewGroup?, androidx.leanback.widget.GuidanceStylist.Guidance);
     method public void onDestroyView();
     method public void onImeAppearing(java.util.List<android.animation.Animator!>);
     method public void onImeDisappearing(java.util.List<android.animation.Animator!>);
@@ -1944,11 +1944,11 @@ package androidx.leanback.widget {
   }
 
   public static class GuidanceStylist.Guidance {
-    ctor public GuidanceStylist.Guidance(String!, String!, String!, android.graphics.drawable.Drawable!);
-    method public String! getBreadcrumb();
-    method public String! getDescription();
-    method public android.graphics.drawable.Drawable! getIconDrawable();
-    method public String! getTitle();
+    ctor public GuidanceStylist.Guidance(String?, String?, String?, android.graphics.drawable.Drawable?);
+    method public String? getBreadcrumb();
+    method public String? getDescription();
+    method public android.graphics.drawable.Drawable? getIconDrawable();
+    method public String? getTitle();
   }
 
   public class GuidedAction extends androidx.leanback.widget.Action {
@@ -2102,7 +2102,7 @@ package androidx.leanback.widget {
     ctor public GuidedActionDiffCallback();
     method public boolean areContentsTheSame(androidx.leanback.widget.GuidedAction, androidx.leanback.widget.GuidedAction);
     method public boolean areItemsTheSame(androidx.leanback.widget.GuidedAction, androidx.leanback.widget.GuidedAction);
-    method public static androidx.leanback.widget.GuidedActionDiffCallback! getInstance();
+    method public static androidx.leanback.widget.GuidedActionDiffCallback getInstance();
   }
 
   public class GuidedActionEditText extends android.widget.EditText implements androidx.leanback.widget.GuidedActionAutofillSupport androidx.leanback.widget.ImeKeyMonitor {
@@ -2187,22 +2187,22 @@ package androidx.leanback.widget {
   public class GuidedDatePickerAction extends androidx.leanback.widget.GuidedAction {
     ctor public GuidedDatePickerAction();
     method public long getDate();
-    method public String! getDatePickerFormat();
+    method public String? getDatePickerFormat();
     method public long getMaxDate();
     method public long getMinDate();
     method public void setDate(long);
   }
 
   public static final class GuidedDatePickerAction.Builder extends androidx.leanback.widget.GuidedDatePickerAction.BuilderBase<androidx.leanback.widget.GuidedDatePickerAction.Builder> {
-    ctor public GuidedDatePickerAction.Builder(android.content.Context!);
-    method public androidx.leanback.widget.GuidedDatePickerAction! build();
+    ctor public GuidedDatePickerAction.Builder(android.content.Context);
+    method public androidx.leanback.widget.GuidedDatePickerAction build();
   }
 
   public abstract static class GuidedDatePickerAction.BuilderBase<B extends androidx.leanback.widget.GuidedDatePickerAction.BuilderBase> extends androidx.leanback.widget.GuidedAction.BuilderBase<B> {
-    ctor public GuidedDatePickerAction.BuilderBase(android.content.Context!);
-    method protected final void applyDatePickerValues(androidx.leanback.widget.GuidedDatePickerAction!);
+    ctor public GuidedDatePickerAction.BuilderBase(android.content.Context);
+    method protected final void applyDatePickerValues(androidx.leanback.widget.GuidedDatePickerAction);
     method public B! date(long);
-    method public B! datePickerFormat(String!);
+    method public B! datePickerFormat(String?);
     method public B! maxDate(long);
     method public B! minDate(long);
   }
@@ -2226,25 +2226,25 @@ package androidx.leanback.widget {
 
   public class ImageCardView extends androidx.leanback.widget.BaseCardView {
     ctor @Deprecated public ImageCardView(android.content.Context!, int);
-    ctor public ImageCardView(android.content.Context!, android.util.AttributeSet!, int);
-    ctor public ImageCardView(android.content.Context!);
-    ctor public ImageCardView(android.content.Context!, android.util.AttributeSet!);
-    method public android.graphics.drawable.Drawable! getBadgeImage();
-    method public CharSequence! getContentText();
-    method public android.graphics.drawable.Drawable! getInfoAreaBackground();
-    method public android.graphics.drawable.Drawable! getMainImage();
-    method public final android.widget.ImageView! getMainImageView();
-    method public CharSequence! getTitleText();
-    method public void setBadgeImage(android.graphics.drawable.Drawable!);
-    method public void setContentText(CharSequence!);
-    method public void setInfoAreaBackground(android.graphics.drawable.Drawable!);
+    ctor public ImageCardView(android.content.Context, android.util.AttributeSet?, int);
+    ctor public ImageCardView(android.content.Context);
+    ctor public ImageCardView(android.content.Context, android.util.AttributeSet?);
+    method public android.graphics.drawable.Drawable? getBadgeImage();
+    method public CharSequence? getContentText();
+    method public android.graphics.drawable.Drawable? getInfoAreaBackground();
+    method public android.graphics.drawable.Drawable? getMainImage();
+    method public final android.widget.ImageView? getMainImageView();
+    method public CharSequence? getTitleText();
+    method public void setBadgeImage(android.graphics.drawable.Drawable?);
+    method public void setContentText(CharSequence?);
+    method public void setInfoAreaBackground(android.graphics.drawable.Drawable?);
     method public void setInfoAreaBackgroundColor(@ColorInt int);
-    method public void setMainImage(android.graphics.drawable.Drawable!);
-    method public void setMainImage(android.graphics.drawable.Drawable!, boolean);
+    method public void setMainImage(android.graphics.drawable.Drawable?);
+    method public void setMainImage(android.graphics.drawable.Drawable?, boolean);
     method public void setMainImageAdjustViewBounds(boolean);
     method public void setMainImageDimensions(int, int);
-    method public void setMainImageScaleType(android.widget.ImageView.ScaleType!);
-    method public void setTitleText(CharSequence!);
+    method public void setMainImageScaleType(android.widget.ImageView.ScaleType);
+    method public void setTitleText(CharSequence?);
     field public static final int CARD_TYPE_FLAG_CONTENT = 2; // 0x2
     field public static final int CARD_TYPE_FLAG_ICON_LEFT = 8; // 0x8
     field public static final int CARD_TYPE_FLAG_ICON_RIGHT = 4; // 0x4
@@ -2431,30 +2431,30 @@ package androidx.leanback.widget {
   }
 
   public abstract class ObjectAdapter {
-    ctor public ObjectAdapter(androidx.leanback.widget.PresenterSelector!);
-    ctor public ObjectAdapter(androidx.leanback.widget.Presenter!);
+    ctor public ObjectAdapter(androidx.leanback.widget.PresenterSelector);
+    ctor public ObjectAdapter(androidx.leanback.widget.Presenter);
     ctor public ObjectAdapter();
-    method public abstract Object! get(int);
+    method public abstract Object? get(int);
     method public long getId(int);
-    method public final androidx.leanback.widget.Presenter! getPresenter(Object!);
-    method public final androidx.leanback.widget.PresenterSelector! getPresenterSelector();
+    method public final androidx.leanback.widget.Presenter? getPresenter(Object);
+    method public final androidx.leanback.widget.PresenterSelector getPresenterSelector();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final boolean hasObserver();
     method public final boolean hasStableIds();
     method public boolean isImmediateNotifySupported();
     method protected final void notifyChanged();
     method protected final void notifyItemMoved(int, int);
     method public final void notifyItemRangeChanged(int, int);
-    method public final void notifyItemRangeChanged(int, int, Object!);
+    method public final void notifyItemRangeChanged(int, int, Object?);
     method protected final void notifyItemRangeInserted(int, int);
     method protected final void notifyItemRangeRemoved(int, int);
     method protected void onHasStableIdsChanged();
     method protected void onPresenterSelectorChanged();
-    method public final void registerObserver(androidx.leanback.widget.ObjectAdapter.DataObserver!);
+    method public final void registerObserver(androidx.leanback.widget.ObjectAdapter.DataObserver);
     method public final void setHasStableIds(boolean);
-    method public final void setPresenterSelector(androidx.leanback.widget.PresenterSelector!);
+    method public final void setPresenterSelector(androidx.leanback.widget.PresenterSelector);
     method public abstract int size();
     method public final void unregisterAllObservers();
-    method public final void unregisterObserver(androidx.leanback.widget.ObjectAdapter.DataObserver!);
+    method public final void unregisterObserver(androidx.leanback.widget.ObjectAdapter.DataObserver);
     field public static final int NO_ID = -1; // 0xffffffff
   }
 
@@ -2463,13 +2463,13 @@ package androidx.leanback.widget {
     method public void onChanged();
     method public void onItemMoved(int, int);
     method public void onItemRangeChanged(int, int);
-    method public void onItemRangeChanged(int, int, Object!);
+    method public void onItemRangeChanged(int, int, Object?);
     method public void onItemRangeInserted(int, int);
     method public void onItemRangeRemoved(int, int);
   }
 
   public interface OnActionClickedListener {
-    method public void onActionClicked(androidx.leanback.widget.Action!);
+    method public void onActionClicked(androidx.leanback.widget.Action);
   }
 
   public interface OnItemViewClickedListener extends androidx.leanback.widget.BaseOnItemViewClickedListener<androidx.leanback.widget.Row> {
@@ -2479,7 +2479,7 @@ package androidx.leanback.widget {
   }
 
   public class PageRow extends androidx.leanback.widget.Row {
-    ctor public PageRow(androidx.leanback.widget.HeaderItem!);
+    ctor public PageRow(androidx.leanback.widget.HeaderItem?);
     method public final boolean isRenderedAsRowView();
   }
 
@@ -2818,7 +2818,7 @@ package androidx.leanback.widget {
     ctor public Presenter();
     method protected static void cancelAnimationsRecursive(android.view.View!);
     method public final Object! getFacet(Class<?>!);
-    method public abstract void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object);
+    method public abstract void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object?);
     method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object, java.util.List<java.lang.Object!>);
     method public abstract androidx.leanback.widget.Presenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
     method public abstract void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder);
@@ -2842,8 +2842,8 @@ package androidx.leanback.widget {
 
   public abstract class PresenterSelector {
     ctor public PresenterSelector();
-    method public abstract androidx.leanback.widget.Presenter! getPresenter(Object!);
-    method public androidx.leanback.widget.Presenter![]! getPresenters();
+    method public abstract androidx.leanback.widget.Presenter? getPresenter(Object?);
+    method public androidx.leanback.widget.Presenter![]? getPresenters();
   }
 
   public abstract class PresenterSwitcher {
@@ -2892,20 +2892,20 @@ package androidx.leanback.widget {
     ctor public RowHeaderPresenter();
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RowHeaderPresenter(int);
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RowHeaderPresenter(int, boolean);
-    method protected static float getFontDescent(android.widget.TextView!, android.graphics.Paint!);
-    method public int getSpaceUnderBaseline(androidx.leanback.widget.RowHeaderPresenter.ViewHolder!);
+    method protected static float getFontDescent(android.widget.TextView, android.graphics.Paint);
+    method public int getSpaceUnderBaseline(androidx.leanback.widget.RowHeaderPresenter.ViewHolder);
     method public boolean isNullItemVisibilityGone();
-    method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!, Object!);
-    method public androidx.leanback.widget.Presenter.ViewHolder! onCreateViewHolder(android.view.ViewGroup!);
-    method protected void onSelectLevelChanged(androidx.leanback.widget.RowHeaderPresenter.ViewHolder!);
-    method public void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!);
+    method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object?);
+    method public androidx.leanback.widget.Presenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
+    method protected void onSelectLevelChanged(androidx.leanback.widget.RowHeaderPresenter.ViewHolder);
+    method public void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder);
     method public void setNullItemVisibilityGone(boolean);
-    method public final void setSelectLevel(androidx.leanback.widget.RowHeaderPresenter.ViewHolder!, float);
+    method public final void setSelectLevel(androidx.leanback.widget.RowHeaderPresenter.ViewHolder, float);
   }
 
   public static class RowHeaderPresenter.ViewHolder extends androidx.leanback.widget.Presenter.ViewHolder {
-    ctor public RowHeaderPresenter.ViewHolder(android.view.View!);
-    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RowHeaderPresenter.ViewHolder(androidx.leanback.widget.RowHeaderView!);
+    ctor public RowHeaderPresenter.ViewHolder(android.view.View);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public RowHeaderPresenter.ViewHolder(androidx.leanback.widget.RowHeaderView);
     method public final float getSelectLevel();
   }
 
@@ -2919,7 +2919,7 @@ package androidx.leanback.widget {
     ctor public RowPresenter();
     method protected abstract androidx.leanback.widget.RowPresenter.ViewHolder createRowViewHolder(android.view.ViewGroup);
     method protected void dispatchItemSelectedListener(androidx.leanback.widget.RowPresenter.ViewHolder!, boolean);
-    method public void freeze(androidx.leanback.widget.RowPresenter.ViewHolder!, boolean);
+    method public void freeze(androidx.leanback.widget.RowPresenter.ViewHolder, boolean);
     method public final androidx.leanback.widget.RowHeaderPresenter! getHeaderPresenter();
     method public final androidx.leanback.widget.RowPresenter.ViewHolder! getRowViewHolder(androidx.leanback.widget.Presenter.ViewHolder!);
     method public final boolean getSelectEffectEnabled();
@@ -2929,7 +2929,7 @@ package androidx.leanback.widget {
     method protected boolean isClippingChildren();
     method public boolean isUsingDefaultSelectEffect();
     method protected void onBindRowViewHolder(androidx.leanback.widget.RowPresenter.ViewHolder, Object);
-    method public final void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!, Object!);
+    method public final void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object?);
     method public final androidx.leanback.widget.Presenter.ViewHolder! onCreateViewHolder(android.view.ViewGroup!);
     method protected void onRowViewAttachedToWindow(androidx.leanback.widget.RowPresenter.ViewHolder);
     method protected void onRowViewDetachedFromWindow(androidx.leanback.widget.RowPresenter.ViewHolder);
@@ -2937,9 +2937,9 @@ package androidx.leanback.widget {
     method protected void onRowViewSelected(androidx.leanback.widget.RowPresenter.ViewHolder, boolean);
     method protected void onSelectLevelChanged(androidx.leanback.widget.RowPresenter.ViewHolder!);
     method protected void onUnbindRowViewHolder(androidx.leanback.widget.RowPresenter.ViewHolder);
-    method public final void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!);
-    method public final void onViewAttachedToWindow(androidx.leanback.widget.Presenter.ViewHolder!);
-    method public final void onViewDetachedFromWindow(androidx.leanback.widget.Presenter.ViewHolder!);
+    method public final void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder);
+    method public final void onViewAttachedToWindow(androidx.leanback.widget.Presenter.ViewHolder);
+    method public final void onViewDetachedFromWindow(androidx.leanback.widget.Presenter.ViewHolder);
     method public void setEntranceTransitionState(androidx.leanback.widget.RowPresenter.ViewHolder, boolean);
     method public final void setHeaderPresenter(androidx.leanback.widget.RowHeaderPresenter!);
     method public final void setRowViewExpanded(androidx.leanback.widget.Presenter.ViewHolder!, boolean);
@@ -3153,8 +3153,8 @@ package androidx.leanback.widget {
   }
 
   public final class SinglePresenterSelector extends androidx.leanback.widget.PresenterSelector {
-    ctor public SinglePresenterSelector(androidx.leanback.widget.Presenter!);
-    method public androidx.leanback.widget.Presenter! getPresenter(Object!);
+    ctor public SinglePresenterSelector(androidx.leanback.widget.Presenter);
+    method public androidx.leanback.widget.Presenter? getPresenter(Object?);
   }
 
   public class SparseArrayObjectAdapter extends androidx.leanback.widget.ObjectAdapter {
@@ -3163,7 +3163,7 @@ package androidx.leanback.widget {
     ctor public SparseArrayObjectAdapter();
     method public void clear(int);
     method public void clear();
-    method public Object! get(int);
+    method public Object? get(int);
     method public int indexOf(Object!);
     method public int indexOf(int);
     method public Object! lookup(int);
@@ -3235,7 +3235,7 @@ package androidx.leanback.widget {
     method public void setAnimationEnabled(boolean);
     method public void setBadgeDrawable(android.graphics.drawable.Drawable!);
     method public void setOnSearchClickedListener(android.view.View.OnClickListener!);
-    method public void setSearchAffordanceColors(androidx.leanback.widget.SearchOrbView.Colors!);
+    method public void setSearchAffordanceColors(androidx.leanback.widget.SearchOrbView.Colors);
     method public void setTitle(CharSequence!);
     method public void updateComponentsVisibility(int);
     field public static final int BRANDING_VIEW_VISIBLE = 2; // 0x2
@@ -3256,33 +3256,33 @@ package androidx.leanback.widget {
     ctor public VerticalGridPresenter(int);
     ctor public VerticalGridPresenter(int, boolean);
     method public final boolean areChildRoundedCornersEnabled();
-    method protected androidx.leanback.widget.VerticalGridPresenter.ViewHolder! createGridViewHolder(android.view.ViewGroup!);
-    method protected androidx.leanback.widget.ShadowOverlayHelper.Options! createShadowOverlayOptions();
+    method protected androidx.leanback.widget.VerticalGridPresenter.ViewHolder createGridViewHolder(android.view.ViewGroup);
+    method protected androidx.leanback.widget.ShadowOverlayHelper.Options createShadowOverlayOptions();
     method public final void enableChildRoundedCorners(boolean);
     method public final int getFocusZoomFactor();
     method public final boolean getKeepChildForeground();
     method public int getNumberOfColumns();
-    method public final androidx.leanback.widget.OnItemViewClickedListener! getOnItemViewClickedListener();
-    method public final androidx.leanback.widget.OnItemViewSelectedListener! getOnItemViewSelectedListener();
+    method public final androidx.leanback.widget.OnItemViewClickedListener? getOnItemViewClickedListener();
+    method public final androidx.leanback.widget.OnItemViewSelectedListener? getOnItemViewSelectedListener();
     method public final boolean getShadowEnabled();
-    method protected void initializeGridViewHolder(androidx.leanback.widget.VerticalGridPresenter.ViewHolder!);
+    method protected void initializeGridViewHolder(androidx.leanback.widget.VerticalGridPresenter.ViewHolder);
     method public final boolean isFocusDimmerUsed();
     method public boolean isUsingDefaultShadow();
-    method public boolean isUsingZOrder(android.content.Context!);
-    method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!, Object!);
-    method public final androidx.leanback.widget.VerticalGridPresenter.ViewHolder! onCreateViewHolder(android.view.ViewGroup!);
-    method public void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder!);
-    method public void setEntranceTransitionState(androidx.leanback.widget.VerticalGridPresenter.ViewHolder!, boolean);
+    method public boolean isUsingZOrder(android.content.Context);
+    method public void onBindViewHolder(androidx.leanback.widget.Presenter.ViewHolder, Object?);
+    method public final androidx.leanback.widget.VerticalGridPresenter.ViewHolder onCreateViewHolder(android.view.ViewGroup);
+    method public void onUnbindViewHolder(androidx.leanback.widget.Presenter.ViewHolder);
+    method public void setEntranceTransitionState(androidx.leanback.widget.VerticalGridPresenter.ViewHolder, boolean);
     method public final void setKeepChildForeground(boolean);
     method public void setNumberOfColumns(int);
-    method public final void setOnItemViewClickedListener(androidx.leanback.widget.OnItemViewClickedListener!);
-    method public final void setOnItemViewSelectedListener(androidx.leanback.widget.OnItemViewSelectedListener!);
+    method public final void setOnItemViewClickedListener(androidx.leanback.widget.OnItemViewClickedListener?);
+    method public final void setOnItemViewSelectedListener(androidx.leanback.widget.OnItemViewSelectedListener?);
     method public final void setShadowEnabled(boolean);
   }
 
   public static class VerticalGridPresenter.ViewHolder extends androidx.leanback.widget.Presenter.ViewHolder {
-    ctor public VerticalGridPresenter.ViewHolder(androidx.leanback.widget.VerticalGridView!);
-    method public androidx.leanback.widget.VerticalGridView! getGridView();
+    ctor public VerticalGridPresenter.ViewHolder(androidx.leanback.widget.VerticalGridView);
+    method public androidx.leanback.widget.VerticalGridView getGridView();
   }
 
 }

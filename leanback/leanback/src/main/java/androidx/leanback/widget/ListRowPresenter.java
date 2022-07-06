@@ -456,11 +456,16 @@ public class ListRowPresenter extends RowPresenter {
                 != ShadowOverlayHelper.SHADOW_DYNAMIC);
         rowViewHolder.mGridView.setOnChildSelectedListener(
                 new OnChildSelectedListener() {
-            @Override
-            public void onChildSelected(ViewGroup parent, View view, int position, long id) {
-                selectChildView(rowViewHolder, view, true);
-            }
-        });
+                    @Override
+                    public void onChildSelected(
+                            @NonNull ViewGroup parent,
+                            @Nullable View view,
+                            int position,
+                            long id
+                    ) {
+                        selectChildView(rowViewHolder, view, true);
+                    }
+                });
         rowViewHolder.mGridView.setOnUnhandledKeyListener(
                 new BaseGridView.OnUnhandledKeyListener() {
                 @Override
@@ -667,7 +672,10 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     @Override
-    protected void onBindRowViewHolder(RowPresenter.ViewHolder holder, Object item) {
+    protected void onBindRowViewHolder(
+            @NonNull RowPresenter.ViewHolder holder,
+            @NonNull Object item
+    ) {
         super.onBindRowViewHolder(holder, item);
         ViewHolder vh = (ViewHolder) holder;
         ListRow rowItem = (ListRow) item;
@@ -677,7 +685,7 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     @Override
-    protected void onUnbindRowViewHolder(RowPresenter.ViewHolder holder) {
+    protected void onUnbindRowViewHolder(@NonNull RowPresenter.ViewHolder holder) {
         ViewHolder vh = (ViewHolder) holder;
         vh.mGridView.setAdapter(null);
         vh.mItemBridgeAdapter.clear();
@@ -856,14 +864,14 @@ public class ListRowPresenter extends RowPresenter {
     }
 
     @Override
-    public void freeze(RowPresenter.ViewHolder holder, boolean freeze) {
+    public void freeze(@NonNull RowPresenter.ViewHolder holder, boolean freeze) {
         ViewHolder vh = (ViewHolder) holder;
         vh.mGridView.setScrollEnabled(!freeze);
         vh.mGridView.setAnimateChildLayout(!freeze);
     }
 
     @Override
-    public void setEntranceTransitionState(RowPresenter.ViewHolder holder,
+    public void setEntranceTransitionState(@NonNull RowPresenter.ViewHolder holder,
             boolean afterEntrance) {
         super.setEntranceTransitionState(holder, afterEntrance);
         ((ViewHolder) holder).mGridView.setChildrenVisibility(
