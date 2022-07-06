@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.view.SurfaceHolder;
 
+import androidx.annotation.NonNull;
 import androidx.leanback.R;
 
 import java.io.IOException;
@@ -139,7 +140,7 @@ public class MediaPlayerAdapter extends PlayerAdapter {
     }
 
     @Override
-    public void onAttachedToHost(PlaybackGlueHost host) {
+    public void onAttachedToHost(@NonNull PlaybackGlueHost host) {
         if (host instanceof SurfaceHolderGlueHost) {
             mSurfaceHolderGlueHost = ((SurfaceHolderGlueHost) host);
             mSurfaceHolderGlueHost.setSurfaceHolderCallback(new VideoPlayerSurfaceHolderCallback());

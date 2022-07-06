@@ -126,20 +126,20 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter>
     }
 
     @Override
-    public void setControlsRow(PlaybackControlsRow controlsRow) {
+    public void setControlsRow(@NonNull PlaybackControlsRow controlsRow) {
         super.setControlsRow(controlsRow);
         sHandler.removeMessages(MSG_UPDATE_PLAYBACK_STATE, mGlueWeakReference);
         onUpdatePlaybackState();
     }
 
     @Override
-    protected void onCreatePrimaryActions(ArrayObjectAdapter primaryActionsAdapter) {
+    protected void onCreatePrimaryActions(@NonNull ArrayObjectAdapter primaryActionsAdapter) {
         primaryActionsAdapter.add(mPlayPauseAction =
                 new PlaybackControlsRow.PlayPauseAction(getContext()));
     }
 
     @Override
-    protected PlaybackRowPresenter onCreateRowPresenter() {
+    protected @NonNull PlaybackRowPresenter onCreateRowPresenter() {
         final AbstractDetailsDescriptionPresenter detailsPresenter =
                 new AbstractDetailsDescriptionPresenter() {
                     @Override
@@ -153,12 +153,15 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter>
 
         PlaybackTransportRowPresenter rowPresenter = new PlaybackTransportRowPresenter() {
             @Override
-            protected void onBindRowViewHolder(RowPresenter.ViewHolder vh, Object item) {
+            protected void onBindRowViewHolder(
+                    @NonNull RowPresenter.ViewHolder vh,
+                    @NonNull Object item
+            ) {
                 super.onBindRowViewHolder(vh, item);
                 vh.setOnKeyListener(PlaybackTransportControlGlue.this);
             }
             @Override
-            protected void onUnbindRowViewHolder(RowPresenter.ViewHolder vh) {
+            protected void onUnbindRowViewHolder(@NonNull RowPresenter.ViewHolder vh) {
                 super.onUnbindRowViewHolder(vh);
                 vh.setOnKeyListener(null);
             }
@@ -168,7 +171,7 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter>
     }
 
     @Override
-    protected void onAttachedToHost(PlaybackGlueHost host) {
+    protected void onAttachedToHost(@NonNull PlaybackGlueHost host) {
         super.onAttachedToHost(host);
 
         if (host instanceof PlaybackSeekUi) {
@@ -193,7 +196,7 @@ public class PlaybackTransportControlGlue<T extends PlayerAdapter>
     }
 
     @Override
-    public void onActionClicked(Action action) {
+    public void onActionClicked(@NonNull Action action) {
         dispatchAction(action, null);
     }
 

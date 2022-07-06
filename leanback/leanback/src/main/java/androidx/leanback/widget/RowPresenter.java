@@ -606,7 +606,10 @@ public abstract class RowPresenter extends Presenter {
     }
 
     @Override
-    public final void onBindViewHolder(Presenter.ViewHolder viewHolder, Object item) {
+    public final void onBindViewHolder(
+            @NonNull Presenter.ViewHolder viewHolder,
+            @Nullable Object item
+    ) {
         onBindRowViewHolder(getRowViewHolder(viewHolder), item);
     }
 
@@ -625,7 +628,7 @@ public abstract class RowPresenter extends Presenter {
     }
 
     @Override
-    public final void onUnbindViewHolder(Presenter.ViewHolder viewHolder) {
+    public final void onUnbindViewHolder(@NonNull Presenter.ViewHolder viewHolder) {
         onUnbindRowViewHolder(getRowViewHolder(viewHolder));
     }
 
@@ -643,7 +646,7 @@ public abstract class RowPresenter extends Presenter {
     }
 
     @Override
-    public final void onViewAttachedToWindow(Presenter.ViewHolder holder) {
+    public final void onViewAttachedToWindow(@NonNull Presenter.ViewHolder holder) {
         onRowViewAttachedToWindow(getRowViewHolder(holder));
     }
 
@@ -657,7 +660,7 @@ public abstract class RowPresenter extends Presenter {
     }
 
     @Override
-    public final void onViewDetachedFromWindow(Presenter.ViewHolder holder) {
+    public final void onViewDetachedFromWindow(@NonNull Presenter.ViewHolder holder) {
         onRowViewDetachedFromWindow(getRowViewHolder(holder));
     }
 
@@ -675,7 +678,7 @@ public abstract class RowPresenter extends Presenter {
      * Freezes/unfreezes the row, typically used when a transition starts/ends.
      * This method is called by the fragment, it should not call it directly by the application.
      */
-    public void freeze(ViewHolder holder, boolean freeze) {
+    public void freeze(@NonNull ViewHolder holder, boolean freeze) {
     }
 
     /**
