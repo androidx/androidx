@@ -33,14 +33,17 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.ApiCompat;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Logger;
@@ -1113,6 +1116,7 @@ final class Camera2CameraImpl implements CameraInternal {
      * <p>The previously opened session will be safely disposed of before the new session opened.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @ExecutedBy("mExecutor")
     void openCaptureSession() {
         Preconditions.checkState(mState == InternalState.OPENED);
@@ -1122,9 +1126,14 @@ final class Camera2CameraImpl implements CameraInternal {
             debugLog("Unable to create capture session due to conflicting configurations");
             return;
         }
-        validatingBuilder.setStreamUseCase(StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(
-                mUseCaseAttachState.getAttachedUseCaseConfigs(),
-                mUseCaseAttachState.getAttachedSessionConfigs()));
+
+        if (!validatingBuilder.build().getImplementationOptions().containsOption(
+                Camera2ImplConfig.STREAM_USE_CASE_OPTION)) {
+            validatingBuilder.addImplementationOption(Camera2ImplConfig.STREAM_USE_CASE_OPTION,
+                    StreamUseCaseUtil.getStreamUseCaseFromUseCaseConfigs(
+                            mUseCaseAttachState.getAttachedUseCaseConfigs(),
+                            mUseCaseAttachState.getAttachedSessionConfigs()));
+        }
 
         CaptureSessionInterface captureSession = mCaptureSession;
         ListenableFuture<Void> openCaptureSession = captureSession.open(validatingBuilder.build(),
