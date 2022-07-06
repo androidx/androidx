@@ -18,14 +18,19 @@ package androidx.test.uiautomator.testapp;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.Button;
 
 import androidx.annotation.Nullable;
 
-public class BySelectorTestHasChildActivity extends Activity {
+public class BySelectorTestActivity extends Activity {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.byselector_testhaschild_activity);
+        setContentView(R.layout.byselector_test_activity);
+
+        // Set up a selected component for `testSelected()`.
+        Button selected = (Button) findViewById(R.id.selected);
+        selected.setSelected(true);
     }
 }
