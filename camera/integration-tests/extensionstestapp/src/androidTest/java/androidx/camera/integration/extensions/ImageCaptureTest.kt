@@ -103,9 +103,9 @@ class ImageCaptureTest(private val cameraId: String, private val extensionMode: 
         var takePictureIdlingResource: IdlingResource? = null
 
         activityScenario.onActivity {
-            initializationIdlingResource = it.mInitializationIdlingResource
-            previewViewIdlingResource = it.mPreviewViewIdlingResource
-            takePictureIdlingResource = it.mTakePictureIdlingResource
+            initializationIdlingResource = it.initializationIdlingResource
+            previewViewIdlingResource = it.previewViewStreamingStateIdlingResource
+            takePictureIdlingResource = it.takePictureIdlingResource
         }
 
         // Wait for CameraExtensionsActivity's initialization to be complete
