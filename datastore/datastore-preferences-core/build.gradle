@@ -19,13 +19,38 @@ import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
 }
 
-BundleInsideHelper.forInsideJar(
-    project,
-    /* from = */ "com.google.protobuf",
-    /* to =   */ "androidx.datastore.preferences.protobuf"
+androidXMultiplatform {
+    jvm {
+        withJava()
+    }
+    mac()
+    linux()
+
+    sourceSets {
+        jvmMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(project(":datastore:datastore-core"))
+            }
+        }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinTest)
+                implementation(project(":datastore:datastore-core"))
+            }
+        }
+    }
+}
+
+BundleInsideHelper.forInsideJarKmp(
+        project,
+        /* from = */ "com.google.protobuf",
+        /* to =   */ "androidx.datastore.preferences.protobuf"
 )
 
 dependencies {
@@ -33,12 +58,6 @@ dependencies {
             path: ":datastore:datastore-preferences-proto",
             configuration: "export"
     ))
-    api(libs.kotlinStdlib)
-    api(project(":datastore:datastore-core"))
-
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.kotlinTest)
 }
 
 androidx {
