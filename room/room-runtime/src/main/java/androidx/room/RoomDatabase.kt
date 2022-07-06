@@ -29,6 +29,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
 import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.room.Room.LOG_TAG
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SimpleSQLiteQuery
@@ -137,8 +138,7 @@ abstract class RoomDatabase {
      *
      * @return The lock for [close].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    open fun getCloseLock(): Lock {
+    internal fun getCloseLock(): Lock {
         return readWriteLock.readLock()
     }
 
@@ -174,7 +174,7 @@ abstract class RoomDatabase {
     }
 
     /**
-     * Called by [Room] when it is initialized.
+     * Called by Room when it is initialized.
      *
      * @throws IllegalArgumentException if initialization fails.
      *
@@ -657,8 +657,7 @@ abstract class RoomDatabase {
         /**
          * Resolves [AUTOMATIC] to either [TRUNCATE] or [WRITE_AHEAD_LOGGING].
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        open fun resolve(context: Context): JournalMode {
+        internal fun resolve(context: Context): JournalMode {
             if (this != AUTOMATIC) {
                 return this
             }
@@ -1384,7 +1383,7 @@ abstract class RoomDatabase {
             val targetMap = migrations.getOrPut(start) { TreeMap<Int, Migration>() }
 
             if (targetMap.contains(end)) {
-                Log.w(Room.LOG_TAG, "Overriding migration ${targetMap[end]} with $migration")
+                Log.w(LOG_TAG, "Overriding migration ${targetMap[end]} with $migration")
             }
             targetMap[end] = migration
         }

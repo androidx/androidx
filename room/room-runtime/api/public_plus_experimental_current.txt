@@ -48,17 +48,11 @@ package androidx.room {
     method public android.os.IBinder onBind(android.content.Intent intent);
   }
 
-  public class Room {
-    ctor @Deprecated public Room();
-    method public static final <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
-    method public static final <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, Class<T> klass);
-    field public static final androidx.room.Room.Companion Companion;
+  public final class Room {
+    method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
+    method public static <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, Class<T> klass);
+    field public static final androidx.room.Room INSTANCE;
     field public static final String MASTER_TABLE_NAME = "room_master_table";
-  }
-
-  public static final class Room.Companion {
-    method public <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> databaseBuilder(android.content.Context context, Class<T> klass, String? name);
-    method public <T extends androidx.room.RoomDatabase> androidx.room.RoomDatabase.Builder<T> inMemoryDatabaseBuilder(android.content.Context context, Class<T> klass);
   }
 
   public abstract class RoomDatabase {
