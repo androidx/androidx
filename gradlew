@@ -405,15 +405,18 @@ function runGradle() {
   # If the caller specified where to save data, then also save the build scan data
   if [ "$DIST_DIR" != "" ]; then
     if [ "$GRADLE_USER_HOME" != "" ]; then
-      if [[ "$DISALLOW_TASK_EXECUTION" != "" ]]; then
-        zipPath="$DIST_DIR/scan-up-to-date.zip"
-      else
-        zipPath="$DIST_DIR/scan.zip"
+      scanDir="$GRADLE_USER_HOME/build-scan-data"
+      if [ -e "$scanDir" ]; then
+        if [[ "$DISALLOW_TASK_EXECUTION" != "" ]]; then
+          zipPath="$DIST_DIR/scan-up-to-date.zip"
+        else
+          zipPath="$DIST_DIR/scan.zip"
+        fi
+        rm -f "$zipPath"
+        cd "$GRADLE_USER_HOME/build-scan-data"
+        zip -q -r "$zipPath" .
+        cd -
       fi
-      rm -f "$zipPath"
-      cd "$GRADLE_USER_HOME/build-scan-data"
-      zip -q -r "$zipPath" .
-      cd -
     fi
   fi
   return $RETURN_VALUE
