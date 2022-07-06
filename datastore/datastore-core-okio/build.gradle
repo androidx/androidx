@@ -54,6 +54,7 @@ androidXMultiplatform {
         }
         commonTest {
             dependencies {
+                api(project(":internal-testutils-kmp"))
                 api(libs.kotlinTestCommon)
                 api(libs.kotlinTestAnnotationsCommon)
                 api(libs.kotlinCoroutinesTest)
