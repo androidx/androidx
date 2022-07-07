@@ -32,7 +32,7 @@
 #include <vector>
 
 namespace {
-    auto constexpr LOG_TAG = "GLRendererJni";
+    auto constexpr LOG_TAG = "OpenGlRendererJni";
 
     std::string GLErrorString(GLenum error) {
         switch (error) {
@@ -139,24 +139,29 @@ namespace {
 #endif
 
 namespace {
-    constexpr char VERTEX_SHADER_SRC[] = R"SRC(
+    const std::vector<std::string> VAR_NAMES = {
+            "fragCoord",    // 0
+            "sampler",      // 1
+    };
+
+    const std::string VERTEX_SHADER_SRC = R"SRC(
       attribute vec4 position;
       attribute vec4 texCoords;
       uniform mat4 texTransform;
-      varying vec2 fragCoord;
+      varying vec2 )SRC" + VAR_NAMES[0] + R"SRC(;
       void main() {
-        fragCoord = (texTransform * texCoords).xy;
+        )SRC" + VAR_NAMES[0] + R"SRC(= (texTransform * texCoords).xy;
         gl_Position = position;
       }
 )SRC";
 
-    constexpr char FRAGMENT_SHADER_SRC[] = R"SRC(
+    const std::string FRAGMENT_SHADER_SRC = R"SRC(
       #extension GL_OES_EGL_image_external : require
       precision mediump float;
-      uniform samplerExternalOES sampler;
-      varying vec2 fragCoord;
+      uniform samplerExternalOES )SRC" + VAR_NAMES[1] + R"SRC(;
+      varying vec2 )SRC" + VAR_NAMES[0] + R"SRC(;
       void main() {
-        gl_FragColor = texture2D(sampler, fragCoord);
+        gl_FragColor = texture2D()SRC" + VAR_NAMES[1] + ", " + VAR_NAMES[0] + R"SRC();
       }
 )SRC";
 
@@ -248,20 +253,14 @@ namespace {
                                 ShaderTypeString(shaderType),
                                 logLength > 0 ? &logBuffer[0] : "(unknown error)");
             CHECK_GL(glDeleteShader(shader));
-            shader = 0;
+            return 0;
         }
         assert(shader);
         return shader;
     }
 
     // Returns a handle to the output program
-    GLuint CreateGlProgram() {
-        GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, VERTEX_SHADER_SRC);
-        assert(vertexShader);
-
-        GLuint fragmentShader = CompileShader(GL_FRAGMENT_SHADER, FRAGMENT_SHADER_SRC);
-        assert(fragmentShader);
-
+    GLuint CreateGlProgram(GLuint vertexShader, GLuint fragmentShader) {
         GLuint program = CHECK_GL(glCreateProgram());
         assert(program);
         CHECK_GL(glAttachShader(program, vertexShader));
@@ -281,7 +280,7 @@ namespace {
                                 "Unable to link program:\n %s.",
                                 logLength > 0 ? &logBuffer[0] : "(unknown error)");
             CHECK_GL(glDeleteProgram(program));
-            program = 0;
+            return 0;
         }
         assert(program);
         return program;
@@ -310,9 +309,27 @@ namespace {
 }  // namespace
 
 extern "C" {
+JNIEXPORT jobject JNICALL
+Java_androidx_camera_core_processing_OpenGlRenderer_getShaderVariableNames(
+        JNIEnv *env, jclass clazz) {
+
+    jclass arrayListCls = env->FindClass("java/util/ArrayList");
+    jmethodID arrayListConstructor = env->GetMethodID(arrayListCls, "<init>", "(I)V");
+    jmethodID arrayListAddId  = env->GetMethodID(arrayListCls, "add", "(Ljava/lang/Object;)Z");
+
+    jobject jobject = env->NewObject(arrayListCls, arrayListConstructor, (int) VAR_NAMES.size());
+    for (const std::string& name: VAR_NAMES) {
+        jstring element = env->NewStringUTF(name.c_str());
+        env->CallBooleanMethod(jobject, arrayListAddId, element);
+        env->DeleteLocalRef(element);
+    }
+    env->DeleteLocalRef(arrayListCls);
+    return jobject;
+}
+
 JNIEXPORT jlong JNICALL
 Java_androidx_camera_core_processing_OpenGlRenderer_initContext(
-        JNIEnv *env, jclass clazz) {
+        JNIEnv *env, jclass clazz, jstring jcustomFragmentShader) {
     EGLDisplay eglDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     assert(eglDisplay != EGL_NO_DISPLAY);
 
@@ -382,7 +399,36 @@ Java_androidx_camera_core_processing_OpenGlRenderer_initContext(
             new NativeContext(eglDisplay, config, eglContext, /*window=*/nullptr,
                     /*surface=*/nullptr, eglPbuffer);
 
-    nativeContext->program = CreateGlProgram();
+    // Compile vertex shader
+    GLuint vertexShader = CompileShader(GL_VERTEX_SHADER, VERTEX_SHADER_SRC.c_str());
+    assert(vertexShader);
+
+    // Compile fragment shader
+    const char* fragmentShaderSrc;
+    if (jcustomFragmentShader != nullptr) {
+        fragmentShaderSrc = env->GetStringUTFChars(jcustomFragmentShader, nullptr);
+        __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, "Custom fragment shader = %s",
+                            fragmentShaderSrc);
+    } else {
+        fragmentShaderSrc = FRAGMENT_SHADER_SRC.c_str();
+    }
+    GLuint fragmentShader = CompileShader(GL_FRAGMENT_SHADER, fragmentShaderSrc);
+    if (jcustomFragmentShader != nullptr) {
+        env->ReleaseStringUTFChars(jcustomFragmentShader, fragmentShaderSrc);
+    }
+    if (!fragmentShader && jcustomFragmentShader != nullptr) {
+        ThrowException(env, "java/lang/IllegalArgumentException",
+                       "Unable to compile custom fragment shader.");
+        return 0;
+    }
+    assert(fragmentShader);
+
+    nativeContext->program = CreateGlProgram(vertexShader, fragmentShader);
+    if (nativeContext->program == 0 && jcustomFragmentShader != nullptr) {
+        ThrowException(env, "java/lang/IllegalArgumentException",
+                       "Unable to create GL program with custom shader.");
+        return 0;
+    }
     assert(nativeContext->program);
 
     nativeContext->positionHandle =
@@ -394,7 +440,15 @@ Java_androidx_camera_core_processing_OpenGlRenderer_initContext(
     assert(nativeContext->texCoordsHandle != -1);
 
     nativeContext->samplerHandle =
-            CHECK_GL(glGetUniformLocation(nativeContext->program, "sampler"));
+            CHECK_GL(glGetUniformLocation(nativeContext->program, VAR_NAMES[1].c_str()));
+    if (nativeContext->samplerHandle == -1 && jcustomFragmentShader != nullptr) {
+        CHECK_GL(glDeleteProgram(nativeContext->program));
+        nativeContext->program = 0;
+        ThrowException(env, "java/lang/IllegalArgumentException",
+                       std::string(
+                               "Unable to get sampler handle by name: " + VAR_NAMES[1]).c_str());
+        return 0;
+    }
     assert(nativeContext->samplerHandle != -1);
 
     nativeContext->texTransformHandle =
@@ -448,7 +502,7 @@ JNIEXPORT jint JNICALL
 Java_androidx_camera_core_processing_OpenGlRenderer_getTexName(
         JNIEnv *env, jclass clazz, jlong context) {
     auto *nativeContext = reinterpret_cast<NativeContext *>(context);
-    return nativeContext->textureId;
+    return (jint) nativeContext->textureId;
 }
 
 JNIEXPORT jboolean JNICALL

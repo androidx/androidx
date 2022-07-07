@@ -37,7 +37,9 @@ import androidx.concurrent.futures.await
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
+import java.util.Locale
 import java.util.concurrent.ExecutionException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -52,7 +54,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assert.fail
-import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
 import org.junit.Test
@@ -68,6 +69,19 @@ class DefaultSurfaceEffectTest {
         private const val WIDTH = 640
         private const val HEIGHT = 480
         private val IDENTITY_MATRIX = createGlIdentityMatrix()
+        private const val CUSTOM_SHADER_FORMAT = """
+        #extension GL_OES_EGL_image_external : require
+        precision mediump float;
+        uniform samplerExternalOES %s;
+        varying vec2 %s;
+        void main() {
+          vec4 sampleColor = texture2D(%s, %s);
+          gl_FragColor = vec4(sampleColor.r * 0.493 + sampleColor. g * 0.769 +
+             sampleColor.b * 0.289, sampleColor.r * 0.449 + sampleColor.g * 0.686 +
+             sampleColor.b * 0.268, sampleColor.r * 0.272 + sampleColor.g * 0.534 +
+             sampleColor.b * 0.131, 1.0);
+        }
+        """
 
         private fun createGlIdentityMatrix() =
             FloatArray(16).apply { android.opengl.Matrix.setIdentityM(this, 0) }
@@ -99,11 +113,6 @@ class DefaultSurfaceEffectTest {
     private val settableSurfacesToClose = mutableMapOf<SettableSurface, DeferrableSurface>()
     private val fakeCamera = FakeCamera()
 
-    @Before
-    fun setUp() {
-        surfaceEffect = DefaultSurfaceEffect()
-    }
-
     @After
     fun tearDown(): Unit = runBlocking {
         if (::cameraDeviceHolder.isInitialized) {
@@ -128,6 +137,7 @@ class DefaultSurfaceEffectTest {
     @Test
     fun release_closeAllSurfaceOutputs(): Unit = runBlocking {
         // Arrange.
+        createSurfaceEffect()
         val surfaceOutput1 = createSurfaceOutput()
         surfaceEffect.onOutputSurface(surfaceOutput1)
 
@@ -148,6 +158,7 @@ class DefaultSurfaceEffectTest {
     @Test
     fun callOnInputSurfaceAfterReleased_willNotProvideSurface() {
         // Arrange.
+        createSurfaceEffect()
         val surfaceRequest = createInputSurfaceRequest()
 
         // Act.
@@ -166,6 +177,7 @@ class DefaultSurfaceEffectTest {
     @Test
     fun callOnOutputSurfaceAfterReleased_closeSurfaceOutput(): Unit = runBlocking {
         // Arrange.
+        createSurfaceEffect()
         val surfaceOutput = createSurfaceOutput()
 
         // Act.
@@ -180,6 +192,7 @@ class DefaultSurfaceEffectTest {
     @Test
     fun requestCloseAfterOnOutputSurface_closeSurfaceOutput() {
         // Arrange.
+        createSurfaceEffect()
         val sourceSurface = ImmediateSurface(mock(Surface::class.java))
         val settableSurface = createSettableSurface(sourceSurface)
         val surfaceOutput = createSurfaceOutput(settableSurface)
@@ -201,6 +214,7 @@ class DefaultSurfaceEffectTest {
     @Test
     fun requestCloseBeforeOnOutputSurface_closeSurfaceOutput() {
         // Arrange.
+        createSurfaceEffect()
         val surfaceOutput = createSurfaceOutput()
 
         // Act.
@@ -213,7 +227,77 @@ class DefaultSurfaceEffectTest {
     }
 
     @Test
-    fun inputFromCameraAndOutputToImageReader(): Unit = runBlocking {
+    fun render(): Unit = runBlocking {
+        testRenderFromCameraToImageReader()
+    }
+
+    @Test
+    fun renderByCustomShader(): Unit = runBlocking {
+        val shaderProvider = object : ShaderProvider {
+            override fun createFragmentShader(
+                samplerVarName: String,
+                fragCoordsVarName: String
+            ): String = getCustomFragmentShader(samplerVarName, fragCoordsVarName)
+        }
+        testRenderFromCameraToImageReader(shaderProvider)
+    }
+
+    @Test
+    fun createByInvalidShaderString_throwException() {
+        val shaderProvider = object : ShaderProvider {
+            override fun createFragmentShader(
+                samplerVarName: String,
+                fragCoordsVarName: String
+            ) = "Invalid shader"
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            createSurfaceEffect(shaderProvider)
+        }
+    }
+
+    @Test
+    fun createByFailedShaderProvider_throwException() {
+        val shaderProvider = object : ShaderProvider {
+            override fun createFragmentShader(
+                samplerVarName: String,
+                fragCoordsVarName: String
+            ) = throw RuntimeException("Failed Shader")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            createSurfaceEffect(shaderProvider)
+        }
+    }
+
+    @Test
+    fun createByIncorrectSamplerName_throwException() {
+        val shaderProvider = object : ShaderProvider {
+            override fun createFragmentShader(
+                samplerVarName: String,
+                fragCoordsVarName: String
+            ) = getCustomFragmentShader("_mySampler_", fragCoordsVarName)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            createSurfaceEffect(shaderProvider)
+        }
+    }
+
+    @Test
+    fun createByIncorrectFragCoordsName_throwException() {
+        val shaderProvider = object : ShaderProvider {
+            override fun createFragmentShader(
+                samplerVarName: String,
+                fragCoordsVarName: String
+            ) = getCustomFragmentShader(samplerVarName, "_myFragCoords_")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            createSurfaceEffect(shaderProvider)
+        }
+    }
+
+    private suspend fun testRenderFromCameraToImageReader(
+        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
+    ) {
+        createSurfaceEffect(shaderProvider)
         prepareHandlerThread()
         // Prepare input
         val inputSurfaceRequest = createInputSurfaceRequest()
@@ -276,6 +360,10 @@ class DefaultSurfaceEffectTest {
             null)
     }
 
+    private fun createSurfaceEffect(shaderProvider: ShaderProvider = ShaderProvider.DEFAULT) {
+        surfaceEffect = DefaultSurfaceEffect(shaderProvider)
+    }
+
     private fun createInputSurfaceRequest(): SurfaceRequest {
         return SurfaceRequest(Size(WIDTH, HEIGHT), fakeCamera, false).apply {
             inputSurfaceRequestsToClose.add(this)
@@ -300,6 +388,16 @@ class DefaultSurfaceEffectTest {
         settableSurfacesToClose[this] = source
         setSource(source)
     }
+
+    private fun getCustomFragmentShader(samplerVarName: String, fragCoordsVarName: String) =
+        String.format(
+            Locale.US,
+            CUSTOM_SHADER_FORMAT,
+            samplerVarName,
+            fragCoordsVarName,
+            samplerVarName,
+            fragCoordsVarName
+        )
 
     private fun DefaultSurfaceEffect.idle() {
         HandlerUtil.waitForLooperToIdle(mGlHandler)
