@@ -16,8 +16,6 @@
 
 package androidx.camera.core.processing
 
-import android.graphics.Matrix
-import android.graphics.Rect
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.media.ImageReader
 import android.os.Handler
@@ -28,7 +26,6 @@ import androidx.camera.core.SurfaceEffect
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImageFormatConstants
-import androidx.camera.core.impl.ImmediateSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.HandlerUtil
@@ -110,7 +107,6 @@ class DefaultSurfaceEffectTest {
     private lateinit var handler: Handler
     private lateinit var dispatcher: CoroutineDispatcher
     private val inputSurfaceRequestsToClose = mutableListOf<SurfaceRequest>()
-    private val settableSurfacesToClose = mutableMapOf<SettableSurface, DeferrableSurface>()
     private val fakeCamera = FakeCamera()
 
     @After
@@ -127,10 +123,6 @@ class DefaultSurfaceEffectTest {
         }
         for (surfaceRequest in inputSurfaceRequestsToClose) {
             surfaceRequest.deferrableSurface.close()
-        }
-        for ((settableSurface, sourceSurface) in settableSurfacesToClose) {
-            settableSurface.close()
-            sourceSurface.close()
         }
     }
 
@@ -193,9 +185,7 @@ class DefaultSurfaceEffectTest {
     fun requestCloseAfterOnOutputSurface_closeSurfaceOutput() {
         // Arrange.
         createSurfaceEffect()
-        val sourceSurface = ImmediateSurface(mock(Surface::class.java))
-        val settableSurface = createSettableSurface(sourceSurface)
-        val surfaceOutput = createSurfaceOutput(settableSurface)
+        val surfaceOutput = createSurfaceOutput()
 
         // Act.
         surfaceEffect.onOutputSurface(surfaceOutput)
@@ -205,10 +195,6 @@ class DefaultSurfaceEffectTest {
 
         // Assert.
         assertThat(surfaceOutput.isClosed).isTrue()
-
-        // Clean-up.
-        settableSurface.close()
-        sourceSurface.close()
     }
 
     @Test
@@ -332,9 +318,7 @@ class DefaultSurfaceEffectTest {
                 }
             }
         }
-        val surfaceOutput = createSurfaceOutput(
-            settableSurface = createSettableSurface(ImmediateSurface(imageReader.surface))
-        )
+        val surfaceOutput = createSurfaceOutput(imageReader.surface)
         surfaceEffect.onOutputSurface(surfaceOutput)
 
         // Assert.
@@ -357,7 +341,8 @@ class DefaultSurfaceEffectTest {
             TEMPLATE_PREVIEW,
             listOf(surface),
             null,
-            null)
+            null
+        )
     }
 
     private fun createSurfaceEffect(shaderProvider: ShaderProvider = ShaderProvider.DEFAULT) {
@@ -370,24 +355,14 @@ class DefaultSurfaceEffectTest {
         }
     }
 
-    private fun createSurfaceOutput(settableSurface: SettableSurface = createSettableSurface()) =
-        SurfaceOutputImpl(settableSurface, IDENTITY_MATRIX)
-
-    private fun createSettableSurface(
-        source: DeferrableSurface = ImmediateSurface(mock(Surface::class.java))
-    ) = SettableSurface(
-        SurfaceEffect.PREVIEW,
-        Size(WIDTH, HEIGHT),
-        ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
-        Matrix(),
-        false,
-        Rect(0, 0, WIDTH, HEIGHT),
-        0,
-        false
-    ).apply {
-        settableSurfacesToClose[this] = source
-        setSource(source)
-    }
+    private fun createSurfaceOutput(surface: Surface = mock(Surface::class.java)) =
+        SurfaceOutputImpl(
+            surface,
+            SurfaceEffect.PREVIEW,
+            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE,
+            Size(WIDTH, HEIGHT),
+            IDENTITY_MATRIX
+        )
 
     private fun getCustomFragmentShader(samplerVarName: String, fragCoordsVarName: String) =
         String.format(
