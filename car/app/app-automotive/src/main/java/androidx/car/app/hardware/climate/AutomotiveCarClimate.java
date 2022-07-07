@@ -67,10 +67,13 @@ import androidx.car.app.hardware.common.PropertyManager;
 import androidx.car.app.utils.LogTags;
 
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
 /**
@@ -142,7 +145,20 @@ public class AutomotiveCarClimate implements CarClimate {
     public void fetchClimateProfile(@NonNull Executor executor,
             @NonNull ClimateProfileRequest request,
             @NonNull CarClimateProfileCallback callback) {
-
+        if (request.getClimateProfileFeatures().isEmpty()) {
+            Log.e(LogTags.TAG_CAR_HARDWARE,
+                    "ClimateProfileRequest does not contain features.");
+            return;
+        }
+        List<Integer> propertyIds = new ArrayList<>();
+        for (CarClimateFeature feature : request.getClimateProfileFeatures()) {
+            propertyIds.add(requireNonNull(sFeatureToPropertyId.get(
+                    feature.getFeature())));
+        }
+        ListenableFuture<List<CarPropertyResponse<?>>> future =
+                mPropertyManager.fetchSupportedZonesResponse(
+                        propertyIds, executor);
+        populateData(executor, callback, future);
     }
 
     @Override
@@ -244,5 +260,64 @@ public class AutomotiveCarClimate implements CarClimate {
                 }
             });
         }
+    }
+
+    private static void populateData(@NonNull Executor executor,
+            @NonNull CarClimateProfileCallback onCarClimateProfileCallback,
+            ListenableFuture<List<CarPropertyResponse<?>>> future) {
+        future.addListener(() -> {
+            List<CarPropertyResponse<?>> carPropertyResponses;
+            try {
+                carPropertyResponses = future.get();
+            } catch (ExecutionException e) {
+                Log.e(LogTags.TAG_CAR_HARDWARE,
+                        "Failed to get CarPropertyResponse due to error", e);
+                return;
+            } catch (InterruptedException e) {
+                Log.e(LogTags.TAG_CAR_HARDWARE,
+                        "Failed to get CarPropertyResponse due to error", e);
+                Thread.currentThread().interrupt();
+                return;
+            }
+            Map<Integer, List<CarZone>> featuresWithResponseCarZones = new HashMap<>();
+
+            // Extract all car zones corresponding to each feature.
+            for (CarPropertyResponse<?> carPropertyResponse : carPropertyResponses) {
+                Integer feature = sFeatureToPropertyId.inverse().get(
+                        carPropertyResponse.getPropertyId());
+                if (feature == null) {
+                    Log.e(LogTags.TAG_CAR_HARDWARE, "Feature not found for property Id "
+                            + carPropertyResponse.getPropertyId());
+                    continue;
+                }
+
+                List<CarZone> carZones = featuresWithResponseCarZones.getOrDefault(feature,
+                            new ArrayList<>());
+                carZones.addAll(carPropertyResponse.getCarZones());
+                featuresWithResponseCarZones.put(feature, carZones);
+            }
+
+            // Populate callback with all the car zones per feature.
+            for (Map.Entry<Integer, List<CarZone>> entry :
+                    featuresWithResponseCarZones.entrySet()) {
+                switch (entry.getKey()) {
+                    case FEATURE_HVAC_POWER:
+                        onCarClimateProfileCallback.onHvacPowerProfileAvailable(
+                                entry.getValue());
+                        break;
+                    case FEATURE_HVAC_AC:
+                        onCarClimateProfileCallback.onHvacAcProfileAvailable(
+                                entry.getValue());
+                        break;
+                    default:
+                        Log.e(LogTags.TAG_CAR_HARDWARE,
+                                "Invalid response callback while populating data for "
+                                        + "feature value: " + entry.getKey());
+                        break;
+
+                }
+            }
+            // TODO(b/215225317): Populate other callbacks.
+        }, executor);
     }
 }
