@@ -39,11 +39,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
+import com.google.android.gms.appindex.Action;
+import com.google.android.gms.appindex.AppIndex;
+import com.google.android.gms.appindex.Indexable;
+import com.google.android.gms.appindex.UserActions;
 import com.google.common.collect.ImmutableList;
-import com.google.firebase.appindexing.Action;
-import com.google.firebase.appindexing.FirebaseAppIndex;
-import com.google.firebase.appindexing.FirebaseUserActions;
-import com.google.firebase.appindexing.Indexable;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -58,15 +58,15 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 21) // This module should only be called for version 21+.
 public class ShortcutInfoChangeListenerImplTest {
-    private FirebaseAppIndex mFirebaseAppIndex;
-    private FirebaseUserActions mFirebaseUserActions;
+    private AppIndex mFirebaseAppIndex;
+    private UserActions mFirebaseUserActions;
     private Context mContext;
     private ShortcutInfoChangeListenerImpl mShortcutInfoChangeListener;
 
     @Before
     public void setUp() {
-        mFirebaseAppIndex = mock(FirebaseAppIndex.class);
-        mFirebaseUserActions = mock(FirebaseUserActions.class);
+        mFirebaseAppIndex = mock(AppIndex.class);
+        mFirebaseUserActions = mock(UserActions.class);
         mContext = ApplicationProvider.getApplicationContext();
         mShortcutInfoChangeListener = new ShortcutInfoChangeListenerImpl(
                 mContext, mFirebaseAppIndex, mFirebaseUserActions, null);
@@ -307,11 +307,9 @@ public class ShortcutInfoChangeListenerImplTest {
         verify(mFirebaseUserActions, times(2)).end(actionCaptor.capture());
         Action expectedAction1 = new Action.Builder(Action.Builder.VIEW_ACTION)
                 .setObject("", ShortcutUtils.getIndexableUrl(mContext, "id1"))
-                .setMetadata(new Action.Metadata.Builder().setUpload(false))
                 .build();
         Action expectedAction2 = new Action.Builder(Action.Builder.VIEW_ACTION)
                 .setObject("", ShortcutUtils.getIndexableUrl(mContext, "id2"))
-                .setMetadata(new Action.Metadata.Builder().setUpload(false))
                 .build();
         // Action has no equals comparator, so instead we compare their string forms.
         assertThat(convertActionsToString(actionCaptor.getAllValues())).containsExactly(
@@ -404,19 +402,15 @@ public class ShortcutInfoChangeListenerImplTest {
 
         Action expectedAction1 = new Action.Builder(Action.Builder.VIEW_ACTION)
                 .setObject("", ShortcutUtils.getIndexableUrl(mContext, "item1"))
-                .setMetadata(new Action.Metadata.Builder().setUpload(false))
                 .build();
         Action expectedAction2 = new Action.Builder(Action.Builder.VIEW_ACTION)
                 .setObject("", ShortcutUtils.getIndexableUrl(mContext, "item2"))
-                .setMetadata(new Action.Metadata.Builder().setUpload(false))
                 .build();
         Action expectedAction3 = new Action.Builder(Action.Builder.VIEW_ACTION)
                 .setObject("", ShortcutUtils.getIndexableUrl(mContext, "restaurant1"))
-                .setMetadata(new Action.Metadata.Builder().setUpload(false))
                 .build();
         Action expectedAction4 = new Action.Builder(Action.Builder.VIEW_ACTION)
                 .setObject("", ShortcutUtils.getIndexableUrl(mContext, "restaurant2"))
-                .setMetadata(new Action.Metadata.Builder().setUpload(false))
                 .build();
 
 
