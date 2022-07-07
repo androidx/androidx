@@ -41,6 +41,12 @@ internal interface ParentRenderLayer<T> {
     )
 
     /**
+     * Configure the parent of the [SurfaceControlCompat] to be created
+     * with the specified builder
+     */
+    fun setParent(builder: SurfaceControlCompat.Builder)
+
+    /**
      * Create a [GLRenderer.RenderTarget] instance for the parent rendering layer given
      * a [GLRenderer] and corresponding [GLRenderer.RenderCallback]
      */

@@ -77,18 +77,6 @@ class EglTestActivity : Activity() {
         super.onCreate(savedInstanceState)
         mGLRenderer.start()
 
-        mAnimator = ValueAnimator.ofFloat(0.0f, 1.0f).apply {
-            duration = 3000
-            repeatCount = ValueAnimator.INFINITE
-            repeatMode = ValueAnimator.REVERSE
-            addUpdateListener {
-                mParam.set(((it.animatedValue as Float) * 100).toInt())
-                mRenderTarget1.requestRender()
-                mRenderTarget2.requestRender()
-            }
-            start()
-        }
-
         val container = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             weightSum = 2f
@@ -107,6 +95,18 @@ class EglTestActivity : Activity() {
         container.addView(mTextureView, params)
 
         setContentView(container)
+
+        mAnimator = ValueAnimator.ofFloat(0.0f, 1.0f).apply {
+            duration = 3000
+            repeatCount = ValueAnimator.INFINITE
+            repeatMode = ValueAnimator.REVERSE
+            addUpdateListener {
+                mParam.set(((it.animatedValue as Float) * 100).toInt())
+                mRenderTarget1.requestRender()
+                mRenderTarget2.requestRender()
+            }
+            start()
+        }
     }
 
     override fun onResume() {

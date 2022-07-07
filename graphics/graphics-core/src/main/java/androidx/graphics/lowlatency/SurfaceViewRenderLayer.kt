@@ -32,7 +32,7 @@ import java.util.Collections
  * [ParentRenderLayer] instance that leverages a [SurfaceView]'s [SurfaceControlCompat] as the
  * parent [SurfaceControlCompat] for the front and double buffered layers
  */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@RequiresApi(Build.VERSION_CODES.Q)
 internal class SurfaceViewRenderLayer<T>(
     private val surfaceView: SurfaceView
 ) : ParentRenderLayer<T> {
@@ -47,6 +47,10 @@ internal class SurfaceViewRenderLayer<T>(
         transaction: SurfaceControlCompat.Transaction
     ) {
         transaction.reparent(child, surfaceView)
+    }
+
+    override fun setParent(builder: SurfaceControlCompat.Builder) {
+        builder.setParent(surfaceView)
     }
 
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)

@@ -28,7 +28,7 @@ import kotlin.concurrent.withLock
  * Allocation pool used for the creation and reuse of [RenderBuffer] instances.
  * This class is thread safe.
  */
-@RequiresApi(Build.VERSION_CODES.Q)
+@RequiresApi(Build.VERSION_CODES.O)
 internal class RenderBufferPool(
     /**
      * Width of the [HardwareBuffer] objects to allocate if none are available in the pool

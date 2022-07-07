@@ -20,6 +20,7 @@ import android.graphics.Color
 import android.hardware.HardwareBuffer
 import android.opengl.GLES20
 import android.os.Build
+import android.util.Log
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.graphics.opengl.egl.EglManager
@@ -45,12 +46,17 @@ import org.junit.runner.RunWith
 @SmallTest
 class GLFrontBufferedRendererTest {
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    companion object {
+        val TAG = "GLFrontBufferedRenderer"
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testFrontBufferedLayerRender() {
         if (!deviceSupportsNativeAndroidFence()) {
             // If the Android device does not support the corresponding extensions to create
             // a file descriptor from an EGLSync object then skip the test
+            Log.w(TAG, "Skipping testFrontBufferedLayerRender, no native android fence support")
             return
         }
         val renderLatch = CountDownLatch(1)
@@ -127,12 +133,13 @@ class GLFrontBufferedRendererTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testDoubleBufferedLayerRender() {
         if (!deviceSupportsNativeAndroidFence()) {
             // If the Android device does not support the corresponding extensions to create
             // a file descriptor from an EGLSync object then skip the test
+            Log.w(TAG, "Skipping testDoubleBufferedLayerRender, no native android fence support")
             return
         }
 
@@ -214,14 +221,35 @@ class GLFrontBufferedRendererTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun testUsageFlagContainsFrontBufferUsage() {
         val usageFlags = GLFrontBufferedRenderer.obtainHardwareBufferUsageFlags()
-        if (GLFrontBufferedRenderer.supportsFrontBufferUsage()) {
+        if (UsageFlagsVerificationHelper.isSupported(HardwareBuffer.USAGE_FRONT_BUFFER)) {
             assertNotEquals(0, usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER)
         } else {
             assertEquals(0, usageFlags and HardwareBuffer.USAGE_FRONT_BUFFER)
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    fun testUsageFlagContainsComposerOverlay() {
+        val usageFlags = GLFrontBufferedRenderer.obtainHardwareBufferUsageFlags()
+        if (UsageFlagsVerificationHelper.isSupported(HardwareBuffer.USAGE_COMPOSER_OVERLAY)) {
+            assertNotEquals(0,
+                usageFlags and HardwareBuffer.USAGE_COMPOSER_OVERLAY)
+        } else {
+            assertEquals(0, usageFlags and HardwareBuffer.USAGE_COMPOSER_OVERLAY)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun testBaseFlags() {
+        assertNotEquals(0, GLFrontBufferedRenderer.BaseFlags and
+            HardwareBuffer.USAGE_GPU_SAMPLED_IMAGE)
+        assertNotEquals(0, GLFrontBufferedRenderer.BaseFlags and
+            HardwareBuffer.USAGE_GPU_COLOR_OUTPUT)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.Q)
     private fun GLFrontBufferedRenderer<*>?.blockingRelease() {
         if (this != null) {
             val destroyLatch = CountDownLatch(1)
