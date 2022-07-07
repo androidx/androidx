@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import android.util.Log
 import androidx.annotation.IntRange
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.coroutineScope
@@ -412,5 +413,37 @@ constructor(
      */
     fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
         differBase.removeLoadStateListener(listener)
+    }
+
+    private companion object {
+        init {
+            /**
+             * Implements the Logger interface from paging-common and injects it into the LOGGER
+             * global var stored within Pager.
+             *
+             * Checks for null LOGGER because paging-compose can also inject a Logger
+             * with the same implementation
+             */
+            LOGGER = LOGGER ?: object : Logger {
+                override fun isLoggable(level: Int): Boolean {
+                    return Log.isLoggable(LOG_TAG, level)
+                }
+
+                override fun log(level: Int, message: String, tr: Throwable?) {
+                    when {
+                        tr != null && level == Log.DEBUG -> Log.d(LOG_TAG, message, tr)
+                        tr != null && level == Log.VERBOSE -> Log.v(LOG_TAG, message, tr)
+                        level == Log.DEBUG -> Log.d(LOG_TAG, message)
+                        level == Log.VERBOSE -> Log.v(LOG_TAG, message)
+                        else -> {
+                            throw IllegalArgumentException(
+                                "debug level $level is requested but Paging only supports " +
+                                    "default logging for level 2 (DEBUG) or level 3 (VERBOSE)"
+                            )
+                        }
+                    }
+                }
+            }
+        }
     }
 }
