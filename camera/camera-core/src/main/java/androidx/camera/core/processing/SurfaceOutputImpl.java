@@ -29,10 +29,10 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
-import androidx.camera.core.impl.DeferrableSurface;
-import androidx.core.util.Preconditions;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 
-import java.util.concurrent.ExecutionException;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -41,7 +41,7 @@ import java.util.concurrent.RejectedExecutionException;
  * A implementation of {@link SurfaceOutput} that wraps a {@link SettableSurface}.
  */
 @RequiresApi(21)
-public final class SurfaceOutputImpl implements SurfaceOutput {
+final class SurfaceOutputImpl implements SurfaceOutput {
 
     private static final String TAG = "SurfaceOutputImpl";
 
@@ -49,8 +49,10 @@ public final class SurfaceOutputImpl implements SurfaceOutput {
 
     @NonNull
     private final Surface mSurface;
+    private final int mTargets;
+    private final int mFormat;
     @NonNull
-    private final SettableSurface mSettableSurface;
+    private final Size mSize;
 
     @NonNull
     private final float[] mAdditionalTransform;
@@ -66,22 +68,29 @@ public final class SurfaceOutputImpl implements SurfaceOutput {
     @GuardedBy("mLock")
     private boolean mIsClosed = false;
 
-    /**
-     * @param settableSurface the state of settableSurface.getSurface() must be complete at the
-     *                        time of calling.
-     */
-    public SurfaceOutputImpl(
-            @NonNull SettableSurface settableSurface,
-            @NonNull float[] additionalTransform)
-            throws ExecutionException, InterruptedException,
-            DeferrableSurface.SurfaceClosedException {
-        mSettableSurface = settableSurface;
-        Preconditions.checkState(settableSurface.getSurface().isDone());
-        mSurface = settableSurface.getSurface().get();
-        mSettableSurface.incrementUseCount();
+    @NonNull
+    private final ListenableFuture<Void> mCloseFuture;
+    private CallbackToFutureAdapter.Completer<Void> mCloseFutureCompleter;
+
+    SurfaceOutputImpl(
+            @NonNull Surface surface,
+            // TODO(b/238222270): annotate targets with IntDef.
+            int targets,
+            int format,
+            @NonNull Size size,
+            @NonNull float[] additionalTransform) {
+        mSurface = surface;
+        mTargets = targets;
+        mFormat = format;
+        mSize = size;
         mAdditionalTransform = new float[16];
         System.arraycopy(additionalTransform, 0, mAdditionalTransform, 0,
                 additionalTransform.length);
+        mCloseFuture = CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    mCloseFutureCompleter = completer;
+                    return "SurfaceOutputImpl close future complete";
+                });
     }
 
     /**
@@ -137,7 +146,7 @@ public final class SurfaceOutputImpl implements SurfaceOutput {
      */
     @Override
     public int getTargets() {
-        return mSettableSurface.getTargets();
+        return mTargets;
     }
 
     /**
@@ -146,7 +155,7 @@ public final class SurfaceOutputImpl implements SurfaceOutput {
     @Override
     @NonNull
     public Size getSize() {
-        return mSettableSurface.getSize();
+        return mSize;
     }
 
     /**
@@ -154,7 +163,7 @@ public final class SurfaceOutputImpl implements SurfaceOutput {
      */
     @Override
     public int getFormat() {
-        return mSettableSurface.getFormat();
+        return mFormat;
     }
 
     /**
@@ -166,14 +175,11 @@ public final class SurfaceOutputImpl implements SurfaceOutput {
     @Override
     public void close() {
         synchronized (mLock) {
-            if (mIsClosed) {
-                // Return early if it's already closed.
-                return;
-            } else {
+            if (!mIsClosed) {
                 mIsClosed = true;
             }
         }
-        mSettableSurface.decrementUseCount();
+        mCloseFutureCompleter.set(null);
     }
 
     /**
@@ -186,6 +192,14 @@ public final class SurfaceOutputImpl implements SurfaceOutput {
         synchronized (mLock) {
             return mIsClosed;
         }
+    }
+
+    /**
+     * Gets a future that completes when the {@link SurfaceOutput} is closed.
+     */
+    @NonNull
+    public ListenableFuture<Void> getCloseFuture() {
+        return mCloseFuture;
     }
 
     /**

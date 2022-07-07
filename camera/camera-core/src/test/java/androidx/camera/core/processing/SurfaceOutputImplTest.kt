@@ -16,8 +16,7 @@
 
 package androidx.camera.core.processing
 
-import android.graphics.ImageFormat
-import android.graphics.Rect
+import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
 import android.opengl.Matrix
 import android.os.Build
@@ -49,10 +48,13 @@ class SurfaceOutputImplTest {
             Matrix.setIdentityM(this, 0)
         }
         private const val FLOAT_TOLERANCE = 1E-4
+        private const val TARGET = SurfaceEffect.PREVIEW
+        private const val FORMAT = PixelFormat.RGBA_8888
+        private val SIZE = Size(640, 480)
     }
 
-    lateinit var fakeSurface: Surface
-    lateinit var fakeSurfaceTexture: SurfaceTexture
+    private lateinit var fakeSurface: Surface
+    private lateinit var fakeSurfaceTexture: SurfaceTexture
     private val surfacesToCleanup = mutableListOf<SettableSurface>()
     private val surfaceOutputsToCleanup = mutableListOf<SurfaceOutputImpl>()
 
@@ -74,9 +76,15 @@ class SurfaceOutputImplTest {
         }
     }
 
-    @Test(expected = java.lang.IllegalStateException::class)
-    fun createWithIncompleteFuture_throwsException() {
-        createFakeSurfaceOutputImpl(settableSurface = createIncompleteSettableSurface())
+    @Test
+    fun closeSurface_closeFutureIsDone() {
+        // Arrange.
+        val surfaceOutImpl = createFakeSurfaceOutputImpl()
+        // Act: close the SurfaceOutput.
+        surfaceOutImpl.close()
+        shadowOf(Looper.getMainLooper()).idle()
+        // Assert:
+        assertThat(surfaceOutImpl.closeFuture.isDone).isTrue()
     }
 
     @Test
@@ -147,30 +155,8 @@ class SurfaceOutputImplTest {
             .containsExactly(floatArrayOf(2F, -1F, 0F, 1F))
     }
 
-    private fun createCompleteSettableSurface(): SettableSurface {
-        return createFakeSettableSurface(true)
-    }
-
-    private fun createIncompleteSettableSurface(): SettableSurface {
-        return createFakeSettableSurface(false)
-    }
-
-    private fun createFakeSettableSurface(setComplete: Boolean): SettableSurface {
-        val settableSurface = SettableSurface(
-            SurfaceEffect.PREVIEW, Size(640, 480), ImageFormat.PRIVATE,
-            android.graphics.Matrix(), true, Rect(), 0, false
-        )
-        if (setComplete) {
-            settableSurface.mCompleter.set(fakeSurface)
+    private fun createFakeSurfaceOutputImpl(transform: FloatArray = IDENTITY_MATRIX) =
+        SurfaceOutputImpl(fakeSurface, TARGET, FORMAT, SIZE, transform).apply {
+            surfaceOutputsToCleanup.add(this)
         }
-        surfacesToCleanup.add(settableSurface)
-        return settableSurface
-    }
-
-    private fun createFakeSurfaceOutputImpl(
-        settableSurface: SettableSurface = createCompleteSettableSurface(),
-        transform: FloatArray = IDENTITY_MATRIX
-    ) = SurfaceOutputImpl(settableSurface, transform).apply {
-        surfaceOutputsToCleanup.add(this)
-    }
 }
