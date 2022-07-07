@@ -29,7 +29,7 @@ import androidx.graphics.surface.SurfaceControlCompat
  * the size/state of the parent, as well as allowing consumers to provide parameters
  * to implementations of front/double buffered layers
  */
-internal interface ParentRenderLayer {
+internal interface ParentRenderLayer<T> {
     /**
      * Modify the provided [SurfaceControlCompat.Transaction] to reparent the provided
      * child [SurfaceControlCompat] to a [SurfaceControlCompat] provided by the parent rendering
@@ -46,7 +46,7 @@ internal interface ParentRenderLayer {
      */
     fun createRenderTarget(
         renderer: GLRenderer,
-        renderLayerCallback: GLFrontBufferedRenderer.Callback
+        renderLayerCallback: GLFrontBufferedRenderer.Callback<T>
     ): GLRenderer.RenderTarget
 
     /**
@@ -54,7 +54,7 @@ internal interface ParentRenderLayer {
      * @param callback [Callback] specified on [ParentRenderLayer]. This can be null to remove
      * the previously set [Callback]
      */
-    fun setParentLayerCallbacks(callback: Callback?)
+    fun setParentLayerCallbacks(callback: Callback<T>?)
 
     /**
      * Clear the contents of the parent buffer. This triggers a call to
@@ -71,9 +71,9 @@ internal interface ParentRenderLayer {
     /**
      * Callbacks to be implemented by the consumer of [ParentRenderLayer] to be alerted
      * of size changes or if the [ParentRenderLayer] is destroyed as well as providing a mechanism
-     * to expose parameters for rendering front/double bufferedd layers
+     * to expose parameters for rendering front/double buffered layers
      */
-    interface Callback {
+    interface Callback<T> {
         /**
          * Callback invoked whenever the size of the [ParentRenderLayer] changes.
          * Consumers can leverage this to initialize appropriate buffer sizes and
@@ -89,30 +89,24 @@ internal interface ParentRenderLayer {
         fun onLayerDestroyed()
 
         /**
-         * Callback invoked by the [ParentRenderLayer] to query the next parameters to be used
-         * for rendering front buffer content
-         */
-        fun pollFrontLayerParams(): Any?
-
-        /**
          * Callback invoked by the [ParentRenderLayer] to query the parameters since the last
          * render to the dry layer. This includes all parameters to each request to render content
          * to the front buffered layer since the last time the dry layer was re-rendered.
          * This is useful for recreating the entire scene when front buffered layer contents are to
          * be committed, that is the entire scene is re-rendered into the double buffered layer.
          */
-        fun obtainDoubleBufferedLayerParams(): MutableCollection<Any?>
+        fun obtainDoubleBufferedLayerParams(): MutableCollection<T>
 
         /**
-         * Obtain a handle to the front bufferedd layer [SurfaceControlCompat] to be used in
+         * Obtain a handle to the front buffered layer [SurfaceControlCompat] to be used in
          * transactions to atomically update double buffered layer content as well as hiding the
-         * visibility of the front bufferedd layer
+         * visibility of the front buffered layer
          */
         fun getFrontBufferedLayerSurfaceControl(): SurfaceControlCompat?
 
         /**
          * Obtain a handle to the [RenderBufferPool] to get [RenderBuffer] instances for
-         * rendering to front and double bufferedd layers
+         * rendering to front and double buffered layers
          */
         fun getRenderBufferPool(): RenderBufferPool?
     }

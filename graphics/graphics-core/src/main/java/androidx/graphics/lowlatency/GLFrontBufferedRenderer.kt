@@ -53,16 +53,16 @@ import java.util.concurrent.ConcurrentLinkedQueue
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Suppress("AcronymName")
-class GLFrontBufferedRenderer @JvmOverloads constructor(
+class GLFrontBufferedRenderer<T> @JvmOverloads constructor(
     surfaceView: SurfaceView,
-    callback: Callback,
+    callback: Callback<T>,
     @Suppress("ListenerLast")
     glRenderer: GLRenderer? = null,
 ) {
     /**
      * [ParentRenderLayer] used to contain both the front and double buffered layers
      */
-    private val mParentRenderLayer: ParentRenderLayer = SurfaceViewRenderLayer(surfaceView)
+    private val mParentRenderLayer: ParentRenderLayer<T> = SurfaceViewRenderLayer(surfaceView)
 
     /**
      * Callbacks invoked to render into the front and double buffered layers in addition to
@@ -95,7 +95,7 @@ class GLFrontBufferedRenderer @JvmOverloads constructor(
      * with the updated dimensions
      */
     private val mParentLayerCallback = object :
-        ParentRenderLayer.Callback {
+        ParentRenderLayer.Callback<T> {
         override fun onSizeChanged(width: Int, height: Int) {
             update(width, height)
         }
@@ -104,10 +104,7 @@ class GLFrontBufferedRenderer @JvmOverloads constructor(
             release(true)
         }
 
-        override fun pollFrontLayerParams(): Any? =
-            mFrontBufferQueueParams.poll()
-
-        override fun obtainDoubleBufferedLayerParams(): MutableCollection<Any?> =
+        override fun obtainDoubleBufferedLayerParams(): MutableCollection<T> =
             mParentBufferParamQueue
 
         override fun getFrontBufferedLayerSurfaceControl(): SurfaceControlCompat? =
@@ -121,7 +118,7 @@ class GLFrontBufferedRenderer @JvmOverloads constructor(
      * Queue of parameters to be consumed in [Callback.onDrawFrontBufferedLayer] with the parameter
      * provided in [renderFrontBufferedLayer]
      */
-    private val mFrontBufferQueueParams = ConcurrentLinkedQueue<Any?>()
+    private val mFrontBufferQueueParams = ConcurrentLinkedQueue<T>()
 
     /**
      * Collection of parameters to be consumed in [Callback.onDoubleBufferedLayerRenderComplete]
@@ -130,7 +127,7 @@ class GLFrontBufferedRenderer @JvmOverloads constructor(
      * this collection is cleared and new parameters are added to it with consecutive calls to
      * [renderFrontBufferedLayer].
      */
-    private val mParentBufferParamQueue = Collections.synchronizedList(ArrayList<Any?>())
+    private val mParentBufferParamQueue = Collections.synchronizedList(ArrayList<T>())
 
     /**
      * [RenderBuffer] used for rendering into the front buffered layer. This buffer is persisted
@@ -282,7 +279,7 @@ class GLFrontBufferedRenderer @JvmOverloads constructor(
      *
      * @param param Optional parameter to be consumed when rendering content into the commit layer
      */
-    fun renderFrontBufferedLayer(param: Any?) {
+    fun renderFrontBufferedLayer(param: T) {
         if (isValid()) {
             mFrontBufferQueueParams.add(param)
             mParentBufferParamQueue.add(param)
@@ -408,8 +405,19 @@ class GLFrontBufferedRenderer @JvmOverloads constructor(
 
             @WorkerThread
             override fun onDraw(eglManager: EglManager) {
-                val params = mParentLayerCallback.pollFrontLayerParams()
-                mCallback.onDrawFrontBufferedLayer(eglManager, params)
+                try {
+                    // Explicitly call remove in order to delineate between scenarios where
+                    // no parameters are provided and the consumer explicitly supports nullable
+                    // parameters.
+                    // If poll was used instead, we would not be able to determine if the nullable
+                    // parameter was because there were no items in the queue or the consumer
+                    // explicitly provided null as a placeholder
+                    mCallback.onDrawFrontBufferedLayer(eglManager, mFrontBufferQueueParams.remove())
+                } catch (_: NoSuchElementException) {
+                    // Skip rendering if we have been told to render but we do not have parameters
+                    // Because the call to render to the front buffer takes in a parameter we should
+                    // not run into this scenario.
+                }
             }
 
             @WorkerThread
@@ -488,7 +496,7 @@ class GLFrontBufferedRenderer @JvmOverloads constructor(
      * provide opportunities to synchronize [SurfaceControlCompat.Transaction]s to submit the layers
      * to the hardware compositor.
      */
-    interface Callback {
+    interface Callback<T> {
 
         /**
          * Callback invoked to render content into the front buffered layer with the specified
@@ -500,7 +508,7 @@ class GLFrontBufferedRenderer @JvmOverloads constructor(
          * into the front buffered layer
          */
         @WorkerThread
-        fun onDrawFrontBufferedLayer(eglManager: EglManager, param: Any?)
+        fun onDrawFrontBufferedLayer(eglManager: EglManager, param: T)
 
         /**
          * Callback invoked to render content into the doubled buffered layer with the specified
@@ -534,7 +542,7 @@ class GLFrontBufferedRenderer @JvmOverloads constructor(
          * [4, 5]
          */
         @WorkerThread
-        fun onDrawDoubleBufferedLayer(eglManager: EglManager, params: Collection<Any?>)
+        fun onDrawDoubleBufferedLayer(eglManager: EglManager, params: Collection<T>)
 
         /**
          * Optional callback invoked when rendering to the front buffered layer is complete but

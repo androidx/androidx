@@ -1,22 +1,22 @@
 // Signature format: 4.0
 package androidx.graphics.lowlatency {
 
-  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class GLFrontBufferedRenderer {
-    ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback callback, optional androidx.graphics.opengl.GLRenderer? glRenderer);
-    ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback callback);
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class GLFrontBufferedRenderer<T> {
+    ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback, optional androidx.graphics.opengl.GLRenderer? glRenderer);
+    ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback<T> callback);
     method public void clear();
     method public void commit();
     method public boolean isValid();
     method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void release(boolean cancelPending);
-    method public void renderFrontBufferedLayer(Object? param);
+    method public void renderFrontBufferedLayer(T? param);
     field public static final androidx.graphics.lowlatency.GLFrontBufferedRenderer.Companion Companion;
   }
 
-  public static interface GLFrontBufferedRenderer.Callback {
+  public static interface GLFrontBufferedRenderer.Callback<T> {
     method @WorkerThread public default void onDoubleBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
-    method @WorkerThread public void onDrawDoubleBufferedLayer(androidx.graphics.opengl.egl.EglManager eglManager, java.util.Collection<?> params);
-    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EglManager eglManager, Object? param);
+    method @WorkerThread public void onDrawDoubleBufferedLayer(androidx.graphics.opengl.egl.EglManager eglManager, java.util.Collection<? extends T> params);
+    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EglManager eglManager, T? param);
     method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
   }
 

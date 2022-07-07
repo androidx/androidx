@@ -33,16 +33,14 @@ import java.util.Collections
  * parent [SurfaceControlCompat] for the front and double buffered layers
  */
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : ParentRenderLayer {
+internal class SurfaceViewRenderLayer<T>(
+    private val surfaceView: SurfaceView
+) : ParentRenderLayer<T> {
 
-    private var mLayerCallback: ParentRenderLayer.Callback? = null
+    private var mLayerCallback: ParentRenderLayer.Callback<T>? = null
     private var mHardwareBufferRenderer: HardwareBufferRenderer? = null
     private var mRenderTarget: GLRenderer.RenderTarget? = null
     private var mParentSurfaceControl: SurfaceControlCompat? = null
-
-    init {
-        surfaceView.hostToken
-    }
 
     override fun buildReparentTransaction(
         child: SurfaceControlCompat,
@@ -54,7 +52,7 @@ internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : Pa
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun createRenderTarget(
         renderer: GLRenderer,
-        renderLayerCallback: GLFrontBufferedRenderer.Callback
+        renderLayerCallback: GLFrontBufferedRenderer.Callback<T>
     ): GLRenderer.RenderTarget {
         val hardwareBufferRenderer = HardwareBufferRenderer(
             object : HardwareBufferRenderer.RenderCallbacks {
@@ -67,9 +65,15 @@ internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : Pa
                     GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f)
                     GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
                     val params = mLayerCallback?.obtainDoubleBufferedLayerParams()
-                        ?: Collections.EMPTY_LIST
-                    renderLayerCallback.onDrawDoubleBufferedLayer(eglManager, params)
-                    params?.clear()
+                    if (params != null) {
+                        renderLayerCallback.onDrawDoubleBufferedLayer(eglManager, params)
+                        params.clear()
+                    } else {
+                        renderLayerCallback.onDrawDoubleBufferedLayer(
+                            eglManager,
+                            Collections.emptyList()
+                        )
+                    }
                 }
 
                 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -136,7 +140,7 @@ internal class SurfaceViewRenderLayer(private val surfaceView: SurfaceView) : Pa
             .setName("DoubleBufferedLayer")
             .build()
 
-    override fun setParentLayerCallbacks(callback: ParentRenderLayer.Callback?) {
+    override fun setParentLayerCallbacks(callback: ParentRenderLayer.Callback<T>?) {
         mLayerCallback = callback
     }
 
