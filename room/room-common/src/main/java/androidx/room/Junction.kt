@@ -38,7 +38,7 @@ import kotlin.reflect.KClass
  *             parentColumn = "playlistId",
  *             entity = Song::class,
  *             entityColumn = "songId",
- *             associateBy = @Junction(
+ *             associateBy = Junction(
  *                     value = PlaylistSongXRef::class,
  *                     parentColumn = "pId",
  *                     entityColumn = "sId")
