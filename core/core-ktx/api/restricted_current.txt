@@ -563,6 +563,7 @@ package androidx.core.view {
     method public static inline boolean isNotEmpty(android.view.Menu);
     method public static operator java.util.Iterator<android.view.MenuItem> iterator(android.view.Menu);
     method public static inline operator void minusAssign(android.view.Menu, android.view.MenuItem item);
+    method public static inline void removeItemAt(android.view.Menu, int index);
   }
 
   public final class ViewGroupKt {
