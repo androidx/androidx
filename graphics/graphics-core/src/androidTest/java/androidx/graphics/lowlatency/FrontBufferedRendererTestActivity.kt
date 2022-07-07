@@ -21,7 +21,7 @@ import android.os.Bundle
 import android.view.SurfaceView
 import android.view.ViewGroup
 
-class WetDryRendererTestActivity : Activity() {
+class FrontBufferedRendererTestActivity : Activity() {
 
     private lateinit var mSurfaceView: SurfaceView
 

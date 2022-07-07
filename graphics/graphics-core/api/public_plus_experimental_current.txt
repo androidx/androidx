@@ -1,26 +1,26 @@
 // Signature format: 4.0
 package androidx.graphics.lowlatency {
 
-  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class GLWetDryRenderer {
-    ctor public GLWetDryRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLWetDryRenderer.Callback callback, optional androidx.graphics.opengl.GLRenderer? glRenderer);
-    ctor public GLWetDryRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLWetDryRenderer.Callback callback);
+  @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class GLFrontBufferedRenderer {
+    ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback callback, optional androidx.graphics.opengl.GLRenderer? glRenderer);
+    ctor public GLFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.GLFrontBufferedRenderer.Callback callback);
     method public void clear();
-    method public void dry();
+    method public void commit();
     method public boolean isValid();
     method public void release(boolean cancelPending, optional kotlin.jvm.functions.Function0<kotlin.Unit>? onReleaseComplete);
     method public void release(boolean cancelPending);
-    method public void renderWetLayer(Object? param);
-    field public static final androidx.graphics.lowlatency.GLWetDryRenderer.Companion Companion;
+    method public void renderFrontBufferedLayer(Object? param);
+    field public static final androidx.graphics.lowlatency.GLFrontBufferedRenderer.Companion Companion;
   }
 
-  public static interface GLWetDryRenderer.Callback {
-    method @WorkerThread public void onDrawDryLayer(androidx.graphics.opengl.egl.EglManager eglManager, java.util.Collection<?> params);
-    method @WorkerThread public void onDrawWetLayer(androidx.graphics.opengl.egl.EglManager eglManager, Object? param);
-    method @WorkerThread public default void onDryLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat wetLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
-    method @WorkerThread public default void onWetLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat wetLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
+  public static interface GLFrontBufferedRenderer.Callback {
+    method @WorkerThread public default void onDoubleBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
+    method @WorkerThread public void onDrawDoubleBufferedLayer(androidx.graphics.opengl.egl.EglManager eglManager, java.util.Collection<?> params);
+    method @WorkerThread public void onDrawFrontBufferedLayer(androidx.graphics.opengl.egl.EglManager eglManager, Object? param);
+    method @WorkerThread public default void onFrontBufferedLayerRenderComplete(androidx.graphics.surface.SurfaceControlCompat frontBufferedLayerSurfaceControl, androidx.graphics.surface.SurfaceControlCompat.Transaction transaction);
   }
 
-  public static final class GLWetDryRenderer.Companion {
+  public static final class GLFrontBufferedRenderer.Companion {
   }
 
 }
