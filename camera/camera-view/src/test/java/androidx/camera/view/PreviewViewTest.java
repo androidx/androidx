@@ -23,11 +23,13 @@ import android.util.Size;
 
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.view.internal.compat.quirk.QuirkInjector;
 import androidx.camera.view.internal.compat.quirk.SurfaceViewNotCroppedByParentQuirk;
 import androidx.camera.view.internal.compat.quirk.SurfaceViewStretchedQuirk;
+import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.After;
 import org.junit.Test;
@@ -75,6 +77,23 @@ public class PreviewViewTest {
         assertThat(PreviewView.shouldUseTextureView(
                 createSurfaceRequestCompatibleWithSurfaceView(),
                 PreviewView.ImplementationMode.PERFORMANCE)).isTrue();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setFrameUpdateListener_afterPerformanceModeSet() {
+        PreviewView previewView = new PreviewView(ApplicationProvider.getApplicationContext());
+        previewView.setImplementationMode(PreviewView.ImplementationMode.PERFORMANCE);
+
+        previewView.setFrameUpdateListener(CameraXExecutors.mainThreadExecutor(),
+                (timestamp) -> {});
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void setFrameUpdateListener_beforePerformanceModeSet() {
+        PreviewView previewView = new PreviewView(ApplicationProvider.getApplicationContext());
+        previewView.setFrameUpdateListener(CameraXExecutors.mainThreadExecutor(),
+                (timestamp) -> {});
+        previewView.setImplementationMode(PreviewView.ImplementationMode.PERFORMANCE);
     }
 
     private SurfaceRequest createSurfaceRequestCompatibleWithSurfaceView() {
