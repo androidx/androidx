@@ -54,7 +54,8 @@ private fun updateWorkImpl(
         // preserving run attempt count, to calculate back off correctly
         val updatedSpec = newWorkSpec.copy(
             state = oldWorkSpec.state,
-            runAttemptCount = oldWorkSpec.runAttemptCount
+            runAttemptCount = oldWorkSpec.runAttemptCount,
+            lastEnqueueTime = oldWorkSpec.lastEnqueueTime,
         )
         workSpecDao.updateWorkSpec(updatedSpec)
         workTagDao.deleteByWorkSpecId(workSpecId)
