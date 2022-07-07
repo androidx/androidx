@@ -33,6 +33,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.CameraEffect;
 import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceRequest;
@@ -74,6 +75,7 @@ public class SettableSurface extends DeferrableSurface {
     private final Rect mCropRect;
     private final int mRotationDegrees;
     private final boolean mMirroring;
+    @CameraEffect.Targets
     private final int mTargets;
 
     // Guarded by main thread.
@@ -88,7 +90,7 @@ public class SettableSurface extends DeferrableSurface {
      * Please see the getters to understand the parameters.
      */
     public SettableSurface(
-            int targets,
+            @CameraEffect.Targets int targets,
             @NonNull Size size,
             int format,
             @NonNull Matrix sensorToBufferTransform,
@@ -256,6 +258,7 @@ public class SettableSurface extends DeferrableSurface {
     /**
      * This field indicates that what purpose the {@link Surface} will be used for.
      */
+    @CameraEffect.Targets
     public int getTargets() {
         return mTargets;
     }

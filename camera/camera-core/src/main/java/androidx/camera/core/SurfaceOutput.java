@@ -68,6 +68,7 @@ public interface SurfaceOutput {
      * {@link Surface} will be used for sharing a single stream for both preview and video capture.
      * </ul>
      */
+    @CameraEffect.Targets
     int getTargets();
 
     /**

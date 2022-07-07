@@ -35,17 +35,15 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface SurfaceEffect {
+public interface SurfaceEffect extends CameraEffect {
 
     /**
-     * Bitmask option to indicate that this Surface will be used by CameraX as the output of the
-     * {@link Preview} {@link UseCase}.
+     * Bitmask option to indicate that CameraX applies this effect to {@link Preview}.
      */
     int PREVIEW = 1;
 
     /**
-     * Bitmask option to indicate that this Surface will be used by CameraX as the output of
-     * video capture {@link UseCase}.
+     * Bitmask option to indicate that CameraX applies this effect to {@code VideoCapture}.
      */
     int VIDEO_CAPTURE = 1 << 1;
 
