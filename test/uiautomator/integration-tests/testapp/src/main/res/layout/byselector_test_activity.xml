@@ -253,4 +253,9 @@
             android:text="not_selected" />
     </LinearLayout>
 
+    <!--
+        Separate xml file may be needed for more components. The current layout is already large
+        that future added components may not be rendered, which leads to test failure.
+    -->
+
 </LinearLayout>
