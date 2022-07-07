@@ -320,32 +320,32 @@ package androidx.test.uiautomator {
   }
 
   public class UiScrollable extends androidx.test.uiautomator.UiCollection {
-    ctor public UiScrollable(androidx.test.uiautomator.UiSelector!);
-    method protected boolean exists(androidx.test.uiautomator.UiSelector!);
+    ctor public UiScrollable(androidx.test.uiautomator.UiSelector);
+    method protected boolean exists(androidx.test.uiautomator.UiSelector);
     method public boolean flingBackward() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean flingForward() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean flingToBeginning(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean flingToEnd(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiObject! getChildByDescription(androidx.test.uiautomator.UiSelector!, String!, boolean) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiObject! getChildByText(androidx.test.uiautomator.UiSelector!, String!, boolean) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public androidx.test.uiautomator.UiObject getChildByDescription(androidx.test.uiautomator.UiSelector, String, boolean) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public androidx.test.uiautomator.UiObject getChildByText(androidx.test.uiautomator.UiSelector, String, boolean) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public int getMaxSearchSwipes();
     method public double getSwipeDeadZonePercentage();
     method public boolean scrollBackward() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollBackward(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public boolean scrollDescriptionIntoView(String!) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public boolean scrollDescriptionIntoView(String) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollForward() throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollForward(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public boolean scrollIntoView(androidx.test.uiautomator.UiObject!) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public boolean scrollIntoView(androidx.test.uiautomator.UiSelector!) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public boolean scrollTextIntoView(String!) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public boolean scrollIntoView(androidx.test.uiautomator.UiObject) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public boolean scrollIntoView(androidx.test.uiautomator.UiSelector) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public boolean scrollTextIntoView(String) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollToBeginning(int, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollToBeginning(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollToEnd(int, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollToEnd(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public androidx.test.uiautomator.UiScrollable! setAsHorizontalList();
-    method public androidx.test.uiautomator.UiScrollable! setAsVerticalList();
-    method public androidx.test.uiautomator.UiScrollable! setMaxSearchSwipes(int);
-    method public androidx.test.uiautomator.UiScrollable! setSwipeDeadZonePercentage(double);
+    method public androidx.test.uiautomator.UiScrollable setAsHorizontalList();
+    method public androidx.test.uiautomator.UiScrollable setAsVerticalList();
+    method public androidx.test.uiautomator.UiScrollable setMaxSearchSwipes(int);
+    method public androidx.test.uiautomator.UiScrollable setSwipeDeadZonePercentage(double);
   }
 
   public class UiSelector {
