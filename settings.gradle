@@ -91,6 +91,7 @@ gradleEnterprise {
         value("androidx.compose.multiplatformEnabled", isMultiplatformEnabled().toString())
         value("androidx.projects", getRequestedProjectSubsetName() ?: "Unset")
         value("androidx.useMaxDepVersions", providers.gradleProperty("androidx.useMaxDepVersions").isPresent().toString())
+        value("androidx.disallowTaskExecution", providers.environmentVariable("DISALLOW_TASK_EXECUTION").isPresent().toString())
 
         // Do not publish scan for androidx-platform-dev
         // publishAlways()
