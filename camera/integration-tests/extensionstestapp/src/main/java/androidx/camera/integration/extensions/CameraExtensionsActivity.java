@@ -22,8 +22,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.CaptureResult;
-import android.hardware.camera2.TotalCaptureResult;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -212,10 +210,9 @@ public class CameraExtensionsActivity extends AppCompatActivity
         new Camera2Interop.Extender<>(previewBuilder)
                 .setSessionCaptureCallback(new CameraCaptureSession.CaptureCallback() {
                     @Override
-                    public void onCaptureCompleted(@NonNull CameraCaptureSession session,
-                            @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
-                        mFrameTimestampMap.put(result.get(CaptureResult.SENSOR_TIMESTAMP),
-                                SystemClock.elapsedRealtimeNanos());
+                    public void onCaptureStarted(@NonNull CameraCaptureSession session,
+                            @NonNull CaptureRequest request, long timestamp, long frameNumber) {
+                        mFrameTimestampMap.put(timestamp, SystemClock.elapsedRealtimeNanos());
                     }
                 });
         mPreview = previewBuilder.build();
