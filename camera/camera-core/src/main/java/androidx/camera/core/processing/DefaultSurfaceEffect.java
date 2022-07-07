@@ -29,9 +29,13 @@ import androidx.camera.core.SurfaceEffect;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -60,13 +64,24 @@ public class DefaultSurfaceEffect implements SurfaceEffectInternal,
     // Only access this on GL thread.
     private int mInputSurfaceCount = 0;
 
-    public DefaultSurfaceEffect() {
+    /**
+     * Constructs DefaultSurfaceEffect
+     *
+     * @param shaderProvider custom shader provider for OpenGL rendering.
+     * @throws IllegalArgumentException if the shaderProvider provides invalid shader.
+     */
+    public DefaultSurfaceEffect(@NonNull ShaderProvider shaderProvider) {
         mGlThread = new HandlerThread("GL Thread");
         mGlThread.start();
         mGlHandler = new Handler(mGlThread.getLooper());
         mGlExecutor = CameraXExecutors.newHandlerExecutor(mGlHandler);
         mGlRenderer = new OpenGlRenderer();
-        mGlExecutor.execute(mGlRenderer::init);
+        try {
+            initGlRenderer(shaderProvider);
+        } catch (RuntimeException e) {
+            release();
+            throw e;
+        }
     }
 
     /**
@@ -163,6 +178,32 @@ public class DefaultSurfaceEffect implements SurfaceEffectInternal,
             mOutputSurfaces.clear();
             mGlRenderer.release();
             mGlThread.quit();
+        }
+    }
+
+    private void initGlRenderer(@NonNull ShaderProvider shaderProvider) {
+        ListenableFuture<Void> initFuture = CallbackToFutureAdapter.getFuture(completer -> {
+            mGlExecutor.execute(() -> {
+                try {
+                    mGlRenderer.init(shaderProvider);
+                    completer.set(null);
+                } catch (RuntimeException e) {
+                    completer.setException(e);
+                }
+            });
+            return "Init GlRenderer";
+        });
+        try {
+            initFuture.get();
+        } catch (ExecutionException | InterruptedException e) {
+            // If the cause is a runtime exception, throw it directly. Otherwise convert to runtime
+            // exception and throw.
+            Throwable cause = e instanceof ExecutionException ? e.getCause() : e;
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            } else {
+                throw new IllegalStateException("Failed to create DefaultSurfaceEffect", cause);
+            }
         }
     }
 }

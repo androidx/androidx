@@ -24,13 +24,14 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.WorkerThread;
 import androidx.core.util.Preconditions;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * OpenGLRenderer renders texture image to the output surface.
  *
  * <p>OpenGLRenderer's methods must run on the same thread, so called GL thread. The GL thread is
- * locked as the thread running the {@link #init()} method, otherwise an
+ * locked as the thread running the {@link #init(ShaderProvider)} method, otherwise an
  * {@link IllegalStateException} will be thrown when other methods are called.
  */
 @WorkerThread
@@ -52,10 +53,29 @@ public final class OpenGlRenderer {
      * will be thrown.
      *
      * @throws IllegalStateException if the renderer is already initialized.
+     * @throws IllegalArgumentException if the ShaderProvider fails to create shader or provides
+     * invalid shader string.
      */
-    public void init() {
+    public void init(@NonNull ShaderProvider shaderProvider) {
         checkInitializedOrThrow(false);
-        mNativeContext.set(initContext());
+
+        long nativeContext;
+        if (shaderProvider == ShaderProvider.DEFAULT) {
+            nativeContext = initContext(null);
+        } else {
+            List<String> varNames = getShaderVariableNames();
+            Preconditions.checkState(varNames.size() == 2);
+            String fragmentCoords = varNames.get(0);
+            String sampler = varNames.get(1);
+            String fragmentShader;
+            try {
+                fragmentShader = shaderProvider.createFragmentShader(sampler, fragmentCoords);
+            } catch (Throwable t) {
+                throw new IllegalArgumentException("Unable to create custom fragment shader", t);
+            }
+            nativeContext = initContext(fragmentShader);
+        }
+        mNativeContext.set(nativeContext);
         mInitialized.set(true);
     }
 
@@ -127,7 +147,10 @@ public final class OpenGlRenderer {
         return nativeContext;
     }
 
-    private static native long initContext();
+    @NonNull
+    private static native List<String> getShaderVariableNames();
+
+    private static native long initContext(@Nullable String fragmentShader);
 
     private static native boolean setWindowSurface(long nativeContext, @Nullable Surface surface);
 

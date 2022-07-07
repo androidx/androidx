@@ -33,6 +33,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
 import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
+import java.util.Locale
 import kotlin.coroutines.ContinuationInterceptor
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -62,6 +63,20 @@ class OpenGlRendererTest {
     companion object {
         private const val WIDTH = 640
         private const val HEIGHT = 480
+        private const val CUSTOM_SHADER_FORMAT = """
+        #extension GL_OES_EGL_image_external : require
+        precision mediump float;
+        uniform samplerExternalOES %s;
+        varying vec2 %s;
+        void main() {
+          vec4 sampleColor = texture2D(%s, %s);
+          gl_FragColor = vec4(sampleColor.r * 0.493 + sampleColor. g * 0.769 +
+             sampleColor.b * 0.289, sampleColor.r * 0.449 + sampleColor.g * 0.686 +
+             sampleColor.b * 0.268, sampleColor.r * 0.272 + sampleColor.g * 0.534 +
+             sampleColor.b * 0.131, 1.0);
+        }
+        """
+
         private val IDENTITY_MATRIX = createGlIdentityMatrix()
 
         private fun createGlIdentityMatrix() = FloatArray(16).apply { Matrix.setIdentityM(this, 0) }
@@ -175,17 +190,94 @@ class OpenGlRendererTest {
     }
 
     @Test
+    fun initByInvalidShaderString_throwException() {
+        val shaderProvider = object : ShaderProvider {
+            override fun createFragmentShader(
+                samplerVarName: String,
+                fragCoordsVarName: String
+            ) = "Invalid shader"
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            runBlocking(glDispatcher) {
+                createOpenGlRendererAndInit(shaderProvider)
+            }
+        }
+    }
+
+    @Test
+    fun initByFailedShaderProvider_throwException() {
+        val shaderProvider = object : ShaderProvider {
+            override fun createFragmentShader(
+                samplerVarName: String,
+                fragCoordsVarName: String
+            ) = throw RuntimeException("Failed Shader")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            runBlocking(glDispatcher) {
+                createOpenGlRendererAndInit(shaderProvider)
+            }
+        }
+    }
+
+    @Test
+    fun initByIncorrectSamplerName_throwException() {
+        val shaderProvider = object : ShaderProvider {
+            override fun createFragmentShader(
+                samplerVarName: String,
+                fragCoordsVarName: String
+            ) = getCustomFragmentShader("_mySampler_", fragCoordsVarName)
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            runBlocking(glDispatcher) {
+                createOpenGlRendererAndInit(shaderProvider)
+            }
+        }
+    }
+
+    @Test
+    fun initByIncorrectFragCoordsName_throwException() {
+        val shaderProvider = object : ShaderProvider {
+            override fun createFragmentShader(
+                samplerVarName: String,
+                fragCoordsVarName: String
+            ) = getCustomFragmentShader(samplerVarName, "_myFragCoords_")
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            runBlocking(glDispatcher) {
+                createOpenGlRendererAndInit(shaderProvider)
+            }
+        }
+    }
+
+    @Test
     fun reInit(): Unit = runBlocking(glDispatcher) {
         createOpenGlRendererAndInit()
         glRenderer.release()
-        glRenderer.init()
+        glRenderer.init(ShaderProvider.DEFAULT)
         assertThat(glRenderer.textureName).isNotEqualTo(0L)
     }
 
     @Test
-    fun renderFromCameraToImageReader(): Unit = runBlocking(glDispatcher) {
+    fun render(): Unit = runBlocking(glDispatcher) {
+        testRenderFromCameraToImageReader()
+    }
+
+    @Test
+    fun renderByCustomShader(): Unit = runBlocking(glDispatcher) {
+        val shaderProvider = object : ShaderProvider {
+            override fun createFragmentShader(
+                samplerVarName: String,
+                fragCoordsVarName: String
+            ): String = getCustomFragmentShader(samplerVarName, fragCoordsVarName)
+        }
+        testRenderFromCameraToImageReader(shaderProvider)
+    }
+
+    private suspend fun testRenderFromCameraToImageReader(
+        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
+    ) {
         // Arrange.
-        createOpenGlRendererAndInit()
+        createOpenGlRendererAndInit(shaderProvider = shaderProvider)
 
         // Prepare input
         val surfaceTexture = SurfaceTexture(glRenderer.textureName).apply {
@@ -233,18 +325,30 @@ class OpenGlRendererTest {
         } ?: fail("Timed out to receive images")
     }
 
-    private suspend fun createOpenGlRendererAndInit() {
+    private suspend fun createOpenGlRendererAndInit(
+        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
+    ) {
         createOpenGlRenderer()
 
         if (currentCoroutineContext()[ContinuationInterceptor] == glDispatcher) {
             // same dispatcher, init directly
-            glRenderer.init()
+            glRenderer.init(shaderProvider)
         } else {
             runBlocking(glDispatcher) {
-                glRenderer.init()
+                glRenderer.init(shaderProvider)
             }
         }
     }
+
+    private fun getCustomFragmentShader(samplerVarName: String, fragCoordsVarName: String) =
+        String.format(
+            Locale.US,
+            CUSTOM_SHADER_FORMAT,
+            samplerVarName,
+            fragCoordsVarName,
+            samplerVarName,
+            fragCoordsVarName
+        )
 
     private fun createOpenGlRenderer() {
         glRenderer = OpenGlRenderer()
