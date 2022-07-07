@@ -424,6 +424,28 @@ class WorkUpdateTest {
         assertThat(worker2.runAttemptCount).isEqualTo(1)
     }
 
+    @MediumTest
+    @Test
+    fun updateCorrectNextRunTime() {
+        val request = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setInitialDelay(10, TimeUnit.MINUTES).build()
+        val enqueueTime = System.currentTimeMillis()
+        workManager.enqueue(request).result.get()
+        workManager.workDatabase.workSpecDao().setLastEnqueuedTime(request.stringId,
+            enqueueTime - TimeUnit.MINUTES.toMillis(5))
+        val updated = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setInitialDelay(20, TimeUnit.MINUTES)
+            .setId(request.id)
+            .build()
+        workManager.updateWork(updated).get()
+        val workSpec = workManager.workDatabase.workSpecDao().getWorkSpec(request.stringId)!!
+        val delta = workSpec.calculateNextRunTime() - enqueueTime
+        // enqueue time isn't very accurate but delta should be about 15 minutes, because
+        // enqueueTime was rewound 5 minutes back.
+        assertThat(delta).isGreaterThan(TimeUnit.MINUTES.toMillis(14))
+        assertThat(delta).isLessThan(TimeUnit.MINUTES.toMillis(16))
+    }
+
     @After
     fun tearDown() {
         workManager.cancelAllWork()
