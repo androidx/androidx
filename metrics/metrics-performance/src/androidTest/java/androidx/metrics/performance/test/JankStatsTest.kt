@@ -20,12 +20,12 @@ import android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
 import android.os.Build.VERSION_CODES.JELLY_BEAN
 import android.view.Choreographer
 import androidx.annotation.RequiresApi
-import androidx.metrics.performance.PerformanceMetricsState
 import androidx.metrics.performance.FrameData
 import androidx.metrics.performance.FrameDataApi24
 import androidx.metrics.performance.FrameDataApi31
 import androidx.metrics.performance.JankStats
 import androidx.metrics.performance.JankStats.OnFrameListener
+import androidx.metrics.performance.PerformanceMetricsState
 import androidx.metrics.performance.StateInfo
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -34,10 +34,11 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
-import org.hamcrest.Matchers
 import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -74,6 +75,7 @@ class JankStatsTest {
             frameInit = FrameInitCompat(this)
         }
     }
+
     @Rule
     @JvmField
     var delayedActivityRule: ActivityScenarioRule<DelayedActivity> =
@@ -87,8 +89,11 @@ class JankStatsTest {
             delayedView = delayedActivity.findViewById(R.id.delayedView)
             latchedListener = LatchedListener()
             latchedListener.latch = CountDownLatch(1)
-            jankStats = JankStats.createAndTrack(delayedActivity.window,
-                Dispatchers.Default.asExecutor(), latchedListener)
+            jankStats = JankStats.createAndTrack(
+                delayedActivity.window,
+                Dispatchers.Default.asExecutor(),
+                latchedListener
+            )
             metricsState = PerformanceMetricsState.getForHierarchy(delayedView).state!!
         }
     }
@@ -99,8 +104,35 @@ class JankStatsTest {
         assert(PerformanceMetricsState.getForHierarchy(delayedView).state == metricsState)
     }
 
+    /**
+     * Test adding/removing listeners while inside the listener callback (on the same thread)
+     */
     @Test
-    @UiThreadTest
+    fun testConcurrentListenerModifications() {
+        lateinit var jsSecond: JankStats
+        lateinit var jsThird: JankStats
+
+        // We add two more JankStats object with another listener which will add/remove
+        // in the callback. One more listener will not necessarily trigger the issue, because if
+        // that listener is at the end of the internal list of listeners, then the iterator will
+        // not try to find another one after it has been removed. So we make the list large enough
+        // that we will be removing a listener in the middle.
+        val secondListener = OnFrameListener {
+            jsSecond.isTrackingEnabled = !jsSecond.isTrackingEnabled
+            jsThird.isTrackingEnabled = !jsThird.isTrackingEnabled
+        }
+        delayedActivityRule.scenario.onActivity { _ ->
+            // To repro, must add/remove on the same thread as the one used to call the listeners.
+            // That thread is determined by the Executor. Here's a dirty hack to force the executor
+            // to run on the same thread as the one iterating through the listeners.
+            val executor = Runnable::run
+            jsSecond = JankStats.createAndTrack(delayedActivity.window, executor, secondListener)
+            jsThird = JankStats.createAndTrack(delayedActivity.window, executor, secondListener)
+        }
+        runDelayTest(frameDelay = 0, NUM_FRAMES, latchedListener)
+    }
+
+    @Test
     fun testEnable() {
         assertTrue(jankStats.isTrackingEnabled)
         jankStats.isTrackingEnabled = false
@@ -192,8 +224,7 @@ class JankStatsTest {
         val scenario = delayedActivityRule.scenario
         scenario.onActivity { _ ->
             jankStats2 = JankStats.createAndTrack(
-                delayedActivity.window,
-                Dispatchers.Default.asExecutor(), secondListener
+                delayedActivity.window, Dispatchers.Default.asExecutor(), secondListener
             )
         }
         val testState = StateInfo("Testing State", "sampleState")
@@ -237,9 +268,9 @@ class JankStatsTest {
             }
         }
         listenerPostingThread.start()
-        runDelayTest(frameDelay, NUM_FRAMES * 100, latchedListener)
         // add listeners concurrently - no asserts here, just testing whether we
         // avoid any concurrency issues with adding and using multiple listeners
+        runDelayTest(frameDelay, NUM_FRAMES * 100, latchedListener)
     }
 
     @SdkSuppress(minSdkVersion = JELLY_BEAN)
@@ -510,7 +541,7 @@ class JankStatsTest {
             listener.numFrames = 0
         }
         try {
-            latch.await(frameDelay * numFrames + 1000L, TimeUnit.MILLISECONDS)
+            latch.await(max(frameDelay, 1) * numFrames + 1000L, TimeUnit.MILLISECONDS)
         } catch (e: InterruptedException) {
             assert(false)
         }
