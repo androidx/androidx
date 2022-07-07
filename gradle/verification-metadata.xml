@@ -1238,21 +1238,21 @@
          </artifact>
       </component>
       <!-- Unsigned, b/227204920 -->
-      <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.7.0">
-         <artifact name="kotlin-native-prebuilt-linux-x86_64-1.7.0.tar.gz">
-            <sha256 value="3790ab4de2bbc716c0842fdff7798145923aa80489390c88eb3a08bb945a0a37" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.7.0.tar.gz"/>
+      <component group="" name="kotlin-native-prebuilt-linux-x86_64" version="1.7.10">
+         <artifact name="kotlin-native-prebuilt-linux-x86_64-1.7.10.tar.gz">
+            <sha256 value="f3bd13bc0089fe95609109604d5993a49838828787f15e0e79eef6612b587dc1" origin="Hand-built using sha256sum kotlin-native-prebuilt-linux-x86_64-1.7.10.tar.gz"/>
          </artifact>
       </component>
 
-      <component group="" name="kotlin-native-prebuilt-macos-aarch64" version="1.7.0">
-         <artifact name="kotlin-native-prebuilt-macos-aarch64-1.7.0.tar.gz">
-            <sha256 value="9f181b9ffccf77281a5f894208192421e2ad8bcb1da50ffd153a9f426faa1084" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-aarch64-1.7.0.tar.gz"/>
+      <component group="" name="kotlin-native-prebuilt-macos-aarch64" version="1.7.10">
+         <artifact name="kotlin-native-prebuilt-macos-aarch64-1.7.10.tar.gz">
+            <sha256 value="1ad04cc4b032ef4473b6bc27d3a4d45cbd4f718824c1b31053bcf2cb97716390" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-aarch64-1.7.10.tar.gz"/>
          </artifact>
       </component>
 
-      <component group="" name="kotlin-native-prebuilt-macos-x86_64" version="1.7.0">
-         <artifact name="kotlin-native-prebuilt-macos-x86_64-1.7.0.tar.gz">
-            <sha256 value="9eef3dc4726bd604ab685a44baaaba076585a8b92512898b53aebb071d770115" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-x86_64-1.7.0.tar.gz"/>
+      <component group="" name="kotlin-native-prebuilt-macos-x86_64" version="1.7.10">
+         <artifact name="kotlin-native-prebuilt-macos-x86_64-1.7.10.tar.gz">
+            <sha256 value="9cfbf22c1f4e03378120a706aebdc358628cca7f8767ee8bb91dcf6ca5ecfa36" origin="Hand-built using sha256sum kotlin-native-prebuilt-macos-x86_64-1.7.10.tar.gz"/>
          </artifact>
       </component>
    </components>
