@@ -37,7 +37,7 @@ android {
 dependencies {
     api("androidx.core:core:1.7.0")
 
-    implementation("com.google.firebase:firebase-appindexing:20.0.0")
+    implementation "com.google.android.gms:play-services-appindex:16.1.0"
     implementation("com.google.crypto.tink:tink-android:1.5.0")
     implementation projectOrArtifact(":appsearch:appsearch")
     implementation projectOrArtifact(":appsearch:appsearch-builtin-types")
