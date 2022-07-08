@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.view.ViewConfiguration;
 
 import androidx.test.uiautomator.By;
 import androidx.test.uiautomator.Direction;
@@ -59,23 +60,73 @@ public class UiObject2Tests extends BaseTest {
     public void testClick() {
         launchTestActivity(UiObject2TestClickActivity.class);
 
-        // Find the button and verify its initial state
-        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
-        assertEquals("Click Me!", button.getText());
+        // Short click with no parameter (`click()`).
+        UiObject2 button1 = mDevice.findObject(By.res(TEST_APP, "button1"));
+        assertEquals("text1", button1.getText());
+        button1.click();
+        button1.wait(Until.textEquals("text1_clicked"), TIMEOUT_MS);
+        assertEquals("text1_clicked", button1.getText());
+    }
 
-        // Click on the button and verify that the text has changed
-        button.click();
-        button.wait(Until.textEquals("I've been clicked!"), TIMEOUT_MS);
-        assertEquals("I've been clicked!", button.getText());
+    @Test
+    public void testClick_point() {
+        launchTestActivity(UiObject2TestClickActivity.class);
 
-        // Find the checkbox and verify its initial state
-        UiObject2 checkbox = mDevice.findObject(By.res(TEST_APP, "check_box"));
-        assertFalse(checkbox.isChecked());
+        // Short click with a point position as a parameter (`click(Point point)`).
 
-        // Click on the checkbox and verify that it is now checked
-        checkbox.click();
-        checkbox.wait(Until.checked(true), TIMEOUT_MS);
-        assertTrue(checkbox.isChecked());
+        // Point inside the button.
+        UiObject2 button2 = mDevice.findObject(By.res(TEST_APP, "button2"));
+        assertEquals("text2", button2.getText());
+        button2.click(getPointInsideBounds(button2));
+        button2.wait(Until.textEquals("text2_clicked"), TIMEOUT_MS);
+        assertEquals("text2_clicked", button2.getText());
+
+        // Point outside the button.
+        UiObject2 button3 = mDevice.findObject(By.res(TEST_APP, "button3"));
+        assertEquals("text3", button3.getText());
+        button3.click(getPointOutsideBounds(button3));
+        button3.wait(Until.textEquals("text3_clicked"), TIMEOUT_MS);
+        assertEquals("text3_clicked", button3.getText());
+    }
+
+    @Test
+    public void testClick_duration() {
+        launchTestActivity(UiObject2TestClickActivity.class);
+
+        // Short click with a time duration as a parameter (`click(long duration)`).
+        UiObject2 button4 = mDevice.findObject(By.res(TEST_APP, "button4"));
+        assertEquals("text4", button4.getText());
+        button4.click((long) (ViewConfiguration.getLongPressTimeout() / 1.5));
+        button4.wait(Until.textEquals("text4_clicked"), TIMEOUT_MS);
+        assertEquals("text4_clicked", button4.getText());
+
+        // Long click with a time duration as a parameter (`click(long duration)`).
+        UiObject2 button5 = mDevice.findObject(By.res(TEST_APP, "button5"));
+        assertEquals("text5", button5.getText());
+        button5.click((long) (ViewConfiguration.getLongPressTimeout() * 1.5));
+        button5.wait(Until.textEquals("text5_long_clicked"), TIMEOUT_MS);
+        assertEquals("text5_long_clicked", button5.getText());
+    }
+
+    @Test
+    public void testClick_pointAndDuration() {
+        launchTestActivity(UiObject2TestClickActivity.class);
+
+        // Short click with two parameters (`click(Point point, long duration)`).
+        UiObject2 button6 = mDevice.findObject(By.res(TEST_APP, "button6"));
+        assertEquals("text6", button6.getText());
+        button6.click(getPointInsideBounds(button6),
+                (long) (ViewConfiguration.getLongPressTimeout() / 1.5));
+        button6.wait(Until.textEquals("text6_clicked"), TIMEOUT_MS);
+        assertEquals("text6_clicked", button6.getText());
+
+        // Long click with two parameters (`click(Point point, long duration)`).
+        UiObject2 button7 = mDevice.findObject(By.res(TEST_APP, "button7"));
+        assertEquals("text7", button7.getText());
+        button7.click(getPointInsideBounds(button7),
+                (long) (ViewConfiguration.getLongPressTimeout() * 1.5));
+        button7.wait(Until.textEquals("text7_long_clicked"), TIMEOUT_MS);
+        assertEquals("text7_long_clicked", button7.getText());
     }
 
     @Test
@@ -288,8 +339,8 @@ public class UiObject2Tests extends BaseTest {
         UiObject2 checkBox = mDevice.findObject(By.res(TEST_APP, "check_box"));
         assertTrue(checkBox.isCheckable());
         // Button objects are not checkable by default.
-        UiObject2 button = mDevice.findObject(By.res(TEST_APP, "button"));
-        assertFalse(button.isCheckable());
+        UiObject2 button1 = mDevice.findObject(By.res(TEST_APP, "button1"));
+        assertFalse(button1.isCheckable());
     }
 
     @Test
@@ -404,7 +455,7 @@ public class UiObject2Tests extends BaseTest {
         scaleText.wait(Until.textNotEquals("1.0f"), TIMEOUT_MS);
         float scaleValueAfterPinch = Float.valueOf(scaleText.getText());
         assertTrue(String.format("Expected scale value to be less than 1f after pinchClose(), "
-                        + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
+                + "but got [%f]", scaleValueAfterPinch), scaleValueAfterPinch < 1f);
     }
 
     @Test
@@ -578,4 +629,20 @@ public class UiObject2Tests extends BaseTest {
 
     public void testWaitForGone() {}
     */
+
+    /* Helper method for `testClick*()`. Get a point inside the object. */
+    private Point getPointInsideBounds(UiObject2 obj) {
+        Rect objBounds = obj.getVisibleBounds();
+        int pointX = objBounds.left + objBounds.width() / 3;
+        int pointY = objBounds.top + objBounds.height() / 3;
+        return new Point(pointX, pointY);
+    }
+
+    /* Helper method for `testClick*()`. Get a point outside the object. */
+    private Point getPointOutsideBounds(UiObject2 obj) {
+        Rect objBounds = obj.getVisibleBounds();
+        int pointX = objBounds.right + objBounds.width() / 3;
+        int pointY = objBounds.bottom + objBounds.height() / 3;
+        return new Point(pointX, pointY);
+    }
 }
