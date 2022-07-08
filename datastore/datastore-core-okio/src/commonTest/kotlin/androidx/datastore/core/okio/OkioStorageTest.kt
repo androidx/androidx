@@ -16,6 +16,7 @@
 
 package androidx.datastore.core.okio
 
+import androidx.datastore.OkioTestIO
 import androidx.datastore.core.ReadScope
 import androidx.datastore.core.Storage
 import androidx.datastore.core.StorageConnection
@@ -23,6 +24,8 @@ import androidx.datastore.core.WriteScope
 import androidx.datastore.core.readData
 import androidx.datastore.core.use
 import androidx.datastore.core.writeData
+import androidx.datastore.TestingOkioSerializer
+import androidx.datastore.TestingSerializerConfig
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -43,21 +46,21 @@ import okio.Path
 class OkioStorageTest {
 
     private lateinit var testPath: Path
-    private lateinit var testingSerializer: TestingSerializer
+    private lateinit var testingSerializerConfig: TestingSerializerConfig
+    private lateinit var testingSerializer: TestingOkioSerializer
     private lateinit var testStorage: Storage<Byte>
     private lateinit var testConnection: StorageConnection<Byte>
     private lateinit var testScope: TestScope
-    private lateinit var fileScope: TestScope
-    private lateinit var testIO: TestIO
+    private lateinit var testIO: OkioTestIO
     private var fileSystem: FileSystem = FileSystem.SYSTEM
 
     @BeforeTest
     fun setUp() {
-        testIO = TestIO()
-        testingSerializer = TestingSerializer()
-        testPath = testIO.tempDir() / "temp-file.tmpo"
+        testIO = OkioTestIO()
+        testingSerializerConfig = TestingSerializerConfig()
+        testingSerializer = TestingOkioSerializer(testingSerializerConfig)
+        testPath = testIO.newTempFile().path
         testScope = TestScope(UnconfinedTestDispatcher())
-        fileScope = TestScope(UnconfinedTestDispatcher())
         testStorage = OkioStorage(fileSystem, testingSerializer) { testPath }
         testConnection = testStorage.createConnection()
     }
@@ -67,7 +70,7 @@ class OkioStorageTest {
 
         val data = testConnection.readData()
 
-        assertThat(data).isEqualTo(0)
+        assertThat(data).isEqualTo(0.toByte())
     }
 
     @Test
@@ -179,7 +182,7 @@ class OkioStorageTest {
 
         coroutineScope {
             testConnection.writeData(1)
-            testingSerializer.failingWrite = true
+            testingSerializerConfig.failingWrite = true
             assertThrows<IOException> { testConnection.writeData(1) }
         }
 
@@ -275,7 +278,8 @@ class OkioStorageTest {
 
     @Test
     fun testWriteToNonExistentDir() = testScope.runTest {
-        val fileInNonExistentDir = testIO.tempDir() / "this/does/not/exist/foo.tst"
+        val fileInNonExistentDir = FileSystem.SYSTEM_TEMPORARY_DIRECTORY /
+            "this/does/not/exist/foo.tst"
         coroutineScope {
             val storage = OkioStorage(fileSystem, testingSerializer) { fileInNonExistentDir }
             storage.createConnection().use { connection ->
@@ -294,7 +298,7 @@ class OkioStorageTest {
 
     @Test
     fun writeToDirFails() = testScope.runTest {
-        val directoryFile = testIO.tempDir() / "this/is/a/directory"
+        val directoryFile = FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "this/is/a/directory"
         fileSystem.createDirectories(directoryFile)
 
         val storage = OkioStorage(fileSystem, testingSerializer) { directoryFile }
@@ -310,7 +314,7 @@ class OkioStorageTest {
             if (failFileProducer) {
                 throw IOException("Exception when producing file")
             }
-            testIO.tempDir() / "new-temp-file.tmp"
+            FileSystem.SYSTEM_TEMPORARY_DIRECTORY / "new-temp-file.tmp"
         }
         val storage = OkioStorage(fileSystem, testingSerializer, fileProducer)
 
@@ -327,13 +331,13 @@ class OkioStorageTest {
 
     @Test
     fun writeAfterTransientBadRead() = testScope.runTest {
-        testingSerializer.failingRead = true
+        testingSerializerConfig.failingRead = true
 
         testConnection.writeData(1)
 
         assertThrows<IOException> { testConnection.readData() }
 
-        testingSerializer.failingRead = false
+        testingSerializerConfig.failingRead = false
 
         testConnection.writeData(1)
         assertThat(testConnection.readData()).isEqualTo(1)

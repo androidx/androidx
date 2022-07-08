@@ -17,6 +17,7 @@
 package androidx.datastore.core
 
 import androidx.annotation.GuardedBy
+import androidx.annotation.RestrictTo
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
@@ -27,7 +28,15 @@ import java.util.concurrent.atomic.AtomicBoolean
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-internal class FileStorage<T>(
+/**
+ * The Java IO File version of the Storage<T> interface. Is able to read and write T to a given
+ * file location.
+ *
+ * @param serializer The serializer that can write <T> to and from a byte array.
+ * @param produceFile The file producer that returns the file that will be read and written.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class FileStorage<T>(
     private val serializer: Serializer<T>,
     private val produceFile: () -> File
 ) : Storage<T> {

@@ -16,6 +16,8 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.FileTestIO
+import androidx.datastore.JavaIOFile
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlinx.coroutines.ExperimentalCoroutinesApi

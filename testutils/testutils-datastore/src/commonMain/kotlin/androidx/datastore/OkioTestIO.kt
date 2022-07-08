@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core
+package androidx.datastore
 
+import androidx.datastore.core.Storage
 import androidx.datastore.core.okio.OkioStorage
 import kotlin.random.Random
 import kotlin.reflect.KClass

@@ -16,6 +16,7 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.TestingSerializerConfig
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.kruth.assertThat
 import java.io.File
@@ -71,7 +72,8 @@ class DataStoreFactoryTest {
 
         val store = DataStoreFactory.create(
             serializer = TestingSerializer(
-                TestingSerializerConfig(failReadWithCorruptionException = true)),
+                TestingSerializerConfig(failReadWithCorruptionException = true)
+            ),
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> {
                 valueToReplace
             },
