@@ -18,6 +18,9 @@ package androidx.camera.integration.extensions.util
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
+import androidx.camera.core.Preview
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl
@@ -151,4 +154,19 @@ object ExtensionsTestUtil {
      *
      */
     const val STRESS_TEST_OPERATION_REPEAT_COUNT = 10
+
+    /**
+     * Constant to specify that the verification target is [Preview].
+     */
+    const val VERIFICATION_TARGET_PREVIEW = 0x1
+
+    /**
+     * Constant to specify that the verification target is [ImageCapture].
+     */
+    const val VERIFICATION_TARGET_IMAGE_CAPTURE = 0x2
+
+    /**
+     * Constant to specify that the verification target is [ImageAnalysis].
+     */
+    const val VERIFICATION_TARGET_IMAGE_ANALYSIS = 0x4
 }

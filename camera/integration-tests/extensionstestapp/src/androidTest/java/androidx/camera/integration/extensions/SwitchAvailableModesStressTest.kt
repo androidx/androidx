@@ -166,9 +166,9 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
         activityScenario = ActivityScenario.launch(intent)
 
         activityScenario.onActivity {
-            initializationIdlingResource = it.mInitializationIdlingResource
-            previewViewIdlingResource = it.mPreviewViewIdlingResource
-            takePictureIdlingResource = it.mTakePictureIdlingResource
+            initializationIdlingResource = it.initializationIdlingResource
+            previewViewIdlingResource = it.previewViewStreamingStateIdlingResource
+            takePictureIdlingResource = it.takePictureIdlingResource
         }
 
         // Waits for CameraExtensionsActivity's initialization to be complete
