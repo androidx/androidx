@@ -48,8 +48,6 @@ class TracingTest {
         Tracing.traceEventEnd()
         Tracing.traceEventEnd()
 
-        Tracing.flushEvents()
-
         // Note: content of the trace is verified by another test: TrivialTracingBenchmark
     }
 

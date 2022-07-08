@@ -50,10 +50,6 @@ namespace tracing_perfetto {
         TRACE_EVENT_END(CATEGORY_RENDERING);
     }
 
-    void Flush() {
-        perfetto::TrackEvent::Flush();
-    }
-
     const char* Version() {
         return VERSION;
     }
