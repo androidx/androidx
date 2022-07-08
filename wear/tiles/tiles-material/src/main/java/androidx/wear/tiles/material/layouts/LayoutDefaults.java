@@ -28,12 +28,12 @@ public class LayoutDefaults {
     /**
      * The default percentage for the bottom margin for primary chip in the {@link PrimaryLayout}.
      */
-    static final float PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT = 6.3f / 100;
+    static final float PRIMARY_LAYOUT_MARGIN_BOTTOM_ROUND_PERCENT = 2.1f / 100;
 
     /**
      * The default percentage for the bottom margin for primary chip in the {@link PrimaryLayout}.
      */
-    static final float PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT = 2.2f / 100;
+    static final float PRIMARY_LAYOUT_MARGIN_BOTTOM_SQUARE_PERCENT = 0;
 
     /**
      * The default percentage for the top margin for primary chip in the {@link PrimaryLayout} on
@@ -70,9 +70,6 @@ public class LayoutDefaults {
      * text is too big.
      */
     static final float PRIMARY_LAYOUT_CHIP_HORIZONTAL_PADDING_SQUARE_DP = 0;
-
-    /** The default spacer height for primary chip in the {@link PrimaryLayout}. */
-    static final DpProp PRIMARY_LAYOUT_SPACER_HEIGHT = dp(12);
 
     /** The default horizontal margin in the {@link EdgeContentLayout}. */
     static final float EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP = 14;

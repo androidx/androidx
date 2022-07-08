@@ -20,7 +20,7 @@ import static androidx.annotation.Dimension.DP;
 import static androidx.wear.tiles.DimensionBuilders.dp;
 import static androidx.wear.tiles.DimensionBuilders.expand;
 import static androidx.wear.tiles.DimensionBuilders.wrap;
-import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT;
+import static androidx.wear.tiles.material.ChipDefaults.COMPACT_HEIGHT_TAPPABLE;
 import static androidx.wear.tiles.material.Helper.checkNotNull;
 import static androidx.wear.tiles.material.Helper.checkTag;
 import static androidx.wear.tiles.material.Helper.getMetadataTagBytes;
@@ -35,7 +35,6 @@ import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_HORIZONTAL_SQUARE_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_TOP_ROUND_PERCENT;
 import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_MARGIN_TOP_SQUARE_PERCENT;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.PRIMARY_LAYOUT_SPACER_HEIGHT;
 
 import android.annotation.SuppressLint;
 
@@ -235,10 +234,7 @@ public class PrimaryLayout implements LayoutElement {
             float horizontalPadding = getHorizontalPadding();
             float horizontalChipPadding = getChipHorizontalPadding();
 
-            float primaryChipHeight =
-                    mPrimaryChip != null
-                            ? (COMPACT_HEIGHT.getValue() + PRIMARY_LAYOUT_SPACER_HEIGHT.getValue())
-                            : 0;
+            float primaryChipHeight = mPrimaryChip != null ? COMPACT_HEIGHT_TAPPABLE.getValue() : 0;
 
             DpProp mainContentHeight =
                     dp(
@@ -292,31 +288,21 @@ public class PrimaryLayout implements LayoutElement {
             layoutBuilder.addContent(innerContentBuilder.build());
 
             if (mPrimaryChip != null) {
-                layoutBuilder
-                        .addContent(
-                                new Spacer.Builder()
-                                        .setHeight(PRIMARY_LAYOUT_SPACER_HEIGHT)
-                                        .build())
-                        .addContent(
-                                new Box.Builder()
-                                    .setVerticalAlignment(
-                                        LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
-                                    .setWidth(expand())
-                                    .setHeight(wrap())
-                                    .setModifiers(
+                layoutBuilder.addContent(
+                        new Box.Builder()
+                                .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
+                                .setWidth(expand())
+                                .setHeight(wrap())
+                                .setModifiers(
                                         new Modifiers.Builder()
-                                            .setPadding(
-                                                new Padding.Builder()
-                                                    .setStart(
-                                                        dp(
-                                                            horizontalChipPadding))
-                                                    .setEnd(
-                                                        dp(
-                                                            horizontalChipPadding))
-                                                    .build())
-                                            .build())
-                                        .addContent(mPrimaryChip)
-                                        .build());
+                                                .setPadding(
+                                                        new Padding.Builder()
+                                                                .setStart(dp(horizontalChipPadding))
+                                                                .setEnd(dp(horizontalChipPadding))
+                                                                .build())
+                                                .build())
+                                .addContent(mPrimaryChip)
+                                .build());
             }
 
             byte[] metadata = METADATA_TAG_BASE.clone();
@@ -424,7 +410,7 @@ public class PrimaryLayout implements LayoutElement {
     @Nullable
     public LayoutElement getPrimaryChipContent() {
         if (areElementsPresent(CHIP_PRESENT)) {
-            return ((Box) mAllContent.get(2)).getContents().get(0);
+            return ((Box) mAllContent.get(1)).getContents().get(0);
         }
         return null;
     }

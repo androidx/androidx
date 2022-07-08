@@ -28,12 +28,15 @@ import androidx.annotation.NonNull;
 import androidx.wear.tiles.ActionBuilders.LaunchAction;
 import androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters;
 import androidx.wear.tiles.LayoutElementBuilders.Box;
+import androidx.wear.tiles.LayoutElementBuilders.Column;
 import androidx.wear.tiles.LayoutElementBuilders.LayoutElement;
+import androidx.wear.tiles.LayoutElementBuilders.Spacer;
 import androidx.wear.tiles.ModifiersBuilders.Background;
 import androidx.wear.tiles.ModifiersBuilders.Clickable;
 import androidx.wear.tiles.ModifiersBuilders.Modifiers;
 import androidx.wear.tiles.material.Button;
 import androidx.wear.tiles.material.ButtonDefaults;
+import androidx.wear.tiles.material.Chip;
 import androidx.wear.tiles.material.ChipColors;
 import androidx.wear.tiles.material.CircularProgressIndicator;
 import androidx.wear.tiles.material.Colors;
@@ -128,6 +131,33 @@ public class TestCasesGenerator {
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(primaryChipBuilder.build())
                         .setContent(buildColoredBox(Color.YELLOW))
+                        .build());
+        testCases.put(
+                "two_chips_content_primarychiplayout_golden" + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setPrimaryChipContent(primaryChipBuilder.build())
+                        .setContent(
+                                new Column.Builder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .addContent(
+                                                new Chip.Builder(
+                                                                context,
+                                                                clickable,
+                                                                deviceParameters)
+                                                        .setPrimaryLabelContent("First chip")
+                                                        .setWidth(expand())
+                                                        .build())
+                                        .addContent(new Spacer.Builder().setHeight(dp(4)).build())
+                                        .addContent(
+                                                new Chip.Builder(
+                                                                context,
+                                                                clickable,
+                                                                deviceParameters)
+                                                        .setPrimaryLabelContent("Second chip")
+                                                        .setWidth(expand())
+                                                        .build())
+                                        .build())
                         .build());
 
         primaryChipBuilder =
