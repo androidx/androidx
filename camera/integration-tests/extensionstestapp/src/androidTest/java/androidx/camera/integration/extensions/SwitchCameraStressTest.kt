@@ -39,6 +39,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import androidx.test.uiautomator.UiDevice
 import androidx.testutils.RepeatRule
 import org.junit.After
 import org.junit.Assume.assumeTrue
@@ -57,6 +58,7 @@ private const val BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.extensions
 @LargeTest
 @RunWith(Parameterized::class)
 class SwitchCameraStressTest(private val extensionMode: Int) {
+    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
@@ -86,7 +88,6 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
         @Parameterized.Parameters(name = "extensionMode = {0}")
         @JvmStatic
         fun parameters() = arrayOf(
-            ExtensionMode.NONE,
             ExtensionMode.BOKEH,
             ExtensionMode.HDR,
             ExtensionMode.NIGHT,
@@ -97,16 +98,23 @@ class SwitchCameraStressTest(private val extensionMode: Int) {
 
     @Before
     fun setUp() {
-        if (extensionMode != ExtensionMode.NONE) {
-            assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
-        }
+        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before starting the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Use the natural orientation throughout these tests to ensure the activity isn't
+        // recreated unexpectedly. This will also freeze the sensors until
+        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
+        // explicitly initiated from within the test.
+        device.setOrientationNatural()
     }
 
     @After
     fun tearDown() {
+        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
+        // to other tests :)
+        device.unfreezeRotation()
+
         if (::activityScenario.isInitialized) {
             activityScenario.onActivity { it.finish() }
         }

@@ -38,6 +38,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import androidx.test.uiautomator.UiDevice
 import androidx.testutils.RepeatRule
 import org.junit.After
 import org.junit.Assume.assumeTrue
@@ -56,6 +57,7 @@ private const val BASIC_SAMPLE_PACKAGE = "androidx.camera.integration.extensions
 @LargeTest
 @RunWith(Parameterized::class)
 class SwitchAvailableModesStressTest(private val cameraId: String) {
+    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
@@ -93,10 +95,19 @@ class SwitchAvailableModesStressTest(private val cameraId: String) {
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before starting the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Use the natural orientation throughout these tests to ensure the activity isn't
+        // recreated unexpectedly. This will also freeze the sensors until
+        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
+        // explicitly initiated from within the test.
+        device.setOrientationNatural()
     }
 
     @After
     fun tearDown() {
+        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
+        // to other tests :)
+        device.unfreezeRotation()
+
         if (::activityScenario.isInitialized) {
             activityScenario.onActivity { it.finish() }
         }
