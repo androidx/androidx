@@ -144,8 +144,10 @@ package androidx.work {
   public enum ExistingPeriodicWorkPolicy {
     method public static androidx.work.ExistingPeriodicWorkPolicy valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.work.ExistingPeriodicWorkPolicy[] values();
+    enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy CANCEL_AND_REENQUEUE;
     enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy KEEP;
-    enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy REPLACE;
+    enum_constant @Deprecated public static final androidx.work.ExistingPeriodicWorkPolicy REPLACE;
+    enum_constant public static final androidx.work.ExistingPeriodicWorkPolicy UPDATE;
   }
 
   public enum ExistingWorkPolicy {
