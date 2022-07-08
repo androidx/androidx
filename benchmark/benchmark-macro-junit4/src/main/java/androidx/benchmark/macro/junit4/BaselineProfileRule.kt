@@ -80,15 +80,20 @@ class BaselineProfileRule : TestRule {
     /**
      * Collects baseline profiles for a critical user journey.
      * @param packageName Package name of the app for which profiles are to be generated.
+     * @param packageFilters List of package names to use as a filter for the generated profiles.
+     *  By default no filters are applied. Note that this works only when the code is not obfuscated.
      * @param [profileBlock] defines the critical user journey.
      */
+    @JvmOverloads
     public fun collectBaselineProfile(
         packageName: String,
+        packageFilters: List<String> = emptyList(),
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
         collectBaselineProfile(
-            currentDescription.toUniqueName(),
+            uniqueName = currentDescription.toUniqueName(),
             packageName = packageName,
+            packageFilters = packageFilters,
             profileBlock = profileBlock
         )
     }

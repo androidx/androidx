@@ -53,6 +53,15 @@
         </activity>
 
         <activity
+            android:name=".EmptyActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.benchmark.integration.macrobenchmark.target.EMPTY_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".RecyclerViewActivity"
             android:exported="true">
             <intent-filter>

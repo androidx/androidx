@@ -33,9 +33,11 @@ import androidx.benchmark.userspaceTrace
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresApi(28)
+@JvmOverloads
 fun collectBaselineProfile(
     uniqueName: String,
     packageName: String,
+    packageFilters: List<String> = emptyList(),
     profileBlock: MacrobenchmarkScope.() -> Unit
 ) {
     require(Build.VERSION.SDK_INT >= 28) {
@@ -79,17 +81,32 @@ fun collectBaselineProfile(
         Log.d(TAG, "Converting to human readable profile format")
         // Look at reference profile first, and then fallback to current profile
         val profile = profile(apkPath, listOf(referenceProfile, currentProfile))
+
+        // Filters the profile output with the given set or rules.
+        // Note that the filter rules are package name but the profile file lines contain
+        // jvm method signature, ex: `HSPLandroidx/room/RoomDatabase;-><init>()V`.
+        // In order to simplify this for developers we transform the filters from regular package names.
+        val filteredProfile = if (packageFilters.isEmpty()) profile else {
+            // Ensure that the package name ends with `/`
+            val fixedPackageFilters = packageFilters
+                .map { "${it.replace(".", "/")}${if (it.endsWith(".")) "" else "/"}" }
+            profile
+                .lines()
+                .filter { line -> fixedPackageFilters.any { line.contains(it) } }
+                .joinToString(System.lineSeparator())
+        }
+
         InstrumentationResults.instrumentationReport {
             val fileName = "$uniqueName-baseline-prof.txt"
             val absolutePath = Outputs.writeFile(fileName, "baseline-profile") {
-                it.writeText(profile)
+                it.writeText(filteredProfile)
             }
             // Write a file with a timestamp to be able to disambiguate between runs with the same
             // unique name.
             val tsFileName = "$uniqueName-baseline-prof-${Outputs.dateToFileName()}.txt"
             val tsAbsolutePath = Outputs.writeFile(tsFileName, "baseline-profile-ts") {
                 Log.d(TAG, "Pull Baseline Profile with: `adb pull \"${it.absolutePath}\" .`")
-                it.writeText(profile)
+                it.writeText(filteredProfile)
             }
             val totalRunTime = System.nanoTime() - startTime
             val summary = summaryRecord(totalRunTime, absolutePath, tsAbsolutePath)
