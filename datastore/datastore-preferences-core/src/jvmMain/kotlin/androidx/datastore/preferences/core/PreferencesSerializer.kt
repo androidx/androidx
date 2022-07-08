@@ -20,13 +20,13 @@ import androidx.datastore.core.CorruptionException
 import androidx.datastore.preferences.PreferencesProto.PreferenceMap
 import androidx.datastore.preferences.PreferencesProto.Value
 import androidx.datastore.preferences.PreferencesProto.StringSet
-import androidx.datastore.core.Serializer
+import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.preferences.PreferencesMapCompat
 import androidx.datastore.preferences.protobuf.ByteString
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import kotlin.jvm.Throws
+import okio.BufferedSink
+import okio.BufferedSource
+import okio.IOException
 
 /**
  * Proto based serializer for Preferences.
@@ -34,7 +34,7 @@ import kotlin.jvm.Throws
  * TODO(b/156533452): this is a temporary implementation to allow for development. This will be
  * replaced before launching.
  */
-internal object PreferencesSerializer : Serializer<Preferences> {
+internal object PreferencesSerializer : OkioSerializer<Preferences> {
     val fileExtension = "preferences_pb"
 
     override val defaultValue: Preferences
@@ -43,8 +43,8 @@ internal object PreferencesSerializer : Serializer<Preferences> {
         }
 
     @Throws(IOException::class, CorruptionException::class)
-    override suspend fun readFrom(input: InputStream): Preferences {
-        val preferencesProto = PreferencesMapCompat.readFrom(input)
+    override suspend fun readFrom(source: BufferedSource): Preferences {
+        val preferencesProto = PreferencesMapCompat.readFrom(source.inputStream())
 
         val mutablePreferences = mutablePreferencesOf()
 
@@ -56,7 +56,7 @@ internal object PreferencesSerializer : Serializer<Preferences> {
     }
 
     @Throws(IOException::class, CorruptionException::class)
-    override suspend fun writeTo(t: Preferences, output: OutputStream) {
+    override suspend fun writeTo(t: Preferences, sink: BufferedSink) {
         val preferences = t.asMap()
         val protoBuilder = PreferenceMap.newBuilder()
 
@@ -64,7 +64,7 @@ internal object PreferencesSerializer : Serializer<Preferences> {
             protoBuilder.putPreferences(key.name, getValueProto(value))
         }
 
-        protoBuilder.build().writeTo(output)
+        protoBuilder.build().writeTo(sink.outputStream())
     }
 
     private fun getValueProto(value: Any): Value {
