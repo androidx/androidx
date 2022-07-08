@@ -131,6 +131,7 @@ Downloading file\:\$SUPPORT\/gradle\/wrapper\/.*
 Daemon will be stopped at the end of the build
 # > Configure project :appsearch:appsearch\-local\-backend
 Configuration on demand is an incubating feature\.
+You are using legacy USE_ANDROIDX_REMOTE_BUILD_CACHE=true type, this cache has been turned down, so you are \*not\* using a remote cache\. Please move to the new cache using http://go/androidx\-dev\#remote\-build\-cache
 Configuration cache is an incubating feature\.
 # > Configure project :
 updated local\.properties
@@ -297,6 +298,10 @@ C/C\+\+: Compiling for ARM
 # > Task :glance:glance:reportLibraryMetrics
 Info: Stripped invalid locals information from [0-9]+ methods?\.
 Info: Methods with invalid locals information:
+androidx\.compose\.ui\.Modifier androidx\.compose\.animation\.AnimationModifierKt\$animateContentSize\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
+androidx\.compose\.ui\.Modifier androidx\.compose\.material[0-9]+\.SliderKt\$sliderTapModifier\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
+androidx\.compose\.ui\.Modifier androidx\.compose\.animation\.demos\.layoutanimation\.AnimatedPlacementDemoKt\$animatePlacement\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
+androidx\.compose\.ui\.Modifier androidx\.compose\.ui\.input\.nestedscroll\.NestedScrollModifierKt\$nestedScroll\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
 void androidx\.wear\.compose\.material\.PickerKt\.Picker\-gjPtlC[0-9]+\(androidx\.wear\.compose\.material\.PickerState, java\.lang\.String, androidx\.compose\.ui\.Modifier, boolean, kotlin\.jvm\.functions\.Function[0-9]+, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.wear\.compose\.material\.ScalingParams, float, float, long, androidx\.compose\.foundation\.gestures\.FlingBehavior, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int, int, int\)
 # https://youtrack.jetbrains.com/issue/KT-52702/
 void androidx\.compose\.animation\.demos\.visualaid\.EasingFunctionDemoKt\.EasingInfoDemo\(androidx\.compose\.runtime\.Composer, int\)
@@ -315,6 +320,16 @@ void androidx\.compose\.material\.catalog\.library\.ui\.common\.CatalogScaffoldK
 void androidx\.compose\.foundation\.demos\.relocation\.BringIntoViewAndroidInteropDemoKt\.BringIntoViewAndroidInteropDemo\(androidx\.compose\.runtime\.Composer, int\)
 void androidx\.compose\.ui\.demos\.keyinput\.InterceptEnterToSendMessageDemoKt\.InterceptEnterToSendMessageDemo\(androidx\.compose\.runtime\.Composer, int\)
 Information in locals\-table is invalid with respect to the stack map table\. Local refers to non\-present stack map type for register: [0-9]+ with constraint [\-A-Z]*\.
+androidx\.compose\.ui\.Modifier androidx\.compose\.material\.SliderKt\$sliderTapModifier\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
+androidx\.compose\.ui\.Modifier androidx\.compose\.foundation\.FocusableKt\$focusable\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
+androidx\.compose\.ui\.Modifier androidx\.compose\.foundation\.ScrollKt\$scroll\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
+androidx\.compose\.ui\.Modifier androidx\.compose\.foundation\.text\.TextFieldPressGestureFilterKt\$tapPressTextFieldModifier\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
+androidx\.compose\.ui\.Modifier androidx\.compose\.foundation\.gestures\.ScrollableKt\$scrollable\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
+androidx\.compose\.ui\.Modifier androidx\.compose\.foundation\.HoverableKt\$hoverable\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
+androidx\.compose\.ui\.Modifier androidx\.compose\.ui\.samples\.OnPlacedSamplesKt\$OnPlaced\$animatePlacement\$[0-9]+\.invoke\(androidx\.compose\.ui\.Modifier, androidx\.compose\.runtime\.Composer, int\)
+androidx\.compose\.foundation\.demos\.GridDragDropState androidx\.compose\.foundation\.demos\.LazyGridDragAndDropDemoKt\.rememberGridDragDropState\(androidx\.compose\.foundation\.lazy\.grid\.LazyGridState, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int\)
+void androidx\.compose\.foundation\.demos\.relocation\.BringNestedIntoViewDemoKt\.ControlGrid\(int, int, java\.util\.List, androidx\.compose\.runtime\.Composer, int\)
+androidx\.compose\.foundation\.demos\.DragDropState androidx\.compose\.foundation\.demos\.LazyColumnDragAndDropDemoKt\.rememberDragDropState\(androidx\.compose\.foundation\.lazy\.LazyListState, kotlin\.jvm\.functions\.Function[0-9]+, androidx\.compose\.runtime\.Composer, int\)
 void androidx\.compose\.animation\.demos\.visualaid\.EasingFunctionDemoKt\.EasingGraph\(androidx\.compose\.animation\.core\.Easing, androidx\.compose\.ui\.Modifier, kotlinx\.coroutines\.CoroutineScope, androidx\.compose\.runtime\.Composer, int, int\)
 void androidx\.compose\.animation\.demos\.gesture\.FancyScrollingDemoKt\.FancyScrollingDemo\(androidx\.compose\.runtime\.Composer, int\)
 void androidx\.compose\.animation\.demos\.suspendfun\.SuspendDoubleTapToLikeDemoKt\.SuspendDoubleTapToLikeDemo\(androidx\.compose\.runtime\.Composer, int\)
