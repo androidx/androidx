@@ -53,7 +53,7 @@ import kotlin.reflect.KClass
  * }
  * ```
  *
- * In the above example the many-to-many relationship between `Song` and `Playlist` has
+ * In the above example the many-to-many relationship between a `Song` and a `Playlist` has
  * an associative table defined by the entity `PlaylistSongXRef`.
  *
  * @see [Relation]
