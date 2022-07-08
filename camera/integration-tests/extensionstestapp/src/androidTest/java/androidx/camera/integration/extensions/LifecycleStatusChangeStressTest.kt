@@ -20,7 +20,6 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.extensions.ExtensionMode
 import androidx.camera.integration.extensions.util.ExtensionsTestUtil
 import androidx.camera.integration.extensions.util.ExtensionsTestUtil.STRESS_TEST_OPERATION_REPEAT_COUNT
 import androidx.camera.testing.CameraUtil
@@ -40,6 +39,7 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
+import androidx.test.uiautomator.UiDevice
 import androidx.testutils.RepeatRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -63,6 +63,7 @@ class LifecycleStatusChangeStressTest(
     private val cameraId: String,
     private val extensionMode: Int
 ) {
+    private val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     @get:Rule
     val useCamera = CameraUtil.grantCameraPermissionAndPreTest(
@@ -91,21 +92,28 @@ class LifecycleStatusChangeStressTest(
 
         @Parameterized.Parameters(name = "cameraId = {0}, extensionMode = {1}")
         @JvmStatic
-        fun parameters() = ExtensionsTestUtil.getAllCameraIdModeCombinations()
+        fun parameters() = ExtensionsTestUtil.getAllCameraIdExtensionModeCombinations()
     }
 
     @Before
     fun setUp() {
-        if (extensionMode != ExtensionMode.NONE) {
-            assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
-        }
+        assumeTrue(ExtensionsTestUtil.isTargetDeviceAvailableForExtensions())
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before starting the test.
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
+        // Use the natural orientation throughout these tests to ensure the activity isn't
+        // recreated unexpectedly. This will also freeze the sensors until
+        // mDevice.unfreezeRotation() in the tearDown() method. Any simulated rotations will be
+        // explicitly initiated from within the test.
+        device.setOrientationNatural()
     }
 
     @After
     fun tearDown() {
+        // Unfreeze rotation so the device can choose the orientation via its own policy. Be nice
+        // to other tests :)
+        device.unfreezeRotation()
+
         if (::activityScenario.isInitialized) {
             activityScenario.onActivity { it.finish() }
         }

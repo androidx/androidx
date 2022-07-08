@@ -29,8 +29,10 @@ import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.display.DisplayManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -65,14 +67,18 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.camera2.internal.compat.quirk.CrashWhenTakingPhotoWithAutoFlashAEModeQuirk;
 import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFailWithAutoFlashQuirk;
 import androidx.camera.camera2.internal.compat.quirk.ImageCaptureFlashNotFireQuirk;
+import androidx.camera.camera2.interop.Camera2CameraInfo;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
@@ -155,6 +161,25 @@ public class CameraXActivity extends AppCompatActivity {
     // "default_test_case".
     private static final String INTENT_EXTRA_E2E_TEST_CASE = "e2e_test_case";
     public static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
+    // Launch the activity with the specified camera id.
+    @VisibleForTesting
+    public static final String INTENT_EXTRA_CAMERA_ID = "camera_id";
+    // Launch the activity with the specified use case combination.
+    @VisibleForTesting
+    public static final String INTENT_EXTRA_USE_CASE_COMBINATION = "use_case_combination";
+    @VisibleForTesting
+    // Sets this bit to bind Preview when using INTENT_EXTRA_USE_CASE_COMBINATION
+    public static final int BIND_PREVIEW = 0x1;
+    @VisibleForTesting
+    // Sets this bit to bind ImageCapture when using INTENT_EXTRA_USE_CASE_COMBINATION
+    public static final int BIND_IMAGE_CAPTURE = 0x2;
+    @VisibleForTesting
+    // Sets this bit to bind VideoCapture when using INTENT_EXTRA_USE_CASE_COMBINATION
+    public static final int BIND_VIDEO_CAPTURE = 0x4;
+    @VisibleForTesting
+    // Sets this bit to bind ImageAnalysis when using INTENT_EXTRA_USE_CASE_COMBINATION
+    public static final int BIND_IMAGE_ANALYSIS = 0x8;
+    private static final int UNKNOWN_LENS_FACING = -1;
     static final CameraSelector BACK_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(CameraSelector.LENS_FACING_BACK).build();
     static final CameraSelector FRONT_SELECTOR =
@@ -163,6 +188,9 @@ public class CameraXActivity extends AppCompatActivity {
 
     private final AtomicLong mImageAnalysisFrameCount = new AtomicLong(0);
     private final AtomicLong mPreviewFrameCount = new AtomicLong(0);
+    // Automatically stops the video recording when this length value is set to be non-zero and
+    // video length reaches the length in ms.
+    private long mVideoCaptureAutoStopLength = 0;
     final MutableLiveData<String> mImageAnalysisResult = new MutableLiveData<>();
     private static final String BACKWARD = "BACKWARD";
     private static final String SWITCH_TEST_CASE = "switch_test_case";
@@ -182,6 +210,9 @@ public class CameraXActivity extends AppCompatActivity {
     private List<UseCase> mUseCases;
     ExecutorService mImageCaptureExecutorService;
     Camera mCamera;
+
+    private CameraSelector mLaunchingCameraIdSelector = null;
+    private int mLaunchingCameraLensFacing = UNKNOWN_LENS_FACING;
 
     private ToggleButton mVideoToggle;
     private ToggleButton mPhotoToggle;
@@ -208,7 +239,8 @@ public class CameraXActivity extends AppCompatActivity {
     private RecordUi mRecordUi;
     private Quality mVideoQuality;
 
-    SessionImagesUriSet mSessionImagesUriSet = new SessionImagesUriSet();
+    SessionMediaUriSet mSessionImagesUriSet = new SessionMediaUriSet();
+    SessionMediaUriSet mSessionVideosUriSet = new SessionMediaUriSet();
 
     // Analyzer to be used with ImageAnalysis.
     private ImageAnalysis.Analyzer mAnalyzer = new ImageAnalysis.Analyzer() {
@@ -220,7 +252,8 @@ public class CameraXActivity extends AppCompatActivity {
             mImageAnalysisResult.setValue(
                     Long.toString(image.getImageInfo().getTimestamp()));
             try {
-                if (!mAnalysisIdlingResource.isIdleNow()) {
+                if (mImageAnalysisFrameCount.get() >= FRAMES_UNTIL_IMAGE_ANALYSIS_IS_READY
+                        && !mAnalysisIdlingResource.isIdleNow()) {
                     mAnalysisIdlingResource.decrement();
                 }
             } catch (IllegalStateException e) {
@@ -270,13 +303,17 @@ public class CameraXActivity extends AppCompatActivity {
 
     // Espresso testing variables
     private static final int FRAMES_UNTIL_VIEW_IS_READY = 5;
+    // Espresso testing variables
+    private static final int FRAMES_UNTIL_IMAGE_ANALYSIS_IS_READY = 5;
     private final CountingIdlingResource mViewIdlingResource = new CountingIdlingResource("view");
     private final CountingIdlingResource mInitializationIdlingResource =
             new CountingIdlingResource("initialization");
-    final CountingIdlingResource mAnalysisIdlingResource =
+    private final CountingIdlingResource mAnalysisIdlingResource =
             new CountingIdlingResource("analysis");
-    final CountingIdlingResource mImageSavedIdlingResource =
+    private final CountingIdlingResource mImageSavedIdlingResource =
             new CountingIdlingResource("imagesaved");
+    private final CountingIdlingResource mVideoSavedIdlingResource =
+            new CountingIdlingResource("videosaved");
 
     /**
      * Retrieve idling resource that waits for image received by analyzer).
@@ -303,6 +340,15 @@ public class CameraXActivity extends AppCompatActivity {
     @NonNull
     public IdlingResource getImageSavedIdlingResource() {
         return mImageSavedIdlingResource;
+    }
+
+    /**
+     * Retrieve idling resource that waits for a video being recorded and saved.
+     */
+    @VisibleForTesting
+    @NonNull
+    public IdlingResource getVideoSavedIdlingResource() {
+        return mVideoSavedIdlingResource;
     }
 
     /**
@@ -336,7 +382,32 @@ public class CameraXActivity extends AppCompatActivity {
     public void resetViewIdlingResource() {
         mPreviewFrameCount.set(0);
         // Make the view idling resource non-idle, until required framecount achieved.
-        mViewIdlingResource.increment();
+        if (mViewIdlingResource.isIdleNow()) {
+            mViewIdlingResource.increment();
+        }
+    }
+
+    /**
+     * Retrieve idling resource that waits for ImageAnalysis to receive images.
+     */
+    @VisibleForTesting
+    public void resetAnalysisIdlingResource() {
+        mImageAnalysisFrameCount.set(0);
+        // Make the analysis idling resource non-idle, until required images achieved.
+        if (mAnalysisIdlingResource.isIdleNow()) {
+            mAnalysisIdlingResource.increment();
+        }
+    }
+
+    /**
+     * Retrieve idling resource that waits for VideoCapture to record a video.
+     */
+    @VisibleForTesting
+    public void resetVideoSavedIdlingResource() {
+        // Make the video saved idling resource non-idle, until required video length recorded.
+        if (mVideoSavedIdlingResource.isIdleNow()) {
+            mVideoSavedIdlingResource.increment();
+        }
     }
 
     /**
@@ -348,6 +419,13 @@ public class CameraXActivity extends AppCompatActivity {
         mSessionImagesUriSet.deleteAllUris();
     }
 
+    /**
+     * Delete videos that were taking during this session so far.
+     */
+    @VisibleForTesting
+    public void deleteSessionVideos() {
+        mSessionVideosUriSet.deleteAllUris();
+    }
 
     @ImageCapture.CaptureMode
     int getCaptureMode() {
@@ -425,6 +503,9 @@ public class CameraXActivity extends AppCompatActivity {
                         pendingRecording = getVideoCapture().getOutput().prepareRecording(
                                 this, getNewVideoOutputMediaStoreOptions());
                     }
+
+                    resetVideoSavedIdlingResource();
+
                     mActiveRecording = pendingRecording
                             .withAudioEnabled()
                             .start(ContextCompat.getMainExecutor(CameraXActivity.this),
@@ -531,12 +612,14 @@ public class CameraXActivity extends AppCompatActivity {
                                 getApplicationContext().getContentResolver(),
                                 uri
                         );
+                        updateVideoSavedSessionData(uri);
                     } else if (outputOptions instanceof FileOutputOptions) {
                         videoFilePath = ((FileOutputOptions) outputOptions).getFile().getPath();
                         MediaScannerConnection.scanFile(this,
                                 new String[] { videoFilePath }, null,
                                 (path, uri1) -> {
                                     Log.i(TAG, "Scanned " + path + " -> uri= " + uri1);
+                                    updateVideoSavedSessionData(uri1);
                                 });
                         msg = "Saved file " + videoFilePath;
                     } else {
@@ -561,6 +644,16 @@ public class CameraXActivity extends AppCompatActivity {
             mRecordUi.setState(RecordUi.State.IDLE);
         }
     };
+
+    private void updateVideoSavedSessionData(@NonNull Uri uri) {
+        if (mSessionVideosUriSet != null) {
+            mSessionVideosUriSet.add(uri);
+        }
+
+        if (!mVideoSavedIdlingResource.isIdleNow()) {
+            mVideoSavedIdlingResource.decrement();
+        }
+    }
 
     @NonNull
     private MediaStoreOutputOptions getNewVideoOutputMediaStoreOptions() {
@@ -589,12 +682,16 @@ public class CameraXActivity extends AppCompatActivity {
     }
 
     private void updateRecordingStats(@NonNull RecordingStats stats) {
-        double durationSec = TimeUnit.NANOSECONDS.toMillis(stats.getRecordedDurationNanos())
-                / 1000d;
+        double durationMs = TimeUnit.NANOSECONDS.toMillis(stats.getRecordedDurationNanos());
         // Show megabytes in International System of Units (SI)
         double sizeMb = stats.getNumBytesRecorded() / (1000d * 1000d);
-        String msg = String.format("%.2f sec\n%.2f MB", durationSec, sizeMb);
+        String msg = String.format("%.2f sec\n%.2f MB", durationMs / 1000d, sizeMb);
         mRecordUi.getTextStats().setText(msg);
+
+        if (mVideoCaptureAutoStopLength > 0 && durationMs >= mVideoCaptureAutoStopLength
+                && mRecordUi.getState() == RecordUi.State.RECORDING) {
+            mRecordUi.getButtonRecord().callOnClick();
+        }
     }
 
     private void setUpTakePictureButton() {
@@ -655,14 +752,58 @@ public class CameraXActivity extends AppCompatActivity {
     @SuppressWarnings("ObjectToString")
     private void setUpCameraDirectionButton() {
         mCameraDirectionButton.setOnClickListener(v -> {
-            if (mCurrentCameraSelector == BACK_SELECTOR) {
-                mCurrentCameraSelector = FRONT_SELECTOR;
-            } else if (mCurrentCameraSelector == FRONT_SELECTOR) {
-                mCurrentCameraSelector = BACK_SELECTOR;
-            }
             Log.d(TAG, "Change camera direction: " + mCurrentCameraSelector);
-            tryBindUseCases();
+            CameraSelector switchedCameraSelector =
+                    getSwitchedCameraSelector(mCurrentCameraSelector);
+
+            if (isUseCasesCombinationSupported(switchedCameraSelector, mUseCases)) {
+                mCurrentCameraSelector = switchedCameraSelector;
+                tryBindUseCases();
+            } else {
+                String msg = "Camera of the other lens facing can't support current use case "
+                        + "combination.";
+                Log.d(TAG, msg);
+                Toast.makeText(this, msg, Toast.LENGTH_LONG).show();
+            }
         });
+    }
+
+    @NonNull
+    private CameraSelector getSwitchedCameraSelector(
+            @NonNull CameraSelector currentCameraSelector) {
+        CameraSelector switchedCameraSelector;
+        // When the activity is launched with a specific camera id, camera switch function
+        // will switch the cameras between the camera of the specified camera id and the
+        // default camera of the opposite lens facing.
+        if (mLaunchingCameraIdSelector != null) {
+            if (currentCameraSelector != mLaunchingCameraIdSelector) {
+                switchedCameraSelector = mLaunchingCameraIdSelector;
+            } else {
+                if (mLaunchingCameraLensFacing == CameraSelector.LENS_FACING_BACK) {
+                    switchedCameraSelector = FRONT_SELECTOR;
+                } else {
+                    switchedCameraSelector = BACK_SELECTOR;
+                }
+            }
+        } else {
+            if (currentCameraSelector == BACK_SELECTOR) {
+                switchedCameraSelector = FRONT_SELECTOR;
+            } else {
+                switchedCameraSelector = BACK_SELECTOR;
+            }
+        }
+
+        return switchedCameraSelector;
+    }
+
+    private boolean isUseCasesCombinationSupported(@NonNull CameraSelector cameraSelector,
+            @NonNull List<UseCase> useCases) {
+        if (mCameraProvider == null) {
+            throw new IllegalStateException("Need to obtain mCameraProvider first!");
+        }
+
+        Camera targetCamera = mCameraProvider.bindToLifecycle(this, cameraSelector);
+        return targetCamera.isUseCasesCombinationSupported(useCases.toArray(new UseCase[0]));
     }
 
     private void setUpTorchButton() {
@@ -817,6 +958,25 @@ public class CameraXActivity extends AppCompatActivity {
         mZslToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
     }
 
+    private void updateUseCaseCombinationByIntent(@NonNull Intent intent) {
+        Bundle bundle = intent.getExtras();
+
+        if (bundle == null) {
+            return;
+        }
+
+        int useCaseCombination = bundle.getInt(INTENT_EXTRA_USE_CASE_COMBINATION, 0);
+
+        if (useCaseCombination == 0) {
+            return;
+        }
+
+        mPreviewToggle.setChecked((useCaseCombination & BIND_PREVIEW) != 0L);
+        mPhotoToggle.setChecked((useCaseCombination & BIND_IMAGE_CAPTURE) != 0L);
+        mVideoToggle.setChecked((useCaseCombination & BIND_VIDEO_CAPTURE) != 0L);
+        mAnalysisToggle.setChecked((useCaseCombination & BIND_IMAGE_ANALYSIS) != 0L);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -834,6 +994,8 @@ public class CameraXActivity extends AppCompatActivity {
         mPhotoToggle = findViewById(R.id.PhotoToggle);
         mAnalysisToggle = findViewById(R.id.AnalysisToggle);
         mPreviewToggle = findViewById(R.id.PreviewToggle);
+
+        updateUseCaseCombinationByIntent(getIntent());
 
         mTakePicture = findViewById(R.id.Picture);
         mFlashButton = findViewById(R.id.flash_toggle);
@@ -904,12 +1066,19 @@ public class CameraXActivity extends AppCompatActivity {
         // Get params from adb extra string
         Bundle bundle = this.getIntent().getExtras();
         if (bundle != null) {
-            String newCameraDirection = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
-            if (newCameraDirection != null) {
-                if (newCameraDirection.equals(BACKWARD)) {
-                    mCurrentCameraSelector = BACK_SELECTOR;
-                } else {
-                    mCurrentCameraSelector = FRONT_SELECTOR;
+            String launchingCameraId = bundle.getString(INTENT_EXTRA_CAMERA_ID, null);
+
+            if (launchingCameraId != null) {
+                mLaunchingCameraIdSelector = createCameraSelectorById(launchingCameraId);
+                mCurrentCameraSelector = mLaunchingCameraIdSelector;
+            } else {
+                String newCameraDirection = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
+                if (newCameraDirection != null) {
+                    if (newCameraDirection.equals(BACKWARD)) {
+                        mCurrentCameraSelector = BACK_SELECTOR;
+                    } else {
+                        mCurrentCameraSelector = FRONT_SELECTOR;
+                    }
                 }
             }
 
@@ -963,6 +1132,7 @@ public class CameraXActivity extends AppCompatActivity {
      *
      * @param calledBySelf flag indicates if this is a recursive call.
      */
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     void tryBindUseCases(boolean calledBySelf) {
         boolean isViewFinderReady = mViewFinder.getWidth() != 0 && mViewFinder.getHeight() != 0;
         boolean isCameraReady = mCameraProvider != null;
@@ -990,8 +1160,23 @@ public class CameraXActivity extends AppCompatActivity {
 
         mCameraProvider.unbindAll();
         try {
+            // Binds to lifecycle without use cases to make sure mCamera can be retrieved for
+            // tests to do necessary checks.
+            mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector);
+
+            // Retrieves the lens facing info when the activity is launched with a specified
+            // camera id.
+            if (mCurrentCameraSelector == mLaunchingCameraIdSelector
+                    && mLaunchingCameraLensFacing == UNKNOWN_LENS_FACING) {
+                Camera2CameraInfo camera2CameraInfo =
+                        Camera2CameraInfo.from(mCamera.getCameraInfo());
+                mLaunchingCameraLensFacing = camera2CameraInfo.getCameraCharacteristic(
+                        CameraCharacteristics.LENS_FACING);
+            }
+
             List<UseCase> useCases = buildUseCases();
             mCamera = bindToLifecycleSafely(useCases);
+
             // Set the use cases after a successful binding.
             mUseCases = useCases;
         } catch (IllegalArgumentException ex) {
@@ -1054,8 +1239,8 @@ public class CameraXActivity extends AppCompatActivity {
                     .setTargetName("ImageAnalysis")
                     .build();
             useCases.add(imageAnalysis);
-            // Make the analysis idling resource non-idle, until a frame received.
-            mAnalysisIdlingResource.increment();
+            // Make the analysis idling resource non-idle, until the required frames received.
+            resetAnalysisIdlingResource();
             imageAnalysis.setAnalyzer(ContextCompat.getMainExecutor(this), mAnalyzer);
         }
 
@@ -1358,20 +1543,20 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
-    private class SessionImagesUriSet {
-        private final Set<Uri> mSessionImages;
+    private class SessionMediaUriSet {
+        private final Set<Uri> mSessionMediaUris;
 
-        SessionImagesUriSet() {
-            mSessionImages = Collections.synchronizedSet(new HashSet<>());
+        SessionMediaUriSet() {
+            mSessionMediaUris = Collections.synchronizedSet(new HashSet<>());
         }
 
         public void add(@NonNull Uri uri) {
-            mSessionImages.add(uri);
+            mSessionMediaUris.add(uri);
         }
 
         public void deleteAllUris() {
-            synchronized (mSessionImages) {
-                Iterator<Uri> it = mSessionImages.iterator();
+            synchronized (mSessionMediaUris) {
+                Iterator<Uri> it = mSessionMediaUris.iterator();
                 while (it.hasNext()) {
                     getContentResolver().delete(it.next(), null, null);
                     it.remove();
@@ -1501,6 +1686,11 @@ public class CameraXActivity extends AppCompatActivity {
         return findUseCase(VideoCapture.class);
     }
 
+    @VisibleForTesting
+    void setVideoCaptureAutoStopLength(long autoStopLengthInMs) {
+        mVideoCaptureAutoStopLength = autoStopLengthInMs;
+    }
+
     /**
      * Finds the use case by the given class.
      */
@@ -1514,6 +1704,12 @@ public class CameraXActivity extends AppCompatActivity {
             }
         }
         return null;
+    }
+
+    @VisibleForTesting
+    @Nullable
+    public Camera getCamera() {
+        return mCamera;
     }
 
     @VisibleForTesting
@@ -1592,5 +1788,22 @@ public class CameraXActivity extends AppCompatActivity {
             default:
                 throw new IllegalArgumentException("Undefined item id: " + itemId);
         }
+    }
+
+    private static CameraSelector createCameraSelectorById(@Nullable String cameraId) {
+        return new CameraSelector.Builder().addCameraFilter(new CameraFilter() {
+            @NonNull
+            @Override
+            @OptIn(markerClass = ExperimentalCamera2Interop.class)
+            public List<CameraInfo> filter(@NonNull List<CameraInfo> cameraInfos) {
+                for (CameraInfo cameraInfo : cameraInfos) {
+                    if (cameraId.equals(Camera2CameraInfo.from(cameraInfo).getCameraId())) {
+                        return Collections.singletonList(cameraInfo);
+                    }
+                }
+
+                throw new IllegalArgumentException("No camera can be find for id: " + cameraId);
+            }
+        }).build();
     }
 }
