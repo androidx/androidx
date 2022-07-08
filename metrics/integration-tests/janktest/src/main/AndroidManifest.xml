@@ -34,6 +34,17 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".SimpleLoggingActivity"
+            android:label="@string/app_name"
+            android:exported="true"
+            android:theme="@style/Theme.Androidx.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
             android:name=".JankAggregatorActivity"
             android:label="@string/app_name"
             android:exported="true"
