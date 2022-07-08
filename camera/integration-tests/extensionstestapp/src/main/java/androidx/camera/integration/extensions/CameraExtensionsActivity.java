@@ -129,15 +129,17 @@ public class CameraExtensionsActivity extends AppCompatActivity
     private int mCurrentExtensionMode = ExtensionMode.BOKEH;
 
     // Espresso testing variables
-    @VisibleForTesting
-    CountingIdlingResource mInitializationIdlingResource = new CountingIdlingResource(
+    private final CountingIdlingResource mInitializationIdlingResource = new CountingIdlingResource(
             "Initialization");
 
-    @VisibleForTesting
-    CountingIdlingResource mTakePictureIdlingResource = new CountingIdlingResource("TakePicture");
+    private final CountingIdlingResource mTakePictureIdlingResource = new CountingIdlingResource(
+            "TakePicture");
 
-    @VisibleForTesting
-    CountingIdlingResource mPreviewViewIdlingResource = new CountingIdlingResource("PreviewView");
+    private final CountingIdlingResource mPreviewViewStreamingStateIdlingResource =
+            new CountingIdlingResource("PreviewView-Streaming");
+
+    private final CountingIdlingResource mPreviewViewIdleStateIdlingResource =
+            new CountingIdlingResource("PreviewView-Idle");
 
     private PreviewView mPreviewView;
 
@@ -198,7 +200,8 @@ public class CameraExtensionsActivity extends AppCompatActivity
             return false;
         }
 
-        mPreviewViewIdlingResource.increment();
+        resetPreviewViewStreamingStateIdlingResource();
+        resetPreviewViewIdleStateIdlingResource();
 
         ImageCapture.Builder imageCaptureBuilder = new ImageCapture.Builder().setTargetName(
                 "ImageCapture");
@@ -222,8 +225,11 @@ public class CameraExtensionsActivity extends AppCompatActivity
         mPreviewView.getPreviewStreamState().removeObservers(this);
         mPreviewView.getPreviewStreamState().observe(this, streamState -> {
             if (streamState == PreviewView.StreamState.STREAMING
-                    && !mPreviewViewIdlingResource.isIdleNow()) {
-                mPreviewViewIdlingResource.decrement();
+                    && !mPreviewViewStreamingStateIdlingResource.isIdleNow()) {
+                mPreviewViewStreamingStateIdlingResource.decrement();
+            } else if (streamState == PreviewView.StreamState.IDLE
+                    && !mPreviewViewIdleStateIdlingResource.isIdleNow()) {
+                mPreviewViewIdleStateIdlingResource.decrement();
             }
         });
 
@@ -265,7 +271,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
                 "ExtensionsPictures");
 
         captureButton.setOnClickListener((view) -> {
-            mTakePictureIdlingResource.increment();
+            resetTakePictureIdlingResource();
 
             String fileName = formatter.format(Calendar.getInstance().getTime())
                     + extensionModeString + ".jpg";
@@ -647,5 +653,46 @@ public class CameraExtensionsActivity extends AppCompatActivity
     @ExtensionMode.Mode
     int getCurrentExtensionMode() {
         return mCurrentExtensionMode;
+    }
+
+    @VisibleForTesting
+    CountingIdlingResource getInitializationIdlingResource() {
+        return mInitializationIdlingResource;
+    }
+
+    @VisibleForTesting
+    CountingIdlingResource getPreviewViewStreamingStateIdlingResource() {
+        return mPreviewViewStreamingStateIdlingResource;
+    }
+
+    @VisibleForTesting
+    CountingIdlingResource getPreviewViewIdleStateIdlingResource() {
+        return mPreviewViewIdleStateIdlingResource;
+    }
+
+    @VisibleForTesting
+    CountingIdlingResource getTakePictureIdlingResource() {
+        return mTakePictureIdlingResource;
+    }
+
+    @VisibleForTesting
+    void resetPreviewViewStreamingStateIdlingResource() {
+        if (mPreviewViewStreamingStateIdlingResource.isIdleNow()) {
+            mPreviewViewStreamingStateIdlingResource.increment();
+        }
+    }
+
+    @VisibleForTesting
+    void resetPreviewViewIdleStateIdlingResource() {
+        if (mPreviewViewIdleStateIdlingResource.isIdleNow()) {
+            mPreviewViewIdleStateIdlingResource.increment();
+        }
+    }
+
+    @VisibleForTesting
+    void resetTakePictureIdlingResource() {
+        if (mTakePictureIdlingResource.isIdleNow()) {
+            mTakePictureIdlingResource.increment();
+        }
     }
 }
