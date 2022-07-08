@@ -24,6 +24,8 @@ There were failing tests\. See the report at: .*.html
 # Some status messages
 Starting a Gradle Daemon, [0-9]+ busy and [0-9]+ incompatible Daemons could not be reused, use \-\-status for details
 Starting a Gradle Daemon, [0-9]+ busy and [0-9]+ incompatible and [0-9]+ stopped Daemons could not be reused, use \-\-status for details
+Starting a Gradle Daemon, [0-9]+ incompatible Daemon could not be reused, use \-\-status for details
+Starting a Gradle Daemon, [0-9]+ stopped Daemon could not be reused, use \-\-status for details
 Starting a Gradle Daemon \(subsequent builds will be faster\)
 Remote build cache is disabled when running with \-\-offline\.
 [0-9]+ actionable tasks: [0-9]+ up\-to\-date
