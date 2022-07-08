@@ -90,6 +90,15 @@ public class ArcLayout extends ViewGroup {
         @FloatRange(from = 0.0f, to = 360.0f, toInclusive = true)
         float getSweepAngleDegrees();
 
+        /**
+         * Set the sweep angle that this widget is drawn with. This is only called during layout,
+         * and only if the {@link LayoutParams#mWeight} is non-zero. Note your widget will need to
+         * handle alignment.
+         */
+        default void setSweepAngleDegrees(
+                @FloatRange(from = 0.0f, to = 360.0f, toInclusive = true) float sweepAngleDegrees) {
+        }
+
         /** Returns the thickness of this widget inside the arc. */
         @Px
         int getThickness();
@@ -151,13 +160,16 @@ public class ArcLayout extends ViewGroup {
         float mCenterX;
         float mCenterY;
 
+        // The layout weight for this view, a value of zero means no expansion.
+        float mWeight;
+
         /**
          * Creates a new set of layout parameters. The values are extracted from the supplied
          * attributes set and context.
          *
-         * @param context  The Context the ArcLayout is running in, through which it can access the
-         *                 current theme, resources, etc.
-         * @param attrs    The set of attributes from which to extract the layout parameters' values
+         * @param context The Context the ArcLayout is running in, through which it can access the
+         *                current theme, resources, etc.
+         * @param attrs   The set of attributes from which to extract the layout parameters' values
          */
         public LayoutParams(@NonNull Context context, @Nullable AttributeSet attrs) {
             super(context, attrs);
@@ -167,6 +179,7 @@ public class ArcLayout extends ViewGroup {
             mRotated = a.getBoolean(R.styleable.ArcLayout_Layout_layout_rotate, true);
             mVerticalAlignment =
                     a.getInt(R.styleable.ArcLayout_Layout_layout_valign, VERTICAL_ALIGN_CENTER);
+            mWeight = a.getFloat(R.styleable.ArcLayout_Layout_layout_weight, 0f);
 
             a.recycle();
         }
@@ -174,8 +187,8 @@ public class ArcLayout extends ViewGroup {
         /**
          * Creates a new set of layout parameters with specified width and height
          *
-         * @param width   The width, either WRAP_CONTENT, MATCH_PARENT or a fixed size in pixels
-         * @param height  The height, either WRAP_CONTENT, MATCH_PARENT or a fixed size in pixels
+         * @param width  The width, either WRAP_CONTENT, MATCH_PARENT or a fixed size in pixels
+         * @param height The height, either WRAP_CONTENT, MATCH_PARENT or a fixed size in pixels
          */
         public LayoutParams(int width, int height) {
             super(width, height);
@@ -212,10 +225,31 @@ public class ArcLayout extends ViewGroup {
 
         /**
          * Sets how the widget is positioned vertically in the ArcLayout.
+         *
          * @param verticalAlignment align the widget to outer, inner edges or center.
          */
         public void setVerticalAlignment(@VerticalAlignment int verticalAlignment) {
             mVerticalAlignment = verticalAlignment;
+        }
+
+        /** Returns the weight used for computing expansion. */
+        public float getWeight() {
+            return mWeight;
+        }
+
+        /**
+         * Indicates how much of the extra space in the ArcLayout will be allocated to the
+         * view associated with these LayoutParams up to the limit specified by
+         * {@link ArcLayout#setMaxAngleDegrees}. Specify 0 if the view should not be
+         * stretched.
+         * Otherwise the extra pixels will be pro-rated among all views whose weight is greater than
+         * 0.
+         *
+         * Note non zero weights are only supported for Views that implement {@link ArcLayout
+         * .Widget}.
+         */
+        public void setWeight(float weight) {
+            mWeight = weight;
         }
     }
 
@@ -266,6 +300,12 @@ public class ArcLayout extends ViewGroup {
     @AnchorType
     private int mAnchorType;
     private float mAnchorAngleDegrees;
+    /**
+     * This is the target angle that will be used by the layout when expanding child views with
+     * weights.
+     */
+    private float mMaxAngleDegrees = 360.0f;
+
     private boolean mClockwise;
 
     @SuppressWarnings("SyntheticAccessor")
@@ -378,7 +418,7 @@ public class ArcLayout extends ViewGroup {
             }
             LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
             maxChildHeightPx = max(maxChildHeightPx, childMeasuredHeight
-                    + childLayoutParams.topMargin +  childLayoutParams.bottomMargin);
+                    + childLayoutParams.topMargin + childLayoutParams.bottomMargin);
         }
 
         mThicknessPx = maxChildHeightPx;
@@ -422,8 +462,39 @@ public class ArcLayout extends ViewGroup {
         // != is equivalent to xor, we want to invert clockwise when the layout is rtl
         final float multiplier = mClockwise != isLayoutRtl ? 1f : -1f;
 
-         // Layout the children in the arc, computing the center angle where they should be drawn.
+        // Layout the children in the arc, computing the center angle where they should be drawn.
         float currentCumulativeAngle = calculateInitialRotation(multiplier);
+
+        // Compute the sum of any weights and the sum of the angles take up by fixed sized children.
+        // Unfortunately we can't move this to measure because calculateArcAngle relies upon
+        // getMeasuredWidth() which returns 0 in measure.
+        float totalAngle = 0f;
+        float weightSum = 0f;
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+
+            if (child.getVisibility() == GONE) {
+                continue;
+            }
+
+            LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
+            if (childLayoutParams.mWeight > 0) {
+                weightSum += childLayoutParams.mWeight;
+                calculateArcAngle(child, mChildArcAngles);
+                totalAngle +=
+                        mChildArcAngles.leftMarginAsAngle + mChildArcAngles.rightMarginAsAngle;
+            } else {
+                calculateArcAngle(child, mChildArcAngles);
+                totalAngle += mChildArcAngles.getTotalAngle();
+            }
+        }
+
+        float weightMultiplier = 0f;
+        if (weightSum > 0f) {
+            weightMultiplier = (mMaxAngleDegrees - totalAngle) / weightSum;
+        }
+
+        // Now perform the layout.
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
 
@@ -432,11 +503,21 @@ public class ArcLayout extends ViewGroup {
             }
 
             calculateArcAngle(child, mChildArcAngles);
+            LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
+            if (childLayoutParams.mWeight > 0) {
+                mChildArcAngles.actualChildAngle = childLayoutParams.mWeight * weightMultiplier;
+                if (child instanceof Widget) {
+                    // NB we need to be careful since the child itself may set this value dueing
+                    // measure.
+                    ((Widget) child).setSweepAngleDegrees(mChildArcAngles.actualChildAngle);
+                } else {
+                    throw new IllegalStateException("ArcLayout.LayoutParams with non zero weights"
+                            + " are only supported for views implementing ArcLayout.Widget");
+                }
+            }
             float preRotation = mChildArcAngles.leftMarginAsAngle
                     + mChildArcAngles.actualChildAngle / 2f;
-
             float middleAngle = multiplier * (currentCumulativeAngle + preRotation);
-            LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
             childLayoutParams.mMiddleAngle = middleAngle;
 
             // Distance from the center of the ArcLayout to the center of the child widget
@@ -608,9 +689,19 @@ public class ArcLayout extends ViewGroup {
 
         float totalArcAngle = 0;
 
+        boolean hasWeights = false;
         for (int i = 0; i < getChildCount(); i++) {
-            calculateArcAngle(getChildAt(i), mChildArcAngles);
+            View child = getChildAt(i);
+            LayoutParams childLayoutParams = (LayoutParams) child.getLayoutParams();
+            if (childLayoutParams.getWeight() > 0f) {
+                hasWeights = true;
+            }
+            calculateArcAngle(child, mChildArcAngles);
             totalArcAngle += mChildArcAngles.getTotalAngle();
+        }
+
+        if (hasWeights && totalArcAngle < mMaxAngleDegrees) {
+            totalArcAngle = mMaxAngleDegrees;
         }
 
         if (mAnchorType == ANCHOR_CENTER) {
@@ -740,6 +831,28 @@ public class ArcLayout extends ViewGroup {
             @FloatRange(from = 0.0f, to = 360.0f, toInclusive = true) float anchorAngleDegrees) {
         mAnchorAngleDegrees = anchorAngleDegrees;
         invalidate();
+    }
+
+    /**
+     * Returns the target angle that will be used by the layout when expanding child views with
+     * weights (see {@link LayoutParams#setWeight}).
+     */
+    @FloatRange(from = 0.0f, to = 360.0f, toInclusive = true)
+    public float getMaxAngleDegrees() {
+        return mMaxAngleDegrees;
+    }
+
+    /**
+     * Sets the target angle that will be used by the layout when expanding child views with
+     * weights (see {@link LayoutParams#setWeight}). If not set the default is 360 degrees. This
+     * target may not be achievable if other non-expandable views bring us past this value.
+     */
+    public void setMaxAngleDegrees(
+            @FloatRange(from = 0.0f, to = 360.0f, toInclusive = true)
+            float maxAngleDegrees) {
+        mMaxAngleDegrees = maxAngleDegrees;
+        invalidate();
+        requestLayout();
     }
 
     /** returns the layout direction */
