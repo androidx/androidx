@@ -127,14 +127,6 @@ public class DefaultSurfaceEffect implements SurfaceEffectInternal,
         );
     }
 
-    @NonNull
-    @Override
-    public Executor getExecutor() {
-        // TODO(b/237702347): remove all the mGlExecutor.execute() call once this class is only
-        //  accessed on the given thread.
-        return mGlExecutor;
-    }
-
     /**
      * Release the DefaultSurfaceEffect
      */
