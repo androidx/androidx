@@ -179,7 +179,7 @@ class SurfaceControlCompatTest {
     }
 
     @Test
-    fun testTransactionIsValid_valid() {
+    fun testSurfaceControlIsValid_valid() {
         val callbackLatch = CountDownLatch(1)
         val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
             .moveToState(Lifecycle.State.CREATED)
@@ -211,7 +211,7 @@ class SurfaceControlCompatTest {
     }
 
     @Test
-    fun testTransactionIsValid_validNotValid() {
+    fun testSurfaceControlIsValid_validNotValid() {
         val callbackLatch = CountDownLatch(1)
         val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
             .moveToState(Lifecycle.State.CREATED)
@@ -225,6 +225,42 @@ class SurfaceControlCompatTest {
                             .build()
 
                         assertTrue(scCompat.isValid())
+                        scCompat.release()
+                        assertFalse(scCompat.isValid())
+
+                        callbackLatch.countDown()
+                    }
+                }
+
+                it.addSurface(it.mSurfaceView, callback)
+            }
+
+            scenario.moveToState(Lifecycle.State.RESUMED)
+            assertTrue(callbackLatch.await(3000, TimeUnit.MILLISECONDS))
+        } catch (e: java.lang.IllegalArgumentException) {
+            fail()
+        } finally {
+            // ensure activity is destroyed after any failures
+            scenario.moveToState(Lifecycle.State.DESTROYED)
+        }
+    }
+
+    @Test
+    fun testSurfaceControlIsValid_multipleReleases() {
+        val callbackLatch = CountDownLatch(1)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
+            .moveToState(Lifecycle.State.CREATED)
+        try {
+            scenario.onActivity {
+                val callback = object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
+                        val scCompat = SurfaceControlCompat.Builder()
+                            .setParent(it.getSurfaceView())
+                            .setName("SurfaceControlCompatTest")
+                            .build()
+
+                        assertTrue(scCompat.isValid())
+                        scCompat.release()
                         scCompat.release()
                         assertFalse(scCompat.isValid())
 
