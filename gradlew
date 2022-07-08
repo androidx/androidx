@@ -269,7 +269,8 @@ for compact in "--ci" "--strict" "--clean" "--no-ci"; do
   if [ "$compact" == "--strict" ]; then
     expanded="-Pandroidx.validateNoUnrecognizedMessages\
      -Pandroidx.verifyUpToDate\
-     --no-watch-fs"
+     --no-watch-fs\
+     --no-daemon"
     if [ "$USE_ANDROIDX_REMOTE_BUILD_CACHE" == "" ]; then
       expanded="$expanded --offline"
     fi
