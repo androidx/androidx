@@ -1608,16 +1608,20 @@ package androidx.health.connect.client.units {
 
   public final class Volume implements java.lang.Comparable<androidx.health.connect.client.units.Volume> {
     method public int compareTo(androidx.health.connect.client.units.Volume other);
+    method public static androidx.health.connect.client.units.Volume fluidOuncesUs(double value);
+    method public double getFluidOuncesUs();
     method public double getLiters();
     method public double getMilliliters();
     method public static androidx.health.connect.client.units.Volume liters(double value);
     method public static androidx.health.connect.client.units.Volume milliliters(double value);
+    property public final double inFluidOuncesUs;
     property public final double inLiters;
     property public final double inMilliliters;
     field public static final androidx.health.connect.client.units.Volume.Companion Companion;
   }
 
   public static final class Volume.Companion {
+    method public androidx.health.connect.client.units.Volume fluidOuncesUs(double value);
     method public androidx.health.connect.client.units.Volume liters(double value);
     method public androidx.health.connect.client.units.Volume milliliters(double value);
   }
