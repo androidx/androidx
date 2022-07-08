@@ -175,7 +175,7 @@ internal open class DelegatingOnPreDrawListener(
         decorView?.let {
             val frameStart = getFrameStartTime()
             with(decorView) {
-                handler.sendMessage(Message.obtain(handler) {
+                handler.sendMessageAtFrontOfQueue(Message.obtain(handler) {
                     val now = System.nanoTime()
                     val expectedDuration = getExpectedFrameDuration(decorView)
                     // prevent concurrent modification of delegates list by synchronizing on
