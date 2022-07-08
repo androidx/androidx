@@ -129,10 +129,12 @@ package androidx.wear.widget {
     ctor public ArcLayout(android.content.Context, android.util.AttributeSet?, int, int);
     method @FloatRange(from=0.0f, to=360.0f, toInclusive=true) public float getAnchorAngleDegrees();
     method @androidx.wear.widget.ArcLayout.AnchorType public int getAnchorType();
+    method @FloatRange(from=0.0f, to=360.0f, toInclusive=true) public float getMaxAngleDegrees();
     method public boolean isClockwise();
     method public void setAnchorAngleDegrees(@FloatRange(from=0.0f, to=360.0f, toInclusive=true) float);
     method public void setAnchorType(@androidx.wear.widget.ArcLayout.AnchorType int);
     method public void setClockwise(boolean);
+    method public void setMaxAngleDegrees(@FloatRange(from=0.0f, to=360.0f, toInclusive=true) float);
     field public static final int ANCHOR_CENTER = 1; // 0x1
     field public static final int ANCHOR_END = 2; // 0x2
     field public static final int ANCHOR_START = 0; // 0x0
@@ -146,9 +148,11 @@ package androidx.wear.widget {
     ctor public ArcLayout.LayoutParams(int, int);
     ctor public ArcLayout.LayoutParams(android.view.ViewGroup.LayoutParams);
     method @androidx.wear.widget.ArcLayout.LayoutParams.VerticalAlignment public int getVerticalAlignment();
+    method public float getWeight();
     method public boolean isRotated();
     method public void setRotated(boolean);
     method public void setVerticalAlignment(@androidx.wear.widget.ArcLayout.LayoutParams.VerticalAlignment int);
+    method public void setWeight(float);
     field public static final int VERTICAL_ALIGN_CENTER = 1; // 0x1
     field public static final int VERTICAL_ALIGN_INNER = 2; // 0x2
     field public static final int VERTICAL_ALIGN_OUTER = 0; // 0x0
@@ -162,6 +166,7 @@ package androidx.wear.widget {
     method @FloatRange(from=0.0f, to=360.0f, toInclusive=true) public float getSweepAngleDegrees();
     method @Px public int getThickness();
     method public boolean isPointInsideClickArea(float, float);
+    method public default void setSweepAngleDegrees(@FloatRange(from=0.0f, to=360.0f, toInclusive=true) float);
   }
 
   @UiThread public class BoxInsetLayout extends android.view.ViewGroup {
