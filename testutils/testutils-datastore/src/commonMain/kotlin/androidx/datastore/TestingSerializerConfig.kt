@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core
+package androidx.datastore
 
 import kotlin.jvm.Volatile
 

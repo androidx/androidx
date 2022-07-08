@@ -16,10 +16,10 @@
 
 package androidx.datastore.core.handlers
 
+import androidx.datastore.TestingSerializerConfig
 import androidx.datastore.core.FileStorage
 import androidx.datastore.core.SingleProcessDataStore
 import androidx.datastore.core.TestingSerializer
-import androidx.datastore.core.TestingSerializerConfig
 import androidx.kruth.assertThrows
 import androidx.kruth.assertThat
 import java.io.File

@@ -16,6 +16,9 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.TestFile
+import androidx.datastore.TestIO
+import androidx.datastore.TestingSerializerConfig
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlin.test.BeforeTest

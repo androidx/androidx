@@ -16,6 +16,7 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.TestingSerializerConfig
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import java.io.File

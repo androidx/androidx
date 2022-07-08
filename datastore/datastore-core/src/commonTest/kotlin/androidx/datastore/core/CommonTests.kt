@@ -16,6 +16,8 @@
 
 package androidx.datastore.core
 
+import androidx.datastore.OkioPath
+import androidx.datastore.OkioTestIO
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.InternalCoroutinesApi

@@ -55,6 +55,7 @@ androidXMultiplatform {
                 implementation(libs.okio)
                 api(project(":datastore:datastore-core-okio"))
                 implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-datastore"))
             }
         }
 
@@ -63,6 +64,7 @@ androidXMultiplatform {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
                 implementation(project(":internal-testutils-kmp"))
+                implementation(project(":internal-testutils-datastore"))
             }
         }
 

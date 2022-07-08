@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core
+package androidx.datastore
 
+import androidx.datastore.core.FileStorage
+import androidx.datastore.core.Storage
+import androidx.datastore.core.TestingSerializer
 import java.io.File
 import java.io.IOException
 import kotlin.reflect.KClass
@@ -43,9 +46,9 @@ class FileTestIO(dirName: String = "test-dir") : TestIO<JavaIOFile, IOException>
         serializerConfig: TestingSerializerConfig,
         futureFile: () -> TestFile
     ): Storage<Byte> {
-        return FileStorage(
-            TestingSerializer(serializerConfig)
-        ) { (futureFile() as JavaIOFile).file }
+        return FileStorage(TestingSerializer(serializerConfig)) {
+            (futureFile() as JavaIOFile).file
+        }
     }
 
     override fun isDirectory(file: JavaIOFile): Boolean {

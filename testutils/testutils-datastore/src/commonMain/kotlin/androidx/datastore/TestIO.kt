@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core
+package androidx.datastore
 
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.Storage
+import androidx.datastore.core.DataStoreFactory.create
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
 
-// TODO(b/237677833): move this class when datastore test utils is created
 abstract class TestIO<F : TestFile, IOE : Throwable>(
     protected val dirName: String = "datastore-test-dir"
 ) {
@@ -29,7 +31,7 @@ abstract class TestIO<F : TestFile, IOE : Throwable>(
         scope: CoroutineScope,
         futureFile: () -> TestFile
     ): DataStore<Byte> {
-        return SingleProcessDataStore(getStorage(serializerConfig, futureFile), scope = scope)
+        return create(getStorage(serializerConfig, futureFile), scope = scope)
     }
 
     abstract fun getStorage(

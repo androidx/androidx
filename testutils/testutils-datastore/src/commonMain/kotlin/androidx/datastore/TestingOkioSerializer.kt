@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core
+package androidx.datastore
 
+import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.okio.OkioSerializer
 import okio.BufferedSink
 import okio.BufferedSource
@@ -23,8 +24,7 @@ import okio.EOFException
 import okio.IOException
 import okio.use
 
-// TODO(b/237677833): remove this class when datastore test utils is created
-internal class TestingOkioSerializer(
+class TestingOkioSerializer(
     val config: TestingSerializerConfig
 ) : OkioSerializer<Byte> {
 
