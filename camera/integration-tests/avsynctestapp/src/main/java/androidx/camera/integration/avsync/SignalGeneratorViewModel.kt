@@ -19,6 +19,7 @@ package androidx.camera.integration.avsync
 import android.content.Context
 import android.content.Context.AUDIO_SERVICE
 import android.media.AudioManager
+import androidx.camera.core.Logger
 import androidx.camera.integration.avsync.model.AudioGenerator
 import androidx.camera.integration.avsync.model.CameraHelper
 import androidx.compose.runtime.getValue
@@ -41,6 +42,7 @@ private const val ACTIVE_LENGTH_SEC: Double = 0.5
 private const val ACTIVE_INTERVAL_SEC: Double = 1.0
 private const val ACTIVE_DELAY_SEC: Double = 0.0
 private const val VOLUME_PERCENTAGE: Double = 0.6
+private const val TAG = "SignalGeneratorViewModel"
 
 enum class ActivationSignal {
     Active, Inactive
@@ -93,6 +95,7 @@ class SignalGeneratorViewModel : ViewModel() {
     }
 
     fun startSignalGeneration() {
+        Logger.d(TAG, "Start signal generation.")
         Preconditions.checkState(isGeneratorReady)
 
         setVolume()
@@ -118,6 +121,7 @@ class SignalGeneratorViewModel : ViewModel() {
     }
 
     fun stopSignalGeneration() {
+        Logger.d(TAG, "Stop signal generation.")
         Preconditions.checkState(isGeneratorReady)
 
         isSignalGenerating = false
@@ -126,6 +130,7 @@ class SignalGeneratorViewModel : ViewModel() {
     }
 
     fun startRecording(context: Context) {
+        Logger.d(TAG, "Start recording.")
         Preconditions.checkState(isRecorderReady)
 
         cameraHelper.startRecording(context)
@@ -133,6 +138,7 @@ class SignalGeneratorViewModel : ViewModel() {
     }
 
     fun stopRecording() {
+        Logger.d(TAG, "Stop recording.")
         Preconditions.checkState(isRecorderReady)
 
         cameraHelper.stopRecording()
