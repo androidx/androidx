@@ -26,6 +26,7 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.SurfaceTexture
+import android.location.Location
 import android.media.MediaMetadataRetriever
 import android.media.MediaRecorder
 import android.net.Uri
@@ -66,6 +67,7 @@ import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.assertThrows
 import androidx.testutils.fail
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
 import java.util.concurrent.Executor
 import java.util.concurrent.Semaphore
@@ -572,6 +574,14 @@ class RecorderTest {
     fun setFileSizeLimitLowerThanInitialDataSize() {
         val fileSizeLimit = 1L // 1 byte
         runFileSizeLimitTest(fileSizeLimit)
+    }
+
+    @Test
+    fun setLocation() {
+        // TODO(leohuang): add a test to verify negative latitude and longitude.
+        //  MediaMuxer.setLocation() causes a little loss of precision on negative values.
+        //  See b/232327925.
+        runLocationTest(createLocation(25.033267462243586, 121.56454121737946))
     }
 
     @Test
@@ -1176,34 +1186,69 @@ class RecorderTest {
     }
 
     private fun checkFileAudio(uri: Uri, hasAudio: Boolean) {
-        val mediaRetriever = MediaMetadataRetriever()
-        mediaRetriever.apply {
-            setDataSource(context, uri)
-            val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
+        MediaMetadataRetriever().apply {
+            try {
+                setDataSource(context, uri)
+                val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO)
 
-            assertThat(value).isEqualTo(
-                if (hasAudio) {
-                    "yes"
-                } else {
-                    null
-                }
-            )
+                assertThat(value).isEqualTo(
+                    if (hasAudio) {
+                        "yes"
+                    } else {
+                        null
+                    }
+                )
+            } finally {
+                release()
+            }
         }
     }
 
     private fun checkFileVideo(uri: Uri, hasVideo: Boolean) {
-        val mediaRetriever = MediaMetadataRetriever()
-        mediaRetriever.apply {
-            setDataSource(context, uri)
-            val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
+        MediaMetadataRetriever().apply {
+            try {
+                setDataSource(context, uri)
+                val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO)
 
-            assertThat(value).isEqualTo(
-                if (hasVideo) {
-                    "yes"
-                } else {
-                    null
-                }
-            )
+                assertThat(value).isEqualTo(
+                    if (hasVideo) {
+                        "yes"
+                    } else {
+                        null
+                    }
+                )
+            } finally {
+                release()
+            }
+        }
+    }
+
+    private fun checkLocation(uri: Uri, location: Location) {
+        MediaMetadataRetriever().apply {
+            try {
+                setDataSource(context, uri)
+                // Only test on mp4 output format, others will be ignored.
+                val mime = extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE)
+                assumeTrue("Unsupported mime = $mime",
+                    "video/mp4".equals(mime, ignoreCase = true))
+                val value = extractMetadata(MediaMetadataRetriever.METADATA_KEY_LOCATION)
+                assertThat(value).isNotNull()
+                // ex: (90, 180) => "+90.0000+180.0000/" (ISO-6709 standard)
+                val matchGroup =
+                    "([\\+-]?[0-9]+(\\.[0-9]+)?)([\\+-]?[0-9]+(\\.[0-9]+)?)".toRegex()
+                        .find(value!!) ?: fail("Fail on checking location metadata: $value")
+                val lat = matchGroup.groupValues[1].toDouble()
+                val lon = matchGroup.groupValues[3].toDouble()
+
+                // MediaMuxer.setLocation rounds the value to 4 decimal places
+                val tolerance = 0.0001
+                assertWithMessage("Fail on latitude. $lat($value) vs ${location.latitude}")
+                    .that(lat).isWithin(tolerance).of(location.latitude)
+                assertWithMessage("Fail on longitude. $lon($value) vs ${location.longitude}")
+                    .that(lon).isWithin(tolerance).of(location.longitude)
+            } finally {
+                release()
+            }
         }
     }
 
@@ -1256,4 +1301,43 @@ class RecorderTest {
         recording.close()
         file.delete()
     }
+
+    private fun runLocationTest(location: Location) {
+        val recorder = Recorder.Builder().build()
+        invokeSurfaceRequest(recorder)
+        val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
+        val outputOptions = FileOutputOptions.Builder(file)
+            .setLocation(location)
+            .build()
+
+        val recording = recorder
+            .prepareRecording(context, outputOptions)
+            .start(CameraXExecutors.directExecutor(), videoRecordEventListener)
+
+        val inOrder = inOrder(videoRecordEventListener)
+        inOrder.verify(videoRecordEventListener, timeout(5000L))
+            .accept(any(VideoRecordEvent.Start::class.java))
+        inOrder.verify(videoRecordEventListener, timeout(15000L).atLeast(5))
+            .accept(any(VideoRecordEvent.Status::class.java))
+
+        recording.stopSafely()
+
+        inOrder.verify(videoRecordEventListener, timeout(FINALIZE_TIMEOUT))
+            .accept(any(VideoRecordEvent.Finalize::class.java))
+
+        val uri = Uri.fromFile(file)
+        checkLocation(uri, location)
+
+        file.delete()
+    }
+
+    private fun createLocation(
+        latitude: Double,
+        longitude: Double,
+        provider: String = "FakeProvider"
+    ): Location =
+        Location(provider).apply {
+            this.latitude = latitude
+            this.longitude = longitude
+        }
 }
