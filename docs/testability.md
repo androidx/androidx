@@ -213,6 +213,23 @@ NOTE Even though the implementation referenced above is acceptable, it is always
 better to create such functionality in additional testing artifacts when
 possible.
 
+When writing Android platform APIs, testing-only APIs should be clearly
+distinguished from non-test API surface and restricted as necessary to prevent
+misuse. In some cases, the `@TestApi` annotation may be appropriate to restrict
+usage to CTS tests; however, many platform testing APIs are also useful for app
+developers.
+
+```java {.good}
+class AdSelectionManager {
+  /**
+   * Returns testing-specific APIs for this manager.
+   *
+   * @throws SecurityException when called from a non-debuggable application
+   */
+  public TestAdSelectionManager getTestAdSelectionManager();
+}
+```
+
 ### Avoiding assumptions in app code for library behavior {#undefined-behavior}
 
 #### Provide fakes for common classes in a `-testing` artifact
