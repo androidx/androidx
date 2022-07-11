@@ -45,11 +45,16 @@ internal val cameraPipeIds = atomic(0)
  * [android.hardware.camera2.CameraDevice] and [android.hardware.camera2.CameraCaptureSession] via
  * the [CameraGraph] interface.
  */
-public class CameraPipe(config: Config, threadConfig: ThreadConfig = ThreadConfig()) {
+public class CameraPipe(config: Config) {
+
+    @Deprecated("threadConfig should be specified on config.")
+    @Suppress("UNUSED_PARAMETER")
+    public constructor(config: Config, threadConfig: ThreadConfig) : this(config)
+
     private val debugId = cameraPipeIds.incrementAndGet()
     private val component: CameraPipeComponent = DaggerCameraPipeComponent.builder()
         .cameraPipeConfigModule(CameraPipeConfigModule(config))
-        .threadConfigModule(ThreadConfigModule(threadConfig))
+        .threadConfigModule(ThreadConfigModule(config.threadConfig))
         .build()
 
     /**
