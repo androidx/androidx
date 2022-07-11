@@ -32,7 +32,9 @@ import kotlin.test.assertTrue
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
+@OptIn(ExperimentalMacrobenchmarkApi::class)
 class MacrobenchmarkTest {
+
     @Test
     fun macrobenchmarkWithStartupMode_emptyMetricList() {
         val exception = assertFailsWith<IllegalArgumentException> {
@@ -42,7 +44,7 @@ class MacrobenchmarkTest {
                 testName = "testName",
                 packageName = "com.ignored",
                 metrics = emptyList(), // invalid
-                compilationMode = CompilationMode.noop,
+                compilationMode = CompilationMode.Ignore(),
                 iterations = 1,
                 startupMode = null,
                 setupBlock = {},
@@ -61,7 +63,7 @@ class MacrobenchmarkTest {
                 testName = "testName",
                 packageName = "com.ignored",
                 metrics = listOf(FrameTimingMetric()),
-                compilationMode = CompilationMode.noop,
+                compilationMode = CompilationMode.Ignore(),
                 iterations = 0, // invalid
                 startupMode = null,
                 setupBlock = {},

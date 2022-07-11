@@ -70,23 +70,34 @@ sealed class CompilationMode {
         if (Build.VERSION.SDK_INT >= 24) {
             if (Arguments.enableCompilation) {
                 Log.d(TAG, "Resetting $packageName")
-                if (Arguments.enablePackageReset) {
-                    // Package reset enabled
-                    Log.w(TAG, "Shader compilation will be cached between runs.")
-                    Log.d(TAG, "Re-compiling $packageName")
-                    // cmd package compile --reset returns a "Success" or a "Failure" to stdout.
-                    // Rather than rely on exit codes which are not always correct, we specifically
-                    // look for the work "Success" in stdout to make sure reset actually
-                    // happened.
-                    val output =
-                        Shell.executeScriptWithStderr("cmd package compile --reset $packageName")
-                    check(output.stdout.trim() == "Success") {
-                        "Unable to recompile $packageName ($output)"
+
+                // The compilation profile chooses whether a reset is required or not.
+                // Currently the only compilation profile that does not perform a reset is
+                // CompilationMode.Ignore.
+                if (shouldReset()) {
+
+                    // It's not possible to reset the compilation profile on `user` builds.
+                    // The flag `enablePackageReset` can be set to `true` on `userdebug` builds in
+                    // order to speed-up the profile reset. When set to false, reset is performed
+                    // uninstalling and reinstalling the app.
+                    if (Arguments.enablePackageReset) {
+                        // Package reset enabled
+                        Log.w(TAG, "Shader compilation will be cached between runs.")
+                        Log.d(TAG, "Re-compiling $packageName")
+                        // cmd package compile --reset returns a "Success" or a "Failure" to stdout.
+                        // Rather than rely on exit codes which are not always correct, we specifically
+                        // look for the work "Success" in stdout to make sure reset actually
+                        // happened.
+                        val output = Shell
+                            .executeScriptWithStderr("cmd package compile --reset $packageName")
+                        check(output.stdout.trim() == "Success") {
+                            "Unable to recompile $packageName ($output)"
+                        }
+                    } else {
+                        // User builds. Kick off a full uninstall-reinstall
+                        Log.d(TAG, "Reinstalling $packageName")
+                        reinstallPackage(packageName)
                     }
-                } else {
-                    // User builds. Kick off a full uninstall-reinstall
-                    Log.d(TAG, "Reinstalling $packageName")
-                    reinstallPackage(packageName)
                 }
                 // Write skip file to stop profile installer from interfering with the benchmark
                 writeProfileInstallerSkipFile(packageName)
@@ -214,8 +225,12 @@ sealed class CompilationMode {
     @RequiresApi(24)
     internal abstract fun compileImpl(packageName: String, warmupBlock: () -> Unit)
 
+    @RequiresApi(24)
+    internal abstract fun shouldReset(): Boolean
+
     /**
-     * No pre-compilation - entire app will be allowed to Just-In-Time compile as it runs.
+     * No pre-compilation - a compilation profile reset is performed and the entire app will be
+     * allowed to Just-In-Time compile as it runs.
      *
      * Note that later iterations may perform differently, as app code is jitted.
      */
@@ -228,6 +243,25 @@ sealed class CompilationMode {
         override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
             // nothing to do!
         }
+
+        override fun shouldReset(): Boolean = true
+    }
+
+    /**
+     * This compilation mode doesn't perform any reset or compilation, leaving the user the choice
+     * to implement these steps.
+     */
+    // Leaving possibility for future configuration
+    @ExperimentalMacrobenchmarkApi
+    @Suppress("CanSealedSubClassBeObject")
+    class Ignore : CompilationMode() {
+        override fun toString(): String = "Ignore"
+
+        override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
+            // Do nothing.
+        }
+
+        override fun shouldReset(): Boolean = false
     }
 
     /**
@@ -375,6 +409,8 @@ sealed class CompilationMode {
                 cmdPackageCompile(packageName, "speed-profile")
             }
         }
+
+        override fun shouldReset(): Boolean = true
     }
 
     /**
@@ -395,6 +431,8 @@ sealed class CompilationMode {
             }
             // Noop on older versions: apps are fully compiled at install time on API 23 and below
         }
+
+        override fun shouldReset(): Boolean = true
     }
 
     /**
@@ -414,10 +452,11 @@ sealed class CompilationMode {
         override fun compileImpl(packageName: String, warmupBlock: () -> Unit) {
             // Nothing to do - handled externally
         }
+
+        override fun shouldReset(): Boolean = true
     }
 
     companion object {
-        internal val noop: CompilationMode = if (Build.VERSION.SDK_INT >= 24) None() else Full()
 
         /**
          * Represents the default compilation mode for the platform, on an end user's device.
