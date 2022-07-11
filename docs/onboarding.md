@@ -12,10 +12,9 @@ public APIs and an overview of the constraints placed on changes.
 
 ## Workstation setup {#setup}
 
-You will need to install the
-[`repo`](https://source.android.com/setup/develop#repo) tool, which is used for
-Git branch and commit management. If you want to learn more about `repo`, see
-the [Repo Command Reference](https://source.android.com/setup/develop/repo).
+This section will help you install the `repo` tool, which is used for Git branch
+and commit management. If you want to learn more about `repo`, see the
+[Repo Command Reference](https://source.android.com/setup/develop/repo).
 
 ### Linux and MacOS {#setup-linux-mac}
 
@@ -138,7 +137,17 @@ git config --global merge.renameLimit 999999
 git config --global diff.renameLimit 999999
 ```
 
-### To check out older source, use the superproject
+### Set up Git file exclusions {#source-exclude}
+
+Mac users should consider adding `.DS_Store` to a global `.gitignore` file to
+avoid accidentally checking in local metadata files:
+
+```shell
+echo .DS_Store>>~/.gitignore
+git config --global core.excludesFile '~/.gitignore'
+```
+
+### To check out older sources, use the superproject {#source-historical}
 
 The
 [git superproject](https://android.googlesource.com/platform/superproject/+/androidx-main)
@@ -231,6 +240,9 @@ build completes.
 > ```
 > -Dsun.java2d.uiScale.enabled=false
 > ```
+
+> NOTE: We are aware of a bug where running `./studiow` does not result in
+> Android Studio application being launched.
 
 If in the future you encounter unexpected errors in Studio and you want to check
 for the possibility it is due to some incorrect settings or other generated
