@@ -99,7 +99,8 @@ public abstract class Client<S extends IInterface> {
      *
      * @see #execute(RemoteFutureOperation)
      */
-    protected @NonNull <R> ListenableFuture<R> execute(@NonNull RemoteOperation<S, R> operation) {
+    @NonNull
+    protected <R> ListenableFuture<R> execute(@NonNull RemoteOperation<S, R> operation) {
         return execute((service, resultFuture) -> resultFuture.set(operation.execute(service)));
     }
 
@@ -111,7 +112,8 @@ public abstract class Client<S extends IInterface> {
      * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails.
      */
-    protected @NonNull <R> ListenableFuture<R> execute(
+    @NonNull
+    protected <R> ListenableFuture<R> execute(
             @NonNull RemoteFutureOperation<S, R> operation) {
         SettableFuture<R> settableFuture = SettableFuture.create();
         mConnectionManager.scheduleForExecution(createQueueOperation(operation, settableFuture));
@@ -127,7 +129,8 @@ public abstract class Client<S extends IInterface> {
      * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails or if the remote service version is lower than {@code minApiVersion}
      */
-    protected @NonNull <R> ListenableFuture<R> executeWithVersionCheck(
+    @NonNull
+    protected <R> ListenableFuture<R> executeWithVersionCheck(
             int minApiVersion, @NonNull RemoteFutureOperation<S, R> operation) {
         SettableFuture<R> settableFuture = SettableFuture.create();
         ListenableFuture<Integer> versionFuture =
@@ -167,7 +170,8 @@ public abstract class Client<S extends IInterface> {
      *
      * <p>If current version is available from earlier calls, it would return the value from cache.
      */
-    protected @NonNull ListenableFuture<Integer> getCurrentRemoteVersion(boolean forceRefresh) {
+    @NonNull
+    protected ListenableFuture<Integer> getCurrentRemoteVersion(boolean forceRefresh) {
         if (mCurrentVersion == UNKNOWN_VERSION || forceRefresh) {
             return Futures.transform(
                     execute(mRemoteVersionGetter),
@@ -194,7 +198,8 @@ public abstract class Client<S extends IInterface> {
      * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails
      */
-    protected @NonNull <R> ListenableFuture<R> registerListener(
+    @NonNull
+    protected <R> ListenableFuture<R> registerListener(
             @NonNull ListenerKey listenerKey,
             @NonNull RemoteOperation<S, R> registerListenerOperation
     ) {
@@ -217,7 +222,8 @@ public abstract class Client<S extends IInterface> {
      * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails
      */
-    protected @NonNull <R> ListenableFuture<R> registerListener(
+    @NonNull
+    protected <R> ListenableFuture<R> registerListener(
             @NonNull ListenerKey listenerKey,
             @NonNull RemoteFutureOperation<S, R> registerListenerOperation
     ) {
@@ -237,7 +243,8 @@ public abstract class Client<S extends IInterface> {
      * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails
      */
-    protected @NonNull <R> ListenableFuture<R> unregisterListener(
+    @NonNull
+    protected <R> ListenableFuture<R> unregisterListener(
             @NonNull ListenerKey listenerKey,
             @NonNull RemoteOperation<S, R> unregisterListenerOperation
     ) {
@@ -257,7 +264,8 @@ public abstract class Client<S extends IInterface> {
      * @return {@link ListenableFuture} with the result of the operation or an exception if the
      *     execution fails
      */
-    protected @NonNull <R> ListenableFuture<R> unregisterListener(
+    @NonNull
+    protected <R> ListenableFuture<R> unregisterListener(
             @NonNull ListenerKey listenerKey,
             @NonNull RemoteFutureOperation<S, R> unregisterListenerOperation
     ) {
@@ -267,7 +275,8 @@ public abstract class Client<S extends IInterface> {
         return settableFuture;
     }
 
-    protected @NonNull Exception getApiVersionCheckFailureException(
+    @NonNull
+    protected Exception getApiVersionCheckFailureException(
             int currentVersion, int minApiVersion) {
         return new ApiVersionException(currentVersion, minApiVersion);
     }
