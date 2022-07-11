@@ -165,16 +165,21 @@ data class AndroidXPluginTestContext(val tmpFolder: TemporaryFolder, val setup: 
     fun AndroidXSelfTestProject.readPublishedFile(fileName: String) =
         mavenLocalDir.resolve("$groupId/$artifactId/$version/$fileName").readText()
 
+    var printBuildFileOnFailure: Boolean = false
+
     override fun toString(): String {
         return buildMap {
             put("root files", setup.rootDir.list().orEmpty().toList())
-            setup.rootDir.listFiles().orEmpty().filter { it.isDirectory }.forEach { maybeGroupDir ->
-                maybeGroupDir.listFiles().orEmpty().filter { it.isDirectory }.forEach {
-                    val maybeBuildFile = it.resolve("build.gradle")
-                    if (maybeBuildFile.exists()) {
-                        put(it.name + "/build.gradle", maybeBuildFile.readText())
+            if (printBuildFileOnFailure) {
+                setup.rootDir.listFiles().orEmpty().filter { it.isDirectory }
+                    .forEach { maybeGroupDir ->
+                        maybeGroupDir.listFiles().orEmpty().filter { it.isDirectory }.forEach {
+                            val maybeBuildFile = it.resolve("build.gradle")
+                            if (maybeBuildFile.exists()) {
+                                put(it.name + "/build.gradle", maybeBuildFile.readText())
+                            }
+                        }
                     }
-                }
             }
         }.toString()
     }
