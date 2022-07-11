@@ -35,12 +35,6 @@ public class ComplicationSlotState {
     /** Screen space bounds of the [ComplicationSlot] in pixels. */
     public val bounds: Rect
 
-    /**
-     * Screen space bounds of the [ComplicationSlot] in pixels including any specified margins. This
-     * is useful for tap detection (especially for small complications) and doesn't affect rendering.
-     */
-    public val boundsWithMargins: Rect
-
     /** The type of the complication's bounds. */
     @ComplicationSlotBoundsType
     public val boundsType: Int
@@ -123,71 +117,7 @@ public class ComplicationSlotState {
      * the complication slot in an editor.
      * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) to
      * identify the complication slot in a screen reader.
-     * @param boundsWithMargins Screen space bounds of the [ComplicationSlot] in pixels including
-     * any specified margins.
      */
-    public constructor(
-        bounds: Rect,
-        @ComplicationSlotBoundsType boundsType: Int,
-        supportedTypes: List<ComplicationType>,
-        defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
-        isEnabled: Boolean,
-        isInitiallyEnabled: Boolean,
-        currentType: ComplicationType,
-        fixedComplicationDataSource: Boolean,
-        complicationConfigExtras: Bundle,
-        @Suppress("AutoBoxing")
-        nameResourceId: Int?,
-        @Suppress("AutoBoxing")
-        screenReaderNameResourceId: Int?,
-        boundsWithMargins: Rect
-    ) {
-        this.bounds = bounds
-        this.boundsWithMargins = boundsWithMargins
-        this.boundsType = boundsType
-        this.supportedTypes = supportedTypes
-        this.defaultDataSourcePolicy = defaultDataSourcePolicy
-        this.isEnabled = isEnabled
-        this.isInitiallyEnabled = isInitiallyEnabled
-        this.currentType = currentType
-        this.fixedComplicationDataSource = fixedComplicationDataSource
-        this.complicationConfigExtras = complicationConfigExtras
-        this.nameResourceId = nameResourceId
-        this.screenReaderNameResourceId = screenReaderNameResourceId
-
-        @OptIn(ComplicationExperimental::class)
-        this.boundingArc = null
-    }
-
-    /**
-     * @param bounds Screen space bounds of the [ComplicationSlot] in pixels.
-     * @param boundsType The type of the complication's bounds.
-     * @param supportedTypes The [ComplicationType]s supported by this complication.
-     * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] for this
-     * complication slot.
-     * @param isEnabled Whether or not the complication is currently enabled (i.e. it should be
-     * drawn).
-     * @param isInitiallyEnabled Whether or not the complication was initially enabled before
-     * considering any [ComplicationSlotsOption] whose [ComplicationSlotOverlay]s may enable or
-     * disable complicationSlots.
-     * @param currentType The [ComplicationType] of the complication's current [ComplicationData].
-     * @param fixedComplicationDataSource Whether or not the complication data source is fixed (i.e
-     * the user can't configure it).
-     * @param complicationConfigExtras Extras to be merged into the Intent sent when invoking the
-     * complication data source chooser activity.
-     * @param nameResourceId The ID of a string resource (or `null` if absent) to visually identify
-     * the complication slot in an editor.
-     * @param screenReaderNameResourceId The ID of a string resource (or `null` if absent) to
-     * identify the complication slot in a screen reader.
-     */
-    @Deprecated(
-        "Constructor without boundsWithMargins is deprecated",
-        ReplaceWith(
-            "ComplicationSlotState(Rect, Int, List<ComplicationType>, " +
-                "DefaultComplicationDataSourcePolicy, Boolean, Boolean, ComplicationType, " +
-                "Boolean, Bundle, Int?, Int?, Rect?)"
-        )
-    )
     public constructor(
         bounds: Rect,
         @ComplicationSlotBoundsType boundsType: Int,
@@ -204,7 +134,6 @@ public class ComplicationSlotState {
         screenReaderNameResourceId: Int?
     ) {
         this.bounds = bounds
-        this.boundsWithMargins = bounds
         this.boundsType = boundsType
         this.supportedTypes = supportedTypes
         this.defaultDataSourcePolicy = defaultDataSourcePolicy
@@ -222,8 +151,6 @@ public class ComplicationSlotState {
 
     /**
      * @param bounds Screen space bounds of the [ComplicationSlot] in pixels.
-     * @param boundsWithMargins Screen space bounds of the [ComplicationSlot] in pixels including
-     * any specified margins.
      * @param boundsType The type of the complication's bounds.
      * @param supportedTypes The [ComplicationType]s supported by this complication.
      * @param defaultDataSourcePolicy The [DefaultComplicationDataSourcePolicy] for this
@@ -248,7 +175,6 @@ public class ComplicationSlotState {
     @ComplicationExperimental
     public constructor(
         bounds: Rect,
-        boundsWithMargins: Rect,
         @ComplicationSlotBoundsType boundsType: Int,
         supportedTypes: List<ComplicationType>,
         defaultDataSourcePolicy: DefaultComplicationDataSourcePolicy,
@@ -264,7 +190,6 @@ public class ComplicationSlotState {
         edgeComplicationBoundingArc: BoundingArc?
     ) {
         this.bounds = bounds
-        this.boundsWithMargins = boundsWithMargins
         this.boundsType = boundsType
         this.supportedTypes = supportedTypes
         this.defaultDataSourcePolicy = defaultDataSourcePolicy
@@ -316,7 +241,6 @@ public class ComplicationSlotState {
         complicationConfigExtras: Bundle
     ) {
         this.bounds = bounds
-        this.boundsWithMargins = bounds
         this.boundsType = boundsType
         this.supportedTypes = supportedTypes
         this.defaultDataSourcePolicy = when {
@@ -364,7 +288,6 @@ public class ComplicationSlotState {
         complicationStateWireFormat: ComplicationStateWireFormat
     ) : this(
         complicationStateWireFormat.bounds,
-        complicationStateWireFormat.boundsWithMargins ?: Rect(),
         complicationStateWireFormat.boundsType,
         complicationStateWireFormat.supportedTypes.map { ComplicationType.fromWireType(it) },
         DefaultComplicationDataSourcePolicy(
@@ -394,7 +317,7 @@ public class ComplicationSlotState {
     @Suppress("Deprecation")
     override fun toString(): String {
         @OptIn(ComplicationExperimental::class)
-        return "ComplicationSlotState(bounds=$bounds, boundsWithMargins=$boundsWithMargins, " +
+        return "ComplicationSlotState(bounds=$bounds, " +
             "boundsType=$boundsType, supportedTypes=$supportedTypes, " +
             "defaultDataSourcePolicy=$defaultDataSourcePolicy, " +
             "defaultDataSourceType=$defaultDataSourceType, isEnabled=$isEnabled, " +
@@ -414,7 +337,6 @@ public class ComplicationSlotState {
         other as ComplicationSlotState
 
         if (bounds != other.bounds) return false
-        if (boundsWithMargins != other.boundsWithMargins) return false
         if (boundsType != other.boundsType) return false
         if (supportedTypes != other.supportedTypes) return false
         if (defaultDataSourcePolicy != other.defaultDataSourcePolicy) return false
@@ -435,7 +357,6 @@ public class ComplicationSlotState {
     @Suppress("Deprecation")
     override fun hashCode(): Int {
         var result = bounds.hashCode()
-        result = 31 * result + boundsWithMargins.hashCode()
         result = 31 * result + boundsType
         result = 31 * result + supportedTypes.hashCode()
         result = 31 * result + defaultDataSourcePolicy.hashCode()

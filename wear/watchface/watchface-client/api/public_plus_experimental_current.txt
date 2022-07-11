@@ -22,14 +22,12 @@ package androidx.wear.watchface.client {
   }
 
   public final class ComplicationSlotState {
-    ctor public ComplicationSlotState(android.graphics.Rect bounds, int boundsType, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.watchface.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras, Integer? nameResourceId, Integer? screenReaderNameResourceId, android.graphics.Rect boundsWithMargins);
-    ctor @Deprecated public ComplicationSlotState(android.graphics.Rect bounds, int boundsType, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.watchface.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras, Integer? nameResourceId, Integer? screenReaderNameResourceId);
-    ctor @androidx.wear.watchface.complications.data.ComplicationExperimental public ComplicationSlotState(android.graphics.Rect bounds, android.graphics.Rect boundsWithMargins, int boundsType, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.watchface.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras, Integer? nameResourceId, Integer? screenReaderNameResourceId, androidx.wear.watchface.BoundingArc? edgeComplicationBoundingArc);
+    ctor public ComplicationSlotState(android.graphics.Rect bounds, int boundsType, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.watchface.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras, Integer? nameResourceId, Integer? screenReaderNameResourceId);
+    ctor @androidx.wear.watchface.complications.data.ComplicationExperimental public ComplicationSlotState(android.graphics.Rect bounds, int boundsType, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.watchface.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras, Integer? nameResourceId, Integer? screenReaderNameResourceId, androidx.wear.watchface.BoundingArc? edgeComplicationBoundingArc);
     ctor @Deprecated public ComplicationSlotState(android.graphics.Rect bounds, int boundsType, java.util.List<? extends androidx.wear.watchface.complications.data.ComplicationType> supportedTypes, androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy, androidx.wear.watchface.complications.data.ComplicationType defaultDataSourceType, boolean isEnabled, boolean isInitiallyEnabled, androidx.wear.watchface.complications.data.ComplicationType currentType, boolean fixedComplicationDataSource, android.os.Bundle complicationConfigExtras);
     method @androidx.wear.watchface.complications.data.ComplicationExperimental public androidx.wear.watchface.BoundingArc? getBoundingArc();
     method public android.graphics.Rect getBounds();
     method public int getBoundsType();
-    method public android.graphics.Rect getBoundsWithMargins();
     method public android.os.Bundle getComplicationConfigExtras();
     method public androidx.wear.watchface.complications.data.ComplicationType getCurrentType();
     method public androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy getDefaultDataSourcePolicy();
@@ -42,7 +40,6 @@ package androidx.wear.watchface.client {
     method public boolean isInitiallyEnabled();
     property public final android.graphics.Rect bounds;
     property public final int boundsType;
-    property public final android.graphics.Rect boundsWithMargins;
     property public final android.os.Bundle complicationConfigExtras;
     property public final androidx.wear.watchface.complications.data.ComplicationType currentType;
     property public final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy defaultDataSourcePolicy;

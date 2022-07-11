@@ -809,7 +809,6 @@ internal class OnWatchFaceEditorSessionImpl(
             }
             ComplicationSlotState(
                 it.value.computeBounds(editorDelegate.screenBounds, type, applyMargins = false),
-                it.value.computeBounds(editorDelegate.screenBounds, type, applyMargins = true),
                 it.value.boundsType,
                 it.value.supportedTypes,
                 it.value.defaultDataSourcePolicy,
