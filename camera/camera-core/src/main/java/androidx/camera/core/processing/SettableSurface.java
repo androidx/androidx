@@ -106,7 +106,7 @@ public class SettableSurface extends DeferrableSurface {
         mSurfaceFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
                     mCompleter = completer;
-                    return null;
+                    return "SettableFuture size: " + size + " hashCode: " + hashCode();
                 });
     }
 
