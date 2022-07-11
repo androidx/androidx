@@ -3206,6 +3206,109 @@ class PageFetcherSnapshotTest {
     }
 
     @Test
+    fun jump_idempotent_prependOrAppend() = testScope.runTest {
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 1,
+            enablePlaceholders = true,
+            initialLoadSize = 2,
+            maxSize = 3,
+            jumpThreshold = 10
+        )
+        var didJump = 0
+        val pager = PageFetcherSnapshot(
+            initialKey = 50,
+            pagingSource = pagingSourceFactory(),
+            config = config,
+            retryFlow = retryBus.flow,
+            previousPagingState = null,
+        ) {
+            didJump++
+        }
+        // Trigger collection on flow to init jump detection job.
+        val job = launch { pager.pageEventFlow.collect { } }
+
+        advanceUntilIdle()
+
+        // This would trigger both append and prepend because of processHint logic
+        pager.accessHint(
+            ViewportHint.Access(
+                pageOffset = 0,
+                indexInPage = -50,
+                presentedItemsBefore = -50,
+                presentedItemsAfter = 0,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0
+            )
+        )
+        advanceUntilIdle()
+
+        // even though both append / prepend flows sent jumping hint, should only trigger
+        // jump once
+        assertThat(didJump).isEqualTo(1)
+
+        job.cancel()
+    }
+
+    @Test
+    fun jump_idempotent_multipleJumpHints() = testScope.runTest {
+        val config = PagingConfig(
+            pageSize = 1,
+            prefetchDistance = 1,
+            enablePlaceholders = true,
+            initialLoadSize = 2,
+            maxSize = 3,
+            jumpThreshold = 10
+        )
+        var didJump = 0
+        val pager = PageFetcherSnapshot(
+            initialKey = 50,
+            pagingSource = pagingSourceFactory(),
+            config = config,
+            retryFlow = retryBus.flow,
+            previousPagingState = null,
+        ) {
+            didJump++
+        }
+        // Trigger collection on flow to init jump detection job.
+        val job = launch { pager.pageEventFlow.collect { } }
+
+        advanceUntilIdle()
+
+        // This would trigger both append and prepend because of processHint logic
+        pager.accessHint(
+            ViewportHint.Access(
+                pageOffset = 0,
+                indexInPage = -50,
+                presentedItemsBefore = -50,
+                presentedItemsAfter = 0,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0
+            )
+        )
+
+        // send second jump hint as well
+        pager.accessHint(
+            ViewportHint.Access(
+                pageOffset = 0,
+                indexInPage = -50,
+                presentedItemsBefore = -50,
+                presentedItemsAfter = 0,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0
+            )
+        )
+
+        advanceUntilIdle()
+
+        // even though both append / prepend flows sent jumping hint, and a second jump hint
+        // was sent, they should only trigger jump once
+        assertThat(didJump).isEqualTo(1)
+
+        job.cancel()
+    }
+
+    @Test
     fun keyReuse_unsupported_success() = testScope.runTest {
         withContext(coroutineContext) {
             val pager = PageFetcherSnapshot(
