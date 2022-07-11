@@ -39,6 +39,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -94,6 +95,7 @@ public class CarNotificationManagerTest {
                 mDefaultPendingIntent);
     }
 
+    @Ignore // b/238635208
     @SuppressWarnings("deprecation")
     @Test
     public void updateForCar_embedded_overridesAsExpected() {
@@ -122,6 +124,7 @@ public class CarNotificationManagerTest {
         assertThat(action.title).isEqualTo(EXTENDED_ACTION_TITLE);
     }
 
+    @Ignore // b/238635208
     @SuppressWarnings("deprecation")
     @Test
     public void updateForCar_notEmbedded_returnsTheSame() {
@@ -147,6 +150,7 @@ public class CarNotificationManagerTest {
         assertThat(action.title).isEqualTo(DEFAULT_ACTION_TITLE);
     }
 
+    @Ignore // b/238635208
     @SuppressWarnings("deprecation")
     @Test
     public void updateForCar_notExtended_marksAsExtended()
