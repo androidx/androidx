@@ -118,7 +118,9 @@ public class ContextThemeWrapper extends ContextWrapper {
 
     private Resources getResourcesInternal() {
         if (mResources == null) {
-            if (isEmptyConfiguration(mOverrideConfiguration)) {
+            if (mOverrideConfiguration == null
+                    || (Build.VERSION.SDK_INT >= 26
+                    && isEmptyConfiguration(mOverrideConfiguration))) {
                 // If we're not applying any overrides, use the base context's resources. On API
                 // 26+, this will avoid pulling in resources that share a backing implementation
                 // with the application context.
@@ -215,6 +217,7 @@ public class ContextThemeWrapper extends ContextWrapper {
      * @return {@code true} if the specified configuration is {@code null} or is a no-op when
      *         used as a configuration overlay
      */
+    @RequiresApi(26)
     private static boolean isEmptyConfiguration(Configuration overrideConfiguration) {
         if (overrideConfiguration == null) {
             return true;
