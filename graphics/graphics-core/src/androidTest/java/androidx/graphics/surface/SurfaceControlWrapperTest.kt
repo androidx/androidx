@@ -40,7 +40,6 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -93,7 +92,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @Ignore("b/237850882")
     @Test
     fun testSurfaceTransactionCreate() {
         try {
@@ -238,9 +236,8 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @Ignore("b/237850882")
     @Test
-    fun testTransactionIsValid_valid() {
+    fun testSurfaceControlIsValid_valid() {
         var surfaceControl = SurfaceControl.Builder()
             .setName("SurfaceControlCompact_createFromWindow")
             .build()
@@ -258,7 +255,7 @@ class SurfaceControlWrapperTest {
     }
 
     @Test
-    fun testTransactionIsValid_validNotValid() {
+    fun testSurfaceControlIsValid_validNotValid() {
         var surfaceControl = SurfaceControl.Builder()
             .setName("SurfaceControlCompact_createFromWindow")
             .build()
@@ -278,7 +275,28 @@ class SurfaceControlWrapperTest {
         assertFalse(scCompat.isValid())
     }
 
-    @Ignore("b/237850882")
+    @Test
+    fun testSurfaceControlIsValid_multipleRelease() {
+        var surfaceControl = SurfaceControl.Builder()
+            .setName("SurfaceControlCompact_createFromWindow")
+            .build()
+        var scCompat: SurfaceControlWrapper? = null
+
+        try {
+            scCompat = SurfaceControlWrapper.Builder()
+                .setParent(Surface(surfaceControl))
+                .setDebugName("SurfaceControlWrapperTest")
+                .build()
+        } catch (e: IllegalArgumentException) {
+            fail()
+        }
+
+        assertTrue(scCompat!!.isValid())
+        scCompat.release()
+        scCompat.release()
+        assertFalse(scCompat.isValid())
+    }
+
     @Test
     fun testTransactionReparent_null() {
         val listener = TransactionOnCompleteListener()
@@ -331,7 +349,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @Ignore("b/237850882")
     @Test
     fun testTransactionReparent_childOfSibling() {
         val listener = TransactionOnCompleteListener()
@@ -391,7 +408,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @Ignore("b/237850882")
     @Test
     fun testExtractSyncFenceFd() {
         val fileDescriptor = 7
@@ -446,7 +462,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @Ignore("b/237850882")
     @Test
     fun testTransactionSetVisibility_hide() {
         val listener = TransactionOnCompleteListener()
@@ -552,7 +567,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @Ignore("b/237850882")
     @Test
     fun testTransactionSetLayer_positive() {
         val listener = TransactionOnCompleteListener()
@@ -611,7 +625,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @Ignore("b/237850882")
     @Test
     fun testTransactionSetLayer_negative() {
         val listener = TransactionOnCompleteListener()
@@ -670,7 +683,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @Ignore("b/237850882")
     @Test
     fun testTransactionSetDamageRegion_all() {
         val listener = TransactionOnCompleteListener()
@@ -718,7 +730,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @Ignore("b/237850882")
     @Test
     fun testTransactionSetDamageRegion_null() {
         val listener = TransactionOnCompleteListener()
@@ -766,7 +777,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @Ignore("b/237850882")
     @Test
     fun testTransactionSetDesiredPresentTime_now() {
         val listener = TransactionOnCompleteListener()
@@ -902,7 +912,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @Ignore("b/237850882")
     @Test
     fun testTransactionSetAlpha_0_5() {
         val listener = TransactionOnCompleteListener()
@@ -965,7 +974,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @Ignore("b/237850882")
     @Test
     fun testTransactionSetAlpha_1_0() {
         val listener = TransactionOnCompleteListener()

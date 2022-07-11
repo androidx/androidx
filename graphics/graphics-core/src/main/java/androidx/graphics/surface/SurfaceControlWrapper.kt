@@ -417,8 +417,8 @@ internal class SurfaceControlWrapper internal constructor(
         fun close() {
             if (mNativeSurfaceTransaction != 0L) {
                 JniBindings.nTransactionDelete(mNativeSurfaceTransaction)
+                mNativeSurfaceTransaction = 0L
             }
-            mNativeSurfaceTransaction = 0L
         }
 
         fun finalize() {
@@ -461,8 +461,10 @@ internal class SurfaceControlWrapper internal constructor(
      * a SurfaceControl.
      */
     fun release() {
-        JniBindings.nRelease(mNativeSurfaceControl)
-        mNativeSurfaceControl = 0
+        if (mNativeSurfaceControl != 0L) {
+            JniBindings.nRelease(mNativeSurfaceControl)
+            mNativeSurfaceControl = 0
+        }
     }
 
     protected fun finalize() {
