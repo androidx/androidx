@@ -22,6 +22,7 @@ import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.work.WorkInfo.State
 import androidx.work.WorkManager.UpdateResult.APPLIED_FOR_NEXT_RUN
 import androidx.work.WorkManager.UpdateResult.APPLIED_IMMEDIATELY
@@ -35,6 +36,8 @@ import androidx.work.impl.constraints.trackers.Trackers
 import androidx.work.impl.testutils.TestConstraintTracker
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor
+import androidx.work.impl.workers.ARGUMENT_CLASS_NAME
+import androidx.work.impl.workers.ConstraintTrackingWorker
 import androidx.work.worker.LatchWorker
 import androidx.work.worker.RetryWorker
 import androidx.work.worker.TestWorker
@@ -413,8 +416,10 @@ class WorkUpdateTest {
         val spec = workManager.workDatabase.workSpecDao().getWorkSpec(request.stringId)!!
         val delta = spec.calculateNextRunTime() - System.currentTimeMillis()
         assertThat(delta).isGreaterThan(0)
-        workManager.workDatabase.workSpecDao().setLastEnqueuedTime(request.stringId,
-            spec.lastEnqueueTime - delta)
+        workManager.workDatabase.workSpecDao().setLastEnqueuedTime(
+            request.stringId,
+            spec.lastEnqueueTime - delta
+        )
         val updated = OneTimeWorkRequest.Builder(TestWorker::class.java).setId(request.id)
             .setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.DAYS)
             .build()
@@ -431,8 +436,10 @@ class WorkUpdateTest {
             .setInitialDelay(10, TimeUnit.MINUTES).build()
         val enqueueTime = System.currentTimeMillis()
         workManager.enqueue(request).result.get()
-        workManager.workDatabase.workSpecDao().setLastEnqueuedTime(request.stringId,
-            enqueueTime - TimeUnit.MINUTES.toMillis(5))
+        workManager.workDatabase.workSpecDao().setLastEnqueuedTime(
+            request.stringId,
+            enqueueTime - TimeUnit.MINUTES.toMillis(5)
+        )
         val updated = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setInitialDelay(20, TimeUnit.MINUTES)
             .setId(request.id)
@@ -444,6 +451,24 @@ class WorkUpdateTest {
         // enqueueTime was rewound 5 minutes back.
         assertThat(delta).isGreaterThan(TimeUnit.MINUTES.toMillis(14))
         assertThat(delta).isLessThan(TimeUnit.MINUTES.toMillis(16))
+    }
+
+    @Test
+    @MediumTest
+    @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
+    fun testUpdatePeriodicWorker_preservesConstraintTrackingWorker() {
+        val originRequest = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setInitialDelay(10, TimeUnit.HOURS).build()
+        workManager.enqueue(originRequest).result.get()
+        val updateRequest = OneTimeWorkRequest.Builder(RetryWorker::class.java)
+            .setId(originRequest.id).setInitialDelay(10, TimeUnit.HOURS)
+            .setConstraints(Constraints(requiresBatteryNotLow = true))
+            .build()
+        workManager.updateWork(updateRequest).get()
+        val workSpec = db.workSpecDao().getWorkSpec(originRequest.stringId)!!
+        assertThat(workSpec.workerClassName).isEqualTo(ConstraintTrackingWorker::class.java.name)
+        assertThat(workSpec.input.getString(ARGUMENT_CLASS_NAME))
+            .isEqualTo(RetryWorker::class.java.name)
     }
 
     @After
