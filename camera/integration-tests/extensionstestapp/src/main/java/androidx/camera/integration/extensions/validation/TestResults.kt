@@ -20,8 +20,6 @@ import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
-import android.net.Uri
-import android.os.Build
 import android.os.Environment.DIRECTORY_DOCUMENTS
 import android.provider.MediaStore
 import android.util.Log
@@ -33,6 +31,7 @@ import androidx.camera.integration.extensions.utils.CameraSelectorUtil.createCam
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.AVAILABLE_EXTENSION_MODES
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeIdFromString
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeStringFromId
+import androidx.camera.integration.extensions.utils.FileUtil.copyTempFileToOutputLocation
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.net.toUri
 import java.io.BufferedReader
@@ -127,7 +126,7 @@ class TestResults constructor(private val context: Context) {
                 testResultsFile.toUri(),
                 MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL),
                 contentValues
-            )
+            ) != null
         ) {
             return "$DIRECTORY_DOCUMENTS/ExtensionsValidation/$savedFileName"
         }
@@ -240,72 +239,6 @@ class TestResults constructor(private val context: Context) {
     }
 
     companion object {
-
-        /**
-         * Copies temp file to the destination location.
-         *
-         * @return false if the copy process is failed.
-         */
-        fun copyTempFileToOutputLocation(
-            contentResolver: ContentResolver,
-            tempFileUri: Uri,
-            targetUrl: Uri,
-            contentValues: ContentValues,
-        ): Boolean {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                Log.e(TAG, "The known devices which support Extensions should be at least" +
-                    " Android Q!")
-                return false
-            }
-
-            contentValues.put(MediaStore.Images.Media.IS_PENDING, 1)
-
-            val outputUri = contentResolver.insert(targetUrl, contentValues)
-
-            if (outputUri != null && copyTempFileToOutputLocation(
-                    contentResolver,
-                    tempFileUri,
-                    outputUri
-                )
-            ) {
-                contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
-                contentResolver.update(outputUri, contentValues, null, null)
-                return true
-            } else {
-                Log.e(TAG, "Failed to copy the temp file to the output path!")
-            }
-
-            return false
-        }
-
-        /**
-         * Copies temp file to output [Uri].
-         *
-         * @return false if the [Uri] is not writable.
-         */
-        private fun copyTempFileToOutputLocation(
-            contentResolver: ContentResolver,
-            tempFileUri: Uri,
-            uri: Uri
-        ): Boolean {
-            contentResolver.openOutputStream(uri).use { outputStream ->
-                if (tempFileUri.path == null || outputStream == null) {
-                    return false
-                }
-
-                val tempFile = File(tempFileUri.path!!)
-
-                FileInputStream(tempFile).use { `in` ->
-                    val buf = ByteArray(1024)
-                    var len: Int
-                    while (`in`.read(buf).also { len = it } > 0) {
-                        outputStream.write(buf, 0, len)
-                    }
-                }
-            }
-            return true
-        }
-
         const val INVALID_EXTENSION_MODE = -1
 
         const val TEST_RESULT_NOT_SUPPORTED = -1

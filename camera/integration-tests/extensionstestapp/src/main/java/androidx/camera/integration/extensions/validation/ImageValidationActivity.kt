@@ -35,6 +35,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.integration.extensions.R
 import androidx.camera.integration.extensions.utils.ExtensionModeUtil.getExtensionModeStringFromId
+import androidx.camera.integration.extensions.utils.FileUtil.copyTempFileToOutputLocation
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_CAMERA_ID
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_ERROR_CODE
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.INTENT_EXTRA_KEY_EXTENSION_MODE
@@ -48,13 +49,13 @@ import androidx.camera.integration.extensions.validation.CameraValidationResultA
 import androidx.camera.integration.extensions.validation.ImageCaptureActivity.Companion.ERROR_CODE_BIND_FAIL
 import androidx.camera.integration.extensions.validation.ImageCaptureActivity.Companion.ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT
 import androidx.camera.integration.extensions.validation.ImageCaptureActivity.Companion.ERROR_CODE_NONE
+import androidx.camera.integration.extensions.validation.ImageCaptureActivity.Companion.ERROR_CODE_SAVE_IMAGE_FAILED
 import androidx.camera.integration.extensions.validation.ImageCaptureActivity.Companion.ERROR_CODE_TAKE_PICTURE_FAILED
 import androidx.camera.integration.extensions.validation.PhotoFragment.Companion.decodeImageToBitmap
 import androidx.camera.integration.extensions.validation.TestResults.Companion.INVALID_EXTENSION_MODE
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_FAILED
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_NOT_TESTED
 import androidx.camera.integration.extensions.validation.TestResults.Companion.TEST_RESULT_PASSED
-import androidx.camera.integration.extensions.validation.TestResults.Companion.copyTempFileToOutputLocation
 import androidx.core.app.ActivityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -127,7 +128,8 @@ class ImageValidationActivity : AppCompatActivity() {
         // Returns with error
         if (errorCode == ERROR_CODE_BIND_FAIL ||
             errorCode == ERROR_CODE_EXTENSION_MODE_NOT_SUPPORT ||
-            errorCode == ERROR_CODE_TAKE_PICTURE_FAILED
+            errorCode == ERROR_CODE_TAKE_PICTURE_FAILED ||
+            errorCode == ERROR_CODE_SAVE_IMAGE_FAILED
         ) {
             result.putExtra(INTENT_EXTRA_KEY_TEST_RESULT, TEST_RESULT_FAILED)
             Log.e(TAG, "Failed to take a picture with error code: $errorCode")
@@ -196,13 +198,14 @@ class ImageValidationActivity : AppCompatActivity() {
             put(MediaStore.MediaColumns.RELATIVE_PATH, "Pictures/ExtensionsValidation")
         }
 
-        if (copyTempFileToOutputLocation(
-                contentResolver,
-                imageUris[viewPager.currentItem].first,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                contentValues
-            )
-        ) {
+        val outputUri = copyTempFileToOutputLocation(
+            contentResolver,
+            imageUris[viewPager.currentItem].first,
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            contentValues
+        )
+
+        if (outputUri != null) {
             Toast.makeText(
                 this,
                 "Image is saved as Pictures/ExtensionsValidation/$savedFileName.",

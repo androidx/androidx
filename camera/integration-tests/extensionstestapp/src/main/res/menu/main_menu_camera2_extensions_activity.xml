@@ -16,8 +16,8 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/menu_camera2_extensions"
-        android:title="Camera2 Extensions" />
+        android:id="@+id/menu_camerax_extensions"
+        android:title="CameraX Extensions" />
     <item
         android:id="@+id/menu_validation_tool"
         android:title="Validation Tool" />
