@@ -67,6 +67,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
@@ -100,6 +101,7 @@ class Camera2CapturePipelineTest {
         CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_AUTO,
         CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED,
         CaptureResult.CONTROL_AWB_MODE to CaptureResult.CONTROL_AWB_MODE_AUTO,
+        CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
     )
 
     private val resultConverged: Map<CaptureResult.Key<*>, Any> = mapOf(
@@ -107,6 +109,15 @@ class Camera2CapturePipelineTest {
         CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED,
         CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_CONVERGED,
         CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_CONVERGED,
+    )
+
+    private val resultConvergedWith3AModeOff: Map<CaptureResult.Key<*>, Any> = mapOf(
+        CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF,
+        CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF,
+        CaptureResult.CONTROL_AWB_MODE to CaptureResult.CONTROL_AWB_MODE_OFF,
+        CaptureResult.CONTROL_AF_STATE to CaptureResult.CONTROL_AF_STATE_INACTIVE,
+        CaptureResult.CONTROL_AE_STATE to CaptureResult.CONTROL_AE_STATE_INACTIVE,
+        CaptureResult.CONTROL_AWB_STATE to CaptureResult.CONTROL_AWB_STATE_INACTIVE,
     )
 
     private val fakeStillCaptureSurface = ImmediateSurface(Surface(SurfaceTexture(0)))
@@ -920,6 +931,32 @@ class Camera2CapturePipelineTest {
                         .getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE)
                 ).isNull()
             }
+        }
+    }
+
+    @Test
+    fun skip3AConvergenceInFlashOn_when3AModeOff(): Unit = runBlocking {
+        // Arrange. Not have the quirk.
+        val cameraControl = createCameraControl(quirks = Quirks(emptyList())).apply {
+            flashMode = FLASH_MODE_ON // Set flash ON
+            simulateRepeatingResult(initialDelay = 100) // Make sures flashMode is updated.
+        }
+
+        // Act.
+        val deferred = cameraControl.submitStillCaptureRequests(
+            listOf(singleRequest),
+            ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
+            ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
+        )
+        // Switch the repeating result to 3A converged state with 3A modes being set to OFF.
+        cameraControl.simulateRepeatingResult(
+            initialDelay = 500,
+            resultParameters = resultConvergedWith3AModeOff
+        )
+
+        // Ensure 3A is converged (skips 3A check) and capture request is sent.
+        withTimeout(2000) {
+            assertThat(deferred.await())
         }
     }
 

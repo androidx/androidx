@@ -431,13 +431,19 @@ class Camera2CapturePipeline {
                 || AF_CONVERGED_STATE_SET.contains(captureResult.getAfState());
 
         boolean isAeReady;
+        boolean isAeModeOff = totalCaptureResult.get(CaptureResult.CONTROL_AE_MODE)
+                == CaptureResult.CONTROL_AE_MODE_OFF;
         if (isTorchAsFlash) {
-            isAeReady = AE_TORCH_AS_FLASH_CONVERGED_STATE_SET.contains(captureResult.getAeState());
+            isAeReady = isAeModeOff
+                    || AE_TORCH_AS_FLASH_CONVERGED_STATE_SET.contains(captureResult.getAeState());
         } else {
-            isAeReady = AE_CONVERGED_STATE_SET.contains(captureResult.getAeState());
+            isAeReady = isAeModeOff || AE_CONVERGED_STATE_SET.contains(captureResult.getAeState());
         }
 
-        boolean isAwbReady = AWB_CONVERGED_STATE_SET.contains(captureResult.getAwbState());
+        boolean isAwbModeOff = totalCaptureResult.get(CaptureResult.CONTROL_AWB_MODE)
+                == CaptureResult.CONTROL_AWB_MODE_OFF;
+        boolean isAwbReady = isAwbModeOff
+                || AWB_CONVERGED_STATE_SET.contains(captureResult.getAwbState());
 
         Logger.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
                 + " AF =" + captureResult.getAfState()
