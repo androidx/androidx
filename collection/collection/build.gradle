@@ -36,6 +36,7 @@ androidXMultiplatform {
     macosX64()
     macosArm64()
     linuxX64()
+    ios()
 
     sourceSets {
         commonMain {
@@ -71,7 +72,8 @@ androidXMultiplatform {
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
-                    if (target.konanTarget.family == Family.OSX) {
+                    if (target.konanTarget.family == Family.OSX ||
+                        target.konanTarget.family == Family.IOS) {
                         dependsOn(darwinMain)
                     } else if (target.konanTarget.family == Family.LINUX) {
                         dependsOn(linuxMain)
@@ -127,6 +129,7 @@ androidx {
         jvm = Publish.SNAPSHOT_AND_RELEASE
         linux = Publish.SNAPSHOT_AND_RELEASE
         mac = Publish.SNAPSHOT_AND_RELEASE
+        ios = Publish.SNAPSHOT_AND_RELEASE
     }
     mavenGroup = LibraryGroups.COLLECTION
     inceptionYear = "2018"
